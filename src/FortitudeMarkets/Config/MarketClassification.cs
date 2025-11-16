@@ -260,7 +260,7 @@ public struct MarketClassification : IEquatable<MarketClassification>
 
     public static PalantírReveal<MarketClassification> Styler { get; } =
         (mc, stsa) =>
-            stsa.StartComplexType(mc, nameof(mc))
+            stsa.StartComplexType(mc)
                 .Field.AlwaysAddObject(nameof(mc.AssetType), mc.AssetType)
                 .Field.AlwaysAdd(nameof(mc.AssetCategory), mc.AssetCategory)
                 .Field.AlwaysAdd(nameof(mc.ProductType), mc.ProductType)

@@ -22,9 +22,11 @@ public class ComplexTypeMold : MultiValueTypeMolder<ComplexTypeMold>
       , string typeName
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId)
+      , int existingRefId
+      , FieldContentHandling createFormatFlags )
     {
-        InitializeMultiValueTypeBuilder(typeBeingBuilt, owning, appendSettings, typeName, remainingGraphDepth, typeFormatting, existingRefId);
+        InitializeMultiValueTypeBuilder(typeBeingBuilt, owning, appendSettings, typeName, remainingGraphDepth
+                                      , typeFormatting, existingRefId, createFormatFlags);
 
         return this;
     }
@@ -33,12 +35,12 @@ public class ComplexTypeMold : MultiValueTypeMolder<ComplexTypeMold>
 
     public override void AppendOpening()
     {
-        CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess.Sb, CompAccess.TypeBeingBuilt);
+        CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess);
     }
     
     public override void AppendClosing()
     {
-        CompAccess.StyleFormatter.AppendTypeClosing(CompAccess.Sb);
+        CompAccess.StyleFormatter.AppendTypeClosing(CompAccess);
     }
 
     public SelectTypeKeyValueCollectionField<ComplexTypeMold> KeyedCollectionField

@@ -626,7 +626,7 @@ public readonly struct PricingInstrumentIdValue // not inheriting from IPricingI
     
     public static PalantírReveal<PricingInstrumentIdValue> Styler { get; } =
         (piiv, stsa) =>
-            stsa.StartComplexType(piiv, nameof(piiv))
+            stsa.StartComplexType(piiv)
                 .Field.AlwaysAdd(nameof(piiv.SourceTickerId), piiv.SourceTickerId)
                 .Field.AlwaysAdd(nameof(piiv.SourceId), piiv.SourceId)
                 .Field.AlwaysAdd(nameof(piiv.InstrumentId), piiv.InstrumentId)

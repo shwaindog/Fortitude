@@ -232,16 +232,6 @@ public struct StyleOptionsValue : IJsonFormattingOptions
         set => wrapValuesInQuotes = value;
     }
 
-    public IEncodingTransfer EncodingTransfer
-    {
-        get => encodingTransfer ??= fallbackOptions?.Values.EncodingTransfer ?? SourceEncodingTransfer(this);
-        set
-        {
-            encodingTransfer              = value;
-            explicitlySetEncodingTransfer = true;
-        }
-    }
-
     public Func<IJsonFormattingOptions, IEncodingTransfer> SourceEncodingTransfer
     {
         get =>
@@ -715,12 +705,6 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
     {
         get => values.WrapValuesInQuotes;
         set => values.WrapValuesInQuotes = value;
-    }
-
-    public IEncodingTransfer EncodingTransfer
-    {
-        get => values.EncodingTransfer;
-        set => values.EncodingTransfer = value;
     }
 
     public Func<IJsonFormattingOptions, IEncodingTransfer> SourceEncodingTransfer

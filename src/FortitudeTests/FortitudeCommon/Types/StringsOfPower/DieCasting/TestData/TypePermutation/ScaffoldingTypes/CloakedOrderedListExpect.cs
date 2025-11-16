@@ -19,9 +19,9 @@ public class CloakedOrderedListExpect<TInputElement> : CloakedOrderedListExpect<
     where TInputElement : notnull
 {
     // ReSharper disable twice ExplicitCallerInfoArgument
-    public CloakedOrderedListExpect(List<TInputElement?> inputList
+    public CloakedOrderedListExpect(List<TInputElement> inputList
       , PalantírReveal<TInputElement> valueRevealer
-      ,  Expression<Func<OrderedCollectionPredicate<TInputElement?>>>? elementFilter = null
+      ,  Expression<Func<OrderedCollectionPredicate<TInputElement>>>? elementFilter = null
       , FieldContentHandling contentHandling = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
@@ -38,8 +38,8 @@ public class CloakedOrderedListExpect<TInputElement, TFilterBase, TRevealerBase>
 
     // ReSharper disable once ConvertToPrimaryConstructor
     // ReSharper disable twice ExplicitCallerInfoArgument
-    public CloakedOrderedListExpect(List<TInputElement?>? inputList, PalantírReveal<TRevealerBase> valueRevealer
-      , Expression<Func<OrderedCollectionPredicate<TFilterBase?>>>? elementFilter = null
+    public CloakedOrderedListExpect(List<TInputElement>? inputList, PalantírReveal<TRevealerBase> valueRevealer
+      , Expression<Func<OrderedCollectionPredicate<TFilterBase>>>? elementFilter = null
       , FieldContentHandling contentHandling = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
@@ -49,10 +49,6 @@ public class CloakedOrderedListExpect<TInputElement, TFilterBase, TRevealerBase>
 
 
     public override bool InputIsEmpty => (Input?.Count ?? 0) >= 0;
-
-    public bool ElementTypeIsNullable =>  typeof(TInputElement).IsNullable() || InputIsNull;
-
-    public bool HasRestrictingFilter => ElementPredicate != null;
 
     public override string ShortTestName
     {
@@ -76,12 +72,6 @@ public class CloakedOrderedListExpect<TInputElement, TFilterBase, TRevealerBase>
     
     public PalantírReveal<TRevealerBase>? ValueRevealer { get; init; }
 
-    public OrderedCollectionPredicate<TFilterBase>? ElementPredicate
-    {
-        get => elementPredicate;
-        init => elementPredicate = value;
-    }
-
     public override IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
     {
         return scaffoldEntry.ScaffoldingFlags.IsNullableSpanFormattableOnly()
@@ -103,7 +93,8 @@ public class CloakedOrderedListExpect<TInputElement, TFilterBase, TRevealerBase>
             enumeratorMold.Value = Input?.GetEnumerator();
         if (!Equals(ElementPredicate, ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate) 
          && createdStringBearer is ISupportsOrderedCollectionPredicate<TFilterBase> supportsSettingPredicateFilter)
-            supportsSettingPredicateFilter.ElementPredicate = ElementPredicate;
+            supportsSettingPredicateFilter.ElementPredicate = 
+                ElementPredicate ?? ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate;
         if (FormatString != null && createdStringBearer is ISupportsValueFormatString supportsValueFormatString)
             supportsValueFormatString.ValueFormatString = FormatString;
         return createdStringBearer;

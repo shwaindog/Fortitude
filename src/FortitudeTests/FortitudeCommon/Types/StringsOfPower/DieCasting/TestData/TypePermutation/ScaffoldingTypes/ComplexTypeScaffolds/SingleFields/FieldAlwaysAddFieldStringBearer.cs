@@ -105,7 +105,7 @@ public struct FieldSpanFormattableAlwaysAddStructStringBearer<TFmt> : IMoldSuppo
   , IPalantirRevealerFactory<TFmt>, ISupportsValueFormatString , ISupportsFieldHandling where TFmt : ISpanFormattable
 {
     public FieldSpanFormattableAlwaysAddStructStringBearer() { }
-    public TFmt ComplexTypeFieldAlwaysAddSpanFormattableFromStruct
+    public TFmt? ComplexTypeFieldAlwaysAddSpanFormattableFromStruct
     {
         get => Value;
         set => Value = value;
@@ -114,7 +114,8 @@ public struct FieldSpanFormattableAlwaysAddStructStringBearer<TFmt> : IMoldSuppo
     public string PropertyName => nameof(ComplexTypeFieldAlwaysAddSpanFormattableFromStruct);
 
     public FieldContentHandling ContentHandlingFlags { get; set; }
-    public TFmt Value { get; set; } = default!;
+    
+    public TFmt? Value { get; set; } = default!;
 
     public PalantírReveal<TFmt> CreateRevealer
     {
@@ -275,8 +276,10 @@ public struct FieldNullableSpanFormattableAlwaysAddStructStringBearer<TFmtStruct
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsAnyExceptNullableStruct | SupportsValueRevealer
                  )]
-public class FieldCloakedBearerAlwaysAddStringBearer<TTCloaked, TCloakedBase> : ValueRevealerMoldScaffold<TTCloaked, TCloakedBase>
-  , ISupportsFieldHandling where TTCloaked : TCloakedBase
+public class FieldCloakedBearerAlwaysAddStringBearer<TTCloaked, TRevealBase> : ValueRevealerMoldScaffold<TTCloaked, TRevealBase>
+  , ISupportsFieldHandling 
+    where TTCloaked : TRevealBase
+    where TRevealBase : notnull
 {
     public TTCloaked? ComplexTypeFieldAlwaysAddCloakedBearerAs
     {

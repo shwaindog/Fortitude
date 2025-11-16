@@ -54,8 +54,6 @@ public interface IJsonFormattingOptions : IFormattingOptions
     public string DateOnlyAsStringFormatString { get; set; }
     
     string TimeAsStringFormatString { get; set; }
-    
-    string NullString { get; }
 
     long DateTimeTicksToNumberPrecision(long timeStampTicks);
 
@@ -211,8 +209,6 @@ public class JsonFormattingOptions : FormattingOptions, IJsonFormattingOptions
     public bool DateTimeIsNumber { get; set; }
     
     public bool DateTimeIsString { get; set; }
-
-    public string NullString => "null";
 
     public string DateTimeAsStringFormatString
     {

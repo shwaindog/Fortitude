@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Options;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
@@ -9,7 +10,7 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
 {
     private TypeFieldCollection.SelectTypeCollectionField<TExt>? logOnlyInternalCollectionField;
-    private TypeFields.SelectTypeField<TExt>?  logOnlyInternalField;
+    private SelectTypeField<TExt>?  logOnlyInternalField;
     
     protected void InitializeMultiValueTypeBuilder
     (
@@ -19,9 +20,11 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
       , string typeName
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId)
+      , int existingRefId
+      , FieldContentHandling createFormatFlags )
     {
-        InitializeTypedStyledTypeBuilder(typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName, remainingGraphDepth, typeFormatting, existingRefId);
+        InitializeTypedStyledTypeBuilder(typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName
+                                       , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
     }
 
 

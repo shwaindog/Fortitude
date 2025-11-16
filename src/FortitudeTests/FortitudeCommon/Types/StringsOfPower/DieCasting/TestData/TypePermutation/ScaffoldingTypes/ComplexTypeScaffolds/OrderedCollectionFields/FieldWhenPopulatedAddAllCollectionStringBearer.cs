@@ -118,8 +118,10 @@ public class FieldNullableSpanFormattableSpanWhenPopulatedAddAllStringBearer<TFm
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | AcceptsAnyNonNullable |
                   SupportsValueRevealer)]
-public class FieldCloakedBearerSpanWhenPopulatedAddAllStringBearer<TCloaked, TCloakedRevealerBase> : 
-    RevealerCollectionFieldMoldScaffold<TCloaked, TCloakedRevealerBase, TCloaked[]> where TCloaked : TCloakedRevealerBase
+public class FieldCloakedBearerSpanWhenPopulatedAddAllStringBearer<TCloaked, TRevealBase> : 
+    RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase, TCloaked[]> 
+    where TCloaked : TRevealBase
+    where TRevealBase : notnull
 {
     public TCloaked[] ComplexTypeCollectionFieldWhenPopulatedAddAllCloakedBearerSpan
     {
@@ -139,9 +141,10 @@ public class FieldCloakedBearerSpanWhenPopulatedAddAllStringBearer<TCloaked, TCl
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | AcceptsAnyNullableClass |
                   SupportsValueRevealer)]
-public class FieldCloakedBearerNullableClassSpanWhenPopulatedAddAllStringBearer<TCloaked, TCloakedRevealerBase> : 
-    RevealerCollectionFieldMoldScaffold<TCloaked?, TCloakedRevealerBase, TCloaked?[]> 
-    where TCloaked : class, TCloakedRevealerBase
+public class FieldCloakedBearerNullableClassSpanWhenPopulatedAddAllStringBearer<TCloaked, TRevealBase> : 
+    RevealerCollectionFieldMoldScaffold<TCloaked?, TRevealBase, TCloaked?[]> 
+    where TCloaked : class, TRevealBase
+    where TRevealBase : notnull
 {
     public TCloaked?[] ComplexTypeCollectionFieldWhenPopulatedAddAllCloakedBearerNullableSpan
     {
@@ -572,8 +575,10 @@ public class FieldNullableSpanFormattableReadOnlySpanWhenPopulatedAddAllStringBe
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites 
                 | AcceptsAnyNonNullable | SupportsValueRevealer)]
-public class FieldCloakedBearerReadOnlySpanWhenPopulatedAddAllStringBearer<TCloaked, TCloakedRevealerBase> : 
-    RevealerCollectionFieldMoldScaffold<TCloaked, TCloakedRevealerBase, TCloaked[]> where TCloaked : TCloakedRevealerBase
+public class FieldCloakedBearerReadOnlySpanWhenPopulatedAddAllStringBearer<TCloaked, TRevealBase> : 
+    RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase, TCloaked[]> 
+    where TCloaked : TRevealBase
+    where TRevealBase : notnull
 {
     public TCloaked[] ComplexTypeCollectionFieldWhenPopulatedAddAllCloakedBearerReadOnlySpan
     {
@@ -594,8 +599,10 @@ public class FieldCloakedBearerReadOnlySpanWhenPopulatedAddAllStringBearer<TCloa
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites 
                 | AcceptsAnyNullableClass | SupportsValueRevealer)]
-public class FieldCloakedBearerNullableClassReadOnlySpanWhenPopulatedAddAllStringBearer<TCloaked, TCloakedRevealerBase> : 
-  RevealerCollectionFieldMoldScaffold<TCloaked?, TCloakedRevealerBase, TCloaked?[]> where TCloaked : class, TCloakedRevealerBase
+public class FieldCloakedBearerNullableClassReadOnlySpanWhenPopulatedAddAllStringBearer<TCloaked, TRevealBase> : 
+  RevealerCollectionFieldMoldScaffold<TCloaked?, TRevealBase, TCloaked?[]> 
+    where TCloaked : class, TRevealBase
+    where TRevealBase : notnull
 {
     public TCloaked?[] ComplexTypeCollectionFieldWhenPopulatedAddAllCloakedBearerNullableSpan
     {
@@ -1008,8 +1015,10 @@ public class FieldNullableSpanFormattableArrayWhenPopulatedAddAllStringBearer<TF
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | NonNullAndPopulatedWrites | AcceptsAnyExceptNullableStruct |
                   SupportsValueRevealer)]
-public class FieldCloakedBearerArrayWhenPopulatedAddAllStringBearer<TCloaked, TCloakedBase> : 
-    RevealerCollectionFieldMoldScaffold<TCloaked, TCloakedBase, TCloaked[]> where TCloaked : TCloakedBase
+public class FieldCloakedBearerArrayWhenPopulatedAddAllStringBearer<TCloaked, TRevealBase> : 
+    RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase, TCloaked[]> 
+    where TCloaked : TRevealBase
+    where TRevealBase : notnull
 {
     public TCloaked[]? ComplexTypeCollectionFieldWhenPopulatedAddAllCloakedBearerArray
     {
@@ -1281,8 +1290,10 @@ public class FieldNullableSpanFormattableListWhenPopulatedAddAllStringBearer<TFm
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | NonNullAndPopulatedWrites | AcceptsAnyExceptNullableStruct |
                   SupportsValueRevealer)]
-public class FieldCloakedBearerListWhenPopulatedAddAllStringBearer<TCloaked, TCloakedRevealerBase> : 
-    RevealerCollectionFieldMoldScaffold<TCloaked, TCloakedRevealerBase, IReadOnlyList<TCloaked>> where TCloaked : TCloakedRevealerBase
+public class FieldCloakedBearerListWhenPopulatedAddAllStringBearer<TCloaked, TRevealBase> : 
+    RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase, IReadOnlyList<TCloaked>> 
+    where TCloaked : TRevealBase
+    where TRevealBase : notnull
 {
     public IReadOnlyList<TCloaked>? ComplexTypeCollectionFieldWhenPopulatedAddAllCloakedBearerList
     {

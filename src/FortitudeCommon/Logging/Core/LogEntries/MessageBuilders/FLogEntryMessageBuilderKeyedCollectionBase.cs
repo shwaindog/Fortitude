@@ -2,7 +2,6 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types.StringsOfPower;
-using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders;
@@ -184,19 +183,21 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendKeyedCollectionEnumerate<TKey, TValue, TVBase>
-    (ITheOneString? toAppendTo, IEnumerable<KeyValuePair<TKey, TValue>>? value, PalantírReveal<TVBase> valueStyler
+    protected ITheOneString? AppendKeyedCollectionEnumerate<TKey, TValue, TVRevealBase>
+    (ITheOneString? toAppendTo, IEnumerable<KeyValuePair<TKey, TValue?>>? value, PalantírReveal<TVRevealBase> valueStyler
       , string? keyFormatString = null)
-        where TValue : TVBase
+        where TValue : TVRevealBase
+        where TVRevealBase : notnull
     {
         toAppendTo?.StartKeyedCollectionType("")
                   .AddAllEnumerate(value, valueStyler, keyFormatString).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendKeyedCollectionEnumerate<TKey, TValue, TVBase>
-        ((IEnumerable<KeyValuePair<TKey, TValue>>?, PalantírReveal<TVBase>, string?) valueTuple, ITheOneString? appender)
-        where TValue : TVBase
+    protected static ITheOneString? AppendKeyedCollectionEnumerate<TKey, TValue, TVRevealBase>
+        ((IEnumerable<KeyValuePair<TKey, TValue?>>?, PalantírReveal<TVRevealBase>, string?) valueTuple, ITheOneString? appender)
+        where TValue : TVRevealBase
+        where TVRevealBase : notnull
     {
         var (value, valueFormatString, keyFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -204,9 +205,10 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected static ITheOneString? AppendKeyedCollectionEnumerate<TKey, TValue, TVBase>
-        ((IEnumerable<KeyValuePair<TKey, TValue>>?, PalantírReveal<TVBase>) valueTuple, ITheOneString? appender)
-        where TValue : TVBase
+    protected static ITheOneString? AppendKeyedCollectionEnumerate<TKey, TValue, TVRevealBase>
+        ((IEnumerable<KeyValuePair<TKey, TValue?>>?, PalantírReveal<TVRevealBase>) valueTuple, ITheOneString? appender)
+        where TValue : TVRevealBase
+        where TVRevealBase : notnull
     {
         var (value, valueFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -214,18 +216,21 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendKeyedCollectionEnumerate<TKey, TValue, TVBase>
-    (ITheOneString? toAppendTo, IEnumerator<KeyValuePair<TKey, TValue>>? value, PalantírReveal<TVBase> valueStyler
-      , string? keyFormatString = null) where TValue : TVBase
+    protected ITheOneString? AppendKeyedCollectionEnumerate<TKey, TValue, TVRevealBase>
+    (ITheOneString? toAppendTo, IEnumerator<KeyValuePair<TKey, TValue?>>? value, PalantírReveal<TVRevealBase> valueStyler
+      , string? keyFormatString = null) 
+        where TValue : TVRevealBase
+        where TVRevealBase : notnull
     {
         toAppendTo?.StartKeyedCollectionType("")
                   .AddAllEnumerate(value, valueStyler, keyFormatString).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendKeyedCollectionEnumerate<TKey, TValue, TVBase>
-        ((IEnumerator<KeyValuePair<TKey, TValue>>?, PalantírReveal<TVBase>, string?) valueTuple, ITheOneString? appender)
-        where TValue : TVBase
+    protected static ITheOneString? AppendKeyedCollectionEnumerate<TKey, TValue, TVRevealBase>
+        ((IEnumerator<KeyValuePair<TKey, TValue?>>?, PalantírReveal<TVRevealBase>, string?) valueTuple, ITheOneString? appender)
+        where TValue : TVRevealBase
+        where TVRevealBase : notnull
     {
         var (value, valueFormatString, keyFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -233,9 +238,10 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected static ITheOneString? AppendKeyedCollectionEnumerate<TKey, TValue, TVBase>
-        ((IEnumerator<KeyValuePair<TKey, TValue>>?, PalantírReveal<TVBase>) valueTuple, ITheOneString? appender)
-        where TValue : TVBase
+    protected static ITheOneString? AppendKeyedCollectionEnumerate<TKey, TValue, TVRevealBase>
+        ((IEnumerator<KeyValuePair<TKey, TValue?>>?, PalantírReveal<TVRevealBase>) valueTuple, ITheOneString? appender)
+        where TValue : TVRevealBase
+        where TVRevealBase : notnull
     {
         var (value, valueFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -243,18 +249,21 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendKeyedCollection<TKey, TValue, TVBase>
-    (ITheOneString? toAppendTo, IReadOnlyDictionary<TKey, TValue>? value, PalantírReveal<TVBase> valueStyler
-      , string? keyFormatString = null) where TValue : TVBase
+    protected ITheOneString? AppendKeyedCollection<TKey, TValue, TVRevealBase>
+    (ITheOneString? toAppendTo, IReadOnlyDictionary<TKey, TValue?>? value, PalantírReveal<TVRevealBase> valueStyler
+      , string? keyFormatString = null) 
+        where TValue : TVRevealBase
+        where TVRevealBase : notnull
     {
         toAppendTo?.StartKeyedCollectionType("")
                   .AddAll(value, valueStyler, keyFormatString).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendKeyedCollection<TKey, TValue, TVBase>
-        ((IReadOnlyDictionary<TKey, TValue>?, PalantírReveal<TVBase>, string?) valueTuple, ITheOneString? appender)
-        where TValue : TVBase
+    protected static ITheOneString? AppendKeyedCollection<TKey, TValue, TVRevealBase>
+        ((IReadOnlyDictionary<TKey, TValue?>?, PalantírReveal<TVRevealBase>, string?) valueTuple, ITheOneString? appender)
+        where TValue : TVRevealBase
+        where TVRevealBase : notnull
     {
         var (value, valueFormatString, keyFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -262,9 +271,10 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected static ITheOneString? AppendKeyedCollection<TKey, TValue, TVBase>
-        ((IReadOnlyDictionary<TKey, TValue>?, PalantírReveal<TVBase>) valueTuple, ITheOneString? appender)
-        where TValue : TVBase
+    protected static ITheOneString? AppendKeyedCollection<TKey, TValue, TVRevealBase>
+        ((IReadOnlyDictionary<TKey, TValue?>?, PalantírReveal<TVRevealBase>) valueTuple, ITheOneString? appender)
+        where TValue : TVRevealBase
+        where TVRevealBase : notnull
     {
         var (value, valueFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -272,18 +282,21 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendKeyedCollection<TKey, TValue, TVBase>
-    (ITheOneString? toAppendTo, KeyValuePair<TKey, TValue>[]? value, PalantírReveal<TVBase> valueStyler
-      , string? keyFormatString = null) where TValue : TVBase
+    protected ITheOneString? AppendKeyedCollection<TKey, TValue, TVRevealBase>
+    (ITheOneString? toAppendTo, KeyValuePair<TKey, TValue?>[]? value, PalantírReveal<TVRevealBase> valueStyler
+      , string? keyFormatString = null) 
+        where TValue : TVRevealBase
+        where TVRevealBase : notnull
     {
         toAppendTo?.StartKeyedCollectionType("")
                   .AddAll(value, valueStyler, keyFormatString).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendKeyedCollection<TKey, TValue, TVBase>
-        ((KeyValuePair<TKey, TValue>[]?, PalantírReveal<TVBase>, string?) valueTuple, ITheOneString? appender)
-        where TValue : TVBase
+    protected static ITheOneString? AppendKeyedCollection<TKey, TValue, TVRevealBase>
+        ((KeyValuePair<TKey, TValue?>[]?, PalantírReveal<TVRevealBase>, string?) valueTuple, ITheOneString? appender)
+        where TValue : TVRevealBase
+        where TVRevealBase : notnull
     {
         var (value, valueFormatString, keyFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -291,9 +304,10 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected static ITheOneString? AppendKeyedCollection<TKey, TValue, TVBase>
-        ((KeyValuePair<TKey, TValue>[]?, PalantírReveal<TVBase>) valueTuple, ITheOneString? appender)
-        where TValue : TVBase
+    protected static ITheOneString? AppendKeyedCollection<TKey, TValue, TVRevealBase>
+        ((KeyValuePair<TKey, TValue?>[]?, PalantírReveal<TVRevealBase>) valueTuple, ITheOneString? appender)
+        where TValue : TVRevealBase
+        where TVRevealBase : notnull
     {
         var (value, valueFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -301,18 +315,21 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendKeyedCollection<TKey, TValue, TVBase>
-    (ITheOneString? toAppendTo, IReadOnlyList<KeyValuePair<TKey, TValue>>? value, PalantírReveal<TVBase> valueStyler
-      , string? keyFormatString = null) where TValue : TVBase
+    protected ITheOneString? AppendKeyedCollection<TKey, TValue, TVRevealBase>
+    (ITheOneString? toAppendTo, IReadOnlyList<KeyValuePair<TKey, TValue?>>? value, PalantírReveal<TVRevealBase> valueStyler
+      , string? keyFormatString = null) 
+        where TValue : TVRevealBase
+        where TVRevealBase : notnull
     {
         toAppendTo?.StartKeyedCollectionType("")
                   .AddAll(value, valueStyler, keyFormatString).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendKeyedCollection<TKey, TValue, TVBase>
-        ((IReadOnlyList<KeyValuePair<TKey, TValue>>?, PalantírReveal<TVBase>, string?) valueTuple, ITheOneString? appender)
-        where TValue : TVBase
+    protected static ITheOneString? AppendKeyedCollection<TKey, TValue, TVRevealBase>
+        ((IReadOnlyList<KeyValuePair<TKey, TValue?>>?, PalantírReveal<TVRevealBase>, string?) valueTuple, ITheOneString? appender)
+        where TValue : TVRevealBase
+        where TVRevealBase : notnull
     {
         var (value, valueFormatString, keyFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -320,9 +337,10 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected static ITheOneString? AppendKeyedCollection<TKey, TValue, TVBase>
-        ((IReadOnlyList<KeyValuePair<TKey, TValue>>?, PalantírReveal<TVBase>) valueTuple, ITheOneString? appender)
-        where TValue : TVBase
+    protected static ITheOneString? AppendKeyedCollection<TKey, TValue, TVRevealBase>
+        ((IReadOnlyList<KeyValuePair<TKey, TValue?>>?, PalantírReveal<TVRevealBase>) valueTuple, ITheOneString? appender)
+        where TValue : TVRevealBase
+        where TVRevealBase : notnull
     {
         var (value, valueFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -330,18 +348,25 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendKeyedCollection<TKey, TValue, TKBase, TVBase>
-    (ITheOneString? toAppendTo, IReadOnlyDictionary<TKey, TValue>? value, PalantírReveal<TVBase> valueStyler
-      , PalantírReveal<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase
+    protected ITheOneString? AppendKeyedCollection<TKey, TValue, TKRevealBase, TVRevealBase>
+    (ITheOneString? toAppendTo, IReadOnlyDictionary<TKey, TValue?>? value, PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler) 
+        where TKey : TKRevealBase 
+        where TValue : TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         toAppendTo?.StartKeyedCollectionType("")
                   .AddAll(value, valueStyler, keyStyler).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendKeyedCollection<TKey, TValue, TKBase, TVBase>
-        ((IReadOnlyDictionary<TKey, TValue>?, PalantírReveal<TVBase>, PalantírReveal<TKBase>) valueTuple, ITheOneString? appender)
-        where TKey : TKBase where TValue : TVBase
+    protected static ITheOneString? AppendKeyedCollection<TKey, TValue, TKRevealBase, TVRevealBase>
+        ((IReadOnlyDictionary<TKey, TValue?>?, PalantírReveal<TVRevealBase>, PalantírReveal<TKRevealBase>) valueTuple, ITheOneString? appender)
+        where TKey : TKRevealBase 
+        where TValue : TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         var (value, valueFormatString, keyFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -349,18 +374,25 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendKeyedCollection<TKey, TValue, TKBase, TVBase>
-    (ITheOneString? toAppendTo, KeyValuePair<TKey, TValue>[]? value, PalantírReveal<TVBase> valueStyler
-      , PalantírReveal<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase
+    protected ITheOneString? AppendKeyedCollection<TKey, TValue, TKRevealBase, TVRevealBase>
+    (ITheOneString? toAppendTo, KeyValuePair<TKey, TValue?>[]? value, PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler) 
+        where TKey : TKRevealBase 
+        where TValue : TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         toAppendTo?.StartKeyedCollectionType("")
                   .AddAll(value, valueStyler, keyStyler).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendKeyedCollection<TKey, TValue, TKBase, TVBase>
-        ((KeyValuePair<TKey, TValue>[]?, PalantírReveal<TVBase>, PalantírReveal<TKBase>) valueTuple, ITheOneString? appender)
-        where TKey : TKBase where TValue : TVBase
+    protected static ITheOneString? AppendKeyedCollection<TKey, TValue, TKRevealBase, TVRevealBase>
+        ((KeyValuePair<TKey, TValue?>[]?, PalantírReveal<TVRevealBase>, PalantírReveal<TKRevealBase>) valueTuple, ITheOneString? appender)
+        where TKey : TKRevealBase 
+        where TValue : TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         var (value, valueFormatString, keyFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -368,18 +400,26 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendKeyedCollection<TKey, TValue, TKBase, TVBase>
-    (ITheOneString? toAppendTo, IReadOnlyList<KeyValuePair<TKey, TValue>>? value, PalantírReveal<TVBase> valueStyler
-      , PalantírReveal<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase
+    protected ITheOneString? AppendKeyedCollection<TKey, TValue, TKRevealBase, TVRevealBase>
+    (ITheOneString? toAppendTo, IReadOnlyList<KeyValuePair<TKey, TValue?>>? value, PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler) 
+        where TKey : TKRevealBase 
+        where TValue : TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         toAppendTo?.StartKeyedCollectionType("")
                   .AddAll(value, valueStyler, keyStyler).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendKeyedCollection<TKey, TValue, TKBase, TVBase>
-    ((IReadOnlyList<KeyValuePair<TKey, TValue>>?, PalantírReveal<TVBase>, PalantírReveal<TKBase>) valueTuple
-      , ITheOneString? appender) where TKey : TKBase where TValue : TVBase
+    protected static ITheOneString? AppendKeyedCollection<TKey, TValue, TKRevealBase, TVRevealBase>
+    ((IReadOnlyList<KeyValuePair<TKey, TValue?>>?, PalantírReveal<TVRevealBase>, PalantírReveal<TKRevealBase>) valueTuple
+      , ITheOneString? appender) 
+        where TKey : TKRevealBase 
+        where TValue : TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         var (value, valueFormatString, keyFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -387,19 +427,26 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendKeyedCollectionEnumerate<TKey, TValue, TKBase, TVBase>
-    (ITheOneString? toAppendTo, IEnumerable<KeyValuePair<TKey, TValue>>? value, PalantírReveal<TVBase> valueStyler
-      , PalantírReveal<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase
+    protected ITheOneString? AppendKeyedCollectionEnumerate<TKey, TValue, TKRevealBase, TVRevealBase>
+    (ITheOneString? toAppendTo, IEnumerable<KeyValuePair<TKey, TValue?>>? value, PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler) 
+        where TKey : TKRevealBase 
+        where TValue : TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         toAppendTo?.StartKeyedCollectionType("")
                   .AddAllEnumerate(value, valueStyler, keyStyler).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendKeyedCollectionEnumerate<TKey, TValue, TKBase, TVBase>
-    ((IEnumerable<KeyValuePair<TKey, TValue>>?, PalantírReveal<TVBase>, PalantírReveal<TKBase>) valueTuple
+    protected static ITheOneString? AppendKeyedCollectionEnumerate<TKey, TValue, TKRevealBase, TVRevealBase>
+    ((IEnumerable<KeyValuePair<TKey, TValue?>>?, PalantírReveal<TVRevealBase>, PalantírReveal<TKRevealBase>) valueTuple
       , ITheOneString? appender)
-        where TKey : TKBase where TValue : TVBase
+        where TKey : TKRevealBase 
+        where TValue : TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         var (value, valueFormatString, keyFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -407,19 +454,26 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendKeyedCollectionEnumerate<TKey, TValue, TKBase, TVBase>
-    (ITheOneString? toAppendTo, IEnumerator<KeyValuePair<TKey, TValue>>? value, PalantírReveal<TVBase> valueStyler
-      , PalantírReveal<TKBase> keyStyler) where TKey : TKBase where TValue : TVBase
+    protected ITheOneString? AppendKeyedCollectionEnumerate<TKey, TValue, TKRevealBase, TVRevealBase>
+    (ITheOneString? toAppendTo, IEnumerator<KeyValuePair<TKey, TValue?>>? value, PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler) 
+        where TKey : TKRevealBase 
+        where TValue : TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         toAppendTo?.StartKeyedCollectionType("")
                   .AddAllEnumerate(value, valueStyler, keyStyler).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendKeyedCollectionEnumerate<TKey, TValue, TKBase, TVBase>
-    ((IEnumerator<KeyValuePair<TKey, TValue>>?, PalantírReveal<TVBase>, PalantírReveal<TKBase>) valueTuple
+    protected static ITheOneString? AppendKeyedCollectionEnumerate<TKey, TValue, TKRevealBase, TVRevealBase>
+    ((IEnumerator<KeyValuePair<TKey, TValue?>>?, PalantírReveal<TVRevealBase>, PalantírReveal<TKRevealBase>) valueTuple
       , ITheOneString? appender)
-        where TKey : TKBase where TValue : TVBase
+        where TKey : TKRevealBase 
+        where TValue : TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         var (value, valueFormatString, keyFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -427,19 +481,20 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase, TVBase>
-    (ITheOneString? toAppendTo, IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKBase, TVBase> filterPredicate
+    protected ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase>
+    (ITheOneString? toAppendTo, IReadOnlyDictionary<TKey, TValue?>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , string? valueFormatString = null, string? keyFormatString = null)
-        where TKey : TKBase where TValue : TVBase
+        where TKey : TKFilterBase where TValue : TVFilterBase
     {
         toAppendTo?.StartKeyedCollectionType("")
                   .AddFiltered(value, filterPredicate, valueFormatString, keyFormatString).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase, TVBase>
-        ((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase>, string?, string?) valueTuple, ITheOneString? appender)
-        where TKey : TKBase where TValue : TVBase
+    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase>
+        ((IReadOnlyDictionary<TKey, TValue?>?, KeyValuePredicate<TKFilterBase, TVFilterBase>, string?, string?) valueTuple, ITheOneString? appender)
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase
     {
         var (value, filterPredicate, valueFormatString, keyFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -447,9 +502,10 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase, TVBase>
-        ((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase>, string?) valueTuple, ITheOneString? appender)
-        where TKey : TKBase where TValue : TVBase
+    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase>
+        ((IReadOnlyDictionary<TKey, TValue?>?, KeyValuePredicate<TKFilterBase, TVFilterBase>, string?) valueTuple, ITheOneString? appender)
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase
     {
         var (value, filterPredicate, valueFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -457,9 +513,10 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase, TVBase>
-        ((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase>) valueTuple, ITheOneString? appender)
-        where TKey : TKBase where TValue : TVBase
+    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase>
+        ((IReadOnlyDictionary<TKey, TValue?>?, KeyValuePredicate<TKFilterBase, TVFilterBase>) valueTuple, ITheOneString? appender)
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase
     {
         var (value, filterPredicate) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -467,19 +524,21 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase, TVBase>
-    (ITheOneString? toAppendTo, KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKBase, TVBase> filterPredicate
+    protected ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase>
+    (ITheOneString? toAppendTo, KeyValuePair<TKey, TValue?>[]? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , string? valueFormatString = null, string? keyFormatString = null)
-        where TKey : TKBase where TValue : TVBase
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase
     {
         toAppendTo?.StartKeyedCollectionType("")
                   .AddFiltered(value, filterPredicate, valueFormatString, keyFormatString).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase, TVBase>
-        ((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase>, string?, string?) valueTuple, ITheOneString? appender)
-        where TKey : TKBase where TValue : TVBase
+    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase>
+        ((KeyValuePair<TKey, TValue?>[]?, KeyValuePredicate<TKFilterBase, TVFilterBase>, string?, string?) valueTuple, ITheOneString? appender)
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase
     {
         var (value, filterPredicate, valueFormatString, keyFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -487,9 +546,10 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase, TVBase>
-        ((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase>, string?) valueTuple, ITheOneString? appender)
-        where TKey : TKBase where TValue : TVBase
+    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase>
+        ((KeyValuePair<TKey, TValue?>[]?, KeyValuePredicate<TKFilterBase, TVFilterBase>, string?) valueTuple, ITheOneString? appender)
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase
     {
         var (value, filterPredicate, valueFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -497,9 +557,10 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase, TVBase>
-        ((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase>) valueTuple, ITheOneString? appender)
-        where TKey : TKBase where TValue : TVBase
+    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase>
+        ((KeyValuePair<TKey, TValue?>[]?, KeyValuePredicate<TKFilterBase, TVFilterBase>) valueTuple, ITheOneString? appender)
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase
     {
         var (value, filterPredicate) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -507,20 +568,22 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase, TVBase>
-    (ITheOneString? toAppendTo, IReadOnlyList<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKBase, TVBase> filterPredicate
+    protected ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase>
+    (ITheOneString? toAppendTo, IReadOnlyList<KeyValuePair<TKey, TValue?>>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , string? valueFormatString = null, string? keyFormatString = null)
-        where TKey : TKBase where TValue : TVBase
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase
     {
         toAppendTo?.StartKeyedCollectionType("")
                   .AddFiltered(value, filterPredicate, valueFormatString, keyFormatString).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase, TVBase>
-    ((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase>, string?, string?) valueTuple
+    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase>
+    ((IReadOnlyList<KeyValuePair<TKey, TValue?>>?, KeyValuePredicate<TKFilterBase, TVFilterBase>, string?, string?) valueTuple
       , ITheOneString? appender)
-        where TKey : TKBase where TValue : TVBase
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase
     {
         var (value, filterPredicate, valueFormatString, keyFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -528,9 +591,10 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase, TVBase>
-        ((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase>, string?) valueTuple, ITheOneString? appender)
-        where TKey : TKBase where TValue : TVBase
+    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase>
+        ((IReadOnlyList<KeyValuePair<TKey, TValue?>>?, KeyValuePredicate<TKFilterBase, TVFilterBase>, string?) valueTuple, ITheOneString? appender)
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase
     {
         var (value, filterPredicate, valueFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -538,9 +602,10 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase, TVBase>
-        ((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase>) valueTuple, ITheOneString? appender)
-        where TKey : TKBase where TValue : TVBase
+    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase>
+        ((IReadOnlyList<KeyValuePair<TKey, TValue?>>?, KeyValuePredicate<TKFilterBase, TVFilterBase>) valueTuple, ITheOneString? appender)
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase
     {
         var (value, filterPredicate) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -548,18 +613,24 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase, TVBase1, TVBase2>
-    (ITheOneString? toAppendTo, IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKBase, TVBase1> filterPredicate
-      , PalantírReveal<TVBase2> valueStyler, string? keyFormatString = null) where TKey : TKBase where TValue : TVBase1, TVBase2
+    protected ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
+    (ITheOneString? toAppendTo, IReadOnlyDictionary<TKey, TValue?>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueStyler, string? keyFormatString = null) 
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TVRevealBase : notnull
     {
         toAppendTo?.StartKeyedCollectionType("")
                   .AddFiltered(value, filterPredicate, valueStyler, keyFormatString).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase, TVBase1, TVBase2>
-    ((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase1>, PalantírReveal<TVBase2>, string?) valueTuple
-      , ITheOneString? appender) where TKey : TKBase where TValue : TVBase1, TVBase2
+    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
+    ((IReadOnlyDictionary<TKey, TValue?>?, KeyValuePredicate<TKFilterBase, TVFilterBase>, PalantírReveal<TVRevealBase>, string?) valueTuple
+      , ITheOneString? appender) 
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TVRevealBase : notnull
     {
         var (value, filterPredicate, valueFormatString, keyFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -567,9 +638,12 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase, TVBase1, TVBase2>
-    ((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase, TVBase1>, PalantírReveal<TVBase2>) valueTuple
-      , ITheOneString? appender) where TKey : TKBase where TValue : TVBase1, TVBase2
+    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
+    ((IReadOnlyDictionary<TKey, TValue?>?, KeyValuePredicate<TKFilterBase, TVFilterBase>, PalantírReveal<TVRevealBase>) valueTuple
+      , ITheOneString? appender) 
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TVRevealBase : notnull
     {
         var (value, filterPredicate, valueFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -577,19 +651,24 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase, TVBase1, TVBase2>
-    (ITheOneString? toAppendTo, KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKBase, TVBase1> filterPredicate
-      , PalantírReveal<TVBase2> valueStyler, string? keyFormatString = null)
-        where TKey : TKBase where TValue : TVBase1, TVBase2
+    protected ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
+    (ITheOneString? toAppendTo, KeyValuePair<TKey, TValue?>[]? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueStyler, string? keyFormatString = null)
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TVRevealBase : notnull
     {
         toAppendTo?.StartKeyedCollectionType("")
                   .AddFiltered(value, filterPredicate, valueStyler, keyFormatString).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase, TVBase1, TVBase2>
-    ((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase1>, PalantírReveal<TVBase2>, string?) valueTuple
-      , ITheOneString? appender) where TKey : TKBase where TValue : TVBase1, TVBase2
+    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
+    ((KeyValuePair<TKey, TValue?>[]?, KeyValuePredicate<TKFilterBase, TVFilterBase>, PalantírReveal<TVRevealBase>, string?) valueTuple
+      , ITheOneString? appender) 
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TVRevealBase : notnull
     {
         var (value, filterPredicate, valueFormatString, keyFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -597,9 +676,12 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase, TVBase1, TVBase2>
-    ((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase, TVBase1>, PalantírReveal<TVBase2>) valueTuple
-      , ITheOneString? appender) where TKey : TKBase where TValue : TVBase1, TVBase2
+    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
+    ((KeyValuePair<TKey, TValue?>[]?, KeyValuePredicate<TKFilterBase, TVFilterBase>, PalantírReveal<TVRevealBase>) valueTuple
+      , ITheOneString? appender) 
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TVRevealBase : notnull
     {
         var (value, filterPredicate, valueFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -607,20 +689,24 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase, TVBase1, TVBase2>
-    (ITheOneString? toAppendTo, IReadOnlyList<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKBase, TVBase1> filterPredicate
-      , PalantírReveal<TVBase2> valueStyler, string? keyFormatString = null)
-        where TKey : TKBase where TValue : TVBase1, TVBase2
+    protected ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
+    (ITheOneString? toAppendTo, IReadOnlyList<KeyValuePair<TKey, TValue?>>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueStyler, string? keyFormatString = null)
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TVRevealBase : notnull
     {
         toAppendTo?.StartKeyedCollectionType("")
                   .AddFiltered(value, filterPredicate, valueStyler, keyFormatString).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase, TVBase1, TVBase2>
-    ((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase1>, PalantírReveal<TVBase2>, string?) valueTuple
+    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
+    ((IReadOnlyList<KeyValuePair<TKey, TValue?>>?, KeyValuePredicate<TKFilterBase, TVFilterBase>, PalantírReveal<TVRevealBase>, string?) valueTuple
       , ITheOneString? appender)
-        where TKey : TKBase where TValue : TVBase1, TVBase2
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TVRevealBase : notnull
     {
         var (value, filterPredicate, customValueStyler, keyFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -628,9 +714,12 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase, TVBase1, TVBase2>
-    ((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase, TVBase1>, PalantírReveal<TVBase2>) valueTuple
-      , ITheOneString? appender) where TKey : TKBase where TValue : TVBase1, TVBase2
+    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
+    ((IReadOnlyList<KeyValuePair<TKey, TValue?>>?, KeyValuePredicate<TKFilterBase, TVFilterBase>, PalantírReveal<TVRevealBase>) valueTuple
+      , ITheOneString? appender) 
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TVRevealBase : notnull
     {
         var (value, filterPredicate, customTypeStyler) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -638,19 +727,27 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>
-    (ITheOneString? toAppendTo, IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKBase1, TVBase1> filterPredicate
-      , PalantírReveal<TVBase2> valueStyler, PalantírReveal<TKBase2> keyStyler) where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
+    protected ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
+    (ITheOneString? toAppendTo, IReadOnlyDictionary<TKey, TValue?>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKRevealBase> keyStyler) 
+        where TKey : TKFilterBase, TKRevealBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         toAppendTo?.StartKeyedCollectionType("")
                   .AddFiltered(value, filterPredicate, valueStyler, keyStyler).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>
-    ((IReadOnlyDictionary<TKey, TValue>?, KeyValuePredicate<TKBase1, TVBase1>, PalantírReveal<TVBase2>, PalantírReveal<TKBase2>) valueTuple
+    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
+    ((IReadOnlyDictionary<TKey, TValue?>?, KeyValuePredicate<TKFilterBase, TVFilterBase>, PalantírReveal<TVRevealBase>
+          , PalantírReveal<TKRevealBase>) valueTuple
       , ITheOneString? appender)
-        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
+        where TKey : TKFilterBase, TKRevealBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         var (value, filter, valueFormatString, keyFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -658,19 +755,26 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>
-    (ITheOneString? toAppendTo, KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKBase1, TVBase1> filterPredicate
-      , PalantírReveal<TVBase2> valueStyler, PalantírReveal<TKBase2> keyStyler) where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
+    protected ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
+    (ITheOneString? toAppendTo, KeyValuePair<TKey, TValue?>[]? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKRevealBase> keyStyler) 
+        where TKey : TKFilterBase, TKRevealBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         toAppendTo?.StartKeyedCollectionType("")
                   .AddFiltered(value, filterPredicate, valueStyler, keyStyler).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>
-    ((KeyValuePair<TKey, TValue>[]?, KeyValuePredicate<TKBase1, TVBase1>, PalantírReveal<TVBase2>, PalantírReveal<TKBase2>) valueTuple
+    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
+    ((KeyValuePair<TKey, TValue?>[]?, KeyValuePredicate<TKFilterBase, TVFilterBase>, PalantírReveal<TVRevealBase>, PalantírReveal<TKRevealBase>) valueTuple
       , ITheOneString? appender)
-        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
+        where TKey : TKFilterBase, TKRevealBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         var (value, filter, valueFormatString, keyFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
@@ -678,19 +782,27 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>
-    (ITheOneString? toAppendTo, IReadOnlyList<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKBase1, TVBase1> filterPredicate
-      , PalantírReveal<TVBase2> valueStyler, PalantírReveal<TKBase2> keyStyler) where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
+    protected ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
+    (ITheOneString? toAppendTo, IReadOnlyList<KeyValuePair<TKey, TValue?>>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKRevealBase> keyStyler) 
+        where TKey : TKFilterBase, TKRevealBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         toAppendTo?.StartKeyedCollectionType("")
                   .AddFiltered(value, filterPredicate, valueStyler, keyStyler).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKBase1, TKBase2, TVBase1, TVBase2>
-    ((IReadOnlyList<KeyValuePair<TKey, TValue>>?, KeyValuePredicate<TKBase1, TVBase1>, PalantírReveal<TVBase2>, PalantírReveal<TKBase2>) valueTuple
+    protected static ITheOneString? AppendFilteredKeyedCollection<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
+    ((IReadOnlyList<KeyValuePair<TKey, TValue?>>?, KeyValuePredicate<TKFilterBase, TVFilterBase>, PalantírReveal<TVRevealBase>
+          , PalantírReveal<TKRevealBase>) valueTuple
       , ITheOneString? appender)
-        where TKey : TKBase1, TKBase2 where TValue : TVBase1, TVBase2
+        where TKey : TKFilterBase, TKRevealBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         var (value, filter, valueFormatString, keyFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")

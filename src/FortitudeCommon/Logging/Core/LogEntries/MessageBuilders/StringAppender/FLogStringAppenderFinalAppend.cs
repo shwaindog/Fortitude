@@ -29,14 +29,18 @@ public partial class FLogStringAppender
         CallOnComplete();
     }
 
-    public void FinalAppend<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TStylerType
+    public void FinalAppend<TCloaked, TRevealBase>(TCloaked? value, PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
-        palantírReveal(value, MessageStsa);
+        if (value != null) { palantírReveal(value, MessageStsa); }
+        else MessageSb.Append("null");
         CallOnComplete();
     }
 
-    public void FinalAppend<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple)
-        where TToStyle : TStylerType
+    public void FinalAppend<TCloaked, TRevealBase>((TCloaked?, PalantírReveal<TRevealBase>) valueTuple)
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         AppendStyled(valueTuple, MessageStsa);
         CallOnComplete();

@@ -414,7 +414,7 @@ public readonly struct DiscreetTimePeriod
     
     public static PalantírReveal<DiscreetTimePeriod> Styler { get; } =
         (dtp, stsa) =>
-            stsa.StartComplexType(dtp, nameof(dtp))
+            stsa.StartComplexType(dtp)
                 .Field.AlwaysAddObject(nameof(dtp.NumberOfPeriods), dtp.NumberOfPeriods)
                 .Field.AlwaysAdd(nameof(dtp.Period), dtp.Period)
                 .Complete();

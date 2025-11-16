@@ -17,6 +17,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
 {
     protected const string CmaSpc = ", ";
     protected const string ClnSpc = ": ";
+    protected const string Spc    = " ";
 
     public override PrettyJsonTypeFormatting Initialize(StyleOptions styleOptions)
     {
@@ -27,23 +28,54 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
 
     public override string Name => nameof(CompactJsonTypeFormatting);
 
-    public override IStringBuilder AppendComplexTypeOpening(IStringBuilder sb, Type complextType
-      , string? alternativeName = null)
+    public override ContentSeparatorRanges AppendComplexTypeOpening(ITypeMolderDieCast moldInternal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        StyleOptions.IndentLevel++;
-        return sb.Append(BrcOpn)
-                 .Append(StyleOptions.NewLineStyle)
-                 .Append(StyleOptions.IndentChar
-                       , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+        var sb = moldInternal.Sb;
+        if (formatFlags.DoesNotHaveAsEmbeddedContentFlag())
+        { 
+            StyleOptions.IndentLevel++;
+            sb.StartAppendLastContent(BrcOpn, this);
+        }
+        if (formatFlags.CanAddNewLine())
+        {
+            sb.AppendPaddingExpectMore(StyleOptions.NewLineStyle, this);
+            if (!formatFlags.HasNoWhitespacesToNextFlag())
+            {
+                sb.AppendPaddingExpectMore(StyleOptions.IndentChar
+                                         , StyleOptions.IndentRepeat(StyleOptions.IndentLevel), this);
+            }
+        }
+
+        return ContentSeparatorPaddingTracking.ToContentSeparatorFromEndRanges(moldInternal, formatFlags);
     }
 
-    public override IStringBuilder AppendFieldValueSeparator(IStringBuilder sb) => sb.Append(ClnSpc);
+    public override SeparatorPaddingRanges AppendFieldValueSeparator(ITypeMolderDieCast moldInternal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        var sb = moldInternal.Sb;
+        return sb.AppendLastSeparator(Cln, this)
+                 .AppendLastPadding(Spc, this, moldInternal, formatFlags)
+                 .SeparatorPaddingRange!.Value;
+    }
 
-    public override IStringBuilder AddNextFieldSeparator(IStringBuilder sb) =>
-        sb.Append(Cma)
-          .Append(StyleOptions.NewLineStyle)
-          .Append(StyleOptions.IndentChar
-                , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+    public override SeparatorPaddingRanges AddNextFieldSeparator(ITypeMolderDieCast moldInternal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        var sb = moldInternal.Sb;
+        sb.AppendLastSeparator(Cma, this);
+        if (formatFlags.CanAddNewLine())
+        {
+            sb.AppendPaddingExpectMore(StyleOptions.NewLineStyle, this);
+            if (!formatFlags.HasNoWhitespacesToNextFlag())
+            {
+                sb.AppendPaddingExpectMore(StyleOptions.IndentChar
+                                         , StyleOptions.IndentRepeat(StyleOptions.IndentLevel), this);
+            }
+        }
+        return ContentSeparatorPaddingTracking.ToContentSeparatorFromEndRanges(moldInternal, formatFlags)
+                                              .SeparatorPaddingRange!.Value;
+    }
 
     public override int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel)
     {
@@ -58,16 +90,29 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         return bufferSize;
     }
 
-    public override IStringBuilder AppendTypeClosing(IStringBuilder sb)
+    public override ContentSeparatorRanges AppendTypeClosing(ITypeMolderDieCast moldInternal)
     {
-        var lastNonWhiteSpace = sb.RemoveLastWhiteSpacedCommaIfFound();
-        StyleOptions.IndentLevel--;
-        return lastNonWhiteSpace != BrcOpnChar 
-            ? sb.Append(StyleOptions.NewLineStyle)
-                 .Append(StyleOptions.IndentChar
-                       , StyleOptions.IndentRepeat(StyleOptions.IndentLevel))
-                 .Append(BrcCls)
-            : sb.Append(BrcCls);
+        var sb = moldInternal.Sb;
+
+        var previousContentPadSpacing = moldInternal.LastContentSeparatorPaddingRanges;
+        var lastNonWhiteSpace         = sb.RemoveLastSeparatorAndPadding(previousContentPadSpacing);
+        if (previousContentPadSpacing.PreviousFormatFlags.DoesNotHaveAsEmbeddedContentFlag()) { StyleOptions.IndentLevel--; }
+
+        ContentSeparatorPaddingTracking.Reset();
+        if (lastNonWhiteSpace != BrcOpnChar && previousContentPadSpacing.PreviousFormatFlags.CanAddNewLine())
+        {
+            sb.AppendContentExpectMore(StyleOptions.NewLineStyle, this);
+            if (!previousContentPadSpacing.PreviousFormatFlags.HasNoWhitespacesToNextFlag())
+            {
+                sb.AppendContentExpectMore(StyleOptions.IndentChar
+                                         , StyleOptions.IndentRepeat(StyleOptions.IndentLevel), this);
+            }
+        }
+        if (previousContentPadSpacing.PreviousFormatFlags.DoesNotHaveAsEmbeddedContentFlag())
+        {
+            sb.AppendLastContent(BrcCls, this);
+        }
+        return ContentSeparatorPaddingTracking.ToContentSeparatorFromEndRanges(moldInternal, DefaultCallerTypeFlags);
     }
 
 
@@ -95,9 +140,10 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         return base.AppendKeyedCollectionEnd(sb, keyedCollectionType, keyType, valueType, totalItemCount);
     }
 
-    public override IStringBuilder FormatCollectionStart(IStringBuilder sb, Type itemElementType
+    public override IStringBuilder FormatCollectionStart(ITypeMolderDieCast moldInternal, Type itemElementType
       , bool? hasItems, Type collectionType, FieldContentHandling callerFormattingFlags = DefaultCallerTypeFlags)
     {
+        var sb = moldInternal.Sb;
         hasItems ??= false;
         return !hasItems.Value ? sb : CollectionStart(itemElementType, sb, hasItems.Value).ToStringBuilder(sb);
     }
@@ -183,9 +229,12 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         return addedChars;
     }
 
-    public override IStringBuilder AddCollectionElementSeparator(IStringBuilder sb, Type elementType
-      , int nextItemNumber, FieldContentHandling callerFormattingFlags = DefaultCallerTypeFlags) =>
-        AddCollectionElementSeparator(elementType, sb, nextItemNumber).ToStringBuilder(sb);
+    public override IStringBuilder AddCollectionElementSeparator(ITypeMolderDieCast moldInternal, Type elementType
+      , int nextItemNumber, FieldContentHandling callerFormattingFlags = DefaultCallerTypeFlags)
+    {
+        var sb = moldInternal.Sb;
+        return AddCollectionElementSeparator(elementType, sb, nextItemNumber).ToStringBuilder(sb);
+    }
 
     public override int CollectionEnd(Type elementType, IStringBuilder sb, int itemsCount
       , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent)
@@ -230,7 +279,10 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         return addedChars;
     }
 
-    public override IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int? totalItemCount, string? formatString
-      , FieldContentHandling callerFormattingFlags = DefaultCallerTypeFlags) => 
-        CollectionEnd(itemElementType, sb, totalItemCount ?? 0).ToStringBuilder(sb);
+    public override IStringBuilder FormatCollectionEnd(ITypeMolderDieCast moldInternal, int? resultsFoundCount, Type itemElementType
+      , int? totalItemCount, string? formatString, FieldContentHandling callerFormattingFlags = DefaultCallerTypeFlags)
+    {
+        var sb = moldInternal.Sb;
+        return CollectionEnd(itemElementType, sb, totalItemCount ?? 0).ToStringBuilder(sb);
+    }
 }

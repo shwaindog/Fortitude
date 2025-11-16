@@ -24,7 +24,7 @@ public struct TimeSeriesSpan
     
     public static PalantírReveal<TimeSeriesSpan?> Styler { get; } =
         (tss, stsa) =>
-            stsa.StartComplexType(tss, nameof(tss))
+            stsa.StartComplexType(tss)
                 .Field.AlwaysAdd(nameof(tss.Value.Period), tss?.Period)
                 .Field.AlwaysAdd(nameof(tss.Value.NumberOfPeriods), tss?.NumberOfPeriods)
                 .Complete();
@@ -58,7 +58,7 @@ public struct TimeLength
     
     public static PalantírReveal<TimeLength> Styler { get; } =
         (tl, stsa) =>
-            stsa.StartComplexType(tl, nameof(tl))
+            stsa.StartComplexType(tl)
                 .Field.AlwaysAdd(nameof(tl.Type), tl.Type)
                 .Field.AlwaysAdd(nameof(tl.TimeSpanLength), tl.TimeSpanLength)
                 .Field.AlwaysReveal(nameof(tl.TimeSeriesLength), tl.TimeSeriesLength, TimeSeriesSpan.Styler)

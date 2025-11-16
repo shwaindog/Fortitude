@@ -4,7 +4,6 @@
 using System.Collections.Concurrent;
 using System.Reflection;
 using System.Reflection.Emit;
-using FortitudeCommon.EventProcessing.Disruption.Waiting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 namespace FortitudeCommon.Types.StringsOfPower;
@@ -15,12 +14,15 @@ public static class TargetStringBearerRevealState
 
     private static readonly Type TheOneStringType = typeof(ITheOneString);
 
-    public static void CallBaseStyledToString<T, TBase>(T baseHasStyledToString, ITheOneString stsa)
-        where T : TBase where TBase : class, IStringBearer
+    public static void CallBaseStyledToString<T, TRevealBase>(T baseHasStyledToString, ITheOneString stsa)
+        where T : TRevealBase 
+        where TRevealBase : class, IStringBearer
     {
-        TBase asBase = baseHasStyledToString;
+        TRevealBase asBase = baseHasStyledToString;
 
-        var callBaseToString = (PalantírReveal<TBase>)nonVirtualToString.GetOrAdd(typeof(TBase), bType => CreateInvokeMethod<TBase>());
+        var callBaseToString = 
+            (PalantírReveal<TRevealBase>)
+            nonVirtualToString.GetOrAdd(typeof(TRevealBase), _ => CreateInvokeMethod<TRevealBase>());
 
         callBaseToString(asBase, stsa);
     }
@@ -35,14 +37,14 @@ public static class TargetStringBearerRevealState
         callBaseToString(baseHasStyledToString, stsa);
     }
 
-    private record TypeCallCount(Type ForType)
+    private record TypeCallCount(Type _)
     {
         public int CallCount { get; set; }
     };
 
     private static ConcurrentDictionary<Type, TypeCallCount> noOpCalls = new();
 
-    private static StateExtractStringRange NoOpBaseDoesntSupportStyledToString<T>(T noSupporting, ITheOneString stsa)
+    private static StateExtractStringRange NoOpBaseDoesntSupportStyledToString<T>(T _, ITheOneString _1)
     {
         var callCount = noOpCalls.GetOrAdd(typeof(T), new TypeCallCount(typeof(T)));
         callCount.CallCount++;
@@ -74,7 +76,7 @@ public static class TargetStringBearerRevealState
             return GetNonVirtualDispatchStyledToString(baseType, genericMethod, baseTypeCustomStyler);
         }
 
-        var methodInvoker = GetNonVirtualDispatchStyledToString(baseType, methodToCall!, baseTypeCustomStyler);
+        var methodInvoker = GetNonVirtualDispatchStyledToString(baseType, methodToCall, baseTypeCustomStyler);
         return methodInvoker;
     }
 
@@ -98,6 +100,7 @@ public static class TargetStringBearerRevealState
     }
 
     public static PalantírReveal<T> GetNonVirtualDispatchStyledToString<T>(MethodInfo methodToCall)
+    where T : notnull
     {
         var methodInvoker = (PalantírReveal<T>)GetNonVirtualDispatchStyledToString(typeof(T), methodToCall, typeof(PalantírReveal<T>));
         return methodInvoker;

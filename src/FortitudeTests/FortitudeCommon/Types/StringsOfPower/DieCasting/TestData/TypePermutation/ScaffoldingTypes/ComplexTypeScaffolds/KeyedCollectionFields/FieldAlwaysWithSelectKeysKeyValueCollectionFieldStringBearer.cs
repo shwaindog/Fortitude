@@ -12,10 +12,10 @@ public class FieldKeyValueDictionaryBothFormatStringsAlwaysWithSelectKeysArraySt
     where TKey : notnull
     where TKSelectDerived : TKey
 {
-    public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromArrayBothFormatStrings
+    public IReadOnlyDictionary<TKey, TValue?>? AlwaysWithSelectKeysFromArrayBothFormatStrings
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromArrayBothFormatStrings);
@@ -36,10 +36,10 @@ public class FieldKeyValueDictionaryBothFormatStringsAlwaysWithSelectKeysSpanStr
     where TKey : notnull
     where TKSelectDerived : TKey
 {
-    public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromSpanBothFormatStrings
+    public IReadOnlyDictionary<TKey, TValue?>? AlwaysWithSelectKeysFromSpanBothFormatStrings
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromSpanBothFormatStrings);
@@ -60,10 +60,10 @@ public class FieldKeyValueDictionaryBothFormatStringsAlwaysWithSelectKeysReadOnl
     where TKey : notnull
     where TKSelectDerived : TKey
 {
-    public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromReadOnlySpanBothFormatStrings
+    public IReadOnlyDictionary<TKey, TValue?>? AlwaysWithSelectKeysFromReadOnlySpanBothFormatStrings
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromReadOnlySpanBothFormatStrings);
@@ -84,10 +84,10 @@ public class FieldKeyValueDictionaryBothFormatStringsAlwaysWithSelectKeysListStr
     where TKey : notnull
     where TKSelectDerived : TKey
 {
-    public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromListBothFormatStrings
+    public IReadOnlyDictionary<TKey, TValue?>? AlwaysWithSelectKeysFromListBothFormatStrings
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromListBothFormatStrings);
@@ -108,10 +108,10 @@ public class FieldKeyValueDictionaryBothFormatStringsAlwaysWithSelectKeysEnumera
     where TKey : notnull
     where TKSelectDerived : TKey
 {
-    public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromEnumerableBothFormatStrings 
+    public IReadOnlyDictionary<TKey, TValue?>? AlwaysWithSelectKeysFromEnumerableBothFormatStrings 
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromEnumerableBothFormatStrings );
@@ -132,10 +132,10 @@ public class FieldKeyValueDictionaryBothFormatStringsAlwaysWithSelectKeysEnumera
     where TKey : notnull
     where TKSelectDerived : TKey
 {
-    public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysKeyValuePairEnumeratorBothFormatStrings 
+    public IReadOnlyDictionary<TKey, TValue?>? AlwaysWithSelectKeysKeyValuePairEnumeratorBothFormatStrings 
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorBothFormatStrings );
@@ -156,11 +156,12 @@ public class FieldKeyValueDictionaryValueRevealerAlwaysWithSelectKeysArrayString
     where TKey : notnull
     where TValue : TVRevealBase
     where TKSelectDerived : TKey
+    where TVRevealBase : notnull
 {
-    public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromArrayValueRevealerKeyFormatString 
+    public IReadOnlyDictionary<TKey, TValue?>? AlwaysWithSelectKeysFromArrayValueRevealerKeyFormatString 
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromArrayValueRevealerKeyFormatString );
@@ -181,11 +182,12 @@ public class FieldKeyValueDictionaryValueRevealerAlwaysWithSelectKeysSpanStringB
     where TKey : notnull
     where TValue : TVRevealBase
     where TKSelectDerived : TKey 
+    where TVRevealBase : notnull
 {
-    public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromSpanValueRevealerKeyFormatString 
+    public IReadOnlyDictionary<TKey, TValue?>? AlwaysWithSelectKeysFromSpanValueRevealerKeyFormatString 
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromSpanValueRevealerKeyFormatString );
@@ -206,11 +208,12 @@ public class FieldKeyValueDictionaryValueRevealerAlwaysWithSelectKeysReadOnlySpa
     where TKey : notnull
     where TValue : TVRevealBase
     where TKSelectDerived : TKey
+    where TVRevealBase : notnull
 {
-    public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString 
+    public IReadOnlyDictionary<TKey, TValue?>? AlwaysWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString 
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString );
@@ -231,11 +234,12 @@ public class FieldKeyValueDictionaryValueRevealerAlwaysWithSelectKeysListStringB
     where TKey : notnull
     where TValue : TVRevealBase
     where TKSelectDerived : TKey
+    where TVRevealBase : notnull
 {
-    public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromListValueRevealerKeyFormatString 
+    public IReadOnlyDictionary<TKey, TValue?>? AlwaysWithSelectKeysFromListValueRevealerKeyFormatString 
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromListValueRevealerKeyFormatString );
@@ -256,11 +260,12 @@ public class FieldKeyValueDictionaryValueRevealerAlwaysWithSelectKeysEnumerableS
     where TKey : notnull
     where TValue : TVRevealBase
     where TKSelectDerived : TKey 
+    where TVRevealBase : notnull
 {
-    public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings 
+    public IReadOnlyDictionary<TKey, TValue?>? AlwaysWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings 
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings );
@@ -281,11 +286,12 @@ public class FieldKeyValueDictionaryValueRevealerAlwaysWithSelectKeysEnumeratorS
     where TKey : notnull
     where TValue : TVRevealBase
     where TKSelectDerived : TKey
+    where TVRevealBase : notnull
 {
-    public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings 
+    public IReadOnlyDictionary<TKey, TValue?>? AlwaysWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings 
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings );
@@ -303,14 +309,16 @@ public class FieldKeyValueDictionaryValueRevealerAlwaysWithSelectKeysEnumeratorS
                 | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysArrayStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
     : SelectKeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>  
-    where TKey : notnull, TKRevealBase 
+    where TKey : TKRevealBase 
     where TValue : TVRevealBase
     where TKSelectDerived : TKey 
+    where TKRevealBase : notnull
+    where TVRevealBase : notnull
 {
-    public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromArrayBothRevealers 
+    public IReadOnlyDictionary<TKey, TValue?>? AlwaysWithSelectKeysFromArrayBothRevealers 
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromArrayBothRevealers );
@@ -328,14 +336,16 @@ public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysArrayString
                 | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysSpanStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
     : SelectKeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase> 
-    where TKey : notnull, TKRevealBase 
+    where TKey : TKRevealBase 
     where TValue : TVRevealBase
-    where TKSelectDerived : TKey 
+    where TKSelectDerived : TKey  
+    where TKRevealBase : notnull
+    where TVRevealBase : notnull
 {
-    public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromSpanBothRevealers 
+    public IReadOnlyDictionary<TKey, TValue?>? AlwaysWithSelectKeysFromSpanBothRevealers 
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromSpanBothRevealers );
@@ -353,14 +363,16 @@ public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysSpanStringB
                 | SubsetListFilter | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysReadOnlySpanStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
     : SelectKeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase> 
-    where TKey : notnull, TKRevealBase 
+    where TKey : TKRevealBase 
     where TValue : TVRevealBase
-    where TKSelectDerived : TKey 
+    where TKSelectDerived : TKey  
+    where TKRevealBase : notnull
+    where TVRevealBase : notnull
 {
-    public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromReadOnlySpanBothRevealers 
+    public IReadOnlyDictionary<TKey, TValue?>? AlwaysWithSelectKeysFromReadOnlySpanBothRevealers 
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromReadOnlySpanBothRevealers );
@@ -378,14 +390,16 @@ public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysReadOnlySpa
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysListStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
     : SelectKeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase> 
-    where TKey : notnull, TKRevealBase 
+    where TKey : TKRevealBase 
     where TValue : TVRevealBase 
-    where TKSelectDerived : TKey 
+    where TKSelectDerived : TKey  
+    where TKRevealBase : notnull
+    where TVRevealBase : notnull
 {
-    public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysFromListBothRevealers 
+    public IReadOnlyDictionary<TKey, TValue?>? AlwaysWithSelectKeysFromListBothRevealers 
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromListBothRevealers );
@@ -403,14 +417,16 @@ public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysListStringB
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysEnumerableStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
     : SelectKeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
-    where TKey : notnull, TKRevealBase 
+    where TKey : TKRevealBase 
     where TValue : TVRevealBase 
-    where TKSelectDerived : TKey 
+    where TKSelectDerived : TKey  
+    where TKRevealBase : notnull
+    where TVRevealBase : notnull
 {
-    public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysKeyValuePairEnumerableBothRevealers 
+    public IReadOnlyDictionary<TKey, TValue?>? AlwaysWithSelectKeysKeyValuePairEnumerableBothRevealers 
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumerableBothRevealers );
@@ -428,14 +444,16 @@ public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysEnumerableS
                 | SubsetListFilter | AcceptsClass | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class FieldKeyValueDictionaryBothRevealersAlwaysWithSelectKeysEnumeratorStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
     : SelectKeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
-    where TKey : notnull, TKRevealBase 
+    where TKey : TKRevealBase 
     where TValue : TVRevealBase 
-    where TKSelectDerived : TKey 
+    where TKSelectDerived : TKey  
+    where TKRevealBase : notnull
+    where TVRevealBase : notnull
 {
-    public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysKeyValuePairEnumeratorBothRevealers 
+    public IReadOnlyDictionary<TKey, TValue?>? AlwaysWithSelectKeysKeyValuePairEnumeratorBothRevealers 
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorBothRevealers );

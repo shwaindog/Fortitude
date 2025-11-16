@@ -23,13 +23,15 @@ public partial class FLogAdditionalFormatterParameterEntry
         PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value).CallExpectContinue(value);
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? And<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal)
-        where TToStyle : TStylerType =>
+    public IFLogAdditionalFormatterParameterEntry? And<TCloaked, TRevealBase>(TCloaked value, PalantírReveal<TRevealBase> palantírReveal)
+        where TCloaked : TRevealBase  
+        where TRevealBase : notnull =>
         PreCheckTokensGetStringBuilder(value).ReplaceCustStyleTokens(value, palantírReveal).CallExpectContinue(value);
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    public IFLogAdditionalFormatterParameterEntry? And<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple)
-        where TToStyle : TStylerType
+    public IFLogAdditionalFormatterParameterEntry? And<TCloaked, TRevealBase>((TCloaked, PalantírReveal<TRevealBase>) valueTuple)
+        where TCloaked : TRevealBase 
+        where TRevealBase : notnull 
     {
         FormatSb.Clear();
         AppendStyled(valueTuple, FormatStsa!);

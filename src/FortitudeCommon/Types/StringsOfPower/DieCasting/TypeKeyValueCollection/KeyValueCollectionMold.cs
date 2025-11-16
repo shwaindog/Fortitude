@@ -3,6 +3,7 @@
 
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeKeyValueCollection;
 
@@ -21,9 +22,11 @@ public partial class KeyValueCollectionMold : MultiValueTypeMolder<KeyValueColle
       , string typeName
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting  
-      , int existingRefId)
+      , int existingRefId
+      , FieldContentHandling createFormatFlags )
     {
-        InitializeMultiValueTypeBuilder(typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName, remainingGraphDepth, typeFormatting, existingRefId);
+        InitializeMultiValueTypeBuilder(typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName
+                                      , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
 
         stb = CompAccess;
 

@@ -25,13 +25,15 @@ public partial class FLogFirstFormatterParameterEntry
         PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value)?.ToAdditionalFormatBuilder(value);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithParams<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal)
-        where TToStyle : TStylerType =>
+    public IFLogAdditionalFormatterParameterEntry? WithParams<TCloaked, TRevealBase>(TCloaked value, PalantírReveal<TRevealBase> palantírReveal)
+        where TCloaked : TRevealBase  
+        where TRevealBase : notnull =>
         PreCheckTokensGetStringBuilder(value).ReplaceCustStyleTokens(value, palantírReveal)?.ToAdditionalFormatBuilder(value);
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    public IFLogAdditionalFormatterParameterEntry? WithParams<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple)
-        where TToStyle : TStylerType
+    public IFLogAdditionalFormatterParameterEntry? WithParams<TCloaked, TRevealBase>((TCloaked, PalantírReveal<TRevealBase>) valueTuple)
+        where TCloaked : TRevealBase 
+        where TRevealBase : notnull 
     {
         FormatSb.Clear();
         AppendStyled(valueTuple, FormatStsa!);

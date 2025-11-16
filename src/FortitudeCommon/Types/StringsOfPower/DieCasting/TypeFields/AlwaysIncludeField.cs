@@ -32,9 +32,10 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable =>
       stb.AppendFormattableField(fieldName, value, formatString ?? "", formatFlags).AddGoToNext();
 
-    public TMold AlwaysReveal<TCloaked, TCloakedBase>(ReadOnlySpan<char> fieldName, TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TCloaked : TCloakedBase =>
+    public TMold AlwaysReveal<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, TCloaked? value
+      , PalantírReveal<TRevealBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull =>
         stb.RevealCloakedBearerField(fieldName, value, palantírReveal, formatFlags).AddGoToNext();
 
     public TMold AlwaysReveal<TCloakedStruct>(ReadOnlySpan<char> fieldName, TCloakedStruct? value

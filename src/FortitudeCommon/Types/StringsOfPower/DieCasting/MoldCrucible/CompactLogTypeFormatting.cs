@@ -6,6 +6,7 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandlingExtensions;
@@ -17,19 +18,25 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
 public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeFormatting
 {
-    protected const string Dot          = ".";
-    protected const string CmaSpc       = ", ";
-    protected const string Spc          = " ";
-    protected const char SpcChar      = ' ';
-    protected const string ClnSpc       = ": ";
-    protected const string BrcOpnSpc    = "{ ";
-    protected const string SpcBrcCls    = " }";
-    protected const string Eqls         = "=";
-    protected const string EqlsSpc         = "= ";
+    private ContentSeparatorPaddingRangeTracking contentSeparatorPaddingTracking;
+
+    protected const string Dot       = ".";
+    protected const string Cma       = ",";
+    protected const string CmaSpc    = ", ";
+    protected const string Spc       = " ";
+    protected const char   SpcChar   = ' ';
+    protected const string Cln       = ":";
+    protected const string ClnSpc    = ": ";
+    protected const string BrcOpn    = "{";
+    protected const string BrcOpnSpc = "{ ";
+    protected const string SpcBrcCls = " }";
+    protected const string Eqls      = "=";
+    protected const string EqlsSpc   = "= ";
+
     protected const string SqBrktOpnSpc = "[ ";
     protected const string SpcSqBrktCls = " ]";
-    protected const string RndBrktOpn = "(";
-    protected const string RndBrktCls = ")";
+    protected const string RndBrktOpn   = "(";
+    protected const string RndBrktCls   = ")";
 
     public virtual CompactLogTypeFormatting Initialize(StyleOptions styleOptions)
     {
@@ -41,8 +48,22 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual string Name => nameof(CompactLogTypeFormatting);
     public StyleOptions StyleOptions => (StyleOptions)Options;
 
-    public FieldContentHandling ResolveContentFormattingFlags<T>(IStringBuilder sb, T input, FieldContentHandling callerFormattingFlags
-      , string? formatString = "", bool isFieldName = false)
+    public IEncodingTransfer ContentEncoder { get; set; } = new PassThroughEncodingTransfer();
+    public ContentSeparatorPaddingRangeTracking ContentSeparatorPaddingTracking
+    {
+        get => contentSeparatorPaddingTracking;
+        set => contentSeparatorPaddingTracking = value;
+    }
+
+    public IStringBuilder StartNewContentSeparatorPaddingTracking(IStringBuilder sb)
+    {
+        contentSeparatorPaddingTracking.Reset();
+        contentSeparatorPaddingTracking.FromStartContentStart = sb.Length;
+        return sb;
+    }
+
+    public FieldContentHandling ResolveContentFormattingFlags<T>(IStringBuilder sb, T input
+      , FieldContentHandling callerFormattingFlags, string? formatString = "", bool isFieldName = false)
     {
         if (callerFormattingFlags.HasDisableAddingAutoCallerTypeFlags()) { return callerFormattingFlags; }
 
@@ -87,60 +108,90 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return FieldContentHandling.AsStringContent;
     }
 
-    public virtual IStringBuilder AppendValueTypeOpening(IStringBuilder sb, Type valueType, string? alternativeName)
+    public virtual ContentSeparatorRanges AppendValueTypeOpening(ITypeMolderDieCast moldInternal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (alternativeName != null)
+        var sb = moldInternal.Sb;
+
+        var alternativeName = moldInternal.TypeName;
+        var buildingType    = moldInternal.TypeBeingBuilt;
+        StartNewContentSeparatorPaddingTracking(sb);
+        if (alternativeName.IsNotNullOrEmpty())
             sb.Append(alternativeName);
         else
-            valueType.AppendShortNameInCSharpFormat(sb);
-        if (valueType.IsEnum) { return sb.Append(Dot); }
-        return sb.Append(EqlsSpc);
+            buildingType.AppendShortNameInCSharpFormat(sb);
+        if (buildingType.IsEnum) { return sb.Append(Dot).ContentEndToRanges(this, moldInternal, formatFlags); }
+        // space considered content
+        return sb.AppendLastContent(EqlsSpc, this).ContentEndToRanges(this, moldInternal, formatFlags);
     }
 
-    public virtual IStringBuilder AppendValueTypeClosing(IStringBuilder sb, Type valueType)
-    {
-        sb.RemoveLastWhiteSpacedCommaIfFound();
-        return sb;
-    }
+    public virtual ContentSeparatorRanges AppendValueTypeClosing(ITypeMolderDieCast moldInternal) =>
+        moldInternal
+            .Sb
+            .RemoveLastSeparatorAndPadding(moldInternal.LastContentSeparatorPaddingRanges)
+            .NoContentSeparatorOrPadding(moldInternal);
 
-    public virtual IStringBuilder AppendComplexTypeOpening(IStringBuilder sb, Type complexType, string? alternativeName = null)
+    public virtual ContentSeparatorRanges AppendComplexTypeOpening(ITypeMolderDieCast moldInternal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (alternativeName != null)
+        var sb = moldInternal.Sb;
+
+        var alternativeName = moldInternal.TypeName;
+        var buildingType    = moldInternal.TypeBeingBuilt;
+
+        StartNewContentSeparatorPaddingTracking(sb);
+        if (alternativeName.IsNotNullOrEmpty())
             sb.Append(alternativeName);
         else
-            complexType.AppendShortNameInCSharpFormat(sb);
+            buildingType.AppendShortNameInCSharpFormat(sb);
         sb.Append(Spc);
-        return sb.Append(BrcOpnSpc);
+        return sb.AppendLastContent(BrcOpn, this).AppendLastPadding(Spc, this, moldInternal, formatFlags);
     }
 
-    public virtual IStringBuilder AppendFieldValueSeparator(IStringBuilder sb) => sb.Append(ClnSpc);
+    public virtual SeparatorPaddingRanges AppendFieldValueSeparator(ITypeMolderDieCast moldInternal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        var sb = moldInternal.Sb;
+        return sb.AppendLastSeparator(Cln, this)
+                 .AppendLastPadding(Spc, this, moldInternal, formatFlags)
+                 .SeparatorPaddingRange!.Value;
+    }
 
-    public virtual IStringBuilder AddNextFieldSeparator(IStringBuilder sb) => sb.Append(CmaSpc);
+    public virtual SeparatorPaddingRanges AddNextFieldSeparator(ITypeMolderDieCast moldInternal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        var sb = moldInternal.Sb;
+        return sb.AppendLastSeparator(Cma, this)
+                 .AppendLastPadding(Spc, this, moldInternal, formatFlags)
+                 .SeparatorPaddingRange!.Value;
+    }
 
     public virtual int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel) =>
         sb.InsertAt(CmaSpc, atIndex).ReturnCharCount(2);
 
-    public virtual IStringBuilder AppendTypeClosing(IStringBuilder sb)
+    public virtual ContentSeparatorRanges AppendTypeClosing(ITypeMolderDieCast moldInternal)
     {
-        sb.RemoveLastWhiteSpacedCommaIfFound();
-        return sb.Append(SpcBrcCls);
+        var sb = moldInternal.Sb;
+
+        var previousContentPadSpacing = moldInternal.LastContentSeparatorPaddingRanges;
+        
+        sb.RemoveLastSeparatorAndPadding(previousContentPadSpacing);
+        StartNewContentSeparatorPaddingTracking(sb);
+        sb.AppendLastContent(SpcBrcCls, this);
+        return ContentSeparatorPaddingTracking.ToContentSeparatorFromEndRanges(moldInternal, DefaultCallerTypeFlags);
     }
 
     public IStringBuilder AppendFormattedNull(IStringBuilder sb, string? formatString, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (((ReadOnlySpan<char>)formatString).HasFormatStringPadding() || ((ReadOnlySpan<char>)formatString).PrefixSuffixLength() > 0)
         {
-            var        formatStringBufferSize = StyleOptions.NullString.Length.CalculatePrefixPaddedAlignedAndSuffixFormatStringLength(formatString);
-            Span<char> justPrefixPaddingSuffix            = stackalloc char[formatStringBufferSize];
+            var        formatStringBufferSize  = StyleOptions.NullString.Length.CalculatePrefixPaddedAlignedAndSuffixFormatStringLength(formatString);
+            Span<char> justPrefixPaddingSuffix = stackalloc char[formatStringBufferSize];
             justPrefixPaddingSuffix = justPrefixPaddingSuffix.ToPrefixLayoutSuffixOnlyFormatString(formatString);
             Format(StyleOptions.NullString, 0, sb, justPrefixPaddingSuffix
-                               ,  formatFlags: DefaultCallerType);
-            
+                 , formatFlags: DefaultCallerType);
         }
-        else
-        {
-            sb.Append(StyleOptions.NullString);
-        }
+        else { sb.Append(StyleOptions.NullString); }
         return sb;
     }
 
@@ -171,15 +222,12 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVBase>(ITypeMolderDieCast<TMold> typeMold
       , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVBase> valueStyler, string? keyFormatString = null
       , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
-        where TMold : TypeMolder 
+        where TMold : TypeMolder
         where TValue : TVBase
         where TVBase : notnull
     {
         typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", DefaultCallerTypeFlags, true).FieldEnd();
-        if (value == null)
-        {
-            AppendFormattedNull(typeMold.Sb, "", valueFlags);
-        }
+        if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
         else { valueStyler(value, typeMold.Master); }
         return typeMold;
     }
@@ -187,18 +235,15 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKBase, TVBase>(ITypeMolderDieCast<TMold> typeMold
       , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler
       , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
-        where TMold : TypeMolder 
-        where TKey : TKBase 
+        where TMold : TypeMolder
+        where TKey : TKBase
         where TValue : TVBase
         where TKBase : notnull
         where TVBase : notnull
     {
         keyStyler(key, typeMold.Master);
         typeMold.FieldEnd();
-        if (value == null)
-        {
-            AppendFormattedNull(typeMold.Sb, "", valueFlags);
-        }
+        if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
         else { valueStyler(value, typeMold.Master); }
         return typeMold;
     }
@@ -254,9 +299,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             .ToStringBuilder(sb);
 
     public virtual IStringBuilder FormatFieldName<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle
-      , PalantírReveal<TCloakedBase> styler) 
-        where TCloaked : TCloakedBase 
-        where TCloakedBase : notnull=>
+      , PalantírReveal<TCloakedBase> styler)
+        where TCloaked : TCloakedBase
+        where TCloakedBase : notnull =>
         styler(toStyle, tos).ToStringBuilder(tos.WriteBuffer);
 
     public virtual IStringBuilder FormatFieldName<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer =>
@@ -340,7 +385,6 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual IStringBuilder FormatFieldContents<TFmtStruct>(IStringBuilder sb, TFmtStruct? source, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
-        
         formatString ??= "";
 
         var formatReadOnlySpan = formatString.AsSpan();
@@ -358,9 +402,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             formatSpan = formatSpan[..formatReadOnlySpan.Length];
         }
 
-        if(formatFlags.ShouldDelimit()) sb.Append(DblQtChar);
+        if (formatFlags.ShouldDelimit()) sb.Append(DblQtChar);
         base.Format(source, sb, formatSpan, (FormattingHandlingFlags)formatFlags).ToStringBuilder(sb);
-        if(formatFlags.ShouldDelimit()) sb.Append(DblQtChar);
+        if (formatFlags.ShouldDelimit()) sb.Append(DblQtChar);
         return sb;
     }
 
@@ -435,7 +479,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             formatReadOnlySpan.CopyTo(formatSpan);
             formatSpan = formatSpan[..formatReadOnlySpan.Length];
         }
-        
+
         if (formatFlags.ShouldDelimit()) sb.Append(DblQt);
         base.Format(source, sourceFrom, sb, formatSpan, maxTransferCount, formatFlags: (FormattingHandlingFlags)formatFlags);
         if (formatFlags.ShouldDelimit()) sb.Append(DblQt);
@@ -469,19 +513,20 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     }
 
     public virtual IStringBuilder FormatFieldContents<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle
-      , PalantírReveal<TCloakedBase> styler) 
-        where TCloaked : TCloakedBase 
+      , PalantírReveal<TCloakedBase> styler)
+        where TCloaked : TCloakedBase
         where TCloakedBase : notnull =>
         styler(toStyle, tos).ToStringBuilder(tos.WriteBuffer);
 
     public virtual IStringBuilder FormatFieldContents<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer =>
         styledObj.RevealState(tos).ToStringBuilder(tos.WriteBuffer);
 
-    public virtual IStringBuilder FormatCollectionStart(IStringBuilder sb, Type itemElementType, bool? hasItems, Type collectionType
+    public virtual IStringBuilder FormatCollectionStart(ITypeMolderDieCast moldInternal, Type itemElementType, bool? hasItems, Type collectionType
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
+        var sb = moldInternal.Sb;
         if (!hasItems.HasValue) return sb;
-        if (!StyleOptions.LogSuppressDisplayCollectionNames.Any(s => collectionType.FullName?.StartsWith(s) ?? false ))
+        if (!StyleOptions.LogSuppressDisplayCollectionNames.Any(s => collectionType.FullName?.StartsWith(s) ?? false))
         {
             sb.Append(RndBrktOpn);
             collectionType.AppendShortNameInCSharpFormat(sb);
@@ -490,30 +535,26 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return CollectionStart(itemElementType, sb, hasItems.Value, (FormattingHandlingFlags)formatFlags).ToStringBuilder(sb);
     }
 
-    public override int CollectionStart(Type collectionType,  IStringBuilder sb, bool hasItems
+    public override int CollectionStart(Type collectionType, IStringBuilder sb, bool hasItems
       , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent)
     {
-        if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray())
-        {
-            return 0;
-        }
+        if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray()) { return 0; }
         return sb.Append(SqBrktOpnSpc).ReturnCharCount(2);
     }
 
     public override int CollectionStart(Type collectionType, Span<char> destSpan, int destStartIndex, bool hasItems
       , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent)
     {
-        if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray())
-        {
-            return 0;
-        }
+        if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray()) { return 0; }
         return destSpan.OverWriteAt(destStartIndex, SqBrktOpnSpc);
     }
 
     public IStringBuilder CollectionNextItemFormat(IStringBuilder sb, bool item, int retrieveCount, string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormattingHandlingFlags)formatFlags)
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        return CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormattingHandlingFlags)formatFlags)
             .ToStringBuilder(sb);
+    }
 
     public IStringBuilder CollectionNextItemFormat(IStringBuilder sb, bool? item, int retrieveCount, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
@@ -552,14 +593,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     }
 
     public virtual IStringBuilder CollectionNextItemFormat<TCloaked, TCloakedBase>(ITheOneString tos
-      , TCloaked? item, int retrieveCount, PalantírReveal<TCloakedBase> styler) 
-        where TCloaked : TCloakedBase 
+      , TCloaked? item, int retrieveCount, PalantírReveal<TCloakedBase> styler)
+        where TCloaked : TCloakedBase
         where TCloakedBase : notnull
     {
-        if (item == null)
-        {
-            AppendFormattedNull(tos.WriteBuffer, "");
-        }
+        if (item == null) { AppendFormattedNull(tos.WriteBuffer, ""); }
         else { styler(item, tos); }
         return tos.WriteBuffer;
     }
@@ -603,22 +641,28 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb;
     }
 
-    public virtual IStringBuilder CollectionNextStringBearerFormat<TBearer>(ITheOneString tos, TBearer? item, int retrieveCount) where TBearer : IStringBearer
+    public virtual IStringBuilder CollectionNextStringBearerFormat<TBearer>(ITheOneString tos, TBearer? item, int retrieveCount)
+        where TBearer : IStringBearer
     {
         if (item == null) { return tos.WriteBuffer.Append(StyleOptions.NullString); }
         item.RevealState(tos);
         return tos.WriteBuffer;
     }
 
-    public virtual IStringBuilder AddCollectionElementSeparator(IStringBuilder sb, Type elementType, int nextItemNumber
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        (elementType == typeof(byte)
+    public virtual IStringBuilder AddCollectionElementSeparator(ITypeMolderDieCast moldInternal, Type elementType, int nextItemNumber
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        var sb = moldInternal.Sb;
+        
+        return (elementType == typeof(byte)
             ? sb.Append(nextItemNumber % 4 == 0 ? Spc : "")
             : sb.Append(CmaSpc));
+    }
 
-    public virtual IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType
+    public virtual IStringBuilder FormatCollectionEnd(ITypeMolderDieCast moldInternal, int? resultsFoundCount, Type itemElementType
       , int? totalItemCount, string? formatString, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
+        var sb = moldInternal.Sb;
         if (!totalItemCount.HasValue)
         {
             if (StyleOptions.NullWritesEmpty)
@@ -629,17 +673,14 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             else { AppendFormattedNull(sb, formatString, formatFlags); }
             return sb;
         }
-        
+
         return CollectionEnd(itemElementType, sb, totalItemCount.Value, (FormattingHandlingFlags)formatFlags).ToStringBuilder(sb);
     }
 
     public override int CollectionEnd(Type collectionType, IStringBuilder sb, int itemsCount
       , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent)
     {
-        if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray())
-        {
-            return 0;
-        }
+        if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray()) { return 0; }
         var lastChar = sb.RemoveLastWhiteSpacedCommaIfFound();
         // if (lastChar != SqBrktOpnChar && lastChar != SpcChar) sb.Append(Spc);
         if (lastChar != SqBrktOpnChar) sb.Append(Spc);
@@ -649,13 +690,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public override int CollectionEnd(Type collectionType, Span<char> destSpan, int index, int itemsCount
       , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent)
     {
-        if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray())
-        {
-            return 0;
-        }
+        if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray()) { return 0; }
         CharSpanCollectionScratchBuffer?.DecrementRefCount();
         CharSpanCollectionScratchBuffer = null;
-        var lastChar = destSpan.RemoveLastWhiteSpacedCommaIfFound(ref index);
+        var lastChar                         = destSpan.RemoveLastWhiteSpacedCommaIfFound(ref index);
         if (lastChar != SqBrktOpnChar) index += destSpan.OverWriteAt(index, Spc);
         return destSpan.OverWriteAt(index, SqBrktCls);
     }

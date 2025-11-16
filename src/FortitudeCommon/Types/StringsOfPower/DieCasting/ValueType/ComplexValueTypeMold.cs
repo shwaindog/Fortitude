@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ValueType;
 
@@ -18,9 +19,11 @@ public class ComplexValueTypeMold : ValueTypeMold<ComplexValueTypeMold>
       , string typeName
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId)
+      , int existingRefId
+      , FieldContentHandling createFormatFlags )
     {
-        InitializeValueTypeBuilder(typeBeingBuilt, master, typeSettings, typeName, remainingGraphDepth, typeFormatting, existingRefId);
+        InitializeValueTypeBuilder(typeBeingBuilt, master, typeSettings, typeName
+                                 , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
 
         return this;
     }
@@ -29,12 +32,12 @@ public class ComplexValueTypeMold : ValueTypeMold<ComplexValueTypeMold>
     
     public override void AppendOpening()
     {
-        CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess.Sb, CompAccess.TypeBeingBuilt, CompAccess.TypeName);
+        CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess);
     }
     
     public override void AppendClosing()
     {
-        CompAccess.StyleFormatter.AppendTypeClosing(CompAccess.Sb);
+        CompAccess.StyleFormatter.AppendTypeClosing(CompAccess);
     }
 
     protected override void SourceBuilderComponentAccess()

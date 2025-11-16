@@ -40,12 +40,16 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenNonNullRevealAll<TCloaked, TCloakedBase>
         (ReadOnlySpan<char> fieldName, Span<TCloaked> value, PalantírReveal<TCloakedBase> palantírReveal
-          , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedBase =>
+          , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TCloaked : TCloakedBase
+        where TCloakedBase : notnull =>
         !stb.SkipFields & value is { Length: > 0 } ? AlwaysRevealAll(fieldName, value, palantírReveal, formatFlags) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullRevealAllNullable<TCloaked, TCloakedBase>
         (ReadOnlySpan<char> fieldName, Span<TCloaked?> value, PalantírReveal<TCloakedBase> palantírReveal
-          , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : class, TCloakedBase =>
+          , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+      where TCloaked : class, TCloakedBase
+      where TCloakedBase : notnull =>
         !stb.SkipFields & value is { Length: > 0 } ? AlwaysRevealAllNullable(fieldName, value, palantírReveal, formatFlags) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullRevealAll<TCloakedStruct>
@@ -144,12 +148,16 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenNonNullRevealAll<TCloaked, TCloakedBase>
         (ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloaked> value, PalantírReveal<TCloakedBase> palantírReveal
-          , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedBase =>
+          , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TCloaked : TCloakedBase
+        where TCloakedBase : notnull =>
         !stb.SkipFields & value is { Length: > 0 } ? AlwaysRevealAll(fieldName, value, palantírReveal, formatFlags) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullRevealAllNullable<TCloaked, TCloakedBase>
         (ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloaked?> value, PalantírReveal<TCloakedBase> palantírReveal
-          , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : class, TCloakedBase =>
+          , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TCloaked : class, TCloakedBase
+        where TCloakedBase : notnull =>
         !stb.SkipFields & value is { Length: > 0 } ? AlwaysRevealAllNullable(fieldName, value, palantírReveal, formatFlags) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullRevealAll<TCloakedStruct>
@@ -245,7 +253,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt  WhenNonNullRevealAll<TCloaked, TCloakedBase>
         (string fieldName, TCloaked?[]? value, PalantírReveal<TCloakedBase> palantírReveal
-          , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedBase =>
+          , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TCloaked : TCloakedBase
+        where TCloakedBase : notnull =>
         !stb.SkipFields && value != null ? AlwaysRevealAll(fieldName, value, palantírReveal, formatFlags) : stb.StyleTypeBuilder;
 
     public TExt  WhenNonNullRevealAll<TCloakedStruct>
@@ -317,7 +327,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt  WhenNonNullRevealAll<TCloaked, TCloakedBase>
         (string fieldName, IReadOnlyList<TCloaked?>? value, PalantírReveal<TCloakedBase> palantírReveal
-          , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedBase =>
+          , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TCloaked : TCloakedBase
+        where TCloakedBase : notnull =>
         !stb.SkipFields && value != null ? AlwaysRevealAll(fieldName, value, palantírReveal, formatFlags) : stb.StyleTypeBuilder;
 
     public TExt  WhenNonNullRevealAll<TCloakedStruct>
@@ -388,7 +400,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt  WhenNonNullRevealAllEnumerate<TCloaked, TCloakedBase>
         (string fieldName, IEnumerable<TCloaked?>? value, PalantírReveal<TCloakedBase> palantírReveal
-          , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedBase =>
+          , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TCloaked : TCloakedBase
+        where TCloakedBase : notnull =>
         !stb.SkipFields && value != null ? AlwaysRevealAllEnumerate(fieldName, value, palantírReveal, formatFlags) : stb.StyleTypeBuilder;
 
     public TExt  WhenNonNullRevealAllEnumerate<TCloaked>
@@ -458,9 +472,11 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable =>
         !stb.SkipFields && value != null ? AlwaysAddAllEnumerate(fieldName, value, formatString, formatFlags) : stb.StyleTypeBuilder;
 
-    public TExt  WhenNonNullRevealAllEnumerate<TCloaked, TCloakedBase>
-        (string fieldName, IEnumerator<TCloaked?>? value, PalantírReveal<TCloakedBase> palantírReveal
-          , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedBase =>
+    public TExt  WhenNonNullRevealAllEnumerate<TCloaked, TRevealBase>
+        (string fieldName, IEnumerator<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal
+          , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull =>
         !stb.SkipFields && value != null ? AlwaysRevealAllEnumerate(fieldName, value, palantírReveal, formatFlags) : stb.StyleTypeBuilder;
 
     public TExt  WhenNonNullRevealAllEnumerate<TCloakedStruct>

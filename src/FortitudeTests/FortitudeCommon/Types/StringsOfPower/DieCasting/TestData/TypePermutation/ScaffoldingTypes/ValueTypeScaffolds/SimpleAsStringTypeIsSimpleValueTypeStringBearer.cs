@@ -394,8 +394,10 @@ public class SimpleAsStringNullableSpanFormattableStructWithStringDefaultNoField
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | DefaultTreatedAsStringOut
                 | DefaultBecomesEmpty)]
-public class SimpleAsStringCloakedBearerWithFieldSimpleValueTypeStringBearer<TCloaked, TCloakedRevealerBase> :
-    ValueRevealerMoldScaffold<TCloaked, TCloakedRevealerBase> where TCloaked : TCloakedRevealerBase
+public class SimpleAsStringCloakedBearerWithFieldSimpleValueTypeStringBearer<TCloaked, TRevealBase> :
+    ValueRevealerMoldScaffold<TCloaked, TRevealBase> 
+    where TCloaked : TRevealBase
+    where TRevealBase : notnull
 {
     public TCloaked SimpleTypeAsStringCloakedBearer
     {
@@ -416,8 +418,10 @@ public class SimpleAsStringCloakedBearerWithFieldSimpleValueTypeStringBearer<TCl
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | DefaultTreatedAsStringOut
                 | DefaultBecomesEmpty)]
-public class SimpleAsStringCloakedBearerNoFieldSimpleValueTypeStringBearer<TCloaked, TCloakedRevealerBase> :
-    ValueRevealerMoldScaffold<TCloaked, TCloakedRevealerBase> where TCloaked : TCloakedRevealerBase
+public class SimpleAsStringCloakedBearerNoFieldSimpleValueTypeStringBearer<TCloaked, TRevealBase> :
+    ValueRevealerMoldScaffold<TCloaked, TRevealBase> 
+    where TCloaked : TRevealBase
+    where TRevealBase : notnull
 {
     public TCloaked SimpleTypeAsStringCloakedBearer
     {
@@ -435,8 +439,10 @@ public class SimpleAsStringCloakedBearerNoFieldSimpleValueTypeStringBearer<TCloa
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | DefaultTreatedAsStringOut
                 | DefaultBecomesNull)]
-public class SimpleAsStringCloakedBearerOrNullWithFieldSimpleValueTypeStringBearer<TCloaked, TCloakedRevealerBase> :
-    ValueRevealerMoldScaffold<TCloaked?, TCloakedRevealerBase> where TCloaked : TCloakedRevealerBase
+public class SimpleAsStringCloakedBearerOrNullWithFieldSimpleValueTypeStringBearer<TCloaked, TRevealBase> :
+    ValueRevealerMoldScaffold<TCloaked?, TRevealBase> 
+    where TCloaked : TRevealBase
+    where TRevealBase : notnull
 {
     public TCloaked? SimpleTypeAsStringCloakedBearer
     {
@@ -457,8 +463,10 @@ public class SimpleAsStringCloakedBearerOrNullWithFieldSimpleValueTypeStringBear
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | DefaultTreatedAsStringOut
                 | DefaultBecomesNull)]
-public class SimpleAsStringCloakedBearerOrNullNoFieldSimpleValueTypeStringBearer<TCloaked, TCloakedRevealerBase> :
-    ValueRevealerMoldScaffold<TCloaked?, TCloakedRevealerBase> where TCloaked : TCloakedRevealerBase
+public class SimpleAsStringCloakedBearerOrNullNoFieldSimpleValueTypeStringBearer<TCloaked, TRevealBase> :
+    ValueRevealerMoldScaffold<TCloaked?, TRevealBase> 
+    where TCloaked : TRevealBase
+    where TRevealBase : notnull
 {
     public TCloaked? SimpleTypeAsStringCloakedBearer
     {
@@ -476,9 +484,10 @@ public class SimpleAsStringCloakedBearerOrNullNoFieldSimpleValueTypeStringBearer
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsSettingDefaultValue
                 | DefaultTreatedAsStringOut | DefaultBecomesFallback)]
-public class SimpleAsStringCloakedBearerWithDefaultWithFieldSimpleValueTypeStringBearer<TCloaked, TCloakedRevealerBase> :
-    ValueRevealerMoldScaffold<TCloaked?, TCloakedRevealerBase>, IMoldSupportedDefaultValue<string> 
-    where TCloaked : TCloakedRevealerBase
+public class SimpleAsStringCloakedBearerWithDefaultWithFieldSimpleValueTypeStringBearer<TCloaked, TRevealBase> :
+    ValueRevealerMoldScaffold<TCloaked?, TRevealBase>, IMoldSupportedDefaultValue<string> 
+    where TCloaked : TRevealBase
+    where TRevealBase : notnull
 {
     public TCloaked? SimpleTypeAsStringCloakedBearer
     {
@@ -501,9 +510,10 @@ public class SimpleAsStringCloakedBearerWithDefaultWithFieldSimpleValueTypeStrin
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsSettingDefaultValue
                 | DefaultTreatedAsStringOut | DefaultBecomesFallback)]
-public class SimpleAsStringCloakedBearerWithDefaultNoFieldSimpleValueTypeStringBearer<TCloaked, TCloakedRevealerBase> :
-    ValueRevealerMoldScaffold<TCloaked?, TCloakedRevealerBase>, IMoldSupportedDefaultValue<string> 
-    where TCloaked : TCloakedRevealerBase
+public class SimpleAsStringCloakedBearerWithDefaultNoFieldSimpleValueTypeStringBearer<TCloaked, TRevealBase> :
+    ValueRevealerMoldScaffold<TCloaked?, TRevealBase>, IMoldSupportedDefaultValue<string> 
+    where TCloaked : TRevealBase
+    where TRevealBase : notnull
 {
     public TCloaked? SimpleTypeAsStringCloakedBearer
     {

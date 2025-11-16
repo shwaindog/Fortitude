@@ -144,7 +144,7 @@ public readonly struct SourceTickerIdentifier // not inheriting from ISourceTick
     
     public static PalantírReveal<SourceTickerIdentifier> Styler { get; } =
         (stid, stsa) =>
-            stsa.StartComplexType(stid, nameof(stid))
+            stsa.StartComplexType(stid, new CreateContext(nameof(stid)))
                 .Field.AlwaysAdd(nameof(stid.SourceInstrumentId), stid.SourceInstrumentId)
                 .Field.AlwaysAdd(nameof(stid.SourceId), stid.SourceId)
                 .Field.AlwaysAdd(nameof(stid.InstrumentId), stid.InstrumentId)

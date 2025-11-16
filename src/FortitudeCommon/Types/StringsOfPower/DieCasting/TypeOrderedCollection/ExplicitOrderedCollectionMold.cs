@@ -21,9 +21,11 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
       , string typeName
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId)
+      , int existingRefId
+      , FieldContentHandling createFormatFlags )
     {
-        InitializeOrderedCollectionBuilder(typeBeingBuilt, master, typeSettings, typeName, remainingGraphDepth, typeFormatting, existingRefId);
+        InitializeOrderedCollectionBuilder(typeBeingBuilt, master, typeSettings, typeName
+                                         , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
 
         return this;
     }
@@ -92,8 +94,10 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
         return AppendNextCollectionItemSeparator();
     }
 
-    public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement<TCloaked, TCloakedBase>(TCloaked? element
-      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedBase
+    public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement<TCloaked, TRevealBase>(TCloaked? element
+      , PalantírReveal<TRevealBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         if (CompAsOrderedCollection.SkipBody) return this;
         if (element == null)
@@ -238,7 +242,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
     public ExplicitOrderedCollectionMold<TElement> AppendNextCollectionItemSeparator()
     {
         if (CompAsOrderedCollection.SkipBody) return this;
-        CompAsOrderedCollection.StyleFormatter.AddCollectionElementSeparator(CompAsOrderedCollection.Sb, TypeOfElement, elementCount);
+        CompAsOrderedCollection.StyleFormatter.AddCollectionElementSeparator(CompAsOrderedCollection, TypeOfElement, elementCount);
         return this;
     }
 

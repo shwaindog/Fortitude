@@ -43,7 +43,7 @@ public struct HistoricalCandleParams(SourceTickerIdentifier sourceTickerIdentifi
     
     public static PalantírReveal<HistoricalCandleParams> Styler { get; } =
         (bap, stsa) =>
-            stsa.StartComplexType(bap, nameof(bap))
+            stsa.StartComplexType(bap)
                 .Field.AlwaysReveal(nameof(bap.SourceTickerIdentifier), bap.SourceTickerIdentifier, SourceTickerIdentifier.Styler)
                 .Field.AlwaysAdd(nameof(bap.Period), bap.Period)
                 .Field.AlwaysReveal(nameof(bap.PricingInstrumentId), bap.PricingInstrumentId, PricingInstrumentIdValue.Styler)
@@ -63,7 +63,7 @@ public struct HistoricalCandleResponseRequest(BoundedTimeRange requestTimeRange)
     
     public static PalantírReveal<HistoricalCandleResponseRequest> Styler { get; } =
         (bap, stsa) =>
-            stsa.StartComplexType(bap, nameof(bap))
+            stsa.StartComplexType(bap)
                 .Field.AlwaysReveal(nameof(bap.RequestTimeRange), bap.RequestTimeRange, BoundedTimeRange.Styler)
                 .Complete();
 }

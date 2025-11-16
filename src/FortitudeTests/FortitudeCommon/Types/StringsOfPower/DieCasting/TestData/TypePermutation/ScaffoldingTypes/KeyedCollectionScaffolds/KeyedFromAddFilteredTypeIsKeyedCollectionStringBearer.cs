@@ -16,10 +16,10 @@ public class KeyedFromDictionaryFormatStringsAddFilteredStringBearer<TKey, TValu
     where TKey : notnull, TKFilterBase
     where TValue : TVFilterBase
 {
-    public IReadOnlyDictionary<TKey, TValue>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothFormatStrings
+    public IReadOnlyDictionary<TKey, TValue?>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothFormatStrings
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothFormatStrings);
@@ -39,7 +39,7 @@ public class KeyedFromPairArrayBothFormatStringsAddFilteredStringBearer<TKey, TV
     where TKey : notnull, TKFilterBase
     where TValue : TVFilterBase
 {
-    public KeyValuePair<TKey, TValue>[]? KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothFormatStrings
+    public KeyValuePair<TKey, TValue?>[]? KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothFormatStrings
     {
         get => Value?.ToArray();
         set => Value = value?.ToDictionary();
@@ -62,7 +62,7 @@ public class KeyedFromPairListBothFormatStringsAddFilteredStringBearer<TKey, TVa
     where TKey : notnull, TKFilterBase
     where TValue : TVFilterBase
 {
-    public IReadOnlyList<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothFormatStrings
+    public IReadOnlyList<KeyValuePair<TKey, TValue?>>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothFormatStrings
     {
         get => Value?.ToList();
         set => Value = value?.ToDictionary();
@@ -85,10 +85,10 @@ public class KeyedFromPairEnumerableBothFormatStringsAddFilteredStringBearer<TKe
     where TKey : notnull, TKFilterBase
     where TValue : TVFilterBase
 {
-    public IEnumerable<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothFormatStrings
+    public IEnumerable<KeyValuePair<TKey, TValue?>>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothFormatStrings
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothFormatStrings);
@@ -108,7 +108,7 @@ public class KeyedFromPairEnumeratorBothFormatStringsAddFilteredStringBearer<TKe
     where TKey : notnull, TKFilterBase
     where TValue : TVFilterBase
 {
-    public IEnumerator<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothFormatStrings
+    public IEnumerator<KeyValuePair<TKey, TValue?>>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothFormatStrings
     {
         get => Value?.GetEnumerator();
         set
@@ -118,7 +118,7 @@ public class KeyedFromPairEnumeratorBothFormatStringsAddFilteredStringBearer<TKe
                 Value = null;
                 return;
             }
-            var newValue       = new Dictionary<TKey, TValue>();
+            var newValue       = new Dictionary<TKey, TValue?>();
             var shouldContinue = value.MoveNext();
             while (shouldContinue)
             {
@@ -145,11 +145,12 @@ public class KeyedFromDictionaryValueRevealerKeyFormatStringsAddFilteredStringBe
     FilteredFormattedKeyValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     where TKey : notnull, TKFilterBase
     where TValue : TVFilterBase, TVRevealBase
+    where TVRevealBase : notnull
 {
-    public IReadOnlyDictionary<TKey, TValue>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryValueRevealerKeyFormatString
+    public IReadOnlyDictionary<TKey, TValue?>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryValueRevealerKeyFormatString
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryValueRevealerKeyFormatString);
@@ -168,8 +169,9 @@ public class KeyedFromPairArrayValueRevealerKeyFormatStringsAddFilteredStringBea
     FilteredFormattedKeyValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     where TKey : notnull, TKFilterBase
     where TValue : TVFilterBase, TVRevealBase
+    where TVRevealBase : notnull
 {
-    public KeyValuePair<TKey, TValue>[]? KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayValueRevealerKeyFormatString
+    public KeyValuePair<TKey, TValue?>[]? KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayValueRevealerKeyFormatString
     {
         get => Value?.ToArray();
         set => Value = value?.ToDictionary();
@@ -191,8 +193,9 @@ public class KeyedFromPairListValueRevealerKeyFormatStringsAddFilteredStringBear
     : FilteredFormattedKeyValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     where TKey : notnull, TKFilterBase
     where TValue : TVFilterBase, TVRevealBase
+    where TVRevealBase : notnull
 {
-    public IReadOnlyList<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredListValueRevealerKeyFormatString
+    public IReadOnlyList<KeyValuePair<TKey, TValue?>>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredListValueRevealerKeyFormatString
     {
         get => Value?.ToList();
         set => Value = value?.ToDictionary();
@@ -214,11 +217,12 @@ public class KeyedFromPairEnumerableValueRevealerKeyFormatStringsAddFilteredStri
     : FilteredFormattedKeyValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     where TKey : notnull, TKFilterBase
     where TValue : TVFilterBase, TVRevealBase
+    where TVRevealBase : notnull
 {
-    public IEnumerable<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableValueRevealerKeyFormatString
+    public IEnumerable<KeyValuePair<TKey, TValue?>>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableValueRevealerKeyFormatString
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableValueRevealerKeyFormatString);
@@ -237,8 +241,9 @@ public class KeyedFromPairEnumeratorValueRevealerKeyFormatStringsAddFilteredStri
     : FilteredFormattedKeyValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     where TKey : notnull, TKFilterBase
     where TValue : TVFilterBase, TVRevealBase
+    where TVRevealBase : notnull
 {
-    public IEnumerator<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorValueRevealerKeyFormatString
+    public IEnumerator<KeyValuePair<TKey, TValue?>>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorValueRevealerKeyFormatString
     {
         get => Value?.GetEnumerator();
         set
@@ -248,7 +253,7 @@ public class KeyedFromPairEnumeratorValueRevealerKeyFormatStringsAddFilteredStri
                 Value = null;
                 return;
             }
-            var newValue       = new Dictionary<TKey, TValue>();
+            var newValue       = new Dictionary<TKey, TValue?>();
             var shouldContinue = value.MoveNext();
             while (shouldContinue)
             {
@@ -273,13 +278,15 @@ public class KeyedFromPairEnumeratorValueRevealerKeyFormatStringsAddFilteredStri
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromDictionaryBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     : FilteredKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
-    where TKey : notnull, TKFilterBase, TKRevealBase
+    where TKey : TKFilterBase, TKRevealBase
     where TValue : TVFilterBase, TVRevealBase
+    where TKRevealBase : notnull
+    where TVRevealBase : notnull
 {
-    public IReadOnlyDictionary<TKey, TValue>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothRevealers
+    public IReadOnlyDictionary<TKey, TValue?>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothRevealers
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothRevealers);
@@ -296,10 +303,12 @@ public class KeyedFromDictionaryBothRevealersAddFilteredStringBearer<TKey, TValu
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromPairArrayBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
     : FilteredKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
-    where TKey : notnull, TKFilterBase, TKRevealBase
+    where TKey : TKFilterBase, TKRevealBase
     where TValue : TVFilterBase, TVRevealBase
+    where TKRevealBase : notnull
+    where TVRevealBase : notnull
 {
-    public KeyValuePair<TKey, TValue>[]? KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers
+    public KeyValuePair<TKey, TValue?>[]? KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers
     {
         get => Value?.ToArray();
         set => Value = value?.ToDictionary();
@@ -319,10 +328,12 @@ public class KeyedFromPairArrayBothRevealersAddFilteredStringBearer<TKey, TValue
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromPairListBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
     : FilteredKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
-    where TKey : notnull, TKFilterBase, TKRevealBase
+    where TKey : TKFilterBase, TKRevealBase
     where TValue : TVFilterBase, TVRevealBase
+    where TKRevealBase : notnull
+    where TVRevealBase : notnull
 {
-    public IReadOnlyList<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers
+    public IReadOnlyList<KeyValuePair<TKey, TValue?>>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers
     {
         get => Value?.ToList();
         set => Value = value?.ToDictionary();
@@ -342,13 +353,15 @@ public class KeyedFromPairListBothRevealersAddFilteredStringBearer<TKey, TValue,
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromPairEnumerableBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
     : FilteredKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
-    where TKey : notnull, TKFilterBase, TKRevealBase
+    where TKey : TKFilterBase, TKRevealBase
     where TValue : TVFilterBase, TVRevealBase
+    where TKRevealBase : notnull
+    where TVRevealBase : notnull
 {
-    public IEnumerable<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers
+    public IEnumerable<KeyValuePair<TKey, TValue?>>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value as Dictionary<TKey, TValue?> ?? value?.ToDictionary();
     }
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers);
@@ -365,10 +378,12 @@ public class KeyedFromPairEnumerableBothRevealersAddFilteredStringBearer<TKey, T
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromPairEnumeratorBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
     : FilteredKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
-    where TKey : notnull, TKFilterBase, TKRevealBase
+    where TKey : TKFilterBase, TKRevealBase
     where TValue : TVFilterBase, TVRevealBase
+    where TKRevealBase : notnull
+    where TVRevealBase : notnull
 {
-    public IEnumerator<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers
+    public IEnumerator<KeyValuePair<TKey, TValue?>>? KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers
     {
         get => Value?.GetEnumerator();
         set
@@ -378,7 +393,7 @@ public class KeyedFromPairEnumeratorBothRevealersAddFilteredStringBearer<TKey, T
                 Value = null;
                 return;
             }
-            var newValue       = new Dictionary<TKey, TValue>();
+            var newValue       = new Dictionary<TKey, TValue?>();
             var shouldContinue = value.MoveNext();
             while (shouldContinue)
             {

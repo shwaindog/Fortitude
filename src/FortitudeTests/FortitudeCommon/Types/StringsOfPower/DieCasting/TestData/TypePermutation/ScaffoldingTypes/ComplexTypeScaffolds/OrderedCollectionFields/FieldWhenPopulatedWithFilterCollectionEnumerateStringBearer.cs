@@ -102,9 +102,10 @@ public class FieldNullableSpanFormattableEnumerableWhenPopulatedWithFilterString
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullAndPopulatedWrites | FilterPredicate
                 | AcceptsAnyExceptNullableStruct | SupportsValueRevealer)]
-public class FieldCloakedBearerEnumerableWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : 
-    RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealBase, IEnumerable<TCloaked>>
-    where TCloaked : TCloakedRevealBase, TCloakedFilterBase
+public class FieldCloakedBearerEnumerableWhenPopulatedWithFilterStringBearer<TCloaked, TFilterBase, TRevealBase> : 
+    RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TFilterBase, TRevealBase, IEnumerable<TCloaked>>
+    where TCloaked : TRevealBase, TFilterBase
+    where TRevealBase : notnull
 {
     public IEnumerable<TCloaked>? ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerList
     {
@@ -392,9 +393,10 @@ public class FieldNullableSpanFormattableEnumeratorWhenPopulatedWithFilterString
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullAndPopulatedWrites | FilterPredicate
                 | AcceptsAnyExceptNullableStruct | SupportsValueRevealer)]
-public class FieldCloakedBearerEnumeratorWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : 
-    RevealerFilteredEnumeratorFieldMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealBase, IEnumerator<TCloaked>>
-    where TCloaked : TCloakedRevealBase, TCloakedFilterBase
+public class FieldCloakedBearerEnumeratorWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TRevealBase> : 
+    RevealerFilteredEnumeratorFieldMoldScaffold<TCloaked, TCloakedFilterBase, TRevealBase, IEnumerator<TCloaked>>
+    where TCloaked : TRevealBase, TCloakedFilterBase
+    where TRevealBase : notnull
 {
     public IEnumerator<TCloaked>? ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerList
     {

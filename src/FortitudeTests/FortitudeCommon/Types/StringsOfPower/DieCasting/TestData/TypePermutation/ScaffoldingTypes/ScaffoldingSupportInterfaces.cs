@@ -1,7 +1,6 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Collections;
 using System.Text.Json.Serialization;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
@@ -23,7 +22,7 @@ public interface ISinglePropertyTestStringBearer : IStringBearer
 
 public interface IMoldSupportedValue<TValue> : ISinglePropertyTestStringBearer
 {
-    [JsonIgnore] TValue Value { get; set; }
+    [JsonIgnore] TValue? Value { get; set; }
     
     [JsonIgnore] FieldContentHandling ContentHandlingFlags { get; set; }
 }
@@ -64,18 +63,20 @@ public interface ISupportsUnknownValueRevealer
     [JsonIgnore] Delegate ValueRevealerDelegate { get; set; }
 }
 
-public interface ISupportsValueRevealer<TRevealerType> : ISupportsUnknownValueRevealer
+public interface ISupportsValueRevealer<TRevealBase> : ISupportsUnknownValueRevealer
+    where TRevealBase : notnull
 {
-    [JsonIgnore] PalantírReveal<TRevealerType> ValueRevealer { get; set; }
+    [JsonIgnore] PalantírReveal<TRevealBase> ValueRevealer { get; set; }
 }
-public abstract class ValueRevealerMoldScaffold<TCloaked, TCloakedRevealBase> : MoldScaffoldBase<TCloaked?>
-  , ISupportsValueRevealer<TCloakedRevealBase>
+public abstract class ValueRevealerMoldScaffold<TCloaked, TRevealBase> : MoldScaffoldBase<TCloaked?>
+  , ISupportsValueRevealer<TRevealBase>
+    where TRevealBase : notnull
 {
     public Delegate ValueRevealerDelegate { get; set; } = null!;
 
-    public PalantírReveal<TCloakedRevealBase> ValueRevealer
+    public PalantírReveal<TRevealBase> ValueRevealer
     {
-        get => (PalantírReveal<TCloakedRevealBase>)ValueRevealerDelegate;
+        get => (PalantírReveal<TRevealBase>)ValueRevealerDelegate;
         set => ValueRevealerDelegate = value;
     }
 }
@@ -85,9 +86,10 @@ public interface ISupportsKeyFormatString
     [JsonIgnore] string? KeyFormatString { get; set; }
 }
 
-public interface ISupportsKeyRevealer<TCloaked> : ISupportsUnknownKeyRevealer
+public interface ISupportsKeyRevealer<TRevealBase> : ISupportsUnknownKeyRevealer
+    where TRevealBase : notnull
 {
-    [JsonIgnore] PalantírReveal<TCloaked> KeyRevealer { get; set; }
+    [JsonIgnore] PalantírReveal<TRevealBase> KeyRevealer { get; set; }
 }
 
 public interface IUnknownPalantirRevealerFactory : ISinglePropertyTestStringBearer
@@ -95,9 +97,10 @@ public interface IUnknownPalantirRevealerFactory : ISinglePropertyTestStringBear
     [JsonIgnore] Delegate CreateRevealerDelegate { get; }
 }
 
-public interface IPalantirRevealerFactory<TValue> : IUnknownPalantirRevealerFactory
+public interface IPalantirRevealerFactory<in TRevealBase> : IUnknownPalantirRevealerFactory
+    where TRevealBase : notnull
 {
-    [JsonIgnore] PalantírReveal<TValue> CreateRevealer { get; }
+    [JsonIgnore] PalantírReveal<TRevealBase> CreateRevealer { get; }
 }
 
 public interface IMoldSupportedDefaultValue<TValue>

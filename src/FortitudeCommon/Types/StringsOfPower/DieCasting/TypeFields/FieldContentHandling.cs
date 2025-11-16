@@ -80,11 +80,12 @@ public static class FieldContentHandlingExtensions
 {
     public const FieldContentHandling None = 0;
 
-    public static bool HasEnsureFormattedDelimitedFlag(this FieldContentHandling flags) => (flags & EnsureFormattedDelimited) > 0;
-    public static bool HasAsStringContentFlag(this FieldContentHandling flags)          => (flags & AsStringContent) > 0;
-    public static bool DoesNotHaveAsStringContentFlag(this FieldContentHandling flags)  => (flags & AsStringContent) == 0;
-    public static bool HasAsValueContentFlag(this FieldContentHandling flags)           => (flags & AsValueContent) > 0;
-    public static bool DoesNotHaveAsValueContentFlag(this FieldContentHandling flags)   => (flags & AsValueContent) == 0;
+    public static bool HasDisableAddingAutoCallerTypeFlags(this FieldContentHandling flags) => (flags & NoAutoAddCallerTypeFlags) > 0;
+    public static bool HasEnsureFormattedDelimitedFlag(this FieldContentHandling flags)     => (flags & EnsureFormattedDelimited) > 0;
+    public static bool HasAsStringContentFlag(this FieldContentHandling flags)              => (flags & AsStringContent) > 0;
+    public static bool DoesNotHaveAsStringContentFlag(this FieldContentHandling flags)      => (flags & AsStringContent) == 0;
+    public static bool HasAsValueContentFlag(this FieldContentHandling flags)               => (flags & AsValueContent) > 0;
+    public static bool DoesNotHaveAsValueContentFlag(this FieldContentHandling flags)       => (flags & AsValueContent) == 0;
 
     public static bool IsUnspecifiedContent(this FieldContentHandling flags) =>
         !flags.IsSpecifiedContent();
@@ -92,20 +93,29 @@ public static class FieldContentHandlingExtensions
     public static bool IsSpecifiedContent(this FieldContentHandling flags) =>
         flags.HasAsStringContentFlag() || flags.HasAsValueContentFlag();
 
+    public static bool HasNoWhitespacesToNextFlag(this FieldContentHandling flags) => (flags & NoWhitespacesToNext) > 0;
+    public static bool HasNextOnSameLineFlag(this FieldContentHandling flags)      => (flags & NextOnSameLine) > 0;
+    public static bool HasNextEnsureNewLineFlag(this FieldContentHandling flags)   => (flags & NextEnsureNewLine) > 0;
+    
+    public static bool CanAddNewLine(this FieldContentHandling flags)   => 
+        (!flags.HasNoWhitespacesToNextFlag() || flags.HasNextEnsureNewLineFlag()) && flags.DoesNotHaveEnsureCompactFlag();
+
     public static bool HasNullBecomesEmptyFlag(this FieldContentHandling flags)             => (flags & NullBecomesEmpty) > 0;
     public static bool HasEnsureLogFormattingFlag(this FieldContentHandling flags)          => (flags & EnsureLogFormatting) > 0;
     public static bool HasEnsureJsonFormattingFlag(this FieldContentHandling flags)         => (flags & EnsureJsonFormatting) > 0;
     public static bool HasEnsureYamlFormattingFlag(this FieldContentHandling flags)         => (flags & EnsureYamlFormatting) > 0;
     public static bool HasEnsureMlFormattingFlag(this FieldContentHandling flags)           => (flags & EnsureMlFormatting) > 0;
     public static bool HasEnsureCompactFlag(this FieldContentHandling flags)                => (flags & EnsureCompact) > 0;
+    public static bool DoesNotHaveEnsureCompactFlag(this FieldContentHandling flags)        => (flags & EnsureCompact) == 0;
     public static bool HasEnsurePrettyFlag(this FieldContentHandling flags)                 => (flags & EnsurePretty) > 0;
+    public static bool HasAsEmbeddedContentFlag(this FieldContentHandling flags)            => (flags & AsEmbeddedContent) > 0;
+    public static bool DoesNotHaveAsEmbeddedContentFlag(this FieldContentHandling flags)    => (flags & AsEmbeddedContent) == 0;
     public static bool HasExcludeWhenLogStyleFlag(this FieldContentHandling flags)          => (flags & ExcludeWhenLogStyle) > 0;
     public static bool HasExcludeWhenJsonStyleFlag(this FieldContentHandling flags)         => (flags & ExcludeWhenJsonStyle) > 0;
     public static bool HasExcludeWhenYamlStyleFlag(this FieldContentHandling flags)         => (flags & ExcludeWhenYamlStyle) > 0;
     public static bool HasExcludeWhenXmlLStyleFlag(this FieldContentHandling flags)         => (flags & ExcludeWhenMlLStyle) > 0;
     public static bool HasExcludeWhenPrettyFlag(this FieldContentHandling flags)            => (flags & ExcludeWhenPretty) > 0;
     public static bool HasExcludeWhenCompactFlag(this FieldContentHandling flags)           => (flags & ExcludeWhenCompact) > 0;
-    public static bool HasDisableAddingAutoCallerTypeFlags(this FieldContentHandling flags) => (flags & NoAutoAddCallerTypeFlags) > 0;
     public static bool HasDisableAutoDelimiting(this FieldContentHandling flags)            => (flags & DisableAutoDelimiting) > 0;
     public static bool ShouldDelimit(this FieldContentHandling flags)                       => (flags & EnsureFormattedDelimited) > 0;
 

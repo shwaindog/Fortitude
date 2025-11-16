@@ -215,9 +215,10 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         return StyleTypeBuilder;
     }
 
-    public TVMold FieldValueOrNullNext<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TCloaked : TCloakedBase
+    public TVMold FieldValueOrNullNext<TCloaked, TRevealBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
+      , PalantírReveal<TRevealBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
@@ -227,9 +228,10 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         return ConditionalValueTypeSuffix();
     }
     
-    public TVMold JoinValueJoin<TCloaked, TCloakedBase>(TCloaked? value , PalantírReveal<TCloakedBase> palantírReveal
+    public TVMold JoinValueJoin<TCloaked, TRevealBase>(TCloaked? value , PalantírReveal<TRevealBase> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TCloaked : TCloakedBase
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
@@ -237,9 +239,10 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         return VettedJoinValue(value, palantírReveal, formatFlags);
     }
     
-    public TVMold VettedJoinValue<TCloaked, TCloakedBase>(TCloaked? value , PalantírReveal<TCloakedBase> palantírReveal
+    public TVMold VettedJoinValue<TCloaked, TRevealBase>(TCloaked? value , PalantírReveal<TRevealBase> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TCloaked : TCloakedBase
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         if (value == null)
         {
@@ -287,9 +290,10 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         return StyleTypeBuilder;
     }
 
-    public TVMold FieldValueOrDefaultNext<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal, ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TCloaked : TCloakedBase
+    public TVMold FieldValueOrDefaultNext<TCloaked, TRevealBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
+      , PalantírReveal<TRevealBase> palantírReveal, ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
@@ -299,8 +303,10 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         return ConditionalValueTypeSuffix();
     }
     
-    public TVMold JoinValueWithDefaultJoin<TCloaked, TCloakedBase>(TCloaked? value , PalantírReveal<TCloakedBase> palantírReveal
-      , ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedBase
+    public TVMold JoinValueWithDefaultJoin<TCloaked, TRevealBase>(TCloaked? value , PalantírReveal<TRevealBase> palantírReveal
+      , ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
@@ -308,9 +314,10 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         return VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, formatFlags);
     }
     
-    public TVMold VettedJoinWithDefaultValue<TCloaked, TCloakedBase>(TCloaked? value , PalantírReveal<TCloakedBase> palantírReveal
+    public TVMold VettedJoinWithDefaultValue<TCloaked, TRevealBase>(TCloaked? value , PalantírReveal<TRevealBase> palantírReveal
       , ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
-        where TCloaked : TCloakedBase
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         if (value == null)
         {
@@ -1260,10 +1267,11 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         return StyleTypeBuilder;
     }
     
-    public TVMold FieldStringRevealOrDefaultNext<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal, string defaultValue = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+    public TVMold FieldStringRevealOrDefaultNext<TCloaked, TRevealBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
+      , PalantírReveal<TRevealBase> palantírReveal, string defaultValue = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = true, bool addEndDblQt = true) 
-        where TCloaked : TCloakedBase
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
@@ -1274,10 +1282,11 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         return ConditionalValueTypeSuffix();
     }
     
-    public TVMold JoinStringWithDefaultJoin<TCloaked, TCloakedBase>(TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal, string defaultValue = ""
+    public TVMold JoinStringWithDefaultJoin<TCloaked, TRevealBase>(TCloaked? value
+      , PalantírReveal<TRevealBase> palantírReveal, string defaultValue = ""
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
-        where TCloaked : TCloakedBase
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
@@ -1285,10 +1294,11 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         return VettedJoinStringWithDefault(value, palantírReveal, defaultValue, formatFlags, addStartDblQt, addEndDblQt);
     }
     
-    public TVMold VettedJoinStringWithDefault<TCloaked, TCloakedBase>(TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal, string defaultValue = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
+    public TVMold VettedJoinStringWithDefault<TCloaked, TRevealBase>(TCloaked? value
+      , PalantírReveal<TRevealBase> palantírReveal, string defaultValue = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
-        where TCloaked : TCloakedBase
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         if(addStartDblQt) Sb.Append("\"");
         if (value == null)
@@ -1306,10 +1316,11 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         return StyleTypeBuilder;
     }
 
-    public TVMold FieldStringRevealOrNullNext<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags
+    public TVMold FieldStringRevealOrNullNext<TCloaked, TRevealBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
+      , PalantírReveal<TRevealBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = true, bool addEndDblQt = true)
-        where TCloaked : TCloakedBase
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
@@ -1320,10 +1331,11 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         return ConditionalValueTypeSuffix();
     }
     
-    public TVMold JoinStringJoin<TCloaked, TCloakedBase>(TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags
+    public TVMold JoinStringJoin<TCloaked, TRevealBase>(TCloaked? value
+      , PalantírReveal<TRevealBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
-        where TCloaked : TCloakedBase
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return StyleTypeBuilder;
@@ -1331,10 +1343,12 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         return VettedJoinString(value, palantírReveal, formatFlags, addStartDblQt, addEndDblQt);
     }
     
-    public TVMold VettedJoinString<TCloaked, TCloakedBase>(TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags
+    public TVMold VettedJoinString<TCloaked, TRevealBase>(TCloaked? value
+      , PalantírReveal<TRevealBase> palantírReveal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
-        where TCloaked : TCloakedBase
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         if (value == null)
         {

@@ -17,10 +17,14 @@ public partial class FLogFirstFormatterParameterEntry
     public void WithOnlyParam<TFmt>(TFmt value) where TFmt : ISpanFormattable =>
         PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value).CallEnsureNoMoreTokensAndComplete(value);
 
-    public void WithOnlyParam<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TStylerType =>
+    public void WithOnlyParam<TCloaked, TRevealBase>(TCloaked? value, PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TRevealBase 
+        where TRevealBase : notnull  =>
         PreCheckTokensGetStringBuilder(value).ReplaceCustStyleTokens(value, palantírReveal).CallEnsureNoMoreTokensAndComplete(value);
 
-    public void WithOnlyParam<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple) where TToStyle : TStylerType
+    public void WithOnlyParam<TCloaked, TRevealBase>((TCloaked?, PalantírReveal<TRevealBase>) valueTuple) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull 
     {
         FormatSb.Clear();
         AppendStyled(valueTuple, FormatStsa!);

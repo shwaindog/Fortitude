@@ -30,12 +30,14 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
     IFLogAdditionalFormatterParameterEntry? WithParams<TFmt>(TFmt value) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? WithParams<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal)
-        where TToStyle : TStylerType;
+    IFLogAdditionalFormatterParameterEntry? WithParams<TCloaked, TRevealBase>(TCloaked value, PalantírReveal<TRevealBase> palantírReveal)
+        where TCloaked : TRevealBase 
+        where TRevealBase : notnull ;
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
-    IFLogAdditionalFormatterParameterEntry? WithParams<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple)
-        where TToStyle : TStylerType;
+    IFLogAdditionalFormatterParameterEntry? WithParams<TCloaked, TRevealBase>((TCloaked, PalantírReveal<TRevealBase>) valueTuple)
+        where TCloaked : TRevealBase 
+        where TRevealBase : notnull ;
 
     [MustUseReturnValue("Use WithOnlyParam if only one Parameter is required")]
     IFLogAdditionalFormatterParameterEntry? WithParams(ReadOnlySpan<char> value);
@@ -108,8 +110,15 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
     void WithOnlyParam(bool? value);
     void WithOnlyParam(bool value);
     void WithOnlyParam<TFmt>(TFmt value) where TFmt : ISpanFormattable;
-    void WithOnlyParam<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TStylerType;
-    void WithOnlyParam<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple) where TToStyle : TStylerType;
+    
+    void WithOnlyParam<TCloaked, TRevealBase>(TCloaked? value, PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TRevealBase 
+        where TRevealBase : notnull ;
+    
+    void WithOnlyParam<TCloaked, TRevealBase>((TCloaked?, PalantírReveal<TRevealBase>) valueTuple) 
+        where TCloaked : TRevealBase 
+        where TRevealBase : notnull ;
+    
     void WithOnlyParam(ReadOnlySpan<char> value);
     void WithOnlyParam(ReadOnlySpan<char> value, int startIndex, int count = int.MaxValue);
     void WithOnlyParam(string? value);
@@ -151,12 +160,14 @@ public interface IFLogFirstFormatterParameterEntry : IFLogFormatterParameterEntr
     IFLogStringAppender WithOnlyParamThenToAppender<TFmt>(TFmt value) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender WithOnlyParamThenToAppender<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal)
-        where TToStyle : TStylerType;
+    IFLogStringAppender WithOnlyParamThenToAppender<TCloaked, TRevealBase>(TCloaked value, PalantírReveal<TRevealBase> palantírReveal)
+        where TCloaked : TRevealBase 
+        where TRevealBase : notnull ;
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender WithOnlyParamThenToAppender<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple)
-        where TToStyle : TStylerType;
+    IFLogStringAppender WithOnlyParamThenToAppender<TCloaked, TRevealBase>((TCloaked, PalantírReveal<TRevealBase>) valueTuple)
+        where TCloaked : TRevealBase 
+        where TRevealBase : notnull ;
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender WithOnlyParamThenToAppender(ReadOnlySpan<char> value);

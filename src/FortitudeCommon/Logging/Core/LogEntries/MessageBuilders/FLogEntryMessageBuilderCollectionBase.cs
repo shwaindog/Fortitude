@@ -2,7 +2,6 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types.StringsOfPower;
-using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders;
@@ -56,18 +55,20 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendValueCollection<TToStyle, TStylerType>
-        (ITheOneString? toAppendTo, TToStyle[]? value, PalantírReveal<TStylerType> palantírReveal)
-        where TToStyle : TStylerType
+    protected ITheOneString? AppendValueCollection<TCloaked, TRevealBase>
+        (ITheOneString? toAppendTo, TCloaked?[]? value, PalantírReveal<TRevealBase> palantírReveal)
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         toAppendTo?.StartSimpleCollectionType("")
                   .RevealAll(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendValueCollection<TToStyle, TStylerType>
-        ((TToStyle[]?, PalantírReveal<TStylerType>) valueTuple, ITheOneString? appender)
-        where TToStyle : TStylerType
+    protected static ITheOneString? AppendValueCollection<TCloaked, TRevealBase>
+        ((TCloaked?[]?, PalantírReveal<TRevealBase>) valueTuple, ITheOneString? appender)
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         var (value, formatString) = valueTuple;
         appender?.StartSimpleCollectionType("")
@@ -75,18 +76,20 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendValueCollection<TToStyle, TStylerType>
-        (ITheOneString? toAppendTo, IReadOnlyList<TToStyle>? value, PalantírReveal<TStylerType> palantírReveal)
-        where TToStyle : TStylerType
+    protected ITheOneString? AppendValueCollection<TCloaked, TRevealBase>
+        (ITheOneString? toAppendTo, IReadOnlyList<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal)
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         toAppendTo?.StartSimpleCollectionType("")
                   .RevealAll(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendValueCollection<TToStyle, TStylerType>
-        ((IReadOnlyList<TToStyle>?, PalantírReveal<TStylerType>) valueTuple, ITheOneString? appender)
-        where TToStyle : TStylerType
+    protected static ITheOneString? AppendValueCollection<TCloaked, TRevealBase>
+        ((IReadOnlyList<TCloaked?>?, PalantírReveal<TRevealBase>) valueTuple, ITheOneString? appender)
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         var (value, formatString) = valueTuple;
         appender?.StartSimpleCollectionType("")
@@ -152,18 +155,21 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendFilteredValueCollection<TToStyle, TToStyleBase, TStylerType>
-    (ITheOneString? toAppendTo, TToStyle[]? value, OrderedCollectionPredicate<TToStyleBase> filter
-      , PalantírReveal<TStylerType> palantírReveal) where TToStyle : TToStyleBase, TStylerType
+    protected ITheOneString? AppendFilteredValueCollection<TCloaked, TFilterBase, TRevealBase>
+    (ITheOneString? toAppendTo, TCloaked?[]? value, OrderedCollectionPredicate<TFilterBase> filter
+      , PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TFilterBase, TRevealBase
+        where TRevealBase : notnull
     {
         toAppendTo?.StartSimpleCollectionType("")
                   .RevealFiltered(value, filter, palantírReveal).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendFilteredValueCollection<TToStyle, TToStyleBase, TStylerType>
-        ((TToStyle[]?, OrderedCollectionPredicate<TToStyleBase>, PalantírReveal<TStylerType>) valueTuple, ITheOneString? appender)
-        where TToStyle : TToStyleBase, TStylerType
+    protected static ITheOneString? AppendFilteredValueCollection<TCloaked, TFilterBase, TRevealBase>
+        ((TCloaked?[]?, OrderedCollectionPredicate<TFilterBase>, PalantírReveal<TRevealBase>) valueTuple, ITheOneString? appender)
+        where TCloaked : TFilterBase, TRevealBase
+        where TRevealBase : notnull
     {
         var (value, filter, structStyler) = valueTuple;
         appender?.StartSimpleCollectionType("")
@@ -171,18 +177,22 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendFilteredValueCollection<TToStyle, TToStyleBase, TStylerType>
-    (ITheOneString? toAppendTo, IReadOnlyList<TToStyle>? value, OrderedCollectionPredicate<TToStyleBase> filter
-      , PalantírReveal<TStylerType> palantírReveal) where TToStyle : TToStyleBase, TStylerType
+    protected ITheOneString? AppendFilteredValueCollection<TCloaked, TFilterBase, TRevealBase>
+    (ITheOneString? toAppendTo, IReadOnlyList<TCloaked?>? value, OrderedCollectionPredicate<TFilterBase> filter
+      , PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TFilterBase, TRevealBase
+        where TRevealBase : notnull
     {
         toAppendTo?.StartSimpleCollectionType("")
                   .RevealFiltered(value, filter, palantírReveal).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendFilteredValueCollection<TToStyle, TToStyleBase, TStylerType>
-    ((IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>, PalantírReveal<TStylerType>) valueTuple
-      , ITheOneString? appender) where TToStyle : TToStyleBase, TStylerType
+    protected static ITheOneString? AppendFilteredValueCollection<TCloaked, TFilterBase, TRevealBase>
+    ((IReadOnlyList<TCloaked>?, OrderedCollectionPredicate<TFilterBase>, PalantírReveal<TRevealBase>) valueTuple
+      , ITheOneString? appender) 
+        where TCloaked : TFilterBase, TRevealBase
+        where TRevealBase : notnull
     {
         var (value, filter, structStyler) = valueTuple;
         appender?.StartSimpleCollectionType("")
@@ -244,18 +254,20 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendValueCollectionEnumerate<TToStyle, TStylerType>
-        (ITheOneString? toAppendTo, IEnumerable<TToStyle>? value, PalantírReveal<TStylerType> palantírReveal)
-        where TToStyle : TStylerType
+    protected ITheOneString? AppendValueCollectionEnumerate<TCloaked, TRevealBase>
+        (ITheOneString? toAppendTo, IEnumerable<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal)
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         toAppendTo?.StartSimpleCollectionType("")
                   .RevealAllEnumerate(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendValueCollectionEnumerate<TToStyle, TStylerType>
-        ((IEnumerable<TToStyle>?, PalantírReveal<TStylerType>) valueTuple, ITheOneString? appender)
-        where TToStyle : TStylerType
+    protected static ITheOneString? AppendValueCollectionEnumerate<TCloaked, TRevealBase>
+        ((IEnumerable<TCloaked?>?, PalantírReveal<TRevealBase>) valueTuple, ITheOneString? appender)
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         var (value, structStyler) = valueTuple;
         appender?.StartSimpleCollectionType("")
@@ -263,18 +275,20 @@ public abstract partial class FLogEntryMessageBuilder
         return appender;
     }
 
-    protected ITheOneString? AppendValueCollectionEnumerate<TToStyle, TStylerType>
-        (ITheOneString? toAppendTo, IEnumerator<TToStyle>? value, PalantírReveal<TStylerType> palantírReveal)
-        where TToStyle : TStylerType
+    protected ITheOneString? AppendValueCollectionEnumerate<TCloaked, TRevealBase>
+        (ITheOneString? toAppendTo, IEnumerator<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal)
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         toAppendTo?.StartSimpleCollectionType("")
                   .RevealAllEnumerate(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
-    protected static ITheOneString? AppendValueCollectionEnumerate<TToStyle, TStylerType>
-        ((IEnumerator<TToStyle>?, PalantírReveal<TStylerType>) valueTuple, ITheOneString? appender)
-        where TToStyle : TStylerType
+    protected static ITheOneString? AppendValueCollectionEnumerate<TCloaked, TRevealBase>
+        ((IEnumerator<TCloaked>?, PalantírReveal<TRevealBase>) valueTuple, ITheOneString? appender)
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         var (value, structStyler) = valueTuple;
         appender?.StartSimpleCollectionType("")

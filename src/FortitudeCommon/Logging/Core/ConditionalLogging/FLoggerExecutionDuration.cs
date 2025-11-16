@@ -4,7 +4,6 @@
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using FortitudeCommon.Logging.Config;
-using FortitudeCommon.Logging.Config.LoggersHierarchy.ActivationProfiles;
 using FortitudeCommon.Logging.Core.LogEntries;
 
 namespace FortitudeCommon.Logging.Core.ConditionalLogging;
@@ -74,7 +73,7 @@ public class FLoggerExecutionDuration(FLogger wrappingLogger) : IFLoggerExecutio
         return null;
     }
 
-    public TimingTraceExecutionPath? StartTraceTime(FLogLevel logLevel
+    public TimingTraceExecutionPath StartTraceTime(FLogLevel logLevel
       , LoggerActivationFlags activationFlags = LoggerActivationFlags.MergeLoggerActivationConfig
       , [CallerMemberName] string memberName = "", [CallerFilePath] string sourceFilePath = "", [CallerLineNumber] int sourceLineNumber = 0)
     {
@@ -114,7 +113,9 @@ public class FLoggerExecutionDuration(FLogger wrappingLogger) : IFLoggerExecutio
         }
     }
 
+    #pragma warning disable CS9113 // Parameter is unread.
     private class LocationIntervalMetrics(FLogCallLocation stopLocation)
+        #pragma warning restore CS9113 // Parameter is unread.
     {
         protected int IntervalCount;
 

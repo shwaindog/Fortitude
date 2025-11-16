@@ -550,9 +550,10 @@ public class OrderedFromNullableSpanFormattableEnumeratorAddFilteredSimpleOrdere
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate | AcceptsAnyExceptNullableStruct
                 | SupportsValueRevealer)]
-public class OrderedFromCloakedBearerArrayRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
-    : RevealerFilteredCollectionMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealBase, TCloaked[]>
-    where TCloaked : TCloakedFilterBase, TCloakedRevealBase
+public class OrderedFromCloakedBearerArrayRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TFilterBase, TRevealBase>
+    : RevealerFilteredCollectionMoldScaffold<TCloaked, TFilterBase, TRevealBase, TCloaked[]>
+    where TCloaked : TFilterBase, TRevealBase
+    where TRevealBase : notnull
 {
     public TCloaked?[]? OrderedCollectionRevealFilteredCloakedBearerArray
     {
@@ -590,9 +591,10 @@ public class OrderedFromNullableCloakedBearerArrayRevealFilteredSimpleOrderedCol
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsAnyNonNullable
                 | SupportsValueRevealer)]
-public class OrderedFromCloakedBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> :
-    RevealerFilteredCollectionMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealBase, TCloaked[]>
-    where TCloaked : TCloakedRevealBase, TCloakedFilterBase
+public class OrderedFromCloakedBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TFilterBase, TRevealBase> :
+    RevealerFilteredCollectionMoldScaffold<TCloaked, TFilterBase, TRevealBase, TCloaked[]>
+    where TCloaked : TRevealBase, TFilterBase
+    where TRevealBase : notnull
 {
     public TCloaked[]? OrderedCollectionRevealFilteredCloakedBearerSpan
     {
@@ -610,9 +612,10 @@ public class OrderedFromCloakedBearerSpanRevealFilteredSimpleOrderedCollectionSt
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsAnyNullableClass
                 | SupportsValueRevealer)]
-public class OrderedFromCloakedBearerNullableSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealerBase>
-    : RevealerFilteredCollectionMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealerBase, TCloaked[]>
-    where TCloaked : class, TCloakedRevealerBase, TCloakedFilterBase
+public class OrderedFromCloakedBearerNullableSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TFilterBase, TRevealBase>
+    : RevealerFilteredCollectionMoldScaffold<TCloaked, TFilterBase, TRevealBase, TCloaked[]>
+    where TCloaked : class, TRevealBase, TFilterBase
+    where TRevealBase : notnull
 {
     public TCloaked?[]? OrderedCollectionRevealFilteredCloakedBearerNullableSpan
     {
@@ -651,9 +654,10 @@ public class OrderedFromNullableCloakedBearerSpanRevealFilteredSimpleOrderedColl
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsAnyNonNullable
                 | SupportsValueRevealer)]
-public class OrderedFromCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealerBase> :
-    RevealerFilteredCollectionMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedFilterBase, TCloaked[]>
-    where TCloaked : TCloakedRevealerBase, TCloakedFilterBase
+public class OrderedFromCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TFilterBase, TRevealBase> :
+    RevealerFilteredCollectionMoldScaffold<TCloaked, TFilterBase, TRevealBase, TCloaked[]>
+    where TCloaked : TRevealBase, TFilterBase
+    where TRevealBase : notnull
 {
     public TCloaked[]? OrderedCollectionRevealFilteredCloakedBearerReadOnlySpan
     {
@@ -672,9 +676,10 @@ public class OrderedFromCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedColl
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsAnyNullableClass
                 | SupportsValueRevealer)]
 public class OrderedFromCloakedBearerNullableReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer
-    <TCloaked, TCloakedFilterBase, TCloakedRevealerBase>
-    : RevealerFilteredCollectionMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealerBase, TCloaked[]>
-    where TCloaked : class, TCloakedRevealerBase, TCloakedFilterBase
+    <TCloaked, TFilterBase, TRevealBase>
+    : RevealerFilteredCollectionMoldScaffold<TCloaked, TFilterBase, TRevealBase, TCloaked[]>
+    where TCloaked : class, TRevealBase, TFilterBase
+    where TRevealBase : notnull
 {
     public TCloaked?[]? OrderedCollectionRevealFilteredCloakedBearerNullableReadOnlySpan
     {
@@ -712,9 +717,10 @@ public class OrderedFromNullableCloakedBearerReadOnlySpanRevealFilteredSimpleOrd
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate | AcceptsAnyExceptNullableStruct
                 | SupportsValueRevealer)]
-public class OrderedFromCloakedBearerListRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealerBase>
-    : RevealerFilteredCollectionMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealerBase, IReadOnlyList<TCloaked>>
-    where TCloaked : TCloakedRevealerBase, TCloakedFilterBase
+public class OrderedFromCloakedBearerListRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TFilterBase, TRevealBase>
+    : RevealerFilteredCollectionMoldScaffold<TCloaked, TFilterBase, TRevealBase, IReadOnlyList<TCloaked>>
+    where TCloaked : TRevealBase, TFilterBase
+    where TRevealBase : notnull
 {
     public IReadOnlyList<TCloaked?>? OrderedCollectionRevealFilteredCloakedBearerList
     {
@@ -752,9 +758,10 @@ public class OrderedFromNullableCloakedBearerListRevealFilteredSimpleOrderedColl
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsAnyExceptNullableStruct
                 | SupportsValueRevealer)]
-public class OrderedFromCloakedBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealerBase>
-    : RevealerFilteredCollectionMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealerBase, IEnumerable<TCloaked>>
-    where TCloaked : TCloakedRevealerBase, TCloakedFilterBase
+public class OrderedFromCloakedBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TFilterBase, TRevealBase>
+    : RevealerFilteredCollectionMoldScaffold<TCloaked, TFilterBase, TRevealBase, IEnumerable<TCloaked>>
+    where TCloaked : TRevealBase, TFilterBase
+    where TRevealBase : notnull
 {
     public IEnumerable<TCloaked?>? OrderedCollectionRevealFilteredCloakedBearerEnumerable
     {
@@ -792,9 +799,10 @@ public class OrderedFromNullableCloakedBearerEnumerableRevealFilteredSimpleOrder
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsAnyExceptNullableStruct
                 | SupportsValueRevealer)]
-public class OrderedFromCloakedBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealerBase>
-    : RevealerFilteredEnumeratorMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealerBase, IEnumerator<TCloaked>>
-    where TCloaked : TCloakedRevealerBase, TCloakedFilterBase
+public class OrderedFromCloakedBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TFilterBase, TRevealBase>
+    : RevealerFilteredEnumeratorMoldScaffold<TCloaked, TFilterBase, TRevealBase, IEnumerator<TCloaked>>
+    where TCloaked : TRevealBase, TFilterBase
+    where TRevealBase : notnull
 {
     public IEnumerator<TCloaked?>? OrderedCollectionRevealFilteredCloakedBearerEnumerator
     {

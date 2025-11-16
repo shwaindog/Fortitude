@@ -2,7 +2,6 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types.StringsOfPower;
-using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using JetBrains.Annotations;
 
@@ -37,21 +36,27 @@ public class CollectionAppendContinuation<TToReturn, TCallerType> : AddCollectio
         AppendValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public TToReturn Add<TToStyle, TStylerType>(TToStyle[]? value, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TStylerType =>
+    public TToReturn Add<TCloaked, TRevealBase>(TCloaked?[]? value, PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TRevealBase 
+        where TRevealBase : notnull =>
         AppendValueCollection(PreappendCheckGetStringAppender(value), value, palantírReveal).PostAppendCheckAndReturn(value, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public TToReturn Add<TToStyle, TStylerType>((TToStyle[]?, PalantírReveal<TStylerType>) valueTuple) where TToStyle : TStylerType =>
+    public TToReturn Add<TCloaked, TRevealBase>((TCloaked?[]?, PalantírReveal<TRevealBase>) valueTuple) 
+        where TCloaked : TRevealBase  
+        where TRevealBase : notnull =>
         AppendValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public TToReturn Add<TToStyle, TStylerType>(IReadOnlyList<TToStyle>? value, PalantírReveal<TStylerType> palantírReveal)
-        where TToStyle : TStylerType =>
+    public TToReturn Add<TCloaked, TRevealBase>(IReadOnlyList<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal)
+        where TCloaked : TRevealBase  
+        where TRevealBase : notnull =>
         AppendValueCollection(PreappendCheckGetStringAppender(value), value, palantírReveal).PostAppendCheckAndReturn(value, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public TToReturn Add<TToStyle, TStylerType>((IReadOnlyList<TToStyle>?, PalantírReveal<TStylerType>) valueTuple)
-        where TToStyle : TStylerType =>
+    public TToReturn Add<TCloaked, TRevealBase>((IReadOnlyList<TCloaked?>?, PalantírReveal<TRevealBase>) valueTuple)
+        where TCloaked : TRevealBase  
+        where TRevealBase : notnull =>
         AppendValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
@@ -95,25 +100,31 @@ public class CollectionAppendContinuation<TToReturn, TCallerType> : AddCollectio
         AppendFilteredValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public TToReturn Add<TToStyle, TToStyleBase, TStylerType>(TToStyle[]? value
-      , OrderedCollectionPredicate<TToStyleBase> filter, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TToStyleBase, TStylerType =>
+    public TToReturn Add<TCloaked, TFilterBase, TRevealBase>(TCloaked[]? value
+      , OrderedCollectionPredicate<TFilterBase> filter, PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TFilterBase, TRevealBase 
+        where TRevealBase : notnull  =>
         AppendFilteredValueCollection(PreappendCheckGetStringAppender(value), value, filter, palantírReveal).PostAppendCheckAndReturn(value, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public TToReturn Add<TToStyle, TToStyleBase, TStylerType>(
-        (TToStyle[]?, OrderedCollectionPredicate<TToStyleBase>, PalantírReveal<TStylerType>) valueTuple)
-        where TToStyle : TToStyleBase, TStylerType =>
+    public TToReturn Add<TCloaked, TFilterBase, TRevealBase>(
+        (TCloaked?[]?, OrderedCollectionPredicate<TFilterBase>, PalantírReveal<TRevealBase>) valueTuple)
+        where TCloaked : TFilterBase, TRevealBase  
+        where TRevealBase : notnull =>
         AppendFilteredValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public TToReturn Add<TToStyle, TToStyleBase, TStylerType>(IReadOnlyList<TToStyle>? value
-      , OrderedCollectionPredicate<TToStyleBase> filter, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TToStyleBase, TStylerType =>
+    public TToReturn Add<TCloaked, TFilterBase, TRevealBase>(IReadOnlyList<TCloaked?>? value
+      , OrderedCollectionPredicate<TFilterBase> filter, PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TFilterBase, TRevealBase 
+        where TRevealBase : notnull  =>
         AppendFilteredValueCollection(PreappendCheckGetStringAppender(value), value, filter, palantírReveal).PostAppendCheckAndReturn(value, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish LogEntry")]
-    public TToReturn Add<TToStyle, TToStyleBase, TStylerType>(
-        (IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>, PalantírReveal<TStylerType>) valueTuple)
-        where TToStyle : TToStyleBase, TStylerType =>
+    public TToReturn Add<TCloaked, TFilterBase, TRevealBase>(
+        (IReadOnlyList<TCloaked>?, OrderedCollectionPredicate<TFilterBase>, PalantírReveal<TRevealBase>) valueTuple)
+        where TCloaked : TFilterBase, TRevealBase 
+        where TRevealBase : notnull  =>
         AppendFilteredValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
@@ -144,23 +155,27 @@ public class CollectionAppendContinuation<TToReturn, TCallerType> : AddCollectio
         AppendValueCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
-    public TToReturn AddEnumerate<TToStyle, TStylerType>(IEnumerable<TToStyle>? value, PalantírReveal<TStylerType> palantírReveal)
-        where TToStyle : TStylerType =>
+    public TToReturn AddEnumerate<TCloaked, TRevealBase>(IEnumerable<TCloaked>? value, PalantírReveal<TRevealBase> palantírReveal)
+        where TCloaked : TRevealBase  
+        where TRevealBase : notnull =>
         AppendValueCollectionEnumerate(PreappendCheckGetStringAppender(value), value, palantírReveal).PostAppendCheckAndReturn(value, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
-    public TToReturn AddEnumerate<TToStyle, TStylerType>((IEnumerable<TToStyle>?, PalantírReveal<TStylerType>) valueTuple)
-        where TToStyle : TStylerType =>
+    public TToReturn AddEnumerate<TCloaked, TRevealBase>((IEnumerable<TCloaked?>?, PalantírReveal<TRevealBase>) valueTuple)
+        where TCloaked : TRevealBase  
+        where TRevealBase : notnull =>
         AppendValueCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
-    public TToReturn AddEnumerate<TToStyle, TStylerType>(IEnumerator<TToStyle>? value, PalantírReveal<TStylerType> palantírReveal)
-        where TToStyle : TStylerType =>
+    public TToReturn AddEnumerate<TCloaked, TRevealBase>(IEnumerator<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal)
+        where TCloaked : TRevealBase  
+        where TRevealBase : notnull =>
         AppendValueCollectionEnumerate(PreappendCheckGetStringAppender(value), value, palantírReveal).PostAppendCheckAndReturn(value, this);
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
-    public TToReturn AddEnumerate<TToStyle, TStylerType>((IEnumerator<TToStyle>?, PalantírReveal<TStylerType>) valueTuple)
-        where TToStyle : TStylerType =>
+    public TToReturn AddEnumerate<TCloaked, TRevealBase>((IEnumerator<TCloaked>?, PalantírReveal<TRevealBase>) valueTuple)
+        where TCloaked : TRevealBase  
+        where TRevealBase : notnull =>
         AppendValueCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     [MustUseReturnValue("Use FinalAppendObjectCollection to finish LogEntry")]

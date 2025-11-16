@@ -24,7 +24,7 @@ public struct UnboundedTimeRange
 
     public static PalantírReveal<UnboundedTimeRange> Styler { get; } =
         (utr, stsa) =>
-            stsa.StartComplexType(utr, nameof(utr))
+            stsa.StartComplexType(utr)
                 .Field.WhenNonDefaultAdd(nameof(utr.FromTime), utr.FromTime, DateTime.MinValue, "{0:O}")
                 .Field.WhenNonDefaultAdd(nameof(utr.ToTime), utr.ToTime, DateTime.MinValue, "{0:O}")
                 .Complete();
@@ -45,7 +45,7 @@ public struct UnboundedTimeSpanRange
     
     public static PalantírReveal<UnboundedTimeSpanRange> Styler { get; } =
         (utsr, stsa) =>
-            stsa.StartComplexType(utsr, nameof(utsr))
+            stsa.StartComplexType(utsr)
                 .Field.WhenNonDefaultAdd(nameof(utsr.LowerLimit), utsr.LowerLimit, TimeSpan.Zero)
                 .Field.WhenNonDefaultAdd(nameof(utsr.UpperLimit), utsr.UpperLimit, TimeSpan.Zero)
                 .Complete();
@@ -71,7 +71,7 @@ public struct BoundedTimeRange
     
     public static PalantírReveal<BoundedTimeRange> Styler { get; } =
         (btr, stsa) =>
-            stsa.StartComplexType(btr, nameof(btr))
+            stsa.StartComplexType(btr)
                 .Field.WhenNonDefaultAdd(nameof(btr.FromTime), btr.FromTime, DateTime.MinValue, "{0:O}")
                 .Field.WhenNonDefaultAdd(nameof(btr.ToTime), btr.ToTime, DateTime.MinValue, "{0:O}")
                 .Complete();
@@ -96,7 +96,7 @@ public struct BoundedTimeSpanRange
     
     public static PalantírReveal<BoundedTimeSpanRange> Styler { get; } =
         (btsr, stsa) =>
-            stsa.StartComplexType(btsr, nameof(btsr))
+            stsa.StartComplexType(btsr)
                 .Field.WhenNonDefaultAdd(nameof(btsr.LowerLimit), btsr.LowerLimit, TimeSpan.Zero)
                 .Field.WhenNonDefaultAdd(nameof(btsr.UpperLimit), btsr.UpperLimit, TimeSpan.Zero)
                 .Complete();

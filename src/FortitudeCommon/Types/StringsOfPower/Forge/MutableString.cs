@@ -728,7 +728,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (customStringFormatter != null)
         {
             if (noFormatStringFormatting)
-                customStringFormatter.TransferEncoder
+                customStringFormatter.StringEncoder
                     .Transfer(customStringFormatter, value, startIndex, this, length);
             else
                 customStringFormatter.Format(value, startIndex, this, formatString, length, formatFlags);
@@ -757,7 +757,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (customStringFormatter != null)
         {
             if (noFormatStringFormatting)
-                customStringFormatter.TransferEncoder
+                customStringFormatter.StringEncoder
                     .Transfer(customStringFormatter, value, startIndex, this, length);
             else
                 customStringFormatter.Format(value, startIndex, this, formatString, length, formatFlags);
@@ -825,7 +825,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (IsFrozen) return ShouldThrow();
         if (customStringFormatter != null)
         {
-            customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, this);
+            customStringFormatter.StringEncoder.Transfer(customStringFormatter, value, this);
             return this;
         }
         sb.Append(value);
@@ -838,7 +838,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (IsFrozen) return ShouldThrow();
         if (customStringFormatter != null)
         {
-            customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, this);
+            customStringFormatter.StringEncoder.Transfer(customStringFormatter, value, this);
             return this;
         }
         var end = value.Length;
@@ -856,7 +856,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         {
             if (noFormatStringFormatting)
                 customStringFormatter
-                    .TransferEncoder
+                    .StringEncoder
                     .Transfer(customStringFormatter, value, startIndex, this, length);
             else
                 customStringFormatter.Format(value, startIndex, this, formatString, length, formatFlags);
@@ -886,7 +886,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         {
             if (noFormatStringFormatting)
                 customStringFormatter
-                    .TransferEncoder
+                    .StringEncoder
                     .Transfer(customStringFormatter, value, startIndex, this, length);
             else
                 customStringFormatter.Format(value, startIndex, this, formatString, length, formatFlags);
@@ -915,7 +915,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (customStringFormatter != null && noFormatStringFormatting)
         {
             if (noFormatStringFormatting)
-                customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, this);
+                customStringFormatter.StringEncoder.Transfer(customStringFormatter, value, this);
             else
                 customStringFormatter.Format(value, startIndex, this, formatString, length, formatFlags);
             return this;
@@ -943,7 +943,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (customStringFormatter != null)
         {
             if (noFormatStringFormatting)
-                customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, this);
+                customStringFormatter.StringEncoder.Transfer(customStringFormatter, value, this);
             else
                 customStringFormatter.Format(value, startIndex, this, formatString, length, formatFlags);
             return this;
@@ -992,7 +992,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (value == null) return this;
         if (customStringFormatter != null)
         {
-            customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value.AsSpan(), this);
+            customStringFormatter.StringEncoder.Transfer(customStringFormatter, value.AsSpan(), this);
             return this;
         }
         sb.Append(value);
@@ -1008,7 +1008,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (customStringFormatter != null)
         {
             if (noFormatStringFormatting)
-                customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, this);
+                customStringFormatter.StringEncoder.Transfer(customStringFormatter, value, this);
             else
                 customStringFormatter.Format(value.AsSpan(), 0, this, formatString, length, formatFlags);
             return this;
@@ -1037,7 +1037,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (customStringFormatter != null)
         {
             if (noFormatStringFormatting)
-                customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, this);
+                customStringFormatter.StringEncoder.Transfer(customStringFormatter, value, this);
             else
                 customStringFormatter.Format(value.AsSpan(), 0, this, formatString, length, formatFlags);
             return this;
@@ -1069,7 +1069,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (IsFrozen) return ShouldThrow();
         if (customStringFormatter != null)
         {
-            customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, this);
+            customStringFormatter.StringEncoder.Transfer(customStringFormatter, value, this);
             return this;
         }
         sb.Append(value);
@@ -1084,7 +1084,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (customStringFormatter != null)
         {
             if (noFormatStringFormatting)
-                customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, this);
+                customStringFormatter.StringEncoder.Transfer(customStringFormatter, value, this);
             else
                 customStringFormatter.Format(value, startIndex, this, formatString, length, formatFlags);
             return this;
@@ -1110,7 +1110,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (IsFrozen) return ShouldThrow();
         if (customStringFormatter != null)
         {
-            customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, this);
+            customStringFormatter.StringEncoder.Transfer(customStringFormatter, value, this);
             return this;
         }
         sb.Append(value);
@@ -1125,7 +1125,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (customStringFormatter != null)
         {
             if (noFormatStringFormatting)
-                customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value, this);
+                customStringFormatter.StringEncoder.Transfer(customStringFormatter, value, this);
             else
                 customStringFormatter.Format(value, startIndex, this, formatString, length, formatFlags);
             return this;
@@ -1155,7 +1155,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (IsFrozen) return ShouldThrow();
         if (customStringFormatter != null)
         {
-            customStringFormatter.TransferEncoder.Transfer(customStringFormatter, value.Span, this);
+            customStringFormatter.StringEncoder.Transfer(customStringFormatter, value.Span, this);
             return this;
         }
         sb.Append(value);
@@ -1171,7 +1171,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (customStringFormatter != null)
         {
             if (noFormatStringFormatting)
-                customStringFormatter.TransferEncoder.Transfer(customStringFormatter, asSpan, this);
+                customStringFormatter.StringEncoder.Transfer(customStringFormatter, asSpan, this);
             else
                 customStringFormatter.Format(asSpan, startIndex, this, formatString, length, formatFlags);
             return this;

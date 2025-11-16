@@ -29,12 +29,14 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
     IFLogAdditionalFormatterParameterEntry? And<TFmt>(TFmt value) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    IFLogAdditionalFormatterParameterEntry? And<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal)
-        where TToStyle : TStylerType;
+    IFLogAdditionalFormatterParameterEntry? And<TCloaked, TRevealBase>(TCloaked value, PalantírReveal<TRevealBase> palantírReveal)
+        where TCloaked : TRevealBase 
+        where TRevealBase : notnull;
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
-    IFLogAdditionalFormatterParameterEntry? And<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple)
-        where TToStyle : TStylerType;
+    IFLogAdditionalFormatterParameterEntry? And<TCloaked, TRevealBase>((TCloaked, PalantírReveal<TRevealBase>) valueTuple)
+        where TCloaked : TRevealBase 
+        where TRevealBase : notnull ;
 
     [MustUseReturnValue("Use AndFinalParam to finish LogEntry")]
     IFLogAdditionalFormatterParameterEntry? And(ReadOnlySpan<char> value);
@@ -107,8 +109,15 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
     void AndFinalParam(bool value);
     void AndFinalParam(bool? value);
     void AndFinalParam<TFmt>(TFmt value) where TFmt : ISpanFormattable;
-    void AndFinalParam<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TStylerType;
-    void AndFinalParam<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple) where TToStyle : TStylerType;
+    
+    void AndFinalParam<TCloaked, TRevealBase>(TCloaked? value, PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TRevealBase 
+        where TRevealBase : notnull;
+    
+    void AndFinalParam<TCloaked, TRevealBase>((TCloaked?, PalantírReveal<TRevealBase>) valueTuple) 
+        where TCloaked : TRevealBase 
+        where TRevealBase : notnull ;
+    
     void AndFinalParam(ReadOnlySpan<char> value);
     void AndFinalParam(ReadOnlySpan<char> value, int fromIndex, int count = int.MaxValue);
     void AndFinalParam(string? value);
@@ -150,12 +159,14 @@ public interface IFLogAdditionalFormatterParameterEntry : IFLogFormatterParamete
     IFLogStringAppender AndFinalParamThenToAppender<TFmt>(TFmt value) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AndFinalParamThenToAppender<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal)
-        where TToStyle : TStylerType;
+    IFLogStringAppender AndFinalParamThenToAppender<TCloaked, TRevealBase>(TCloaked value, PalantírReveal<TRevealBase> palantírReveal)
+        where TCloaked : TRevealBase 
+        where TRevealBase : notnull ;
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
-    IFLogStringAppender AndFinalParamThenToAppender<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple)
-        where TToStyle : TStylerType;
+    IFLogStringAppender AndFinalParamThenToAppender<TCloaked, TRevealBase>((TCloaked, PalantírReveal<TRevealBase>) valueTuple)
+        where TCloaked : TRevealBase 
+        where TRevealBase : notnull ;
 
     [MustUseReturnValue("Use AndFinalParam if you do not plan on using the returned StringAppender")]
     IFLogStringAppender AndFinalParamThenToAppender(ReadOnlySpan<char> value);

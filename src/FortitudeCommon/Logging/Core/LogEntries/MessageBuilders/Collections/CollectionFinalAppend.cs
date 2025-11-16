@@ -2,7 +2,6 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types.StringsOfPower;
-using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;
@@ -28,17 +27,24 @@ public class CollectionFinalAppend<TToReturn, TCallerType> : AddCollectionBase<T
     public void AddFormat<TFmt>((IReadOnlyList<TFmt>?, string?) valueTuple) where TFmt : ISpanFormattable =>
         AppendValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
-    public void Add<TToStyle, TStylerType>(TToStyle[]? value, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TStylerType =>
+    public void Add<TCloaked, TRevealBase>(TCloaked?[]? value, PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull =>
         AppendValueCollection(PreappendCheckGetStringAppender(value), value, palantírReveal).PostAppendCheckAndReturn(value, this);
 
-    public void Add<TToStyle, TStylerType>((TToStyle[]?, PalantírReveal<TStylerType>) valueTuple) where TToStyle : TStylerType =>
+    public void Add<TCloaked, TRevealBase>((TCloaked?[]?, PalantírReveal<TRevealBase>) valueTuple) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull =>
         AppendValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
-    public void Add<TToStyle, TStylerType>(IReadOnlyList<TToStyle>? value, PalantírReveal<TStylerType> palantírReveal)
-        where TToStyle : TStylerType =>
+    public void Add<TCloaked, TRevealBase>(IReadOnlyList<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal)
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull =>
         AppendValueCollection(PreappendCheckGetStringAppender(value), value, palantírReveal).PostAppendCheckAndReturn(value, this);
 
-    public void Add<TToStyle, TStylerType>((IReadOnlyList<TToStyle>?, PalantírReveal<TStylerType>) valueTuple) where TToStyle : TStylerType =>
+    public void Add<TCloaked, TRevealBase>((IReadOnlyList<TCloaked?>?, PalantírReveal<TRevealBase>) valueTuple) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull =>
         AppendValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void Add<TStyleObj>(TStyleObj[]? value, OrderedCollectionPredicate<TStyleObj> filter) where TStyleObj : class, IStringBearer =>
@@ -73,22 +79,28 @@ public class CollectionFinalAppend<TToReturn, TCallerType> : AddCollectionBase<T
         (IReadOnlyList<TFmt>?, OrderedCollectionPredicate<TBase>) valueTuple) where TFmt : ISpanFormattable, TBase =>
         AppendFilteredValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
-    public void Add<TToStyle, TToStyleBase, TStylerType>(TToStyle[]? value, OrderedCollectionPredicate<TToStyleBase> filter
-      , PalantírReveal<TStylerType> palantírReveal) where TToStyle : TToStyleBase, TStylerType =>
+    public void Add<TCloaked, TFilterBase, TRevealBase>(TCloaked?[]? value, OrderedCollectionPredicate<TFilterBase> filter
+      , PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TFilterBase, TRevealBase
+        where TRevealBase : notnull =>
         AppendFilteredValueCollection(PreappendCheckGetStringAppender(value), value, filter, palantírReveal).PostAppendCheckAndReturn(value, this);
 
-    public void Add<TToStyle, TToStyleBase, TStylerType>(
-        (TToStyle[]?, OrderedCollectionPredicate<TToStyleBase>, PalantírReveal<TStylerType>) valueTuple)
-        where TToStyle : TToStyleBase, TStylerType =>
+    public void Add<TCloaked, TFilterBase, TRevealBase>(
+        (TCloaked?[]?, OrderedCollectionPredicate<TFilterBase>, PalantírReveal<TRevealBase>) valueTuple)
+        where TCloaked : TFilterBase, TRevealBase 
+        where TRevealBase : notnull =>
         AppendFilteredValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
-    public void Add<TToStyle, TToStyleBase, TStylerType>(IReadOnlyList<TToStyle>? value
-      , OrderedCollectionPredicate<TToStyleBase> filter, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TToStyleBase, TStylerType =>
+    public void Add<TCloaked, TFilterBase, TRevealBase>(IReadOnlyList<TCloaked?>? value
+      , OrderedCollectionPredicate<TFilterBase> filter, PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TFilterBase, TRevealBase
+        where TRevealBase : notnull =>
         AppendFilteredValueCollection(PreappendCheckGetStringAppender(value), value, filter, palantírReveal).PostAppendCheckAndReturn(value, this);
 
-    public void Add<TToStyle, TToStyleBase, TStylerType>(
-        (IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>, PalantírReveal<TStylerType>) valueTuple)
-        where TToStyle : TToStyleBase, TStylerType =>
+    public void Add<TCloaked, TFilterBase, TRevealBase>(
+        (IReadOnlyList<TCloaked>?, OrderedCollectionPredicate<TFilterBase>, PalantírReveal<TRevealBase>) valueTuple)
+        where TCloaked : TFilterBase, TRevealBase
+        where TRevealBase : notnull =>
         AppendFilteredValueCollection(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddEnumerate<TStyleObj>(IEnumerable<TStyleObj>? value) where TStyleObj : class, IStringBearer =>
@@ -113,20 +125,26 @@ public class CollectionFinalAppend<TToReturn, TCallerType> : AddCollectionBase<T
         where TFmt : ISpanFormattable =>
         AppendValueCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
-    public void AddEnumerate<TToStyle, TStylerType>(IEnumerable<TToStyle>? value
-      , PalantírReveal<TStylerType> palantírReveal) where TToStyle : TStylerType =>
+    public void AddEnumerate<TCloaked, TRevealBase>(IEnumerable<TCloaked?>? value
+      , PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull =>
         AppendValueCollectionEnumerate(PreappendCheckGetStringAppender(value), value, palantírReveal).PostAppendCheckAndReturn(value, this);
 
-    public void AddEnumerate<TToStyle, TStylerType>((IEnumerable<TToStyle>?, PalantírReveal<TStylerType>) valueTuple)
-        where TToStyle : TStylerType =>
+    public void AddEnumerate<TCloaked, TRevealBase>((IEnumerable<TCloaked?>?, PalantírReveal<TRevealBase>) valueTuple)
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull =>
         AppendValueCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
-    public void AddEnumerate<TToStyle, TStylerType>(IEnumerator<TToStyle>? value
-      , PalantírReveal<TStylerType> palantírReveal) where TToStyle : TStylerType =>
+    public void AddEnumerate<TCloaked, TRevealBase>(IEnumerator<TCloaked?>? value
+      , PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull =>
         AppendValueCollectionEnumerate(PreappendCheckGetStringAppender(value), value, palantírReveal).PostAppendCheckAndReturn(value, this);
 
-    public void AddEnumerate<TToStyle, TStylerType>((IEnumerator<TToStyle>?, PalantírReveal<TStylerType>) valueTuple)
-        where TToStyle : TStylerType =>
+    public void AddEnumerate<TCloaked, TRevealBase>((IEnumerator<TCloaked>?, PalantírReveal<TRevealBase>) valueTuple)
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull =>
         AppendValueCollectionEnumerate(valueTuple, PreappendCheckGetStringAppender(valueTuple)).PostAppendCheckAndReturn(valueTuple, this);
 
     public void AddMatch<T>(T[]? value, string? formatString = null) where T : class =>

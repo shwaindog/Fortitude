@@ -598,9 +598,10 @@ public class FieldNullableSpanFormattableReadOnlySpanWhenPopulatedWithFilterStri
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites | FilterPredicate 
                 | AcceptsAnyNonNullable | SupportsValueRevealer)]
-public class FieldCloakedBearerReadOnlySpanWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
-    : RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealBase, TCloaked[]>
-    where TCloaked : TCloakedRevealBase, TCloakedFilterBase
+public class FieldCloakedBearerReadOnlySpanWhenPopulatedWithFilterStringBearer<TCloaked, TFilterBase, TRevealBase>
+    : RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TFilterBase, TRevealBase, TCloaked[]>
+    where TCloaked : TRevealBase, TFilterBase
+    where TRevealBase : notnull
 {
     public TCloaked[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerReadOnlySpan
     {
@@ -621,9 +622,10 @@ public class FieldCloakedBearerReadOnlySpanWhenPopulatedWithFilterStringBearer<T
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites | FilterPredicate 
                 | AcceptsAnyNullableClass | SupportsValueRevealer)]
-public class FieldCloakedBearerNullableClassReadOnlySpanWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : 
-    RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealBase, TCloaked[]>
-    where TCloaked : class, TCloakedRevealBase, TCloakedFilterBase
+public class FieldCloakedBearerNullableClassReadOnlySpanWhenPopulatedWithFilterStringBearer<TCloaked, TFilterBase, TRevealBase> : 
+    RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TFilterBase, TRevealBase, TCloaked[]>
+    where TCloaked : class, TRevealBase, TFilterBase
+    where TRevealBase : notnull
 {
     public TCloaked?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerNullableReadOnlySpan
     {
@@ -1046,9 +1048,10 @@ public class FieldNullableSpanFormattableArrayWhenPopulatedWithFilterStringBeare
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | NonNullAndPopulatedWrites | FilterPredicate 
                 | AcceptsAnyExceptNullableStruct | SupportsValueRevealer)]
-public class FieldCloakedBearerArrayWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : 
-    RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedFilterBase, TCloaked[]>
-       where TCloaked : TCloakedRevealBase, TCloakedFilterBase
+public class FieldCloakedBearerArrayWhenPopulatedWithFilterStringBearer<TCloaked, TFilterBase, TRevealBase> : 
+    RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TFilterBase, TRevealBase, TCloaked[]>
+       where TCloaked : TRevealBase, TFilterBase
+       where TRevealBase : notnull
 {
     public TCloaked[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerArray
     {
@@ -1338,11 +1341,12 @@ public class FieldNullableSpanFormattableListWhenPopulatedWithFilterStringBearer
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | NonNullAndPopulatedWrites | FilterPredicate
                 | AcceptsAnyExceptNullableStruct | SupportsValueRevealer)]
-public class FieldCloakedBearerListWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : 
-    RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealBase, IReadOnlyList<TCloaked>>
-       where TCloaked : TCloakedRevealBase, TCloakedFilterBase
+public class FieldCloakedBearerListWhenPopulatedWithFilterStringBearer<TCloaked, TFilterBase, TRevealBase> : 
+    RevealerFilteredCollectionFieldMoldScaffold<TCloaked?, TFilterBase?, TRevealBase, IReadOnlyList<TCloaked?>>
+       where TCloaked : TRevealBase, TFilterBase
+       where TRevealBase : notnull
 {
-    public IReadOnlyList<TCloaked>? ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerList
+    public IReadOnlyList<TCloaked?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerList
     {
         get => Value;
         set => Value = value;

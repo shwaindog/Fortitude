@@ -14,12 +14,8 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
 public class PrettyLogTypeFormatting : CompactLogTypeFormatting
 {
-    protected const string BrcOpn     = "{";
     protected const char   BrcOpnChar = '{';
     protected const string BrcCls     = "}";
-    protected const char   BrcClsChar = '}';
-    protected const string Cma        = ",";
-    protected const string Cln        = ":";
 
     public override PrettyLogTypeFormatting Initialize(StyleOptions styleOptions)
     {
@@ -30,28 +26,60 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
 
     public override string Name => nameof(CompactJsonTypeFormatting);
 
-    public override IStringBuilder AppendComplexTypeOpening(IStringBuilder sb, Type complextType
-      , string? alternativeName = null)
+    public override ContentSeparatorRanges AppendComplexTypeOpening(ITypeMolderDieCast moldInternal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (alternativeName != null)
+        var sb              = moldInternal.Sb;
+        var alternativeName = moldInternal.TypeName;
+        var buildingType    = moldInternal.TypeBeingBuilt;
+        
+        StartNewContentSeparatorPaddingTracking(sb);
+        if (alternativeName.IsNotNullOrEmpty())
             sb.Append(alternativeName);
         else
-            complextType.AppendShortNameInCSharpFormat(sb);
+            buildingType.AppendShortNameInCSharpFormat(sb);
         sb.Append(Spc);
         StyleOptions.IndentLevel++;
-        return sb.Append(BrcOpn)
-                 .Append(StyleOptions.NewLineStyle)
-                 .Append(StyleOptions.IndentChar
-                       , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+        sb.AppendLastContent(BrcOpn, this);
+        if (formatFlags.CanAddNewLine())
+        {
+            sb.AppendPaddingExpectMore(StyleOptions.NewLineStyle, this);
+            if (!formatFlags.HasNoWhitespacesToNextFlag())
+            {
+                sb.AppendPaddingExpectMore(StyleOptions.IndentChar
+                                         , StyleOptions.IndentRepeat(StyleOptions.IndentLevel), this);
+            }
+        }  
+
+        return ContentSeparatorPaddingTracking.ToContentSeparatorFromEndRanges(moldInternal, formatFlags);
     }
 
-    public override IStringBuilder AppendFieldValueSeparator(IStringBuilder sb) => sb.Append(ClnSpc);
+    public override SeparatorPaddingRanges AppendFieldValueSeparator(ITypeMolderDieCast moldInternal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        var sb = moldInternal.Sb;
+        return sb.AppendLastSeparator(Cln, this)
+                 .AppendLastPadding(Spc, this, moldInternal, formatFlags)
+                 .SeparatorPaddingRange!.Value;
+    }
 
-    public override IStringBuilder AddNextFieldSeparator(IStringBuilder sb) =>
-        sb.Append(Cma)
-          .Append(StyleOptions.NewLineStyle)
-          .Append(StyleOptions.IndentChar
-                , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+    public override SeparatorPaddingRanges AddNextFieldSeparator(ITypeMolderDieCast moldInternal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        var sb = moldInternal.Sb;
+        sb.AppendLastSeparator(Cma, this);
+        if (formatFlags.CanAddNewLine())
+        {
+            sb.AppendPaddingExpectMore(StyleOptions.NewLineStyle, this);
+            if (!formatFlags.HasNoWhitespacesToNextFlag())
+            {
+                sb.AppendPaddingExpectMore(StyleOptions.IndentChar
+                                         , StyleOptions.IndentRepeat(StyleOptions.IndentLevel), this);
+            }
+        }
+        return ContentSeparatorPaddingTracking.ToContentSeparatorFromEndRanges(moldInternal, formatFlags)
+                                              .SeparatorPaddingRange!.Value;
+    }
 
     public override int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel)
     {
@@ -66,19 +94,28 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         return bufferSize;
     }
 
-    public override IStringBuilder AppendTypeClosing(IStringBuilder sb)
+    public override ContentSeparatorRanges AppendTypeClosing(ITypeMolderDieCast moldInternal)
     {
-        var lastNonWhiteSpace = sb.RemoveLastWhiteSpacedCommaIfFound();
-        StyleOptions.IndentLevel--;
-        return lastNonWhiteSpace != BrcOpnChar 
-            ? sb.Append(StyleOptions.NewLineStyle)
-                .Append(StyleOptions.IndentChar
-                      , StyleOptions.IndentRepeat(StyleOptions.IndentLevel))
-                .Append(BrcCls)
-            : sb.Append(BrcCls);
+        var sb = moldInternal.Sb;
+
+        var previousContentPadSpacing = moldInternal.LastContentSeparatorPaddingRanges;
+        var lastNonWhiteSpace         = sb.RemoveLastSeparatorAndPadding(previousContentPadSpacing);
+        StyleOptions.IndentLevel--; 
+
+        ContentSeparatorPaddingTracking.Reset();
+        if (lastNonWhiteSpace != BrcOpnChar && previousContentPadSpacing.PreviousFormatFlags.CanAddNewLine())
+        {
+            sb.AppendContentExpectMore(StyleOptions.NewLineStyle, this);
+            if (!previousContentPadSpacing.PreviousFormatFlags.HasNoWhitespacesToNextFlag())
+            {
+                sb.AppendContentExpectMore(StyleOptions.IndentChar
+                                         , StyleOptions.IndentRepeat(StyleOptions.IndentLevel), this);
+            }
+        }
+        sb.AppendLastContent(BrcCls, this);
+        return ContentSeparatorPaddingTracking.ToContentSeparatorFromEndRanges(moldInternal, DefaultCallerTypeFlags);
     }
-
-
+    
     public override IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType
       , Type keyType, Type valueType, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
@@ -103,9 +140,10 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         return base.AppendKeyedCollectionEnd(sb, keyedCollectionType, keyType, valueType, totalItemCount, formatFlags);
     }
 
-    public override IStringBuilder FormatCollectionStart(IStringBuilder sb, Type itemElementType
+    public override IStringBuilder FormatCollectionStart(ITypeMolderDieCast moldInternal, Type itemElementType
       , bool? hasItems, Type collectionType, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
+        var sb = moldInternal.Sb;
         hasItems ??= false;
         if (!hasItems.Value) return sb;        
         if (itemElementType == typeof(char) && StyleOptions.CharArrayWritesString) return sb.Append(DblQt);
@@ -135,9 +173,10 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         return destSpan.OverWriteAt(atIndex, CmaSpc);
     }
 
-    public override IStringBuilder AddCollectionElementSeparator(IStringBuilder sb, Type elementType
+    public override IStringBuilder AddCollectionElementSeparator(ITypeMolderDieCast moldInternal, Type elementType
       , int nextItemNumber, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
+        var sb = moldInternal.Sb;
         base.AddCollectionElementSeparator(elementType, sb, nextItemNumber);
         if (elementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String) return sb;
         if (elementType == typeof(char) && StyleOptions.CharArrayWritesString) return sb;
@@ -160,9 +199,10 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         return sb;
     }
 
-    public override IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int? totalItemCount
+    public override IStringBuilder FormatCollectionEnd(ITypeMolderDieCast moldInternal, int? resultsFoundCount, Type itemElementType, int? totalItemCount
       , string? formatString, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
+        var sb = moldInternal.Sb;
         if (!totalItemCount.HasValue)
         {
             sb.Append(StyleOptions.NullString);

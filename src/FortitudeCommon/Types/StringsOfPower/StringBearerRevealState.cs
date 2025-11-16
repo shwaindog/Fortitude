@@ -28,7 +28,9 @@ public interface IStringBearerSpanFormattableProvider<in TToStyle> : IStringBear
 
 public static class StringBearerRevelStateExtensions
 {
-    public static string DefaultToString<T>(this PalantírReveal<T> styler, T toStyle, IRecycler? recycler = null)
+    public static string DefaultToString<TCloaked, TRevealBase>(this PalantírReveal<TRevealBase> styler, TCloaked toStyle, IRecycler? recycler = null)
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         var styledStringBuilder = recycler?.Borrow<TheOneString>() ?? new TheOneString();
         styledStringBuilder.ClearAndReinitialize(new StyleOptionsValue( StringStyle.CompactLog));
