@@ -215,18 +215,16 @@ public partial class ValueTypeMoldTests
         string BuildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            const string prettyLogTemplate = "{0}={1}{2}{3}";
+            const string prettyLogTemplate = "{0}= {1}{2}";
 
-            var maybeProperty = propertyName.IsNotEmpty() ? $"{propertyName}:" : "";
-            var maybeIndent = "";
+            var maybeProperty = propertyName.IsNotEmpty() ? $"{propertyName}: " : "";
             var expectValue   = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
-            if (expectValue != IFormatExpectation.NoResultExpectedValue)
+            if (expectValue == IFormatExpectation.NoResultExpectedValue)
             {
-                maybeIndent = expectValue.IsNotEmpty() && propertyName.IsNotEmpty() ? " " : "";
+                expectValue = "";
             }
-            else { expectValue = ""; }
 
-            return string.Format(prettyLogTemplate, className, maybeProperty, maybeIndent, expectValue);
+            return string.Format(prettyLogTemplate, className, maybeProperty, expectValue);
         }
 
         string BuildChildExpectedOutput(string className, string propertyName
@@ -306,18 +304,16 @@ public partial class ValueTypeMoldTests
         string BuildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            const string prettyLogTemplate = "{0}={1}{2}{3}";
+            const string prettyLogTemplate = "{0}= {1}{2}";
 
-            var maybeProperty = propertyName.IsNotEmpty() ? $"{propertyName}:" : "";
-            var maybeIndent   = "";
+            var maybeProperty = propertyName.IsNotEmpty() ? $"{propertyName}: " : "";
             var expectValue   = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
-            if (expectValue != IFormatExpectation.NoResultExpectedValue)
+            if (expectValue == IFormatExpectation.NoResultExpectedValue)
             {
-                maybeIndent = expectValue.IsNotEmpty() && propertyName.IsNotEmpty() ? " " : "";
+                expectValue = "";
             }
-            else { expectValue = ""; }
 
-            return string.Format(prettyLogTemplate, className, maybeProperty, maybeIndent, expectValue);
+            return string.Format(prettyLogTemplate, className, maybeProperty, expectValue);
         }
 
         string BuildChildExpectedOutput(string className, string propertyName

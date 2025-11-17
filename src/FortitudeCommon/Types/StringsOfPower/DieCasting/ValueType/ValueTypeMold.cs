@@ -91,12 +91,12 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         Stb.FieldFmtValueOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
 
     public TExt AsValueOrNull<TFmt>(TFmt? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = AsValueContent) 
+      , FieldContentHandling formatFlags = AsValueContent)
         where TFmt : ISpanFormattable =>
         Stb.FieldFmtValueOrNullNext("", value, formatString ?? "", formatFlags);
 
     public TExt AsValueOrNull<TFmt>(TFmt? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = AsValueContent) 
+      , FieldContentHandling formatFlags = AsValueContent)
         where TFmt : struct, ISpanFormattable =>
         Stb.FieldFmtValueOrNullNext("", value, formatString ?? "", formatFlags);
 
@@ -142,29 +142,40 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);
 
     public TExt RevealAsValue<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked value
-      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = AsValueContent) where TCloaked : TCloakedBase =>
+      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = AsValueContent) 
+      where TCloaked : TCloakedBase
+      where TCloakedBase : notnull =>
         Stb.FieldValueOrNullNext(nonJsonfieldName, value, palantírReveal, formatFlags);
 
     public TExt RevealAsValue<TCloaked, TCloakedBase>(TCloaked value, PalantírReveal<TCloakedBase> palantírReveal
-      , FieldContentHandling formatFlags = AsValueContent) where TCloaked : TCloakedBase =>
+      , FieldContentHandling formatFlags = AsValueContent) 
+      where TCloaked : TCloakedBase
+      where TCloakedBase : notnull =>
         Stb.FieldValueOrNullNext("", value, palantírReveal, formatFlags);
 
     public TExt RevealAsValueOrNull<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = AsValueContent) where TCloaked : TCloakedBase =>
+      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = AsValueContent) 
+      where TCloaked : TCloakedBase
+      where TCloakedBase : notnull =>
         Stb.FieldValueOrNullNext(nonJsonfieldName, value, palantírReveal, formatFlags);
 
     public TExt RevealAsValueOrNull<TCloaked, TCloakedBase>(TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal
       , FieldContentHandling formatFlags = AsValueContent)
-        where TCloaked : TCloakedBase =>
+        where TCloaked : TCloakedBase
+        where TCloakedBase : notnull =>
         Stb.FieldValueOrNullNext("", value, palantírReveal, formatFlags);
 
     public TExt RevealAsValueOrDefault<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
       , PalantírReveal<TCloakedBase> palantírReveal, ReadOnlySpan<char> defaultValue
-      , FieldContentHandling formatFlags = AsValueContent) where TCloaked : TCloakedBase =>
+      , FieldContentHandling formatFlags = AsValueContent) 
+      where TCloaked : TCloakedBase
+      where TCloakedBase : notnull =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue, formatFlags);
 
     public TExt RevealAsValueOrDefault<TCloaked, TCloakedBase>(TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal
-      , ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = AsValueContent) where TCloaked : TCloakedBase =>
+      , ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = AsValueContent) 
+      where TCloaked : TCloakedBase
+      where TCloakedBase : notnull =>
         Stb.FieldValueOrDefaultNext("", value, palantírReveal, defaultValue, formatFlags);
 
     public TExt RevealAsValue<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
@@ -184,7 +195,7 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         Stb.FieldValueOrNullNext("", value, palantírReveal, formatFlags);
 
     public TExt RevealAsValueOrDefault<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
-      , PalantírReveal<TCloakedStruct> palantírReveal, ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = AsValueContent) 
+      , PalantírReveal<TCloakedStruct> palantírReveal, ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = AsValueContent)
         where TCloakedStruct : struct =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue, formatFlags);
 
@@ -192,11 +203,11 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
       , ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = AsValueContent) where TCloakedStruct : struct =>
         Stb.FieldValueOrDefaultNext("", value, palantírReveal, defaultValue, formatFlags);
 
-    public TExt RevealAsValue<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value, FieldContentHandling formatFlags = AsValueContent) 
+    public TExt RevealAsValue<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value, FieldContentHandling formatFlags = AsValueContent)
         where TBearer : IStringBearer =>
         Stb.FieldValueOrNullNext(nonJsonfieldName, value, formatFlags);
 
-    public TExt RevealAsValue<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, FieldContentHandling formatFlags = AsValueContent) 
+    public TExt RevealAsValue<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, FieldContentHandling formatFlags = AsValueContent)
         where TBearer : struct, IStringBearer =>
         Stb.FieldValueOrNullNext(nonJsonfieldName, value, formatFlags);
 
@@ -221,11 +232,11 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
       , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, "0", formatString ?? "", formatFlags);
 
-    public TExt AsValueOrZero(Span<char> value, FieldContentHandling formatFlags = AsValueContent) => 
-        Stb.FieldValueOrDefaultNext("", value, "0", "",  formatFlags);
+    public TExt AsValueOrZero(Span<char> value, FieldContentHandling formatFlags = AsValueContent) =>
+        Stb.FieldValueOrDefaultNext("", value, "0", "", formatFlags);
 
     public TExt AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, Span<char> value
-        , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
 
@@ -244,8 +255,8 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
       , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
 
-    public TExt AsValueOrZero(ReadOnlySpan<char> value, FieldContentHandling formatFlags = AsValueContent) => 
-        Stb.FieldValueOrDefaultNext("", value, "0", "",  formatFlags);
+    public TExt AsValueOrZero(ReadOnlySpan<char> value, FieldContentHandling formatFlags = AsValueContent) =>
+        Stb.FieldValueOrDefaultNext("", value, "0", "", formatFlags);
 
     public TExt AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value, ReadOnlySpan<char> defaultValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = AsValueContent) =>
@@ -306,7 +317,7 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         Stb.FieldValueOrNullNext("", value, startIndex, length, formatString ?? "", formatFlags);
 
     public TExt AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex = 0, int length = int.MaxValue
-      , string? defaultValue = null , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , string? defaultValue = null, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue ?? "0", formatString ?? "", formatFlags);
 
@@ -329,7 +340,7 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
       , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, "0", formatString ?? "", formatFlags);
 
-    public TExt AsValue(ICharSequence value, int startIndex = 0, int length = int.MaxValue 
+    public TExt AsValue(ICharSequence value, int startIndex, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext("", value, startIndex, length, "0", formatString ?? "", formatFlags);
@@ -339,17 +350,17 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
       , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrNullNext(nonJsonfieldName, value, startIndex, length, formatString ?? "", formatFlags);
 
-    public TExt AsValueOrNull(ICharSequence? value, int startIndex = 0, int length = int.MaxValue
+    public TExt AsValueOrNull(ICharSequence? value, int startIndex, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrNullNext("", value, startIndex, length, formatString ?? "", formatFlags);
 
-    public TExt AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex = 0, int length = int.MaxValue
+    public TExt AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex, int length = int.MaxValue
       , string? defaultValue = null, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue ?? "0", formatString ?? "", formatFlags);
 
-    public TExt AsValueOrDefault(ICharSequence? value, int startIndex = 0, int length = int.MaxValue, string? defaultValue = null
+    public TExt AsValueOrDefault(ICharSequence? value, int startIndex, int length = int.MaxValue, string? defaultValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext("", value, startIndex, length, defaultValue ?? "0", formatString ?? "", formatFlags);
@@ -404,7 +415,7 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         Stb.ValueMatchOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
 
     public TExt AsValueMatchOrDefault<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny? value, string? defaultValue
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.ValueMatchOrDefaultNext(nonJsonfieldName, value, defaultValue ?? "", formatString ?? "", formatFlags);
 
@@ -441,7 +452,7 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         Stb.FieldStringOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
 
     public TExt AsStringOrNull<TFmt>(TFmt? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = EncodeAll) 
+      , FieldContentHandling formatFlags = EncodeAll)
         where TFmt : class, ISpanFormattable =>
         AsStringOrNull("", value, formatString, formatFlags);
 
@@ -499,34 +510,44 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         AsStringOrDefault("", value, defaultValue, formatString, formatFlags);
 
     public TExt RevealAsString<TCloaked, TCloakedBase>(TCloaked value, PalantírReveal<TCloakedBase> palantírReveal
-      , FieldContentHandling formatFlags = EncodeAll) where TCloaked : TCloakedBase =>
+      , FieldContentHandling formatFlags = EncodeAll)
+        where TCloaked : TCloakedBase
+        where TCloakedBase : notnull =>
         RevealAsString("", value, palantírReveal, formatFlags);
 
     public TExt RevealAsString<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked value
       , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = EncodeAll)
-        where TCloaked : TCloakedBase =>
+        where TCloaked : TCloakedBase
+        where TCloakedBase : notnull =>
         Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, "", formatFlags);
 
     public TExt RevealAsStringOrNull<TCloaked, TCloakedBase>(TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal
       , FieldContentHandling formatFlags = EncodeAll)
-        where TCloaked : TCloakedBase =>
+        where TCloaked : TCloakedBase
+        where TCloakedBase : notnull =>
         RevealAsStringOrNull("", value, palantírReveal, formatFlags);
 
     public TExt RevealAsStringOrNull<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
-        , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = EncodeAll) where TCloaked : TCloakedBase =>
+      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = EncodeAll)
+        where TCloaked : TCloakedBase
+        where TCloakedBase : notnull =>
         Stb.FieldStringRevealOrNullNext(nonJsonfieldName, value, palantírReveal, formatFlags);
 
     public TExt RevealAsStringOrDefault<TCloaked, TCloakedBase>(TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal
-      , string defaultValue = "", FieldContentHandling formatFlags = EncodeAll) where TCloaked : TCloakedBase =>
+      , string defaultValue = "", FieldContentHandling formatFlags = EncodeAll)
+        where TCloaked : TCloakedBase
+        where TCloakedBase : notnull =>
         RevealAsStringOrDefault("", value, palantírReveal, defaultValue, formatFlags);
 
     public TExt RevealAsStringOrDefault<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal, string defaultValue = "", FieldContentHandling formatFlags = EncodeAll) 
-        where TCloaked : TCloakedBase =>
+      , PalantírReveal<TCloakedBase> palantírReveal, string defaultValue = "", FieldContentHandling formatFlags = EncodeAll)
+        where TCloaked : TCloakedBase
+        where TCloakedBase : notnull =>
         Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue, formatFlags);
 
     public TExt RevealAsString<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , FieldContentHandling formatFlags = EncodeAll) where TCloakedStruct : struct =>
+      , FieldContentHandling formatFlags = EncodeAll) 
+      where TCloakedStruct : struct =>
         RevealAsString("", value, palantírReveal, formatFlags);
 
     public TExt RevealAsString<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
@@ -548,7 +569,7 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         RevealAsStringOrDefault("", value, palantírReveal, defaultValue, formatFlags);
 
     public TExt RevealAsStringOrDefault<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
-      , PalantírReveal<TCloakedStruct> palantírReveal, string defaultValue = "", FieldContentHandling formatFlags = EncodeAll) 
+      , PalantírReveal<TCloakedStruct> palantírReveal, string defaultValue = "", FieldContentHandling formatFlags = EncodeAll)
         where TCloakedStruct : struct =>
         Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue, formatFlags);
 
@@ -559,7 +580,7 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
       , FieldContentHandling formatFlags = EncodeAll) where TBearer : IStringBearer =>
         Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, "", formatFlags);
 
-    public TExt RevealAsStringOrNull<TBearer>(TBearer? value, FieldContentHandling formatFlags = EncodeAll) 
+    public TExt RevealAsStringOrNull<TBearer>(TBearer? value, FieldContentHandling formatFlags = EncodeAll)
         where TBearer : IStringBearer =>
         Stb.FieldStringRevealOrNullNext("", value, formatFlags);
 
@@ -572,10 +593,10 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         where TBearer : IStringBearer => Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, defaultValue, formatFlags);
 
     public TExt RevealAsStringOrDefault<TBearer>(TBearer? value, string defaultValue = ""
-        , FieldContentHandling formatFlags = EncodeAll)
+      , FieldContentHandling formatFlags = EncodeAll)
         where TBearer : IStringBearer => Stb.FieldStringRevealOrDefaultNext("", value, defaultValue, formatFlags);
 
-    public TExt RevealAsString<TBearerStruct>(TBearerStruct? value, FieldContentHandling formatFlags = EncodeAll) 
+    public TExt RevealAsString<TBearerStruct>(TBearerStruct? value, FieldContentHandling formatFlags = EncodeAll)
         where TBearerStruct : struct, IStringBearer =>
         Stb.FieldStringRevealOrDefaultNext("", value, "", formatFlags);
 
@@ -583,7 +604,7 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
       , FieldContentHandling formatFlags = EncodeAll) where TBearerStruct : struct, IStringBearer =>
         Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, "", formatFlags);
 
-    public TExt RevealAsStringOrNull<TBearerStruct>(TBearerStruct? value, FieldContentHandling formatFlags = EncodeAll) 
+    public TExt RevealAsStringOrNull<TBearerStruct>(TBearerStruct? value, FieldContentHandling formatFlags = EncodeAll)
         where TBearerStruct : struct, IStringBearer =>
         Stb.FieldStringRevealOrNullNext("", value, formatFlags);
 
@@ -593,12 +614,12 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
 
     public TExt RevealAsStringOrDefault<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value, string defaultValue = ""
       , FieldContentHandling formatFlags = EncodeAll)
-        where TBearerStruct : struct, IStringBearer => 
+        where TBearerStruct : struct, IStringBearer =>
         Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, defaultValue, formatFlags);
 
     public TExt RevealAsStringOrDefault<TBearerStruct>(TBearerStruct? value, string defaultValue = ""
       , FieldContentHandling formatFlags = EncodeAll)
-        where TBearerStruct : struct, IStringBearer => 
+        where TBearerStruct : struct, IStringBearer =>
         Stb.FieldStringRevealOrDefaultNext("", value, defaultValue, formatFlags);
 
     public TExt AsString(ReadOnlySpan<char> nonJsonfieldName, Span<char> value
@@ -616,7 +637,7 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
       , FieldContentHandling formatFlags = EncodeAll) =>
         Stb.FieldStringNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
 
-    public TExt AsStringOrNull(Span<char> value, FieldContentHandling formatFlags = EncodeAll) => 
+    public TExt AsStringOrNull(Span<char> value, FieldContentHandling formatFlags = EncodeAll) =>
         Stb.FieldStringNext("", value, formatFlags);
 
     public TExt AsString(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
@@ -643,7 +664,7 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
         Stb.FieldStringOrDefaultNext("", value, "", "", formatFlags);
 
     public TExt AsString(string value, FieldContentHandling formatFlags = EncodeAll) =>
-        Stb.FieldStringOrDefaultNext("", value, "", "",  formatFlags);
+        Stb.FieldStringOrDefaultNext("", value, "", "", formatFlags);
 
     public TExt AsString(ReadOnlySpan<char> nonJsonfieldName, string value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -657,8 +678,8 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
 
     public TExt AsString(ReadOnlySpan<char> nonJsonfieldName, string value, int startIndex, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-        , FieldContentHandling formatFlags = EncodeAll) =>
-        Stb.FieldStringOrDefaultNext(nonJsonfieldName, value, startIndex, length, "",  formatString ?? "", formatFlags);
+      , FieldContentHandling formatFlags = EncodeAll) =>
+        Stb.FieldStringOrDefaultNext(nonJsonfieldName, value, startIndex, length, "", formatString ?? "", formatFlags);
 
     public TExt AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = EncodeAll) =>
@@ -743,7 +764,7 @@ public class ValueTypeMold<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
     public TExt AsString(ReadOnlySpan<char> nonJsonfieldName, StringBuilder value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = EncodeAll) =>
-        Stb.FieldStringOrDefaultNext(nonJsonfieldName, value, 0, int.MaxValue, "",  formatString ?? "", formatFlags);
+        Stb.FieldStringOrDefaultNext(nonJsonfieldName, value, 0, int.MaxValue, "", formatString ?? "", formatFlags);
 
     public TExt AsString(StringBuilder value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = EncodeAll) =>
