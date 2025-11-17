@@ -1335,9 +1335,10 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     public override int CollectionStart(Type elementType, IStringBuilder sb, bool hasItems
       , FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
-        if (elementType == typeof(char) &&
-            (JsonOptions.CharArrayWritesString
-          || formatFlags.TreatCharArrayAsString())) { return formatFlags.ShouldDelimit() ? sb.Append(DblQt).ReturnCharCount(1) : 0; }
+        if (elementType == typeof(char) && (JsonOptions.CharArrayWritesString || formatFlags.TreatCharArrayAsString()))
+        {
+            return formatFlags.ShouldDelimit() ? sb.Append(DblQt).ReturnCharCount(1) : 0;
+        }
         if (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return sb.Append(DblQt).ReturnCharCount(1);
         if (elementType == typeof(KeyValuePair<string, JsonNode>)) return sb.Append(BrcOpn).ReturnCharCount(1);
         return sb.Append(SqBrktOpn).ReturnCharCount(1);
@@ -1613,7 +1614,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         return sb.Append(SqBrktCls).ReturnCharCount(1);
     }
 
-    public override int CollectionEnd(Type elementType, Span<char> destSpan, int index, int itemsCount
+    public override int CollectionEnd(Type elementType, Span<char> destSpan, int destIndex, int itemsCount
       , FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         CharSpanCollectionScratchBuffer?.DecrementRefCount();
@@ -1621,13 +1622,13 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         if (elementType == typeof(char) &&
             (JsonOptions.CharArrayWritesString
           || formatFlags.TreatCharArrayAsString()))
-            return formatFlags.ShouldDelimit() ? destSpan.OverWriteAt(index, DblQt) : 0;
+            return formatFlags.ShouldDelimit() ? destSpan.OverWriteAt(destIndex, DblQt) : 0;
         if (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String)
         {
-            var addedChars = CompleteBase64Sequence(destSpan, index);
-            return destSpan.OverWriteAt(index + addedChars, DblQt) + addedChars;
+            var addedChars = CompleteBase64Sequence(destSpan, destIndex);
+            return destSpan.OverWriteAt(destIndex + addedChars, DblQt) + addedChars;
         }
-        if (elementType == typeof(KeyValuePair<string, JsonNode>)) return destSpan.OverWriteAt(index, BrcCls);
-        return destSpan.OverWriteAt(index, SqBrktCls);
+        if (elementType == typeof(KeyValuePair<string, JsonNode>)) return destSpan.OverWriteAt(destIndex, BrcCls);
+        return destSpan.OverWriteAt(destIndex, SqBrktCls);
     }
 }

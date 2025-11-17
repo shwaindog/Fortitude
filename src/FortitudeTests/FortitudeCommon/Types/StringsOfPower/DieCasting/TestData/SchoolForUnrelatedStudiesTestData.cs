@@ -1013,7 +1013,7 @@ public class HighPressureHydraulicsLicense : License
         return this;
     }
 
-    private Dictionary<object, object>? LicenseDetails { get; set; }
+    private Dictionary<object, object?>? LicenseDetails { get; set; }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)

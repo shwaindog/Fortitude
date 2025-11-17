@@ -8,31 +8,31 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldKeyValueColle
 public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMolder
 {
     public TExt WhenNonNullAddAll<TKey, TValue>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
         !stb.SkipFields && value != null ? AlwaysAddAll(fieldName, value, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAll<TKey, TValue>
-    (string fieldName, KeyValuePair<TKey, TValue?>[]? value
+    (string fieldName, KeyValuePair<TKey, TValue>[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
       !stb.SkipFields && value != null ? AlwaysAddAll(fieldName, value, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAll<TKey, TValue>
-    (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue?>>? value
+    (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
       !stb.SkipFields && value != null ? AlwaysAddAll(fieldName, value, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAllEnumerate<TKey, TValue>
-    (string fieldName, IEnumerable<KeyValuePair<TKey, TValue?>>? value
+    (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
       !stb.SkipFields && value != null ? AlwaysAddAllEnumerate(fieldName, value, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddAllEnumerate<TKey, TValue>
-    (string fieldName, IEnumerator<KeyValuePair<TKey, TValue?>>? value
+    (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null) =>
       !stb.SkipFields && value != null ? AlwaysAddAllEnumerate(fieldName, value, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;

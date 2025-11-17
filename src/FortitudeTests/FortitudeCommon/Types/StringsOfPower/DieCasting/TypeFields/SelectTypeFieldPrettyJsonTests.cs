@@ -112,12 +112,12 @@ public partial class SelectTypeFieldTests
         SharedPrettyJson(formatExpectation, scaffoldingToCall);
     }
 
-    // [TestMethod]
+    [TestMethod]
     public void PrettyJsonSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactJson(SpanFormattableTestData.AllSpanFormattableExpectations[145], ScaffoldingRegistry.AllScaffoldingTypes[945]);
+        SharedPrettyJson(CharArrayTestData.AllCharArrayExpectations[3], ScaffoldingRegistry.AllScaffoldingTypes[901]);
     }
 
     private void SharedPrettyJson(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -195,6 +195,11 @@ public partial class SelectTypeFieldTests
                   .AppendLine("Expected it to match -")
                   .AppendLine(buildExpectedOutput)
                   .FinalAppend("");
+            
+            logger.InfoAppend("To Debug Test past the following code into ")?
+                  .Append(nameof(CompactJsonSingleTest)).Append("()\n\n")
+                  .Append("SharedPrettyJson(")
+                  .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         }
         else
         {

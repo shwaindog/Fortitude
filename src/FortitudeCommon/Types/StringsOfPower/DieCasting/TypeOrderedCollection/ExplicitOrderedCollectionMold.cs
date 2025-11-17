@@ -18,7 +18,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
         Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
-      , string typeName
+      , string? typeName
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
@@ -72,12 +72,12 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(element, ++elementCount, CompAsOrderedCollection.Sb, formatString ?? "");
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection.Sb, element, ++elementCount, formatString ?? "");
         return AppendNextCollectionItemSeparator();
     }
 
-    public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement<TStructFmtElement>(TStructFmtElement? element
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TStructFmtElement : struct, ISpanFormattable
+    public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement<TFmtStructElement>(TFmtStructElement? element
+      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStructElement : struct, ISpanFormattable
     {
         if (CompAsOrderedCollection.SkipBody) return this;
         if (element == null)
@@ -90,7 +90,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        CompAsOrderedCollection.AppendFormattedCollectionItem(element, ++elementCount, formatString ?? "");
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection.Sb, element, ++elementCount, formatString ?? "");
         return AppendNextCollectionItemSeparator();
     }
 
@@ -242,7 +242,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
     public ExplicitOrderedCollectionMold<TElement> AppendNextCollectionItemSeparator()
     {
         if (CompAsOrderedCollection.SkipBody) return this;
-        CompAsOrderedCollection.StyleFormatter.AddCollectionElementSeparator(CompAsOrderedCollection, TypeOfElement, elementCount);
+        CompAsOrderedCollection.StyleFormatter.AddCollectionElementSeparator(CompAsOrderedCollection.Sb, TypeOfElement, elementCount);
         return this;
     }
 

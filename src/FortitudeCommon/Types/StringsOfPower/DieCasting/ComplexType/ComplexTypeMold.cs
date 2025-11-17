@@ -19,7 +19,7 @@ public class ComplexTypeMold : MultiValueTypeMolder<ComplexTypeMold>
         Type typeBeingBuilt
       , TheOneString owning
       , MoldDieCastSettings appendSettings
-      , string typeName
+      , string? typeName
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId

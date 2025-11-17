@@ -15,7 +15,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
-      , string typeName
+      , string? typeName
       , int remainignGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId

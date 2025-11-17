@@ -19,14 +19,14 @@ public struct TimeSeriesSpan
         Period          = period;
     }
 
-    public int                NumberOfPeriods { get; set; }
-    public TimeBoundaryPeriod Period          { get; set; }
-    
-    public static PalantírReveal<TimeSeriesSpan?> Styler { get; } =
+    public int NumberOfPeriods { get; set; }
+    public TimeBoundaryPeriod Period { get; set; }
+
+    public static PalantírReveal<TimeSeriesSpan> Styler { get; } =
         (tss, stsa) =>
             stsa.StartComplexType(tss)
-                .Field.AlwaysAdd(nameof(tss.Value.Period), tss?.Period)
-                .Field.AlwaysAdd(nameof(tss.Value.NumberOfPeriods), tss?.NumberOfPeriods)
+                .Field.AlwaysAdd(nameof(tss.Period), tss.Period)
+                .Field.AlwaysAdd(nameof(tss.NumberOfPeriods), tss.NumberOfPeriods)
                 .Complete();
 }
 
@@ -51,11 +51,11 @@ public struct TimeLength
         TimeSeriesLength = timeSeriesLength;
     }
 
-    public TimeLengthType  Type             { get; set; }
-    public TimeSpan?       TimeSpanLength   { get; set; }
+    public TimeLengthType Type { get; set; }
+    public TimeSpan? TimeSpanLength { get; set; }
     public TimeSeriesSpan? TimeSeriesLength { get; set; }
-    
-    
+
+
     public static PalantírReveal<TimeLength> Styler { get; } =
         (tl, stsa) =>
             stsa.StartComplexType(tl)

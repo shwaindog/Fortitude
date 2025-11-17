@@ -13,7 +13,7 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
         Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
-      , string typeName
+      , string? typeName
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
@@ -65,7 +65,7 @@ public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCo
         Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
-      , string typeName
+      , string? typeName
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
@@ -95,7 +95,7 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
         Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
-      , string typeName
+      , string? typeName
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId

@@ -64,10 +64,10 @@ public static class RangeExtensions
         return new Range(new Index(start), new Index(end));
     }
 
-    public static int Length(this Range toShift)
+    public static int Length(this Range calculateIndexes, int entireRangeLength = 0)
     {
-        var start = toShift.Start.Value;
-        var end = toShift.End.Value;
+        var start = calculateIndexes.Start.IsFromEnd ? entireRangeLength - calculateIndexes.Start.Value: calculateIndexes.Start.Value;
+        var end   = calculateIndexes.End.IsFromEnd ? entireRangeLength -  calculateIndexes.End.Value : calculateIndexes.End.Value;
         return end - start;
     }
     

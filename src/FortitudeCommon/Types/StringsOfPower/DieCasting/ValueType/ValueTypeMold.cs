@@ -17,7 +17,7 @@ public class ValueTypeMold<TMold> : KnownTypeMolder<TMold> where TMold : TypeMol
         Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
-      , string typeName
+      , string? typeName
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
@@ -52,7 +52,6 @@ public class ValueTypeMold<TMold> : KnownTypeMolder<TMold> where TMold : TypeMol
         if (IsComplexType)
             CompAccess.StyleFormatter.AppendTypeClosing(CompAccess);
         else
-          CompAccess.LastContentSeparatorPaddingRanges = 
             CompAccess.StyleFormatter.AppendValueTypeClosing(CompAccess);
     }
 

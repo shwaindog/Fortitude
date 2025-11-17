@@ -737,9 +737,9 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
         set => values.UnicodeEscapingRanges = value;
     }
 
-    public ICustomStringFormatter Formatter
+    public ICustomStringFormatter? Formatter
     {
-        get => formatter ??= (Recycler.ThreadStaticRecycler).ResolveStyleFormatter(this);
+        get => formatter;
         set
         {
             formatter?.DecrementRefCount();
@@ -750,7 +750,7 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
 
     public void IfExistsIncrementFormatterRefCount() => formatter?.IncrementRefCount();
 
-    public IStyledTypeFormatting StyledTypeFormatter => (IStyledTypeFormatting)Formatter;
+    public IStyledTypeFormatting StyledTypeFormatter => (IStyledTypeFormatting)Formatter!;
 
     public string NewLineStyle
     {

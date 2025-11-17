@@ -37,11 +37,11 @@ public readonly struct MonthFloatingWeekday(MonthlyFloatingWeekDayOccurence floa
         }
     }
     
-    public static PalantírReveal<MonthFloatingWeekday?> Styler { get; } =
+    public static PalantírReveal<MonthFloatingWeekday> Styler { get; } =
         (mfwd, stsa) =>
             stsa.StartComplexType(mfwd)
-                .Field.AlwaysAdd(nameof(mfwd.Value.OccurenceInMonth), mfwd?.OccurenceInMonth)
-                .Field.AlwaysAdd(nameof(mfwd.Value.Weekday), mfwd?.Weekday)
+                .Field.AlwaysAdd(nameof(mfwd.OccurenceInMonth), mfwd.OccurenceInMonth)
+                .Field.AlwaysAdd(nameof(mfwd.Weekday), mfwd.Weekday)
                 .Complete();
 
     public override string ToString() => $"{nameof(MonthFloatingWeekday)}{{{nameof(OccurenceInMonth)}: {OccurenceInMonth}, {nameof(Weekday)}: {Weekday}}}";

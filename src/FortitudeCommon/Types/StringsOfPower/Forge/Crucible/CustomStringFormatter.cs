@@ -1712,7 +1712,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     public abstract int CollectionEnd(Type collectionType, IStringBuilder sb, int totalItemCount
       , FormattingHandlingFlags formatFlags = EncodeInnerContent);
     
-    public abstract int CollectionEnd(Type collectionType, Span<char> destSpan, int index, int totalItemCount
+    public abstract int CollectionEnd(Type collectionType, Span<char> destSpan, int destIndex, int totalItemCount
       , FormattingHandlingFlags formatFlags = EncodeInnerContent);
 
 

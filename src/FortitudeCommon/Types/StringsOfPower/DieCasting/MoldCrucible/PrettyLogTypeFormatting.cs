@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Text.Json.Nodes;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
@@ -17,9 +18,9 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     protected const char   BrcOpnChar = '{';
     protected const string BrcCls     = "}";
 
-    public override PrettyLogTypeFormatting Initialize(StyleOptions styleOptions)
+    public override PrettyLogTypeFormatting Initialize(GraphTrackingBuilder graphTrackingBuilder, StyleOptions styleOptions)
     {
-        Options = styleOptions;
+        base.Initialize(graphTrackingBuilder, styleOptions);
 
         return this;
     }
@@ -32,53 +33,51 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         var sb              = moldInternal.Sb;
         var alternativeName = moldInternal.TypeName;
         var buildingType    = moldInternal.TypeBeingBuilt;
-        
-        StartNewContentSeparatorPaddingTracking(sb);
-        if (alternativeName.IsNotNullOrEmpty())
+
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        if (alternativeName != null)
             sb.Append(alternativeName);
         else
             buildingType.AppendShortNameInCSharpFormat(sb);
         sb.Append(Spc);
         StyleOptions.IndentLevel++;
-        sb.AppendLastContent(BrcOpn, this);
+        GraphBuilder.AppendContent(BrcOpn);
         if (formatFlags.CanAddNewLine())
         {
-            sb.AppendPaddingExpectMore(StyleOptions.NewLineStyle, this);
+            GraphBuilder.AppendPadding(StyleOptions.NewLineStyle);
             if (!formatFlags.HasNoWhitespacesToNextFlag())
             {
-                sb.AppendPaddingExpectMore(StyleOptions.IndentChar
-                                         , StyleOptions.IndentRepeat(StyleOptions.IndentLevel), this);
+                GraphBuilder
+                    .AppendPadding
+                        (StyleOptions.IndentChar, StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
             }
-        }  
+        }
 
-        return ContentSeparatorPaddingTracking.ToContentSeparatorFromEndRanges(moldInternal, formatFlags);
+        return GraphBuilder.Complete(formatFlags);
     }
 
     public override SeparatorPaddingRanges AppendFieldValueSeparator(ITypeMolderDieCast moldInternal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        var sb = moldInternal.Sb;
-        return sb.AppendLastSeparator(Cln, this)
-                 .AppendLastPadding(Spc, this, moldInternal, formatFlags)
-                 .SeparatorPaddingRange!.Value;
-    }
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+        GraphBuilder
+            .AppendSeparator(Cln)
+            .AppendPadding(Spc)
+            .Complete(formatFlags)
+            .SeparatorPaddingRange!.Value;
 
     public override SeparatorPaddingRanges AddNextFieldSeparator(ITypeMolderDieCast moldInternal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = moldInternal.Sb;
-        sb.AppendLastSeparator(Cma, this);
+        GraphBuilder.AppendSeparator(Cma);
         if (formatFlags.CanAddNewLine())
         {
-            sb.AppendPaddingExpectMore(StyleOptions.NewLineStyle, this);
+            GraphBuilder.AppendPadding(StyleOptions.NewLineStyle);
             if (!formatFlags.HasNoWhitespacesToNextFlag())
             {
-                sb.AppendPaddingExpectMore(StyleOptions.IndentChar
-                                         , StyleOptions.IndentRepeat(StyleOptions.IndentLevel), this);
+                GraphBuilder.AppendPadding(StyleOptions.IndentChar
+                                         , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
             }
         }
-        return ContentSeparatorPaddingTracking.ToContentSeparatorFromEndRanges(moldInternal, formatFlags)
-                                              .SeparatorPaddingRange!.Value;
+        return GraphBuilder.Complete(formatFlags).SeparatorPaddingRange!.Value;
     }
 
     public override int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel)
@@ -98,24 +97,23 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     {
         var sb = moldInternal.Sb;
 
-        var previousContentPadSpacing = moldInternal.LastContentSeparatorPaddingRanges;
-        var lastNonWhiteSpace         = sb.RemoveLastSeparatorAndPadding(previousContentPadSpacing);
-        StyleOptions.IndentLevel--; 
+        var previousContentPadSpacing = GraphBuilder.LastContentSeparatorPaddingRanges;
+        var lastNonWhiteSpace         = GraphBuilder.RemoveLastSeparatorAndPadding();
+        StyleOptions.IndentLevel--;
 
-        ContentSeparatorPaddingTracking.Reset();
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
         if (lastNonWhiteSpace != BrcOpnChar && previousContentPadSpacing.PreviousFormatFlags.CanAddNewLine())
         {
-            sb.AppendContentExpectMore(StyleOptions.NewLineStyle, this);
+            GraphBuilder.AppendContent(StyleOptions.NewLineStyle);
             if (!previousContentPadSpacing.PreviousFormatFlags.HasNoWhitespacesToNextFlag())
             {
-                sb.AppendContentExpectMore(StyleOptions.IndentChar
-                                         , StyleOptions.IndentRepeat(StyleOptions.IndentLevel), this);
+                GraphBuilder.AppendContent(StyleOptions.IndentChar, StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
             }
         }
-        sb.AppendLastContent(BrcCls, this);
-        return ContentSeparatorPaddingTracking.ToContentSeparatorFromEndRanges(moldInternal, DefaultCallerTypeFlags);
+        GraphBuilder.AppendContent(BrcCls);
+        return GraphBuilder.SnapshotLastAppendSequence(DefaultCallerTypeFlags);
     }
-    
+
     public override IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType
       , Type keyType, Type valueType, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
@@ -145,7 +143,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     {
         var sb = moldInternal.Sb;
         hasItems ??= false;
-        if (!hasItems.Value) return sb;        
+        if (!hasItems.Value) return sb;
         if (itemElementType == typeof(char) && StyleOptions.CharArrayWritesString) return sb.Append(DblQt);
         if (itemElementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String) return sb.Append(DblQt);
 
@@ -173,11 +171,14 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         return destSpan.OverWriteAt(atIndex, CmaSpc);
     }
 
-    public override IStringBuilder AddCollectionElementSeparator(ITypeMolderDieCast moldInternal, Type elementType
+    public override IStringBuilder AddCollectionElementSeparator(IStringBuilder sb, Type elementType
       , int nextItemNumber, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = moldInternal.Sb;
+        GraphBuilder.MarkContentEnd();
+        var lastRange    = GraphBuilder.LastContentSeparatorPaddingRanges;
+        var lastFmtFlags = lastRange.PreviousFormatFlags;
         base.AddCollectionElementSeparator(elementType, sb, nextItemNumber);
+        GraphBuilder.MarkSeparatorEnd();
         if (elementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String) return sb;
         if (elementType == typeof(char) && StyleOptions.CharArrayWritesString) return sb;
         if (StyleOptions.PrettyCollectionStyle.IsCollectionContentWidthWrap())
@@ -185,46 +186,124 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
             if (StyleOptions.PrettyCollectionsColumnContentWidthWrap < sb.LineContentWidth)
             {
                 sb.Length -= 1; // remove last Space
-                sb.Append(StyleOptions.NewLineStyle)
-                  .Append(StyleOptions.IndentChar
-                        , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+                GraphBuilder.AppendPadding(StyleOptions.NewLineStyle)
+                            .AppendPadding(StyleOptions.IndentChar, StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
             }
         }
         else
         {
-            sb.Append(StyleOptions.NewLineStyle)
-              .Append(StyleOptions.IndentChar
-                    , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+            if (lastFmtFlags.CanAddNewLine())
+            {
+                GraphBuilder.AppendPadding(StyleOptions.NewLineStyle);
+                if (!lastFmtFlags.HasNoWhitespacesToNextFlag())
+                {
+                    GraphBuilder.AppendPadding(StyleOptions.IndentChar
+                                             , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+                }
+            }
         }
+        GraphBuilder.Complete(lastFmtFlags);
         return sb;
     }
 
-    public override IStringBuilder FormatCollectionEnd(ITypeMolderDieCast moldInternal, int? resultsFoundCount, Type itemElementType, int? totalItemCount
+    public override IStringBuilder FormatCollectionEnd(ITypeMolderDieCast moldInternal, int? resultsFoundCount, Type itemElementType
+      , int? totalItemCount
       , string? formatString, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = moldInternal.Sb;
-        if (!totalItemCount.HasValue)
+        var sb         = moldInternal.Sb;
+        var charsAdded = 0;
+        CharSpanCollectionScratchBuffer?.DecrementRefCount();
+        CharSpanCollectionScratchBuffer = null;
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags, true);
+        var prevFmtFlags = GraphBuilder.LastContentSeparatorPaddingRanges.PreviousFormatFlags;
+        if (prevFmtFlags.HasAsStringContentFlag() && itemElementType.IsCharArray())
         {
-            sb.Append(StyleOptions.NullString);
+            if (prevFmtFlags.DoesNotHaveAsValueContentFlag() || prevFmtFlags.HasAsStringContentFlag())
+            {
+                GraphBuilder.AppendContent(DblQt);
+            }
             return sb;
         }
-        if (itemElementType == typeof(char) && StyleOptions.CharArrayWritesString)
+        else
         {
-            return CollectionEnd(itemElementType, sb, totalItemCount.Value).ToStringBuilder(sb);
-        }
-        if (itemElementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String)
-        {
-            return CollectionEnd(itemElementType, sb, totalItemCount.Value).ToStringBuilder(sb);
+            sb.RemoveLastWhiteSpacedCommaIfFound();
         }
 
-        sb.RemoveLastWhiteSpacedCommaIfFound();
-        if (totalItemCount > 0)
+        if (prevFmtFlags.DoesNotHaveAsValueContentFlag())
         {
             StyleOptions.IndentLevel--;
-            sb.Append(StyleOptions.NewLineStyle)
-              .Append(StyleOptions.IndentChar
-                    , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
         }
-        return sb.Append(SqBrktCls);
+        
+        if (totalItemCount > 0)
+        {
+            if (prevFmtFlags.CanAddNewLine())
+            {
+                GraphBuilder.AppendContent(StyleOptions.NewLineStyle);
+                if (!prevFmtFlags.HasNoWhitespacesToNextFlag())
+                {
+                    GraphBuilder.AppendContent(StyleOptions.IndentChar
+                                             , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+                }
+            }
+        }
+        if (itemElementType == typeof(KeyValuePair<string, JsonNode>))
+        {
+            GraphBuilder.AppendContent(BrcCls);
+            return sb;
+        }
+        GraphBuilder.AppendContent(SqBrktCls);
+        return sb;
+    }
+
+    public override int CollectionEnd(Type collectionType, Span<char> destSpan, int destIndex, int itemsCount
+      , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent)
+    {
+        var charsAdded        = 0;
+        var originalDestIndex = destIndex;
+        CharSpanCollectionScratchBuffer?.DecrementRefCount();
+        CharSpanCollectionScratchBuffer = null;
+        GraphBuilder.ResetCurrent((FieldContentHandling)formatFlags, true);
+        var prevFmtFlags = GraphBuilder.LastContentSeparatorPaddingRanges.PreviousFormatFlags;
+        if (prevFmtFlags.HasAsStringContentFlag() && collectionType.IsCharArray())
+        {
+            if (prevFmtFlags.DoesNotHaveAsValueContentFlag() || prevFmtFlags.HasAsStringContentFlag())
+            {
+                charsAdded += GraphBuilder.GraphEncoder.Transfer(this, DblQt, destSpan, destIndex);
+            }
+            GraphBuilder.MarkContentEnd(destIndex + charsAdded);
+            return charsAdded;
+        }
+        else
+        {
+            GraphBuilder.RemoveLastSeparatorAndPadding(destSpan, ref destIndex);
+        }
+
+        if (prevFmtFlags.DoesNotHaveAsValueContentFlag())
+        {
+            StyleOptions.IndentLevel--;
+        }
+        
+        if (itemsCount > 0)
+        {
+            if (prevFmtFlags.CanAddNewLine())
+            {
+                charsAdded += GraphBuilder.GraphEncoder.Transfer(this, StyleOptions.NewLineStyle, destSpan, destIndex);
+                GraphBuilder.MarkContentEnd(destIndex + charsAdded);
+                if (!prevFmtFlags.HasNoWhitespacesToNextFlag())
+                {
+                    charsAdded += destSpan.OverWriteRepatAt(destIndex + charsAdded, Spc, StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+                    GraphBuilder.MarkContentEnd(destIndex + charsAdded);
+                }
+            }
+        }
+        if (collectionType == typeof(KeyValuePair<string, JsonNode>))
+        {
+            GraphBuilder.AppendContent(BrcCls);
+        }
+        else
+        {
+            GraphBuilder.AppendContent(SqBrktCls);
+        }
+        return destIndex + charsAdded - originalDestIndex;
     }
 }

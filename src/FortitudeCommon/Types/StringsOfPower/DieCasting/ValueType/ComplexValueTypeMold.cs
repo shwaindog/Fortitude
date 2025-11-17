@@ -16,7 +16,7 @@ public class ComplexValueTypeMold : ValueTypeMold<ComplexValueTypeMold>
         Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
-      , string typeName
+      , string? typeName
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId

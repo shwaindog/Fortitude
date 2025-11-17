@@ -1168,7 +1168,7 @@ public static class CharSpanExtensions
                 var stringPart = new String(remainingTokenString[..nextTokenStartRange.Start]);
                 result.Add(stringPart);
             }
-            if (nextTokenStartRange.Start.Value < remainingTokenString.Length && nextTokenStartRange.Length() > 0)
+            if (nextTokenStartRange.Start.Value < remainingTokenString.Length && nextTokenStartRange.Length(remainingTokenString.Length) > 0)
             {
                 if (hasReplace)
                 {
@@ -1237,7 +1237,7 @@ public static class CharSpanExtensions
                 destination.OverWriteAt(nextWriteAt, tokenisedFormatting[lastRange.End..nextTokenStartRange.Start]);
                 nextWriteAt += charsAdded;
             }
-            if (nextTokenStartRange.Start.Value < tokenisedFormatting.Length && nextTokenStartRange.Length() > 0)
+            if (nextTokenStartRange.Start.Value < tokenisedFormatting.Length && nextTokenStartRange.Length(tokenisedFormatting.Length) > 0)
             {
                 destination.OverWriteAt(nextWriteAt, toFormatOver[cappedFrom..(cappedFrom + cappedLength)]);
                 nextWriteAt += toFormatOver.Length;
@@ -1265,7 +1265,7 @@ public static class CharSpanExtensions
                 destination.OverWriteAt(nextWriteAt, tokenisedFormatting[lastRange.End..nextTokenStartRange.Start]);
                 nextWriteAt += charsAdded;
             }
-            if (nextTokenStartRange.Start.Value < tokenisedFormatting.Length && nextTokenStartRange.Length() > 0)
+            if (nextTokenStartRange.Start.Value < tokenisedFormatting.Length && nextTokenStartRange.Length(tokenisedFormatting.Length) > 0)
             {
                 destination.OverWriteAt(nextWriteAt, toFormatOver, cappedFrom, cappedLength);
                 nextWriteAt += toFormatOver.Length;
@@ -1293,7 +1293,7 @@ public static class CharSpanExtensions
                 destination.OverWriteAt(nextWriteAt, tokenisedFormatting[lastRange.End..nextTokenStartRange.Start]);
                 nextWriteAt += charsAdded;
             }
-            if (nextTokenStartRange.Start.Value < tokenisedFormatting.Length && nextTokenStartRange.Length() > 0)
+            if (nextTokenStartRange.Start.Value < tokenisedFormatting.Length && nextTokenStartRange.Length(tokenisedFormatting.Length) > 0)
             {
                 destination.OverWriteAt(nextWriteAt, toFormatOver, cappedFrom, cappedLength);
                 nextWriteAt += toFormatOver.Length;
@@ -1325,7 +1325,7 @@ public static class CharSpanExtensions
             {
                 nonTokenCharLength += nextTokenStartRange.Start.Value;
             }
-            var nextSliceStart = nextTokenStartRange.Start.Value + nextTokenStartRange.Length();
+            var nextSliceStart = nextTokenStartRange.Start.Value + nextTokenStartRange.Length(remainingTokenString.Length);
             if (nextSliceStart < remainingTokenString.Length)
             {
                 remainingTokenString = remainingTokenString[nextSliceStart..];
@@ -1355,11 +1355,11 @@ public static class CharSpanExtensions
             scratchSpace.ResetMemory();
             var nextTokenStartRange = TokenNextTokenOpenMatchingEnd(remainingTokenString, openClose);
 
-            if (nextTokenStartRange.Start.Value < remainingTokenString.Length && nextTokenStartRange.Length() > 0)
+            if (nextTokenStartRange.Start.Value < remainingTokenString.Length && nextTokenStartRange.Length(remainingTokenString.Length) > 0)
             {
                 tokenCount += nextTokenStartRange.Start.Value;
             }
-            var nextSliceStart = nextTokenStartRange.Start.Value + nextTokenStartRange.Length();
+            var nextSliceStart = nextTokenStartRange.Start.Value + nextTokenStartRange.Length(remainingTokenString.Length);
             if (nextSliceStart < remainingTokenString.Length)
             {
                 remainingTokenString = remainingTokenString[nextSliceStart..];

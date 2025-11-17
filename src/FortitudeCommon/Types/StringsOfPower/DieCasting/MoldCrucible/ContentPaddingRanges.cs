@@ -31,10 +31,11 @@ public readonly record struct SeparatorPaddingRanges(Range? SeparatorRange = nul
         return new SeparatorPaddingRanges(separatorRange);
     }
 
-    public int Length => EntireRange?.Length() ?? 0;
+    public int Length(int entireLength) => EntireRange?.Length(entireLength) ?? 0;
 };
 
-public readonly record struct ContentSeparatorRanges(FieldContentHandling PreviousFormatFlags, Range? ContentRange, SeparatorPaddingRanges? SeparatorPaddingRange = null)
+public readonly record struct ContentSeparatorRanges(FieldContentHandling PreviousFormatFlags, Range? ContentRange
+  , SeparatorPaddingRanges? SeparatorPaddingRange = null)
 {
     public static ContentSeparatorRanges None => new ();
 };
@@ -69,22 +70,5 @@ public static class ContentSeparatorRangesExtensions
         }
 
         return  contentRange with {ContentRange = updatedContentRange, SeparatorPaddingRange = separatorPaddingRanges};
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ContentSeparatorRanges NoContentSeparatorOrPadding(this IStringBuilder sb, ITypeMolderDieCast updateLast) => 
-        updateLast.LastContentSeparatorPaddingRanges = ContentSeparatorRanges.None;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ContentSeparatorRanges NoContentSeparatorOrPadding(this char lastContentChar, ITypeMolderDieCast updateLast) => 
-        updateLast.LastContentSeparatorPaddingRanges = ContentSeparatorRanges.None;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static char RemoveLastSeparatorAndPadding(this IStringBuilder sb, ContentSeparatorRanges contentRange)
-    {
-        if(contentRange.SeparatorPaddingRange == null) return sb.Length > 0 ? sb[^1] : '\0';
-        var sepPaddingLen = contentRange.SeparatorPaddingRange?.Length ?? 0;
-        sb.Length -= sepPaddingLen;
-        return sb.Length > 0 ? sb[^1] : '\0';
     }
 }

@@ -208,7 +208,7 @@ public interface ICustomStringFormatter : IRecyclableObject
     int CollectionEnd(Type collectionType, IStringBuilder sb, int totalItemCount
     , FormattingHandlingFlags formatFlags = EncodeInnerContent);
 
-    int CollectionEnd(Type collectionType, Span<char> destSpan, int index, int totalItemCount
+    int CollectionEnd(Type collectionType, Span<char> destSpan, int destIndex, int totalItemCount
     , FormattingHandlingFlags formatFlags = EncodeInnerContent);
 
 

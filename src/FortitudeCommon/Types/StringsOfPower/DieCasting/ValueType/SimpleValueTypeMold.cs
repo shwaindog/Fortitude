@@ -11,7 +11,7 @@ public class SimpleValueTypeMold : ValueTypeMold<SimpleValueTypeMold>
             Type typeBeingBuilt
           , ISecretStringOfPower master
           , MoldDieCastSettings typeSettings
-          , string typeName
+          , string? typeName
           , int remainingGraphDepth
           , IStyledTypeFormatting typeFormatting  
           , int existingRefId

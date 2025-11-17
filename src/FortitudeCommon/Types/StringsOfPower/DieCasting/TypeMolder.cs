@@ -37,7 +37,7 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
         Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
-      , string typeName
+      , string? typeName
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
@@ -95,7 +95,7 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
         public MoldDieCastSettings AppenderSettings;
 
         public Type TypeBeingBuilt { get; set; } = null!;
-        public string TypeName { get; set; } = null!;
+        public string? TypeName { get; set; } = null!;
 
         public IStyledTypeFormatting TypeFormatting { get; set; } = null!;
         public int ExistingRefId { get; set; }
@@ -164,7 +164,7 @@ public static class StyledTypeBuilderExtensions
         if (value == null)
         {
             var sb = stb.Sb;
-            sb.Append(stb.Settings.NullString);
+            stb.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
             return stb;
         }
         if (!callContext.HasFormatChange) return stb.AppendFormattedOrNull(value, formatString, formatFlags, isKeyName);
@@ -267,7 +267,7 @@ public static class StyledTypeBuilderExtensions
         if (value == null)
         {
             var sb = stb.Sb;
-            sb.Append(stb.Settings.NullString);
+            stb.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
             return stb;
         }
         formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags, formatString, isKeyName);
@@ -311,7 +311,9 @@ public static class StyledTypeBuilderExtensions
 
             if (!stb.Settings.DisableCircularRefCheck && !typeof(TCloaked).IsValueType) { stb.Master.EnsureRegisteredVisited(value); }
         }
-        else { sb.Append(Null); }
+        else { 
+            stb.StyleFormatter.AppendFormattedNull(sb, "", formatFlags);
+        }
         return stb;
     }
 
@@ -344,12 +346,14 @@ public static class StyledTypeBuilderExtensions
 
             if (!stb.Settings.DisableCircularRefCheck && !typeof(TCloakedStruct).IsValueType) { stb.Master.EnsureRegisteredVisited(value); }
         }
-        else { sb.Append(Null); }
+        else { 
+            stb.StyleFormatter.AppendFormattedNull(sb, "", formatFlags);
+        }
         return stb;
     }
 
     public static ITypeMolderDieCast<TExt> RevealStringBearerField<TExt, TBearer>(this ITypeMolderDieCast<TExt> stb, ReadOnlySpan<char> fieldName
-      , TBearer? value, FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false)
+      , TBearer? value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false)
         where TExt : TypeMolder where TBearer : IStringBearer
     {
         if (stb.SkipField(fieldName, formatFlags)) return stb;
@@ -357,13 +361,14 @@ public static class StyledTypeBuilderExtensions
         if (callContext.ShouldSkip) return stb;
 
         stb.FieldNameJoin(fieldName);
-        if (!callContext.HasFormatChange) return stb.RevealStringBearerOrNull(value, isKeyName);
-        using (callContext) { return stb.RevealStringBearerOrNull(value, isKeyName); }
+        if (!callContext.HasFormatChange) return stb.RevealStringBearerOrNull(value, formatString, formatFlags, isKeyName);
+        using (callContext) { return stb.RevealStringBearerOrNull(value, formatString, formatFlags, isKeyName); }
     }
 
     public static ITypeMolderDieCast<TExt> RevealStringBearerOrNull<TExt, TBearer>(this ITypeMolderDieCast<TExt> stb
-      , TBearer? value, bool isKeyName = false) where TExt : TypeMolder
-                                                where TBearer : IStringBearer
+      , TBearer? value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false) 
+        where TExt : TypeMolder
+        where TBearer : IStringBearer
     {
         var sb = stb.Sb;
         if (value != null)
@@ -373,7 +378,9 @@ public static class StyledTypeBuilderExtensions
             else
                 stb.StyleFormatter.FormatFieldContents(stb.Master, value);
         }
-        else { sb.Append(Null); }
+        else { 
+            stb.StyleFormatter.AppendFormattedNull(sb, "", formatFlags);
+        }
         return stb;
     }
 
@@ -398,7 +405,7 @@ public static class StyledTypeBuilderExtensions
 
         if (value == null)
         {
-            sb.Append(stb.Settings.NullString);
+            stb.StyleFormatter.AppendFormattedNull(sb, "", formatFlags);
             return stb;
         }
         if (isKeyName)
@@ -410,8 +417,7 @@ public static class StyledTypeBuilderExtensions
 
     public static ITypeMolderDieCast<TExt> AppendReadOnlySpanField<TExt>
     (this ITypeMolderDieCast<TExt> stb, ReadOnlySpan<char> fieldName, ReadOnlySpan<char> value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
-      , int fromIndex = 0, int length = int.MaxValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags
+      , string formatString = "", int fromIndex = 0, int length = int.MaxValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags
       , bool isKeyName = false) where TExt : TypeMolder
     {
         if (stb.SkipField(fieldName, formatFlags)) return stb;
@@ -434,7 +440,7 @@ public static class StyledTypeBuilderExtensions
         var cappedFrom = Math.Clamp(fromIndex, 0, value.Length);
         if (value.Length == 0)
         {
-            sb.Append(stb.Settings.NullString);
+            stb.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
             return stb;
         }
         formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, "InputIsCharSpan", formatFlags, formatString, isKeyName);
@@ -468,7 +474,7 @@ public static class StyledTypeBuilderExtensions
         var sb = stb.Sb;
         if (value == null)
         {
-            sb.Append(stb.Settings.NullString);
+            stb.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
             return stb;
         }
         formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, "InputIsCharSpan", formatFlags, formatString, isKeyName);
@@ -504,7 +510,7 @@ public static class StyledTypeBuilderExtensions
         var sb = stb.Sb;
         if (value == null)
         {
-            sb.Append(stb.Settings.NullString);
+            stb.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
             return stb;
         }
         var cappedFrom = Math.Max(0, Math.Min(value.Length, fromIndex));
@@ -541,7 +547,7 @@ public static class StyledTypeBuilderExtensions
         var sb = stb.Sb;
         if (value == null)
         {
-            sb.Append(stb.Settings.NullString);
+            stb.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
             return stb;
         }
         var cappedFrom = Math.Max(0, Math.Min(value.Length, fromIndex));
@@ -578,7 +584,7 @@ public static class StyledTypeBuilderExtensions
         var sb = stb.Sb;
         if (value == null)
         {
-            sb.Append(stb.Settings.NullString);
+            stb.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
             return stb;
         }
         var cappedFrom = Math.Clamp(fromIndex, 0, value.Length);
@@ -701,7 +707,7 @@ public static class StyledTypeBuilderExtensions
                     break;
                 case StringBuilder valueSb: stb.AppendFormattedOrNull(valueSb, formatString, formatFlags: formatFlags, isKeyName: isKeyName); break;
 
-                case IStringBearer styledToStringObj: stb.RevealStringBearerOrNull(styledToStringObj, isKeyName); break;
+                case IStringBearer styledToStringObj: stb.RevealStringBearerOrNull(styledToStringObj, formatString, formatFlags, isKeyName); break;
                 case IEnumerator:
                 case IEnumerable:
                     var type = typeof(TValue);
@@ -818,7 +824,7 @@ public static class StyledTypeBuilderExtensions
                 case ICharSequence valueCharSequence: stb.AppendFormattedCollectionItemOrNull(valueCharSequence, retrieveCount, formatString, formatFlags); break;
                 case StringBuilder valueSb:           stb.AppendFormattedCollectionItemOrNull(valueSb, retrieveCount, formatString, formatFlags); break;
 
-                case IStringBearer styledToStringObj: stb.RevealStringBearerOrNull(styledToStringObj, isKeyName); break;
+                case IStringBearer styledToStringObj: stb.RevealStringBearerOrNull(styledToStringObj, formatString, formatFlags, isKeyName); break;
                 case IEnumerator:
                 case IEnumerable:
                     var type = typeof(TValue);
@@ -866,7 +872,7 @@ public static class StyledTypeBuilderExtensions
 
     public static void GoToNextCollectionItemStart<TExt>(this ITypeMolderDieCast<TExt> stb, Type elementType, int elementAt) where TExt : TypeMolder
     {
-        stb.StyleFormatter.AddCollectionElementSeparator(stb, elementType, elementAt + 1);
+        stb.StyleFormatter.AddCollectionElementSeparator(stb.Sb, elementType, elementAt + 1);
     }
 
     public static ITypeMolderDieCast<TExt> AppendFormattedCollectionItem<TExt>

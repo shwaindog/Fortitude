@@ -5,7 +5,6 @@ using System.Text;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
-using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 
@@ -14,10 +13,8 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 public interface IStyledTypeFormatting : ICustomStringFormatter
 {
     string Name { get; }
-    IEncodingTransfer ContentEncoder { get; set; }
-    ContentSeparatorPaddingRangeTracking ContentSeparatorPaddingTracking { get; set; }
-
-    IStringBuilder StartNewContentSeparatorPaddingTracking(IStringBuilder sb);
+    
+    public GraphTrackingBuilder GraphBuilder { get; }
 
     FieldContentHandling ResolveContentFormattingFlags<T>(IStringBuilder sb, T input, FieldContentHandling callerFormattingFlags
     , string formatString = "", bool isFieldName = false);
@@ -112,7 +109,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder FormatCollectionEnd(ITypeMolderDieCast moldInternal, int? resultsFoundCount, Type itemElementType, int? totalItemCount
     , string? formatString, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
-    IStringBuilder AddCollectionElementSeparator(ITypeMolderDieCast moldInternal, Type elementType, int nextItemNumber
+    IStringBuilder AddCollectionElementSeparator(IStringBuilder sb, Type elementType, int nextItemNumber
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
     
     IStringBuilder AppendFieldName(IStringBuilder sb, ReadOnlySpan<char> fieldName);

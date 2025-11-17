@@ -965,6 +965,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
     {
         unchecked
         {
+            // ReSharper disable NonReadonlyMemberInGetHashCode
             var hashCode = (int)UpdatedFlags;
             hashCode = (hashCode * 397) ^ (int)PQSequenceId;
             hashCode = (hashCode * 397) ^ SourceTickerInfo?.GetHashCode() ?? 0;
@@ -976,6 +977,7 @@ public class PQTradingStatusFeedEvent : PQReusableMessage, IPQTradingStatusFeedE
             hashCode = (hashCode * 397) ^ (int)FeedSyncStatus;
             hashCode = (hashCode * 397) ^ (SourceTickerInfo?.GetHashCode() ?? 0);
             return hashCode;
+            // ReSharper restore NonReadonlyMemberInGetHashCode
         }
     }
 

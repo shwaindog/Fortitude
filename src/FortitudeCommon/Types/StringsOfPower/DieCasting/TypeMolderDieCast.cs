@@ -19,7 +19,6 @@ public interface ITypeMolderDieCast
 
     MoldDieCastSettings AppendSettings { get; set; }
     
-    ContentSeparatorRanges LastContentSeparatorPaddingRanges { get; set; }
     
     FieldContentHandling CallerContentHandling { get; }
     FieldContentHandling CreateContentHandling { get; }
@@ -33,7 +32,7 @@ public interface ITypeMolderDieCast
     bool IsComplete { get; }
 
     Type TypeBeingBuilt { get; }
-    string TypeName { get; }
+    string? TypeName { get; }
 
     bool SkipBody { get; set; }
     bool SkipFields { get; set; }
@@ -96,7 +95,7 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
 
     public ISecretStringOfPower Master => typeBuilderState.Master;
 
-    public string TypeName => typeBuilderState.TypeName;
+    public string? TypeName => typeBuilderState.TypeName;
     
     public Type TypeBeingBuilt => typeBuilderState.TypeBeingBuilt;
 

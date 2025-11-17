@@ -44,7 +44,7 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
 
     public TMold AlwaysReveal<TBearer>(ReadOnlySpan<char> fieldName, TBearer? value
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer =>
-        stb.RevealStringBearerField(fieldName, value, formatFlags).AddGoToNext();
+        stb.RevealStringBearerField(fieldName, value, "", formatFlags).AddGoToNext();
 
     public TMold AlwaysReveal<TBearerStruct>(ReadOnlySpan<char> fieldName, TBearerStruct? value
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)

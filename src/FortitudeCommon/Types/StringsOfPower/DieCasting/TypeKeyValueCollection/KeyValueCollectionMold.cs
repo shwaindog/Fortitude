@@ -19,7 +19,7 @@ public partial class KeyValueCollectionMold : MultiValueTypeMolder<KeyValueColle
         Type typeBeingBuilt
       , ISecretStringOfPower vesselOfStringOfPower
       , MoldDieCastSettings appendSettings
-      , string typeName
+      , string? typeName
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting  
       , int existingRefId

@@ -102,6 +102,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         if (value == null)
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
+            StyleFormatter.GraphBuilder.StartNextContentSeparatorPaddingSequence(Sb, StyleFormatter, formatFlags, true);
             StyleFormatter.FormatFieldContents(Sb, defaultValue, 0, formatString, formatFlags: formatFlags);
             return StyleTypeBuilder;
         }
@@ -165,15 +166,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         if (value == null)
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-            // if (formatFlags.HasEnsureFormattedDelimitedFlag())
-            // {
-            //     StyleFormatter.AppendDelimiterStart(typeof(TFmtStruct), Sb);
-            // }
             StyleFormatter.FormatFieldContents(Sb, defaultValue, 0, formatString, formatFlags: formatFlags);
-            // if (formatFlags.HasEnsureFormattedDelimitedFlag())
-            // {
-            //     StyleFormatter.AppendDelimiterEnd(typeof(TFmtStruct), Sb);
-            // }
             return StyleTypeBuilder;
         }
         StyleFormatter.FormatFieldContents(Sb, value, formatString, formatFlags);
@@ -224,7 +217,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         if (callContext.ShouldSkip) return StyleTypeBuilder;
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
-        JoinValueJoin(value, palantírReveal, formatFlags);
+        VettedJoinValue(value, palantírReveal, formatFlags);
         return ConditionalValueTypeSuffix();
     }
     
@@ -247,7 +240,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         if (value == null)
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-            Sb.Append(Settings.NullString);
+            AppendNull( "", formatFlags);
             return StyleTypeBuilder;
         }
         StyleFormatter.FormatFieldContents(Master, value, palantírReveal); 
@@ -283,7 +276,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         if (value == null)
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-            Sb.Append(Settings.NullString);
+            AppendNull( "", formatFlags);
             return StyleTypeBuilder;
         }
         StyleFormatter.FormatFieldContents(Master, value.Value, palantírReveal); 
@@ -322,7 +315,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         if (value == null)
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-            StyleFormatter.Format(defaultValue, 0, Sb, "", formatFlags: (FormattingHandlingFlags)formatFlags);
+            StyleFormatter.FormatFieldContents(Sb, defaultValue, 0, "", formatFlags: formatFlags);
             return StyleTypeBuilder;
         }
         StyleFormatter.FormatFieldContents(Master, value, palantírReveal);
@@ -357,7 +350,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         if (value == null)
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-            StyleFormatter.Format(defaultValue, 0, Sb, "", formatFlags: (FormattingHandlingFlags)formatFlags);
+            StyleFormatter.FormatFieldContents(Sb, defaultValue, 0, "", formatFlags: formatFlags);
             return StyleTypeBuilder;
         }
         StyleFormatter.FormatFieldContents(Master, value.Value, palantírReveal);
@@ -392,7 +385,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         if (value == null)
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-            StyleFormatter.Format(defaultValue, 0, Sb, "", formatFlags: (FormattingHandlingFlags)formatFlags);
+            StyleFormatter.FormatFieldContents(Sb, defaultValue, 0, "", formatFlags: formatFlags);
             return StyleTypeBuilder;
         }
         StyleFormatter.FormatFieldContents(Master, value);
@@ -427,7 +420,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         if (value == null)
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-            StyleFormatter.Format(defaultValue, 0, Sb, "", formatFlags: (FormattingHandlingFlags)formatFlags);
+            StyleFormatter.FormatFieldContents(Sb, defaultValue, 0, "", formatFlags: formatFlags);
             return StyleTypeBuilder;
         }
         StyleFormatter.FormatFieldContents(Master, value.Value);
@@ -459,7 +452,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         if (value == null)
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-            Sb.Append(Settings.NullString);
+            AppendNull( "", formatFlags);
             return StyleTypeBuilder;
         }
         StyleFormatter.FormatFieldContents(Master, value);
@@ -492,7 +485,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         if (value == null)
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-            Sb.Append(Settings.NullString);
+            AppendNull("", formatFlags);
             return StyleTypeBuilder;
         }
         StyleFormatter.FormatFieldContents(Master, value.Value);
@@ -667,7 +660,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
             var capLength = Math.Clamp(length, 0, value.Length - capStart);
-            if (capLength > 0) { StyleFormatter.Format(value, capStart, Sb, formatString, capLength); }
+            if (capLength > 0) { StyleFormatter.FormatFieldContents(Sb, value, capStart, formatString, capLength, formatFlags); }
             else
             {
                 if (formatString.Length > 0)
@@ -1036,15 +1029,15 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         else
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-            if (formatFlags.HasEnsureFormattedDelimitedFlag())
-            {
-                StyleFormatter.AppendDelimiterStart(typeof(TAny), Sb);
-            }
-            StyleFormatter.Format(defaultValue, 0, Sb, formatString, formatFlags: (FormattingHandlingFlags)formatFlags);
-            if (formatFlags.HasEnsureFormattedDelimitedFlag())
-            {
-                StyleFormatter.AppendDelimiterEnd(typeof(TAny), Sb);
-            }
+            // if (formatFlags.HasEnsureFormattedDelimitedFlag())
+            // {
+            //     StyleFormatter.AppendDelimiterStart(typeof(TAny), Sb);
+            // }
+            StyleFormatter.FormatFieldContents(Sb, defaultValue, 0, formatString, formatFlags: formatFlags);
+            // if (formatFlags.HasEnsureFormattedDelimitedFlag())
+            // {
+            //     StyleFormatter.AppendDelimiterEnd(typeof(TAny), Sb);
+            // }
         }
         return StyleTypeBuilder;
     }
@@ -1077,17 +1070,17 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         {
             if (formatFlags.HasNullBecomesEmptyFlag())
             {
-                if(addStartDblQt) Sb.Append("\"");
-                if(addEndDblQt) Sb.Append("\"");
+                if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
+                if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
                 return StyleTypeBuilder;
             }
             AppendNull(formatString, formatFlags);
         }
         else
         {
-            if(addStartDblQt) Sb.Append("\"");
+            if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
             this.AppendFormattedOrNull(value, formatString, formatFlags);
-            if(addEndDblQt) Sb.Append("\"");
+            if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         }
         return StyleTypeBuilder;
     }
@@ -1119,7 +1112,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
       , bool addStartDblQt = false, bool addEndDblQt = false)
         where TFmt : ISpanFormattable
     {
-        if(addStartDblQt) Sb.Append("\"");
+        if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         if (value == null)
         {
             if (!formatFlags.HasNullBecomesEmptyFlag())
@@ -1128,7 +1121,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             }
         }
         else { this.AppendMatchFormattedOrNull(value, formatString, formatFlags | DisableAutoDelimiting); }
-        if(addEndDblQt) Sb.Append("\"");
+        if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         return StyleTypeBuilder;
     }
 
@@ -1163,17 +1156,17 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         {
             if (formatFlags.HasNullBecomesEmptyFlag())
             {
-                if(addStartDblQt) Sb.Append("\"");
-                if(addEndDblQt) Sb.Append("\"");
+                if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
+                if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
                 return StyleTypeBuilder;
             }
             AppendNull(formatString, formatFlags);
         }
         else
         {
-            if(addStartDblQt) Sb.Append("\"");
+            if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
             this.AppendMatchFormattedOrNull(value, formatString, formatFlags);
-            if(addEndDblQt) Sb.Append("\"");
+            if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         }
         return StyleTypeBuilder;
     }
@@ -1205,7 +1198,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
         where TFmtStruct : struct, ISpanFormattable
     {
-        if(addStartDblQt) Sb.Append("\"");
+        if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         if (value == null)
         {
             if (!formatFlags.HasNullBecomesEmptyFlag())
@@ -1217,7 +1210,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         {
             this.AppendMatchFormattedOrNull(value, formatString, formatFlags);
         }
-        if(addEndDblQt) Sb.Append("\"");
+        if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         return StyleTypeBuilder;
     }
 
@@ -1252,17 +1245,17 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         {
             if (formatFlags.HasNullBecomesEmptyFlag())
             {
-                if(addStartDblQt) Sb.Append("\"");
-                if(addEndDblQt) Sb.Append("\"");
+                if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
+                if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
                 return StyleTypeBuilder;
             }
             AppendNull(formatString, formatFlags);
         }
         else
         {
-            if(addStartDblQt) Sb.Append("\"");
+            if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
             this.AppendMatchFormattedOrNull(value, formatString, formatFlags);
-            if(addEndDblQt) Sb.Append("\"");
+            if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         }
         return StyleTypeBuilder;
     }
@@ -1300,19 +1293,19 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         where TCloaked : TRevealBase
         where TRevealBase : notnull
     {
-        if(addStartDblQt) Sb.Append("\"");
+        if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         if (value == null)
         {
             if (!formatFlags.HasNullBecomesEmptyFlag())
             {
-                StyleFormatter.Format(defaultValue, 0, Sb, "", formatFlags: (FormattingHandlingFlags)formatFlags);
+                StyleFormatter.FormatFieldContents(Sb, defaultValue, 0, "", formatFlags: formatFlags);
             }
         }
         else
         {
             StyleFormatter.FormatFieldContents(Master,  value, palantírReveal);
         }
-        if(addEndDblQt) Sb.Append("\"");
+        if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         return StyleTypeBuilder;
     }
 
@@ -1358,13 +1351,13 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                 if(addEndDblQt) Sb.Append("\"");
                 return StyleTypeBuilder;
             }
-            Sb.Append(Settings.NullString);
+            AppendNull("", formatFlags);
         }
         else
         {
-            if(addStartDblQt) Sb.Append("\"");
+            if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
             StyleFormatter.FormatFieldContents(Master,  value, palantírReveal);
-            if(addEndDblQt) Sb.Append("\"");
+            if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         }
         return StyleTypeBuilder;
     }
@@ -1399,19 +1392,19 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
       , bool addStartDblQt = false, bool addEndDblQt = false)
         where TCloakedStruct : struct
     {
-        if(addStartDblQt) Sb.Append("\"");
+        if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         if (value == null)
         {
             if (!formatFlags.HasNullBecomesEmptyFlag())
             {
-                StyleFormatter.Format(defaultValue, 0, Sb, "", formatFlags: (FormattingHandlingFlags)formatFlags);
+                StyleFormatter.FormatFieldContents(Sb,defaultValue, 0, "", formatFlags: formatFlags);
             }
         }
         else
         {
             StyleFormatter.FormatFieldContents(Master,  value.Value, palantírReveal);
         }
-        if(addEndDblQt) Sb.Append("\"");
+        if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         return StyleTypeBuilder;
     }
 
@@ -1448,17 +1441,17 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         {
             if (formatFlags.HasNullBecomesEmptyFlag())
             {
-                if(addStartDblQt) Sb.Append("\"");
-                if(addEndDblQt) Sb.Append("\"");
+                if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
+                if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
                 return StyleTypeBuilder;
             }
-            Sb.Append(Settings.NullString);
+            AppendNull("", formatFlags);
         }
         else
         {
-            if(addStartDblQt) Sb.Append("\"");
+            if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
             StyleFormatter.FormatFieldContents(Master, value.Value, palantírReveal);
-            if(addEndDblQt) Sb.Append("\"");
+            if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         }
         return StyleTypeBuilder;
     }
@@ -1490,19 +1483,19 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
         where TBearer : IStringBearer
     {
-        if(addStartDblQt) Sb.Append("\"");
+        if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         if (value == null)
         {
             if (!formatFlags.HasNullBecomesEmptyFlag())
             {
-                StyleFormatter.Format(defaultValue, 0, Sb, "", formatFlags: (FormattingHandlingFlags)formatFlags);
+                StyleFormatter.FormatFieldContents(Sb,defaultValue, 0, "", formatFlags: formatFlags);
             }
         }
         else
         {
             StyleFormatter.FormatFieldContents(Master,  value);
         }
-        if(addEndDblQt) Sb.Append("\"");
+        if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         return StyleTypeBuilder;
     }
     
@@ -1533,19 +1526,19 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
         where TBearerStruct : struct, IStringBearer
     {
-        if(addStartDblQt) Sb.Append("\"");
+        if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         if (value == null)
         {
             if (!formatFlags.HasNullBecomesEmptyFlag())
             {
-                StyleFormatter.Format(defaultValue, 0, Sb, "", formatFlags: (FormattingHandlingFlags)formatFlags);
+                StyleFormatter.FormatFieldContents(Sb,defaultValue, 0, "", formatFlags: formatFlags);
             }
         }
         else
         {
             StyleFormatter.FormatFieldContents(Master,  value.Value);
         }
-        if(addEndDblQt) Sb.Append("\"");
+        if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         return StyleTypeBuilder;
     }
 
@@ -1583,13 +1576,13 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                 if(addEndDblQt) Sb.Append("\"");
                 return StyleTypeBuilder;
             }
-            Sb.Append(Settings.NullString);
+            AppendNull( "", formatFlags);
         }
         else
         {
-            if(addStartDblQt) Sb.Append("\"");
+            if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
             StyleFormatter.FormatFieldContents(Master, value);
-            if(addEndDblQt) Sb.Append("\"");
+            if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         }
         return StyleTypeBuilder;
     }
@@ -1624,17 +1617,17 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         {
             if (formatFlags.HasNullBecomesEmptyFlag())
             {
-                if(addStartDblQt) Sb.Append("\"");
-                if(addEndDblQt) Sb.Append("\"");
+                if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
+                if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
                 return StyleTypeBuilder;
             }
-            Sb.Append(Settings.NullString);
+            AppendNull("", formatFlags);
         }
         else
         {
-            if(addStartDblQt) Sb.Append("\"");
+            if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
             StyleFormatter.FormatFieldContents(Master, value.Value);
-            if(addEndDblQt) Sb.Append("\"");
+            if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         }
         return StyleTypeBuilder;
     }
@@ -1667,16 +1660,16 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         {
             if (formatFlags.HasNullBecomesEmptyFlag())
             {
-                if(addStartDblQt) Sb.Append("\"");
-                if(addEndDblQt) Sb.Append("\"");
+                if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
+                if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
                 return StyleTypeBuilder;
             }
             AppendNull(formatString, formatFlags);
             return StyleTypeBuilder;
         }
-        if(addStartDblQt) Sb.Append("\"");
+        if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         StyleFormatter.FormatFieldContents(Sb, value, 0, formatString, formatFlags: formatFlags);
-        if(addEndDblQt) Sb.Append("\"");
+        if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         return StyleTypeBuilder;
     }
 
@@ -1708,16 +1701,16 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         {
             if (formatFlags.HasNullBecomesEmptyFlag())
             {
-                if(addStartDblQt) Sb.Append("\"");
-                if(addEndDblQt) Sb.Append("\"");
+                if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
+                if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
                 return StyleTypeBuilder;
             }
-            Sb.Append(Settings.NullString);
+            AppendNull("", formatFlags);
             return StyleTypeBuilder;
         }
-        if(addStartDblQt) Sb.Append("\"");
+        if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         StyleFormatter.FormatFieldContents(Sb, value, 0, "", formatFlags: formatFlags);
-        if(addEndDblQt) Sb.Append("\"");
+        if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         return StyleTypeBuilder;
     }
 
@@ -1745,7 +1738,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     public TVMold VettedJoinStringWithDefault(ReadOnlySpan<char> value, string defaultValue = "", string formatString = ""
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        if(addStartDblQt) Sb.Append("\"");
+        if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         if (value.Length == 0)
         {
             if (!formatFlags.HasNullBecomesEmptyFlag())
@@ -1754,7 +1747,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             }
         }
         StyleFormatter.FormatFieldContents(Sb, value, 0, formatString, formatFlags: formatFlags);
-        if(addEndDblQt) Sb.Append("\"");
+        if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         return StyleTypeBuilder;
     }
 
@@ -1786,16 +1779,16 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         {
             if (formatFlags.HasNullBecomesEmptyFlag())
             {
-                if(addStartDblQt) Sb.Append("\"");
-                if(addEndDblQt) Sb.Append("\"");
+                if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
+                if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
                 return StyleTypeBuilder;
             }
-            Sb.Append(Settings.NullString);
+            AppendNull(formatString, formatFlags);
             return StyleTypeBuilder;
         }
-        if(addStartDblQt) Sb.Append("\"");
+        if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         StyleFormatter.FormatFieldContents(Sb, value, 0, formatString, formatFlags: formatFlags);
-        if(addEndDblQt) Sb.Append("\"");
+        if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         return StyleTypeBuilder;
     }
 
@@ -1829,9 +1822,9 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             var capLength = Math.Clamp(length, 0, value.Length - capStart);
             if (capLength > 0)
             {
-                if(addStartDblQt) Sb.Append("\"");
+                if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
                 StyleFormatter.FormatFieldContents(Sb, value, capStart, formatString, capLength, formatFlags: formatFlags);
-                if(addEndDblQt) Sb.Append("\"");
+                if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
             }
             else
             {
@@ -1840,9 +1833,9 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                     var prefixSuffixLength = ((ReadOnlySpan<char>)formatString).PrefixSuffixLength();
                     if (prefixSuffixLength > 0)
                     {
-                        if(addStartDblQt) Sb.Append("\"");
+                        if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
                         StyleFormatter.FormatFieldContents( Sb, "",0, formatString, formatFlags: formatFlags);
-                        if(addEndDblQt) Sb.Append("\"");
+                        if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
                         return StyleTypeBuilder;
                     }
                 }
@@ -1885,7 +1878,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
       , ReadOnlySpan<char> defaultValue, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        if(addStartDblQt) Sb.Append("\"");
+        if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
@@ -1905,7 +1898,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
             StyleFormatter.FormatFieldContents(Sb, defaultValue, 0, formatString, formatFlags: formatFlags);
         }
-        if(addEndDblQt) Sb.Append("\"");
+        if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         return StyleTypeBuilder;
     }
 
@@ -1939,9 +1932,9 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             var capLength = Math.Clamp(length, 0, value.Length - capStart);
             if (capLength > 0)
             {
-                if(addStartDblQt) Sb.Append("\"");
+                if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
                 StyleFormatter.FormatFieldContents(Sb, value, capStart, formatString, capLength, formatFlags: formatFlags);
-                if(addEndDblQt) Sb.Append("\"");
+                if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
             }
             else
             {
@@ -1950,9 +1943,9 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                     var prefixSuffixLength = ((ReadOnlySpan<char>)formatString).PrefixSuffixLength();
                     if (prefixSuffixLength > 0)
                     {
-                        if(addStartDblQt) Sb.Append("\"");
+                        if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
                         StyleFormatter.FormatFieldContents(Sb, ((ReadOnlySpan<char>)""),0, formatString, formatFlags: formatFlags);
-                        if(addEndDblQt) Sb.Append("\"");
+                        if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
                         return StyleTypeBuilder;
                     }
                 }
@@ -1995,7 +1988,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
       , ReadOnlySpan<char> defaultValue, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        if(addStartDblQt) Sb.Append("\"");
+        if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
@@ -2013,7 +2006,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
             StyleFormatter.FormatFieldContents(Sb, defaultValue, 0, formatString, formatFlags: formatFlags);
         }
-        if(addEndDblQt) Sb.Append("\"");
+        if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         return StyleTypeBuilder;
     }
 
@@ -2044,7 +2037,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
       , ReadOnlySpan<char> defaultValue, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        if(addStartDblQt) Sb.Append("\"");
+        if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
@@ -2062,7 +2055,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
             StyleFormatter.FormatFieldContents(Sb, defaultValue, 0, formatString, formatFlags: formatFlags);
         }
-        if(addEndDblQt) Sb.Append("\"");
+        if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         return StyleTypeBuilder;
     }
 
@@ -2096,9 +2089,9 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             var capLength = Math.Clamp(length, 0, value.Length - capStart);
             if (capLength > 0)
             {
-                if(addStartDblQt) Sb.Append("\"");
+                if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
                 StyleFormatter.FormatFieldContents(Sb, value, capStart, formatString, capLength, formatFlags: formatFlags);
-                if(addEndDblQt) Sb.Append("\"");
+                if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
             }
             else
             {
@@ -2107,9 +2100,9 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                     var prefixSuffixLength = ((ReadOnlySpan<char>)formatString).PrefixSuffixLength();
                     if (prefixSuffixLength > 0)
                     {
-                        if(addStartDblQt) Sb.Append("\"");
+                        if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
                         StyleFormatter.FormatFieldContents( Sb, "",0, formatString, formatFlags: formatFlags);
-                        if(addEndDblQt) Sb.Append("\"");
+                        if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
                         return StyleTypeBuilder;
                     }
                 }
@@ -2152,7 +2145,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
       , ReadOnlySpan<char> defaultValue, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        if(addStartDblQt) Sb.Append("\"");
+        if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
@@ -2170,7 +2163,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
             StyleFormatter.FormatFieldContents(Sb, defaultValue, 0, formatString, formatFlags: formatFlags);
         }
-        if(addEndDblQt) Sb.Append("\"");
+        if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         return StyleTypeBuilder;
     }
 
@@ -2204,9 +2197,9 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
             var capLength = Math.Clamp(length, 0, value.Length - capStart);
             if (capLength > 0)
             {
-                if(addStartDblQt) Sb.Append("\"");
+                if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
                 StyleFormatter.FormatFieldContents(Sb, value, capStart, formatString, capLength, formatFlags: formatFlags);
-                if(addEndDblQt) Sb.Append("\"");
+                if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
             }
             else
             {
@@ -2215,9 +2208,9 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                     var prefixSuffixLength = ((ReadOnlySpan<char>)formatString).PrefixSuffixLength();
                     if (prefixSuffixLength > 0)
                     {
-                        if(addStartDblQt) Sb.Append("\"");
+                        if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
                         StyleFormatter.FormatFieldContents( Sb, "",0, formatString, formatFlags: formatFlags);
-                        if(addEndDblQt) Sb.Append("\"");
+                        if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
                         return StyleTypeBuilder;
                     }
                 }
@@ -2260,17 +2253,17 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         {
             if (formatFlags.HasNullBecomesEmptyFlag())
             {
-                if(addStartDblQt) Sb.Append("\"");
+                if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
                 StyleFormatter.FormatFieldContents( Sb, "",0, formatString, formatFlags: formatFlags | DisableAutoDelimiting);
-                if(addEndDblQt) Sb.Append("\"");
+                if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
                 return StyleTypeBuilder;
             }
             AppendNull(formatString, formatFlags);
             return StyleTypeBuilder;
         }
-        if(addStartDblQt) Sb.Append("\"");
+        if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         this.AppendMatchFormattedOrNull(value, formatString, DisableAutoDelimiting | formatFlags);
-        if(addEndDblQt) Sb.Append("\"");
+        if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         return StyleTypeBuilder;
     }
 
@@ -2297,7 +2290,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
     public TVMold VettedJoinStringMatchWithDefault<TAny>(TAny? value, ReadOnlySpan<char> defaultValue, string formatString = ""
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false) 
     {
-        if(addStartDblQt) Sb.Append("\"");
+        if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         if (value != null)
         {
             this.AppendMatchFormattedOrNull(value, formatString, FieldContentHandling.DisableAutoDelimiting | formatFlags);
@@ -2309,7 +2302,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
                 StyleFormatter.FormatFieldContents(Sb, defaultValue, 0, formatString, formatFlags: formatFlags);
             }
         }
-        if(addEndDblQt) Sb.Append("\"");
+        if(addEndDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
         return StyleTypeBuilder;
     }
 
