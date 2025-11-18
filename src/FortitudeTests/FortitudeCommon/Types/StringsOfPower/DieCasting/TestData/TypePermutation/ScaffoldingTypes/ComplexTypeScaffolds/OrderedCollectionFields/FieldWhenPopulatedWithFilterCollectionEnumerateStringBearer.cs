@@ -16,19 +16,19 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
 public class FieldBoolEnumerableWhenPopulatedWithFilterStringBearer : FormattedFilteredCollectionFieldMoldScaffold<bool, IEnumerable<bool>>
   
 {
-    public IEnumerable<bool>? ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolList
+    public IEnumerable<bool>? ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolEnumerable
     {
         get => Value;
         set => Value = value!;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilterEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolList, ElementPredicate, ValueFormatString)
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolEnumerable)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolEnumerable, ElementPredicate, ValueFormatString)
            .Complete();
 }
 
@@ -37,19 +37,19 @@ public class FieldBoolEnumerableWhenPopulatedWithFilterStringBearer : FormattedF
 public class FieldNullableBoolEnumerableWhenPopulatedWithFilterStringBearer : FormattedFilteredCollectionFieldMoldScaffold<bool?, IEnumerable<bool?>>
   
 {
-    public IEnumerable<bool?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolList
+    public IEnumerable<bool?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolEnumerable
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilterEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolList, ElementPredicate, ValueFormatString)
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolEnumerable)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolEnumerable, ElementPredicate, ValueFormatString)
            .Complete();
 }
 
@@ -59,20 +59,20 @@ public class FieldSpanFormattableEnumerableWhenPopulatedWithFilterStringBearer<T
     : FormattedFilteredCollectionFieldMoldScaffold<TFmt, TFmtBase, IEnumerable<TFmt>>
     where TFmt : ISpanFormattable, TFmtBase
 {
-    public IEnumerable<TFmt?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableList
+    public IEnumerable<TFmt?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableEnumerable
     {
         get => Value;
         set => Value = value!;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
            .WhenPopulatedWithFilterEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableList
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableEnumerable)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableEnumerable
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
@@ -83,19 +83,19 @@ public class FieldNullableSpanFormattableEnumerableWhenPopulatedWithFilterString
     : FormattedFilteredCollectionFieldMoldScaffold<TFmtStruct?, IEnumerable<TFmtStruct?>>
     where TFmtStruct : struct, ISpanFormattable
 {
-    public IEnumerable<TFmtStruct?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableList
+    public IEnumerable<TFmtStruct?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableEnumerable
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilterEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableList
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableEnumerable)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableEnumerable
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
@@ -107,19 +107,19 @@ public class FieldCloakedBearerEnumerableWhenPopulatedWithFilterStringBearer<TCl
     where TCloaked : TRevealBase, TFilterBase
     where TRevealBase : notnull
 {
-    public IEnumerable<TCloaked>? ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerList
+    public IEnumerable<TCloaked>? ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerEnumerable
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerList, ElementPredicate
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerEnumerable)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerEnumerable, ElementPredicate
               , ValueRevealer)
            .Complete();
 }
@@ -130,19 +130,19 @@ public class FieldNullableCloakedBearerEnumerableWhenPopulatedWithFilterStringBe
     RevealerFilteredCollectionFieldMoldScaffold<TCloakedStruct?, TCloakedStruct?, TCloakedStruct, IEnumerable<TCloakedStruct?>>
     where TCloakedStruct : struct
 {
-    public IEnumerable<TCloakedStruct?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerList
+    public IEnumerable<TCloakedStruct?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerEnumerable
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerList
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerEnumerable)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerEnumerable
               , ElementPredicate, ValueRevealer)
            .Complete();
 }
@@ -153,19 +153,19 @@ public class FieldStringBearerEnumerableWhenPopulatedWithFilterStringBearer<TBea
     : FilteredCollectionFieldMoldScaffold<TBearer, TBearerBase, IEnumerable<TBearer>>
     where TBearer : IStringBearer, TBearerBase
 {
-    public IEnumerable<TBearer?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerList
+    public IEnumerable<TBearer?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerEnumerable
     {
         get => Value;
         set => Value = value!;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerList, ElementPredicate)
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerEnumerable)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerEnumerable, ElementPredicate)
            .Complete();
 }
 
@@ -175,85 +175,85 @@ public class FieldNullableStringBearerEnumerableWhenPopulatedWithFilterStringBea
     : FilteredCollectionFieldMoldScaffold<TBearerStruct?, IEnumerable<TBearerStruct?>>
     where TBearerStruct : struct, IStringBearer
 {
-    public IEnumerable<TBearerStruct?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerList
+    public IEnumerable<TBearerStruct?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerEnumerable
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerList, ElementPredicate)
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerEnumerable)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerEnumerable, ElementPredicate)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullAndPopulatedWrites | FilterPredicate | AcceptsString
-                | SupportsValueFormatString)]
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringEnumerableWhenPopulatedWithFilterStringBearer : FormattedFilteredCollectionFieldMoldScaffold<string?, IEnumerable<string?>>
   
 {
-    public IEnumerable<string?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringList
+    public IEnumerable<string?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringEnumerable
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilterEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringList
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringEnumerable)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringEnumerable
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullAndPopulatedWrites | FilterPredicate | AcceptsCharSequence
-                | SupportsValueFormatString)]
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldCharSequenceEnumerableWhenPopulatedWithFilterStringBearer<TCharSeq, TCharSeqFilterBase>
     : FormattedFilteredCollectionFieldMoldScaffold<TCharSeq, TCharSeqFilterBase, IEnumerable<TCharSeq>>
     where TCharSeq : ICharSequence, TCharSeqFilterBase
 {
-    public IEnumerable<TCharSeq?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceList
+    public IEnumerable<TCharSeq?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceEnumerable
     {
         get => Value;
         set => Value = value!;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilterCharSeqEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceList
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceEnumerable)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceEnumerable
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullAndPopulatedWrites | FilterPredicate | AcceptsStringBuilder
-                | SupportsValueFormatString)]
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringBuilderEnumerableWhenPopulatedWithFilterStringBearer
     : FormattedFilteredCollectionFieldMoldScaffold<StringBuilder?, IEnumerable<StringBuilder?>>
 {
-    public IEnumerable<StringBuilder?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderList
+    public IEnumerable<StringBuilder?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderEnumerable
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilterEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderList
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderEnumerable)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderEnumerable
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
@@ -264,19 +264,19 @@ public class FieldMatchEnumerableWhenPopulatedWithFilterStringBearer<TAny, TAnyB
     : FormattedFilteredCollectionFieldMoldScaffold<TAny, TAnyBase, IEnumerable<TAny>>
     where TAny : TAnyBase
 {
-    public IEnumerable<TAny>? ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchList
+    public IEnumerable<TAny>? ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchEnumerable
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilterMatchEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchList
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchEnumerable)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchEnumerable
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
@@ -286,19 +286,19 @@ public class FieldMatchEnumerableWhenPopulatedWithFilterStringBearer<TAny, TAnyB
 public class FieldObjectEnumerableWhenPopulatedWithFilterStringBearer : FormattedFilteredCollectionFieldMoldScaffold<object?, IEnumerable<object?>>
   
 {
-    public IEnumerable<object?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectList
+    public IEnumerable<object?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectEnumerable
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilterObjectEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectList
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectEnumerable)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectEnumerable
               , ElementPredicate, ValueFormatString);
 }
 
@@ -307,19 +307,19 @@ public class FieldObjectEnumerableWhenPopulatedWithFilterStringBearer : Formatte
 public class FieldBoolEnumeratorWhenPopulatedWithFilterStringBearer : FormattedFilteredEnumeratorFieldMoldScaffold<bool, IEnumerator<bool>>
   
 {
-    public IEnumerator<bool>? ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolList
+    public IEnumerator<bool>? ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolEnumerator
     {
         get => Value;
         set => Value = value!;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilterEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolList, ElementPredicate)
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolEnumerator)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolEnumerator, ElementPredicate)
            .Complete();
 }
 
@@ -328,19 +328,19 @@ public class FieldBoolEnumeratorWhenPopulatedWithFilterStringBearer : FormattedF
 public class FieldNullableBoolEnumeratorWhenPopulatedWithFilterStringBearer : FormattedFilteredEnumeratorFieldMoldScaffold<bool?, IEnumerator<bool?>>
   
 {
-    public IEnumerator<bool?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolList
+    public IEnumerator<bool?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolEnumerator
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilterEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolList, ElementPredicate)
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolEnumerator)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolEnumerator, ElementPredicate)
            .Complete();
 }
 
@@ -350,20 +350,20 @@ public class FieldSpanFormattableEnumeratorWhenPopulatedWithFilterStringBearer<T
     : FormattedFilteredEnumeratorFieldMoldScaffold<TFmt, TFmtBase, IEnumerator<TFmt>>
     where TFmt : ISpanFormattable, TFmtBase
 {
-    public IEnumerator<TFmt?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableList
+    public IEnumerator<TFmt?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableEnumerator
     {
         get => Value;
         set => Value = value!;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
            .WhenPopulatedWithFilterEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableList
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableEnumerator)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableEnumerator
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
@@ -374,19 +374,19 @@ public class FieldNullableSpanFormattableEnumeratorWhenPopulatedWithFilterString
     : FormattedFilteredEnumeratorFieldMoldScaffold<TFmtStruct?, IEnumerator<TFmtStruct?>>
     where TFmtStruct : struct, ISpanFormattable
 {
-    public IEnumerator<TFmtStruct?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableList
+    public IEnumerator<TFmtStruct?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableEnumerator
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilterEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableList
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableEnumerator)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableEnumerator
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
@@ -398,19 +398,19 @@ public class FieldCloakedBearerEnumeratorWhenPopulatedWithFilterStringBearer<TCl
     where TCloaked : TRevealBase, TCloakedFilterBase
     where TRevealBase : notnull
 {
-    public IEnumerator<TCloaked>? ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerList
+    public IEnumerator<TCloaked>? ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerEnumerator
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerList, ElementPredicate
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerEnumerator)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerEnumerator, ElementPredicate
               , ValueRevealer)
            .Complete();
 }
@@ -421,19 +421,19 @@ public class FieldNullableCloakedBearerEnumeratorWhenPopulatedWithFilterStringBe
     RevealerFilteredEnumeratorFieldMoldScaffold<TCloakedStruct?, TCloakedStruct?, TCloakedStruct, IEnumerator<TCloakedStruct?>>
     where TCloakedStruct : struct
 {
-    public IEnumerator<TCloakedStruct?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerList
+    public IEnumerator<TCloakedStruct?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerEnumerator
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerList
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerEnumerator)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerEnumerator
               , ElementPredicate, ValueRevealer)
            .Complete();
 }
@@ -444,19 +444,19 @@ public class FieldStringBearerEnumeratorWhenPopulatedWithFilterStringBearer<TBea
     : FilteredEnumeratorFieldMoldScaffold<TBearer, TBearerBase, IEnumerator<TBearer>>
     where TBearer : IStringBearer, TBearerBase
 {
-    public IEnumerator<TBearer?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerList
+    public IEnumerator<TBearer?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerEnumerator
     {
         get => Value;
         set => Value = value!;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerList, ElementPredicate)
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerEnumerator)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerEnumerator, ElementPredicate)
            .Complete();
 }
 
@@ -466,85 +466,85 @@ public class FieldNullableStringBearerEnumeratorWhenPopulatedWithFilterStringBea
     : FilteredEnumeratorFieldMoldScaffold<TBearerStruct?, IEnumerator<TBearerStruct?>>
     where TBearerStruct : struct, IStringBearer
 {
-    public IEnumerator<TBearerStruct?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerList
+    public IEnumerator<TBearerStruct?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerEnumerator
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerList, ElementPredicate)
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerEnumerator)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerEnumerator, ElementPredicate)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullAndPopulatedWrites | FilterPredicate | AcceptsString
-                | SupportsValueFormatString)]
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringEnumeratorWhenPopulatedWithFilterStringBearer : FormattedFilteredEnumeratorFieldMoldScaffold<string?, IEnumerator<string?>>
   
 {
-    public IEnumerator<string?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringList
+    public IEnumerator<string?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringEnumerator
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilterEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringList
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringEnumerator)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringEnumerator
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullAndPopulatedWrites | FilterPredicate | AcceptsCharSequence
-                | SupportsValueFormatString)]
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldCharSequenceEnumeratorWhenPopulatedWithFilterStringBearer<TCharSeq, TCharSeqFilterBase>
     : FormattedFilteredEnumeratorFieldMoldScaffold<TCharSeq, TCharSeqFilterBase, IEnumerator<TCharSeq>>
     where TCharSeq : ICharSequence, TCharSeqFilterBase
 {
-    public IEnumerator<TCharSeq?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceList
+    public IEnumerator<TCharSeq?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceEnumerator
     {
         get => Value;
         set => Value = value!;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilterCharSeqEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceList
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceEnumerator)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceEnumerator
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullAndPopulatedWrites | FilterPredicate | AcceptsStringBuilder
-                | SupportsValueFormatString)]
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringBuilderEnumeratorWhenPopulatedWithFilterStringBearer
     : FormattedFilteredEnumeratorFieldMoldScaffold<StringBuilder?, IEnumerator<StringBuilder?>>
 {
-    public IEnumerator<StringBuilder?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderList
+    public IEnumerator<StringBuilder?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderEnumerator
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilterEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderList
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderEnumerator)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderEnumerator
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
@@ -555,19 +555,19 @@ public class FieldMatchEnumeratorWhenPopulatedWithFilterStringBearer<TAny, TAnyB
     : FormattedFilteredEnumeratorFieldMoldScaffold<TAny, TAnyBase, IEnumerator<TAny>>
     where TAny : TAnyBase
 {
-    public IEnumerator<TAny>? ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchList
+    public IEnumerator<TAny>? ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchEnumerator
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilterMatchEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchList
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchEnumerator)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchEnumerator
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
@@ -577,18 +577,18 @@ public class FieldMatchEnumeratorWhenPopulatedWithFilterStringBearer<TAny, TAnyB
 public class FieldObjectEnumeratorWhenPopulatedWithFilterStringBearer : FormattedFilteredEnumeratorFieldMoldScaffold<object?, IEnumerator<object?>>
   
 {
-    public IEnumerator<object?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectList
+    public IEnumerator<object?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectEnumerator
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilterObjectEnumerate
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectList
+               (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectEnumerator)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectEnumerator
               , ElementPredicate, ValueFormatString);
 }

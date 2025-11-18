@@ -1061,8 +1061,8 @@ public class OrderedFromNullableStringBearerEnumeratorRevealAllSimpleOrderedColl
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | AcceptsClass | AcceptsNullableClass | AcceptsString
-                | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | AcceptsString
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringArrayAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<string?, string?[]>
   
 {
@@ -1080,8 +1080,8 @@ public class OrderedFromStringArrayAddAllSimpleOrderedCollectionStringBearer : F
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsClass | AcceptsString
-                | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsString
+                | AcceptsClass | SupportsValueFormatString)]
 public class OrderedFromStringSpanAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<string, string[]>
   
 {
@@ -1099,8 +1099,8 @@ public class OrderedFromStringSpanAddAllSimpleOrderedCollectionStringBearer : Fo
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsNullableClass | AcceptsString
-                | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsString
+                | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringNullableSpanAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<string?, string?[]>
   
 {
@@ -1118,8 +1118,8 @@ public class OrderedFromStringNullableSpanAddAllSimpleOrderedCollectionStringBea
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsClass | AcceptsString
-                | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsString
+                | AcceptsClass | SupportsValueFormatString)]
 public class OrderedFromStringReadOnlySpanAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<string, string[]>
   
 {
@@ -1137,8 +1137,8 @@ public class OrderedFromStringReadOnlySpanAddAllSimpleOrderedCollectionStringBea
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableClass | AcceptsString |
-                  SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsString 
+                 | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<string?, string?[]>
   
 
@@ -1157,8 +1157,8 @@ public class OrderedFromStringNullableReadOnlySpanAddAllSimpleOrderedCollectionS
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | AcceptsClass | AcceptsNullableClass | AcceptsString
-                | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | AcceptsString
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringListAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<string?, IReadOnlyList<string?>>
   
 
@@ -1177,8 +1177,8 @@ public class OrderedFromStringListAddAllSimpleOrderedCollectionStringBearer : Fo
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsClass | AcceptsNullableClass | AcceptsString |
-                  SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsString 
+                 | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringEnumerableAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<string?, IEnumerable<string?>>
   
 
@@ -1197,8 +1197,8 @@ public class OrderedFromStringEnumerableAddAllSimpleOrderedCollectionStringBeare
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | AcceptsClass | AcceptsNullableClass | AcceptsString |
-                  SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | AcceptsString 
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringEnumeratorAddAllSimpleOrderedCollectionStringBearer : FormattedEnumeratorMoldScaffold<string?, IEnumerator<string?>>
   
 
@@ -1217,8 +1217,8 @@ public class OrderedFromStringEnumeratorAddAllSimpleOrderedCollectionStringBeare
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | AcceptsClass | AcceptsNullableClass | AcceptsCharSequence
-                | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | AcceptsCharSequence
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceArrayAddAllSimpleOrderedCollectionStringBearer<TCharSeq> : FormattedCollectionMoldScaffold<TCharSeq?, TCharSeq?[]>
     where TCharSeq : ICharSequence
 {
@@ -1236,8 +1236,8 @@ public class OrderedFromCharSequenceArrayAddAllSimpleOrderedCollectionStringBear
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsClass | AcceptsCharSequence
-                | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsCharSequence
+                | AcceptsClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceSpanAddAllSimpleOrderedCollectionStringBearer<TCharSeq> : FormattedCollectionMoldScaffold<TCharSeq, TCharSeq[]>
     where TCharSeq : ICharSequence
 {
@@ -1255,8 +1255,8 @@ public class OrderedFromCharSequenceSpanAddAllSimpleOrderedCollectionStringBeare
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsNullableClass | AcceptsCharSequence
-                | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsCharSequence
+                | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceNullableSpanAddAllSimpleOrderedCollectionStringBearer<TCharSeq> :
     FormattedCollectionMoldScaffold<TCharSeq?, TCharSeq?[]>
     where TCharSeq : ICharSequence
@@ -1275,8 +1275,8 @@ public class OrderedFromCharSequenceNullableSpanAddAllSimpleOrderedCollectionStr
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsClass | AcceptsCharSequence
-                | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsCharSequence
+                | AcceptsClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TCharSeq> :
     FormattedCollectionMoldScaffold<TCharSeq, TCharSeq[]>
     where TCharSeq : ICharSequence
@@ -1295,8 +1295,8 @@ public class OrderedFromCharSequenceReadOnlySpanAddAllSimpleOrderedCollectionStr
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableClass
-                | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan
+                | AcceptsNullableClass | AcceptsCharSequence | SupportsValueFormatString)]
 public class OrderedFromCharSequenceNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TCharSeq>
     : FormattedCollectionMoldScaffold<TCharSeq?, TCharSeq?[]> where TCharSeq : ICharSequence
 {
@@ -1314,8 +1314,8 @@ public class OrderedFromCharSequenceNullableReadOnlySpanAddAllSimpleOrderedColle
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | AcceptsClass | AcceptsNullableClass | AcceptsCharSequence
-                | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | AcceptsCharSequence
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceListAddAllSimpleOrderedCollectionStringBearer<TCharSeq>
     : FormattedCollectionMoldScaffold<TCharSeq?, IReadOnlyList<TCharSeq?>> where TCharSeq : ICharSequence
 {
@@ -1333,8 +1333,8 @@ public class OrderedFromCharSequenceListAddAllSimpleOrderedCollectionStringBeare
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsClass | AcceptsNullableClass | AcceptsCharSequence
-                | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsCharSequence
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceEnumerableAddAllSimpleOrderedCollectionStringBearer<TCharSeq>
     : FormattedCollectionMoldScaffold<TCharSeq?, IEnumerable<TCharSeq?>>
     where TCharSeq : ICharSequence
@@ -1353,8 +1353,8 @@ public class OrderedFromCharSequenceEnumerableAddAllSimpleOrderedCollectionStrin
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | AcceptsClass | AcceptsNullableClass | AcceptsCharSequence
-                | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | AcceptsCharSequence
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceEnumeratorAddAllSimpleOrderedCollectionStringBearer<TCharSeq>
     : FormattedEnumeratorMoldScaffold<TCharSeq?, IEnumerator<TCharSeq?>>
     where TCharSeq : ICharSequence
@@ -1373,8 +1373,8 @@ public class OrderedFromCharSequenceEnumeratorAddAllSimpleOrderedCollectionStrin
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | AcceptsClass | AcceptsNullableClass | AcceptsStringBuilder
-                | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | AcceptsStringBuilder
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringBuilderArrayAddAllSimpleOrderedCollectionStringBearer :
     FormattedCollectionMoldScaffold<StringBuilder?, StringBuilder?[]>
 
@@ -1393,8 +1393,8 @@ public class OrderedFromStringBuilderArrayAddAllSimpleOrderedCollectionStringBea
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsClass | AcceptsStringBuilder
-                | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsStringBuilder
+                | AcceptsClass | SupportsValueFormatString)]
 public class OrderedFromStringBuilderSpanAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<StringBuilder, StringBuilder[]>
   
 
@@ -1413,8 +1413,8 @@ public class OrderedFromStringBuilderSpanAddAllSimpleOrderedCollectionStringBear
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsNullableClass | AcceptsStringBuilder
-                | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsStringBuilder
+                | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringBuilderNullableSpanAddAllSimpleOrderedCollectionStringBearer :
     FormattedCollectionMoldScaffold<StringBuilder?, StringBuilder?[]>
 
@@ -1434,7 +1434,7 @@ public class OrderedFromStringBuilderNullableSpanAddAllSimpleOrderedCollectionSt
 }
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsClass | AcceptsStringBuilder
-                | SupportsValueFormatString)]
+                | AcceptsClass | SupportsValueFormatString)]
 public class OrderedFromStringBuilderReadOnlySpanAddAllSimpleOrderedCollectionStringBearer :
     FormattedCollectionMoldScaffold<StringBuilder, StringBuilder[]>
 
@@ -1453,8 +1453,8 @@ public class OrderedFromStringBuilderReadOnlySpanAddAllSimpleOrderedCollectionSt
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableClass
-                | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan
+                | AcceptsStringBuilder | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringBuilderNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer :
     FormattedCollectionMoldScaffold<StringBuilder?, StringBuilder?[]>
 
@@ -1473,8 +1473,8 @@ public class OrderedFromStringBuilderNullableReadOnlySpanAddAllSimpleOrderedColl
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | AcceptsClass | AcceptsNullableClass | AcceptsStringBuilder
-                | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | AcceptsStringBuilder
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringBuilderListAddAllSimpleOrderedCollectionStringBearer :
     FormattedCollectionMoldScaffold<StringBuilder?, IReadOnlyList<StringBuilder?>>
 
@@ -1493,8 +1493,8 @@ public class OrderedFromStringBuilderListAddAllSimpleOrderedCollectionStringBear
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsClass | AcceptsNullableClass | AcceptsStringBuilder
-                | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsStringBuilder
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringBuilderEnumerableAddAllSimpleOrderedCollectionStringBearer :
     FormattedCollectionMoldScaffold<StringBuilder?, IEnumerable<StringBuilder?>>
 
@@ -1513,8 +1513,8 @@ public class OrderedFromStringBuilderEnumerableAddAllSimpleOrderedCollectionStri
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | AcceptsClass | AcceptsNullableClass | AcceptsStringBuilder
-                | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | AcceptsStringBuilder
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringBuilderEnumeratorAddAllSimpleOrderedCollectionStringBearer :
     FormattedEnumeratorMoldScaffold<StringBuilder?, IEnumerator<StringBuilder?>>
 

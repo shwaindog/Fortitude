@@ -16,19 +16,19 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
 public class FieldBoolEnumerableAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<bool, IEnumerable<bool>>
   
 {
-    public IEnumerable<bool>? ComplexTypeCollectionFieldAlwaysAddFilteredBoolList
+    public IEnumerable<bool>? ComplexTypeCollectionFieldAlwaysAddFilteredBoolEnumerable
     {
         get => Value;
         set => Value = value!;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredBoolList, ElementPredicate, ValueFormatString)
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredBoolEnumerable, ElementPredicate, ValueFormatString)
            .Complete();
 }
 
@@ -37,19 +37,19 @@ public class FieldBoolEnumerableAlwaysAddFilteredStringBearer : FormattedFiltere
 public class FieldNullableBoolEnumerableAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<bool?, IEnumerable<bool?>>
   
 {
-    public IEnumerable<bool?>? ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList
+    public IEnumerable<bool?>? ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolEnumerable
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList, ElementPredicate, ValueFormatString)
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolEnumerable, ElementPredicate, ValueFormatString)
            .Complete();
 }
 
@@ -59,20 +59,20 @@ public class FieldSpanFormattableEnumerableAlwaysAddFilteredStringBearer<TFmt, T
     : FormattedFilteredCollectionFieldMoldScaffold<TFmt, TFmtBase, IEnumerable<TFmt>>
     where TFmt : ISpanFormattable, TFmtBase
 {
-    public IEnumerable<TFmt?>? ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableList
+    public IEnumerable<TFmt?>? ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableEnumerable
     {
         get => Value;
         set => Value = value!;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
            .AlwaysAddFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableList
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableEnumerable
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
@@ -83,19 +83,19 @@ public class FieldNullableSpanFormattableEnumerableAlwaysAddFilteredStringBearer
     : FormattedFilteredCollectionFieldMoldScaffold<TFmtStruct?, IEnumerable<TFmtStruct?>>
     where TFmtStruct : struct, ISpanFormattable
 {
-    public IEnumerable<TFmtStruct?>? ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableList
+    public IEnumerable<TFmtStruct?>? ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableEnumerable
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableList
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableEnumerable
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
@@ -107,19 +107,19 @@ public class FieldCloakedBearerEnumerableAlwaysAddFilteredStringBearer<TCloaked,
     where TCloaked : TRevealBase, TCloakedFilterBase
     where TRevealBase : notnull
 {
-    public IEnumerable<TCloaked>? ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerList
+    public IEnumerable<TCloaked>? ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerEnumerable
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerList, ElementPredicate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerEnumerable, ElementPredicate
               , ValueRevealer)
            .Complete();
 }
@@ -130,19 +130,19 @@ public class FieldNullableCloakedBearerEnumerableAlwaysAddFilteredStringBearer<T
     RevealerFilteredCollectionFieldMoldScaffold<TCloakedStruct?, TCloakedStruct?, TCloakedStruct, IEnumerable<TCloakedStruct?>>
     where TCloakedStruct : struct
 {
-    public IEnumerable<TCloakedStruct?>? ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerList
+    public IEnumerable<TCloakedStruct?>? ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerEnumerable
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerList
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerEnumerable
               , ElementPredicate, ValueRevealer)
            .Complete();
 }
@@ -152,19 +152,19 @@ public class FieldNullableCloakedBearerEnumerableAlwaysAddFilteredStringBearer<T
 public class FieldStringBearerEnumerableAlwaysAddFilteredStringBearer<TBearer, TBearerBase>
     : FilteredCollectionFieldMoldScaffold<TBearer, TBearerBase, IEnumerable<TBearer>> where TBearer : IStringBearer, TBearerBase
 {
-    public IEnumerable<TBearer?>? ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerList
+    public IEnumerable<TBearer?>? ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerEnumerable
     {
         get => Value;
         set => Value = value!;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerList, ElementPredicate)
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerEnumerable, ElementPredicate)
            .Complete();
 }
 
@@ -174,85 +174,85 @@ public class FieldNullableStringBearerEnumerableAlwaysAddFilteredStringBearer<TB
     : FilteredCollectionFieldMoldScaffold<TBearerStruct?, IEnumerable<TBearerStruct?>>
     where TBearerStruct : struct, IStringBearer
 {
-    public IEnumerable<TBearerStruct?>? ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerList
+    public IEnumerable<TBearerStruct?>? ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerEnumerable
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerList, ElementPredicate)
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerEnumerable, ElementPredicate)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | AlwaysWrites | FilterPredicate | AcceptsString |
-                  SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | AlwaysWrites | FilterPredicate | AcceptsString 
+                | AcceptsClass | AcceptsNullableClass  | SupportsValueFormatString)]
 public class FieldStringEnumerableAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<string?, IEnumerable<string?>>
   
 {
-    public IEnumerable<string?>? ComplexTypeCollectionFieldAlwaysAddFilteredStringList
+    public IEnumerable<string?>? ComplexTypeCollectionFieldAlwaysAddFilteredStringEnumerable
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredStringList
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredStringEnumerable
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | AlwaysWrites | FilterPredicate | AcceptsCharSequence |
-                  SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | AlwaysWrites | FilterPredicate | AcceptsCharSequence 
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldCharSequenceEnumerableAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
     : FormattedFilteredCollectionFieldMoldScaffold<TCharSeq, TCharSeqFilterBase, IEnumerable<TCharSeq>>
     where TCharSeq : ICharSequence, TCharSeqFilterBase
 {
-    public IEnumerable<TCharSeq?>? ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceList
+    public IEnumerable<TCharSeq?>? ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceEnumerable
     {
         get => Value;
         set => Value = value!;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredCharSeqEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceList
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceEnumerable
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | AlwaysWrites | FilterPredicate | AcceptsStringBuilder |
-                  SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | AlwaysWrites | FilterPredicate | AcceptsStringBuilder 
+    | AcceptsClass | AcceptsNullableClass  | SupportsValueFormatString)]
 public class FieldStringBuilderEnumerableAlwaysAddFilteredStringBearer
     : FormattedFilteredCollectionFieldMoldScaffold<StringBuilder?, IEnumerable<StringBuilder?>>
 {
-    public IEnumerable<StringBuilder?>? ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderList
+    public IEnumerable<StringBuilder?>? ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderEnumerable
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderList
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderEnumerable
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
@@ -263,19 +263,19 @@ public class FieldMatchEnumerableAlwaysAddFilteredStringBearer<TAny, TAnyFilterB
     : FormattedFilteredCollectionFieldMoldScaffold<TAny, TAnyFilterBase, IEnumerable<TAny>>
     where TAny : TAnyFilterBase
 {
-    public IEnumerable<TAny>? ComplexTypeCollectionFieldAlwaysAddFilteredMatchList
+    public IEnumerable<TAny>? ComplexTypeCollectionFieldAlwaysAddFilteredMatchEnumerable
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredMatchEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredMatchList
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredMatchEnumerable
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
@@ -285,19 +285,19 @@ public class FieldMatchEnumerableAlwaysAddFilteredStringBearer<TAny, TAnyFilterB
 public class FieldObjectEnumerableAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<object?, IEnumerable<object?>>
   
 {
-    public IEnumerable<object?>? ComplexTypeCollectionFieldAlwaysAddFilteredObjectList
+    public IEnumerable<object?>? ComplexTypeCollectionFieldAlwaysAddFilteredObjectEnumerable
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectEnumerable);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredObjectEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredObjectList
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredObjectEnumerable
               , ElementPredicate, ValueFormatString);
 }
 
@@ -306,19 +306,19 @@ public class FieldObjectEnumerableAlwaysAddFilteredStringBearer : FormattedFilte
 public class FieldBoolEnumeratorAlwaysAddFilteredStringBearer : FormattedFilteredEnumeratorFieldMoldScaffold<bool, IEnumerator<bool>>
   
 {
-    public IEnumerator<bool>? ComplexTypeCollectionFieldAlwaysAddFilteredBoolList
+    public IEnumerator<bool>? ComplexTypeCollectionFieldAlwaysAddFilteredBoolEnumerator
     {
         get => Value;
         set => Value = value!;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredBoolList, ElementPredicate, ValueFormatString)
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredBoolEnumerator, ElementPredicate, ValueFormatString)
            .Complete();
 }
 
@@ -327,19 +327,19 @@ public class FieldBoolEnumeratorAlwaysAddFilteredStringBearer : FormattedFiltere
 public class FieldNullableBoolEnumeratorAlwaysAddFilteredStringBearer : FormattedFilteredEnumeratorFieldMoldScaffold<bool?, IEnumerator<bool?>>
   
 {
-    public IEnumerator<bool?>? ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList
+    public IEnumerator<bool?>? ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolEnumerator
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList, ElementPredicate, ValueFormatString)
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolEnumerator, ElementPredicate, ValueFormatString)
            .Complete();
 }
 
@@ -349,20 +349,20 @@ public class FieldSpanFormattableEnumeratorAlwaysAddFilteredStringBearer<TFmt, T
     : FormattedFilteredEnumeratorFieldMoldScaffold<TFmt, TFmtBase, IEnumerator<TFmt>>
     where TFmt : ISpanFormattable, TFmtBase
 {
-    public IEnumerator<TFmt?>? ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableList
+    public IEnumerator<TFmt?>? ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableEnumerator
     {
         get => Value;
         set => Value = value!;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
            .AlwaysAddFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableList
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableEnumerator
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
@@ -373,19 +373,19 @@ public class FieldNullableSpanFormattableEnumeratorAlwaysAddFilteredStringBearer
     : FormattedFilteredEnumeratorFieldMoldScaffold<TFmtStruct?, IEnumerator<TFmtStruct?>>
     where TFmtStruct : struct, ISpanFormattable
 {
-    public IEnumerator<TFmtStruct?>? ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableList
+    public IEnumerator<TFmtStruct?>? ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableEnumerator
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableList
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableEnumerator
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
@@ -397,19 +397,19 @@ public class FieldCloakedBearerEnumeratorAlwaysAddFilteredStringBearer<TCloaked,
     where TCloaked : TRevealBase, TCloakedFilterBase
     where TRevealBase : notnull
 {
-    public IEnumerator<TCloaked>? ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerList
+    public IEnumerator<TCloaked>? ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerEnumerator
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerList, ElementPredicate
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerEnumerator, ElementPredicate
               , ValueRevealer)
            .Complete();
 }
@@ -420,19 +420,19 @@ public class FieldNullableCloakedBearerEnumeratorAlwaysAddFilteredStringBearer<T
     RevealerFilteredEnumeratorFieldMoldScaffold<TCloakedStruct?, TCloakedStruct?, TCloakedStruct, IEnumerator<TCloakedStruct?>>
     where TCloakedStruct : struct
 {
-    public IEnumerator<TCloakedStruct?>? ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerList
+    public IEnumerator<TCloakedStruct?>? ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerEnumerator
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerList
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerEnumerator
               , ElementPredicate, ValueRevealer)
            .Complete();
 }
@@ -443,19 +443,19 @@ public class FieldStringBearerEnumeratorAlwaysAddFilteredStringBearer<TBearer, T
     : FilteredEnumeratorFieldMoldScaffold<TBearer, TBearerBase, IEnumerator<TBearer>>
     where TBearer : IStringBearer, TBearerBase
 {
-    public IEnumerator<TBearer?>? ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerList
+    public IEnumerator<TBearer?>? ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerEnumerator
     {
         get => Value;
         set => Value = value!;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerList, ElementPredicate)
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerEnumerator, ElementPredicate)
            .Complete();
 }
 
@@ -465,85 +465,85 @@ public class FieldNullableStringBearerEnumeratorAlwaysAddFilteredStringBearer<TB
     : FilteredEnumeratorFieldMoldScaffold<TBearerStruct?, IEnumerator<TBearerStruct?>>
     where TBearerStruct : struct, IStringBearer
 {
-    public IEnumerator<TBearerStruct?>? ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerList
+    public IEnumerator<TBearerStruct?>? ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerEnumerator
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerList, ElementPredicate)
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerEnumerator, ElementPredicate)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | AlwaysWrites | FilterPredicate | AcceptsString |
-                  SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | AlwaysWrites | FilterPredicate | AcceptsString 
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringEnumeratorAlwaysAddFilteredStringBearer : FormattedFilteredEnumeratorFieldMoldScaffold<string?, IEnumerator<string?>>
   
 {
-    public IEnumerator<string?>? ComplexTypeCollectionFieldAlwaysAddFilteredStringList
+    public IEnumerator<string?>? ComplexTypeCollectionFieldAlwaysAddFilteredStringEnumerator
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredStringList
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredStringEnumerator
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | AlwaysWrites | FilterPredicate | AcceptsCharSequence |
-                  SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | AlwaysWrites | FilterPredicate | AcceptsCharSequence 
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldCharSequenceEnumeratorAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
     : FormattedFilteredEnumeratorFieldMoldScaffold<TCharSeq, TCharSeqFilterBase, IEnumerator<TCharSeq>>
     where TCharSeq : ICharSequence, TCharSeqFilterBase
 {
-    public IEnumerator<TCharSeq?>? ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceList
+    public IEnumerator<TCharSeq?>? ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceEnumerator
     {
         get => Value;
         set => Value = value!;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredCharSeqEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceList
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceEnumerator
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | AlwaysWrites | FilterPredicate | AcceptsStringBuilder |
-                  SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | AlwaysWrites | FilterPredicate | AcceptsStringBuilder 
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringBuilderEnumeratorAlwaysAddFilteredStringBearer
     : FormattedFilteredEnumeratorFieldMoldScaffold<StringBuilder?, IEnumerator<StringBuilder?>>
 {
-    public IEnumerator<StringBuilder?>? ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderList
+    public IEnumerator<StringBuilder?>? ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderEnumerator
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderList
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderEnumerator
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
@@ -554,19 +554,19 @@ public class FieldMatchEnumeratorAlwaysAddFilteredStringBearer<TAny, TAnyFilterB
     : FormattedFilteredEnumeratorFieldMoldScaffold<TAny, TAnyFilterBase, IEnumerator<TAny>>
     where TAny : TAnyFilterBase
 {
-    public IEnumerator<TAny>? ComplexTypeCollectionFieldAlwaysAddFilteredMatchList
+    public IEnumerator<TAny>? ComplexTypeCollectionFieldAlwaysAddFilteredMatchEnumerator
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredMatchEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredMatchList
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredMatchEnumerator
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
@@ -576,18 +576,18 @@ public class FieldMatchEnumeratorAlwaysAddFilteredStringBearer<TAny, TAnyFilterB
 public class FieldObjectEnumeratorAlwaysAddFilteredStringBearer : FormattedFilteredEnumeratorFieldMoldScaffold<object?, IEnumerator<object?>>
   
 {
-    public IEnumerator<object?>? ComplexTypeCollectionFieldAlwaysAddFilteredObjectList
+    public IEnumerator<object?>? ComplexTypeCollectionFieldAlwaysAddFilteredObjectEnumerator
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectEnumerator);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredObjectEnumerate
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectList)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredObjectList
+               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddFilteredObjectEnumerator
               , ElementPredicate, ValueFormatString);
 }
