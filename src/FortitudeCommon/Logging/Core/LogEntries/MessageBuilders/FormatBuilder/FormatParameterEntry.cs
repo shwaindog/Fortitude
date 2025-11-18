@@ -431,8 +431,9 @@ public abstract class FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>
         return Me;
     }
 
-    internal TFormatEntryImpl ReplaceTokenNumber<TToStyle, TStylerType>(TToStyle? param, PalantírReveal<TStylerType> palantírReveal)
-        where TToStyle : TStylerType
+    internal TFormatEntryImpl ReplaceTokenNumber<TCloaked, TRevealBase>(TCloaked? param, PalantírReveal<TRevealBase> palantírReveal)
+        where TCloaked : TRevealBase 
+        where TRevealBase : notnull 
     {
         if (param == null) return ReplaceTokenNumber("");
         FormatSb.Clear();
@@ -670,12 +671,13 @@ public static class FLogAdditionalFormatterParameterEntryExtensions
         where T : ISpanFormattable =>
         maybeParam?.ReplaceSpanFmtTokenNumber(paramValue);
 
-    public static TFormatEntryImpl? ReplaceCustStyleTokens<TFormatEntryImpl, TIFormatEntry, TToStyle, TStylerType>(
+    public static TFormatEntryImpl? ReplaceCustStyleTokens<TFormatEntryImpl, TIFormatEntry, TCloaked, TRevealBase>(
         this FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>? maybeParam
-      , TToStyle? paramValue, PalantírReveal<TStylerType> palantírReveal)
+      , TCloaked? paramValue, PalantírReveal<TRevealBase> palantírReveal)
         where TFormatEntryImpl : FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>, TIFormatEntry
         where TIFormatEntry : class, IFLogMessageBuilder
-        where TToStyle : TStylerType =>
+        where TCloaked : TRevealBase  
+        where TRevealBase : notnull =>
         maybeParam?.ReplaceTokenNumber(paramValue, palantírReveal);
 
     public static TFormatEntryImpl? ReplaceTokens<TFormatEntryImpl, TIFormatEntry>(

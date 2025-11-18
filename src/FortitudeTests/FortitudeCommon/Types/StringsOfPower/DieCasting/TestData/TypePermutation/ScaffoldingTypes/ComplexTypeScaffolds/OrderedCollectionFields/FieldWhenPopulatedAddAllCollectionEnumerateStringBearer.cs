@@ -98,9 +98,10 @@ public class FieldNullableSpanFormattableEnumerableWhenPopulatedAddAllStringBear
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullAndPopulatedWrites | AcceptsAnyExceptNullableStruct
                 | AcceptsStringBearer | SupportsValueRevealer)]
-public class FieldCloakedBearerEnumerableWhenPopulatedAddAllStringBearer<TCloaked, TCloakedRevealerBase> :
-    RevealerCollectionFieldMoldScaffold<TCloaked, TCloakedRevealerBase, IEnumerable<TCloaked>>
-    where TCloaked : TCloakedRevealerBase
+public class FieldCloakedBearerEnumerableWhenPopulatedAddAllStringBearer<TCloaked, TRevealBase> :
+    RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase, IEnumerable<TCloaked>>
+    where TCloaked : TRevealBase
+    where TRevealBase : notnull
 {
     public IEnumerable<TCloaked>? ComplexTypeCollectionFieldWhenPopulatedAddAllCloakedBearerEnumerable
     {
@@ -376,8 +377,10 @@ public class FieldNullableSpanFormattableEnumeratorWhenPopulatedAddAllStringBear
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullAndPopulatedWrites | AcceptsAnyExceptNullableStruct |
                   SupportsValueRevealer)]
-public class FieldCloakedBearerEnumeratorWhenPopulatedAddAllStringBearer<TCloaked, TCloakedRevealerBase> :
-    RevealerEnumeratorFieldMoldScaffold<TCloaked, TCloakedRevealerBase, IEnumerator<TCloaked>> where TCloaked : TCloakedRevealerBase
+public class FieldCloakedBearerEnumeratorWhenPopulatedAddAllStringBearer<TCloaked, TRevealBase> :
+    RevealerEnumeratorFieldMoldScaffold<TCloaked, TRevealBase, IEnumerator<TCloaked>> 
+    where TCloaked : TRevealBase
+    where TRevealBase : notnull
 {
     public IEnumerator<TCloaked>? ComplexTypeCollectionFieldWhenPopulatedAddAllCloakedBearerEnumerator
     {

@@ -26,13 +26,15 @@ public partial class FLogFirstFormatterParameterEntry
         PreCheckTokensGetStringBuilder(value).ReplaceSpanFmtTokens(value).ToStringAppender(value, this);
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender WithOnlyParamThenToAppender<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal)
-        where TToStyle : TStylerType =>
+    public IFLogStringAppender WithOnlyParamThenToAppender<TCloaked, TRevealBase>(TCloaked value, PalantírReveal<TRevealBase> palantírReveal)
+        where TCloaked : TRevealBase  
+        where TRevealBase : notnull =>
         PreCheckTokensGetStringBuilder(value).ReplaceCustStyleTokens(value, palantírReveal).ToStringAppender(value, this);
 
     [MustUseReturnValue("Use WithOnlyParam if you do not plan on using the returned StringAppender")]
-    public IFLogStringAppender WithOnlyParamThenToAppender<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple)
-        where TToStyle : TStylerType
+    public IFLogStringAppender WithOnlyParamThenToAppender<TCloaked, TRevealBase>((TCloaked, PalantírReveal<TRevealBase>) valueTuple)
+        where TCloaked : TRevealBase 
+        where TRevealBase : notnull 
     {
         FormatSb.Clear();
         AppendStyled(valueTuple, FormatStsa!);

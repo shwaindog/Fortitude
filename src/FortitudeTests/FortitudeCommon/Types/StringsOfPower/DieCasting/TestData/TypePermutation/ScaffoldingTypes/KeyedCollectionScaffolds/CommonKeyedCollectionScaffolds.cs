@@ -9,12 +9,12 @@ using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.Ty
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.KeyedCollectionScaffolds;
 
 public abstract class FormattedKeyValueMoldScaffold<TKey, TValue> : FormattedKeyValueFieldMoldScaffold<TKey, TValue>
-, IReadOnlyDictionary<TKey, TValue>
+, IReadOnlyDictionary<TKey, TValue?>
     where TKey : notnull
 {
 
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => Value!.GetEnumerator();
+    IEnumerator IEnumerable.                        GetEnumerator() => GetEnumerator();
+    public IEnumerator<KeyValuePair<TKey, TValue?>> GetEnumerator() => Value!.GetEnumerator();
 
     public int Count => Value!.Count;
 
@@ -30,18 +30,19 @@ public abstract class FormattedKeyValueMoldScaffold<TKey, TValue> : FormattedKey
     
     public IEnumerable<TKey> Keys => Value?.Keys ?? Enumerable.Empty<TKey>();
     
-    public IEnumerable<TValue> Values => Value?.Values ?? Enumerable.Empty<TValue>();
+    public IEnumerable<TValue?> Values => Value?.Values ?? Enumerable.Empty<TValue?>();
 }
 
-public abstract class FormattedKeyValueRevealerMoldScaffold<TKey, TValue, TVRevealerBase> : 
-    FormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, TVRevealerBase>, IReadOnlyDictionary<TKey, TValue>
+public abstract class FormattedKeyValueRevealerMoldScaffold<TKey, TValue, TVRevealBase> : 
+    FormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, TVRevealBase>, IReadOnlyDictionary<TKey, TValue?>
     where TKey : notnull
-    where TValue : TVRevealerBase
+    where TValue : TVRevealBase
+    where TVRevealBase : notnull
 {
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => Value!.GetEnumerator();
+    public IEnumerator<KeyValuePair<TKey, TValue?>> GetEnumerator() => Value!.GetEnumerator();
 
     public int Count => Value!.Count;
 
@@ -57,18 +58,20 @@ public abstract class FormattedKeyValueRevealerMoldScaffold<TKey, TValue, TVReve
     
     public IEnumerable<TKey> Keys => Value?.Keys ?? Enumerable.Empty<TKey>();
     
-    public IEnumerable<TValue> Values => Value?.Values ?? Enumerable.Empty<TValue>();
+    public IEnumerable<TValue?> Values => Value?.Values ?? Enumerable.Empty<TValue?>();
 }
 
-public abstract class KeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKRevealerBase, TVRevealerBase> : 
-    KeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKRevealerBase, TVRevealerBase>, IReadOnlyDictionary<TKey, TValue>
-    where TKey : notnull, TKRevealerBase
-    where TValue : TVRevealerBase
+public abstract class KeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKRevealBase, TVRevealBase> : 
+    KeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKRevealBase, TVRevealBase>, IReadOnlyDictionary<TKey, TValue?>
+    where TKey : TKRevealBase
+    where TValue : TVRevealBase
+    where TKRevealBase : notnull
+    where TVRevealBase : notnull
 {
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => Value!.GetEnumerator();
+    public IEnumerator<KeyValuePair<TKey, TValue?>> GetEnumerator() => Value!.GetEnumerator();
 
     public int Count => Value!.Count;
 
@@ -84,7 +87,7 @@ public abstract class KeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKRevea
     
     public IEnumerable<TKey> Keys => Value?.Keys ?? Enumerable.Empty<TKey>();
     
-    public IEnumerable<TValue> Values => Value?.Values ?? Enumerable.Empty<TValue>();
+    public IEnumerable<TValue?> Values => Value?.Values ?? Enumerable.Empty<TValue?>();
 }
 
 public abstract class FilteredFormattedKeyValueMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase> : 
@@ -96,19 +99,22 @@ public abstract class FilteredFormattedKeyValueMoldScaffold<TKey, TValue, TKFilt
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 }
 
-public abstract class FilteredFormattedKeyValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TValueRevealBase> 
-    : FormattedKeyValueRevealerMoldScaffold<TKey, TValue, TValueRevealBase>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
+public abstract class FilteredFormattedKeyValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase> 
+    : FormattedKeyValueRevealerMoldScaffold<TKey, TValue, TVRevealBase>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
     where TKey : notnull, TKFilterBase
-    where TValue : TVFilterBase, TValueRevealBase
+    where TValue : TVFilterBase, TVRevealBase
+    where TVRevealBase : notnull
 {
     public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
 }
 
-public abstract class FilteredKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealerBase, TVRevealerBase> : 
-    KeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKRevealerBase, TVRevealerBase>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
-    where TKey : notnull, TKFilterBase, TKRevealerBase
-    where TValue : TVFilterBase, TVRevealerBase
+public abstract class FilteredKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase> : 
+    KeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKRevealBase, TVRevealBase>, ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>
+    where TKey : TKFilterBase, TKRevealBase
+    where TValue : TVFilterBase, TVRevealBase
+    where TKRevealBase : notnull
+    where TVRevealBase : notnull
 {
     public KeyValuePredicate<TKFilterBase, TVFilterBase> KeyValuePredicate { get; set; } =
         ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate;
@@ -128,10 +134,11 @@ public abstract class SelectFormattedKeyValueMoldScaffold<TKey, TValue, TKSelect
     }
 }
 
-public abstract class SelectFormattedKeyValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived, TValueRevealBase> 
-    : FormattedKeyValueRevealerMoldScaffold<TKey, TValue, TValueRevealBase>
+public abstract class SelectFormattedKeyValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived, TVRevealBase> 
+    : FormattedKeyValueRevealerMoldScaffold<TKey, TValue, TVRevealBase>
     where TKey : notnull
-    where TValue : TValueRevealBase
+    where TValue : TVRevealBase
+    where TVRevealBase : notnull
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
 
@@ -142,10 +149,12 @@ public abstract class SelectFormattedKeyValueRevealerMoldScaffold<TKey, TValue, 
     }
 }
 
-public abstract class SelectKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealerBase, TVRevealerBase> : 
-    KeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKRevealerBase, TVRevealerBase>
-    where TKey : notnull, TKRevealerBase
-    where TValue : TVRevealerBase
+public abstract class SelectKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase> : 
+    KeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKRevealBase, TVRevealBase>
+    where TKey : TKRevealBase
+    where TValue : TVRevealBase
+    where TKRevealBase : notnull
+    where TVRevealBase : notnull
 {
     private IReadOnlyList<TKSelectDerived>? displayKeys;
 

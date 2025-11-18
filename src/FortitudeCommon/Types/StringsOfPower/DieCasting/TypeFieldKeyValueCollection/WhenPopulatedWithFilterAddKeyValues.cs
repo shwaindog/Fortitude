@@ -7,7 +7,7 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldKeyValueColle
 public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMolder
 {
     public TExt WhenPopulatedWithFilter<TKey, TValue, TKFilterBase, TVFilterBase>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKey : TKFilterBase where TValue : TVFilterBase
@@ -23,7 +23,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             {
                 count++;
                 if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate(count, kvp.Key, kvp.Value);
+                var filterResult = filterPredicate(count, kvp.Key, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -52,7 +52,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     }
 
     public TExt WhenPopulatedWithFilter<TKey, TValue, TKFilterBase, TVFilterBase>
-    (string fieldName, KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+    (string fieldName, KeyValuePair<TKey, TValue?>[]? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKey : TKFilterBase where TValue : TVFilterBase
@@ -65,7 +65,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key, kvp.Value);
+                var filterResult = filterPredicate(i, kvp.Key, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -94,7 +94,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     }
 
     public TExt WhenPopulatedWithFilter<TKey, TValue, TKFilterBase, TVFilterBase>
-    (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
+    (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue?>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
@@ -109,7 +109,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             {
                 var kvp = value[i];
 
-                var filterResult = filterPredicate(i, kvp.Key, kvp.Value);
+                var filterResult = filterPredicate(i, kvp.Key, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -138,7 +138,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     }
 
     public TExt WhenPopulatedWithFilterEnumerate<TKey, TValue, TKFilterBase, TVFilterBase>(
-        string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
+        string fieldName, IEnumerable<KeyValuePair<TKey, TValue?>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
@@ -155,7 +155,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             {
                 count++;
                 if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate(count, kvp.Key, kvp.Value);
+                var filterResult = filterPredicate(count, kvp.Key, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -236,11 +236,13 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     }
 
     public TExt WhenPopulatedWithFilter<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
+    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : TKFilterBase where TValue : TVFilterBase, TVRevealBase
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TVRevealBase : notnull  
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
 
@@ -253,7 +255,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             {
                 count++;
                 if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate(count, kvp.Key, kvp.Value);
+                var filterResult = filterPredicate(count, kvp.Key, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -281,10 +283,12 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithFilter<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>(string fieldName, KeyValuePair<TKey, TValue>[]? value
+    public TExt WhenPopulatedWithFilter<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>(string fieldName, KeyValuePair<TKey, TValue?>[]? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate, PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : TKFilterBase where TValue : TVFilterBase, TVRevealBase
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TVRevealBase : notnull  
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
 
@@ -294,7 +298,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key, kvp.Value);
+                var filterResult = filterPredicate(i, kvp.Key, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -323,11 +327,13 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     }
 
     public TExt WhenPopulatedWithFilter<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
-    (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
+    (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue?>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : TKFilterBase where TValue : TVFilterBase, TVRevealBase
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TVRevealBase : notnull  
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
 
@@ -337,7 +343,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key, kvp.Value);
+                var filterResult = filterPredicate(i, kvp.Key, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -366,11 +372,13 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     }
 
     public TExt WhenPopulatedWithFilterEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
-    (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
+    (string fieldName, IEnumerable<KeyValuePair<TKey, TValue?>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : TKFilterBase where TValue : TVFilterBase, TVRevealBase
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TVRevealBase : notnull  
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
 
@@ -383,7 +391,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             {
                 count++;
                 if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate(count, kvp.Key, kvp.Value);
+                var filterResult = filterPredicate(count, kvp.Key, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -416,7 +424,9 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : TKFilterBase where TValue : TVFilterBase, TVRevealBase
+        where TKey : TKFilterBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TVRevealBase : notnull  
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
 
@@ -463,9 +473,13 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithFilter<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>(string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate, PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
-        where TKey : TKFilterBase, TKRevealBase where TValue : TVFilterBase, TVRevealBase
+    public TExt WhenPopulatedWithFilter<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>(string fieldName
+      , IReadOnlyDictionary<TKey, TValue?>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
+        where TKey : TKFilterBase, TKRevealBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TKRevealBase : notnull  
+        where TVRevealBase : notnull  
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
 
@@ -478,7 +492,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             {
                 count++;
                 if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate(count, kvp.Key, kvp.Value);
+                var filterResult = filterPredicate(count, kvp.Key, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -506,9 +520,13 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithFilter<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>(string fieldName, KeyValuePair<TKey, TValue>[]? value
-      , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate, PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
-        where TKey : TKFilterBase, TKRevealBase where TValue : TVFilterBase, TVRevealBase
+    public TExt WhenPopulatedWithFilter<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>(string fieldName
+      , KeyValuePair<TKey, TValue?>[]? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
+        where TKey : TKFilterBase, TKRevealBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TKRevealBase : notnull  
+        where TVRevealBase : notnull  
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
 
@@ -518,7 +536,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key, kvp.Value);
+                var filterResult = filterPredicate(i, kvp.Key, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -546,9 +564,13 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithFilter<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>(string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate, PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
-        where TKey : TKFilterBase, TKRevealBase where TValue : TVFilterBase, TVRevealBase
+    public TExt WhenPopulatedWithFilter<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>(string fieldName
+      , IReadOnlyList<KeyValuePair<TKey, TValue?>>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
+        where TKey : TKFilterBase, TKRevealBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TKRevealBase : notnull  
+        where TVRevealBase : notnull  
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
 
@@ -558,7 +580,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key, kvp.Value);
+                var filterResult = filterPredicate(i, kvp.Key, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -587,9 +609,12 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     }
 
     public TExt WhenPopulatedWithFilterEnumerate<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>(string fieldName
-      , IEnumerable<KeyValuePair<TKey, TValue>>? value
+      , IEnumerable<KeyValuePair<TKey, TValue?>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate, PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
-        where TKey : TKFilterBase, TKRevealBase where TValue : TVFilterBase, TVRevealBase
+        where TKey : TKFilterBase, TKRevealBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TKRevealBase : notnull  
+        where TVRevealBase : notnull  
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
 
@@ -602,7 +627,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             {
                 count++;
                 if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate(count, kvp.Key, kvp.Value);
+                var filterResult = filterPredicate(count, kvp.Key, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -631,9 +656,12 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     }
 
     public TExt WhenPopulatedWithFilterEnumerate<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>(string fieldName
-      , IEnumerator<KeyValuePair<TKey, TValue>>? value
+      , IEnumerator<KeyValuePair<TKey, TValue?>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate, PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
-        where TKey : TKFilterBase, TKRevealBase where TValue : TVFilterBase, TVRevealBase
+        where TKey : TKFilterBase, TKRevealBase 
+        where TValue : TVFilterBase, TVRevealBase
+        where TKRevealBase : notnull  
+        where TVRevealBase : notnull  
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
 
@@ -651,7 +679,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 continue;
             }
             var kvp          = value!.Current;
-            var filterResult = filterPredicate(count, kvp.Key, kvp.Value);
+            var filterResult = filterPredicate(count, kvp.Key, kvp.Value!);
             if (filterResult is { IncludeItem: false })
             {
                 if (filterResult is { KeepProcessing: true })

@@ -58,7 +58,7 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
       , [CallerLineNumber] int srcLine = 0)
         : base(inputList, formatString, contentHandling,
                name
-            ?? ((elementFilterExpression?.Body as MemberExpression)?.Member?.Name)
+            ?? ((elementFilterExpression?.Body as MemberExpression)?.Member.Name)
             ?? (inputList != null
                    ? $"List<{typeof(TInputElement).ShortNameInCSharpFormat()}> {{ Count: {inputList?.Count ?? 0}}}"
                    : null), srcFile, srcLine)

@@ -2,7 +2,6 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types.StringsOfPower;
-using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using JetBrains.Annotations;
 
@@ -29,16 +28,24 @@ public interface ICollectionAppendContinuation<out TToReturn>
     TToReturn AddFormat<TFmt>((IReadOnlyList<TFmt>?, string?) valueTuple) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
-    TToReturn Add<TToStyle, TStylerType>(TToStyle[]? value, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TStylerType;
+    TToReturn Add<TCloaked, TRevealBase>(TCloaked?[]? value, PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull;
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
-    TToReturn Add<TToStyle, TStylerType>((TToStyle[]?, PalantírReveal<TStylerType>) valueTuple) where TToStyle : TStylerType;
+    TToReturn Add<TCloaked, TRevealBase>((TCloaked?[]?, PalantírReveal<TRevealBase>) valueTuple) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull;
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
-    TToReturn Add<TToStyle, TStylerType>(IReadOnlyList<TToStyle>? value, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TStylerType;
+    TToReturn Add<TCloaked, TRevealBase>(IReadOnlyList<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull;
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
-    TToReturn Add<TToStyle, TStylerType>((IReadOnlyList<TToStyle>?, PalantírReveal<TStylerType>) valueTuple) where TToStyle : TStylerType;
+    TToReturn Add<TCloaked, TRevealBase>((IReadOnlyList<TCloaked?>?, PalantírReveal<TRevealBase>) valueTuple) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull;
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
     TToReturn Add<TStyleObj>(TStyleObj[]? value, OrderedCollectionPredicate<TStyleObj> filter) where TStyleObj : class, IStringBearer;
@@ -72,21 +79,28 @@ public interface ICollectionAppendContinuation<out TToReturn>
         (IReadOnlyList<TFmt>?, OrderedCollectionPredicate<TBase>) valueTuple) where TFmt : ISpanFormattable, TBase;
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
-    TToReturn Add<TToStyle, TToStyleBase, TStylerType>(TToStyle[]? value
-      , OrderedCollectionPredicate<TToStyleBase> filter, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TToStyleBase, TStylerType;
+    TToReturn Add<TCloaked, TFilterBase, TRevealBase>(TCloaked[]? value
+      , OrderedCollectionPredicate<TFilterBase> filter, PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TFilterBase, TRevealBase
+        where TRevealBase : notnull;
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
-    TToReturn Add<TToStyle, TToStyleBase, TStylerType>(
-        (TToStyle[]?, OrderedCollectionPredicate<TToStyleBase>, PalantírReveal<TStylerType>) valueTuple) where TToStyle : TToStyleBase, TStylerType;
+    TToReturn Add<TCloaked, TFilterBase, TRevealBase>(
+        (TCloaked[]?, OrderedCollectionPredicate<TFilterBase>, PalantírReveal<TRevealBase>) valueTuple) 
+        where TCloaked : TFilterBase, TRevealBase
+        where TRevealBase : notnull;
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
-    TToReturn Add<TToStyle, TToStyleBase, TStylerType>(IReadOnlyList<TToStyle>? value
-      , OrderedCollectionPredicate<TToStyleBase> filter, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TToStyleBase, TStylerType;
+    TToReturn Add<TCloaked, TFilterBase, TRevealBase>(IReadOnlyList<TCloaked>? value
+      , OrderedCollectionPredicate<TFilterBase> filter, PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TFilterBase, TRevealBase
+        where TRevealBase : notnull;
 
     [MustUseReturnValue("Use FinalAppendValueCollection to finish and send LogEntry")]
-    TToReturn Add<TToStyle, TToStyleBase, TStylerType>(
-        (IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>, PalantírReveal<TStylerType>) valueTuple)
-        where TToStyle : TToStyleBase, TStylerType;
+    TToReturn Add<TCloaked, TFilterBase, TRevealBase>(
+        (IReadOnlyList<TCloaked>?, OrderedCollectionPredicate<TFilterBase>, PalantírReveal<TRevealBase>) valueTuple)
+        where TCloaked : TFilterBase, TRevealBase
+        where TRevealBase : notnull;
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish LogEntry")]
     TToReturn AddEnumerate<TStyleObj>(IEnumerable<TStyleObj>? value) where TStyleObj : class, IStringBearer;
@@ -107,19 +121,26 @@ public interface ICollectionAppendContinuation<out TToReturn>
     TToReturn AddFormatEnumerate<TFmt>((IEnumerator<TFmt>?, string?) valueTuple) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish and send LogEntry")]
-    TToReturn AddEnumerate<TToStyle, TStylerType>(IEnumerable<TToStyle>? value
-      , PalantírReveal<TStylerType> palantírReveal) where TToStyle : TStylerType;
+    TToReturn AddEnumerate<TCloaked, TRevealBase>(IEnumerable<TCloaked>? value
+      , PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull;
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish and send LogEntry")]
-    TToReturn AddEnumerate<TToStyle, TStylerType>((IEnumerable<TToStyle>?, PalantírReveal<TStylerType>) valueTuple) where TToStyle : TStylerType;
+    TToReturn AddEnumerate<TCloaked, TRevealBase>((IEnumerable<TCloaked?>?, PalantírReveal<TRevealBase>) valueTuple) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull;
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish and send LogEntry")]
-    TToReturn AddEnumerate<TToStyle, TStylerType>(IEnumerator<TToStyle>? value
-      , PalantírReveal<TStylerType> palantírReveal) where TToStyle : TStylerType;
+    TToReturn AddEnumerate<TCloaked, TRevealBase>(IEnumerator<TCloaked?>? value
+      , PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull;
 
     [MustUseReturnValue("Use FinalAppendValueCollectionEnumerate to finish and send LogEntry")]
-    TToReturn AddEnumerate<TToStyle, TStylerType>((IEnumerator<TToStyle>?, PalantírReveal<TStylerType>) valueTuple)
-        where TToStyle : TStylerType;
+    TToReturn AddEnumerate<TCloaked, TRevealBase>((IEnumerator<TCloaked>?, PalantírReveal<TRevealBase>) valueTuple)
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull;
 
     [MustUseReturnValue("Use FinalAppendObjectCollection to finish and send LogEntry")]
     TToReturn AddMatch<T>(T[]? value, string? formatString = null) where T : class;

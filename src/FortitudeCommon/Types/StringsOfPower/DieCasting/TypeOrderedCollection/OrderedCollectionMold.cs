@@ -1,5 +1,6 @@
 ﻿using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
 
@@ -12,12 +13,14 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
         Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
-      , string typeName
+      , string? typeName
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId)
+      , int existingRefId
+      , FieldContentHandling createFormatFlags )
     {
-        InitializeTypedStyledTypeBuilder(typeBeingBuilt, master, typeSettings, typeName, remainingGraphDepth, typeFormatting, existingRefId);
+        InitializeTypedStyledTypeBuilder(typeBeingBuilt, master, typeSettings, typeName
+                                       , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
 
         stb = CompAsOrderedCollection;
 
@@ -31,12 +34,12 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
     {
         if (CompAsOrderedCollection.CollectionInComplexType)
         {
-            CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess.Sb, CompAccess.TypeBeingBuilt, CompAccess.TypeName);
+            CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess);
         }
         else
         {
             var elementType = CompAccess.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
-            CompAccess.StyleFormatter.FormatCollectionStart(CompAccess.Sb, elementType!, true, CompAccess.TypeBeingBuilt);
+            CompAccess.StyleFormatter.FormatCollectionStart(CompAccess, elementType!, true, CompAccess.TypeBeingBuilt);
         }
     }
     
@@ -44,12 +47,12 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
     {
         if (CompAsOrderedCollection.CollectionInComplexType)
         {
-            CompAccess.StyleFormatter.AppendTypeClosing(CompAccess.Sb);
+            CompAccess.StyleFormatter.AppendTypeClosing(CompAccess);
         }
         else
         {
             var elementType = CompAccess.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
-            CompAccess.StyleFormatter.FormatCollectionEnd(CompAccess.Sb, elementType!, 1, "");
+            CompAccess.StyleFormatter.FormatCollectionEnd(CompAccess, 1, elementType!, 1, "");
         }
     }
 
@@ -62,12 +65,14 @@ public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCo
         Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
-      , string typeName
+      , string? typeName
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId)
+      , int existingRefId
+      , FieldContentHandling createFormatFlags )
     {
-        InitializeOrderedCollectionBuilder(typeBeingBuilt, master, typeSettings, typeName, remainingGraphDepth, typeFormatting, existingRefId);
+        InitializeOrderedCollectionBuilder(typeBeingBuilt, master, typeSettings, typeName
+                                         , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
 
         return this;
     }
@@ -90,12 +95,14 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
         Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
-      , string typeName
+      , string? typeName
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId)
+      , int existingRefId
+      , FieldContentHandling createFormatFlags )
     {
-        InitializeOrderedCollectionBuilder(typeBeingBuilt, master, typeSettings, typeName, remainingGraphDepth, typeFormatting, existingRefId);
+        InitializeOrderedCollectionBuilder(typeBeingBuilt, master, typeSettings, typeName
+                                         , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
 
         return this;
     }

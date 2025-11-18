@@ -30,7 +30,7 @@ public readonly struct PeriodInstrumentTypePair(InstrumentType instrumentType, D
     
     public static PalantírReveal<PeriodInstrumentTypePair> Styler { get; } =
         (pitp, stsa) =>
-            stsa.StartComplexType(pitp, nameof(pitp))
+            stsa.StartComplexType(pitp)
                 .Field.AlwaysAdd(nameof(pitp.InstrumentType), pitp.InstrumentType)
                 .Field.AlwaysReveal(nameof(pitp.CoveringPeriod), pitp.CoveringPeriod, DiscreetTimePeriod.Styler)
                 .Complete();

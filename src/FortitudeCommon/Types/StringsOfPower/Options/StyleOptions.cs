@@ -232,16 +232,6 @@ public struct StyleOptionsValue : IJsonFormattingOptions
         set => wrapValuesInQuotes = value;
     }
 
-    public IEncodingTransfer EncodingTransfer
-    {
-        get => encodingTransfer ??= fallbackOptions?.Values.EncodingTransfer ?? SourceEncodingTransfer(this);
-        set
-        {
-            encodingTransfer              = value;
-            explicitlySetEncodingTransfer = true;
-        }
-    }
-
     public Func<IJsonFormattingOptions, IEncodingTransfer> SourceEncodingTransfer
     {
         get =>
@@ -717,12 +707,6 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
         set => values.WrapValuesInQuotes = value;
     }
 
-    public IEncodingTransfer EncodingTransfer
-    {
-        get => values.EncodingTransfer;
-        set => values.EncodingTransfer = value;
-    }
-
     public Func<IJsonFormattingOptions, IEncodingTransfer> SourceEncodingTransfer
     {
         get => values.SourceEncodingTransfer;
@@ -753,9 +737,9 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
         set => values.UnicodeEscapingRanges = value;
     }
 
-    public ICustomStringFormatter Formatter
+    public ICustomStringFormatter? Formatter
     {
-        get => formatter ??= (Recycler.ThreadStaticRecycler).ResolveStyleFormatter(this);
+        get => formatter;
         set
         {
             formatter?.DecrementRefCount();
@@ -766,7 +750,7 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
 
     public void IfExistsIncrementFormatterRefCount() => formatter?.IncrementRefCount();
 
-    public IStyledTypeFormatting StyledTypeFormatter => (IStyledTypeFormatting)Formatter;
+    public IStyledTypeFormatting StyledTypeFormatter => (IStyledTypeFormatting)Formatter!;
 
     public string NewLineStyle
     {

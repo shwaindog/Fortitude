@@ -426,7 +426,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
     }
 
     public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this, nameof(TickerConfig))
+        tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(InstrumentId), InstrumentId)
             .Field.AlwaysAdd(nameof(InstrumentName), InstrumentName)
             .Field.AlwaysAdd(nameof(TickerAvailability), TickerAvailability)

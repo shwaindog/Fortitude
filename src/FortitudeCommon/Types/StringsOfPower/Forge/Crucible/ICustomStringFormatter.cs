@@ -22,7 +22,7 @@ public interface ICustomStringFormatter : IRecyclableObject
     int AppendDelimiterEnd(Type maybeDelimited, Span<char> destSpan, int fromIndex);
 
     IFormattingOptions Options { get; set; }
-    IEncodingTransfer TransferEncoder { get; set; }
+    IEncodingTransfer StringEncoder { get; set; }
     
     FormattingHandlingFlags ResolveStringFormattingFlags<T>(char lastNonWhiteSpace, T input, FormattingHandlingFlags callerFormattingFlags
       , string formatString = "");
@@ -208,7 +208,7 @@ public interface ICustomStringFormatter : IRecyclableObject
     int CollectionEnd(Type collectionType, IStringBuilder sb, int totalItemCount
     , FormattingHandlingFlags formatFlags = EncodeInnerContent);
 
-    int CollectionEnd(Type collectionType, Span<char> destSpan, int index, int totalItemCount
+    int CollectionEnd(Type collectionType, Span<char> destSpan, int destIndex, int totalItemCount
     , FormattingHandlingFlags formatFlags = EncodeInnerContent);
 
 

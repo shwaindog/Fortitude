@@ -25,9 +25,9 @@ public class CollectionBuilderCompAccess<TOCMold> : TypeMolderDieCast<TOCMold> w
         if (CollectionInComplexType)
         {
             StyleFormatter.AppendFieldName( Sb, "$values");
-            StyleFormatter.AppendFieldValueSeparator(Sb);
+            StyleFormatter.AppendFieldValueSeparator(this);
             if(hasAny == true)
-                StyleFormatter.FormatCollectionStart(Sb, elementType, hasAny, TypeBeingBuilt);
+                StyleFormatter.FormatCollectionStart(this, elementType, hasAny, TypeBeingBuilt);
         }
     }
 
@@ -41,7 +41,7 @@ public class CollectionBuilderCompAccess<TOCMold> : TypeMolderDieCast<TOCMold> w
             }
             else
             {
-                StyleFormatter.FormatCollectionEnd(Sb, elementType, count, formatString);
+                StyleFormatter.FormatCollectionEnd(this, count, elementType, count, formatString);
             }
         }
         return false;

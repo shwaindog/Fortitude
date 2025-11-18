@@ -42,19 +42,21 @@ public abstract class FormattedEnumeratorMoldScaffold<TValue, TCollection> : For
     public IEnumerator<TValue> GetEnumerator() => Value ?? Enumerable.Empty<TValue>().GetEnumerator();
 }
 
-public abstract class RevealerCollectionMoldScaffold<TCloaked, TCloakedRevealBase ,TCollection> : 
-    RevealerCollectionFieldMoldScaffold<TCloaked, TCloakedRevealBase , TCollection>
+public abstract class RevealerCollectionMoldScaffold<TCloaked, TRevealBase ,TCollection> : 
+    RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase , TCollection>
   , IEnumerable<TCloaked>
     where TCollection : IEnumerable<TCloaked>
+    where TRevealBase : notnull
 {
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloaked> GetEnumerator() => Value?.GetEnumerator() ?? Enumerable.Empty<TCloaked>().GetEnumerator();
 }
 
-public abstract class RevealerEnumeratorMoldScaffold<TCloaked, TCloakedRevealerBase, TCollection> : 
-    RevealerEnumeratorFieldMoldScaffold<TCloaked, TCloakedRevealerBase, TCollection>, IEnumerable<TCloaked>
+public abstract class RevealerEnumeratorMoldScaffold<TCloaked, TRevealBase, TCollection> : 
+    RevealerEnumeratorFieldMoldScaffold<TCloaked, TRevealBase, TCollection>, IEnumerable<TCloaked>
     where TCollection : IEnumerator<TCloaked>
+    where TRevealBase : notnull
 {
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -144,10 +146,11 @@ public abstract class RevealerFilteredCollectionMoldScaffold<TCloaked, TCollecti
     public IEnumerator<TCloaked> GetEnumerator() => Value?.GetEnumerator() ?? Enumerable.Empty<TCloaked>().GetEnumerator();
 }
 
-public abstract class RevealerFilteredCollectionMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealerBase, TCollection> : 
-    RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealerBase, TCollection>, IEnumerable<TCloaked>
+public abstract class RevealerFilteredCollectionMoldScaffold<TCloaked, TCloakedFilterBase, TRevealBase, TCollection> : 
+    RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TRevealBase, TCollection>, IEnumerable<TCloaked>
     where TCloaked : TCloakedFilterBase
     where TCollection : IEnumerable<TCloaked>
+    where TRevealBase : notnull
 {
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -157,16 +160,18 @@ public abstract class RevealerFilteredCollectionMoldScaffold<TCloaked, TCloakedF
 public abstract class RevealerFilteredEnumeratorMoldScaffold<TCloaked, TCollection> : 
     RevealerFilteredEnumeratorFieldMoldScaffold<TCloaked, TCollection>, IEnumerable<TCloaked>
     where TCollection : IEnumerator<TCloaked>
+    where TCloaked : notnull
 {
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloaked> GetEnumerator() => Value ?? Enumerable.Empty<TCloaked>().GetEnumerator();
 }
 
-public abstract class RevealerFilteredEnumeratorMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealerBase, TCollection> : 
-    RevealerFilteredEnumeratorFieldMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealerBase, TCollection>, IEnumerable<TCloaked>
+public abstract class RevealerFilteredEnumeratorMoldScaffold<TCloaked, TCloakedFilterBase, TRevealBase, TCollection> : 
+    RevealerFilteredEnumeratorFieldMoldScaffold<TCloaked, TCloakedFilterBase, TRevealBase, TCollection>, IEnumerable<TCloaked>
     where TCloaked : TCloakedFilterBase
     where TCollection : IEnumerator<TCloaked>
+    where TRevealBase : notnull
 {
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

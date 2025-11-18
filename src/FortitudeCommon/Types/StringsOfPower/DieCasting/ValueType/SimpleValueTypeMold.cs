@@ -1,4 +1,5 @@
 ﻿using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.ValueType;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ValueType;
@@ -10,12 +11,14 @@ public class SimpleValueTypeMold : ValueTypeMold<SimpleValueTypeMold>
             Type typeBeingBuilt
           , ISecretStringOfPower master
           , MoldDieCastSettings typeSettings
-          , string typeName
+          , string? typeName
           , int remainingGraphDepth
           , IStyledTypeFormatting typeFormatting  
-          , int existingRefId)
+          , int existingRefId
+          , FieldContentHandling createFormatFlags)
     {
-        InitializeValueTypeBuilder(typeBeingBuilt, master, typeSettings, typeName, remainingGraphDepth, typeFormatting,  existingRefId);
+        InitializeValueTypeBuilder(typeBeingBuilt, master, typeSettings, typeName
+                                 , remainingGraphDepth, typeFormatting,  existingRefId, createFormatFlags);
 
         return this;
     }

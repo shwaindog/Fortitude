@@ -18,6 +18,10 @@ public interface ITypeMolderDieCast
     ISecretStringOfPower Master { get; }
 
     MoldDieCastSettings AppendSettings { get; set; }
+    
+    
+    FieldContentHandling CallerContentHandling { get; }
+    FieldContentHandling CreateContentHandling { get; }
 
     char IndentChar { get; }
 
@@ -28,7 +32,7 @@ public interface ITypeMolderDieCast
     bool IsComplete { get; }
 
     Type TypeBeingBuilt { get; }
-    string TypeName { get; }
+    string? TypeName { get; }
 
     bool SkipBody { get; set; }
     bool SkipFields { get; set; }
@@ -91,9 +95,14 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
 
     public ISecretStringOfPower Master => typeBuilderState.Master;
 
-    public string TypeName => typeBuilderState.TypeName;
+    public string? TypeName => typeBuilderState.TypeName;
     
     public Type TypeBeingBuilt => typeBuilderState.TypeBeingBuilt;
+
+    public FieldContentHandling CallerContentHandling => Master.CallerContext.FormatFlags;
+    public FieldContentHandling CreateContentHandling => typeBuilderState.CreateFormatFlags;
+
+    public ContentSeparatorRanges LastContentSeparatorPaddingRanges { get; set; }
 
     public int RemainingGraphDepth { get; set; }
 

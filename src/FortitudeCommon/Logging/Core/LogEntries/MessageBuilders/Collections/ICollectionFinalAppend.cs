@@ -2,7 +2,6 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types.StringsOfPower;
-using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.Collections;
@@ -15,10 +14,22 @@ public interface ICollectionFinalAppend
     void AddFormat<TFmt>((TFmt[]?, string?) valueTuple) where TFmt : ISpanFormattable;
     void AddFormat<TFmt>(IReadOnlyList<TFmt>? value, string? formatString = null) where TFmt : ISpanFormattable;
     void AddFormat<TFmt>((IReadOnlyList<TFmt>?, string?) valueTuple) where TFmt : ISpanFormattable;
-    void Add<TToStyle, TStylerType>(TToStyle[]? value, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TStylerType;
-    void Add<TToStyle, TStylerType>((TToStyle[]?, PalantírReveal<TStylerType>) valueTuple) where TToStyle : TStylerType;
-    void Add<TToStyle, TStylerType>(IReadOnlyList<TToStyle>? value, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TStylerType;
-    void Add<TToStyle, TStylerType>((IReadOnlyList<TToStyle>?, PalantírReveal<TStylerType>) valueTuple) where TToStyle : TStylerType;
+    
+    void Add<TCloaked, TRevealBase>(TCloaked?[]? value, PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull;
+    
+    void Add<TCloaked, TRevealBase>((TCloaked?[]?, PalantírReveal<TRevealBase>) valueTuple) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull;
+    
+    void Add<TCloaked, TRevealBase>(IReadOnlyList<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull;
+    
+    void Add<TCloaked, TRevealBase>((IReadOnlyList<TCloaked?>?, PalantírReveal<TRevealBase>) valueTuple) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull;
 
     void Add<TStyleObj>(TStyleObj[]? value, OrderedCollectionPredicate<TStyleObj> filter) where TStyleObj : class, IStringBearer;
 
@@ -38,17 +49,25 @@ public interface ICollectionFinalAppend
 
     void AddFormat<TFmt, TBase>((IReadOnlyList<TFmt>?, OrderedCollectionPredicate<TBase>) valueTuple) where TFmt : ISpanFormattable, TBase;
 
-    void Add<TToStyle, TToStyleBase, TStylerType>(TToStyle[]? value
-      , OrderedCollectionPredicate<TToStyleBase> filter, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TToStyleBase, TStylerType;
+    void Add<TCloaked, TFilterBase, TRevealBase>(TCloaked?[]? value
+      , OrderedCollectionPredicate<TFilterBase> filter, PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TFilterBase, TRevealBase
+        where TRevealBase : notnull;
 
-    void Add<TToStyle, TToStyleBase, TStylerType>(
-        (TToStyle[]?, OrderedCollectionPredicate<TToStyleBase>, PalantírReveal<TStylerType>) valueTuple) where TToStyle : TToStyleBase, TStylerType;
+    void Add<TCloaked, TFilterBase, TRevealBase>(
+        (TCloaked?[]?, OrderedCollectionPredicate<TFilterBase>, PalantírReveal<TRevealBase>) valueTuple) 
+        where TCloaked : TFilterBase, TRevealBase
+        where TRevealBase : notnull;
 
-    void Add<TToStyle, TToStyleBase, TStylerType>(IReadOnlyList<TToStyle>? value
-      , OrderedCollectionPredicate<TToStyleBase> filter, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TToStyleBase, TStylerType;
+    void Add<TCloaked, TFilterBase, TRevealBase>(IReadOnlyList<TCloaked?>? value
+      , OrderedCollectionPredicate<TFilterBase> filter, PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TFilterBase, TRevealBase
+        where TRevealBase : notnull;
 
-    void Add<TToStyle, TToStyleBase, TStylerType>((IReadOnlyList<TToStyle>?, OrderedCollectionPredicate<TToStyleBase>
-      , PalantírReveal<TStylerType>) valueTuple) where TToStyle : TToStyleBase, TStylerType;
+    void Add<TCloaked, TFilterBase, TRevealBase>((IReadOnlyList<TCloaked>?, OrderedCollectionPredicate<TFilterBase>
+      , PalantírReveal<TRevealBase>) valueTuple) 
+        where TCloaked : TFilterBase, TRevealBase
+        where TRevealBase : notnull;
 
     void AddEnumerate<TStyleObj>(IEnumerable<TStyleObj>? value) where TStyleObj : class, IStringBearer;
     void AddEnumerate<TStyleObj>(IEnumerator<TStyleObj>? value) where TStyleObj : class, IStringBearer;
@@ -58,16 +77,21 @@ public interface ICollectionFinalAppend
     void AddFormatEnumerate<TFmt>(IEnumerator<TFmt>? value, string? formatString = null) where TFmt : ISpanFormattable;
     void AddFormatEnumerate<TFmt>((IEnumerator<TFmt>?, string?) valueTuple) where TFmt : ISpanFormattable;
 
-    void AddEnumerate<TToStyle, TStylerType>(IEnumerable<TToStyle>? value, PalantírReveal<TStylerType> palantírReveal)
-        where TToStyle : TStylerType;
+    void AddEnumerate<TCloaked, TRevealBase>(IEnumerable<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal)
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull;
 
-    void AddEnumerate<TToStyle, TStylerType>((IEnumerable<TToStyle>?, PalantírReveal<TStylerType>) valueTuple) where TToStyle : TStylerType;
+    void AddEnumerate<TCloaked, TRevealBase>((IEnumerable<TCloaked?>?, PalantírReveal<TRevealBase>) valueTuple) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull;
 
-    void AddEnumerate<TToStyle, TStylerType>(IEnumerator<TToStyle>? value, PalantírReveal<TStylerType> palantírReveal)
-        where TToStyle : TStylerType;
+    void AddEnumerate<TCloaked, TRevealBase>(IEnumerator<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal)
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull;
 
-    void AddEnumerate<TToStyle, TStylerType>((IEnumerator<TToStyle>?, PalantírReveal<TStylerType>) valueTuple)
-        where TToStyle : TStylerType;
+    void AddEnumerate<TCloaked, TRevealBase>((IEnumerator<TCloaked>?, PalantírReveal<TRevealBase>) valueTuple)
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull;
 
     void AddMatch<T>(T[]? value, string? formatString = null) where T : class;
     void AddMatch<T>((T[]?, string?) valueTuple) where T : class;

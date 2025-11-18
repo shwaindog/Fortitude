@@ -20,28 +20,30 @@ public abstract class FormattedEnumeratorFieldMoldScaffold<TValue, TCollection> 
     where TCollection : IEnumerator<TValue>
 { }
 
-public abstract class RevealerCollectionFieldMoldScaffold<TCloaked, TCloakedRevealBase, TCollection> : MoldScaffoldBase<TCollection?>
-  , ISupportsValueRevealer<TCloakedRevealBase>
-    where TCollection : IEnumerable<TCloaked>
+public abstract class RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase, TCollection> : MoldScaffoldBase<TCollection?>
+  , ISupportsValueRevealer<TRevealBase>
+    where TCollection : IEnumerable<TCloaked?>
+    where TRevealBase : notnull
 {
     public Delegate ValueRevealerDelegate { get; set; } = null!;
 
-    public PalantírReveal<TCloakedRevealBase> ValueRevealer
+    public PalantírReveal<TRevealBase> ValueRevealer
     {
-        get => (PalantírReveal<TCloakedRevealBase>)ValueRevealerDelegate;
+        get => (PalantírReveal<TRevealBase>)ValueRevealerDelegate;
         set => ValueRevealerDelegate = value;
     }
 }
 
-public abstract class RevealerEnumeratorFieldMoldScaffold<TCloaked, TCloakedRevealBase, TCollection> : MoldScaffoldBase<TCollection?>
-  , ISupportsValueRevealer<TCloakedRevealBase>
+public abstract class RevealerEnumeratorFieldMoldScaffold<TCloaked, TRevealBase, TCollection> : MoldScaffoldBase<TCollection?>
+  , ISupportsValueRevealer<TRevealBase>
     where TCollection : IEnumerator<TCloaked>
+    where TRevealBase : notnull
 {
     public Delegate ValueRevealerDelegate { get; set; } = null!;
 
-    public PalantírReveal<TCloakedRevealBase> ValueRevealer
+    public PalantírReveal<TRevealBase> ValueRevealer
     {
-        get => (PalantírReveal<TCloakedRevealBase>)ValueRevealerDelegate;
+        get => (PalantírReveal<TRevealBase>)ValueRevealerDelegate;
         set => ValueRevealerDelegate = value;
     }
 }
@@ -80,10 +82,11 @@ public abstract class FormattedFilteredCollectionFieldMoldScaffold<TValue, TValu
         ISupportsOrderedCollectionPredicate<TValueFilterBase>.GetNoFilterPredicate;
 }
 
-public abstract class RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealBase, TCollection> : 
-    RevealerCollectionFieldMoldScaffold<TCloaked, TCloakedRevealBase, TCollection>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
+public abstract class RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TRevealBase, TCollection> : 
+    RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase, TCollection>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
     where TCloaked : TCloakedFilterBase
     where TCollection : IEnumerable<TCloaked>
+    where TRevealBase : notnull
 {
     
     public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; } = 
@@ -93,6 +96,7 @@ public abstract class RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TClo
 public abstract class RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCollection> : 
     RevealerCollectionFieldMoldScaffold<TCloaked, TCloaked, TCollection>, ISupportsOrderedCollectionPredicate<TCloaked>
     where TCollection : IEnumerable<TCloaked>
+    where TCloaked : notnull
 {
     
     public OrderedCollectionPredicate<TCloaked> ElementPredicate { get; set; } = 
@@ -134,15 +138,17 @@ public abstract class FormattedFilteredEnumeratorFieldMoldScaffold<TValue, TValu
 public abstract class RevealerFilteredEnumeratorFieldMoldScaffold<TCloaked, TCollection> : 
     RevealerEnumeratorFieldMoldScaffold<TCloaked, TCloaked, TCollection>, ISupportsOrderedCollectionPredicate<TCloaked>
     where TCollection : IEnumerator<TCloaked>
+    where TCloaked : notnull
 {
     public OrderedCollectionPredicate<TCloaked> ElementPredicate { get; set; } = 
         ISupportsOrderedCollectionPredicate<TCloaked>.GetNoFilterPredicate;
 }
 
-public abstract class RevealerFilteredEnumeratorFieldMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealBase, TCollection> : 
-    RevealerEnumeratorFieldMoldScaffold<TCloaked, TCloakedRevealBase, TCollection>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
+public abstract class RevealerFilteredEnumeratorFieldMoldScaffold<TCloaked, TCloakedFilterBase, TRevealBase, TCollection> : 
+    RevealerEnumeratorFieldMoldScaffold<TCloaked, TRevealBase, TCollection>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
     where TCloaked : TCloakedFilterBase
     where TCollection : IEnumerator<TCloaked>
+    where TRevealBase : notnull
 {
     public OrderedCollectionPredicate<TCloakedFilterBase> ElementPredicate { get; set; } = 
         ISupportsOrderedCollectionPredicate<TCloakedFilterBase>.GetNoFilterPredicate;

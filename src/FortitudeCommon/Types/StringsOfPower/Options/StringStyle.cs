@@ -6,23 +6,41 @@ using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 namespace FortitudeCommon.Types.StringsOfPower.Options;
 
 [Flags]
-public enum StringStyle
+public enum StringStyle : ushort
 {
-    Default     = 0x00
-  , Compact     = 0x01
-  , Pretty      = 0x02
-  , Log         = 0x04
-  , CompactLog  = 0x05
-  , PrettyLog   = 0x06
-  , Json        = 0x08
-  , CompactJson = 0x09
-  , PrettyJson  = 0x0A
-  , AllStyles   = 0x0F  
+    Default         = 0x00
+  , Locked          = 0x01
+  , Compact         = 0x02
+  , Pretty          = 0x04
+  , Log             = 0x08
+  , CompactLog      = 0x0A
+  , PrettyLog       = 0x0C
+  , Json            = 0x10
+  , CompactJson     = 0x12
+  , PrettyJson      = 0x14
+  , AllLogOrJson    = 0x1E  
+  , Yaml            = 0x20 // not implemented just reserving
+  , CompactYaml     = 0x22 // "
+  , PrettyYaml      = 0x24 // "
+  , Markup          = 0x40 // "
+  , CompactMarkup   = 0x42 // "
+  , PrettyMarkup    = 0x44 // "
+  , Diagraph        = 0x80 // "
+  , CompactDiagraph = 0x82 // "
+  , PrettyDiagraph  = 0x84 // "
+    
+  , Custom        = 0x01_00 // Application specific formatting
+  , CompactCustom = 0x01_82 // "
+  , PrettyCustom  = 0x01_04 // "
+    
+  , AllStyles       = 0xFE
 }
 
 public static class StringStyleExtensions
 { // ReSharper disable UnusedMember.Global
     public static bool IsDefault(this StringStyle style) => style.IsExactly(Default);
+    public static bool IsLocked(this StringStyle style) => (style & Locked) > 0;
+    public static bool IsNotLocked(this StringStyle style) => (style & Locked) == 0;
 
     public static bool IsJustLogCompact(this StringStyle style) => style.IsExactly(Log | Pretty);
 

@@ -41,10 +41,10 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     }
 
 
-    public override IEncodingTransfer TransferEncoder
+    public override IEncodingTransfer StringEncoder
     {
         get => EncoderTransfer ??= JsonOptions.SourceEncodingTransfer(JsonOptions);
-        set => base.TransferEncoder = value;
+        set => base.StringEncoder = value;
     }
 
 
@@ -248,14 +248,14 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         if (IsBracesEnclosed(justAppended) || IsSquareBracketsEnclosed(justAppended)) { return 0; }
         if (IsDoubleQuoteEnclosed(justAppended))
         {
-            TransferEncoder.Transfer(this, justAppended, 0, sb, fromIndex, justAppended.Length);
+            StringEncoder.Transfer(this, justAppended, 0, sb, fromIndex, justAppended.Length);
             return sb.Length - originalSbLen;
         }
         if (JsonOptions.WrapValuesInQuotes)
         {
             scratchFull[0]  = '\"';
             scratchFull[^1] = '\"';
-            TransferEncoder.Transfer(this, scratchFull, 0, sb, fromIndex, scratchFull.Length);
+            StringEncoder.Transfer(this, scratchFull, 0, sb, fromIndex, scratchFull.Length);
         }
         return sb.Length - originalSbLen;
     }
@@ -285,14 +285,14 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         if (IsBracesEnclosed(justAppended) || IsSquareBracketsEnclosed(justAppended)) { return 0; }
         if (IsDoubleQuoteEnclosed(justAppended))
         {
-            var charsAdded = TransferEncoder.Transfer(this, justAppended, 0, destSpan, fromIndex, justAppended.Length);
+            var charsAdded = StringEncoder.Transfer(this, justAppended, 0, destSpan, fromIndex, justAppended.Length);
             return charsAdded - appendLen;
         }
         if (JsonOptions.WrapValuesInQuotes)
         {
             scratchFull[0]  = '\"';
             scratchFull[^1] = '\"';
-            var charsAdded = TransferEncoder.Transfer(this, scratchFull, 0, destSpan, fromIndex, scratchFull.Length);
+            var charsAdded = StringEncoder.Transfer(this, scratchFull, 0, destSpan, fromIndex, scratchFull.Length);
             return charsAdded - appendLen;
         }
         return 0;
@@ -512,11 +512,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                if (iChar.IsSingleCharRune()) { TransferEncoder.Transfer(new Rune(iChar), sb); }
+                if (iChar.IsSingleCharRune()) { StringEncoder.Transfer(new Rune(iChar), sb); }
                 else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
                 {
                     i++;
-                    TransferEncoder.Transfer(new Rune(iChar, lowSurrogateChar), sb);
+                    StringEncoder.Transfer(new Rune(iChar, lowSurrogateChar), sb);
                 }
             }
             else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String) { NextBase64Chars(iByte, sb); }
@@ -542,11 +542,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                if (iChar.IsSingleCharRune()) { addedChars += TransferEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
+                if (iChar.IsSingleCharRune()) { addedChars += StringEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
                 else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
                 {
                     i++;
-                    addedChars += TransferEncoder.Transfer(new Rune(iChar, lowSurrogateChar), destCharSpan, destStartIndex + addedChars);
+                    addedChars += StringEncoder.Transfer(new Rune(iChar, lowSurrogateChar), destCharSpan, destStartIndex + addedChars);
                 }
             }
             else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
@@ -586,11 +586,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                if (iChar.IsSingleCharRune()) { TransferEncoder.Transfer(new Rune(iChar), sb); }
+                if (iChar.IsSingleCharRune()) { StringEncoder.Transfer(new Rune(iChar), sb); }
                 else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
                 {
                     i++;
-                    TransferEncoder.Transfer(new Rune(iChar, lowSurrogateChar), sb);
+                    StringEncoder.Transfer(new Rune(iChar, lowSurrogateChar), sb);
                 }
             }
             else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String) { NextBase64Chars(iByte, sb); }
@@ -615,11 +615,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                if (iChar.IsSingleCharRune()) { addedChars += TransferEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
+                if (iChar.IsSingleCharRune()) { addedChars += StringEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
                 else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
                 {
                     i++;
-                    addedChars += TransferEncoder.Transfer(new Rune(iChar, lowSurrogateChar), destCharSpan, destStartIndex + addedChars);
+                    addedChars += StringEncoder.Transfer(new Rune(iChar, lowSurrogateChar), destCharSpan, destStartIndex + addedChars);
                 }
             }
             else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
@@ -659,11 +659,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                if (iChar.IsSingleCharRune()) { TransferEncoder.Transfer(new Rune(iChar), sb); }
+                if (iChar.IsSingleCharRune()) { StringEncoder.Transfer(new Rune(iChar), sb); }
                 else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
                 {
                     i++;
-                    TransferEncoder.Transfer(new Rune(iChar, lowSurrogateChar), sb);
+                    StringEncoder.Transfer(new Rune(iChar, lowSurrogateChar), sb);
                 }
             }
             else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String) { NextBase64Chars(iByte, sb); }
@@ -696,11 +696,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                if (iChar.IsSingleCharRune()) { addedChars += TransferEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
+                if (iChar.IsSingleCharRune()) { addedChars += StringEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
                 else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
                 {
                     i++;
-                    addedChars += TransferEncoder.Transfer(new Rune(iChar, lowSurrogateChar), destCharSpan, destStartIndex + addedChars);
+                    addedChars += StringEncoder.Transfer(new Rune(iChar, lowSurrogateChar), destCharSpan, destStartIndex + addedChars);
                 }
             }
             else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
@@ -739,11 +739,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                if (iChar.IsSingleCharRune()) { TransferEncoder.Transfer(new Rune(iChar), sb); }
+                if (iChar.IsSingleCharRune()) { StringEncoder.Transfer(new Rune(iChar), sb); }
                 else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
                 {
                     i++;
-                    TransferEncoder.Transfer(new Rune(iChar, lowSurrogateChar), sb);
+                    StringEncoder.Transfer(new Rune(iChar, lowSurrogateChar), sb);
                 }
             }
             else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String) { NextBase64Chars(iByte, sb); }
@@ -776,11 +776,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                if (iChar.IsSingleCharRune()) { addedChars += TransferEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
+                if (iChar.IsSingleCharRune()) { addedChars += StringEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
                 else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
                 {
                     i++;
-                    addedChars += TransferEncoder.Transfer(new Rune(iChar, lowSurrogateChar), destCharSpan, destStartIndex + addedChars);
+                    addedChars += StringEncoder.Transfer(new Rune(iChar, lowSurrogateChar), destCharSpan, destStartIndex + addedChars);
                 }
             }
             else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
@@ -822,11 +822,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                if (iChar.IsSingleCharRune()) { TransferEncoder.Transfer(new Rune(iChar), sb); }
+                if (iChar.IsSingleCharRune()) { StringEncoder.Transfer(new Rune(iChar), sb); }
                 else if (i + 1 < arg0.Count && arg0[i + 1] is char lowSurrogateChar)
                 {
                     i++;
-                    TransferEncoder.Transfer(new Rune(iChar, lowSurrogateChar), sb);
+                    StringEncoder.Transfer(new Rune(iChar, lowSurrogateChar), sb);
                 }
             }
             else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String) { NextBase64Chars(iByte, sb); }
@@ -852,11 +852,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                if (iChar.IsSingleCharRune()) { addedChars += TransferEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
+                if (iChar.IsSingleCharRune()) { addedChars += StringEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
                 else if (i + 1 < arg0.Count && arg0[i + 1] is char lowSurrogateChar)
                 {
                     i++;
-                    addedChars += TransferEncoder.Transfer(new Rune(iChar, lowSurrogateChar), destCharSpan, destStartIndex + addedChars);
+                    addedChars += StringEncoder.Transfer(new Rune(iChar, lowSurrogateChar), destCharSpan, destStartIndex + addedChars);
                 }
             }
             else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
@@ -896,11 +896,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                if (iChar.IsSingleCharRune()) { TransferEncoder.Transfer(new Rune(iChar), sb); }
+                if (iChar.IsSingleCharRune()) { StringEncoder.Transfer(new Rune(iChar), sb); }
                 else if (i + 1 < arg0.Count && arg0[i + 1] is char lowSurrogateChar)
                 {
                     i++;
-                    TransferEncoder.Transfer(new Rune(iChar, lowSurrogateChar), sb);
+                    StringEncoder.Transfer(new Rune(iChar, lowSurrogateChar), sb);
                 }
             }
             else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String) { NextBase64Chars(iByte, sb); }
@@ -925,11 +925,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                if (iChar.IsSingleCharRune()) { addedChars += TransferEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
+                if (iChar.IsSingleCharRune()) { addedChars += StringEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
                 else if (i + 1 < arg0.Count && arg0[i + 1] is char lowSurrogateChar)
                 {
                     i++;
-                    addedChars += TransferEncoder.Transfer(new Rune(iChar, lowSurrogateChar), destCharSpan, destStartIndex + addedChars);
+                    addedChars += StringEncoder.Transfer(new Rune(iChar, lowSurrogateChar), destCharSpan, destStartIndex + addedChars);
                 }
             }
             else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
@@ -971,9 +971,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                if (iChar.IsSingleCharRune()) { TransferEncoder.Transfer(new Rune(iChar), sb); }
+                if (iChar.IsSingleCharRune()) { StringEncoder.Transfer(new Rune(iChar), sb); }
                 else if (iChar.IsTwoCharHighSurrogate()) { lastChar = iChar; }
-                else if (iChar.IsTwoCharLowSurrogate()) { TransferEncoder.Transfer(new Rune(lastChar, iChar), sb); }
+                else if (iChar.IsTwoCharLowSurrogate()) { StringEncoder.Transfer(new Rune(lastChar, iChar), sb); }
             }
             else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String) { NextBase64Chars(iByte, sb); }
             else
@@ -1019,11 +1019,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                if (iChar.IsSingleCharRune()) { addedChars += TransferEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
+                if (iChar.IsSingleCharRune()) { addedChars += StringEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
                 else if (iChar.IsTwoCharHighSurrogate()) { lastChar = iChar; }
                 else if (iChar.IsTwoCharLowSurrogate())
                 {
-                    addedChars += TransferEncoder.Transfer(new Rune(lastChar, iChar), destCharSpan, destStartIndex + addedChars);
+                    addedChars += StringEncoder.Transfer(new Rune(lastChar, iChar), destCharSpan, destStartIndex + addedChars);
                 }
             }
             else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
@@ -1075,9 +1075,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                if (iChar.IsSingleCharRune()) { TransferEncoder.Transfer(new Rune(iChar), sb); }
+                if (iChar.IsSingleCharRune()) { StringEncoder.Transfer(new Rune(iChar), sb); }
                 else if (iChar.IsTwoCharHighSurrogate()) { lastChar = iChar; }
-                else if (iChar.IsTwoCharLowSurrogate()) { TransferEncoder.Transfer(new Rune(lastChar, iChar), sb); }
+                else if (iChar.IsTwoCharLowSurrogate()) { StringEncoder.Transfer(new Rune(lastChar, iChar), sb); }
             }
             else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String) { NextBase64Chars(iByte, sb); }
             else
@@ -1121,11 +1121,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                if (iChar.IsSingleCharRune()) { addedChars += TransferEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
+                if (iChar.IsSingleCharRune()) { addedChars += StringEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
                 else if (iChar.IsTwoCharHighSurrogate()) { lastChar = iChar; }
                 else if (iChar.IsTwoCharLowSurrogate())
                 {
-                    addedChars += TransferEncoder.Transfer(new Rune(lastChar, iChar), destCharSpan, destStartIndex + addedChars);
+                    addedChars += StringEncoder.Transfer(new Rune(lastChar, iChar), destCharSpan, destStartIndex + addedChars);
                 }
             }
             else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
@@ -1179,9 +1179,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                if (iChar.IsSingleCharRune()) { TransferEncoder.Transfer(new Rune(iChar), sb); }
+                if (iChar.IsSingleCharRune()) { StringEncoder.Transfer(new Rune(iChar), sb); }
                 else if (iChar.IsTwoCharHighSurrogate()) { lastChar = iChar; }
-                else if (iChar.IsTwoCharLowSurrogate()) { TransferEncoder.Transfer(new Rune(lastChar, iChar), sb); }
+                else if (iChar.IsTwoCharLowSurrogate()) { StringEncoder.Transfer(new Rune(lastChar, iChar), sb); }
             }
             else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String) { NextBase64Chars(iByte, sb); }
             else
@@ -1217,11 +1217,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                if (iChar.IsSingleCharRune()) { addedChars += TransferEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
+                if (iChar.IsSingleCharRune()) { addedChars += StringEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
                 else if (iChar.IsTwoCharHighSurrogate()) { lastChar = iChar; }
                 else if (iChar.IsTwoCharLowSurrogate())
                 {
-                    addedChars += TransferEncoder.Transfer(new Rune(lastChar, iChar), destCharSpan, destStartIndex + addedChars);
+                    addedChars += StringEncoder.Transfer(new Rune(lastChar, iChar), destCharSpan, destStartIndex + addedChars);
                 }
             }
             else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
@@ -1266,9 +1266,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                if (iChar.IsSingleCharRune()) { TransferEncoder.Transfer(new Rune(iChar), sb); }
+                if (iChar.IsSingleCharRune()) { StringEncoder.Transfer(new Rune(iChar), sb); }
                 else if (iChar.IsTwoCharHighSurrogate()) { lastChar = iChar; }
-                else if (iChar.IsTwoCharLowSurrogate()) { TransferEncoder.Transfer(new Rune(lastChar, iChar), sb); }
+                else if (iChar.IsTwoCharLowSurrogate()) { StringEncoder.Transfer(new Rune(lastChar, iChar), sb); }
             }
             else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String) { NextBase64Chars(iByte, sb); }
             else
@@ -1303,11 +1303,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
-                if (iChar.IsSingleCharRune()) { addedChars += TransferEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
+                if (iChar.IsSingleCharRune()) { addedChars += StringEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
                 else if (iChar.IsTwoCharHighSurrogate()) { lastChar = iChar; }
                 else if (iChar.IsTwoCharLowSurrogate())
                 {
-                    addedChars += TransferEncoder.Transfer(new Rune(lastChar, iChar), destCharSpan, destStartIndex + addedChars);
+                    addedChars += StringEncoder.Transfer(new Rune(lastChar, iChar), destCharSpan, destStartIndex + addedChars);
                 }
             }
             else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String)
@@ -1335,9 +1335,10 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     public override int CollectionStart(Type elementType, IStringBuilder sb, bool hasItems
       , FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
-        if (elementType == typeof(char) &&
-            (JsonOptions.CharArrayWritesString
-          || formatFlags.TreatCharArrayAsString())) { return formatFlags.ShouldDelimit() ? sb.Append(DblQt).ReturnCharCount(1) : 0; }
+        if (elementType == typeof(char) && (JsonOptions.CharArrayWritesString || formatFlags.TreatCharArrayAsString()))
+        {
+            return formatFlags.ShouldDelimit() ? sb.Append(DblQt).ReturnCharCount(1) : 0;
+        }
         if (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return sb.Append(DblQt).ReturnCharCount(1);
         if (elementType == typeof(KeyValuePair<string, JsonNode>)) return sb.Append(BrcOpn).ReturnCharCount(1);
         return sb.Append(SqBrktOpn).ReturnCharCount(1);
@@ -1384,21 +1385,21 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         switch (nextItem)
         {
             case Rune runeItem:
-                if (JsonOptions.CharArrayWritesString) { return TransferEncoder.Transfer(runeItem, sb); }
+                if (JsonOptions.CharArrayWritesString) { return StringEncoder.Transfer(runeItem, sb); }
                 sb.Append(DblQt);
-                var runeElementAdded = TransferEncoder.Transfer(runeItem, sb);
+                var runeElementAdded = StringEncoder.Transfer(runeItem, sb);
                 sb.Append(DblQt);
                 return runeElementAdded + 2;
             case char charItem:
                 if (JsonOptions.CharArrayWritesString || formatFlags.TreatCharArrayAsString())
                 {
-                    if (charItem.IsSingleCharRune()) return TransferEncoder.Transfer(new Rune(charItem), sb);
+                    if (charItem.IsSingleCharRune()) return StringEncoder.Transfer(new Rune(charItem), sb);
                     return 0;
                 }
                 if (formatString.IsNullOrEmpty())
                 {
                     sb.Append(DblQt);
-                    var charsAdded = TransferEncoder.Transfer(new Rune(charItem), sb);
+                    var charsAdded = StringEncoder.Transfer(new Rune(charItem), sb);
                     sb.Append(DblQt);
                     return charsAdded + 2;
                 }
@@ -1417,18 +1418,18 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         switch (nextItem)
         {
             case Rune runeItem:
-                if (JsonOptions.CharArrayWritesString) { return TransferEncoder.Transfer(runeItem, destCharSpan, destStartIndex); }
+                if (JsonOptions.CharArrayWritesString) { return StringEncoder.Transfer(runeItem, destCharSpan, destStartIndex); }
 
                 var runeElementAdded = 0;
 
                 if (formatFlags.ShouldDelimit()) runeElementAdded += destCharSpan.OverWriteAt(destStartIndex, DblQt);
-                runeElementAdded += TransferEncoder.Transfer(runeItem, destCharSpan, destStartIndex + runeElementAdded);
+                runeElementAdded += StringEncoder.Transfer(runeItem, destCharSpan, destStartIndex + runeElementAdded);
                 if (formatFlags.ShouldDelimit()) runeElementAdded += destCharSpan.OverWriteAt(destStartIndex + runeElementAdded, DblQt);
                 return runeElementAdded;
             case char charItem:
                 if (JsonOptions.CharArrayWritesString || formatFlags.TreatCharArrayAsString())
                 {
-                    if (charItem.IsSingleCharRune()) return TransferEncoder.Transfer(new Rune(charItem), destCharSpan, destStartIndex);
+                    if (charItem.IsSingleCharRune()) return StringEncoder.Transfer(new Rune(charItem), destCharSpan, destStartIndex);
                     return 0;
                 }
                 if (formatString.IsNullOrEmpty())
@@ -1438,7 +1439,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                         var charsAdded = 0;
 
                         if (formatFlags.ShouldDelimit()) charsAdded += destCharSpan.OverWriteAt(destStartIndex, DblQt);
-                        charsAdded += TransferEncoder.Transfer(new Rune(charItem), destCharSpan, destStartIndex + charsAdded);
+                        charsAdded += StringEncoder.Transfer(new Rune(charItem), destCharSpan, destStartIndex + charsAdded);
                         if (formatFlags.ShouldDelimit()) charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, DblQt);
                         return charsAdded;
                     }
@@ -1459,19 +1460,19 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         switch (nextItem)
         {
             case Rune runeItem:
-                if (JsonOptions.CharArrayWritesString) { return TransferEncoder.Transfer(runeItem, sb); }
+                if (JsonOptions.CharArrayWritesString) { return StringEncoder.Transfer(runeItem, sb); }
                 var runeCharsAdded = 0;
 
                 if (formatFlags.ShouldDelimit()) runeCharsAdded += sb.Append(DblQt).ReturnCharCount(1);
 
-                runeCharsAdded += TransferEncoder.Transfer(runeItem, sb);
+                runeCharsAdded += StringEncoder.Transfer(runeItem, sb);
 
                 if (formatFlags.ShouldDelimit()) runeCharsAdded += sb.Append(DblQt).ReturnCharCount(1);
                 return runeCharsAdded;
             case char charItem:
                 if (JsonOptions.CharArrayWritesString || formatFlags.TreatCharArrayAsString())
                 {
-                    if (charItem.IsSingleCharRune()) return TransferEncoder.Transfer(new Rune(charItem), sb);
+                    if (charItem.IsSingleCharRune()) return StringEncoder.Transfer(new Rune(charItem), sb);
                     return 0;
                 }
                 if (charItem.IsSingleCharRune())
@@ -1479,7 +1480,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                     var charsAdded = 0;
 
                     if (formatFlags.ShouldDelimit()) charsAdded += sb.Append(DblQt).ReturnCharCount(1);
-                    charsAdded += TransferEncoder.Transfer(new Rune(charItem), sb);
+                    charsAdded += StringEncoder.Transfer(new Rune(charItem), sb);
                     if (formatFlags.ShouldDelimit()) charsAdded += sb.Append(DblQt).ReturnCharCount(1);
                     return charsAdded;
                 }
@@ -1495,19 +1496,19 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         switch (nextItem)
         {
             case Rune runeItem:
-                if (JsonOptions.CharArrayWritesString) { return TransferEncoder.Transfer(runeItem, destCharSpan, destStartIndex); }
+                if (JsonOptions.CharArrayWritesString) { return StringEncoder.Transfer(runeItem, destCharSpan, destStartIndex); }
                 var runeCharsAdded = 0;
 
                 if (formatFlags.ShouldDelimit()) runeCharsAdded += destCharSpan.OverWriteAt(destStartIndex, DblQt);
 
-                runeCharsAdded += TransferEncoder.Transfer(runeItem, destCharSpan, destStartIndex + runeCharsAdded);
+                runeCharsAdded += StringEncoder.Transfer(runeItem, destCharSpan, destStartIndex + runeCharsAdded);
 
                 if (formatFlags.ShouldDelimit()) runeCharsAdded += destCharSpan.OverWriteAt(destStartIndex, DblQt);
                 return runeCharsAdded + 2;
             case char charItem:
                 if (JsonOptions.CharArrayWritesString || formatFlags.TreatCharArrayAsString())
                 {
-                    if (charItem.IsSingleCharRune()) return TransferEncoder.Transfer(new Rune(charItem), destCharSpan, destStartIndex);
+                    if (charItem.IsSingleCharRune()) return StringEncoder.Transfer(new Rune(charItem), destCharSpan, destStartIndex);
                     return 0;
                 }
                 if (charItem.IsSingleCharRune())
@@ -1515,7 +1516,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                     var charsAdded = 0;
 
                     if (formatFlags.ShouldDelimit()) charsAdded += destCharSpan.OverWriteAt(destStartIndex, DblQt);
-                    charsAdded += TransferEncoder.Transfer(new Rune(charItem), destCharSpan, destStartIndex + charsAdded);
+                    charsAdded += StringEncoder.Transfer(new Rune(charItem), destCharSpan, destStartIndex + charsAdded);
                     if (formatFlags.ShouldDelimit()) charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, DblQt);
                     return charsAdded;
                 }
@@ -1542,7 +1543,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                     return sb.Length - preAppendLen;
                 }
                 CollectionStart(typeof(char[]), sb, charArrayItem.Length > 0, formatFlags);
-                TransferEncoder.Transfer(this, charArrayItem, sb);
+                StringEncoder.Transfer(this, charArrayItem, sb);
                 CollectionEnd(typeof(char[]), sb, charArrayItem.Length, formatFlags);
                 return sb.Length - preAppendLen;
 
@@ -1555,7 +1556,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                     return sb.Length - preAppendLen;
                 }
                 CollectionStart(charSequenceItem.GetType(), sb, charSequenceItem.Length > 0, formatFlags);
-                TransferEncoder.Transfer(this, charSequenceItem, sb);
+                StringEncoder.Transfer(this, charSequenceItem, sb);
                 CollectionEnd(charSequenceItem.GetType(), sb, charSequenceItem.Length, formatFlags);
                 return sb.Length - preAppendLen;
             case StringBuilder sbItem: return sb.Append(DblQt).Append(sbItem).Append(DblQt).ReturnCharCount(sbItem.Length + 2);
@@ -1613,7 +1614,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         return sb.Append(SqBrktCls).ReturnCharCount(1);
     }
 
-    public override int CollectionEnd(Type elementType, Span<char> destSpan, int index, int itemsCount
+    public override int CollectionEnd(Type elementType, Span<char> destSpan, int destIndex, int itemsCount
       , FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         CharSpanCollectionScratchBuffer?.DecrementRefCount();
@@ -1621,13 +1622,13 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         if (elementType == typeof(char) &&
             (JsonOptions.CharArrayWritesString
           || formatFlags.TreatCharArrayAsString()))
-            return formatFlags.ShouldDelimit() ? destSpan.OverWriteAt(index, DblQt) : 0;
+            return formatFlags.ShouldDelimit() ? destSpan.OverWriteAt(destIndex, DblQt) : 0;
         if (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String)
         {
-            var addedChars = CompleteBase64Sequence(destSpan, index);
-            return destSpan.OverWriteAt(index + addedChars, DblQt) + addedChars;
+            var addedChars = CompleteBase64Sequence(destSpan, destIndex);
+            return destSpan.OverWriteAt(destIndex + addedChars, DblQt) + addedChars;
         }
-        if (elementType == typeof(KeyValuePair<string, JsonNode>)) return destSpan.OverWriteAt(index, BrcCls);
-        return destSpan.OverWriteAt(index, SqBrktCls);
+        if (elementType == typeof(KeyValuePair<string, JsonNode>)) return destSpan.OverWriteAt(destIndex, BrcCls);
+        return destSpan.OverWriteAt(destIndex, SqBrktCls);
     }
 }

@@ -117,7 +117,7 @@ public partial class SelectTypeFieldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactJson(SpanFormattableTestData.AllSpanFormattableExpectations[145], ScaffoldingRegistry.AllScaffoldingTypes[945]);
+        SharedCompactJson(CharArrayTestData.AllCharArrayExpectations[3], ScaffoldingRegistry.AllScaffoldingTypes[899]);
     }
 
     private void SharedCompactJson(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -155,6 +155,7 @@ public partial class SelectTypeFieldTests
             complexFieldExpectation.WhenValueExpectedOutput = BuildExpectedOutput;
         }
         tos.Clear();
+        
         var stringBearer = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall, tos.Settings);
         stringBearer.RevealState(tos);
         var buildExpectedOutput =

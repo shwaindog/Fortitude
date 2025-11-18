@@ -964,7 +964,7 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         return sb.Append(SqBrktCls).ReturnCharCount(1);
     }
 
-    public override int CollectionEnd(Type collectionType, Span<char> destSpan, int index, int itemsCount
+    public override int CollectionEnd(Type collectionType, Span<char> destSpan, int destIndex, int itemsCount
       , FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray())
@@ -973,6 +973,6 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         }
         CharSpanCollectionScratchBuffer?.DecrementRefCount();
         CharSpanCollectionScratchBuffer = null;
-        return destSpan.OverWriteAt(index, SqBrktCls);
+        return destSpan.OverWriteAt(destIndex, SqBrktCls);
     }
 }

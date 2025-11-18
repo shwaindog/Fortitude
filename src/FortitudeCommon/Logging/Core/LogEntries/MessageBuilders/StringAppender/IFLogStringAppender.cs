@@ -42,10 +42,14 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     IFLogStringAppender Append<TFmt>((TFmt, string) value) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
-    IFLogStringAppender Append<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TStylerType;
+    IFLogStringAppender Append<TCloaked, TRevealBase>(TCloaked? value, PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull;
 
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
-    IFLogStringAppender Append<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple) where TToStyle : TStylerType;
+    IFLogStringAppender Append<TCloaked, TRevealBase>((TCloaked, PalantírReveal<TRevealBase>) valueTuple) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull;
 
     [MustUseReturnValue("Use FinalAppend to finish and send LogEntry")]
     IFLogStringAppender Append(ReadOnlySpan<char> value);
@@ -129,11 +133,14 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     IFLogStringAppender AppendLine<TFmt>((TFmt, string) value) where TFmt : ISpanFormattable;
 
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
-    IFLogStringAppender AppendLine<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal)
-        where TToStyle : TStylerType;
+    IFLogStringAppender AppendLine<TCloaked, TRevealBase>(TCloaked value, PalantírReveal<TRevealBase> palantírReveal)
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull;
 
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
-    IFLogStringAppender AppendLine<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple) where TToStyle : TStylerType;
+    IFLogStringAppender AppendLine<TCloaked, TRevealBase>((TCloaked?, PalantírReveal<TRevealBase>) valueTuple) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull;
 
     [MustUseReturnValue("Use FinalAppendLine to finish and send LogEntry")]
     IFLogStringAppender AppendLine(ReadOnlySpan<char> value);
@@ -203,27 +210,34 @@ public interface IFLogStringAppender : IFLogMessageBuilder
     void FinalAppend(bool? value);
     void FinalAppend<TFmt>(TFmt value, string? formatString = null) where TFmt : ISpanFormattable;
     void FinalAppend<TFmt>((TFmt, string) value) where TFmt : ISpanFormattable;
-    void FinalAppend<TToStyle, TStylerType>(TToStyle value, PalantírReveal<TStylerType> palantírReveal) where TToStyle : TStylerType;
-    void FinalAppend<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple) where TToStyle : TStylerType;
-    void FinalAppend(ReadOnlySpan<char> value);
-    void FinalAppend(ReadOnlySpan<char> value, int startIndex, int count = int.MaxValue);
-    void FinalAppend(string? value);
-    void FinalAppend((string?, int) valueTuple);
-    void FinalAppend((string?, int, int) valueTuple);
-    void FinalAppend(string? value, int startIndex, int count = int.MaxValue);
-    void FinalAppend(char[]? value);
-    void FinalAppend((char[]?, int) valueTuple);
-    void FinalAppend((char[]?, int, int) valueTuple);
-    void FinalAppend(char[]? value, int startIndex, int count = int.MaxValue);
-    void FinalAppend(ICharSequence? value);
-    void FinalAppend((ICharSequence?, int) valueTuple);
-    void FinalAppend((ICharSequence?, int, int) valueTuple);
-    void FinalAppend(ICharSequence? value, int startIndex, int count = int.MaxValue);
-    void FinalAppend(StringBuilder? value);
-    void FinalAppend((StringBuilder?, int) valueTuple);
-    void FinalAppend((StringBuilder?, int, int) valueTuple);
-    void FinalAppend(StringBuilder? value, int startIndex, int count = int.MaxValue);
-    void FinalAppend(IStringBearer? value);
+    
+    void FinalAppend<TCloaked, TRevealBase>(TCloaked? value, PalantírReveal<TRevealBase> palantírReveal) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull;
+
+    void FinalAppend<TCloaked, TRevealBase>((TCloaked?, PalantírReveal<TRevealBase>) valueTuple)
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull;
+        
+    void  FinalAppend(ReadOnlySpan<char> value);
+    void  FinalAppend(ReadOnlySpan<char> value, int startIndex, int count = int.MaxValue);
+    void  FinalAppend(string? value);
+    void  FinalAppend((string?, int) valueTuple);
+    void  FinalAppend((string?, int, int) valueTuple);
+    void  FinalAppend(string? value, int startIndex, int count = int.MaxValue);
+    void  FinalAppend(char[]? value);
+    void  FinalAppend((char[]?, int) valueTuple);
+    void  FinalAppend((char[]?, int, int) valueTuple);
+    void  FinalAppend(char[]? value, int startIndex, int count = int.MaxValue);
+    void  FinalAppend(ICharSequence? value);
+    void  FinalAppend((ICharSequence?, int) valueTuple);
+    void  FinalAppend((ICharSequence?, int, int) valueTuple);
+    void  FinalAppend(ICharSequence? value, int startIndex, int count = int.MaxValue);
+    void  FinalAppend(StringBuilder? value);
+    void  FinalAppend((StringBuilder?, int) valueTuple);
+    void  FinalAppend((StringBuilder?, int, int) valueTuple);
+    void  FinalAppend(StringBuilder? value, int startIndex, int count = int.MaxValue);
+    void  FinalAppend(IStringBearer? value);
 
     [CallsObjectToString] void FinalAppendObject(object? value);
 

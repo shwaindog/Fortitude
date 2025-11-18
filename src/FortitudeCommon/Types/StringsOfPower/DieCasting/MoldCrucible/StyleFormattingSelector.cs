@@ -9,32 +9,32 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
 public static class StyleFormattingSelector
 {
-    public static Func<IRecycler, StyleOptions, EncodingType, IStyledTypeFormatting> StyleFormattingResolverSelector { get; set; }
+    public static Func<ISecretStringOfPower, EncodingType, IStyledTypeFormatting> StyleFormattingResolverSelector { get; set; }
         = DefaultResolveStyleFormatter;
     
-    public static IStyledTypeFormatting ResolveStyleFormatter(this IRecycler recycler, StyleOptions previousOptions, 
-        EncodingType                    encodingType = EncodingType.DefaultForStyle)
+    public static IStyledTypeFormatting ResolveStyleFormatter(this ISecretStringOfPower theStringMaster
+      , EncodingType encodingType = EncodingType.DefaultForStyle )
     {
-        return StyleFormattingResolverSelector(recycler, previousOptions, encodingType);
+        return StyleFormattingResolverSelector(theStringMaster, encodingType );
     }
 
-    private static IStyledTypeFormatting DefaultResolveStyleFormatter(this IRecycler recycler, StyleOptions styleOptions
+    private static IStyledTypeFormatting DefaultResolveStyleFormatter(ISecretStringOfPower theStringMaster
       , EncodingType encodingType = EncodingType.DefaultForStyle)
     {
         
-        return styleOptions.Style switch
+        return theStringMaster.Settings.Style switch
                {
                    StringStyle.Json | StringStyle.Compact =>
-                       recycler.Borrow<CompactJsonTypeFormatting>()
-                               .Initialize(styleOptions)
+                       theStringMaster.Recycler.Borrow<CompactJsonTypeFormatting>()
+                               .Initialize(theStringMaster.GraphBuilder, theStringMaster.Settings)
                  , StringStyle.Json | StringStyle.Pretty =>
-                       recycler.Borrow<PrettyJsonTypeFormatting>()
-                               .Initialize(styleOptions)
+                       theStringMaster.Recycler.Borrow<PrettyJsonTypeFormatting>()
+                                      .Initialize(theStringMaster.GraphBuilder, theStringMaster.Settings)
                  , StringStyle.Log | StringStyle.Pretty =>
-                       recycler.Borrow<PrettyLogTypeFormatting>()
-                               .Initialize(styleOptions)
+                       theStringMaster.Recycler.Borrow<PrettyLogTypeFormatting>()
+                                      .Initialize(theStringMaster.GraphBuilder, theStringMaster.Settings)
                  , _ => Recycler.ThreadStaticRecycler.Borrow<CompactLogTypeFormatting>()
-                                .Initialize(styleOptions)
+                                .Initialize(theStringMaster.GraphBuilder, theStringMaster.Settings)
                };
     }
 }

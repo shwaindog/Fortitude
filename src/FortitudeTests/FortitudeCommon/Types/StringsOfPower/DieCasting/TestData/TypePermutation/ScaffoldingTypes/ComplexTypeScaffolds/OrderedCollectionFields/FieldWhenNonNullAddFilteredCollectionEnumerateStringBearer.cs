@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.Forge;
@@ -106,9 +105,10 @@ public class FieldNullableSpanFormattableEnumerableWhenNonNullAddFilteredStringB
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | NonNullWrites | FilterPredicate | AcceptsAnyExceptNullableStruct |
                   SupportsValueRevealer)]
-public class FieldCloakedBearerEnumerableWhenNonNullAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : 
-    RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealBase, IEnumerable<TCloaked>>
-       where TCloaked : TCloakedRevealBase, TCloakedFilterBase
+public class FieldCloakedBearerEnumerableWhenNonNullAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TRevealBase> : 
+    RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TRevealBase, IEnumerable<TCloaked>>
+       where TCloaked : TRevealBase, TCloakedFilterBase
+       where TRevealBase : notnull
 {
     public IEnumerable<TCloaked>? ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerList
     {
@@ -416,9 +416,10 @@ public class FieldNullableSpanFormattableEnumeratorWhenNonNullAddFilteredStringB
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | NonNullWrites | FilterPredicate | AcceptsAnyExceptNullableStruct |
                   SupportsValueRevealer)]
-public class FieldCloakedBearerEnumeratorWhenNonNullAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : 
-    RevealerFilteredEnumeratorFieldMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealBase, IEnumerator<TCloaked>>
-       where TCloaked : TCloakedRevealBase, TCloakedFilterBase
+public class FieldCloakedBearerEnumeratorWhenNonNullAddFilteredStringBearer<TCloaked, TFilterBase, TRevealBase> : 
+    RevealerFilteredEnumeratorFieldMoldScaffold<TCloaked, TFilterBase, TRevealBase, IEnumerator<TCloaked>>
+       where TCloaked : TRevealBase, TFilterBase
+       where TRevealBase : notnull
 {
     public IEnumerator<TCloaked>? ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerList
     {

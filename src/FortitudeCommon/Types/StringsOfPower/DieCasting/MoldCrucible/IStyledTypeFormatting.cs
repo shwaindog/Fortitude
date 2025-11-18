@@ -13,6 +13,8 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 public interface IStyledTypeFormatting : ICustomStringFormatter
 {
     string Name { get; }
+    
+    public GraphTrackingBuilder GraphBuilder { get; }
 
     FieldContentHandling ResolveContentFormattingFlags<T>(IStringBuilder sb, T input, FieldContentHandling callerFormattingFlags
     , string formatString = "", bool isFieldName = false);
@@ -21,19 +23,19 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     
     FieldContentHandling ResolveContentAsStringFormattingFlags<T>(T input, bool hasFallbackValue);
 
-    IStringBuilder AppendValueTypeOpening(IStringBuilder sb, Type valueType, string? alternativeName = null);
+    ContentSeparatorRanges AppendValueTypeOpening(ITypeMolderDieCast moldInternal, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
-    IStringBuilder AppendValueTypeClosing(IStringBuilder sb, Type valueType);
+    ContentSeparatorRanges AppendValueTypeClosing(ITypeMolderDieCast moldInternal);
 
-    IStringBuilder AppendComplexTypeOpening(IStringBuilder sb, Type complexType, string? alternativeName = null);
+    ContentSeparatorRanges AppendComplexTypeOpening(ITypeMolderDieCast moldInternal, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
-    IStringBuilder AppendFieldValueSeparator(IStringBuilder sb);
+    SeparatorPaddingRanges AppendFieldValueSeparator(ITypeMolderDieCast moldInternal, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
-    IStringBuilder AddNextFieldSeparator(IStringBuilder sb);
+    SeparatorPaddingRanges AddNextFieldSeparator(ITypeMolderDieCast moldInternal, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
     int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel);
 
-    IStringBuilder AppendTypeClosing(IStringBuilder sb);
+    ContentSeparatorRanges AppendTypeClosing(ITypeMolderDieCast moldInternal);
 
     IStringBuilder AppendFormattedNull(IStringBuilder sb, string? formatString, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
@@ -56,7 +58,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
         where TVBase : notnull;
 
     ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKBase, TVBase>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
-      , TKey key, TValue value, int retrieveCount, PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler
+      , TKey key, TValue? value, int retrieveCount, PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler
       , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
         where TKey : TKBase 
@@ -67,7 +69,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder AppendKeyedCollectionNextItem(IStringBuilder sb, Type keyedCollectionType
       , Type keyType, Type valueType, int previousItemNumber);
 
-    IStringBuilder FormatCollectionStart(IStringBuilder sb, Type itemElementType, bool? hasItems, Type collectionType
+    IStringBuilder FormatCollectionStart(ITypeMolderDieCast moldInternal, Type itemElementType, bool? hasItems, Type collectionType
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
     IStringBuilder CollectionNextItemFormat(IStringBuilder sb, bool item
@@ -104,8 +106,8 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder CollectionNextStringBearerFormat<TBearer>(ITheOneString tos, TBearer? item, int retrieveCount) 
       where TBearer : IStringBearer;
 
-    IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType, int? totalItemCount, string? formatString
-    , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
+    IStringBuilder FormatCollectionEnd(ITypeMolderDieCast moldInternal, int? resultsFoundCount, Type itemElementType, int? totalItemCount
+    , string? formatString, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
     IStringBuilder AddCollectionElementSeparator(IStringBuilder sb, Type elementType, int nextItemNumber
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
@@ -183,7 +185,9 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 public static class StyleTypeFormattingExtensions
 {
     
-    public static IStringBuilder FieldEnd(this IStringBuilder sb, IStyledTypeFormatting stf) => stf.AppendFieldValueSeparator(sb);
+    public static SeparatorPaddingRanges FieldEnd(this IStringBuilder _, ITypeMolderDieCast moldInternal, IStyledTypeFormatting stf
+    , FieldContentHandling formatFlags = DefaultCallerTypeFlags) => 
+      stf.AppendFieldValueSeparator(moldInternal, formatFlags);
 
 
     public static char RemoveLastWhiteSpacedCommaIfFound(this IStringBuilder sb)

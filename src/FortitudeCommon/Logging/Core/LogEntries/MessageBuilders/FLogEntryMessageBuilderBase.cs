@@ -14,7 +14,6 @@ using FortitudeCommon.Logging.Core.Hub;
 using FortitudeCommon.Logging.Core.LogEntries.MessageBuilders.StringAppender;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower;
-using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 
 namespace FortitudeCommon.Logging.Core.LogEntries.MessageBuilders;
@@ -57,11 +56,14 @@ public abstract partial class FLogEntryMessageBuilder : RecyclableObject, IFLogM
         return this;
     }
 
-    protected static void AppendStyled<TToStyle, TStylerType>((TToStyle, PalantírReveal<TStylerType>) valueTuple
-      , ITheOneString ofPower) where TToStyle : TStylerType
+    protected static void AppendStyled<TCloaked, TRevealBase>((TCloaked?, PalantírReveal<TRevealBase>) valueTuple
+      , ITheOneString ofPower) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
-        var (value, structStyler) = valueTuple;
-        structStyler(value, ofPower);
+        var (value, valueRevealer) = valueTuple;
+        if (value != null) { valueRevealer(value, ofPower); }
+        else { ofPower.WriteBuffer.Append("null"); }
     }
 
     protected static void AppendFromRange((string?, int) valueTuple, ITheOneString theOneString)
@@ -318,8 +320,8 @@ public abstract partial class FLogEntryMessageBuilder : RecyclableObject, IFLogM
         }
         var unknownAppender = AppendObject;
 
-        CreateWarningMessageAppender()?
-            .Append("Created auto serializer call object for type '").Append(type.Name).Append("' at ").FinalAppendObject(LogEntry.LogLocation);
+        CreateWarningMessageAppender().Append("Created auto serializer call object for type '")
+                                      .Append(type.Name).Append("' at ").FinalAppendObject(LogEntry.LogLocation);
 
         FLogStringSerializerRegistry.AutoRegisterSerializerFor(unknownAppender, LogEntry.LogLocation);
         unknownAppender(value, toAppendTo);

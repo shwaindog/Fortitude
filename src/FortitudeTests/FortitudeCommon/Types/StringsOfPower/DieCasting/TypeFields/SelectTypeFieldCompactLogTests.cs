@@ -238,12 +238,12 @@ public partial class SelectTypeFieldTests
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
-    // [TestMethod]
+    [TestMethod]
     public void CompactLogSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactJson(SpanFormattableTestData.AllSpanFormattableExpectations[145], ScaffoldingRegistry.AllScaffoldingTypes[945]);
+        SharedCompactLog(StringTestData.AllStringExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[926]);
     }
 
     private void SharedCompactLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -297,6 +297,11 @@ public partial class SelectTypeFieldTests
                   .AppendLine("Expected it to match -")
                   .AppendLine(buildExpectedOutput)
                   .FinalAppend("");
+            
+            logger.InfoAppend("To Debug Test past the following code into ")?
+                  .Append(nameof(CompactJsonSingleTest)).Append("()\n\n")
+                  .Append("SharedCompactLog(")
+                  .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         }
         else
         {

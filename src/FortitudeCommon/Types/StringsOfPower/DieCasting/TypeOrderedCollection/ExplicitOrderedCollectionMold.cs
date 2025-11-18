@@ -18,12 +18,14 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
         Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
-      , string typeName
+      , string? typeName
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId)
+      , int existingRefId
+      , FieldContentHandling createFormatFlags )
     {
-        InitializeOrderedCollectionBuilder(typeBeingBuilt, master, typeSettings, typeName, remainingGraphDepth, typeFormatting, existingRefId);
+        InitializeOrderedCollectionBuilder(typeBeingBuilt, master, typeSettings, typeName
+                                         , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
 
         return this;
     }
@@ -70,12 +72,12 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(element, ++elementCount, CompAsOrderedCollection.Sb, formatString ?? "");
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection.Sb, element, ++elementCount, formatString ?? "");
         return AppendNextCollectionItemSeparator();
     }
 
-    public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement<TStructFmtElement>(TStructFmtElement? element
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TStructFmtElement : struct, ISpanFormattable
+    public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement<TFmtStructElement>(TFmtStructElement? element
+      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStructElement : struct, ISpanFormattable
     {
         if (CompAsOrderedCollection.SkipBody) return this;
         if (element == null)
@@ -88,12 +90,14 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        CompAsOrderedCollection.AppendFormattedCollectionItem(element, ++elementCount, formatString ?? "");
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection.Sb, element, ++elementCount, formatString ?? "");
         return AppendNextCollectionItemSeparator();
     }
 
-    public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement<TCloaked, TCloakedBase>(TCloaked? element
-      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedBase
+    public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement<TCloaked, TRevealBase>(TCloaked? element
+      , PalantírReveal<TRevealBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         if (CompAsOrderedCollection.SkipBody) return this;
         if (element == null)

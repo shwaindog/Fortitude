@@ -92,10 +92,11 @@ public class FieldNullableSpanFormattableWhenNonNullOrDefaultStringBearer<TFmtSt
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullAndPopulatedWrites | AcceptsAnyExceptNullableStruct | SupportsValueRevealer)]
-public class FieldCloakedBearerWhenNonNullOrDefaultStringBearer<TCloaked, TCloakedRevealerBase> : 
-    ValueRevealerMoldScaffold<TCloaked?, TCloakedRevealerBase>
+public class FieldCloakedBearerWhenNonNullOrDefaultStringBearer<TCloaked, TRevealBase> : 
+    ValueRevealerMoldScaffold<TCloaked?, TRevealBase>
   , IMoldSupportedDefaultValue<TCloaked>, ISupportsFieldHandling
-    where TCloaked : TCloakedRevealerBase
+    where TCloaked : TRevealBase
+    where TRevealBase : notnull
 {
     public TCloaked? ComplexTypeFieldWhenNonNullOrDefaultCloakedBearerAs
     {

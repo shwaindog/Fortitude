@@ -641,9 +641,10 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
     
-    public TOCMold RevealAll<TCloaked, TCloakedBase>(TCloaked?[]? value, PalantírReveal<TCloakedBase> palantírReveal
+    public TOCMold RevealAll<TCloaked, TRevealBase>(TCloaked?[]? value, PalantírReveal<TRevealBase> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TCloaked : TCloakedBase
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloaked);
@@ -690,9 +691,10 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealAll<TCloaked, TCloakedBase>(Span<TCloaked> value, PalantírReveal<TCloakedBase> palantírReveal
+    public TOCMold RevealAll<TCloaked, TRevealBase>(Span<TCloaked> value, PalantírReveal<TRevealBase> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TCloaked : TCloakedBase
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloaked);
@@ -714,9 +716,10 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealAllNullable<TCloaked, TCloakedBase>(Span<TCloaked?> value, PalantírReveal<TCloakedBase> palantírReveal
+    public TOCMold RevealAllNullable<TCloaked, TRevealBase>(Span<TCloaked?> value, PalantírReveal<TRevealBase> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TCloaked : class, TCloakedBase
+        where TCloaked : class, TRevealBase
+        where TRevealBase : notnull
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloaked);
@@ -762,9 +765,10 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealAll<TCloaked, TCloakedBase>(ReadOnlySpan<TCloaked> value, PalantírReveal<TCloakedBase> palantírReveal
+    public TOCMold RevealAll<TCloaked, TRevealBase>(ReadOnlySpan<TCloaked> value, PalantírReveal<TRevealBase> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TCloaked : TCloakedBase
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloaked);
@@ -786,9 +790,10 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealAllNullable<TCloaked, TCloakedBase>(ReadOnlySpan<TCloaked?> value, PalantírReveal<TCloakedBase> palantírReveal
+    public TOCMold RevealAllNullable<TCloaked, TRevealBase>(ReadOnlySpan<TCloaked?> value, PalantírReveal<TRevealBase> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TCloaked : class, TCloakedBase
+        where TCloaked : class, TRevealBase
+        where TRevealBase : notnull
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloaked);
@@ -834,9 +839,10 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealAll<TCloaked, TCloakedBase>(IReadOnlyList<TCloaked?>? value, PalantírReveal<TCloakedBase> palantírReveal
+    public TOCMold RevealAll<TCloaked, TRevealBase>(IReadOnlyList<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TCloaked : TCloakedBase
+        where TCloaked : TRevealBase
+        where TRevealBase : notnull
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloaked);
@@ -882,9 +888,10 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealAllEnumerate<TCloaked, TCloakedBase>(IEnumerable<TCloaked?>? value, PalantírReveal<TCloakedBase> palantírReveal
+    public TOCMold RevealAllEnumerate<TCloaked, TRevealBase>(IEnumerable<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TCloaked : TCloakedBase 
+        where TCloaked : TRevealBase 
+        where TRevealBase : notnull
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloaked);
@@ -928,9 +935,10 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealAllEnumerate<TCloaked, TCloakedBase>(IEnumerator<TCloaked?>? value, PalantírReveal<TCloakedBase> palantírReveal
+    public TOCMold RevealAllEnumerate<TCloaked, TRevealBase>(IEnumerator<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
-        where TCloaked : TCloakedBase 
+        where TCloaked : TRevealBase 
+        where TRevealBase : notnull
     {
         if (stb.SkipBody) return stb.StyleTypeBuilder;
         var elementType = typeof(TCloaked);

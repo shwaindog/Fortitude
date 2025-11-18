@@ -37,7 +37,7 @@ public readonly struct BidAskPair // not inheriting from IBidAskPair to prevent 
     
     public static PalantírReveal<BidAskPair> Styler { get; } =
         (bap, stsa) =>
-            stsa.StartComplexType(bap, nameof(bap))
+            stsa.StartComplexType(bap)
                 .Field.WhenNonDefaultAdd(nameof(bap.BidPrice), bap.BidPrice)
                 .Field.WhenNonDefaultAdd(nameof(bap.AskPrice), bap.AskPrice)
                 .Complete();

@@ -97,10 +97,12 @@ public class FieldNullableSpanFormattableEnumerableWhenNonNullAddAllStringBearer
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsAnyExceptNullableStruct |
                   SupportsValueRevealer)]
-public class FieldCloakedBearerEnumerableWhenNonNullAddAllStringBearer<TCloaked, TCloakedRevealerBase> : 
-    RevealerCollectionFieldMoldScaffold<TCloaked, TCloakedRevealerBase, IEnumerable<TCloaked>> where TCloaked : TCloakedRevealerBase
+public class FieldCloakedBearerEnumerableWhenNonNullAddAllStringBearer<TCloaked, TRevealBase> : 
+    RevealerCollectionFieldMoldScaffold<TCloaked?, TRevealBase, IEnumerable<TCloaked?>> 
+    where TCloaked : TRevealBase
+    where TRevealBase : notnull
 {
-    public IEnumerable<TCloaked>? ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerEnumerable
+    public IEnumerable<TCloaked?>? ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerEnumerable
     {
         get => Value;
         set => Value = value;
@@ -365,10 +367,12 @@ public class FieldNullableSpanFormattableEnumeratorWhenNonNullAddAllStringBearer
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsAnyExceptNullableStruct |
                   SupportsValueRevealer)]
-public class FieldCloakedBearerEnumeratorWhenNonNullAddAllStringBearer<TCloaked, TCloakedRevealerBase> :
-    RevealerEnumeratorFieldMoldScaffold<TCloaked, TCloakedRevealerBase, IEnumerator<TCloaked>> where TCloaked : TCloakedRevealerBase
+public class FieldCloakedBearerEnumeratorWhenNonNullAddAllStringBearer<TCloaked, TRevealBase> :
+    RevealerEnumeratorFieldMoldScaffold<TCloaked?, TRevealBase, IEnumerator<TCloaked?>> 
+    where TCloaked : TRevealBase
+    where TRevealBase : notnull
 {
-    public IEnumerator<TCloaked>? ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerEnumerator
+    public IEnumerator<TCloaked?>? ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerEnumerator
     {
         get => Value;
         set => Value = value;

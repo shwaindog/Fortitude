@@ -37,9 +37,11 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
             : stb.StyleTypeBuilder;
 
 
-    public TMold WhenNonDefaultReveal<TCloaked, TCloakedBase>(ReadOnlySpan<char> fieldName, TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal, TCloaked? defaultValue = default(TCloaked)
-    , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloaked : TCloakedBase =>
+    public TMold WhenNonDefaultReveal<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, TCloaked? value
+      , PalantírReveal<TRevealBase> palantírReveal, TCloaked? defaultValue = default(TCloaked)
+    , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+        where TCloaked : TRevealBase  
+        where TRevealBase : notnull =>
         !stb.SkipFields && !Equals(value, defaultValue)
             ? AlwaysReveal(fieldName, value, palantírReveal, formatFlags)
             : stb.StyleTypeBuilder;

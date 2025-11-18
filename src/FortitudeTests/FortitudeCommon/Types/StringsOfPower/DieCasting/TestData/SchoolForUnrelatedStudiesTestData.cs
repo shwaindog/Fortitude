@@ -11,9 +11,7 @@ using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.OrderedLists;
 
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
@@ -1015,7 +1013,7 @@ public class HighPressureHydraulicsLicense : License
         return this;
     }
 
-    private Dictionary<object, object>? LicenseDetails { get; set; }
+    private Dictionary<object, object?>? LicenseDetails { get; set; }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -1089,7 +1087,7 @@ public struct Restrictions(TimeSpan length)
 
     public static PalantírReveal<Restrictions> Styler { get; } =
         (restriction, stsa) =>
-            stsa.StartComplexType(restriction, nameof(Restrictions))
+            stsa.StartComplexType(restriction)
                 .Field.AlwaysAdd(nameof(lengthRemaining), restriction.lengthRemaining)
                 .Field.AlwaysAdd(nameof(Name), restriction.Name)
                 .Field.WhenNonNullOrDefaultAdd(nameof(Type), restriction.Type)
@@ -1110,7 +1108,7 @@ public struct SubRestrictions()
 
     public static PalantírReveal<SubRestrictions> Styler { get; } =
         (subRest, stsa) =>
-            stsa.StartComplexType(subRest, nameof(SubRestrictions))
+            stsa.StartComplexType(subRest)
                 .Field.AlwaysAddObject(nameof(SubDescription), subRest.SubDescription)
                 .Field.AlwaysAdd(nameof(Enforcable), subRest.Enforcable)
                 .Complete();

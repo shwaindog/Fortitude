@@ -17,23 +17,28 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
 public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeFormatting
 {
-    protected const string Dot          = ".";
-    protected const string CmaSpc       = ", ";
-    protected const string Spc          = " ";
-    protected const char SpcChar      = ' ';
-    protected const string ClnSpc       = ": ";
-    protected const string BrcOpnSpc    = "{ ";
-    protected const string SpcBrcCls    = " }";
-    protected const string Eqls         = "=";
-    protected const string EqlsSpc         = "= ";
-    protected const string SqBrktOpnSpc = "[ ";
-    protected const string SpcSqBrktCls = " ]";
-    protected const string RndBrktOpn = "(";
-    protected const string RndBrktCls = ")";
+    private ContentSeparatorPaddingRangeTracking contentSeparatorPaddingTracking;
 
-    public virtual CompactLogTypeFormatting Initialize(StyleOptions styleOptions)
+    protected const string Dot       = ".";
+    protected const string Cma       = ",";
+    protected const string CmaSpc    = ", ";
+    protected const string Spc       = " ";
+    protected const string Cln       = ":";
+    protected const string BrcOpn    = "{";
+    protected const string BrcOpnSpc = "{ ";
+    protected const string SpcBrcCls = " }";
+    protected const string EqlsSpc   = "= ";
+
+    protected const string SqBrktOpnSpc = "[ ";
+    protected const string RndBrktOpn   = "(";
+    protected const string RndBrktCls   = ")";
+
+    public GraphTrackingBuilder GraphBuilder { get; protected set; } = null!;
+
+    public virtual CompactLogTypeFormatting Initialize(GraphTrackingBuilder graphTrackingBuilder, StyleOptions styleOptions)
     {
-        Options = styleOptions;
+        GraphBuilder = graphTrackingBuilder;
+        Options      = styleOptions;
 
         return this;
     }
@@ -41,8 +46,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual string Name => nameof(CompactLogTypeFormatting);
     public StyleOptions StyleOptions => (StyleOptions)Options;
 
-    public FieldContentHandling ResolveContentFormattingFlags<T>(IStringBuilder sb, T input, FieldContentHandling callerFormattingFlags
-      , string? formatString = "", bool isFieldName = false)
+    public FieldContentHandling ResolveContentFormattingFlags<T>(IStringBuilder sb, T input
+      , FieldContentHandling callerFormattingFlags, string? formatString = "", bool isFieldName = false)
     {
         if (callerFormattingFlags.HasDisableAddingAutoCallerTypeFlags()) { return callerFormattingFlags; }
 
@@ -87,60 +92,97 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return FieldContentHandling.AsStringContent;
     }
 
-    public virtual IStringBuilder AppendValueTypeOpening(IStringBuilder sb, Type valueType, string? alternativeName)
+    public virtual ContentSeparatorRanges AppendValueTypeOpening(ITypeMolderDieCast moldInternal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
+        var sb = moldInternal.Sb;
+
+        var alternativeName = moldInternal.TypeName;
+        var buildingType    = moldInternal.TypeBeingBuilt;
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        if (alternativeName.IsNotNullOrEmpty())
+            sb.Append(alternativeName);
+        else
+            buildingType.AppendShortNameInCSharpFormat(sb);
+        if (buildingType.IsEnum)
+        {
+            sb.Append(Dot);
+            return GraphBuilder.ContentEndToRanges(formatFlags);
+        }
+        // space considered content
+        return GraphBuilder.AppendContent(EqlsSpc).ContentEndToRanges(formatFlags);
+    }
+
+    public virtual ContentSeparatorRanges AppendValueTypeClosing(ITypeMolderDieCast moldInternal)
+    {
+        GraphBuilder.RemoveLastSeparatorAndPadding();
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(moldInternal.Sb, this, DefaultCallerTypeFlags);
+        return GraphBuilder.SnapshotLastAppendSequence(DefaultCallerTypeFlags);
+    }
+
+    public virtual ContentSeparatorRanges AppendComplexTypeOpening(ITypeMolderDieCast moldInternal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        var sb = moldInternal.Sb;
+
+        var alternativeName = moldInternal.TypeName;
+        var buildingType    = moldInternal.TypeBeingBuilt;
+
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
         if (alternativeName != null)
             sb.Append(alternativeName);
         else
-            valueType.AppendShortNameInCSharpFormat(sb);
-        if (valueType.IsEnum) { return sb.Append(Dot); }
-        return sb.Append(EqlsSpc);
-    }
-
-    public virtual IStringBuilder AppendValueTypeClosing(IStringBuilder sb, Type valueType)
-    {
-        sb.RemoveLastWhiteSpacedCommaIfFound();
-        return sb;
-    }
-
-    public virtual IStringBuilder AppendComplexTypeOpening(IStringBuilder sb, Type complexType, string? alternativeName = null)
-    {
-        if (alternativeName != null)
-            sb.Append(alternativeName);
-        else
-            complexType.AppendShortNameInCSharpFormat(sb);
+            buildingType.AppendShortNameInCSharpFormat(sb);
         sb.Append(Spc);
-        return sb.Append(BrcOpnSpc);
+        return GraphBuilder
+               .AppendContent(BrcOpn)
+               .AppendPadding(Spc)
+               .Complete(formatFlags);
     }
 
-    public virtual IStringBuilder AppendFieldValueSeparator(IStringBuilder sb) => sb.Append(ClnSpc);
+    public virtual SeparatorPaddingRanges AppendFieldValueSeparator(ITypeMolderDieCast moldInternal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+        GraphBuilder
+            .AppendSeparator(Cln)
+            .AppendPadding(Spc)
+            .Complete(formatFlags)
+            .SeparatorPaddingRange!.Value;
 
-    public virtual IStringBuilder AddNextFieldSeparator(IStringBuilder sb) => sb.Append(CmaSpc);
+    public virtual SeparatorPaddingRanges AddNextFieldSeparator(ITypeMolderDieCast moldInternal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+        GraphBuilder
+            .AppendSeparator(Cma)
+            .AppendPadding(Spc)
+            .Complete(formatFlags)
+            .SeparatorPaddingRange!.Value;
 
     public virtual int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel) =>
         sb.InsertAt(CmaSpc, atIndex).ReturnCharCount(2);
 
-    public virtual IStringBuilder AppendTypeClosing(IStringBuilder sb)
+    public virtual ContentSeparatorRanges AppendTypeClosing(ITypeMolderDieCast moldInternal)
     {
-        sb.RemoveLastWhiteSpacedCommaIfFound();
-        return sb.Append(SpcBrcCls);
+        var sb = moldInternal.Sb;
+
+        var previousContentPadSpacing = GraphBuilder.LastContentSeparatorPaddingRanges;
+
+        GraphBuilder.RemoveLastSeparatorAndPadding();
+        GraphBuilder.StartAppendContent(SpcBrcCls, sb, this, DefaultCallerTypeFlags);
+        return GraphBuilder.Complete(previousContentPadSpacing.PreviousFormatFlags);
     }
 
     public IStringBuilder AppendFormattedNull(IStringBuilder sb, string? formatString, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
         if (((ReadOnlySpan<char>)formatString).HasFormatStringPadding() || ((ReadOnlySpan<char>)formatString).PrefixSuffixLength() > 0)
         {
-            var        formatStringBufferSize = StyleOptions.NullString.Length.CalculatePrefixPaddedAlignedAndSuffixFormatStringLength(formatString);
-            Span<char> justPrefixPaddingSuffix            = stackalloc char[formatStringBufferSize];
+            var        formatStringBufferSize  = StyleOptions.NullString.Length.CalculatePrefixPaddedAlignedAndSuffixFormatStringLength(formatString);
+            Span<char> justPrefixPaddingSuffix = stackalloc char[formatStringBufferSize];
             justPrefixPaddingSuffix = justPrefixPaddingSuffix.ToPrefixLayoutSuffixOnlyFormatString(formatString);
             Format(StyleOptions.NullString, 0, sb, justPrefixPaddingSuffix
-                               ,  formatFlags: DefaultCallerType);
-            
+                 , formatFlags: DefaultCallerType);
         }
-        else
-        {
-            sb.Append(StyleOptions.NullString);
-        }
+        else { sb.Append(StyleOptions.NullString); }
+        GraphBuilder.MarkContentEnd();
         return sb;
     }
 
@@ -171,15 +213,12 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVBase>(ITypeMolderDieCast<TMold> typeMold
       , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVBase> valueStyler, string? keyFormatString = null
       , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
-        where TMold : TypeMolder 
+        where TMold : TypeMolder
         where TValue : TVBase
         where TVBase : notnull
     {
         typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", DefaultCallerTypeFlags, true).FieldEnd();
-        if (value == null)
-        {
-            AppendFormattedNull(typeMold.Sb, "", valueFlags);
-        }
+        if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
         else { valueStyler(value, typeMold.Master); }
         return typeMold;
     }
@@ -187,18 +226,15 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKBase, TVBase>(ITypeMolderDieCast<TMold> typeMold
       , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler
       , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
-        where TMold : TypeMolder 
-        where TKey : TKBase 
+        where TMold : TypeMolder
+        where TKey : TKBase
         where TValue : TVBase
         where TKBase : notnull
         where TVBase : notnull
     {
         keyStyler(key, typeMold.Master);
         typeMold.FieldEnd();
-        if (value == null)
-        {
-            AppendFormattedNull(typeMold.Sb, "", valueFlags);
-        }
+        if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
         else { valueStyler(value, typeMold.Master); }
         return typeMold;
     }
@@ -206,71 +242,140 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual IStringBuilder AppendKeyedCollectionNextItem(IStringBuilder sb, Type keyedCollectionType
       , Type keyType, Type valueType, int previousItemNumber) => sb.Append(CmaSpc);
 
-    public virtual IStringBuilder AppendFieldName(IStringBuilder sb, ReadOnlySpan<char> fieldName) => sb.Append(fieldName);
+    public virtual IStringBuilder AppendFieldName(IStringBuilder sb, ReadOnlySpan<char> fieldName)
+    {
+        GraphBuilder.StartAppendContent(fieldName, sb, this, DefaultCallerTypeFlags);
+        return sb;
+    }
 
     public virtual IStringBuilder FormatFieldNameMatch<TAny>(IStringBuilder sb, TAny source, string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        formatString.IsNotNullOrEmpty()
-            ? sb.AppendFormat(this, formatString, source)
-            : sb.Append(source);
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        GraphBuilder.StartNextContentSeparatorPaddingSequence( sb, this, formatFlags);
+        if (formatString.IsNotNullOrEmpty())
+            sb.AppendFormat(this, formatString, source);
+        else
+            sb.Append(source);
+        GraphBuilder.MarkContentEnd();
+        return sb;
+    }
 
     public virtual IStringBuilder FormatFieldName(IStringBuilder sb, bool source, string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        Format(source, sb, formatString ?? "").ToStringBuilder(sb);
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        Format(source, sb, formatString ?? "");
+        GraphBuilder.MarkContentEnd();
+        return sb;
+    }
 
     public virtual IStringBuilder FormatFieldName(IStringBuilder sb, bool? source, string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        (source != null
-            ? Format(source, sb, formatString ?? "")
-            : base.Format(StyleOptions.NullString, 0, sb, formatString)).ToStringBuilder(sb);
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        if (source != null)
+            Format(source, sb, formatString ?? "");
+        else
+            base.Format(StyleOptions.NullString, 0, sb, formatString);
+        GraphBuilder.MarkContentEnd();
+        return sb;
+    }
 
     public virtual IStringBuilder FormatFieldName<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable =>
-        base.Format(source, sb, formatString ?? "").ToStringBuilder(sb);
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
+    {
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        base.Format(source, sb, formatString ?? "");
+        GraphBuilder.MarkContentEnd();
+        return sb;
+    }
 
     public virtual IStringBuilder FormatFieldName<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TFmt : struct, ISpanFormattable => base.Format(source, sb, formatString ?? "").ToStringBuilder(sb);
+        where TFmt : struct, ISpanFormattable
+    {
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        base.Format(source, sb, formatString ?? "");
+        GraphBuilder.MarkContentEnd();
+        return sb;
+    }
 
     public virtual IStringBuilder FormatFieldName(IStringBuilder sb
       , ReadOnlySpan<char> source, int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        base.Format(source, sourceFrom, sb, formatString ?? "", maxTransferCount).ToStringBuilder(sb);
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        base.Format(source, sourceFrom, sb, formatString ?? "", maxTransferCount);
+        GraphBuilder.MarkContentEnd();
+        return sb;
+    }
 
     public virtual IStringBuilder FormatFieldName(IStringBuilder sb, char[] source
       , int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        base.Format(source, sourceFrom, sb, formatString ?? "", maxTransferCount).ToStringBuilder(sb);
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        base.Format(source, sourceFrom, sb, formatString ?? "", maxTransferCount);
+        GraphBuilder.MarkContentEnd();
+        return sb;
+    }
 
     public virtual IStringBuilder FormatFieldName(IStringBuilder sb, ICharSequence source
       , int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        base.Format(source, sourceFrom, sb, formatString ?? "", maxTransferCount).ToStringBuilder(sb);
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        base.Format(source, sourceFrom, sb, formatString ?? "", maxTransferCount);
+        GraphBuilder.MarkContentEnd();
+        return sb;
+    }
 
     public virtual IStringBuilder FormatFieldName(IStringBuilder sb, StringBuilder source
       , int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        base.Format(source, sourceFrom, sb, formatString ?? "", maxTransferCount, formatFlags: (FormattingHandlingFlags)formatFlags)
-            .ToStringBuilder(sb);
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        base.Format(source, sourceFrom, sb, formatString ?? "", maxTransferCount, formatFlags: (FormattingHandlingFlags)formatFlags);
+        GraphBuilder.MarkContentEnd();
+        return sb;
+    }
 
     public virtual IStringBuilder FormatFieldName<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle
-      , PalantírReveal<TCloakedBase> styler) 
-        where TCloaked : TCloakedBase 
-        where TCloakedBase : notnull=>
-        styler(toStyle, tos).ToStringBuilder(tos.WriteBuffer);
+      , PalantírReveal<TCloakedBase> styler)
+        where TCloaked : TCloakedBase
+        where TCloakedBase : notnull
+    {
+        var sb = tos.WriteBuffer;
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
+        styler(toStyle, tos);
+        GraphBuilder.MarkContentEnd();
+        return sb;
+    }
 
-    public virtual IStringBuilder FormatFieldName<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer =>
-        styledObj.RevealState(tos).ToStringBuilder(tos.WriteBuffer);
+    public virtual IStringBuilder FormatFieldName<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer
+    {
+        var sb = tos.WriteBuffer;
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
+        styledObj.RevealState(tos);
+        GraphBuilder.MarkContentEnd();
+        return sb;
+    }
 
     public virtual IStringBuilder FormatFieldContentsMatch<TAny>(IStringBuilder sb, TAny source, string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
         sb.AppendFormat(this, formatString ?? "", source, formatFlags: (FormattingHandlingFlags)formatFlags);
+        GraphBuilder.MarkContentEnd();
+        return sb;
+    }
 
     public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, bool source, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         formatString ??= "";
 
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
         var formatReadOnlySpan = formatString.AsSpan();
         var lhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteOpenReplacement;
         var rhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteCloseReplacement;
@@ -286,7 +391,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             formatSpan = formatSpan[..formatReadOnlySpan.Length];
         }
 
-        return Format(source, sb, formatSpan, formatFlags: (FormattingHandlingFlags)formatFlags).ToStringBuilder(sb);
+        Format(source, sb, formatSpan, formatFlags: (FormattingHandlingFlags)formatFlags);
+        GraphBuilder.MarkContentEnd();
+        return sb;
     }
 
     public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, bool? source, string? formatString = null
@@ -294,6 +401,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     {
         formatString ??= "";
 
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
         var formatReadOnlySpan = formatString.AsSpan();
         var lhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteOpenReplacement;
         var rhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteCloseReplacement;
@@ -309,7 +417,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             formatSpan = formatSpan[..formatReadOnlySpan.Length];
         }
 
-        return Format(source, sb, formatSpan, formatFlags: (FormattingHandlingFlags)formatFlags).ToStringBuilder(sb);
+        Format(source, sb, formatSpan, formatFlags: (FormattingHandlingFlags)formatFlags);
+        GraphBuilder.MarkContentEnd();
+        return sb;
     }
 
     public virtual IStringBuilder FormatFieldContents<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null
@@ -318,6 +428,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     {
         formatString ??= "";
 
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
         var formatReadOnlySpan = formatString.AsSpan();
         var lhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteOpenReplacement;
         var rhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteCloseReplacement;
@@ -333,16 +444,17 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             formatSpan = formatSpan[..formatReadOnlySpan.Length];
         }
 
-        base.Format(source, sb, formatSpan, (FormattingHandlingFlags)formatFlags).ToStringBuilder(sb);
+        base.Format(source, sb, formatSpan, (FormattingHandlingFlags)formatFlags);
+        GraphBuilder.MarkContentEnd();
         return sb;
     }
 
     public virtual IStringBuilder FormatFieldContents<TFmtStruct>(IStringBuilder sb, TFmtStruct? source, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
-        
         formatString ??= "";
 
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
         var formatReadOnlySpan = formatString.AsSpan();
         var lhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteOpenReplacement;
         var rhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteCloseReplacement;
@@ -358,9 +470,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             formatSpan = formatSpan[..formatReadOnlySpan.Length];
         }
 
-        if(formatFlags.ShouldDelimit()) sb.Append(DblQtChar);
+        if (formatFlags.ShouldDelimit()) sb.Append(DblQtChar);
         base.Format(source, sb, formatSpan, (FormattingHandlingFlags)formatFlags).ToStringBuilder(sb);
-        if(formatFlags.ShouldDelimit()) sb.Append(DblQtChar);
+        if (formatFlags.ShouldDelimit()) sb.Append(DblQtChar);
+        GraphBuilder.MarkContentEnd();
         return sb;
     }
 
@@ -369,6 +482,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     {
         formatString ??= "";
 
+        var allowEmptyContent = true;
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags, allowEmptyContent);
         var formatReadOnlySpan = formatString.AsSpan();
         var lhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteOpenReplacement;
         var rhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteCloseReplacement;
@@ -387,6 +502,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         if (formatFlags.ShouldDelimit()) sb.Append(DblQt);
         base.Format(source, sourceFrom, sb, formatSpan, maxTransferCount, formatFlags: (FormattingHandlingFlags)formatFlags);
         if (formatFlags.ShouldDelimit()) sb.Append(DblQt);
+        GraphBuilder.MarkContentEnd();
         return sb;
     }
 
@@ -395,6 +511,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     {
         formatString ??= "";
 
+        var allowEmptyContent = true;
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags, allowEmptyContent);
         var formatReadOnlySpan = formatString.AsSpan();
         var lhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteOpenReplacement;
         var rhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteCloseReplacement;
@@ -413,6 +531,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         if (formatFlags.ShouldDelimit()) sb.Append(SqBrktOpnChar);
         base.Format(source, sourceFrom, sb, formatSpan, maxTransferCount, formatFlags: (FormattingHandlingFlags)formatFlags);
         if (formatFlags.ShouldDelimit()) sb.Append(SqBrktClsChar);
+        GraphBuilder.MarkContentEnd();
         return sb;
     }
 
@@ -421,6 +540,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     {
         formatString ??= "";
 
+        var allowEmptyContent = true;
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags, allowEmptyContent);
         var formatReadOnlySpan = formatString.AsSpan();
         var lhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteOpenReplacement;
         var rhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteCloseReplacement;
@@ -435,10 +556,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             formatReadOnlySpan.CopyTo(formatSpan);
             formatSpan = formatSpan[..formatReadOnlySpan.Length];
         }
-        
+
         if (formatFlags.ShouldDelimit()) sb.Append(DblQt);
         base.Format(source, sourceFrom, sb, formatSpan, maxTransferCount, formatFlags: (FormattingHandlingFlags)formatFlags);
         if (formatFlags.ShouldDelimit()) sb.Append(DblQt);
+        GraphBuilder.MarkContentEnd();
         return sb;
     }
 
@@ -447,6 +569,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     {
         formatString ??= "";
 
+        var allowEmptyContent = true;
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags, allowEmptyContent);
         var formatReadOnlySpan = formatString.AsSpan();
         var lhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteOpenReplacement;
         var rhsReplaceWith     = StyleOptions.LogInnerDoubleQuoteCloseReplacement;
@@ -465,66 +589,95 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         if (formatFlags.ShouldDelimit()) sb.Append(DblQt);
         base.Format(source, sourceFrom, sb, formatSpan, maxTransferCount, formatFlags: (FormattingHandlingFlags)formatFlags);
         if (formatFlags.ShouldDelimit()) sb.Append(DblQt);
+        GraphBuilder.MarkContentEnd();
         return sb;
     }
 
     public virtual IStringBuilder FormatFieldContents<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle
-      , PalantírReveal<TCloakedBase> styler) 
-        where TCloaked : TCloakedBase 
-        where TCloakedBase : notnull =>
-        styler(toStyle, tos).ToStringBuilder(tos.WriteBuffer);
+      , PalantírReveal<TCloakedBase> styler)
+        where TCloaked : TCloakedBase
+        where TCloakedBase : notnull
+    {
+        var sb = tos.WriteBuffer;
+        var contentStart = sb.Length;
+        styler(toStyle, tos);
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
+        GraphBuilder.MarkContentStart(contentStart);
+        GraphBuilder.MarkContentEnd();
+        return sb;
+    }
 
-    public virtual IStringBuilder FormatFieldContents<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer =>
-        styledObj.RevealState(tos).ToStringBuilder(tos.WriteBuffer);
+    public virtual IStringBuilder FormatFieldContents<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer
+    {
+        var sb           = tos.WriteBuffer;
+        var contentStart = sb.Length;
+        styledObj.RevealState(tos);
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
+        GraphBuilder.MarkContentStart(contentStart);
+        GraphBuilder.MarkContentEnd();
+        return sb;
+    }
 
-    public virtual IStringBuilder FormatCollectionStart(IStringBuilder sb, Type itemElementType, bool? hasItems, Type collectionType
+    public virtual IStringBuilder FormatCollectionStart(ITypeMolderDieCast moldInternal, Type itemElementType, bool? hasItems, Type collectionType
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (!hasItems.HasValue) return sb;
-        if (!StyleOptions.LogSuppressDisplayCollectionNames.Any(s => collectionType.FullName?.StartsWith(s) ?? false ))
+        var sb = moldInternal.Sb;
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        if (!hasItems.HasValue)
+        {
+            GraphBuilder.MarkContentEnd();
+            return sb;
+        }
+        if (!StyleOptions.LogSuppressDisplayCollectionNames.Any(s => collectionType.FullName?.StartsWith(s) ?? false))
         {
             sb.Append(RndBrktOpn);
             collectionType.AppendShortNameInCSharpFormat(sb);
             sb.Append(RndBrktCls);
         }
-        return CollectionStart(itemElementType, sb, hasItems.Value, (FormattingHandlingFlags)formatFlags).ToStringBuilder(sb);
+        CollectionStart(itemElementType, sb, hasItems.Value, (FormattingHandlingFlags)formatFlags);
+        GraphBuilder.MarkContentEnd();
+        return sb;
     }
 
-    public override int CollectionStart(Type collectionType,  IStringBuilder sb, bool hasItems
+    public override int CollectionStart(Type collectionType, IStringBuilder sb, bool hasItems
       , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent)
     {
-        if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray())
-        {
-            return 0;
-        }
-        return sb.Append(SqBrktOpnSpc).ReturnCharCount(2);
+        if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray()) { return 0; }
+        GraphBuilder.StartAppendContent(SqBrktOpn, sb, this, (FieldContentHandling)formatFlags).AppendPadding(Spc).Complete((FieldContentHandling)formatFlags);
+        return 2;
     }
 
     public override int CollectionStart(Type collectionType, Span<char> destSpan, int destStartIndex, bool hasItems
       , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent)
     {
-        if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray())
-        {
-            return 0;
-        }
-        return destSpan.OverWriteAt(destStartIndex, SqBrktOpnSpc);
+        if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray()) { return 0; }
+        GraphBuilder.ResetCurrent((FieldContentHandling)formatFlags);
+        GraphBuilder.MarkContentStart(destStartIndex);
+        var charsAdded = destSpan.OverWriteAt(destStartIndex, SqBrktOpnSpc);
+        GraphBuilder.MarkContentEnd(destStartIndex + charsAdded).Complete((FieldContentHandling)formatFlags);
+        return charsAdded;
     }
 
     public IStringBuilder CollectionNextItemFormat(IStringBuilder sb, bool item, int retrieveCount, string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormattingHandlingFlags)formatFlags)
-            .ToStringBuilder(sb);
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormattingHandlingFlags)formatFlags);
+        GraphBuilder.MarkContentEnd();
+        return sb;
+    }
 
     public IStringBuilder CollectionNextItemFormat(IStringBuilder sb, bool? item, int retrieveCount, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (item == null)
         {
-            AppendFormattedNull(sb, formatString, formatFlags);
-            return sb;
+            return AppendFormattedNull(sb, formatString, formatFlags);
         }
-        return CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormattingHandlingFlags)formatFlags)
-            .ToStringBuilder(sb);
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormattingHandlingFlags)formatFlags);
+        GraphBuilder.MarkContentEnd();
+        return sb;
     }
 
     public IStringBuilder CollectionNextItemFormat<TFmt>(IStringBuilder sb, TFmt? item, int retrieveCount, string? formatString = null
@@ -532,11 +685,12 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     {
         if (item == null)
         {
-            AppendFormattedNull(sb, formatString, formatFlags);
-            return sb;
+            return AppendFormattedNull(sb, formatString, formatFlags);
         }
-        return CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormattingHandlingFlags)formatFlags)
-            .ToStringBuilder(sb);
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormattingHandlingFlags)formatFlags);
+        GraphBuilder.MarkContentEnd();
+        return sb;
     }
 
     public IStringBuilder CollectionNextItemFormat<TFmtStruct>(IStringBuilder sb, TFmtStruct? item, int retrieveCount, string? formatString = null
@@ -544,39 +698,46 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     {
         if (item == null)
         {
-            AppendFormattedNull(sb, formatString, formatFlags);
-            return sb;
+            return AppendFormattedNull(sb, formatString, formatFlags);
         }
-        return CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormattingHandlingFlags)formatFlags)
-            .ToStringBuilder(sb);
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormattingHandlingFlags)formatFlags);
+        GraphBuilder.MarkContentEnd();
+        return sb;
     }
 
     public virtual IStringBuilder CollectionNextItemFormat<TCloaked, TCloakedBase>(ITheOneString tos
-      , TCloaked? item, int retrieveCount, PalantírReveal<TCloakedBase> styler) 
-        where TCloaked : TCloakedBase 
+      , TCloaked? item, int retrieveCount, PalantírReveal<TCloakedBase> styler)
+        where TCloaked : TCloakedBase
         where TCloakedBase : notnull
     {
-        if (item == null)
-        {
-            AppendFormattedNull(tos.WriteBuffer, "");
-        }
-        else { styler(item, tos); }
-        return tos.WriteBuffer;
+        var sb = tos.WriteBuffer;
+        if (item == null) { return AppendFormattedNull(sb, ""); }
+        var contentStart = sb.Length;
+        styler(item, tos);
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
+        GraphBuilder.MarkContentStart(contentStart);
+        GraphBuilder.MarkContentEnd();
+        return sb;
     }
 
     public virtual IStringBuilder CollectionNextItemFormat(IStringBuilder sb, string? item, int retrieveCount
       , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (item == null) { return sb.Append(StyleOptions.NullString); }
+        if (item == null) { return AppendFormattedNull(sb, formatString, formatFlags ); }
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
         sb.AppendFormat(this, formatString ?? "", item);
+        GraphBuilder.MarkContentEnd();
         return sb;
     }
 
     public virtual IStringBuilder CollectionNextItemFormat(IStringBuilder sb, char[]? item, int retrieveCount
       , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (item == null) { return sb.Append(StyleOptions.NullString); }
+        if (item == null) { return AppendFormattedNull(sb, formatString, formatFlags ); }
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
         sb.AppendFormat(this, formatString ?? "", item);
+        GraphBuilder.MarkContentEnd();
         return sb;
     }
 
@@ -584,84 +745,107 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
       , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence
     {
-        if (item == null) { return sb.Append(StyleOptions.NullString); }
-        if (formatString.IsNotNullOrEmpty() && formatString != NoFormatFormatString)
-            sb.Append(item, 0, item.Length, formatString, this);
-        else
-            sb.Append(item, this);
+        if (item == null) { return AppendFormattedNull(sb, formatString, formatFlags ); }
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        Format(item, 0, sb, formatString ?? "", item.Length);
+        GraphBuilder.MarkContentEnd();
         return sb;
     }
 
     public virtual IStringBuilder CollectionNextItemFormat(IStringBuilder sb, StringBuilder? item, int retrieveCount, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (item == null) { return sb.Append(StyleOptions.NullString); }
-        if (formatString.IsNotNullOrEmpty() && formatString != NoFormatFormatString)
-            sb.Append(item, 0, item.Length, formatString, this);
-        else
-            sb.Append(item, this);
+        if (item == null) { return AppendFormattedNull(sb, formatString, formatFlags ); }
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        Format(item, 0, sb, formatString ?? "", item.Length);
+        GraphBuilder.MarkContentEnd();
         return sb;
     }
 
-    public virtual IStringBuilder CollectionNextStringBearerFormat<TBearer>(ITheOneString tos, TBearer? item, int retrieveCount) where TBearer : IStringBearer
+    public virtual IStringBuilder CollectionNextStringBearerFormat<TBearer>(ITheOneString tos, TBearer? item, int retrieveCount)
+        where TBearer : IStringBearer
     {
-        if (item == null) { return tos.WriteBuffer.Append(StyleOptions.NullString); }
+        var sb = tos.WriteBuffer;
+        if (item == null) { return AppendFormattedNull(sb, "" ); }
+        var contentStart = sb.Length;
         item.RevealState(tos);
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
+        GraphBuilder.MarkContentStart(contentStart);
+        GraphBuilder.MarkContentEnd();
         return tos.WriteBuffer;
     }
 
     public virtual IStringBuilder AddCollectionElementSeparator(IStringBuilder sb, Type elementType, int nextItemNumber
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        (elementType == typeof(byte)
-            ? sb.Append(nextItemNumber % 4 == 0 ? Spc : "")
-            : sb.Append(CmaSpc));
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        if(elementType == typeof(byte))
+        {
+            if (nextItemNumber % 4 == 0)
+            {
+                GraphBuilder.AppendPadding(Spc);
+            }
+            else
+            {
+                GraphBuilder.Complete(formatFlags);
+            }    
+        }
+        GraphBuilder.AppendSeparator(Cma).AppendPadding(Spc).Complete(formatFlags);
+        return sb;
+    }
 
-    public virtual IStringBuilder FormatCollectionEnd(IStringBuilder sb, Type itemElementType
+    public virtual IStringBuilder FormatCollectionEnd(ITypeMolderDieCast moldInternal, int? resultsFoundCount, Type itemElementType
       , int? totalItemCount, string? formatString, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
+        var sb = moldInternal.Sb;
         if (!totalItemCount.HasValue)
         {
+            GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags, true);
             if (StyleOptions.NullWritesEmpty)
             {
                 CollectionStart(itemElementType, sb, false, (FormattingHandlingFlags)formatFlags);
                 CollectionEnd(itemElementType, sb, 0, (FormattingHandlingFlags)formatFlags);
             }
             else { AppendFormattedNull(sb, formatString, formatFlags); }
+
+            GraphBuilder.MarkContentEnd();
+
             return sb;
         }
-        
+
         return CollectionEnd(itemElementType, sb, totalItemCount.Value, (FormattingHandlingFlags)formatFlags).ToStringBuilder(sb);
     }
 
     public override int CollectionEnd(Type collectionType, IStringBuilder sb, int itemsCount
       , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent)
     {
-        if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray())
+        if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray()) { return 0; }
+
+        var preClsLen = sb.Length;
+        var lastChar  = GraphBuilder.RemoveLastSeparatorAndPadding();
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, (FieldContentHandling)formatFlags, true);
+        if (lastChar != SqBrktOpnChar)
         {
-            return 0;
+            GraphBuilder.AppendContent(Spc);
         }
-        var lastChar = sb.RemoveLastWhiteSpacedCommaIfFound();
-        // if (lastChar != SqBrktOpnChar && lastChar != SpcChar) sb.Append(Spc);
-        if (lastChar != SqBrktOpnChar) sb.Append(Spc);
-        return sb.Append(SqBrktCls).ReturnCharCount(2);
+        GraphBuilder.AppendContent(SqBrktCls);
+        return sb.Length - preClsLen;
     }
 
-    public override int CollectionEnd(Type collectionType, Span<char> destSpan, int index, int itemsCount
+    public override int CollectionEnd(Type collectionType, Span<char> destSpan, int destIndex, int itemsCount
       , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent)
     {
-        if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray())
-        {
-            return 0;
-        }
+        var originalDestIndex = destIndex;
+        if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray()) { return 0; }
         CharSpanCollectionScratchBuffer?.DecrementRefCount();
         CharSpanCollectionScratchBuffer = null;
-        var lastChar = destSpan.RemoveLastWhiteSpacedCommaIfFound(ref index);
-        if (lastChar != SqBrktOpnChar) index += destSpan.OverWriteAt(index, Spc);
-        return destSpan.OverWriteAt(index, SqBrktCls);
-    }
 
-    public virtual ITypeMolderDieCast<TMold> FormatCollectionNext<TMold, TItem>(ITypeMolderDieCast<TMold> typeMold
-      , TItem toFormat, int itemAt, string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TMold : TypeMolder where TItem : ISpanFormattable =>
-        base.CollectionNextItem(toFormat, itemAt, typeMold.Sb).ToInternalTypeBuilder(typeMold);
+        var lastChar = GraphBuilder.RemoveLastSeparatorAndPadding(destSpan, ref destIndex);
+        GraphBuilder.ResetCurrent((FieldContentHandling)formatFlags, true);
+        GraphBuilder.MarkContentStart(destIndex);
+
+        if (lastChar != SqBrktOpnChar) destIndex += destSpan.OverWriteAt(destIndex, Spc);
+        destIndex += destSpan.OverWriteAt(destIndex, SqBrktCls);
+        GraphBuilder.MarkContentEnd(destIndex);
+        return destIndex - originalDestIndex;
+    }
 }

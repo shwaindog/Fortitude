@@ -2,31 +2,34 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 
-public abstract class KnownTypeMolder<T> : TypeMolder, ITypeBuilderComponentSource<T>
-    where T : TypeMolder
+public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponentSource<TMold>
+    where TMold : TypeMolder
 {
-    protected ITypeMolderDieCast<T> CompAccess = null!;
+    protected ITypeMolderDieCast<TMold> CompAccess = null!;
 
     protected void InitializeTypedStyledTypeBuilder(
         Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
-      , string typeName
+      , string? typeName
       , int remainignGraphDepth
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId)
+      , int existingRefId
+      , FieldContentHandling createFormatFlags )
     {
-        InitializeStyledTypeBuilder(typeBeingBuilt, master, typeSettings, typeName, remainignGraphDepth,  typeFormatting,  existingRefId);
+        InitializeStyledTypeBuilder(typeBeingBuilt, master, typeSettings, typeName, remainignGraphDepth
+                                 ,  typeFormatting,  existingRefId, createFormatFlags);
 
         SourceBuilderComponentAccess();
     }
 
     ITypeMolderDieCast ITypeBuilderComponentSource.ComponentAccess => CompAccess;
 
-    ITypeMolderDieCast<T> ITypeBuilderComponentSource<T>.CompAccess => CompAccess;
+    ITypeMolderDieCast<TMold> ITypeBuilderComponentSource<TMold>.CompAccess => CompAccess;
 
     public override void Start()
     {
@@ -44,7 +47,7 @@ public abstract class KnownTypeMolder<T> : TypeMolder, ITypeBuilderComponentSour
         CompAccess.Sb.RemoveLastWhiteSpacedCommaIfFound();
     }
 
-    protected T Me => (T)(TypeMolder)this;
+    protected TMold Me => (TMold)(TypeMolder)this;
 
     public override StateExtractStringRange Complete()
     {
@@ -81,8 +84,8 @@ public abstract class KnownTypeMolder<T> : TypeMolder, ITypeBuilderComponentSour
     protected virtual void SourceBuilderComponentAccess()
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
-        CompAccess = recycler.Borrow<TypeMolderDieCast<T>>()
-                             .Initialize((T)(ITypeBuilderComponentSource<T>)this, PortableState);
+        CompAccess = recycler.Borrow<TypeMolderDieCast<TMold>>()
+                             .Initialize((TMold)(ITypeBuilderComponentSource<TMold>)this, PortableState);
     }
 
     protected override void InheritedStateReset()

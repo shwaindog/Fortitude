@@ -6,7 +6,7 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldKeyValueColle
 public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMolder
 {
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKSelectDerived[] selectKeys
+    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, TKSelectDerived[] selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKSelectDerived : TKey
@@ -33,7 +33,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     }
 
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, Span<TKSelectDerived> selectKeys
+    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, Span<TKSelectDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKSelectDerived : TKey
@@ -60,7 +60,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     }
 
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKSelectDerived> selectKeys
+    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, ReadOnlySpan<TKSelectDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKSelectDerived : TKey
@@ -87,7 +87,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     }
 
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKSelectDerived> selectKeys
+    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, IReadOnlyList<TKSelectDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKSelectDerived : TKey
@@ -114,7 +114,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     }
 
     public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKSelectDerived> selectKeys
+    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, IEnumerable<TKSelectDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKSelectDerived : TKey
@@ -139,7 +139,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     }
 
     public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKSelectDerived> selectKeys
+    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, IEnumerator<TKSelectDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
         where TKSelectDerived : TKey
@@ -169,11 +169,13 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TVBase>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKSelectDerived[] selectKeys
-      , PalantírReveal<TVBase> valueRevealer
+    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, TKSelectDerived[] selectKeys
+      , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKSelectDerived : TKey where TValue : TVBase
+        where TKSelectDerived : TKey 
+        where TValue : TVRevealBase
+        where TVRevealBase : notnull
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         if (value != null)
@@ -196,11 +198,13 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TVBase>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, Span<TKSelectDerived> selectKeys
-      , PalantírReveal<TVBase> valueRevealer
+    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, Span<TKSelectDerived> selectKeys
+      , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKSelectDerived : TKey where TValue : TVBase
+        where TKSelectDerived : TKey 
+        where TValue : TVRevealBase
+        where TVRevealBase : notnull
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         if (value != null)
@@ -223,11 +227,13 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TVBase>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKSelectDerived> selectKeys
-      , PalantírReveal<TVBase> valueRevealer
+    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, ReadOnlySpan<TKSelectDerived> selectKeys
+      , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKSelectDerived : TKey where TValue : TVBase
+        where TKSelectDerived : TKey 
+        where TValue : TVRevealBase
+        where TVRevealBase : notnull
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         if (value != null)
@@ -250,11 +256,13 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TVBase>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKSelectDerived> selectKeys
-      , PalantírReveal<TVBase> valueRevealer
+    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, IReadOnlyList<TKSelectDerived> selectKeys
+      , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKSelectDerived : TKey where TValue : TVBase
+        where TKSelectDerived : TKey 
+        where TValue : TVRevealBase
+        where TVRevealBase : notnull
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         if (value != null)
@@ -277,10 +285,12 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TVBase>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKSelectDerived> selectKeys, PalantírReveal<TVBase> valueRevealer
+    public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TVRevealBase>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, IEnumerable<TKSelectDerived> selectKeys, PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKSelectDerived : TKey where TValue : TVBase
+        where TKSelectDerived : TKey 
+        where TValue : TVRevealBase
+        where TVRevealBase : notnull
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         if (value != null)
@@ -301,10 +311,12 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TVBase>(string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , IEnumerator<TKSelectDerived> selectKeys, PalantírReveal<TVBase> valueRevealer
+    public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TVRevealBase>(string fieldName
+      , IReadOnlyDictionary<TKey, TValue?>? value, IEnumerator<TKSelectDerived> selectKeys, PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKSelectDerived : TKey where TValue : TVBase
+        where TKSelectDerived : TKey 
+        where TValue : TVRevealBase
+        where TVRevealBase : notnull
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         var hasValue    = selectKeys.MoveNext();
@@ -331,10 +343,14 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TKBase, TVBase>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKSelectDerived[] selectKeys
-      , PalantírReveal<TVBase> valueRevealer, PalantírReveal<TKBase> keyRevealer)
-        where TKSelectDerived : TKey where TKey : TKBase where TValue : TVBase
+    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, TKSelectDerived[] selectKeys
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
+        where TKSelectDerived : TKey 
+        where TKey : TKRevealBase 
+        where TValue : TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         if (value != null)
@@ -357,9 +373,14 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TKBase, TVBase>(string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , Span<TKSelectDerived> selectKeys, PalantírReveal<TVBase> valueRevealer, PalantírReveal<TKBase> keyRevealer)
-        where TKSelectDerived : TKey where TKey : TKBase where TValue : TVBase
+    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(string fieldName
+      , IReadOnlyDictionary<TKey, TValue?>? value
+      , Span<TKSelectDerived> selectKeys, PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
+        where TKSelectDerived : TKey 
+        where TKey : TKRevealBase 
+        where TValue : TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         if (value != null)
@@ -382,9 +403,14 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TKBase, TVBase>(string fieldName, IReadOnlyDictionary<TKey, TValue>? value
-      , ReadOnlySpan<TKSelectDerived> selectKeys, PalantírReveal<TVBase> valueRevealer, PalantírReveal<TKBase> keyRevealer)
-        where TKSelectDerived : TKey where TKey : TKBase where TValue : TVBase
+    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(string fieldName
+      , IReadOnlyDictionary<TKey, TValue?>? value, ReadOnlySpan<TKSelectDerived> selectKeys, PalantírReveal<TVRevealBase> valueRevealer
+      , PalantírReveal<TKRevealBase> keyRevealer)
+        where TKSelectDerived : TKey 
+        where TKey : TKRevealBase 
+        where TValue : TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         if (value != null)
@@ -407,10 +433,14 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TKBase, TVBase>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKSelectDerived> selectKeys
-      , PalantírReveal<TVBase> valueRevealer, PalantírReveal<TKBase> keyRevealer)
-        where TKSelectDerived : TKey where TKey : TKBase where TValue : TVBase
+    public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, IReadOnlyList<TKSelectDerived> selectKeys
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
+        where TKSelectDerived : TKey 
+        where TKey : TKRevealBase 
+        where TValue : TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         if (value != null)
@@ -433,10 +463,14 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TKBase, TVBase>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKSelectDerived> selectKeys
-      , PalantírReveal<TVBase> valueRevealer, PalantírReveal<TKBase> keyRevealer)
-        where TKSelectDerived : TKey where TKey : TKBase where TValue : TVBase
+    public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, IEnumerable<TKSelectDerived> selectKeys
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
+        where TKSelectDerived : TKey 
+        where TKey : TKRevealBase 
+        where TValue : TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         if (value != null)
@@ -457,10 +491,14 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TKBase, TVBase>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKSelectDerived> selectKeys
-      , PalantírReveal<TVBase> valueRevealer, PalantírReveal<TKBase> keyRevealer)
-        where TKSelectDerived : TKey where TKey : TKBase where TValue : TVBase
+    public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
+    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, IEnumerator<TKSelectDerived> selectKeys
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
+        where TKSelectDerived : TKey 
+        where TKey : TKRevealBase 
+        where TValue : TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         var hasValue    = selectKeys.MoveNext();
@@ -468,7 +506,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         {
             return stb.StyleTypeBuilder;
         }
-        ExplicitKeyedCollectionMold<TKey, TValue>? ekcb = null;
+        ExplicitKeyedCollectionMold<TKey, TValue?>? ekcb = null;
         while (hasValue)
         {
             var key = selectKeys.Current;
@@ -480,7 +518,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             if (ekcb == null)
             {
                 stb.FieldNameJoin(fieldName);
-                ekcb = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                ekcb = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue?>(value);
             }
             ekcb.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer);
         }
