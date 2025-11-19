@@ -247,7 +247,8 @@ public class FieldNullableStringBearerSpanWhenNonNullAddAllStringBearer<TBearerS
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsString 
+                | AcceptsClass | SupportsValueFormatString)]
 public class FieldStringSpanWhenNonNullAddAllStringBearer : FormattedCollectionFieldMoldScaffold<string, string[]>
 {
     public string[]? ComplexTypeCollectionFieldWhenNonNullAddAllStringSpan
@@ -266,7 +267,8 @@ public class FieldStringSpanWhenNonNullAddAllStringBearer : FormattedCollectionF
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsString 
+                | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringNullableSpanWhenNonNullAddAllStringBearer : FormattedCollectionFieldMoldScaffold<string?, string?[]>
   
 {
@@ -287,7 +289,7 @@ public class FieldStringNullableSpanWhenNonNullAddAllStringBearer : FormattedCol
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsCharSequence
-                | SupportsValueFormatString)]
+                | AcceptsClass | SupportsValueFormatString)]
 public class FieldCharSequenceSpanWhenNonNullAddAllStringBearer<TCharSeq> : FormattedCollectionFieldMoldScaffold<TCharSeq, TCharSeq[]>
     where TCharSeq : ICharSequence
 {
@@ -308,7 +310,7 @@ public class FieldCharSequenceSpanWhenNonNullAddAllStringBearer<TCharSeq> : Form
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsCharSequence
-                | SupportsValueFormatString)]
+                | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldCharSequenceNullableSpanWhenNonNullAddAllStringBearer<TCharSeq> : FormattedCollectionFieldMoldScaffold<TCharSeq?, TCharSeq?[]>
    where TCharSeq : ICharSequence
 {
@@ -330,7 +332,7 @@ public class FieldCharSequenceNullableSpanWhenNonNullAddAllStringBearer<TCharSeq
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsStringBuilder
-                | SupportsValueFormatString)]
+                | AcceptsClass | SupportsValueFormatString)]
 public class FieldStringBuilderSpanWhenNonNullAddAllStringBearer : FormattedCollectionFieldMoldScaffold<StringBuilder, StringBuilder[]>
   
 {
@@ -351,7 +353,7 @@ public class FieldStringBuilderSpanWhenNonNullAddAllStringBearer : FormattedColl
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullWrites | AcceptsStringBuilder
-                | SupportsValueFormatString)]
+                | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringBuilderNullableSpanWhenNonNullAddAllStringBearer : FormattedCollectionFieldMoldScaffold<StringBuilder?, StringBuilder?[]>
   
 {
@@ -699,7 +701,7 @@ public class FieldNullableStringBearerReadOnlySpanWhenNonNullAddAllStringBearer<
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsString
-                | SupportsValueFormatString)]
+                | AcceptsClass | SupportsValueFormatString)]
 public class FieldStringReadOnlySpanWhenNonNullAddAllStringBearer : FormattedCollectionFieldMoldScaffold<string, string[]>
 {
     public string[]? ComplexTypeCollectionFieldWhenNonNullAddAllStringReadOnlySpan
@@ -719,7 +721,7 @@ public class FieldStringReadOnlySpanWhenNonNullAddAllStringBearer : FormattedCol
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsString
-                | SupportsValueFormatString)]
+                | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringNullableReadOnlySpanWhenNonNullAddAllStringBearer : FormattedCollectionFieldMoldScaffold<string?, string?[]>
   
 {
@@ -741,7 +743,7 @@ public class FieldStringNullableReadOnlySpanWhenNonNullAddAllStringBearer : Form
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsCharSequence
-                | SupportsValueFormatString)]
+                | AcceptsClass | SupportsValueFormatString)]
 public class FieldCharSequenceReadOnlySpanWhenNonNullAddAllStringBearer<TCharSeq> : FormattedCollectionFieldMoldScaffold<TCharSeq, TCharSeq[]>
     where TCharSeq : ICharSequence
 {
@@ -763,7 +765,7 @@ public class FieldCharSequenceReadOnlySpanWhenNonNullAddAllStringBearer<TCharSeq
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | AcceptsCharSequence
-                | SupportsValueFormatString)]
+                | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldCharSequenceNullableReadOnlySpanWhenNonNullAddAllStringBearer<TCharSeq> :
     FormattedCollectionFieldMoldScaffold<TCharSeq?, TCharSeq?[]>
     where TCharSeq : ICharSequence
@@ -786,7 +788,7 @@ public class FieldCharSequenceNullableReadOnlySpanWhenNonNullAddAllStringBearer<
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | NonNullWrites | AcceptsArray | CallsAsReadOnlySpan | AcceptsStringBuilder
-                | SupportsValueFormatString)]
+                | AcceptsClass | SupportsValueFormatString)]
 public class FieldStringBuilderReadOnlySpanWhenNonNullAddAllStringBearer : FormattedCollectionFieldMoldScaffold<StringBuilder, StringBuilder[]>
   
 {
@@ -808,7 +810,7 @@ public class FieldStringBuilderReadOnlySpanWhenNonNullAddAllStringBearer : Forma
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | NonNullWrites | AcceptsArray | CallsAsReadOnlySpan | AcceptsStringBuilder
-                | SupportsValueFormatString)]
+                | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringBuilderNullableReadOnlySpanWhenNonNullAddAllStringBearer :
     FormattedCollectionFieldMoldScaffold<StringBuilder?, StringBuilder?[]>
   
@@ -1080,7 +1082,8 @@ public class FieldNullableStringBearerArrayWhenNonNullAddAllStringBearer<TBearer
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | NonNullWrites | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | NonNullWrites | AcceptsString 
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringArrayWhenNonNullAddAllStringBearer : FormattedCollectionFieldMoldScaffold<string?, string?[]>
 {
     public string?[]? ComplexTypeCollectionFieldWhenNonNullAddAllStringArray
@@ -1099,7 +1102,8 @@ public class FieldStringArrayWhenNonNullAddAllStringBearer : FormattedCollection
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | NonNullWrites | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | NonNullWrites | AcceptsCharSequence 
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldCharSequenceArrayWhenNonNullAddAllStringBearer<TCharSeq> : FormattedCollectionFieldMoldScaffold<TCharSeq?, TCharSeq?[]>
     where TCharSeq : ICharSequence
 {
@@ -1119,7 +1123,8 @@ public class FieldCharSequenceArrayWhenNonNullAddAllStringBearer<TCharSeq> : For
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | NonNullWrites | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | NonNullWrites | AcceptsStringBuilder 
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringBuilderArrayWhenNonNullAddAllStringBearer : FormattedCollectionFieldMoldScaffold<StringBuilder?, StringBuilder?[]>
   
 {
@@ -1139,7 +1144,8 @@ public class FieldStringBuilderArrayWhenNonNullAddAllStringBearer : FormattedCol
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | NonNullWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | NonNullWrites | AcceptsAnyGeneric 
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldMatchArrayWhenNonNullAddAllStringBearer<TAny> : FormattedCollectionFieldMoldScaffold<TAny, TAny[]>
 {
     public TAny[]? ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray
@@ -1161,19 +1167,19 @@ public class FieldMatchArrayWhenNonNullAddAllStringBearer<TAny> : FormattedColle
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | NonNullWrites | AcceptsNullableObject | SupportsValueFormatString)]
 public class FieldObjectArrayWhenNonNullAddAllStringBearer : FormattedCollectionFieldMoldScaffold<object?, object?[]>
 {
-    public object?[]? ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray
+    public object?[]? ComplexTypeCollectionFieldWhenNonNullAddAllObjectArray
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectArray);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllObject
-               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray)
-              , ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray, ValueFormatString)
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectArray)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllObjectArray, ValueFormatString)
            .Complete();
 }
 
@@ -1342,7 +1348,8 @@ public class FieldNullableStringBearerListWhenNonNullAddAllStringBearer<TBearerS
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | NonNullWrites | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | NonNullWrites | AcceptsString 
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringListWhenNonNullAddAllStringBearer : FormattedCollectionFieldMoldScaffold<string?, IReadOnlyList<string?>>
   
 {
@@ -1362,7 +1369,8 @@ public class FieldStringListWhenNonNullAddAllStringBearer : FormattedCollectionF
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | NonNullWrites | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | NonNullWrites | AcceptsCharSequence 
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldCharSequenceListWhenNonNullAddAllStringBearer<TCharSeq> : FormattedCollectionFieldMoldScaffold<TCharSeq?, IReadOnlyList<TCharSeq?>>
    where TCharSeq : ICharSequence
 {
@@ -1382,7 +1390,8 @@ public class FieldCharSequenceListWhenNonNullAddAllStringBearer<TCharSeq> : Form
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | NonNullWrites | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | NonNullWrites | AcceptsStringBuilder 
+               | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringBuilderListWhenNonNullAddAllStringBearer : FormattedCollectionFieldMoldScaffold<StringBuilder?, IReadOnlyList<StringBuilder?>>
   
 {
@@ -1426,18 +1435,18 @@ public class FieldMatchListWhenNonNullAddAllStringBearer<TAny> : FormattedCollec
 public class FieldObjectListWhenNonNullAddAllStringBearer : FormattedCollectionFieldMoldScaffold<object?, IReadOnlyList<object?>>
   
 {
-    public IReadOnlyList<object?>? ComplexTypeCollectionFieldWhenNonNullAddAllMatchList
+    public IReadOnlyList<object?>? ComplexTypeCollectionFieldWhenNonNullAddAllObjectList
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchList);
+    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectList);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllObject
-               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchList)
-              , ComplexTypeCollectionFieldWhenNonNullAddAllMatchList, ValueFormatString)
+               (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectList)
+              , ComplexTypeCollectionFieldWhenNonNullAddAllObjectList, ValueFormatString)
            .Complete();
 }

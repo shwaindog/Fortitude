@@ -376,12 +376,12 @@ public class ValueTypeMold<TMold> : KnownTypeMolder<TMold> where TMold : TypeMol
       , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext("", value, 0, int.MaxValue, "0", formatString ?? "", formatFlags);
 
-    public TMold AsValue(ReadOnlySpan<char> nonJsonfieldName, StringBuilder value, int startIndex = 0, int length = int.MaxValue
+    public TMold AsValue(ReadOnlySpan<char> nonJsonfieldName, StringBuilder value, int startIndex, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, "0", formatString ?? "", formatFlags);
 
-    public TMold AsValue(StringBuilder value, int startIndex = 0, int length = int.MaxValue
+    public TMold AsValue(StringBuilder value, int startIndex, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = AsValueContent) =>
         Stb.FieldValueOrDefaultNext("", value, startIndex, length, "0", formatString ?? "", formatFlags);

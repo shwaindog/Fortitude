@@ -216,7 +216,20 @@ public partial class SelectTypeCollectionFieldTests
                     scafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
-                        .HasFilterPredicate()
+                        .NoFilterPredicate()
+                        .AcceptsString()
+                        .NotHasSupportsValueRevealer()
+                        .AcceptsNullableClasses()
+                select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                // classes
+                from fe in StringCollectionsTestData.AllStringCollectionExpectations
+                where fe is {ElementTypeIsClass : true, HasRestrictingFilter : false }   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsJustComplexType()
+                        .ProcessesCollection()
+                        .NoFilterPredicate()
                         .AcceptsString()
                         .NotHasSupportsValueRevealer()
                         .AcceptsNullableClasses()
@@ -246,6 +259,19 @@ public partial class SelectTypeCollectionFieldTests
         .Concat( 
                 from fe in StringCollectionsTestData.AllStringCollectionExpectations
                 where fe is {ContainsNullElements : true, HasRestrictingFilter : true }   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsJustComplexType()
+                        .ProcessesCollection()
+                        .HasFilterPredicate()
+                        .AcceptsString()
+                        .NotHasSupportsValueRevealer()
+                        .AcceptsNullableClasses()
+                select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                // classes
+                from fe in StringCollectionsTestData.AllStringCollectionExpectations
+                where fe is {ElementTypeIsClass : true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
                     scafReg
                         .IsJustComplexType()
@@ -284,7 +310,20 @@ public partial class SelectTypeCollectionFieldTests
                     scafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
-                        .HasFilterPredicate()
+                        .NoFilterPredicate()
+                        .AcceptsCharSequence()
+                        .NotHasSupportsValueRevealer()
+                        .AcceptsNullableClasses()
+                select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                // classes
+                from fe in CharSequenceCollectionsTestData.AllCharSequenceCollectionExpectations
+                where fe is {ElementTypeIsClass : true, HasRestrictingFilter : false }   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsJustComplexType()
+                        .ProcessesCollection()
+                        .NoFilterPredicate()
                         .AcceptsCharSequence()
                         .NotHasSupportsValueRevealer()
                         .AcceptsNullableClasses()
@@ -322,6 +361,19 @@ public partial class SelectTypeCollectionFieldTests
                         .AcceptsCharSequence()
                         .NotHasSupportsValueRevealer()
                         .AcceptsNullableClasses()
+                select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                // classes
+                from fe in CharSequenceCollectionsTestData.AllCharSequenceCollectionExpectations
+                where fe is {ElementTypeIsClass : true, HasRestrictingFilter : true }   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsJustComplexType()
+                        .ProcessesCollection()
+                        .HasFilterPredicate()
+                        .AcceptsCharSequence()
+                        .NotHasSupportsValueRevealer()
+                        .AcceptsNullableClasses()
                 select new object[] { fe, scaffoldToCall });
 
 
@@ -332,36 +384,69 @@ public partial class SelectTypeCollectionFieldTests
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
+    
+    private static IEnumerable<object[]> UnfilteredStringBuilderCollectionExpect =>
+        (from fe in StringBuilderCollectionsTestData.AllStringBuilderCollectionExpectations
+        where fe is {ContainsNullElements : false,  HasRestrictingFilter: false } 
+        from scaffoldToCall in 
+            scafReg
+                .IsJustComplexType()
+                .ProcessesCollection()
+                .AcceptsNonNullables()
+                .NoFilterPredicate()
+                .AcceptsStringBuilder()
+                .NotHasSupportsValueRevealer()
+        select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                from fe in StringBuilderCollectionsTestData.AllStringBuilderCollectionExpectations
+                where fe is {ContainsNullElements : true, HasRestrictingFilter : false }   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsJustComplexType()
+                        .ProcessesCollection()
+                        .NoFilterPredicate()
+                        .AcceptsStringBuilder()
+                        .NotHasSupportsValueRevealer()
+                        .AcceptsNullableClasses()
+                select new object[] { fe, scaffoldToCall });
 
-    private static IEnumerable<object[]> CharSequenceExpect =>
-        from fe in StringTestData.AllStringExpectations
-        where fe.InputType.ImplementsInterface<ICharSequence>()
-        from scaffoldToCall in
-            scafReg.IsOrderedCollectionType().AcceptsCharSequence().NotHasSupportsValueRevealer()
-        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
-        select new object[] { fe, scaffoldToCall };
 
-
-    // [TestMethod]
-    [DynamicData(nameof(CharSequenceExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactLogCharSequenceList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    [TestMethod]
+    [DynamicData(nameof(UnfilteredStringBuilderCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredCompactLogStringBuilderList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
-    private static IEnumerable<object[]> StringBuilderExpect =>
-        from fe in StringTestData.AllStringExpectations
-        where fe.InputType.IsStringBuilder()
-        from scaffoldToCall in
-            scafReg.IsJustComplexType().ProcessesCollection().AcceptsStringBuilder().NotHasSupportsValueRevealer()
-        where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
-        select new object[] { fe, scaffoldToCall };
+    private static IEnumerable<object[]> FilteredStringBuilderCollectionExpect =>
+        (from fe in StringBuilderCollectionsTestData.AllStringBuilderCollectionExpectations
+        where fe is {ContainsNullElements : false,  HasRestrictingFilter: true } 
+        from scaffoldToCall in 
+            scafReg
+                .IsJustComplexType()
+                .ProcessesCollection()
+                .AcceptsNonNullables()
+                .HasFilterPredicate()
+                .AcceptsStringBuilder()
+                .NotHasSupportsValueRevealer()
+        select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                from fe in StringBuilderCollectionsTestData.AllStringBuilderCollectionExpectations
+                where fe is {ContainsNullElements : true, HasRestrictingFilter : true }   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsJustComplexType()
+                        .ProcessesCollection()
+                        .HasFilterPredicate()
+                        .AcceptsStringBuilder()
+                        .NotHasSupportsValueRevealer()
+                        .AcceptsNullableClasses()
+                select new object[] { fe, scaffoldToCall });
 
-
-    // [TestMethod]
-    [DynamicData(nameof(StringBuilderExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactLogStringBuilderList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    [TestMethod]
+    [DynamicData(nameof(FilteredStringBuilderCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredCompactLogStringBuilderList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);

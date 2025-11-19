@@ -11,7 +11,7 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 
-public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilderInvokeFlags ScaffoldingFlags) 
+public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilderInvokeFlags ScaffoldingFlags)
     : IComparable<ScaffoldingPartEntry>, ICodeLocationAwareListItem
 {
     private static readonly Type MoldSupportedDefaultValueType          = typeof(IMoldSupportedDefaultValue<>);
@@ -60,11 +60,11 @@ public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilde
     public int AtIndex { get; set; }
 
     public Type? ListOwningType { get; set; }
-    
+
     public string? ListMemberName { get; set; }
 
-    public string? ItemCodePath => ListOwningType != null 
-        ? $"{ListOwningType.Name}.{ListMemberName}[{AtIndex}]" 
+    public string? ItemCodePath => ListOwningType != null
+        ? $"{ListOwningType.Name}.{ListMemberName}[{AtIndex}]"
         : $"UnsetListOwnerType.UnknownListMemberName[{AtIndex}]";
 
     public Func<IStringBearer> CreateStringBearerFunc(params Type[] genericTypeArguments)
@@ -105,7 +105,7 @@ public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilde
 };
 
 public static class ScaffoldingRegistry
-{ 
+{
     // ReSharper disable once ExplicitCallerInfoArgument
     private static readonly PositionUpdatingList<ScaffoldingPartEntry> ScaffoldingTypes =
         new(typeof(ScaffoldingRegistry), "AllScaffoldingTypes");
@@ -117,10 +117,10 @@ public static class ScaffoldingRegistry
         var types =
             typeof(ScaffoldingPartEntry)
                 .Assembly.GetAllTopLevelClassTypes()
-                .Where(t => 
+                .Where(t =>
                            !t.IsAbstract &&
                            t.GetCustomAttributes(typeof(TypeGeneratePartAttribute)).Any() &&
-                            t.ImplementsInterface<IStringBearer>())
+                           t.ImplementsInterface<IStringBearer>())
                 .ToList();
 
         for (var i = 0; i < types.Count; i++)
@@ -349,14 +349,21 @@ public static class ScaffoldingRegistry
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsNullableClass));
 
     public static IEnumerable<ScaffoldingPartEntry> AcceptsOnlyNonNullables(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe =>  spe.ScaffoldingFlags.HasAnyOf(AcceptsClass | AcceptsStruct) 
-                          && spe.ScaffoldingFlags.HasNoneOf(AcceptsNullableClass | AcceptsNullableStruct));
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsClass | AcceptsStruct)
+                         && spe.ScaffoldingFlags.HasNoneOf(AcceptsNullableClass | AcceptsNullableStruct));
 
     public static IEnumerable<ScaffoldingPartEntry> AcceptsNonNullables(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsClass | AcceptsStruct));
 
     public static IEnumerable<ScaffoldingPartEntry> AcceptsNonNullStructs(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsStruct));
+
+    public static IEnumerable<ScaffoldingPartEntry> AcceptsAllButNullStructs(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsClass | AcceptsStruct | AcceptsNullableClass)
+                         && spe.ScaffoldingFlags.HasNoneOf(AcceptsStruct));
+
+    public static IEnumerable<ScaffoldingPartEntry> AcceptsNonNullClasses(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsClass) && spe.ScaffoldingFlags.HasNoneOf(AcceptsNullableClass));
 
     public static IEnumerable<ScaffoldingPartEntry> AcceptsClasses(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsClass | AcceptsNullableClass));

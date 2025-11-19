@@ -273,7 +273,7 @@ public class FieldNullableStringBearerSpanAlwaysAddFilteredStringBearer<TBearerS
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsString 
-                | SupportsValueFormatString)]
+                | AcceptsClass | SupportsValueFormatString)]
 public class FieldStringSpanAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<string, string[]>
   
 {
@@ -297,7 +297,7 @@ public class FieldStringSpanAlwaysAddFilteredStringBearer : FormattedFilteredCol
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsString 
-                | SupportsValueFormatString)]
+                | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringNullableSpanAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<string?, string?[]>
   
 {
@@ -322,7 +322,7 @@ public class FieldStringNullableSpanAlwaysAddFilteredStringBearer : FormattedFil
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsCharSequence 
-                | SupportsValueFormatString)]
+                | AcceptsClass  | SupportsValueFormatString)]
 public class FieldCharSequenceSpanAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
     : FormattedFilteredCollectionFieldMoldScaffold<TCharSeq, TCharSeq[]>
     where TCharSeq : ICharSequence, TCharSeqFilterBase
@@ -347,7 +347,7 @@ public class FieldCharSequenceSpanAlwaysAddFilteredStringBearer<TCharSeq, TCharS
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsCharSequence 
-                | SupportsValueFormatString)]
+                | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldCharSequenceNullableSpanAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
     : FormattedFilteredCollectionFieldMoldScaffold<TCharSeq?, TCharSeq?[]>
     where TCharSeq : ICharSequence, TCharSeqFilterBase
@@ -372,7 +372,7 @@ public class FieldCharSequenceNullableSpanAlwaysAddFilteredStringBearer<TCharSeq
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsStringBuilder 
-                | SupportsValueFormatString)]
+                | AcceptsClass | SupportsValueFormatString)]
 public class FieldStringBuilderSpanAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<StringBuilder, StringBuilder[]>
   
 {
@@ -396,7 +396,7 @@ public class FieldStringBuilderSpanAlwaysAddFilteredStringBearer : FormattedFilt
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsStringBuilder 
-                | SupportsValueFormatString)]
+                | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringBuilderNullableSpanAlwaysAddFilteredStringBearer
     : FormattedFilteredCollectionFieldMoldScaffold<StringBuilder?, StringBuilder?[]>
 {
@@ -783,7 +783,7 @@ public class FieldNullableStringBearerReadOnlySpanAlwaysAddFilteredStringBearer<
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsString 
-                | SupportsValueFormatString)]
+                | AcceptsClass | SupportsValueFormatString)]
 public class FieldStringReadOnlySpanAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<string, string[]>
   
 {
@@ -807,7 +807,7 @@ public class FieldStringReadOnlySpanAlwaysAddFilteredStringBearer : FormattedFil
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate | AcceptsString 
-                | SupportsValueFormatString)]
+                | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringNullableReadOnlySpanAlwaysAddFilteredStringBearer
     : FormattedFilteredCollectionFieldMoldScaffold<string?, string?[]>
 {
@@ -831,7 +831,7 @@ public class FieldStringNullableReadOnlySpanAlwaysAddFilteredStringBearer
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
-                | AcceptsCharSequence | SupportsValueFormatString)]
+                | AcceptsClass | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceReadOnlySpanAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
     : FormattedFilteredCollectionFieldMoldScaffold<TCharSeq, TCharSeq[]>
     where TCharSeq : ICharSequence, TCharSeqFilterBase
@@ -856,7 +856,7 @@ public class FieldCharSequenceReadOnlySpanAlwaysAddFilteredStringBearer<TCharSeq
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
-                | AcceptsCharSequence | SupportsValueFormatString)]
+                | AcceptsNullableClass | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceNullableReadOnlySpanAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
     : FormattedFilteredCollectionFieldMoldScaffold<TCharSeq?, TCharSeq?[]>
     where TCharSeq : ICharSequence, TCharSeqFilterBase
@@ -875,13 +875,13 @@ public class FieldCharSequenceNullableReadOnlySpanAlwaysAddFilteredStringBearer<
            .CollectionField.AlwaysAddFilteredCharSeqNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCharSequenceReadOnlySpan),
                 (ReadOnlySpan<TCharSeq?>)ComplexTypeCollectionFieldAlwaysAddFilteredNullableCharSequenceReadOnlySpan
-              , ElementPredicate)
+              , ElementPredicate, ValueFormatString)
            .Complete();
 
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
-                | AcceptsStringBuilder | SupportsValueFormatString)]
+                | AcceptsClass | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderReadOnlySpanAlwaysAddFilteredStringBearer
     : FormattedFilteredCollectionFieldMoldScaffold<StringBuilder, StringBuilder[]>
 {
@@ -905,7 +905,7 @@ public class FieldStringBuilderReadOnlySpanAlwaysAddFilteredStringBearer
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
-                | AcceptsStringBuilder | SupportsValueFormatString)]
+                | AcceptsNullableClass  | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderNullableReadOnlySpanAlwaysAddFilteredStringBearer
     : FormattedFilteredCollectionFieldMoldScaffold<StringBuilder?, StringBuilder?[]>
 {
@@ -1214,7 +1214,7 @@ public class FieldNullableStringBearerArrayAlwaysAddFilteredStringBearer<TBearer
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsString 
-                | SupportsValueFormatString)]
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringArrayAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<string?, string?[]>
   
 {
@@ -1238,7 +1238,7 @@ public class FieldStringArrayAlwaysAddFilteredStringBearer : FormattedFilteredCo
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsCharSequence 
-                | SupportsValueFormatString)]
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldCharSequenceArrayAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
     : FormattedFilteredCollectionFieldMoldScaffold<TCharSeq?, TCharSeq?[]>
     where TCharSeq : ICharSequence, TCharSeqFilterBase
@@ -1263,7 +1263,7 @@ public class FieldCharSequenceArrayAlwaysAddFilteredStringBearer<TCharSeq, TChar
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | FilterPredicate | AcceptsStringBuilder 
-                | SupportsValueFormatString)]
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringBuilderArrayAlwaysAddFilteredStringBearer
     : FormattedFilteredCollectionFieldMoldScaffold<StringBuilder?, StringBuilder?[]>
 {
@@ -1526,7 +1526,7 @@ public class FieldNullableStringBearerListAlwaysAddFilteredStringBearer<TBearerS
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsString 
-                | SupportsValueFormatString)]
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringListAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<string?, IReadOnlyList<string?>>
   
 {
@@ -1550,7 +1550,7 @@ public class FieldStringListAlwaysAddFilteredStringBearer : FormattedFilteredCol
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsCharSequence 
-                | SupportsValueFormatString)]
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldCharSequenceListAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
     : FormattedFilteredCollectionFieldMoldScaffold<TCharSeq?, IReadOnlyList<TCharSeq?>>
     where TCharSeq : ICharSequence, TCharSeqFilterBase
@@ -1575,7 +1575,7 @@ public class FieldCharSequenceListAlwaysAddFilteredStringBearer<TCharSeq, TCharS
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | FilterPredicate | AcceptsStringBuilder 
-                | SupportsValueFormatString)]
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringBuilderListAlwaysAddFilteredStringBearer
     : FormattedFilteredCollectionFieldMoldScaffold<StringBuilder?, IReadOnlyList<StringBuilder?>>
 {

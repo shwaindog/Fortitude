@@ -180,7 +180,8 @@ public class FieldNullableStringBearerEnumerableWhenNonNullAddAllStringBearer<TB
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsString 
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringEnumerableWhenNonNullAddAllStringBearer : FormattedCollectionFieldMoldScaffold<string?, IEnumerable<string?>>
   
 {
@@ -200,7 +201,8 @@ public class FieldStringEnumerableWhenNonNullAddAllStringBearer : FormattedColle
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsCharSequence 
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldCharSequenceEnumerableWhenNonNullAddAllStringBearer<TCharSeq> :
     FormattedCollectionFieldMoldScaffold<TCharSeq?, IEnumerable<TCharSeq?>>
    where TCharSeq : ICharSequence
@@ -221,7 +223,8 @@ public class FieldCharSequenceEnumerableWhenNonNullAddAllStringBearer<TCharSeq> 
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerable | NonNullWrites | AcceptsStringBuilder 
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringBuilderEnumerableWhenNonNullAddAllStringBearer :
     FormattedCollectionFieldMoldScaffold<StringBuilder?, IEnumerable<StringBuilder?>>
   
@@ -449,7 +452,8 @@ public class FieldNullableStringBearerEnumeratorWhenNonNullAddAllStringBearer<TB
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsString 
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringEnumeratorWhenNonNullAddAllStringBearer : FormattedEnumeratorFieldMoldScaffold<string?, IEnumerator<string?>>
   
 {
@@ -469,7 +473,8 @@ public class FieldStringEnumeratorWhenNonNullAddAllStringBearer : FormattedEnume
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsCharSequence 
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldCharSequenceEnumeratorWhenNonNullAddAllStringBearer<TCharSeq> :
     FormattedEnumeratorFieldMoldScaffold<TCharSeq?, IEnumerator<TCharSeq?>>
    where TCharSeq : ICharSequence
@@ -490,7 +495,8 @@ public class FieldCharSequenceEnumeratorWhenNonNullAddAllStringBearer<TCharSeq> 
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsEnumerator | NonNullWrites | AcceptsStringBuilder 
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldStringBuilderEnumeratorWhenNonNullAddAllStringBearer :
     FormattedEnumeratorFieldMoldScaffold<StringBuilder?, IEnumerator<StringBuilder?>>
   

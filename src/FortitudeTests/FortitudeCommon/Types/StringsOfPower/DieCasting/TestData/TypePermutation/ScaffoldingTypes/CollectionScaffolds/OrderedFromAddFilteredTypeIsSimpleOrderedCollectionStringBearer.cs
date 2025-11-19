@@ -1135,8 +1135,8 @@ public class OrderedFromNullableStringBearerEnumeratorRevealFilteredSimpleOrdere
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate | AcceptsClass | AcceptsNullableClass
-                | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate
+                | AcceptsClass | AcceptsNullableClass | AcceptsString | SupportsValueFormatString)]
 public class OrderedFromStringArrayAddFilteredSimpleOrderedCollectionStringBearer : FormattedFilteredCollectionMoldScaffold<string?, string?[]>
   
 
@@ -1156,8 +1156,8 @@ public class OrderedFromStringArrayAddFilteredSimpleOrderedCollectionStringBeare
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass | AcceptsString
-                | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsString
+                | AcceptsClass | SupportsValueFormatString)]
 public class OrderedFromStringSpanAddFilteredSimpleOrderedCollectionStringBearer : FormattedFilteredCollectionMoldScaffold<string, string[]>
   
 
@@ -1177,8 +1177,8 @@ public class OrderedFromStringSpanAddFilteredSimpleOrderedCollectionStringBearer
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass
-                | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate
+                | AcceptsNullableClass | AcceptsString | SupportsValueFormatString)]
 public class OrderedFromStringNullableSpanAddFilteredSimpleOrderedCollectionStringBearer : FormattedFilteredCollectionMoldScaffold<string?, string?[]>
   
 
@@ -1198,8 +1198,8 @@ public class OrderedFromStringNullableSpanAddFilteredSimpleOrderedCollectionStri
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass
-                | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate
+                | AcceptsClass | AcceptsString | SupportsValueFormatString)]
 public class OrderedFromStringReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : FormattedFilteredCollectionMoldScaffold<string, string[]>
   
 
@@ -1219,9 +1219,8 @@ public class OrderedFromStringReadOnlySpanAddFilteredSimpleOrderedCollectionStri
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass
-                | AcceptsString |
-                  SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate
+                | AcceptsString |  AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer :
     FormattedFilteredCollectionMoldScaffold<string?, string?[]>
   
@@ -1244,8 +1243,8 @@ public class OrderedFromStringNullableReadOnlySpanAddFilteredSimpleOrderedCollec
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate | AcceptsClass | AcceptsNullableClass
-                | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate
+                | AcceptsString | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringListAddFilteredSimpleOrderedCollectionStringBearer :
     FormattedFilteredCollectionMoldScaffold<string?, IReadOnlyList<string?>>
   
@@ -1266,8 +1265,8 @@ public class OrderedFromStringListAddFilteredSimpleOrderedCollectionStringBearer
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsClass | AcceptsNullableClass
-                | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate
+                | AcceptsString | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringEnumerableAddFilteredSimpleOrderedCollectionStringBearer :
     FormattedFilteredCollectionMoldScaffold<string?, IEnumerable<string?>>
 
@@ -1287,8 +1286,8 @@ public class OrderedFromStringEnumerableAddFilteredSimpleOrderedCollectionString
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsClass | AcceptsNullableClass
-                | AcceptsString | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate
+                | AcceptsString | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringEnumeratorAddFilteredSimpleOrderedCollectionStringBearer :
     FormattedFilteredEnumeratorMoldScaffold<string?, IEnumerator<string?>>
 
@@ -1308,8 +1307,8 @@ public class OrderedFromStringEnumeratorAddFilteredSimpleOrderedCollectionString
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate | AcceptsClass | AcceptsNullableClass
-                | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate 
+                | AcceptsCharSequence | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceArrayAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> :
     FormattedFilteredCollectionMoldScaffold<TCharSeq, TCharSeqBase, TCharSeq[]>
     where TCharSeq : ICharSequence, TCharSeqBase
@@ -1329,8 +1328,8 @@ public class OrderedFromCharSequenceArrayAddFilteredSimpleOrderedCollectionStrin
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass
-                | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate
+                | AcceptsCharSequence | AcceptsClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceSpanAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> :
     FormattedFilteredCollectionMoldScaffold<TCharSeq, TCharSeqBase, TCharSeq[]>
     where TCharSeq : ICharSequence, TCharSeqBase
@@ -1350,8 +1349,8 @@ public class OrderedFromCharSequenceSpanAddFilteredSimpleOrderedCollectionString
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass
-                | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate
+                | AcceptsCharSequence | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceNullableSpanAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> :
     FormattedFilteredCollectionMoldScaffold<TCharSeq, TCharSeqBase, TCharSeq[]>
     where TCharSeq : ICharSequence, TCharSeqBase
@@ -1371,8 +1370,8 @@ public class OrderedFromCharSequenceNullableSpanAddFilteredSimpleOrderedCollecti
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass
-                | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate
+                | AcceptsCharSequence | AcceptsClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> :
     FormattedFilteredCollectionMoldScaffold<TCharSeq, TCharSeqBase, TCharSeq[]>
     where TCharSeq : ICharSequence, TCharSeqBase
@@ -1394,8 +1393,8 @@ public class OrderedFromCharSequenceReadOnlySpanAddFilteredSimpleOrderedCollecti
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass
-                | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate
+                | AcceptsCharSequence | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> :
     FormattedFilteredCollectionMoldScaffold<TCharSeq, TCharSeqBase, TCharSeq[]>
     where TCharSeq : ICharSequence, TCharSeqBase
@@ -1417,8 +1416,8 @@ public class OrderedFromCharSequenceNullableReadOnlySpanAddFilteredSimpleOrdered
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate | AcceptsClass | AcceptsNullableClass
-                | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate
+                | AcceptsCharSequence | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceListAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> :
     FormattedFilteredCollectionMoldScaffold<TCharSeq, TCharSeqBase, IReadOnlyList<TCharSeq>>
     where TCharSeq : ICharSequence, TCharSeqBase
@@ -1438,8 +1437,8 @@ public class OrderedFromCharSequenceListAddFilteredSimpleOrderedCollectionString
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsClass | AcceptsNullableClass
-                | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate
+                | AcceptsCharSequence | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceEnumerableAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> :
     FormattedFilteredCollectionMoldScaffold<TCharSeq, TCharSeqBase, IEnumerable<TCharSeq>>
     where TCharSeq : ICharSequence, TCharSeqBase
@@ -1459,8 +1458,8 @@ public class OrderedFromCharSequenceEnumerableAddFilteredSimpleOrderedCollection
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsClass | AcceptsNullableClass
-                | AcceptsCharSequence | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate
+                | AcceptsCharSequence | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> :
     FormattedFilteredEnumeratorMoldScaffold<TCharSeq, TCharSeqBase, IEnumerator<TCharSeq>>
     where TCharSeq : ICharSequence, TCharSeqBase
@@ -1480,8 +1479,8 @@ public class OrderedFromCharSequenceEnumeratorAddFilteredSimpleOrderedCollection
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate | AcceptsClass | AcceptsNullableClass
-                | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate
+                | AcceptsStringBuilder | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringBuilderArrayAddFilteredSimpleOrderedCollectionStringBearer :
     FormattedFilteredCollectionMoldScaffold<StringBuilder?, StringBuilder?[]>
 
@@ -1501,8 +1500,8 @@ public class OrderedFromStringBuilderArrayAddFilteredSimpleOrderedCollectionStri
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsClass
-                | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate
+                | AcceptsStringBuilder | AcceptsClass | SupportsValueFormatString)]
 public class OrderedFromStringBuilderSpanAddFilteredSimpleOrderedCollectionStringBearer :
     FormattedFilteredCollectionMoldScaffold<StringBuilder, StringBuilder[]>
 
@@ -1522,8 +1521,8 @@ public class OrderedFromStringBuilderSpanAddFilteredSimpleOrderedCollectionStrin
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsNullableClass
-                | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate
+                | AcceptsStringBuilder | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringBuilderNullableSpanAddFilteredSimpleOrderedCollectionStringBearer :
     FormattedFilteredCollectionMoldScaffold<StringBuilder?, StringBuilder?[]>
 
@@ -1543,8 +1542,8 @@ public class OrderedFromStringBuilderNullableSpanAddFilteredSimpleOrderedCollect
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsClass
-                | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate
+                | AcceptsStringBuilder | AcceptsClass | SupportsValueFormatString)]
 public class OrderedFromStringBuilderReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer :
     FormattedFilteredCollectionMoldScaffold<StringBuilder, StringBuilder[]>
 
@@ -1566,8 +1565,8 @@ public class OrderedFromStringBuilderReadOnlySpanAddFilteredSimpleOrderedCollect
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate | AcceptsNullableClass
-                | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate
+                | AcceptsStringBuilder | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringBuilderNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer :
     FormattedFilteredCollectionMoldScaffold<StringBuilder?, StringBuilder?[]>
 
@@ -1589,8 +1588,8 @@ public class OrderedFromStringBuilderNullableReadOnlySpanAddFilteredSimpleOrdere
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate | AcceptsClass | AcceptsNullableClass
-                | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsList | FilterPredicate
+                | AcceptsStringBuilder | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringBuilderListAddFilteredSimpleOrderedCollectionStringBearer :
     FormattedFilteredCollectionMoldScaffold<StringBuilder?, IReadOnlyList<StringBuilder?>>
 
@@ -1610,8 +1609,8 @@ public class OrderedFromStringBuilderListAddFilteredSimpleOrderedCollectionStrin
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsClass | AcceptsNullableClass
-                | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate
+                | AcceptsStringBuilder | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringBuilderEnumerableAddFilteredSimpleOrderedCollectionStringBearer :
     FormattedFilteredCollectionMoldScaffold<StringBuilder?, IEnumerable<StringBuilder?>>
 
@@ -1631,8 +1630,8 @@ public class OrderedFromStringBuilderEnumerableAddFilteredSimpleOrderedCollectio
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsClass | AcceptsNullableClass
-                | AcceptsStringBuilder | SupportsValueFormatString)]
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate
+                | AcceptsStringBuilder | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringBuilderEnumeratorAddFilteredSimpleOrderedCollectionStringBearer :
     FormattedFilteredEnumeratorMoldScaffold<StringBuilder?, IEnumerator<StringBuilder?>>
 
