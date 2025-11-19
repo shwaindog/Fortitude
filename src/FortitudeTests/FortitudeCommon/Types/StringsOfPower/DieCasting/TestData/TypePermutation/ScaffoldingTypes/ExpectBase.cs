@@ -10,7 +10,6 @@ using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
-using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 
@@ -27,6 +26,8 @@ public interface IFormatExpectation : ICodeLocationAwareListItem
     bool InputIsEmpty { get; }
     string? FormatString { get; }
     bool IsStringLike { get; }
+
+    FieldContentHandling ContentHandling { get; }
 
     string ShortTestName { get; }
 
@@ -45,7 +46,7 @@ public interface ITypedFormatExpectation<out T> : IFormatExpectation
     void Add(KeyValuePair<EK, string> newExpectedResult);
 }
 
-public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnumerable<KeyValuePair<EK, string>>, ICodeLocationAwareListItem
+public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnumerable<KeyValuePair<EK, string>>
 {
     private readonly string  srcFile;
     private readonly int     srcLine;
@@ -143,7 +144,7 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
 
     public string? ListMemberName { get; set; }
 
-    public string? ItemCodePath => ListOwningType != null
+    public string ItemCodePath => ListOwningType != null
         ? $"{ListOwningType.Name}.{ListMemberName}[{AtIndex}]"
         : $"UnsetListOwnerType.UnknownListMemberName[{AtIndex}]";
 
@@ -187,6 +188,22 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
     public abstract IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry);
     public abstract IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry, StyleOptions stringStyle);
 
+    protected virtual void AdditionalToStringExpectFields(IStringBuilder sb)
+    {
+        AddExpectedResultsList(sb);
+    }
+
+    protected void AddExpectedResultsList(IStringBuilder sb)
+    {
+        sb.AppendLine();
+        sb.AppendLine("ExpectedResults");
+        var count = 0;
+        foreach (var keyValuePair in ExpectedResults)
+        {
+            sb.Append(count++).Append(" - ").Append("{ ").Append(keyValuePair.Key).Append(", >").Append(keyValuePair.Value).AppendLine("< }");
+        }
+    }
+
     public override string ToString()
     {
         var sb = new MutableString();
@@ -205,6 +222,7 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
         if (InputIsNull) { sb.Append("null"); }
         else { sb.Append(AsStringDelimiterOpen).Append(new MutableString().Append(Input).ToString()).Append(AsStringDelimiterClose); }
         sb.Append(", ").Append(nameof(FormatString)).Append(": ").Append(FormatString != null ? $"\"{FormatString}\"" : "null");
+        AdditionalToStringExpectFields(sb);
         return sb.ToString();
     }
 }

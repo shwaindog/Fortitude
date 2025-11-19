@@ -61,10 +61,10 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
         return this;
     }
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TVRevealBase>(TK key, TV? value
+    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TVRevealBase>(TK? key, TV? value
       , PalantírReveal<TVRevealBase> valueStyler, string? keyFormatString = null) 
-        where TK : TKey 
-        where TV : TValue, TVRevealBase
+        where TK : TKey? 
+        where TV : TValue?, TVRevealBase?
         where TVRevealBase : notnull
     {
         if (stb.SkipBody) return this;
@@ -72,11 +72,11 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
         return this;
     }
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TKRevealBase, TVRevealBase>(TK key, TV? value
+    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TKRevealBase, TVRevealBase>(TK? key, TV? value
       , PalantírReveal<TVRevealBase> valueStyler
       , PalantírReveal<TKRevealBase> keyStyler) 
-        where TK : TKey, TKRevealBase 
-        where TV : TValue, TVRevealBase
+        where TK : TKey?, TKRevealBase? 
+        where TV : TValue?, TVRevealBase?
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
@@ -93,10 +93,10 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
         return AppendNextKeyedCollectionEntrySeparator();
     }
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TVRevealBase>(TK key, TV? value
+    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TVRevealBase>(TK? key, TV? value
       , PalantírReveal<TVRevealBase> valueStyler, string? keyFormatString = null) 
-        where TK : TKey 
-        where TV : TValue, TVRevealBase
+        where TK : TKey? 
+        where TV : TValue?, TVRevealBase?
         where TVRevealBase : notnull
     {
         if (stb.SkipBody) return this;
@@ -104,10 +104,10 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
         return AppendNextKeyedCollectionEntrySeparator();
     }
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TKRevealBase, TVRevealBase>(TK key, TV? value
+    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TKRevealBase, TVRevealBase>(TK? key, TV? value
       , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKRevealBase> keyStyler) 
-        where TK : TKey, TKRevealBase 
-        where TV : TValue, TVRevealBase
+        where TK : TKey?, TKRevealBase?
+        where TV : TValue?, TVRevealBase?
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {

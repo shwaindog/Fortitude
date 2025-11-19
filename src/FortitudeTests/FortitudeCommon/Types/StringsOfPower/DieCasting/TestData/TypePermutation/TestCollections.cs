@@ -166,10 +166,8 @@ public static class TestCollections
 
     public static readonly decimal[] DecimalArray =
     [
-        new(Math.PI), new(Math.E), new(Math.PI * 2), new(Math.E * 2), new(Math.PI * 3), new(Math.E * 3), new(Math.PI * 4), new(Math.E * 4)
-      , new(Math.PI * 5), new(Math.E * 5), new(Math.PI * 6), new(Math.E * 6), new(Math.PI * 7), new(Math.E * 7), new(Math.PI * 8), new(Math.E * 8)
-      , new(Math.PI * 9), new(Math.E * 9), new(Math.PI * 10), new(Math.E * 10), new(Math.PI * 11), new(Math.E * 11), new(Math.PI * 12)
-      , new(Math.E * 12)
+        new(Math.PI), new(Math.E), new(Math.PI * 4), new(Math.E * 4), new(Math.PI * 7), new(Math.E * 7), new(Math.PI * 10), new(Math.E * 10)
+      , new(Math.PI * 12) , new(Math.E * 12)
     ];
     public static readonly List<decimal> DecimalList = [..DecimalArray];
 
@@ -592,7 +590,7 @@ public static class TestCollections
     });
 
     public static PalantírReveal<FieldSpanFormattableAlwaysAddStringBearer<decimal>> StringBearerClassListRevealer =
-        (showMe, tos) => tos.StartSimpleValueType(showMe).RevealAsValue("", showMe);
+        (showMe, tos) => showMe.RevealState(tos);
 
     public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStringBearer<decimal>> StringBearerClassList_Lt_20 =
         (_, item) => EvaluateIsIncludedAndContinue(item.Value < 20);
@@ -675,8 +673,8 @@ public static class TestCollections
         return withNulls;
     });
 
-    public static PalantírReveal<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>> StringBearerStructListAsValueRevealer =
-        (showMe, tos) => tos.StartSimpleValueType(showMe).RevealAsValue("", showMe);
+    public static PalantírReveal<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>> StringBearerStructListRevealer =
+        (showMe, tos) => showMe.RevealState(tos);
 
     public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>> StringBearerStructList_Lt_20 =
         (_, item) => EvaluateIsIncludedAndContinue(item.Value < 20);

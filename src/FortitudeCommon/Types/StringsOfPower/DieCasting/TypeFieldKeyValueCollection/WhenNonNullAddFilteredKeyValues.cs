@@ -6,112 +6,117 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldKeyValueColle
 public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMolder
 {
     public TExt WhenNonNullAddFiltered<TKey, TValue, TKFilterBase, TVFilterBase>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : TKFilterBase where TValue : TVFilterBase =>
+        where TKey : TKFilterBase? 
+        where TValue : TVFilterBase? =>
         !stb.SkipFields && value != null
             ? AlwaysAddFiltered(fieldName, value, filterPredicate, valueFormatString, keyFormatString)
             : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered<TKey, TValue, TKFilterBase, TVFilterBase>
-    (string fieldName, KeyValuePair<TKey, TValue?>[]? value
+    (string fieldName, KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : TKFilterBase where TValue : TVFilterBase =>
+        where TKey : TKFilterBase? 
+        where TValue : TVFilterBase? =>
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered<TKey, TValue, TKFilterBase, TVFilterBase>
-    (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue?>>? value
+    (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : TKFilterBase where TValue : TVFilterBase =>
+        where TKey : TKFilterBase? 
+        where TValue : TVFilterBase? =>
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, valueFormatString, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase>
-    (string fieldName, IEnumerable<KeyValuePair<TKey, TValue?>>? value
+    (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-         where TKey : TKFilterBase where TValue : TVFilterBase =>
+         where TKey : TKFilterBase? 
+         where TValue : TVFilterBase? =>
         !stb.SkipFields && value != null
             ? AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueFormatString, keyFormatString)
             : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase>
-    (string fieldName, IEnumerator<KeyValuePair<TKey, TValue?>>? value
+    (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : TKFilterBase where TValue : TVFilterBase =>
+        where TKey : TKFilterBase? 
+        where TValue : TVFilterBase? =>
         !stb.SkipFields && value != null
             ? AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueFormatString, keyFormatString)
             : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
          where TKey : TKFilterBase 
-         where TValue : TVFilterBase, TVRevealBase
+         where TValue : TVFilterBase?, TVRevealBase?
          where TVRevealBase : notnull =>
         !stb.SkipFields && value != null
             ? AlwaysAddFiltered(fieldName, value, filterPredicate, valueRevealer, keyFormatString)
             : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
-    (string fieldName, KeyValuePair<TKey, TValue?>[]? value
+    (string fieldName, KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : TKFilterBase 
-        where TValue : TVFilterBase, TVRevealBase 
+        where TKey : TKFilterBase? 
+        where TValue : TVFilterBase?, TVRevealBase? 
         where TVRevealBase : notnull =>
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, valueRevealer, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
-    (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue?>>? value
+    (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : TKFilterBase 
-        where TValue : TVFilterBase, TVRevealBase 
+        where TKey : TKFilterBase? 
+        where TValue : TVFilterBase?, TVRevealBase? 
         where TVRevealBase : notnull =>
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, valueRevealer, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
-    (string fieldName, IEnumerable<KeyValuePair<TKey, TValue?>>? value
+    (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-         where TKey : TKFilterBase 
-         where TValue : TVFilterBase, TVRevealBase 
+         where TKey : TKFilterBase? 
+         where TValue : TVFilterBase?, TVRevealBase? 
          where TVRevealBase : notnull =>
         !stb.SkipFields && value != null
             ? AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyFormatString)
             : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
-    (string fieldName, IEnumerator<KeyValuePair<TKey, TValue?>>? value
+    (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TKey : TKFilterBase 
-        where TValue : TVFilterBase, TVRevealBase 
+        where TKey : TKFilterBase? 
+        where TValue : TVFilterBase?, TVRevealBase? 
         where TVRevealBase : notnull =>
         !stb.SkipFields && value != null ? AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyFormatString) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
       , PalantírReveal<TKRevealBase> keyRevealer)
         where TKey : TKFilterBase, TKRevealBase 
-        where TValue : TVFilterBase, TVRevealBase 
+        where TValue : TVFilterBase?, TVRevealBase? 
         where TKRevealBase : notnull 
         where TVRevealBase : notnull =>
         !stb.SkipFields && value != null
@@ -119,34 +124,34 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
-    (string fieldName, KeyValuePair<TKey, TValue?>[]? value
+    (string fieldName, KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
       , PalantírReveal<TKRevealBase> keyRevealer)
-        where TKey : TKFilterBase, TKRevealBase 
-        where TValue : TVFilterBase, TVRevealBase  
+        where TKey : TKFilterBase?, TKRevealBase? 
+        where TValue : TVFilterBase?, TVRevealBase?  
         where TKRevealBase : notnull 
         where TVRevealBase : notnull =>
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, valueRevealer, keyRevealer) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
-    (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue?>>? value
+    (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
       , PalantírReveal<TKRevealBase> keyRevealer)
-        where TKey : TKFilterBase, TKRevealBase 
-        where TValue : TVFilterBase, TVRevealBase  
+        where TKey : TKFilterBase?, TKRevealBase? 
+        where TValue : TVFilterBase?, TVRevealBase?  
         where TKRevealBase : notnull 
         where TVRevealBase : notnull =>
         !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, valueRevealer, keyRevealer) : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
-    (string fieldName, IEnumerable<KeyValuePair<TKey, TValue?>>? value
+    (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
       , PalantírReveal<TKRevealBase> keyRevealer)
-         where TKey : TKFilterBase, TKRevealBase 
-         where TValue : TVFilterBase, TVRevealBase  
+         where TKey : TKFilterBase?, TKRevealBase? 
+         where TValue : TVFilterBase?, TVRevealBase?  
          where TKRevealBase : notnull 
          where TVRevealBase : notnull =>
         !stb.SkipFields && value != null
@@ -154,12 +159,12 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             : stb.StyleTypeBuilder;
 
     public TExt WhenNonNullAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
-    (string fieldName, IEnumerator<KeyValuePair<TKey, TValue?>>? value
+    (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
       , PalantírReveal<TKRevealBase> keyRevealer)
-        where TKey : TKFilterBase, TKRevealBase 
-        where TValue : TVFilterBase, TVRevealBase  
+        where TKey : TKFilterBase?, TKRevealBase? 
+        where TValue : TVFilterBase?, TVRevealBase?  
         where TKRevealBase : notnull 
         where TVRevealBase : notnull =>
         !stb.SkipFields && value != null ? AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyRevealer) : stb.StyleTypeBuilder;

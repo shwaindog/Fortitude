@@ -377,18 +377,81 @@ public partial class OrderedCollectionMoldTests
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
+    
+    private static IEnumerable<object[]> UnfilteredCloakedBearerCollectionExpect =>
+        (from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
+            where fe is {ElementTypeIsClass: true, ContainsNullElements : false,  HasRestrictingFilter: false } 
+            from scaffoldToCall in 
+                scafReg
+                    .IsOrderedCollectionType()
+                    .AcceptsNonNullables()
+                    .NoFilterPredicate()
+                    .HasSupportsValueRevealer()
+            select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
+                where fe is {ElementTypeIsClass: true, HasRestrictingFilter : false }   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsOrderedCollectionType()
+                        .NoFilterPredicate()
+                        .HasSupportsValueRevealer()
+                        .AcceptsNullableClasses()
+                select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
+                where fe is {ElementTypeIsNullableStruct: true, HasRestrictingFilter : false }   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsOrderedCollectionType()
+                        .NoFilterPredicate()
+                        .HasSupportsValueRevealer()
+                        .OnlyAcceptsNullableStructs()
+                select new object[] { fe, scaffoldToCall });
 
-    private static IEnumerable<object[]> NonNullCloakedBearerExpect =>
-        from fe in CloakedBearerTestData.AllCloakedBearerExpectations
-        where !fe.IsNullable
-        from scaffoldToCall in
-            scafReg.IsOrderedCollectionType().AcceptsNonNullables().HasSupportsValueRevealer()
-        select new object[] { fe, scaffoldToCall };
 
+    [TestMethod]
+    [DynamicData(nameof(UnfilteredCloakedBearerCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredCompactLogCloakedBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        SharedCompactLog(formatExpectation, scaffoldingToCall);
+    }
 
-    // [TestMethod]
-    [DynamicData(nameof(NonNullCloakedBearerExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactLogNonNullCloakedBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    private static IEnumerable<object[]> FilteredCloakedBearerCollectionExpect =>
+        (from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
+            where fe is {ElementTypeIsNullable: false, ContainsNullElements : false,  HasRestrictingFilter: true } 
+            from scaffoldToCall in 
+                scafReg
+                    .IsOrderedCollectionType()
+                    .AcceptsNonNullables()
+                    .HasFilterPredicate()
+                    .HasSupportsValueRevealer()
+            select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
+                where fe is {ElementTypeIsClass: true, HasRestrictingFilter : true }   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsOrderedCollectionType()
+                        .HasFilterPredicate()
+                        .HasSupportsValueRevealer()
+                        .AcceptsNullableClasses()
+                select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
+                where fe is {ElementTypeIsNullableStruct: true, HasRestrictingFilter : true }   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsOrderedCollectionType()
+                        .HasFilterPredicate()
+                        .HasSupportsValueRevealer()
+                        .OnlyAcceptsNullableStructs()
+                select new object[] { fe, scaffoldToCall });
+
+    [TestMethod]
+    [DynamicData(nameof(FilteredCloakedBearerCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredCompactLogCloakedBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -448,7 +511,7 @@ public partial class OrderedCollectionMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactLog(BoolCollectionsTestData.AllBoolCollectionExpectations[3], ScaffoldingRegistry.AllScaffoldingTypes[1]);
+        SharedCompactLog(CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations[9], ScaffoldingRegistry.AllScaffoldingTypes[29]);
     }
 
     private void SharedCompactLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -481,9 +544,18 @@ public partial class OrderedCollectionMoldTests
             return string.Format(compactLogTemplate, className, expectValue);
         }
 
+        string BuildChildExpectedOutput(string className, string propertyName
+          , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
+        {
+            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            if (expectValue == IFormatExpectation.NoResultExpectedValue)
+            { expectValue = ""; }
+            return expectValue;
+        }
+
         if (formatExpectation is IComplexFieldFormatExpectation complexFieldExpectation)
         {
-            complexFieldExpectation.WhenValueExpectedOutput = BuildExpectedOutput;
+            complexFieldExpectation.WhenValueExpectedOutput = BuildChildExpectedOutput;
         }
         tos.Clear();
         var stringBearer = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall, tos.Settings);

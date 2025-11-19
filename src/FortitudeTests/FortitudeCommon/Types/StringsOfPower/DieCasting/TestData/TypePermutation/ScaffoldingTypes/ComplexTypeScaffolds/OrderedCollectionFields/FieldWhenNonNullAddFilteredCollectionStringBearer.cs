@@ -171,7 +171,7 @@ public class FieldCloakedBearerNullableClassSpanWhenNonNullAddFilteredStringBear
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealFilteredNullable
+           .CollectionField.WhenNonNullRevealFiltered
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerNullableSpan)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerNullableSpan.AsSpan()
               , ElementPredicate, ValueRevealer)
@@ -241,7 +241,7 @@ public class FieldStringBearerNullableClassSpanWhenNonNullAddFilteredStringBeare
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealFilteredNullable
+           .CollectionField.WhenNonNullRevealFiltered
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerNullableSpan)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerNullableSpan.AsSpan()
               , ElementPredicate)
@@ -665,7 +665,7 @@ public class FieldCloakedBearerNullableClassReadOnlySpanWhenNonNullAddFilteredSt
     
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealFilteredNullable
+           .CollectionField.WhenNonNullRevealFiltered
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerNullableReadOnlySpan)
               , (ReadOnlySpan<TCloaked?>)ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerNullableReadOnlySpan
               , ElementPredicate, ValueRevealer)
@@ -736,7 +736,7 @@ public class FieldStringBearerNullableClassReadOnlySpanWhenNonNullAddFilteredStr
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealFilteredNullable
+           .CollectionField.WhenNonNullRevealFiltered
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerNullableReadOnlySpan)
               , (ReadOnlySpan<TBearer?>)ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerNullableReadOnlySpan
               , ElementPredicate)

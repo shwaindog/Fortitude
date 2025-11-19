@@ -39,9 +39,11 @@ public enum FieldContentHandling : ulong
   , EnsureMlFormatting       = 0x00_80_00_00 // Not implemented just reserving
   , EnsureDiagraphFormatting = 0x01_00_00_00 // Not implemented just reserving
   , EnsureCompact            = 0x02_00_00_00
+  , OnOneLine                = 0x02_00_00_00
+  , PrettyTreatAsCompact     = 0x02_00_00_00
   , EnsurePretty             = 0x04_00_00_00
   , FormattingMask           = 0x07_F0_00_00
-  , AsEmbeddedContent        = 0x08_00_00_00
+  , TempAlwaysExclude        = 0x08_00_00_00
 
   , ExcludeWhenPretty        = 0x01_00_00_00_00
   , ExcludeWhenCompact       = 0x02_00_00_00_00
@@ -51,29 +53,31 @@ public enum FieldContentHandling : ulong
   , ExcludeWhenMlLStyle      = 0x20_00_00_00_00 // Not implemented just reserving          
   , ExcludeWhenDiagraphStyle = 0x40_00_00_00_00
   , ExcludeMask              = 0x4F_80_00_00_00
-  , LogSuppressTypeNames     = 0x80_00_00_00_00
+  , NoRevisitCheck           = 0x80_00_00_00_00
 
-  , NoRevisitCheck              = 0x00_01_00_00_00_00_00
-  , ContentAllowAnyValueType    = 0x00_02_00_00_00_00_00
-  , ContentAllowNumber          = 0x00_04_00_00_00_00_00
-  , ContentAllowRawGraphNode    = 0x00_08_00_00_00_00_00
-  , ContentAllowText            = 0x00_10_00_00_00_00_00
-  , ValidateValueType           = 0x00_20_00_00_00_00_00
-  , ValidateNumber              = 0x00_40_00_00_00_00_00
-  , ValidateNotNull             = 0x00_80_00_00_00_00_00
-  , ValidateNotEmpty            = 0x01_00_00_00_00_00_00
-  , AsCollection                = 0x02_00_00_00_00_00_00
-  , ContentMismatchViolationOn  = 0x04_00_00_00_00_00_00
-  , ContentMismatchViolationOff = 0x08_00_00_00_00_00_00
-  , PrettyTreatAsCompact        = 0x10_00_00_00_00_00_00
-  , PrettyNewLinePerElement     = 0x20_00_00_00_00_00_00
-  , PrettyElementWrapAtWidth    = 0x40_00_00_00_00_00_00
-  , PrettyTextWrapAtWidth       = 0x80_00_00_00_00_00_00
+  , LogSuppressTypeNames        = 0x00_01_00_00_00_00_00
+  , AddTypeNameField            = 0x00_02_00_00_00_00_00
+  , AlignColumns                = 0x00_04_00_00_00_00_00
+  , ContentAllowAnyValueType    = 0x00_08_00_00_00_00_00
+  , ContentAllowNumber          = 0x00_10_00_00_00_00_00
+  , ContentAllowRawGraphNode    = 0x00_20_00_00_00_00_00
+  , ContentAllowText            = 0x00_40_00_00_00_00_00
+  , ValidateValueType           = 0x00_80_00_00_00_00_00
+  , ValidateNumber              = 0x01_00_00_00_00_00_00
+  , ValidateNotNull             = 0x02_00_00_00_00_00_00
+  , ValidateNotEmpty            = 0x04_00_00_00_00_00_00
+  , AsCollection                = 0x08_00_00_00_00_00_00
+  , ContentMismatchViolationOn  = 0x10_00_00_00_00_00_00
+  , ContentMismatchViolationOff = 0x20_00_00_00_00_00_00
+  , PrettyWrapAtLineWidth       = 0x40_00_00_00_00_00_00
+  , PrettyWrapAtContentWidth    = 0x80_00_00_00_00_00_00
     
-  , TempAlwaysExclude           = 0x01_00_00_00_00_00_00_00
-  , ViolationThrowsException    = 0x02_00_00_00_00_00_00_00
-  , ViolationWritesAlert        = 0x04_00_00_00_00_00_00_00
-  , ViolationDebuggerBreak      = 0x08_00_00_00_00_00_00_00   
+  , ViolationThrowsException = 0x01_00_00_00_00_00_00_00
+  , ViolationWritesAlert     = 0x02_00_00_00_00_00_00_00
+  , ViolationDebuggerBreak   = 0x04_00_00_00_00_00_00_00
+  , SuppressOpening          = 0x08_00_00_00_00_00_00_00  
+  , SuppressClosing          = 0x10_00_00_00_00_00_00_00  
+  , AsEmbeddedContent        = 0x18_00_00_00_00_00_00_00  
 }
 
 public static class FieldContentHandlingExtensions
@@ -108,8 +112,8 @@ public static class FieldContentHandlingExtensions
     public static bool HasEnsureCompactFlag(this FieldContentHandling flags)                => (flags & EnsureCompact) > 0;
     public static bool DoesNotHaveEnsureCompactFlag(this FieldContentHandling flags)        => (flags & EnsureCompact) == 0;
     public static bool HasEnsurePrettyFlag(this FieldContentHandling flags)                 => (flags & EnsurePretty) > 0;
-    public static bool HasAsEmbeddedContentFlag(this FieldContentHandling flags)            => (flags & AsEmbeddedContent) > 0;
-    public static bool DoesNotHaveAsEmbeddedContentFlag(this FieldContentHandling flags)    => (flags & AsEmbeddedContent) == 0;
+    public static bool HasAsEmbeddedContentFlags(this FieldContentHandling flags)            => (flags & AsEmbeddedContent) == AsEmbeddedContent;
+    public static bool DoesNotHaveAsEmbeddedContentFlags(this FieldContentHandling flags)    => (flags & AsEmbeddedContent) != AsEmbeddedContent;
     public static bool HasExcludeWhenLogStyleFlag(this FieldContentHandling flags)          => (flags & ExcludeWhenLogStyle) > 0;
     public static bool HasExcludeWhenJsonStyleFlag(this FieldContentHandling flags)         => (flags & ExcludeWhenJsonStyle) > 0;
     public static bool HasExcludeWhenYamlStyleFlag(this FieldContentHandling flags)         => (flags & ExcludeWhenYamlStyle) > 0;
@@ -118,6 +122,7 @@ public static class FieldContentHandlingExtensions
     public static bool HasExcludeWhenCompactFlag(this FieldContentHandling flags)           => (flags & ExcludeWhenCompact) > 0;
     public static bool HasDisableAutoDelimiting(this FieldContentHandling flags)            => (flags & DisableAutoDelimiting) > 0;
     public static bool ShouldDelimit(this FieldContentHandling flags)                       => (flags & EnsureFormattedDelimited) > 0;
+    public static bool DoesNotHaveLogSuppressTypeNamesFlag(this FieldContentHandling flags) => (flags & LogSuppressTypeNames) == 0;
 
     public static StringStyle UpdateStringStyle(this FieldContentHandling flags, StringStyle existingStyle)
     {

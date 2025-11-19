@@ -84,7 +84,7 @@ public abstract class FormattedFilteredCollectionFieldMoldScaffold<TValue, TValu
 
 public abstract class RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TRevealBase, TCollection> : 
     RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase, TCollection>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
-    where TCloaked : TCloakedFilterBase
+    where TCloaked : TCloakedFilterBase?
     where TCollection : IEnumerable<TCloaked>
     where TRevealBase : notnull
 {

@@ -126,17 +126,17 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : TypeM
     }
 
     public TExt AlwaysAddAll<TKey, TValue, TVRevealBase>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value
+    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-         where TValue : TVRevealBase  
+         where TValue : TVRevealBase?  
          where TVRevealBase : notnull =>
         AlwaysAddAllEnumerate(fieldName, value, valueRevealer, keyFormatString);
 
-    public TExt AlwaysAddAll<TKey, TValue, TVRevealBase>(string fieldName, KeyValuePair<TKey, TValue?>[]? value
+    public TExt AlwaysAddAll<TKey, TValue, TVRevealBase>(string fieldName, KeyValuePair<TKey, TValue>[]? value
           , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : TVRevealBase
+        where TValue : TVRevealBase?
         where TVRevealBase : notnull 
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -157,10 +157,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : TypeM
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAll<TKey, TValue, TVRevealBase>(string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue?>>? value
+    public TExt AlwaysAddAll<TKey, TValue, TVRevealBase>(string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
           , PalantírReveal<TVRevealBase> valueRevealer
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : TVRevealBase
+        where TValue : TVRevealBase?
         where TVRevealBase : notnull 
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -181,10 +181,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : TypeM
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAllEnumerate<TKey, TValue, TVRevealBase>(string fieldName, IEnumerable<KeyValuePair<TKey, TValue?>>? value
+    public TExt AlwaysAddAllEnumerate<TKey, TValue, TVRevealBase>(string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
           , PalantírReveal<TVRevealBase> valueRevealer
           , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : TVRevealBase
+        where TValue : TVRevealBase?
         where TVRevealBase : notnull 
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -203,9 +203,9 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : TypeM
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAllEnumerate<TKey, TValue, TVRevealBase>(string fieldName, IEnumerator<KeyValuePair<TKey, TValue?>>? value
+    public TExt AlwaysAddAllEnumerate<TKey, TValue, TVRevealBase>(string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
           , PalantírReveal<TVRevealBase> valueRevealer, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
-        where TValue : TVRevealBase
+        where TValue : TVRevealBase?
         where TVRevealBase : notnull 
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -227,18 +227,18 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : TypeM
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAll<TKey, TValue, TKRevealBase, TVRevealBase>(string fieldName, IReadOnlyDictionary<TKey, TValue?>? value
+    public TExt AlwaysAddAll<TKey, TValue, TKRevealBase, TVRevealBase>(string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
-        where TKey : TKRevealBase 
-        where TValue : TVRevealBase 
+        where TKey : TKRevealBase? 
+        where TValue : TVRevealBase? 
         where TKRevealBase : notnull 
         where TVRevealBase : notnull =>
         AlwaysAddAllEnumerate(fieldName, value, valueRevealer, keyRevealer);
 
-    public TExt AlwaysAddAll<TKey, TValue, TKRevealBase, TVRevealBase>(string fieldName, KeyValuePair<TKey, TValue?>[]? value
+    public TExt AlwaysAddAll<TKey, TValue, TKRevealBase, TVRevealBase>(string fieldName, KeyValuePair<TKey, TValue>[]? value
           , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
-        where TKey : TKRevealBase 
-        where TValue : TVRevealBase
+        where TKey : TKRevealBase?
+        where TValue : TVRevealBase?
         where TKRevealBase : notnull
         where TVRevealBase : notnull 
     {
@@ -260,10 +260,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : TypeM
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAll<TKey, TValue, TKRevealBase, TVRevealBase>(string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue?>>? value
+    public TExt AlwaysAddAll<TKey, TValue, TKRevealBase, TVRevealBase>(string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value
           , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
-        where TKey : TKRevealBase 
-        where TValue : TVRevealBase
+        where TKey : TKRevealBase? 
+        where TValue : TVRevealBase?
         where TKRevealBase : notnull
         where TVRevealBase : notnull 
     {
@@ -285,10 +285,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : TypeM
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAllEnumerate<TKey, TValue, TKRevealBase, TVRevealBase> (string fieldName, IEnumerable<KeyValuePair<TKey, TValue?>>? value
+    public TExt AlwaysAddAllEnumerate<TKey, TValue, TKRevealBase, TVRevealBase> (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value
           , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
-        where TKey : TKRevealBase 
-        where TValue : TVRevealBase
+        where TKey : TKRevealBase? 
+        where TValue : TVRevealBase?
         where TKRevealBase : notnull
         where TVRevealBase : notnull 
     {
@@ -309,10 +309,10 @@ public partial class SelectTypeKeyValueCollectionField<TExt>  where TExt : TypeM
     }
 
     public TExt AlwaysAddAllEnumerate<TKey, TValue, TKRevealBase, TVRevealBase>(string fieldName
-      , IEnumerator<KeyValuePair<TKey, TValue?>>? value
+      , IEnumerator<KeyValuePair<TKey, TValue>>? value
           , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
-        where TKey : TKRevealBase 
-        where TValue : TVRevealBase
+        where TKey : TKRevealBase? 
+        where TValue : TVRevealBase?
         where TKRevealBase : notnull
         where TVRevealBase : notnull 
     {

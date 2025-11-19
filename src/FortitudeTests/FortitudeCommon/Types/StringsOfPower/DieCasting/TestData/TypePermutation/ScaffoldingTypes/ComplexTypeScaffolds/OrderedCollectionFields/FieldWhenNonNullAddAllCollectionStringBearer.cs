@@ -155,7 +155,7 @@ public class FieldCloakedBearerNullableClassSpanWhenNonNullAddAllStringBearer<TC
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealAllNullable
+           .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerNullableSpan)
               , ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerNullableSpan.AsSpan()
               , ValueRevealer)
@@ -219,7 +219,7 @@ public class FieldStringBearerNullableClassSpanWhenNonNullAddAllStringBearer<TBe
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealAllNullable
+           .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerSpan)
               , ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerSpan.AsSpan())
            .Complete();
@@ -606,7 +606,7 @@ public class FieldCloakedBearerNullableClassReadOnlySpanWhenNonNullAddAllStringB
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealAllNullable
+           .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerNullableSpan)
               , (ReadOnlySpan<TCloaked?>)ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerNullableSpan.AsSpan()
               , ValueRevealer)
@@ -672,7 +672,7 @@ public class
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealAllNullable
+           .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerReadOnlySpan)
               , (ReadOnlySpan<TBearer?>)ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerReadOnlySpan)
            .Complete();

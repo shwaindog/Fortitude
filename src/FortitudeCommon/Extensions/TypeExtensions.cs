@@ -418,6 +418,12 @@ public static class TypeExtensions
                 sb.Append(typeName);
             return sb;
         }
+        else if (nameToPrint.IsArray)
+        {
+            var arrayElement = nameToPrint.GetElementType();
+            arrayElement!.AppendShortNameInCSharpFormat(sb, false);
+            return sb.Append("[]");
+        }
         return sb.Append(typeName);
     }
 

@@ -1,12 +1,10 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Collections;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
-using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
@@ -19,6 +17,9 @@ public interface IOrderedListExpect : IFormatExpectation
 {
     bool ElementTypeIsNullable { get; }
     bool ElementTypeIsStruct { get; }
+    
+    bool ElementTypeIsNullableStruct { get; }
+    bool ElementTypeIsNotNullableStruct { get; }
     Type ElementTypeScaffoldType { get; }
     Type ElementType { get; }
 
@@ -60,7 +61,7 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
                name
             ?? ((elementFilterExpression?.Body as MemberExpression)?.Member.Name)
             ?? (inputList != null
-                   ? $"List<{typeof(TInputElement).ShortNameInCSharpFormat()}> {{ Count: {inputList?.Count ?? 0}}}"
+                   ? $"List<{typeof(TInputElement).ShortNameInCSharpFormat()}> {{ Count: {inputList.Count}}}"
                    : null), srcFile, srcLine)
     {
         if (elementFilterExpression != null)
@@ -76,6 +77,8 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
     public override bool InputIsEmpty => (Input?.Count ?? 0) >= 0;
 
     public bool ElementTypeIsNullable => ElementType.IsNullable() || ContainsNullElements;
+    public bool ElementTypeIsNullableStruct => ElementType.IsNullable();
+    public bool ElementTypeIsNotNullableStruct => !ElementTypeIsNullableStruct;
     public bool ElementTypeIsClass => !ElementTypeIsStruct;
     public bool ElementTypeIsStruct => ElementType.IsValueType;
 
@@ -86,7 +89,7 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
 
     public Type ElementType => elementType ??= typeof(TInputElement);
     public Type ElementTypeScaffoldType =>
-        ElementType.IsNullableSpanFormattable()
+        ElementType.IsNullable()
             ? ElementType.IfNullableGetUnderlyingTypeOrThis()
             : ElementType;
 
@@ -168,22 +171,13 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
         return createdStringBearer;
     }
 
-    public override string ToString()
+    protected override void AdditionalToStringExpectFields(IStringBuilder sb)
     {
-        var sb = new MutableString();
-        sb.Append(base.ToString());
         if (filterName != null)
         {
             sb.Append(", FilterName: ")
               .Append(filterName);
         }
-        sb.AppendLine();
-        sb.AppendLine("ExpectedResults");
-        var count = 0;
-        foreach (var keyValuePair in ExpectedResults)
-        {
-            sb.Append(count++).Append(" - ").Append("{ ").Append(keyValuePair.Key).Append(", >").Append(keyValuePair.Value).AppendLine("< }");
-        }
-        return sb.ToString();
+        AddExpectedResultsList(sb);
     }
 };

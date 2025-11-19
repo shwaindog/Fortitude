@@ -66,7 +66,7 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
 
     public StyleOptions Settings => PortableState.Master.Settings;
 
-    public string TypeName => PortableState.TypeName;
+    public string? TypeName => PortableState.TypeName;
 
     public abstract bool IsComplexType { get; }
 
@@ -95,7 +95,7 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
         public MoldDieCastSettings AppenderSettings;
 
         public Type TypeBeingBuilt { get; set; } = null!;
-        public string? TypeName { get; set; } = null!;
+        public string? TypeName { get; set; }
 
         public IStyledTypeFormatting TypeFormatting { get; set; } = null!;
         public int ExistingRefId { get; set; }
@@ -294,12 +294,12 @@ public static class StyledTypeBuilderExtensions
         using (callContext) { return stb.RevealCloakedBearerOrNull(value, cloakedRevealer, formatFlags, isKeyName); }
     }
 
-    public static ITypeMolderDieCast<TExt> RevealCloakedBearerOrNull<TCloaked, TCloakedBase, TExt>(this ITypeMolderDieCast<TExt> stb
-      , TCloaked? value, PalantírReveal<TCloakedBase> styler, FieldContentHandling formatFlags = DefaultCallerTypeFlags
+    public static ITypeMolderDieCast<TExt> RevealCloakedBearerOrNull<TCloaked, TRevealBase, TExt>(this ITypeMolderDieCast<TExt> stb
+      , TCloaked? value, PalantírReveal<TRevealBase> styler, FieldContentHandling formatFlags = DefaultCallerTypeFlags
       , bool isKeyName = false) 
-        where TCloaked : TCloakedBase 
+        where TCloaked : TRevealBase? 
         where TExt : TypeMolder
-        where TCloakedBase : notnull
+        where TRevealBase : notnull
     {
         var sb = stb.Sb;
         if (value != null)
@@ -368,7 +368,7 @@ public static class StyledTypeBuilderExtensions
     public static ITypeMolderDieCast<TExt> RevealStringBearerOrNull<TExt, TBearer>(this ITypeMolderDieCast<TExt> stb
       , TBearer? value, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool isKeyName = false) 
         where TExt : TypeMolder
-        where TBearer : IStringBearer
+        where TBearer : IStringBearer?
     {
         var sb = stb.Sb;
         if (value != null)

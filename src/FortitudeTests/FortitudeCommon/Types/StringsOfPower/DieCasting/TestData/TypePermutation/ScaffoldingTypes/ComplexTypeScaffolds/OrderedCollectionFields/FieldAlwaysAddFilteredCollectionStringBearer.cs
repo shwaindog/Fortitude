@@ -172,7 +172,7 @@ public class FieldCloakedBearerNullableClassSpanAlwaysAddFilteredStringBearer<TC
     
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFilteredNullable
+           .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerNullableSpan)
               , ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerNullableSpan.AsSpan()
               , ElementPredicate, ValueRevealer)
@@ -180,7 +180,7 @@ public class FieldCloakedBearerNullableClassSpanAlwaysAddFilteredStringBearer<TC
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate 
-                | AcceptsAnyExceptNullableStruct | SupportsValueRevealer)]
+                | AcceptsAnyNullableStruct | SupportsValueRevealer)]
 public class FieldNullableCloakedBearerSpanAlwaysAddFilteredStringBearer<TCloakedStruct> : 
     RevealerFilteredCollectionFieldMoldScaffold<TCloakedStruct?, TCloakedStruct?, TCloakedStruct, TCloakedStruct?[]> where TCloakedStruct : struct
 {
@@ -241,7 +241,7 @@ public class FieldStringBearerNullableClassSpanAlwaysAddFilteredStringBearer<TBe
     
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFilteredNullable
+           .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerNullableSpan)
               , ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerNullableSpan.AsSpan()
               , ElementPredicate)
@@ -680,7 +680,7 @@ public class FieldCloakedBearerNullableClassReadOnlySpanAlwaysAddFilteredStringB
     
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFilteredNullable
+           .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerNullableReadOnlySpan)
               , (ReadOnlySpan<TCloaked?>)ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerNullableReadOnlySpan
               , ElementPredicate, ValueRevealer)
@@ -751,7 +751,7 @@ public class FieldStringBearerNullableClassReadOnlySpanAlwaysAddFilteredStringBe
     
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFilteredNullable
+           .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerNullableReadOnlySpan)
               , (ReadOnlySpan<TBearer?>)ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerNullableReadOnlySpan
               , ElementPredicate)
