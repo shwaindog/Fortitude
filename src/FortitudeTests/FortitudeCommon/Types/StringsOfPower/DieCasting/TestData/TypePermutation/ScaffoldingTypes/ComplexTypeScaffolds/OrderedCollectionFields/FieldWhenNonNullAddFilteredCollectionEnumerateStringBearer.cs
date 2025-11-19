@@ -107,7 +107,7 @@ public class FieldNullableSpanFormattableEnumerableWhenNonNullAddFilteredStringB
                   SupportsValueRevealer)]
 public class FieldCloakedBearerEnumerableWhenNonNullAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TRevealBase> : 
     RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TRevealBase, IEnumerable<TCloaked>>
-       where TCloaked : TRevealBase, TCloakedFilterBase
+       where TCloaked : TRevealBase?, TCloakedFilterBase?
        where TRevealBase : notnull
 {
     public IEnumerable<TCloaked>? ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerEnumerable
@@ -120,7 +120,7 @@ public class FieldCloakedBearerEnumerableWhenNonNullAddFilteredStringBearer<TClo
     
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFilteredEnumerate
+           .CollectionField.WhenNonNullRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerEnumerable, ElementPredicate
               , ValueRevealer)
@@ -143,7 +143,7 @@ public class FieldNullableCloakedBearerEnumerableWhenNonNullAddFilteredStringBea
     
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFilteredEnumerate
+           .CollectionField.WhenNonNullRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCloakedBearerEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCloakedBearerEnumerable
               , ElementPredicate, ValueRevealer)
@@ -167,7 +167,7 @@ public class FieldStringBearerEnumerableWhenNonNullAddFilteredStringBearer<TBear
     
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFilteredEnumerate
+           .CollectionField.WhenNonNullRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerEnumerable, ElementPredicate)
            .Complete();
@@ -190,7 +190,7 @@ public class FieldNullableStringBearerEnumerableWhenNonNullAddFilteredStringBear
     
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFilteredEnumerate
+           .CollectionField.WhenNonNullRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringBearerEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringBearerEnumerable, ElementPredicate)
            .Complete();
@@ -431,7 +431,7 @@ public class FieldCloakedBearerEnumeratorWhenNonNullAddFilteredStringBearer<TClo
     
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFilteredEnumerate
+           .CollectionField.WhenNonNullRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerEnumerator, ElementPredicate
               , ValueRevealer)
@@ -454,7 +454,7 @@ public class FieldNullableCloakedBearerEnumeratorWhenNonNullAddFilteredStringBea
     
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFilteredEnumerate
+           .CollectionField.WhenNonNullRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCloakedBearerEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCloakedBearerEnumerator
               , ElementPredicate, ValueRevealer)
@@ -478,7 +478,7 @@ public class FieldStringBearerEnumeratorWhenNonNullAddFilteredStringBearer<TBear
     
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFilteredEnumerate
+           .CollectionField.WhenNonNullRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerEnumerator, ElementPredicate)
            .Complete();
@@ -501,7 +501,7 @@ public class FieldNullableStringBearerEnumeratorWhenNonNullAddFilteredStringBear
     
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFilteredEnumerate
+           .CollectionField.WhenNonNullRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringBearerEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringBearerEnumerator, ElementPredicate)
            .Complete();

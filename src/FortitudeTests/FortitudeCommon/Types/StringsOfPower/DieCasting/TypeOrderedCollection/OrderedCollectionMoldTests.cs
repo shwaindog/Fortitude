@@ -380,7 +380,7 @@ public partial class OrderedCollectionMoldTests
     
     private static IEnumerable<object[]> UnfilteredCloakedBearerCollectionExpect =>
         (from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
-            where fe is {ContainsNullElements : false,  HasRestrictingFilter: false } 
+            where fe is {ElementTypeIsClass: true, ContainsNullElements : false,  HasRestrictingFilter: false } 
             from scaffoldToCall in 
                 scafReg
                     .IsOrderedCollectionType()
@@ -390,13 +390,23 @@ public partial class OrderedCollectionMoldTests
             select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
-                where fe is {ContainsNullElements : true, HasRestrictingFilter : false }   
+                where fe is {ElementTypeIsClass: true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
                     scafReg
                         .IsOrderedCollectionType()
                         .NoFilterPredicate()
                         .HasSupportsValueRevealer()
                         .AcceptsNullableClasses()
+                select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
+                where fe is {ElementTypeIsNullableStruct: true, HasRestrictingFilter : false }   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsOrderedCollectionType()
+                        .NoFilterPredicate()
+                        .HasSupportsValueRevealer()
+                        .OnlyAcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall });
 
 
@@ -410,7 +420,7 @@ public partial class OrderedCollectionMoldTests
 
     private static IEnumerable<object[]> FilteredCloakedBearerCollectionExpect =>
         (from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
-            where fe is {ContainsNullElements : false,  HasRestrictingFilter: true } 
+            where fe is {ElementTypeIsNullable: false, ContainsNullElements : false,  HasRestrictingFilter: true } 
             from scaffoldToCall in 
                 scafReg
                     .IsOrderedCollectionType()
@@ -420,13 +430,23 @@ public partial class OrderedCollectionMoldTests
             select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
-                where fe is {ContainsNullElements : true, HasRestrictingFilter : true }   
+                where fe is {ElementTypeIsClass: true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
                     scafReg
                         .IsOrderedCollectionType()
                         .HasFilterPredicate()
                         .HasSupportsValueRevealer()
                         .AcceptsNullableClasses()
+                select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
+                where fe is {ElementTypeIsNullableStruct: true, HasRestrictingFilter : true }   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsOrderedCollectionType()
+                        .HasFilterPredicate()
+                        .HasSupportsValueRevealer()
+                        .OnlyAcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall });
 
     [TestMethod]
@@ -491,7 +511,7 @@ public partial class OrderedCollectionMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactLog(BoolCollectionsTestData.AllBoolCollectionExpectations[3], ScaffoldingRegistry.AllScaffoldingTypes[1]);
+        SharedCompactLog(CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations[9], ScaffoldingRegistry.AllScaffoldingTypes[29]);
     }
 
     private void SharedCompactLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -527,15 +547,10 @@ public partial class OrderedCollectionMoldTests
         string BuildChildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            const string compactLogTemplate = "{0} {{ {1}}}";
-
             var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
-            if (expectValue != IFormatExpectation.NoResultExpectedValue)
-            {
-                expectValue = propertyName + ": " + expectValue + (expectValue.Length > 0 ? " " : "");
-            }
-            else { expectValue = ""; }
-            return string.Format(compactLogTemplate, className, expectValue);
+            if (expectValue == IFormatExpectation.NoResultExpectedValue)
+            { expectValue = ""; }
+            return expectValue;
         }
 
         if (formatExpectation is IComplexFieldFormatExpectation complexFieldExpectation)

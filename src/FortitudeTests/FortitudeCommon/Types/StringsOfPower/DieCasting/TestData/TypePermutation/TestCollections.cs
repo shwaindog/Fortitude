@@ -673,8 +673,8 @@ public static class TestCollections
         return withNulls;
     });
 
-    public static PalantírReveal<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>> StringBearerStructListAsValueRevealer =
-        (showMe, tos) => tos.StartSimpleValueType(showMe).RevealAsValue("", showMe);
+    public static PalantírReveal<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>> StringBearerStructListRevealer =
+        (showMe, tos) => showMe.RevealState(tos);
 
     public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>> StringBearerStructList_Lt_20 =
         (_, item) => EvaluateIsIncludedAndContinue(item.Value < 20);

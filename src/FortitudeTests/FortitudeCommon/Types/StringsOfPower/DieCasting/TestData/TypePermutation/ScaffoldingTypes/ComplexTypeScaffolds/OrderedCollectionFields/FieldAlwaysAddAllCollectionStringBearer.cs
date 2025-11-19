@@ -159,7 +159,7 @@ public class FieldCloakedBearerNullableClassSpanAlwaysAddAllStringBearer<TCloake
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllNullable
+           .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerNullableSpan)
               , ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerNullableSpan.AsSpan(), ValueRevealer)
            .Complete();
@@ -224,7 +224,7 @@ public class FieldStringBearerNullableClassSpanAlwaysAddAllStringBearer<TBearer>
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllNullable
+           .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerSpan)
               , ComplexTypeCollectionFieldAlwaysAddAllStringBearerSpan.AsSpan())
            .Complete();
@@ -617,7 +617,7 @@ public class FieldCloakedBearerNullableClassReadOnlySpanAlwaysAddAllStringBearer
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllNullable
+           .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerNullableSpan)
               , (ReadOnlySpan<TCloaked?>)ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerNullableSpan.AsSpan()
               , ValueRevealer)
@@ -684,7 +684,7 @@ public class FieldStringBearerNullableClassReadOnlySpanAlwaysAddAllStringBearer<
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllNullable
+           .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerReadOnlySpan)
               , (ReadOnlySpan<TBearer?>)ComplexTypeCollectionFieldAlwaysAddAllStringBearerReadOnlySpan)
            .Complete();

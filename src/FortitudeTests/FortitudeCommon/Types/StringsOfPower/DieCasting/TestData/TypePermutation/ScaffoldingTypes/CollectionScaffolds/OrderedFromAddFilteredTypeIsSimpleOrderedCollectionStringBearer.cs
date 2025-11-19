@@ -793,7 +793,7 @@ public class OrderedFromNullableCloakedBearerEnumerableRevealFilteredSimpleOrder
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllEnumerate(OrderedCollectionRevealFilteredNullableCloakedBearerEnumerable, ValueRevealer)
+           .RevealFilteredEnumerate(OrderedCollectionRevealFilteredNullableCloakedBearerEnumerable, ElementPredicate, ValueRevealer)
            .Complete();
 }
 

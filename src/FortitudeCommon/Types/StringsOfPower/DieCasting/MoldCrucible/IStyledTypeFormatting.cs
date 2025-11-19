@@ -88,7 +88,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     IStringBuilder CollectionNextItemFormat<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked? item
       , int retrieveCount, PalantírReveal<TCloakedBase> styler)
-      where TCloaked : TCloakedBase
+      where TCloaked : TCloakedBase?
       where TCloakedBase : notnull;
 
     IStringBuilder CollectionNextItemFormat(IStringBuilder sb, string? item, int retrieveCount, string? formatString = null

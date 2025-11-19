@@ -156,7 +156,7 @@ public class FieldCloakedBearerNullableClassSpanWhenPopulatedAddAllStringBearer<
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedRevealAllNullable
+           .CollectionField.WhenPopulatedRevealAll
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllCloakedBearerNullableSpan)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllCloakedBearerNullableSpan.AsSpan()
               , ValueRevealer)
@@ -221,7 +221,7 @@ public class FieldStringBearerNullableClassSpanWhenPopulatedAddAllStringBearer<T
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedRevealAllNullable
+           .CollectionField.WhenPopulatedRevealAll
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllStringBearerSpan)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllStringBearerSpan.AsSpan())
            .Complete();
@@ -614,7 +614,7 @@ public class FieldCloakedBearerNullableClassReadOnlySpanWhenPopulatedAddAllStrin
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedRevealAllNullable
+           .CollectionField.WhenPopulatedRevealAll
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllCloakedBearerNullableSpan)
               , (ReadOnlySpan<TCloaked?>)ComplexTypeCollectionFieldWhenPopulatedAddAllCloakedBearerNullableSpan.AsSpan()
               , ValueRevealer)
@@ -622,7 +622,7 @@ public class FieldCloakedBearerNullableClassReadOnlySpanWhenPopulatedAddAllStrin
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites 
-                | AcceptsAnyExceptNullableStruct | SupportsValueRevealer)]
+                | AcceptsAnyNullableStruct | SupportsValueRevealer)]
 public class FieldNullableCloakedBearerReadOnlySpanWhenPopulatedAddAllStringBearer<TCloakedStruct> : 
     RevealerCollectionFieldMoldScaffold<TCloakedStruct?, TCloakedStruct, TCloakedStruct?[]> where TCloakedStruct : struct
 {
@@ -679,7 +679,7 @@ public class FieldStringBearerNullableClassReadOnlySpanWhenPopulatedAddAllString
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedRevealAllNullable
+           .CollectionField.WhenPopulatedRevealAll
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllStringBearerReadOnlySpan)
               , (ReadOnlySpan<TBearer?>)ComplexTypeCollectionFieldWhenPopulatedAddAllStringBearerReadOnlySpan)
            .Complete();

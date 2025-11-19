@@ -17,6 +17,9 @@ public interface IOrderedListExpect : IFormatExpectation
 {
     bool ElementTypeIsNullable { get; }
     bool ElementTypeIsStruct { get; }
+    
+    bool ElementTypeIsNullableStruct { get; }
+    bool ElementTypeIsNotNullableStruct { get; }
     Type ElementTypeScaffoldType { get; }
     Type ElementType { get; }
 
@@ -74,6 +77,8 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
     public override bool InputIsEmpty => (Input?.Count ?? 0) >= 0;
 
     public bool ElementTypeIsNullable => ElementType.IsNullable() || ContainsNullElements;
+    public bool ElementTypeIsNullableStruct => ElementType.IsNullable();
+    public bool ElementTypeIsNotNullableStruct => !ElementTypeIsNullableStruct;
     public bool ElementTypeIsClass => !ElementTypeIsStruct;
     public bool ElementTypeIsStruct => ElementType.IsValueType;
 
@@ -84,7 +89,7 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
 
     public Type ElementType => elementType ??= typeof(TInputElement);
     public Type ElementTypeScaffoldType =>
-        ElementType.IsNullableSpanFormattable()
+        ElementType.IsNullable()
             ? ElementType.IfNullableGetUnderlyingTypeOrThis()
             : ElementType;
 

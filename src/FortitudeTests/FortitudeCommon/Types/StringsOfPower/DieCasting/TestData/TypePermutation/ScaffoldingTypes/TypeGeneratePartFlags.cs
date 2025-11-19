@@ -107,6 +107,10 @@ public static class ScaffoldingStringBuilderInvokeFlagsExtensions
     public static bool HasKeyedCollectionTypeFlag(this ScaffoldingStringBuilderInvokeFlags flags) =>
         (flags & KeyedCollectionType) > 0;
 
+    public static bool HasCallsAsReadOnlySpan(this ScaffoldingStringBuilderInvokeFlags flags) => (flags & CallsAsReadOnlySpan) > 0;
+
+    public static bool HasCallsAsSpan(this ScaffoldingStringBuilderInvokeFlags flags) => (flags & CallsAsSpan) > 0;
+
     public static bool DoesNotHaveKeyedCollectionTypeFlag(this ScaffoldingStringBuilderInvokeFlags flags) =>
         (flags & KeyedCollectionType) == 0;
 
@@ -121,6 +125,10 @@ public static class ScaffoldingStringBuilderInvokeFlagsExtensions
     public static bool HasCallsUsingObject(this ScaffoldingStringBuilderInvokeFlags flags)      => (flags & CallsUsingObject) > 0;
     public static bool IsNotAcceptsAnyGeneric(this ScaffoldingStringBuilderInvokeFlags flags)   => !flags.HasAllOf(AcceptsAnyGeneric);
     public static bool HasAcceptsNullableStruct(this ScaffoldingStringBuilderInvokeFlags flags) => (flags & AcceptsNullableStruct) > 0;
+    
+    public static bool OnlyAcceptsNullableStruct(this ScaffoldingStringBuilderInvokeFlags flags) => 
+        flags.HasAcceptsNullableStruct() && flags.HasNoneOf(AcceptsStruct | AcceptsClass | AcceptsNullableClass);
+    
     public static bool HasAcceptsNullableClass(this ScaffoldingStringBuilderInvokeFlags flags)  => (flags & AcceptsNullableClass) > 0;
 
     public static bool HasAcceptsNullables(this ScaffoldingStringBuilderInvokeFlags flags) =>

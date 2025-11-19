@@ -110,7 +110,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        palantírReveal(element, CompAsOrderedCollection.Master);
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection.Master, element, ++elementCount, palantírReveal);
         return AppendNextCollectionItemSeparator();
     }
 
@@ -128,7 +128,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        palantírReveal(element.Value, CompAsOrderedCollection.Master);
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection.Master, element.Value, ++elementCount, palantírReveal);
         return AppendNextCollectionItemSeparator();
     }
 

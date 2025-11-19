@@ -163,34 +163,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealAll<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, Span<TCloaked> value
       , PalantírReveal<TRevealBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
-        where TCloaked : TRevealBase
-        where TRevealBase : notnull
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        stb.FieldNameJoin(fieldName);
-        var collectionType = typeof(Span<TRevealBase>);
-        var elementType    = typeof(TRevealBase);
-        if (value.Length == 0)
-        {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
-        }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.RevealCloakedBearerOrNull(item, palantírReveal, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, "", formatFlags);
-        return stb.AddGoToNext();
-    }
-
-    public TExt AlwaysRevealAllNullable<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, Span<TCloaked?> value
-      , PalantírReveal<TRevealBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
-        where TCloaked : class?, TRevealBase?
+        where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -242,33 +215,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealAll<TBearer>(ReadOnlySpan<char> fieldName, Span<TBearer> value, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TBearer : IStringBearer
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        stb.FieldNameJoin(fieldName);
-        var collectionType = typeof(Span<TBearer>);
-        var elementType    = typeof(TBearer);
-        if (value.Length == 0)
-        {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
-        }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.RevealStringBearerOrNull(item);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, "", formatFlags);
-        return stb.AddGoToNext();
-    }
-
-    public TExt AlwaysRevealAllNullable<TBearer>(ReadOnlySpan<char> fieldName, Span<TBearer?> value
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TBearer : class, IStringBearer
+        where TBearer : IStringBearer?
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -734,34 +681,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt AlwaysRevealAll<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloaked> value
       , PalantírReveal<TRevealBase> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
-        where TCloaked : TRevealBase
-        where TRevealBase : notnull
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        stb.FieldNameJoin(fieldName);
-        var collectionType = typeof(ReadOnlySpan<TRevealBase>);
-        var elementType    = typeof(TRevealBase);
-        if (value.Length == 0)
-        {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
-        }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.RevealCloakedBearerOrNull(item, palantírReveal, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, "", formatFlags);
-        return stb.AddGoToNext();
-    }
-
-    public TExt AlwaysRevealAllNullable<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloaked?> value
-      , PalantírReveal<TRevealBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
-        where TCloaked : class?, TRevealBase?
+        where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -814,33 +734,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealAll<TBearer>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer> value
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TBearer : IStringBearer
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        stb.FieldNameJoin(fieldName);
-        var collectionType = typeof(ReadOnlySpan<TBearer>);
-        var elementType    = typeof(TBearer);
-        if (value.Length == 0)
-        {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
-        }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.RevealStringBearerOrNull(item);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, "", formatFlags);
-        return stb.AddGoToNext();
-    }
-
-    public TExt AlwaysRevealAllNullable<TBearer>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer?> value
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TBearer : class, IStringBearer
+        where TBearer : IStringBearer?
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);

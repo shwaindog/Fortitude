@@ -716,7 +716,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
 
     public virtual IStringBuilder CollectionNextItemFormat<TCloaked, TCloakedBase>(ITheOneString tos
       , TCloaked? item, int retrieveCount, PalantírReveal<TCloakedBase> itemRevealer)
-        where TCloaked : TCloakedBase
+        where TCloaked : TCloakedBase?
         where TCloakedBase : notnull
     {
         var sb = tos.WriteBuffer;

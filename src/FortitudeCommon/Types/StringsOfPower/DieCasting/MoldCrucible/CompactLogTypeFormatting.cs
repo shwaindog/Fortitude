@@ -637,8 +637,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             GraphBuilder.MarkContentEnd();
             return sb;
         }
+        var coreElementType = itemElementType.IfNullableGetUnderlyingTypeOrThis();
         if (formatFlags.DoesNotHaveLogSuppressTypeNamesFlag() &&
-            !StyleOptions.LogSuppressDisplayCollectionNames.Any(s => collectionType.FullName?.StartsWith(s) ?? false))
+            !(StyleOptions.LogSuppressDisplayCollectionNames.Any(s => collectionType.FullName?.StartsWith(s) ?? false)
+            && StyleOptions.LogSuppressDisplayCollectionNames.Any(s => coreElementType.FullName?.StartsWith(s) ?? false)))
         {
             sb.Append(RndBrktOpn);
             collectionType.AppendShortNameInCSharpFormat(sb);
@@ -710,7 +712,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
     public virtual IStringBuilder CollectionNextItemFormat<TCloaked, TCloakedBase>(ITheOneString tos
       , TCloaked? item, int retrieveCount, PalantírReveal<TCloakedBase> styler)
-        where TCloaked : TCloakedBase
+        where TCloaked : TCloakedBase?
         where TCloakedBase : notnull
     {
         var sb = tos.WriteBuffer;

@@ -3,6 +3,7 @@
 
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
@@ -16,6 +17,125 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
 public interface IComplexOrderedListExpect : IOrderedListExpect, IComplexFieldFormatExpectation
 {
 }
+
+// ReSharper disable twice ExplicitCallerInfoArgument
+public class NullStructCloakedOrderedListExpect<TChildScaffoldListElement>
+ : OrderedListExpect<TChildScaffoldListElement?, TChildScaffoldListElement?>, IComplexOrderedListExpect
+    where TChildScaffoldListElement : struct, ISinglePropertyTestStringBearer, IUnknownPalantirRevealerFactory
+{
+    private ScaffoldingPartEntry? calledScaffoldingPart;
+    
+    private Type? calledValueType;
+    
+    // ReSharper disable once ConvertToPrimaryConstructor
+    // ReSharper disable twice ExplicitCallerInfoArgument
+    public NullStructCloakedOrderedListExpect(List<TChildScaffoldListElement?>? inputList
+      , PalantírReveal<TChildScaffoldListElement> itemRevealer  
+      , Expression<Func<OrderedCollectionPredicate<TChildScaffoldListElement?>>>? elementFilter = null
+      , string? formatString = null
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0)
+        : base(inputList, formatString, elementFilter, contentHandling, name, srcFile, srcLine)
+    {
+        ItemRevealer = itemRevealer;
+        
+        FieldValueExpectation = 
+            new FieldExpect<TChildScaffoldListElement?>
+                (null, FormatString, false, null, contentHandling, name, srcFile, srcLine);
+    }
+    
+    public ITypedFormatExpectation<TChildScaffoldListElement?> FieldValueExpectation { get; }
+
+    public override bool InputIsEmpty => (Input?.Count ?? 0) >= 0;
+    
+    public PalantírReveal<TChildScaffoldListElement> ItemRevealer { get; set; }
+    
+    public TChildScaffoldListElement RevealerScaffold { get; set; }
+
+    public BuildExpectedOutput WhenValueExpectedOutput { get; set; } = null!;
+
+    public override string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition, StyleOptions stringStyle, string? formatString = null)
+    {
+        FieldValueExpectation.ClearExpectations();
+        foreach (var expectedResult in ExpectedResults) { FieldValueExpectation.Add(expectedResult); }
+        var expectValue = FieldValueExpectation.GetExpectedOutputFor(condition, stringStyle, formatString);
+        if (expectValue != IFormatExpectation.NoResultExpectedValue && expectValue != "null" && expectValue != "")
+        {
+            expectValue = WhenValueExpectedOutput
+                ((calledValueType ?? typeof(TChildScaffoldListElement)).ShortNameInCSharpFormat()
+               , RevealerScaffold.PropertyName, condition, FieldValueExpectation);
+        }
+        return expectValue;
+    }
+
+    public override IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
+    {
+        var flags = scaffoldEntry.ScaffoldingFlags;
+
+        return scaffoldEntry.ScaffoldingFlags.OnlyAcceptsNullableStruct()
+            ? scaffoldEntry.CreateStringBearerFunc(CoreType)()
+            : (flags.HasFilterPredicate()
+                ? scaffoldEntry.CreateStringBearerFunc(ElementTypeScaffoldType, ElementType, ElementTypeScaffoldType)()
+                :  scaffoldEntry.CreateStringBearerFunc(ElementTypeScaffoldType, ElementTypeScaffoldType)());
+    }
+
+    public override IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry, StyleOptions stringStyle)
+    {
+        calledScaffoldingPart = new ScaffoldingPartEntry(typeof(TChildScaffoldListElement), scaffoldEntry.ScaffoldingFlags);
+        RevealerScaffold      = calledScaffoldingPart.CreateTypedStringBearerFunc<TChildScaffoldListElement>()();
+        var createdStringBearer = CreateNewStringBearer(scaffoldEntry);
+
+        var acceptsNullables = scaffoldEntry.ScaffoldingFlags.HasAcceptsNullables();
+
+        if (acceptsNullables && createdStringBearer is IMoldSupportedValue<TChildScaffoldListElement?[]?> nullArrayMold)
+            calledValueType = (nullArrayMold.Value = Input?.ToArray())?.GetType();
+        else if (createdStringBearer is IMoldSupportedValue<TChildScaffoldListElement?[]?> arrayMold)
+            calledValueType = (arrayMold.Value = Input?.OfType<TChildScaffoldListElement?>().ToArray())?.GetType();
+        else if (createdStringBearer is IMoldSupportedValue<IReadOnlyList<TChildScaffoldListElement?>?> listMold)
+            calledValueType = (listMold.Value = Input!)?.GetType();
+        else if (createdStringBearer is IMoldSupportedValue<IEnumerable<TChildScaffoldListElement?>?> enumerableMold)
+            calledValueType = (enumerableMold.Value = Input!)?.GetType();
+        else if (createdStringBearer is IMoldSupportedValue<IEnumerator<TChildScaffoldListElement?>?> enumeratorMold)
+            calledValueType = (enumeratorMold.Value = Input?.GetEnumerator())?.GetType();
+        else if (acceptsNullables && createdStringBearer is IMoldSupportedValue<object?[]?> nullObjArrayMold)
+        {
+            calledValueType = (nullObjArrayMold.Value = Input?.Select(i => i as object).ToArray())?.GetType();
+        }
+        else if (createdStringBearer is IMoldSupportedValue<object[]?> objArrayMold)
+        {
+            calledValueType = (objArrayMold.Value = Input?.OfType<object>().ToArray())?.GetType();
+        }
+        else if (createdStringBearer is IMoldSupportedValue<IReadOnlyList<object?>?> objListMold)
+            calledValueType = (objListMold.Value = Input?.Select(i => i as object).ToList())?.GetType();
+        else if (createdStringBearer is IMoldSupportedValue<IEnumerable<object?>?> objEnumerableMold)
+            calledValueType = (objEnumerableMold.Value = Input?.Select(i => i as object).ToList())?.GetType();
+        else if (createdStringBearer is IMoldSupportedValue<IEnumerator<object?>?> objEnumeratorMold)
+            calledValueType = (objEnumeratorMold.Value = Input?.Select(i => i as object).ToList().GetEnumerator())?.GetType();
+        
+        calledValueType ??= typeof(TChildScaffoldListElement?);
+        if (scaffoldEntry.ScaffoldingFlags.HasCallsAsReadOnlySpan())
+        {
+            calledValueType = typeof(ReadOnlySpan<TChildScaffoldListElement?>);
+        }
+        if (scaffoldEntry.ScaffoldingFlags.HasCallsAsSpan())
+        {
+            calledValueType = typeof(Span<TChildScaffoldListElement?>);
+        }
+        
+        
+        if (!Equals(ElementPredicate, ISupportsOrderedCollectionPredicate<TChildScaffoldListElement?>.GetNoFilterPredicate) 
+         && createdStringBearer is ISupportsOrderedCollectionPredicate<TChildScaffoldListElement?> supportsSettingPredicateFilter)
+            supportsSettingPredicateFilter.ElementPredicate = 
+                ElementPredicate ?? ISupportsOrderedCollectionPredicate<TChildScaffoldListElement?>.GetNoFilterPredicate;
+        if (createdStringBearer is ISupportsUnknownValueRevealer supportsValueRevealer)
+        {
+            supportsValueRevealer.ValueRevealerDelegate = ItemRevealer;
+        }
+        return createdStringBearer;
+    }
+};
 
 // ReSharper disable twice ExplicitCallerInfoArgument
 public class NullCloakedOrderedListExpect<TChildScaffoldListElement>
@@ -55,6 +175,9 @@ public class CloakedOrderedListExpect<TChildScaffoldListElement, TFilterBase, TR
     OrderedListExpect<TChildScaffoldListElement, TFilterBase>, IComplexOrderedListExpect
     where TChildScaffoldListElement : TFilterBase?, TRevealBase?, ISinglePropertyTestStringBearer?, IUnknownPalantirRevealerFactory?
 {
+    private ScaffoldingPartEntry? calledScaffoldingPart;
+
+    private Type? calledValueType;
 
     // ReSharper disable once ConvertToPrimaryConstructor
     // ReSharper disable twice ExplicitCallerInfoArgument
@@ -69,13 +192,35 @@ public class CloakedOrderedListExpect<TChildScaffoldListElement, TFilterBase, TR
         : base(inputList, formatString, elementFilter, contentHandling, name, srcFile, srcLine)
     {
         ItemRevealer = itemRevealer;
+        
+        FieldValueExpectation = 
+            new FieldExpect<TChildScaffoldListElement?>
+                (default, FormatString, false, default, contentHandling, name, srcFile, srcLine);
     }
-
+    
+    public ITypedFormatExpectation<TChildScaffoldListElement?> FieldValueExpectation { get; }
+    
     public override bool InputIsEmpty => (Input?.Count ?? 0) >= 0;
     
     public PalantírReveal<TRevealBase> ItemRevealer { get; set; }
+    
+    public TChildScaffoldListElement RevealerScaffold { get; set; } = default!;
 
     public BuildExpectedOutput WhenValueExpectedOutput { get; set; } = null!;
+
+    public override string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition, StyleOptions stringStyle, string? formatString = null)
+    {
+        FieldValueExpectation.ClearExpectations();
+        foreach (var expectedResult in ExpectedResults) { FieldValueExpectation.Add(expectedResult); }
+        var expectValue = FieldValueExpectation.GetExpectedOutputFor(condition, stringStyle, formatString);
+        if (expectValue != IFormatExpectation.NoResultExpectedValue && expectValue != "null" && expectValue != "")
+        {
+            expectValue = WhenValueExpectedOutput
+                ((calledValueType ?? typeof(TChildScaffoldListElement)).ShortNameInCSharpFormat()
+               , RevealerScaffold?.PropertyName ?? "NoRevealerScaffold", condition, FieldValueExpectation);
+        }
+        return expectValue;
+    }
 
     public override IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
     {
@@ -92,31 +237,47 @@ public class CloakedOrderedListExpect<TChildScaffoldListElement, TFilterBase, TR
 
     public override IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry, StyleOptions stringStyle)
     {
+        calledScaffoldingPart = new ScaffoldingPartEntry(typeof(TChildScaffoldListElement), scaffoldEntry.ScaffoldingFlags);
+        RevealerScaffold      = calledScaffoldingPart.CreateTypedStringBearerFunc<TChildScaffoldListElement>()();
         var createdStringBearer = CreateNewStringBearer(scaffoldEntry);
 
         var acceptsNullables = scaffoldEntry.ScaffoldingFlags.HasAcceptsNullables();
 
         if (acceptsNullables && createdStringBearer is IMoldSupportedValue<TChildScaffoldListElement?[]?> nullArrayMold)
-            nullArrayMold.Value = Input?.ToArray();
+            calledValueType = (nullArrayMold.Value = Input?.ToArray())?.GetType();
         else if (createdStringBearer is IMoldSupportedValue<TChildScaffoldListElement[]?> arrayMold)
-            arrayMold.Value = Input?.OfType<TChildScaffoldListElement>().ToArray();
+            calledValueType = (arrayMold.Value = Input?.OfType<TChildScaffoldListElement>().ToArray())?.GetType();
         else if (createdStringBearer is IMoldSupportedValue<IReadOnlyList<TChildScaffoldListElement>?> listMold)
-            listMold.Value = Input!;
+            calledValueType = (listMold.Value = Input!)?.GetType();
         else if (createdStringBearer is IMoldSupportedValue<IEnumerable<TChildScaffoldListElement>?> enumerableMold)
-            enumerableMold.Value = Input!;
+            calledValueType = (enumerableMold.Value = Input!)?.GetType();
         else if (createdStringBearer is IMoldSupportedValue<IEnumerator<TChildScaffoldListElement>?> enumeratorMold)
-            enumeratorMold.Value = Input?.GetEnumerator();
+            calledValueType = (enumeratorMold.Value = Input?.GetEnumerator())?.GetType();
         else if (acceptsNullables && createdStringBearer is IMoldSupportedValue<object?[]?> nullObjArrayMold)
         {
-            nullObjArrayMold.Value = Input?.Select(i => i as object).ToArray();
+            calledValueType = (nullObjArrayMold.Value = Input?.Select(i => i as object).ToArray())?.GetType();
         }
-        else if (createdStringBearer is IMoldSupportedValue<object[]?> objArrayMold) { objArrayMold.Value = Input?.OfType<object>().ToArray(); }
+        else if (createdStringBearer is IMoldSupportedValue<object[]?> objArrayMold)
+        {
+            calledValueType = (objArrayMold.Value = Input?.OfType<object>().ToArray())?.GetType();
+        }
         else if (createdStringBearer is IMoldSupportedValue<IReadOnlyList<object?>?> objListMold)
-            objListMold.Value = Input?.Select(i => i as object).ToList();
+            calledValueType = (objListMold.Value = Input?.Select(i => i as object).ToList())?.GetType();
         else if (createdStringBearer is IMoldSupportedValue<IEnumerable<object?>?> objEnumerableMold)
-            objEnumerableMold.Value = Input?.Select(i => i as object).ToList();
+            calledValueType = (objEnumerableMold.Value = Input?.Select(i => i as object).ToList())?.GetType();
         else if (createdStringBearer is IMoldSupportedValue<IEnumerator<object?>?> objEnumeratorMold)
-            objEnumeratorMold.Value = Input?.Select(i => i as object).ToList().GetEnumerator();
+            calledValueType = (objEnumeratorMold.Value = Input?.Select(i => i as object).ToList().GetEnumerator())?.GetType();
+        
+        calledValueType ??= typeof(TChildScaffoldListElement);
+        if (scaffoldEntry.ScaffoldingFlags.HasCallsAsReadOnlySpan())
+        {
+            calledValueType = typeof(ReadOnlySpan<TChildScaffoldListElement?>);
+        }
+        if (scaffoldEntry.ScaffoldingFlags.HasCallsAsSpan())
+        {
+            calledValueType = typeof(Span<TChildScaffoldListElement?>);
+        }
+        
         if (!Equals(ElementPredicate, ISupportsOrderedCollectionPredicate<TFilterBase>.GetNoFilterPredicate) 
          && createdStringBearer is ISupportsOrderedCollectionPredicate<TFilterBase> supportsSettingPredicateFilter)
             supportsSettingPredicateFilter.ElementPredicate = 
