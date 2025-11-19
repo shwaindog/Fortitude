@@ -278,12 +278,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysRevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
-    (ReadOnlySpan<char> fieldName, Span<TCloaked> value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
-      , PalantírReveal<TCloakedRevealBase> palantírReveal
+    public TExt AlwaysRevealFiltered<TCloaked, TFilterBase, TRevealBase>
+    (ReadOnlySpan<char> fieldName, Span<TCloaked> value, OrderedCollectionPredicate<TFilterBase> filterPredicate
+      , PalantírReveal<TRevealBase> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
-        where TCloaked : TCloakedFilterBase, TCloakedRevealBase
-        where TCloakedRevealBase : notnull
+        where TCloaked : TFilterBase, TRevealBase
+        where TRevealBase : notnull
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -332,12 +332,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysRevealFilteredNullable<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
-    (ReadOnlySpan<char> fieldName, Span<TCloaked?> value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
-      , PalantírReveal<TCloakedRevealBase> palantírReveal
+    public TExt AlwaysRevealFilteredNullable<TCloaked, TFilterBase, TRevealBase>
+    (ReadOnlySpan<char> fieldName, Span<TCloaked?> value, OrderedCollectionPredicate<TFilterBase> filterPredicate
+      , PalantírReveal<TRevealBase> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
-        where TCloaked : TCloakedFilterBase, TCloakedRevealBase
-        where TCloakedRevealBase : notnull
+        where TCloaked : class?, TFilterBase?, TRevealBase?
+        where TRevealBase : notnull
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -1345,12 +1345,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysRevealFilteredNullable<TCloaked, TCloakedFilterBase, TCloakedRevealBase>(ReadOnlySpan<char> fieldName
-      , ReadOnlySpan<TCloaked?> value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
-      , PalantírReveal<TCloakedRevealBase> palantírReveal
+    public TExt AlwaysRevealFilteredNullable<TCloaked, TFilterBase, TRevealBase>(ReadOnlySpan<char> fieldName
+      , ReadOnlySpan<TCloaked?> value, OrderedCollectionPredicate<TFilterBase> filterPredicate
+      , PalantírReveal<TRevealBase> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
-        where TCloaked : class, TCloakedFilterBase, TCloakedRevealBase
-        where TCloakedRevealBase : notnull
+        where TCloaked : class?, TFilterBase?, TRevealBase?
+        where TRevealBase : notnull
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -2196,12 +2196,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysRevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
-    (string fieldName, TCloaked?[]? value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
-      , PalantírReveal<TCloakedRevealBase> palantírReveal
+    public TExt AlwaysRevealFiltered<TCloaked, TFilterBase, TRevealBase>
+    (string fieldName, TCloaked?[]? value, OrderedCollectionPredicate<TFilterBase> filterPredicate
+      , PalantírReveal<TRevealBase> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
-        where TCloaked : TCloakedFilterBase, TCloakedRevealBase
-        where TCloakedRevealBase : notnull
+        where TCloaked : TFilterBase?, TRevealBase?
+        where TRevealBase : notnull
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -2681,7 +2681,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     (string fieldName, IReadOnlyList<TCloaked?>? value, OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
-        where TCloaked : TFilterBase, TRevealBase
+        where TCloaked : TFilterBase?, TRevealBase?
         where TRevealBase : notnull
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
@@ -3065,11 +3065,11 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysRevealFilteredEnumerate<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
-        (string fieldName, IEnumerable<TCloaked?>? value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
-          , PalantírReveal<TCloakedRevealBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TCloaked : TCloakedFilterBase, TCloakedRevealBase
-        where TCloakedRevealBase : notnull
+    public TExt AlwaysRevealFilteredEnumerate<TCloaked, TFilterBase, TRevealBase>
+        (string fieldName, IEnumerable<TCloaked?>? value, OrderedCollectionPredicate<TFilterBase> filterPredicate
+          , PalantírReveal<TRevealBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TCloaked : TFilterBase?, TRevealBase?
+        where TRevealBase : notnull
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);
@@ -3281,11 +3281,11 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysRevealFilteredEnumerate<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
-        (string fieldName, IEnumerator<TCloaked?>? value, OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate
-          , PalantírReveal<TCloakedRevealBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TCloaked : TCloakedFilterBase, TCloakedRevealBase
-        where TCloakedRevealBase : notnull
+    public TExt AlwaysRevealFilteredEnumerate<TCloaked, TFilterBase, TRevealBase>
+        (string fieldName, IEnumerator<TCloaked?>? value, OrderedCollectionPredicate<TFilterBase> filterPredicate
+          , PalantírReveal<TRevealBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TCloaked : TFilterBase?, TRevealBase?
+        where TRevealBase : notnull
     {
         if (stb.SkipFields) return stb.StyleTypeBuilder;
         stb.FieldNameJoin(fieldName);

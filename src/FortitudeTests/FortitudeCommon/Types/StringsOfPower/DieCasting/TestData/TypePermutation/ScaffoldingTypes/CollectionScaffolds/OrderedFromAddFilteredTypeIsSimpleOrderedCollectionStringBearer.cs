@@ -593,7 +593,7 @@ public class OrderedFromNullableCloakedBearerArrayRevealFilteredSimpleOrderedCol
                 | SupportsValueRevealer)]
 public class OrderedFromCloakedBearerSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TFilterBase, TRevealBase> :
     RevealerFilteredCollectionMoldScaffold<TCloaked, TFilterBase, TRevealBase, TCloaked[]>
-    where TCloaked : TRevealBase, TFilterBase
+    where TCloaked : TRevealBase?, TFilterBase?
     where TRevealBase : notnull
 {
     public TCloaked[]? OrderedCollectionRevealFilteredCloakedBearerSpan
@@ -614,7 +614,7 @@ public class OrderedFromCloakedBearerSpanRevealFilteredSimpleOrderedCollectionSt
                 | SupportsValueRevealer)]
 public class OrderedFromCloakedBearerNullableSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TFilterBase, TRevealBase>
     : RevealerFilteredCollectionMoldScaffold<TCloaked, TFilterBase, TRevealBase, TCloaked[]>
-    where TCloaked : class, TRevealBase, TFilterBase
+    where TCloaked : class?, TRevealBase?, TFilterBase?
     where TRevealBase : notnull
 {
     public TCloaked?[]? OrderedCollectionRevealFilteredCloakedBearerNullableSpan
@@ -627,8 +627,8 @@ public class OrderedFromCloakedBearerNullableSpanRevealFilteredSimpleOrderedColl
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredNullable(OrderedCollectionRevealFilteredCloakedBearerNullableSpan.AsSpan()
-                                 , ElementPredicate, ValueRevealer)
+           .RevealFiltered(OrderedCollectionRevealFilteredCloakedBearerNullableSpan.AsSpan()
+                         , ElementPredicate, ValueRevealer)
            .Complete();
 }
 
@@ -656,7 +656,7 @@ public class OrderedFromNullableCloakedBearerSpanRevealFilteredSimpleOrderedColl
                 | SupportsValueRevealer)]
 public class OrderedFromCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TFilterBase, TRevealBase> :
     RevealerFilteredCollectionMoldScaffold<TCloaked, TFilterBase, TRevealBase, TCloaked[]>
-    where TCloaked : TRevealBase, TFilterBase
+    where TCloaked : TRevealBase?, TFilterBase?
     where TRevealBase : notnull
 {
     public TCloaked[]? OrderedCollectionRevealFilteredCloakedBearerReadOnlySpan
@@ -678,7 +678,7 @@ public class OrderedFromCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedColl
 public class OrderedFromCloakedBearerNullableReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer
     <TCloaked, TFilterBase, TRevealBase>
     : RevealerFilteredCollectionMoldScaffold<TCloaked, TFilterBase, TRevealBase, TCloaked[]>
-    where TCloaked : class, TRevealBase, TFilterBase
+    where TCloaked : class?, TRevealBase?, TFilterBase?
     where TRevealBase : notnull
 {
     public TCloaked?[]? OrderedCollectionRevealFilteredCloakedBearerNullableReadOnlySpan
@@ -691,7 +691,7 @@ public class OrderedFromCloakedBearerNullableReadOnlySpanRevealFilteredSimpleOrd
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredNullable(OrderedCollectionRevealFilteredCloakedBearerNullableReadOnlySpan.AsSpan(), ElementPredicate, ValueRevealer)
+           .RevealFiltered(OrderedCollectionRevealFilteredCloakedBearerNullableReadOnlySpan.AsSpan(), ElementPredicate, ValueRevealer)
            .Complete();
 }
 
@@ -916,7 +916,7 @@ public class OrderedFromStringBearerNullableSpanRevealFilteredSimpleOrderedColle
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredNullable(OrderedCollectionRevealFilteredStringBearerNullableSpan.AsSpan(), ElementPredicate)
+           .RevealFiltered(OrderedCollectionRevealFilteredStringBearerNullableSpan.AsSpan(), ElementPredicate)
            .Complete();
 }
 
@@ -978,9 +978,8 @@ public class OrderedFromStringBearerNullableReadOnlySpanRevealFilteredSimpleOrde
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredNullable
-               (
-                (ReadOnlySpan<TBearer?>)OrderedCollectionRevealFilteredStringBearerNullableReadOnlySpan.AsSpan()
+           .RevealFiltered
+               ((ReadOnlySpan<TBearer?>)OrderedCollectionRevealFilteredStringBearerNullableReadOnlySpan.AsSpan()
               , ElementPredicate)
            .Complete();
 }

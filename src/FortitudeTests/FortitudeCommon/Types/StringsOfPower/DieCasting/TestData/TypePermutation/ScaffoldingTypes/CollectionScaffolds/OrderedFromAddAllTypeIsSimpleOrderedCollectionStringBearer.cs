@@ -584,7 +584,7 @@ public class OrderedFromCloakedBearerNullableSpanRevealAllSimpleOrderedCollectio
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllNullable(OrderedCollectionRevealAllCloakedBearerNullableSpan.AsSpan(), ValueRevealer)
+           .RevealAll(OrderedCollectionRevealAllCloakedBearerNullableSpan.AsSpan(), ValueRevealer)
            .Complete();
 }
 
@@ -646,7 +646,7 @@ public class OrderedFromCloakedBearerNullableReadOnlySpanRevealAllSimpleOrderedC
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllNullable((ReadOnlySpan<TCloaked?>)OrderedCollectionRevealAllCloakedBearerNullableReadOnlySpan.AsSpan(), ValueRevealer)
+           .RevealAll((ReadOnlySpan<TCloaked?>)OrderedCollectionRevealAllCloakedBearerNullableReadOnlySpan.AsSpan(), ValueRevealer)
            .Complete();
 }
 
@@ -866,7 +866,7 @@ public class OrderedFromStringBearerNullableSpanRevealAllSimpleOrderedCollection
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllNullable(OrderedCollectionRevealAllStringBearerNullableSpan.AsSpan())
+           .RevealAll(OrderedCollectionRevealAllStringBearerNullableSpan.AsSpan())
            .Complete();
 }
 
@@ -925,7 +925,7 @@ public class OrderedFromStringBearerNullableReadOnlySpanRevealAllSimpleOrderedCo
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllNullable((ReadOnlySpan<TBearer?>)OrderedCollectionRevealAllStringBearerNullableReadOnlySpan.AsSpan())
+           .RevealAll((ReadOnlySpan<TBearer?>)OrderedCollectionRevealAllStringBearerNullableReadOnlySpan.AsSpan())
            .Complete();
 }
 

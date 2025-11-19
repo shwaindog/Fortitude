@@ -16,8 +16,6 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
 public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
 {
-    private ContentSeparatorPaddingRangeTracking contentSeparatorPaddingTracking;
-
     protected const string Cln = ":";
     public virtual string Name => nameof(CompactJsonTypeFormatting);
 
@@ -222,14 +220,15 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return sb;
     }
 
-    public virtual IStringBuilder FormatFieldName<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle
-      , PalantírReveal<TCloakedBase> styler)
-        where TCloaked : TCloakedBase
-        where TCloakedBase : notnull
+    public virtual IStringBuilder FormatFieldName<TCloaked, TRevealBase>(ITheOneString tos, TCloaked value
+      , PalantírReveal<TRevealBase> valueRevealer)
+        where TCloaked : TRevealBase?
+        where TRevealBase : notnull
     {
         var sb           = tos.WriteBuffer;
         var preAppendLen = sb.Length;
-        styler(toStyle, tos);
+        if (value == null) { AppendFormattedNull(sb, ""); }
+        else { valueRevealer(value, tos); }
         if (sb.Length == preAppendLen) return tos.WriteBuffer;
         ProcessAppendedRange(sb, preAppendLen);
         if (sb[preAppendLen] == DblQtChar) return tos.WriteBuffer;
@@ -237,15 +236,17 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return sb.Append(DblQt);
     }
 
-    public virtual IStringBuilder FormatFieldName<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer
+    public virtual IStringBuilder FormatFieldName<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer?
     {
-        var preAppendLen = tos.WriteBuffer.Length;
-        styledObj.RevealState(tos);
-        if (tos.WriteBuffer.Length == preAppendLen) return tos.WriteBuffer;
-        ProcessAppendedRange(tos.WriteBuffer, preAppendLen);
-        if (tos.WriteBuffer[preAppendLen] == DblQtChar) return tos.WriteBuffer;
-        tos.WriteBuffer.Insert(preAppendLen, DblQt);
-        return tos.WriteBuffer.Append(DblQt);
+        var sb           = tos.WriteBuffer;
+        var preAppendLen = sb.Length;
+        if (styledObj == null) { AppendFormattedNull(sb, ""); }
+        else { styledObj.RevealState(tos); }
+        if (sb.Length == preAppendLen) return sb;
+        ProcessAppendedRange(sb, preAppendLen);
+        if (sb[preAppendLen] == DblQtChar) return sb;
+        sb.Insert(preAppendLen, DblQt);
+        return sb.Append(DblQt);
     }
 
     public virtual IStringBuilder FormatFieldContentsMatch<TAny>(IStringBuilder sb, TAny source, string? formatString = null
@@ -471,14 +472,15 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return sb;
     }
 
-    public virtual IStringBuilder FormatFieldContents<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle
-      , PalantírReveal<TCloakedBase> styler)
-        where TCloaked : TCloakedBase
-        where TCloakedBase : notnull
+    public virtual IStringBuilder FormatFieldContents<TCloaked, TRevealBase>(ITheOneString tos, TCloaked value
+      , PalantírReveal<TRevealBase> valueRevealer)
+        where TCloaked : TRevealBase?
+        where TRevealBase : notnull
     {
         var sb           = tos.WriteBuffer;
         var contentStart = sb.Length;
-        styler(toStyle, tos);
+        if (value == null) { AppendFormattedNull(sb, ""); }
+        else { valueRevealer(value, tos); }
         if (sb.Length != contentStart) ProcessAppendedRange(sb, contentStart);
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
         GraphBuilder.MarkContentStart(contentStart);
@@ -486,11 +488,12 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return sb;
     }
 
-    public virtual IStringBuilder FormatFieldContents<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer
+    public virtual IStringBuilder FormatFieldContents<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer?
     {
         var sb           = tos.WriteBuffer;
         var contentStart = sb.Length;
-        styledObj.RevealState(tos);
+        if (styledObj == null) { AppendFormattedNull(sb, ""); }
+        else { styledObj.RevealState(tos); }
         if (sb.Length != contentStart) ProcessAppendedRange(sb, contentStart);
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
         GraphBuilder.MarkContentStart(contentStart);
@@ -549,12 +552,12 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return typeMold;
     }
 
-    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVBase>(ITypeMolderDieCast<TMold> typeMold
-      , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVBase> valueStyler, string? keyFormatString = null
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler, string? keyFormatString = null
       , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
-        where TValue : TVBase
-        where TVBase : notnull
+        where TValue : TVRevealBase?
+        where TVRevealBase : notnull
     {
         if (typeMold.Settings.WriteKeyValuePairsAsCollection
          && (keyedCollectionType.IsNotReadOnlyDictionaryType() || keyedCollectionType.IsArray() ||
@@ -578,14 +581,14 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return typeMold;
     }
 
-    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKBase, TVBase>(ITypeMolderDieCast<TMold> typeMold
-      , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVBase> valueStyler
-      , PalantírReveal<TKBase> keyStyler, FieldContentHandling valueFlags = DefaultCallerTypeFlags)
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType, TKey? key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler, FieldContentHandling valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
-        where TKey : TKBase
-        where TValue : TVBase
-        where TKBase : notnull
-        where TVBase : notnull
+        where TKey : TKRevealBase?
+        where TValue : TVRevealBase?
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
     {
         if (typeMold.Settings.WriteKeyValuePairsAsCollection
          && (keyedCollectionType.IsNotReadOnlyDictionaryType() || keyedCollectionType.IsArray() ||
@@ -593,7 +596,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         {
             AppendComplexTypeOpening(typeMold, valueFlags);
             AppendFieldName(typeMold.Sb, "Key").FieldEnd(typeMold, this, valueFlags);
-            keyStyler(key, typeMold.Master);
+            if (key == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
+            else { keyStyler(key, typeMold.Master); }
             AddNextFieldSeparator(typeMold, valueFlags);
             AppendFieldName(typeMold.Sb, "Value").FieldEnd(typeMold, this, valueFlags);
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
@@ -602,7 +606,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         }
         else
         {
-            keyStyler(key, typeMold.Master);
+            if (key == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
+            else { keyStyler(key, typeMold.Master); }
             typeMold.FieldEnd();
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
             else { valueStyler(value, typeMold.Master); }

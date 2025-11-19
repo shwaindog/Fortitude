@@ -32,7 +32,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         var sb = moldInternal.Sb;
-        if (formatFlags.DoesNotHaveAsEmbeddedContentFlag())
+        if (formatFlags.DoesNotHaveAsEmbeddedContentFlags())
         { 
             StyleOptions.IndentLevel++;
             GraphBuilder.StartAppendContent(BrcOpn, sb, this, formatFlags);
@@ -90,7 +90,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
     {
         var previousContentPadSpacing = GraphBuilder.LastContentSeparatorPaddingRanges;
         var lastNonWhiteSpace         = GraphBuilder.RemoveLastSeparatorAndPadding();
-        if (previousContentPadSpacing.PreviousFormatFlags.DoesNotHaveAsEmbeddedContentFlag()) { StyleOptions.IndentLevel--; }
+        if (previousContentPadSpacing.PreviousFormatFlags.DoesNotHaveAsEmbeddedContentFlags()) { StyleOptions.IndentLevel--; }
 
         GraphBuilder.StartNextContentSeparatorPaddingSequence(moldInternal.Sb, this, DefaultCallerTypeFlags);
         if (lastNonWhiteSpace != BrcOpnChar && previousContentPadSpacing.PreviousFormatFlags.CanAddNewLine())
@@ -102,7 +102,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
                                                     , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
             }
         }
-        if (previousContentPadSpacing.PreviousFormatFlags.DoesNotHaveAsEmbeddedContentFlag())
+        if (previousContentPadSpacing.PreviousFormatFlags.DoesNotHaveAsEmbeddedContentFlags())
         {
             GraphBuilder.AppendContent(BrcCls);
         }
@@ -157,7 +157,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             return sb.Length - preAppendLen;
         }
         var currFmtFlags = GraphBuilder.CurrentNodeRanges.FormatFlags;
-        if (!currFmtFlags.HasAsEmbeddedContentFlag()) { StyleOptions.IndentLevel++; }
+        if (!currFmtFlags.HasAsEmbeddedContentFlags()) { StyleOptions.IndentLevel++; }
         if (elementType == typeof(KeyValuePair<string, JsonNode>))
         {
             GraphBuilder.AppendContent(BrcOpn);
@@ -191,7 +191,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         }
         
         var currFmtFlags = GraphBuilder.CurrentNodeRanges.FormatFlags;
-        if (!currFmtFlags.HasAsEmbeddedContentFlag()) { StyleOptions.IndentLevel++; }
+        if (!currFmtFlags.HasAsEmbeddedContentFlags()) { StyleOptions.IndentLevel++; }
         if (elementType == typeof(KeyValuePair<string, JsonNode>))
         {
             charsAdded = GraphBuilder.GraphEncoder.Transfer(this, BrcOpn, destSpan, destStartIndex);

@@ -94,7 +94,7 @@ public class StringLikeExpect<TInput, TDefault>: FieldExpect<TInput, TDefault>, 
         return createdStringBearer;
     }
 
-    protected override void AdditionalExpectFields(IStringBuilder sb)
+    protected override void AdditionalToStringExpectFields(IStringBuilder sb)
     {
         if (FromIndex != 0 || Length != int.MaxValue)
         {

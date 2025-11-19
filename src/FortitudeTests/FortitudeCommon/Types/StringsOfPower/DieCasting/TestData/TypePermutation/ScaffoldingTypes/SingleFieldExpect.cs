@@ -169,12 +169,8 @@ public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldEx
         return createdStringBearer;
     }
 
-    protected virtual void AdditionalExpectFields(IStringBuilder typeInfoBuilder) { }
-
-    public override string ToString()
+    protected override void AdditionalToStringExpectFields(IStringBuilder sb)
     {
-        var sb = new MutableString();
-        sb.Append(base.ToString());
         sb.Append(", ").Append(nameof(HasDefault)).Append(": ").Append(HasDefault ? "true" : "false");
         sb.Append(", ").Append(nameof(DefaultValue)).Append(": ");
         if (DefaultValue == null) { sb.Append("null"); }
@@ -184,14 +180,6 @@ public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldEx
           .Append(new MutableString()
                   .Append(DefaultAsString(new CompactJsonTypeFormatting())).ToString())
           .Append(AsStringDelimiterClose);
-        AdditionalExpectFields(sb);
-        sb.AppendLine();
-        sb.AppendLine("ExpectedResults");
-        var count = 0;
-        foreach (var keyValuePair in ExpectedResults)
-        {
-            sb.Append(count++).Append(" - ").Append("{ ").Append(keyValuePair.Key).Append(", >").Append(keyValuePair.Value).AppendLine("< }");
-        }
-        return sb.ToString();
+        AddExpectedResultsList(sb);
     }
 };

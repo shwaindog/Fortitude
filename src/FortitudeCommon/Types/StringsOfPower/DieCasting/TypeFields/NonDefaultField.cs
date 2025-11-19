@@ -17,7 +17,7 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
 {
     public TMold WhenNonDefaultAdd(ReadOnlySpan<char> fieldName, bool value, bool defaultValue = false
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags) =>
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipFields && value != defaultValue
             ? AlwaysAdd(fieldName, value, formatString)
             : stb.StyleTypeBuilder;

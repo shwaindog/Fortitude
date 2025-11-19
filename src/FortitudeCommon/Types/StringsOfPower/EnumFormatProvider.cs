@@ -80,13 +80,16 @@ public static class EnumFormatterRegistry
 
 public interface IEnumFormatter : IStringBearerFormattableProvider
 {
-    IStructEnumFormatProvider<TEnum>? AsSpanFormattableEnumFormatProvider<TEnum>() where TEnum : ISpanFormattable;
+    IStructEnumFormatProvider<TEnum>? AsSpanFormattableEnumFormatProvider<TEnum>() where TEnum : ISpanFormattable?;
 
     IEnumFormatProvider<TEnum>? AsTypedEnumFormatProvider<TEnum>() where TEnum : Enum;
     IEnumFormatProvider<Enum>? AsEnumFormatProvider();
 }
 
-public interface IStructEnumFormatProvider<in TEnum> : IEnumFormatter, IStringBearerRevelStateProvider<TEnum>, IStringBearerSpanFormattableProvider<TEnum> { }
+public interface IStructEnumFormatProvider<in TEnum> : IEnumFormatter, IStringBearerRevelStateProvider<TEnum>
+  , IStringBearerSpanFormattableProvider<TEnum>
+    where TEnum : notnull
+{ }
 
 public interface IEnumFormatProvider<in TEnum> : IEnumFormatter, IStringBearerRevelStateProvider<TEnum>, IStringBearerSpanFormattableProvider<TEnum>
     where TEnum : Enum { }

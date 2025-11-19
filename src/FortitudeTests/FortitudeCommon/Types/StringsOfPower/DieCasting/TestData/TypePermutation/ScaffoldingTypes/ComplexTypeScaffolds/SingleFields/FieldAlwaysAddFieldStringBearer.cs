@@ -95,9 +95,7 @@ public class FieldSpanFormattableAlwaysAddStringBearer<TFmt> : FormattedMoldScaf
     }
 
     // ReSharper disable once NonReadonlyMemberInGetHashCode
-    #pragma warning disable CS8607 // A possible null value may not be used for a type marked with [NotNull] or [DisallowNull]
-    public override int GetHashCode() => EqualityComparer<TFmt>.Default.GetHashCode(Value);
-    #pragma warning restore CS8607 // A possible null value may not be used for a type marked with [NotNull] or [DisallowNull]
+    public override int GetHashCode() => Value != null ? EqualityComparer<TFmt>.Default.GetHashCode(Value) : 0;
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
@@ -156,9 +154,7 @@ public struct FieldSpanFormattableAlwaysAddStructStringBearer<TFmt> : IMoldSuppo
     }
 
     // ReSharper disable once NonReadonlyMemberInGetHashCode
-    #pragma warning disable CS8607 // A possible null value may not be used for a type marked with [NotNull] or [DisallowNull]
-    public override int GetHashCode() => EqualityComparer<TFmt>.Default.GetHashCode(Value);
-    #pragma warning restore CS8607 // A possible null value may not be used for a type marked with [NotNull] or [DisallowNull]
+    public override int GetHashCode() => Value != null ? EqualityComparer<TFmt>.Default.GetHashCode(Value) : 0;
 
     public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }

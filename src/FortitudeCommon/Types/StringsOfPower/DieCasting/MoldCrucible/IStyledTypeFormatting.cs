@@ -50,21 +50,21 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
       , TKey key, TValue value, int retrieveCount, string? valueFormatString = null, string? keyFormatString = null
       , FieldContentHandling valueFlags = DefaultCallerTypeFlags) where TMold : TypeMolder;
 
-    ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVBase>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
-      , TKey key, TValue? value, int retrieveCount, PalantírReveal<TVBase> valueStyler, string? keyFormatString = null
+    ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
+      , TKey key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler, string? keyFormatString = null
       , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder 
-        where TValue : TVBase
-        where TVBase : notnull;
+        where TValue : TVRevealBase?
+        where TVRevealBase : notnull;
 
-    ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKBase, TVBase>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
-      , TKey key, TValue? value, int retrieveCount, PalantírReveal<TVBase> valueStyler, PalantírReveal<TKBase> keyStyler
-      , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
+    ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
+    , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler
+    , PalantírReveal<TKRevealBase> keyStyler, FieldContentHandling valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
-        where TKey : TKBase 
-        where TValue : TVBase 
-        where TKBase : notnull
-        where TVBase : notnull;
+        where TKey : TKRevealBase? 
+        where TValue : TVRevealBase? 
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull;
 
     IStringBuilder AppendKeyedCollectionNextItem(IStringBuilder sb, Type keyedCollectionType
       , Type keyType, Type valueType, int previousItemNumber);
@@ -142,11 +142,11 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder FormatFieldName(IStringBuilder sb, StringBuilder source, int sourceFrom = 0
       , string? formatString = null, int maxTransferCount = int.MaxValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
-    IStringBuilder FormatFieldName<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle, PalantírReveal<TCloakedBase> styler)
-        where TCloaked : TCloakedBase
-        where TCloakedBase : notnull;
+    IStringBuilder FormatFieldName<TCloaked, TRevealBase>(ITheOneString tos, TCloaked value, PalantírReveal<TRevealBase> valueRevealer)
+        where TCloaked : TRevealBase?
+        where TRevealBase : notnull;
 
-    IStringBuilder FormatFieldName<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer;
+    IStringBuilder FormatFieldName<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer?;
 
     IStringBuilder FormatFieldContentsMatch<TAny>(IStringBuilder sb, TAny source, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
@@ -175,11 +175,11 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder FormatFieldContents(IStringBuilder sb, StringBuilder source, int sourceFrom = 0, string? formatString = null
       , int maxTransferCount = int.MaxValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
-    IStringBuilder FormatFieldContents<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked toStyle, PalantírReveal<TCloakedBase> styler)
-        where TCloaked : TCloakedBase
-        where TCloakedBase : notnull;
+    IStringBuilder FormatFieldContents<TCloaked, TRevealBase>(ITheOneString tos, TCloaked value, PalantírReveal<TRevealBase> valueRevealer)
+        where TCloaked : TRevealBase?
+        where TRevealBase : notnull;
 
-    IStringBuilder FormatFieldContents<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer;
+    IStringBuilder FormatFieldContents<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer?;
 }
 
 public static class StyleTypeFormattingExtensions

@@ -96,7 +96,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
 
     public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement<TCloaked, TRevealBase>(TCloaked? element
       , PalantírReveal<TRevealBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
-        where TCloaked : TRevealBase
+        where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
         if (CompAsOrderedCollection.SkipBody) return this;
