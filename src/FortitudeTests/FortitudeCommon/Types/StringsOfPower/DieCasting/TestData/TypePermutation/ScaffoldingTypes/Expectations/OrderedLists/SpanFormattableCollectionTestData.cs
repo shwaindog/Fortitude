@@ -19,28 +19,23 @@ public class SpanFormattableCollectionTestData
         // float Collections (struct - json native)
         new OrderedListExpect<float>([],  "", name: "Empty")
         {
-            { new EK(  OrderedCollectionType | AcceptsSpanFormattable), "[]" }
-          , { new EK(   AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, CompactLog), "[]" }
-          , { new EK(   AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactLog), "[]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites, CompactJson), "[]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites, Pretty), "[]" }
+            { new EK(   OrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
+           ,{ new EK(   AcceptsSpanFormattable | AlwaysWrites | NonNullWrites), "[]" }
+           ,{ new EK(   AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
         }
       , new OrderedListExpect<float>(null,  "")
         {
-            { new EK( OrderedCollectionType | AcceptsSpanFormattable | AlwaysWrites), "[]" }
-          , { new EK(  AcceptsSpanFormattable | AlwaysWrites), "null" }
-          , { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan |  AlwaysWrites, CompactLog), "[]" }
-          , { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactJson), "null" }
-          , { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan  | AlwaysWrites, Pretty), "null" }
+            { new EK( OrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
+          , { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
+          , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
         }
       , new OrderedListExpect<float>(FloatList, "", name: "All_NoFilter")
         {
-            { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan 
-                    |  AllOutputConditionsMask, CompactLog),
+            { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog),
                 "[ 3.1415927, 2.7182817, 6.2831855, 5.4365635, 12.566371, 10.873127, 18.849556, 16.30969, 25.132742, 21.746254 ]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[3.1415927,2.7182817,6.2831855,5.4365635,12.566371,10.873127,18.849556,16.30969,25.132742,21.746254]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   3.1415927,
@@ -61,9 +56,9 @@ public class SpanFormattableCollectionTestData
         {
             { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan |  AllOutputConditionsMask, CompactLog),
                 "[ 3.1415927, 2.7182817, 6.2831855, 5.4365635, 12.566371 ]" }
-          , { new EK(CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+          , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[3.1415927,2.7182817,6.2831855,5.4365635,12.566371]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   3.1415927,
@@ -79,9 +74,9 @@ public class SpanFormattableCollectionTestData
         {
             { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan |  AllOutputConditionsMask, CompactLog),
                 "[ |3.1416    |, |6.2832    |, |12.5664   |, |18.8496   |, |25.1327   | ]" }
-          , { new EK(CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+          , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[|3.1416    |,|6.2832    |,|12.5664   |,|18.8496   |,|25.1327   |]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   |3.1416    |,
@@ -95,11 +90,11 @@ public class SpanFormattableCollectionTestData
         }
       , new OrderedListExpect<float>(FloatList, "{0:F3}", () => Float_First_2)
         {
-            { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan |  AllOutputConditionsMask, CompactLog),
+            { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog),
                 "[ 3.142, 2.718 ]" }
-          , { new EK(CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+          , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[3.142,2.718]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   3.142,
@@ -112,9 +107,9 @@ public class SpanFormattableCollectionTestData
         {
             { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan |  AllOutputConditionsMask, CompactLog),
                 "[ 12.566371 ]" }
-          , { new EK(CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+          , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[12.566371]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   12.566371
@@ -127,9 +122,9 @@ public class SpanFormattableCollectionTestData
             { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan 
                     |  AllOutputConditionsMask, CompactLog),
                 "[ 10.873127, 18.849556, 16.30969, 25.132742, 21.746254 ]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[10.873127,18.849556,16.30969,25.132742,21.746254]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   10.873127,
@@ -145,28 +140,24 @@ public class SpanFormattableCollectionTestData
         // float? Collections (nullable struct - json native)
       , new OrderedListExpect<float?>([],  "", name: "Empty")
         {
-            { new EK(  OrderedCollectionType | AcceptsSpanFormattable), "[]" }
-         ,  { new EK(   AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, CompactLog), "[]" }
-          , { new EK(   AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactLog), "[]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable |  AlwaysWrites | NonNullWrites, CompactJson), "[]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable |  AlwaysWrites | NonNullWrites, Pretty), "[]" }
+            { new EK(   OrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
+           ,{ new EK(   AcceptsSpanFormattable | AlwaysWrites | NonNullWrites), "[]" }
+           ,{ new EK(   AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
         }
       , new OrderedListExpect<float?>(null,  "")
         {
-            { new EK( OrderedCollectionType | AcceptsSpanFormattable), "[]" }
-          , { new EK(  AcceptsSpanFormattable | AlwaysWrites), "null" }
-          , { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan |  AlwaysWrites, CompactLog), "[]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AlwaysWrites, CompactJson), "null" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AlwaysWrites, Pretty), "null" }
+            { new EK( OrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
+          , { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
+          , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
         }
       , new OrderedListExpect<float?>(NullFloatList, "", name: "All_NoFilter")
         {
             { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan 
                    |  AllOutputConditionsMask, CompactLog),
                 "[ null, 3.1415927, 2.7182817, null, null, 9.424778, null, null, null, 8.154845, 12.566371, 10.873127, null, 15.707964, null, 13.591409 ]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[null,3.1415927,2.7182817,null,null,9.424778,null,null,null,8.154845,12.566371,10.873127,null,15.707964,null,13.591409]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   null,
@@ -193,9 +184,9 @@ public class SpanFormattableCollectionTestData
         {
             { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan |  AllOutputConditionsMask, CompactLog),
                 "[ null, 3.1415927, 2.7182817, null, null ]" }
-          , { new EK(CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+          , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[null,3.1415927,2.7182817,null,null]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   null,
@@ -211,9 +202,9 @@ public class SpanFormattableCollectionTestData
         {
             { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan |  AllOutputConditionsMask, CompactLog),
                 "[ |      null|, |    2.7183|, |      null|, |      null|, |      null|, |   12.5664|, |      null|, |      null| ]" }
-          , { new EK(CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+          , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[|      null|,|    2.7183|,|      null|,|      null|,|      null|,|   12.5664|,|      null|,|      null|]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   |      null|,
@@ -232,9 +223,9 @@ public class SpanFormattableCollectionTestData
         {
             { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan |  AllOutputConditionsMask, CompactLog),
                 "[ null, 3.142 ]" }
-          , { new EK(CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+          , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[null,3.142]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   null,
@@ -247,9 +238,9 @@ public class SpanFormattableCollectionTestData
         {
             { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan |  AllOutputConditionsMask, CompactLog),
                 "[ 12.566371 ]" }
-          , { new EK(CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+          , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[12.566371]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   12.566371
@@ -262,9 +253,9 @@ public class SpanFormattableCollectionTestData
             { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan 
                     |  AllOutputConditionsMask, CompactLog),
                 "[ 9.424778, null, null, null, 8.154845 ]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[9.424778,null,null,null,8.154845]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   9.424778,
@@ -280,28 +271,23 @@ public class SpanFormattableCollectionTestData
         // Version Collections (non null class - json as string)
       , new OrderedListExpect<Version>([],  "", name: "Empty")
         {
-            { new EK(  OrderedCollectionType | AcceptsSpanFormattable), "[]" }
-          , { new EK(   AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, CompactLog), "[]" }
-          , { new EK(   AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactLog), "[]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites, CompactJson), "[]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites, Pretty), "[]" }
+            { new EK(   OrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
+           ,{ new EK(   AcceptsSpanFormattable | AlwaysWrites | NonNullWrites), "[]" }
+           ,{ new EK(   AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
         }
       , new OrderedListExpect<Version>(null,  "")
         {
-            { new EK( OrderedCollectionType | AcceptsSpanFormattable | AlwaysWrites), "[]" }
-          , { new EK(  AcceptsSpanFormattable | AlwaysWrites), "null" }
-          , { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan |  AlwaysWrites, CompactLog), "[]" }
-          , { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactJson), "null" }
-          , { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan  | AlwaysWrites, Pretty), "null" }
+            { new EK( OrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
+          , { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
+          , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
         }
       , new OrderedListExpect<Version>(VersionsList, "", name: "All_NoFilter")
         {
-            { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan 
-                    |  AllOutputConditionsMask, CompactLog),
+            { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan |  AllOutputConditionsMask, CompactLog),
                 "[ 0.0, 0.1.1, 1.1.1.1, 2.1.123456, 4.2.25, 8.3.3.3, 0.4, 16.0.0, 32.2563.1000000.1 ]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[\"0.0\",\"0.1.1\",\"1.1.1.1\",\"2.1.123456\",\"4.2.25\",\"8.3.3.3\",\"0.4\",\"16.0.0\",\"32.2563.1000000.1\"]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   "0.0",
@@ -322,9 +308,9 @@ public class SpanFormattableCollectionTestData
             { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan 
                     |  AllOutputConditionsMask, CompactLog),
                 "[ 0.0, 0.1.1, 1.1.1.1, 2.1.123456, 4.2.25 ]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[\"0.0\",\"0.1.1\",\"1.1.1.1\",\"2.1.123456\",\"4.2.25\"]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   "0.0",
@@ -340,9 +326,9 @@ public class SpanFormattableCollectionTestData
         {
             { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan |  AllOutputConditionsMask, CompactLog),
                 "[ \"0.0       \", \"0.1.1     \" ]" }
-          , { new EK(CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+          , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[\"0.0       \",\"0.1.1     \"]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   "0.0       ",
@@ -355,9 +341,9 @@ public class SpanFormattableCollectionTestData
         {
             { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan |  AllOutputConditionsMask, CompactLog),
                 "[ 16.0.0 ]" }
-          , { new EK(CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+          , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[\"16.0.0\"]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   "16.0.0"
@@ -370,9 +356,9 @@ public class SpanFormattableCollectionTestData
             { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan 
                     |  AllOutputConditionsMask, CompactLog),
                 "[ 8.3.3.3, 0.4, 16.0.0, 32.2563.1000000.1 ]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[\"8.3.3.3\",\"0.4\",\"16.0.0\",\"32.2563.1000000.1\"]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   "8.3.3.3",
@@ -387,28 +373,23 @@ public class SpanFormattableCollectionTestData
         // Version Collections ( null class - json as string)
       , new OrderedListExpect<Version?>([],  "", name: "Empty")
         {
-            { new EK(  OrderedCollectionType | AcceptsSpanFormattable), "[]" }
-          , { new EK(   AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, CompactLog), "[]" }
-          , { new EK(   AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactLog), "[]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites, CompactJson), "[]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites, Pretty), "[]" }
+            { new EK(   OrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
+           ,{ new EK(   AcceptsSpanFormattable | AlwaysWrites | NonNullWrites), "[]" }
+           ,{ new EK(   AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
         }
       , new OrderedListExpect<Version?>(null,  "")
         {
-            { new EK( OrderedCollectionType | AcceptsSpanFormattable | AlwaysWrites), "[]" }
-          , { new EK(  AcceptsSpanFormattable | AlwaysWrites), "null" }
-          , { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan |  AlwaysWrites, CompactLog), "[]" }
-          , { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactJson), "null" }
-          , { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan  | AlwaysWrites, Pretty), "null" }
+            { new EK( OrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
+          , { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
+          , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
         }
       , new OrderedListExpect<Version?>(NullVersionsList, "", name: "All_NoFilter")
         {
-            { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan 
-                    |  AllOutputConditionsMask, CompactLog),
+            { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog),
                 "[ null, 0.0, null, 0.1.1, 1.1.1.1, 2.1.123456, 8.3.3.3, null, null, null, null, 16.0.0, 32.2563.1000000.1, null, null, null ]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[null,\"0.0\",null,\"0.1.1\",\"1.1.1.1\",\"2.1.123456\",\"8.3.3.3\",null,null,null,null,\"16.0.0\",\"32.2563.1000000.1\",null,null,null]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   null,
@@ -436,9 +417,9 @@ public class SpanFormattableCollectionTestData
             { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan 
                     |  AllOutputConditionsMask, CompactLog),
                 "[ null, 0.0, null, 0.1.1, 1.1.1.1 ]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[null,\"0.0\",null,\"0.1.1\",\"1.1.1.1\"]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   null,
@@ -454,9 +435,9 @@ public class SpanFormattableCollectionTestData
         {
             { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan |  AllOutputConditionsMask, CompactLog),
                 "[ '      null', '       0.0' ]" }
-          , { new EK(CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+          , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "['      null',\"'       0.0'\"]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   '      null',
@@ -469,9 +450,9 @@ public class SpanFormattableCollectionTestData
         {
             { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan |  AllOutputConditionsMask, CompactLog),
                 "[ 16.0.0 ]" }
-          , { new EK(CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+          , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[\"16.0.0\"]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   "16.0.0"
@@ -484,9 +465,9 @@ public class SpanFormattableCollectionTestData
             { new EK(  AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan 
                     |  AllOutputConditionsMask, CompactLog),
                 "[ 2.1.123456, 8.3.3.3, null, null, null ]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[\"2.1.123456\",\"8.3.3.3\",null,null,null]" }
-          , { new EK( CollectionCardinality  | AcceptsSpanFormattable | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   "2.1.123456",

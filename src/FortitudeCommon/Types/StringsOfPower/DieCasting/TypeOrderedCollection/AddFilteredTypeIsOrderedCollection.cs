@@ -40,7 +40,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString);
+                stb.AppendFormattedCollectionItem(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -76,7 +76,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString);
+                stb.AppendFormattedCollectionItem(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -112,7 +112,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString);
+                stb.AppendFormattedCollectionItem(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -148,7 +148,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString);
+                stb.AppendFormattedCollectionItem(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -184,7 +184,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString);
+                stb.AppendFormattedCollectionItem(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -220,7 +220,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString);
+                stb.AppendFormattedCollectionItem(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -256,7 +256,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString);
+                stb.AppendFormattedCollectionItem(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -292,7 +292,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString);
+                stb.AppendFormattedCollectionItem(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -332,7 +332,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
+                stb.AppendFormattedCollectionItem(item, itemCount , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -372,7 +372,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
+                stb.AppendFormattedCollectionItem(item, itemCount , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -420,7 +420,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 
                 any = true;
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
+                stb.AppendFormattedCollectionItem(item, itemCount , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -469,7 +469,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 
                 any = true;
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
+                stb.AppendFormattedCollectionItem(item, itemCount , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -507,7 +507,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString);
+                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -544,7 +544,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString);
+                stb.AppendFormattedCollectionItem(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -581,7 +581,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString);
+                stb.AppendFormattedCollectionItem(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -618,7 +618,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString);
+                stb.AppendFormattedCollectionItem(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -655,7 +655,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString);
+                stb.AppendFormattedCollectionItem(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -692,7 +692,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString);
+                stb.AppendFormattedCollectionItem(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -729,7 +729,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString);
+                stb.AppendFormattedCollectionItem(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -766,7 +766,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString);
+                stb.AppendFormattedCollectionItem(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -803,7 +803,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString);
+                stb.AppendFormattedCollectionItem(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -840,7 +840,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString);
+                stb.AppendFormattedCollectionItem(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -881,7 +881,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
+                stb.AppendFormattedCollectionItem(item, itemCount , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -971,7 +971,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 
                 any = true;
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
+                stb.AppendFormattedCollectionItem(item, itemCount , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -1021,7 +1021,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 
                 any = true;
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString);
+                stb.AppendFormattedCollectionItem(item, itemCount , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -1552,7 +1552,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1622,7 +1622,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i+1, item) ?? IncludedContinueToNext;
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? IncludedContinueToNext;
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1949,7 +1949,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1985,7 +1985,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2021,7 +2021,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2057,7 +2057,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2093,7 +2093,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2129,7 +2129,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2169,7 +2169,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, itemCount , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -2218,7 +2218,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, itemCount , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -2404,7 +2404,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2441,7 +2441,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2482,7 +2482,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, itemCount , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -2532,7 +2532,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, itemCount , formatString, formatFlags);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2569,7 +2569,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2606,7 +2606,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2643,7 +2643,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2679,7 +2679,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2715,7 +2715,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2751,7 +2751,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2791,7 +2791,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, itemCount , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -2840,7 +2840,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 
                 any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString);
+                stb.AppendFormattedCollectionItemOrNull(item, itemCount , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -2913,7 +2913,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2949,7 +2949,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2985,7 +2985,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -3021,7 +3021,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -3057,7 +3057,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -3096,7 +3096,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     break;
                 }
                 any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -3143,7 +3143,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 
                 any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -3181,7 +3181,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -3218,7 +3218,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -3255,7 +3255,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -3292,7 +3292,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -3329,7 +3329,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -3366,7 +3366,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 if(!any) stb.ConditionalCollectionPrefix(elementType, true);
                 any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -3406,7 +3406,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     break;
                 }
                 any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -3454,7 +3454,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 }
                 
                 any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString);
+                stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount , formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;

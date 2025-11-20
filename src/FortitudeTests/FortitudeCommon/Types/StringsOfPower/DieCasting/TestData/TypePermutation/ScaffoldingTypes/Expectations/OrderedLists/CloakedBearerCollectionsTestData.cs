@@ -22,36 +22,22 @@ public class CloakedBearerCollectionsTestData
             new CloakedOrderedListExpect<FieldSpanFormattableAlwaysAddStringBearer<decimal>>
                 ([], StringBearerClassListRevealer, name: "Empty")
             {
-                { new EK(OrderedCollectionType | AcceptsStruct), "[]" }
-              , { new EK(AcceptsStruct | AlwaysWrites | NonNullWrites, CompactLog), "[]" }
-              , { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactLog), "[]" }
-               ,
-                {
-                    new EK(CollectionCardinality | AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites
-                         , CompactJson)
-                  , "[]"
-                }
-               ,
-                {
-                    new EK(CollectionCardinality | AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites
-                         , Pretty)
-                  , "[]"
-                }
+              { new EK(   OrderedCollectionType | AcceptsAnyExceptNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
+             ,{ new EK(   AcceptsAnyExceptNullableStruct | AlwaysWrites | NonNullWrites), "[]" }
+             ,{ new EK(   AcceptsAnyExceptNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
           , new CloakedOrderedListExpect<FieldSpanFormattableAlwaysAddStringBearer<decimal>>
                 (null, StringBearerClassListRevealer, name: "NullNonNullableClass")
             {
-                { new EK(OrderedCollectionType | AcceptsStruct | AlwaysWrites), "[]" }
-              , { new EK(AcceptsStruct | AlwaysWrites), "null" }
-              , { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactLog), "[]" }
-              , { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactJson), "null" }
-              , { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, Pretty), "null" }
+              { new EK( OrderedCollectionType | AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
+            , { new EK(AcceptsStruct | AlwaysWrites), "null" }
+            , { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
           , new CloakedOrderedListExpect<FieldSpanFormattableAlwaysAddStringBearer<decimal>>
                 (StringBearerClassList.Value, StringBearerClassListRevealer, name: "All_CloakedBearerNoFilter")
             {
                 {
-                    new EK(AcceptsAnyClass | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, CompactLog)
+                    new EK(AcceptsAnyExceptNullableStruct | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, CompactLog)
                   , """
                     [
                      FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 3.14159265358979 },
@@ -72,16 +58,16 @@ public class CloakedBearerCollectionsTestData
                     new EK(AcceptsAnyClass | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, CompactJson)
                   , """
                     [
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 3.14159265358979},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 2.71828182845904},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 12.5663706143592},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 10.8731273138362},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 21.9911485751286},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 19.0279727992133},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 31.4159265358979},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 27.1828182845904},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 37.6991118430775},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 32.6193819415085}
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":3.14159265358979},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":2.71828182845904},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":12.5663706143592},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":10.8731273138362},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":21.9911485751286},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":19.0279727992133},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":31.4159265358979},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":27.1828182845904},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":37.6991118430775},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":32.6193819415085}
                     ]
                     """.RemoveLineEndings()
                 }
@@ -183,11 +169,11 @@ public class CloakedBearerCollectionsTestData
                     new EK(AcceptsAnyClass | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, CompactJson)
                   , """
                     [
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 3.14159265358979},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 2.71828182845904},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 12.5663706143592},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 10.8731273138362},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 21.9911485751286}
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":3.14159265358979},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":2.71828182845904},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":12.5663706143592},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":10.8731273138362},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":21.9911485751286}
                     ]
                     """.RemoveLineEndings()
                 }
@@ -258,11 +244,11 @@ public class CloakedBearerCollectionsTestData
                     new EK(AcceptsAnyClass | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, CompactJson)
                   , """
                     [
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 3.14159265358979},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 12.5663706143592},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 21.9911485751286},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 31.4159265358979},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 37.6991118430775}
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":3.14159265358979},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":12.5663706143592},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":21.9911485751286},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":31.4159265358979},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":37.6991118430775}
                     ]
                     """.RemoveLineEndings()
                 }
@@ -333,11 +319,11 @@ public class CloakedBearerCollectionsTestData
                     new EK(AcceptsAnyClass | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, CompactJson)
                   , """
                     [
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 19.0279727992133},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 31.4159265358979},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 27.1828182845904},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 37.6991118430775},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 32.6193819415085}
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":19.0279727992133},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":31.4159265358979},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":27.1828182845904},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":37.6991118430775},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":32.6193819415085}
                     ]
                     """.RemoveLineEndings()
                 }
@@ -393,30 +379,16 @@ public class CloakedBearerCollectionsTestData
           , new NullCloakedOrderedListExpect<FieldSpanFormattableAlwaysAddStringBearer<decimal>>
                 ([], StringBearerClassListRevealer, name: "NullEmpty")
             {
-                { new EK(OrderedCollectionType | AcceptsStruct), "[]" }
-              , { new EK(AcceptsStruct | AlwaysWrites | NonNullWrites, CompactLog), "[]" }
-              , { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactLog), "[]" }
-              ,
-                {
-                    new EK(CollectionCardinality | AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites
-                         , CompactJson)
-                  , "[]"
-                }
-               ,
-                {
-                    new EK(CollectionCardinality | AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites
-                         , Pretty)
-                  , "[]"
-                }
+              { new EK(   OrderedCollectionType | AcceptsAnyExceptNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
+             ,{ new EK(   AcceptsAnyExceptNullableStruct | AlwaysWrites | NonNullWrites), "[]" }
+             ,{ new EK(   AcceptsAnyExceptNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
           , new NullCloakedOrderedListExpect<FieldSpanFormattableAlwaysAddStringBearer<decimal>>
                 (null, StringBearerClassListRevealer, name: "NullNullableClass")
             {
-                { new EK(OrderedCollectionType | AcceptsStruct | AlwaysWrites), "[]" }
-              , { new EK(AcceptsStruct | AlwaysWrites), "null" }
-              , { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactLog), "[]" }
-              , { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactJson), "null" }
-              , { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, Pretty), "null" }
+              { new EK( OrderedCollectionType | AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
+            , { new EK(AcceptsStruct | AlwaysWrites), "null" }
+            , { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
           , new NullCloakedOrderedListExpect<FieldSpanFormattableAlwaysAddStringBearer<decimal>>
                 (NullStringBearerClassList.Value, StringBearerClassListRevealer, name: "All_NullCloakedBearerNoFilter")
@@ -449,19 +421,19 @@ public class CloakedBearerCollectionsTestData
                   , """
                     [
                     null,
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 3.14159265358979},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 2.71828182845904},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 12.5663706143592},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":3.14159265358979},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":2.71828182845904},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":12.5663706143592},
                     null,
                     null,
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 10.8731273138362},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 21.9911485751286},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 19.0279727992133},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 31.4159265358979},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 27.1828182845904},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":10.8731273138362},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":21.9911485751286},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":19.0279727992133},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":31.4159265358979},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":27.1828182845904},
                     null,
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 37.6991118430775},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 32.6193819415085},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":37.6991118430775},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":32.6193819415085},
                     null
                     ]
                     """.RemoveLineEndings()
@@ -575,9 +547,9 @@ public class CloakedBearerCollectionsTestData
                   , """
                     [
                     null,
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 3.14159265358979},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 2.71828182845904},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 12.5663706143592},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":3.14159265358979},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":2.71828182845904},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":12.5663706143592},
                     null
                     ]
                     """.RemoveLineEndings()
@@ -645,12 +617,12 @@ public class CloakedBearerCollectionsTestData
                   , """
                     [
                     null,
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 2.71828182845904},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":2.71828182845904},
                     null,
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 10.8731273138362},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 19.0279727992133},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 27.1828182845904},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 37.6991118430775},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":10.8731273138362},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":19.0279727992133},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":27.1828182845904},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":37.6991118430775},
                     null
                     ]
                     """.RemoveLineEndings()
@@ -729,10 +701,10 @@ public class CloakedBearerCollectionsTestData
                   , """
                     [
                     null,
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 10.8731273138362},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 21.9911485751286},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 19.0279727992133},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattable": 31.4159265358979}
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":10.8731273138362},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":21.9911485751286},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":19.0279727992133},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattable":31.4159265358979}
                     ]
                     """.RemoveLineEndings()
                 }
@@ -803,11 +775,9 @@ public class CloakedBearerCollectionsTestData
           , new CloakedOrderedListExpect<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>>
                 (null, StringBearerStructListRevealer, name: "NullNonNullableStruct")
             {
-                { new EK(OrderedCollectionType | AcceptsStruct | AlwaysWrites), "[]" }
-              , { new EK(AcceptsStruct | AlwaysWrites), "null" }
-              , { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactLog), "[]" }
-              , { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactJson), "null" }
-              , { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, Pretty), "null" }
+              { new EK( OrderedCollectionType | AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
+            , { new EK(AcceptsStruct | AlwaysWrites), "null" }
+            , { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
           , new CloakedOrderedListExpect<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>>
                 (StringBearerStructList.Value, StringBearerStructListRevealer, name: "All_StructCloakedBearerNoFilter")
@@ -834,16 +804,16 @@ public class CloakedBearerCollectionsTestData
                     new EK(AcceptsStruct | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, CompactJson)
                   , """
                     [
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 3.14159265358979},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 2.71828182845904},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 12.5663706143592},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 10.8731273138362},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 21.9911485751286},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 19.0279727992133},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 31.4159265358979},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 27.1828182845904},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 37.6991118430775},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 32.6193819415085}
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":3.14159265358979},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":2.71828182845904},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":12.5663706143592},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":10.8731273138362},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":21.9911485751286},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":19.0279727992133},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":31.4159265358979},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":27.1828182845904},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":37.6991118430775},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":32.6193819415085}
                     ]
                     """.RemoveLineEndings()
                 }
@@ -944,11 +914,11 @@ public class CloakedBearerCollectionsTestData
                     new EK(AcceptsStruct | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, CompactJson)
                   , """
                     [
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 3.14159265358979},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 2.71828182845904},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 12.5663706143592},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 10.8731273138362},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 21.9911485751286}
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":3.14159265358979},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":2.71828182845904},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":12.5663706143592},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":10.8731273138362},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":21.9911485751286}
                     ]
                     """.RemoveLineEndings()
                 }
@@ -1019,11 +989,11 @@ public class CloakedBearerCollectionsTestData
                     new EK(AcceptsStruct | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, CompactJson)
                   , """
                     [
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 3.14159265358979},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 12.5663706143592},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 21.9911485751286},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 31.4159265358979},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 37.6991118430775}
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":3.14159265358979},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":12.5663706143592},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":21.9911485751286},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":31.4159265358979},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":37.6991118430775}
                     ]
                     """.RemoveLineEndings()
                 }
@@ -1094,11 +1064,11 @@ public class CloakedBearerCollectionsTestData
                     new EK(AcceptsStruct | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, CompactJson)
                   , """
                     [
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 19.0279727992133},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 31.4159265358979},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 27.1828182845904},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 37.6991118430775},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 32.6193819415085}
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":19.0279727992133},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":31.4159265358979},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":27.1828182845904},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":37.6991118430775},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":32.6193819415085}
                     ]
                     """.RemoveLineEndings()
                 }
@@ -1154,30 +1124,16 @@ public class CloakedBearerCollectionsTestData
           , new NullStructCloakedOrderedListExpect<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>>
                 ([], StringBearerStructListRevealer, name: "NullEmpty")
             {
-                { new EK(OrderedCollectionType | AcceptsNullableStruct), "[]" }
-              , { new EK(AcceptsNullableStruct | AlwaysWrites | NonNullWrites, CompactLog), "[]" }
-              , { new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactLog), "[]" }
-              ,
-                {
-                    new EK(CollectionCardinality | AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites
-                         , CompactJson)
-                  , "[]"
-                }
-               ,
-                {
-                    new EK(CollectionCardinality | AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites
-                         , Pretty)
-                  , "[]"
-                }
+              { new EK(   OrderedCollectionType | AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
+             ,{ new EK(   AcceptsNullableStruct | AlwaysWrites | NonNullWrites), "[]" }
+             ,{ new EK(   AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
           , new NullStructCloakedOrderedListExpect<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>>
                 (null, StringBearerStructListRevealer, name: "NullNullableStruct")
             {
-                { new EK(OrderedCollectionType | AcceptsNullableStruct | AlwaysWrites), "[]" }
-              , { new EK(AcceptsNullableStruct | AlwaysWrites), "null" }
-              , { new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactLog), "[]" }
-              , { new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactJson), "null" }
-              , { new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, Pretty), "null" }
+              { new EK( OrderedCollectionType | AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
+            , { new EK(AcceptsNullableStruct | AlwaysWrites), "null" }
+            , { new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
           , new NullStructCloakedOrderedListExpect<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>>
                 (NullStringBearerStructList.Value, StringBearerStructListRevealer, name: "All_NullStructCloakedBearerNoFilter")
@@ -1210,19 +1166,19 @@ public class CloakedBearerCollectionsTestData
                   , """
                     [
                     null,
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 3.14159265358979},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 2.71828182845904},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 12.5663706143592},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":3.14159265358979},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":2.71828182845904},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":12.5663706143592},
                     null,
                     null,
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 10.8731273138362},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 21.9911485751286},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 19.0279727992133},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 31.4159265358979},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 27.1828182845904},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":10.8731273138362},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":21.9911485751286},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":19.0279727992133},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":31.4159265358979},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":27.1828182845904},
                     null,
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 37.6991118430775},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 32.6193819415085},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":37.6991118430775},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":32.6193819415085},
                     null
                     ]
                     """.RemoveLineEndings()
@@ -1336,9 +1292,9 @@ public class CloakedBearerCollectionsTestData
                   , """
                     [
                     null,
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 3.14159265358979},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 2.71828182845904},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 12.5663706143592},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":3.14159265358979},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":2.71828182845904},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":12.5663706143592},
                     null
                     ]
                     """.RemoveLineEndings()
@@ -1406,12 +1362,12 @@ public class CloakedBearerCollectionsTestData
                   , """
                     [
                     null,
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 2.71828182845904},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":2.71828182845904},
                     null,
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 10.8731273138362},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 19.0279727992133},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 27.1828182845904},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 37.6991118430775},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":10.8731273138362},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":19.0279727992133},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":27.1828182845904},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":37.6991118430775},
                     null
                     ]
                     """.RemoveLineEndings()
@@ -1490,10 +1446,10 @@ public class CloakedBearerCollectionsTestData
                   , """
                     [
                     null,
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 10.8731273138362},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 21.9911485751286},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 19.0279727992133},
-                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": 31.4159265358979}
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":10.8731273138362},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":21.9911485751286},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":19.0279727992133},
+                    {"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":31.4159265358979}
                     ]
                     """.RemoveLineEndings()
                 }
