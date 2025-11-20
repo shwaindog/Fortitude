@@ -637,7 +637,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             GraphBuilder.MarkContentEnd();
             return sb;
         }
-        var coreElementType = itemElementType.IfNullableGetUnderlyingTypeOrThis();
+        var coreElementType = collectionType.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? itemElementType;
         if (formatFlags.DoesNotHaveLogSuppressTypeNamesFlag() &&
             !(StyleOptions.LogSuppressDisplayCollectionNames.Any(s => collectionType.FullName?.StartsWith(s) ?? false)
             && StyleOptions.LogSuppressDisplayCollectionNames.Any(s => coreElementType.FullName?.StartsWith(s) ?? false)))

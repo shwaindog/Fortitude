@@ -134,17 +134,24 @@ public static class ScaffoldingStringBuilderInvokeFlagsExtensions
     public static bool HasAcceptsNullables(this ScaffoldingStringBuilderInvokeFlags flags) =>
         flags.HasAcceptsNullableStruct() || flags.HasAcceptsNullableClass();
 
-    public static bool HasAcceptsStruct(this ScaffoldingStringBuilderInvokeFlags flags)           => (flags & AcceptsStruct) > 0;
-    public static bool DoesNotAcceptsStruct(this ScaffoldingStringBuilderInvokeFlags flags)       => !flags.HasAcceptsStruct();
-    public static bool HasAcceptsSpanFormattable(this ScaffoldingStringBuilderInvokeFlags flags)  => (flags & AcceptsSpanFormattable) > 0;
-    public static bool HasAcceptsArray(this ScaffoldingStringBuilderInvokeFlags flags)            => (flags & AcceptsArray) > 0;
-    public static bool HasAcceptsList(this ScaffoldingStringBuilderInvokeFlags flags)             => (flags & AcceptsList) > 0;
-    public static bool HasAcceptsEnumerable(this ScaffoldingStringBuilderInvokeFlags flags)       => (flags & AcceptsEnumerable) > 0;
-    public static bool HasAcceptsEnumerator(this ScaffoldingStringBuilderInvokeFlags flags)       => (flags & AcceptsEnumerator) > 0;
-    public static bool HasFilterPredicate(this ScaffoldingStringBuilderInvokeFlags flags)         => (flags & FilterPredicate) > 0;
-    public static bool DoesNotHaveFilterPredicate(this ScaffoldingStringBuilderInvokeFlags flags) => (flags & FilterPredicate) == 0;
-    public static bool HasAcceptsUnknownObject(this ScaffoldingStringBuilderInvokeFlags flags)    => (flags & FilterPredicate) > 0;
-    public static bool DoesAcceptsUnknownObject(this ScaffoldingStringBuilderInvokeFlags flags)   => (flags & FilterPredicate) == 0;
+    public static bool HasAcceptsStruct(this ScaffoldingStringBuilderInvokeFlags flags)                   => (flags & AcceptsStruct) > 0;
+    public static bool DoesNotAcceptsStruct(this ScaffoldingStringBuilderInvokeFlags flags)               => !flags.HasAcceptsStruct();
+    public static bool HasAcceptsSpanFormattable(this ScaffoldingStringBuilderInvokeFlags flags)          => (flags & AcceptsSpanFormattable) > 0;
+    public static bool HasAcceptsArray(this ScaffoldingStringBuilderInvokeFlags flags)                    => (flags & AcceptsArray) > 0;
+    public static bool HasAcceptsList(this ScaffoldingStringBuilderInvokeFlags flags)                     => (flags & AcceptsList) > 0;
+    public static bool HasAcceptsEnumerable(this ScaffoldingStringBuilderInvokeFlags flags)               => (flags & AcceptsEnumerable) > 0;
+    public static bool HasAcceptsEnumerator(this ScaffoldingStringBuilderInvokeFlags flags)               => (flags & AcceptsEnumerator) > 0;
+    public static bool HasFilterPredicate(this ScaffoldingStringBuilderInvokeFlags flags)                 => (flags & FilterPredicate) > 0;
+    public static bool DoesNotHaveFilterPredicate(this ScaffoldingStringBuilderInvokeFlags flags)         => (flags & FilterPredicate) == 0;
+    
+    public static bool HasAcceptsNonNullableObject(this ScaffoldingStringBuilderInvokeFlags flags) => 
+        (flags & AcceptsNonNullableObject) == AcceptsNonNullableObject;
+    
+    public static bool HasAcceptsNullableObject(this ScaffoldingStringBuilderInvokeFlags flags) => 
+        (flags & AcceptsNullableObject) == AcceptsNullableObject;
+    
+    public static bool CallsUsingUnknownObject(this ScaffoldingStringBuilderInvokeFlags flags)           => 
+        (flags & CallsUsingObject) == 0;
 
     public static bool HasAllOf(this ScaffoldingStringBuilderInvokeFlags flags, ScaffoldingStringBuilderInvokeFlags checkAllAreSet) =>
         (flags & checkAllAreSet) == checkAllAreSet;

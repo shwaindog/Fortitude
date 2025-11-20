@@ -1793,7 +1793,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                     }
                     break;
                 }
-                if (matchedItems++ == 0) { stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags); }
+                if (matchedItems++ == 0)
+                {
+                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
+                }
                 stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1816,12 +1819,65 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     [CallsObjectToString]
     public TExt AlwaysAddFilteredObject(ReadOnlySpan<char> fieldName, ReadOnlySpan<object> value, OrderedCollectionPredicate<object> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString, formatFlags);
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+    {
+        if (stb.SkipFields) return stb.StyleTypeBuilder;
+        stb.FieldNameJoin(fieldName);
+        var collectionType = typeof(ReadOnlySpan<object>);
 
+        if (value.Length == 0)
+        {
+            var elementType    = typeof(object);
+            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
+            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
+            return stb.AddGoToNext();
+        }
+        var matchedItems = 0;
+        if (value.Length > 0)
+        {
+            formatString ??= "";
+            for (var i = 0; i < value.Length; i++)
+            {
+                var item         = value[i];
+                var filterResult = filterPredicate?.Invoke(i+1, item!) ?? CollectionItemResult.IncludedContinueToNext;
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
+                var elementType  = item.GetType();
+                if (matchedItems++ == 0)
+                {
+                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
+                }
+                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
+                stb.GoToNextCollectionItemStart(elementType, i);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
+            }
+            if (matchedItems != 0) stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(object), 
+                                                                          matchedItems, formatString, formatFlags);
+        }
+        if (matchedItems == 0)
+        {
+            if (stb.Settings.EmptyCollectionWritesNull) { stb.Sb.Append(stb.Settings.NullString); }
+            else
+            {
+                var elementType    = typeof(object);
+                stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
+                stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
+            }
+        }
+        return stb.AddGoToNext();
+    }
     
     [CallsObjectToString]
-    public TExt AlwaysAddFilteredObjectNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<object?> value, OrderedCollectionPredicate<object?> filterPredicate
+    public TExt AlwaysAddFilteredObjectNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<object?> value
+      , OrderedCollectionPredicate<object?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         AlwaysAddFilteredMatchNullable(fieldName, value, filterPredicate, formatString, formatFlags);
