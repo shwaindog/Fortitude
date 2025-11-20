@@ -10,7 +10,6 @@ using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.OrderedLists;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.SingleField;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldCollection;
@@ -62,7 +61,7 @@ public partial class SelectTypeCollectionFieldTests
 
     [TestMethod]
     [DynamicData(nameof(UnfilteredBooleanCollectionsExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredCompactLogBoolCollections(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void UnfilteredCompactLogBoolCollections(IOrderedListExpect formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -93,7 +92,7 @@ public partial class SelectTypeCollectionFieldTests
 
     [TestMethod]
     [DynamicData(nameof(FilteredBooleanCollectionsExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredCompactLogBoolCollections(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void FilteredCompactLogBoolCollections(IOrderedListExpect formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -139,7 +138,7 @@ public partial class SelectTypeCollectionFieldTests
 
     [TestMethod]
     [DynamicData(nameof(UnfiltereFmtCollectionsExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredCompactLogFmtList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void UnfilteredCompactLogFmtList(IOrderedListExpect formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -187,7 +186,7 @@ public partial class SelectTypeCollectionFieldTests
 
     [TestMethod]
     [DynamicData(nameof(FilteredFmtCollectionsExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredCompactLogFmtList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void FilteredCompactLogFmtList(IOrderedListExpect formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -234,7 +233,7 @@ public partial class SelectTypeCollectionFieldTests
 
     [TestMethod]
     [DynamicData(nameof(UnfilteredStringCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredCompactLogStringList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void UnfilteredCompactLogStringList(IOrderedListExpect formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -281,7 +280,7 @@ public partial class SelectTypeCollectionFieldTests
 
     [TestMethod]
     [DynamicData(nameof(FilteredStringCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredCompactLogStringList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void FilteredCompactLogStringList(IOrderedListExpect formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -328,7 +327,7 @@ public partial class SelectTypeCollectionFieldTests
 
     [TestMethod]
     [DynamicData(nameof(UnfilteredCharSequenceCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredCompactLogCharSequenceList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void UnfilteredCompactLogCharSequenceList(IOrderedListExpect formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -375,7 +374,7 @@ public partial class SelectTypeCollectionFieldTests
 
     [TestMethod]
     [DynamicData(nameof(FilteredCharSequenceCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredCompactLogCharSequenceList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void FilteredCompactLogCharSequenceList(IOrderedListExpect formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -409,7 +408,7 @@ public partial class SelectTypeCollectionFieldTests
 
     [TestMethod]
     [DynamicData(nameof(UnfilteredStringBuilderCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredCompactLogStringBuilderList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void UnfilteredCompactLogStringBuilderList(IOrderedListExpect formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -442,7 +441,7 @@ public partial class SelectTypeCollectionFieldTests
 
     [TestMethod]
     [DynamicData(nameof(FilteredStringBuilderCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredCompactLogStringBuilderList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void FilteredCompactLogStringBuilderList(IOrderedListExpect formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -481,11 +480,10 @@ public partial class SelectTypeCollectionFieldTests
                         .HasSupportsValueRevealer()
                         .OnlyAcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall });
-
-
+    
     [TestMethod]
     [DynamicData(nameof(UnfilteredCloakedBearerCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredCompactLogCloakedBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void UnfilteredCompactLogCloakedBearerList(IOrderedListExpect formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -527,40 +525,97 @@ public partial class SelectTypeCollectionFieldTests
 
     [TestMethod]
     [DynamicData(nameof(FilteredCloakedBearerCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredCompactLogCloakedBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    public void FilteredCompactLogCloakedBearerList(IOrderedListExpect formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        SharedCompactLog(formatExpectation, scaffoldingToCall);
+    }
+    
+    private static IEnumerable<object[]> UnfilteredStringBearerCollectionExpect =>
+        (from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
+            where fe is {ElementTypeIsClass: true, ContainsNullElements : false,  HasRestrictingFilter: false } 
+            from scaffoldToCall in 
+                scafReg
+                    .IsJustComplexType()
+                    .ProcessesCollection()
+                    .AcceptsNonNullables()
+                    .NoFilterPredicate()
+                    .HasAcceptsStringBearer()
+                    .NotHasSupportsValueRevealer()
+            select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
+                where fe is {ElementTypeIsClass: true, HasRestrictingFilter : false }   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsJustComplexType()
+                        .ProcessesCollection()
+                        .NoFilterPredicate()
+                        .HasAcceptsStringBearer()
+                        .NotHasSupportsValueRevealer()
+                        .AcceptsNullableClasses()
+                select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
+                where fe is {ElementTypeIsNullableStruct: true, HasRestrictingFilter : false }   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsJustComplexType()
+                        .ProcessesCollection()
+                        .NoFilterPredicate()
+                        .HasAcceptsStringBearer()
+                        .NotHasSupportsValueRevealer()
+                        .OnlyAcceptsNullableStructs()
+                select new object[] { fe, scaffoldToCall });
+
+    [TestMethod]
+    [DynamicData(nameof(UnfilteredStringBearerCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredCompactLogStringBearerList(IOrderedListExpect formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
-    private static IEnumerable<object[]> NonNullStringBearerExpect =>
-        from fe in StringBearerTestData.AllStringBearerExpectations
-        where !fe.IsNullable
-        from scaffoldToCall in
-            scafReg.IsJustComplexType().ProcessesCollection().AcceptsNonNullables()
-                   .NotHasSupportsValueRevealer().HasAcceptsStringBearer()
-        select new object[] { fe, scaffoldToCall };
+    private static IEnumerable<object[]> FilteredStringBearerCollectionExpect =>
+        (from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
+            where fe is {ElementTypeIsNullable: false, ContainsNullElements : false,  HasRestrictingFilter: true } 
+            from scaffoldToCall in 
+                scafReg
+                    .IsJustComplexType()
+                    .ProcessesCollection()
+                    .AcceptsNonNullables()
+                    .HasFilterPredicate()
+                    .HasAcceptsStringBearer()
+                    .NotHasSupportsValueRevealer()
+            select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
+                where fe is {ElementTypeIsClass: true, HasRestrictingFilter : true }   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsJustComplexType()
+                        .ProcessesCollection()
+                        .HasFilterPredicate()
+                        .HasAcceptsStringBearer()
+                        .NotHasSupportsValueRevealer()
+                        .AcceptsNullableClasses()
+                select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
+                where fe is {ElementTypeIsNullableStruct: true, HasRestrictingFilter : true }   
+                from scaffoldToCall in 
+                    scafReg
+                        .IsJustComplexType()
+                        .ProcessesCollection()
+                        .HasFilterPredicate()
+                        .HasAcceptsStringBearer()
+                        .NotHasSupportsValueRevealer()
+                        .OnlyAcceptsNullableStructs()
+                select new object[] { fe, scaffoldToCall });
 
-
-    // [TestMethod]
-    [DynamicData(nameof(NonNullStringBearerExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactLogNonNullStringBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactLog(formatExpectation, scaffoldingToCall);
-    }
-
-    private static IEnumerable<object[]> NullStringBearerExpect =>
-        from fe in StringBearerTestData.AllStringBearerExpectations
-        where fe.IsNullable
-        from scaffoldToCall in
-            scafReg.IsJustComplexType().ProcessesCollection().OnlyAcceptsNullableStructs()
-                   .NotHasSupportsValueRevealer().HasAcceptsStringBearer()
-        select new object[] { fe, scaffoldToCall };
-
-    // [TestMethod]
-    [DynamicData(nameof(NullStringBearerExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactLogNullStringBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    [TestMethod]
+    [DynamicData(nameof(FilteredStringBearerCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredCompactLogStringBearerList(IOrderedListExpect formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
@@ -571,10 +626,10 @@ public partial class SelectTypeCollectionFieldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactLog(CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations[21], ScaffoldingRegistry.AllScaffoldingTypes[549]);
+        SharedCompactLog(StringBearerCollectionsTestData.AllStringBearerCollectionExpectations[3], ScaffoldingRegistry.AllScaffoldingTypes[693]);
     }
 
-    private void SharedCompactLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    private void SharedCompactLog(IOrderedListExpect formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         logger.InfoAppend("Complex Type Collection Field  Scaffolding Class - ")?
               .AppendLine(scaffoldingToCall.Name)
@@ -586,8 +641,7 @@ public partial class SelectTypeCollectionFieldTests
         logger.WarnAppend("FormatExpectation - ")?
               .AppendLine(formatExpectation.ToString())
               .FinalAppend("");
-
-
+        
         // ReSharper disable once RedundantArgumentDefaultValue
         var tos = new TheOneString().Initialize(Compact | Log);
 
@@ -608,11 +662,13 @@ public partial class SelectTypeCollectionFieldTests
         string BuildChildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            const string compactLogTemplate = "({0}){1}";
+            var compactLogTemplate = className.IsNotEmpty() ? "({0}){1}" : "{1}";
 
             var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
             if (expectValue == IFormatExpectation.NoResultExpectedValue)
-            { expectValue = ""; }
+            {
+                expectValue = "";
+            }
             return string.Format(compactLogTemplate, className, expectValue);
         }
 

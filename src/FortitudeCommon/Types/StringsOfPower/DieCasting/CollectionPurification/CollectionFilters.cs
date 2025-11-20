@@ -19,6 +19,10 @@ public static class CollectionFilterExtensions
     public static OrderedCollectionPredicate<object> ToObjectCastingFilter<TInputFilter>(this OrderedCollectionPredicate<TInputFilter> toConvert) =>
         (retreiveCount, obj) => toConvert(retreiveCount,  (TInputFilter)obj);
 
+    public static OrderedCollectionPredicate<object?> ToNullableObjectCastingFilter<TInputFilter>
+        (this OrderedCollectionPredicate<TInputFilter> toConvert) =>
+            (retreiveCount, obj) => toConvert(retreiveCount,  (TInputFilter?)obj!);
+
     public static KeyValuePredicate<TKey, TValue> ResolveAcceptAllKeyedCollectionItemsPredicate<TKey, TValue>()
     {
         var keyValueLookupKey = (typeof(TKey), typeof(TValue));
