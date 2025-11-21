@@ -94,7 +94,7 @@ public partial class OrderedCollectionMoldTests
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
     
-    private static IEnumerable<object[]> UnfilteredNonNullFmtCollectionsExpect =>
+    private static IEnumerable<object[]> UnfilteredFmtCollectionsExpect =>
         // Non nullables and classes
         (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
             where fe is {ElementTypeIsNullable: false, HasRestrictingFilter: false }   
@@ -132,7 +132,7 @@ public partial class OrderedCollectionMoldTests
                 select new object[] { fe, scaffoldToCall });
 
     [TestMethod]
-    [DynamicData(nameof(UnfilteredNonNullFmtCollectionsExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    [DynamicData(nameof(UnfilteredFmtCollectionsExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void UnfilteredCompactLogFmtList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");

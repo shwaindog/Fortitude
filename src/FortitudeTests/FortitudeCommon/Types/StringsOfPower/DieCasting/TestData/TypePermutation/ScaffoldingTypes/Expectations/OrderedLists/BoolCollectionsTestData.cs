@@ -22,27 +22,23 @@ public static class BoolCollectionsTestData
         // bool Collections
         new OrderedListExpect<bool>([],  "", name: "Empty")
         {
-            { new EK(  OrderedCollectionType | AcceptsStruct), "[]" }
-          , { new EK(   AcceptsStruct | AlwaysWrites | NonNullWrites, CompactLog), "[]" }
-          , { new EK(   AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactLog), "[]" }
-          , { new EK( CollectionCardinality  | AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites, CompactJson), "[]" }
-          , { new EK( CollectionCardinality  | AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites, Pretty), "[]" }
+            { new EK(   OrderedCollectionType | AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
+           ,{ new EK(   AcceptsStruct | AlwaysWrites | NonNullWrites), "[]" }
+           ,{ new EK(   AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
         }
       , new OrderedListExpect<bool>(null,  "")
         {
-            { new EK( OrderedCollectionType | AcceptsStruct | AlwaysWrites), "[]" }
-          , { new EK(  AcceptsStruct | AlwaysWrites), "null" }
-          , { new EK(  AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan |  AlwaysWrites, CompactLog), "[]" }
-          , { new EK(  AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactJson), "null" }
-          , { new EK(  AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan  | AlwaysWrites, Pretty), "null" }
+            { new EK( OrderedCollectionType | AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
+          , { new EK(AcceptsStruct | AlwaysWrites), "null" }
+          , { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
         }
       , new OrderedListExpect<bool>(BoolList, "", name: "All_NoFilter")
         {
             { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog),
                 "[ true, true, false, true, false, false, false, true, true, false, false, true, true, true ]" }
-          , { new EK( CollectionCardinality  | AcceptsStruct | AllOutputConditionsMask, CompactJson),
+          , { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[true,true,false,true,false,false,false,true,true,false,false,true,true,true]" }
-          , { new EK( CollectionCardinality  | AcceptsStruct | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   true,
@@ -65,12 +61,11 @@ public static class BoolCollectionsTestData
         }
       , new OrderedListExpect<bool>(BoolList, "", () => Bool_First_8)
         {
-            { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan 
-                  |  AllOutputConditionsMask, CompactLog),
+            { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog),
                 "[ true, true, false, true, false, false, false, true ]" }
-          , { new EK(CollectionCardinality  | AcceptsStruct | AllOutputConditionsMask, CompactJson),
+          , { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[true,true,false,true,false,false,false,true]" }
-          , { new EK( CollectionCardinality  | AcceptsStruct | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   true,
@@ -87,12 +82,11 @@ public static class BoolCollectionsTestData
         }
       , new OrderedListExpect<bool>(BoolList, "", () => Bool_First_False)
         {
-            { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan 
-                  |  AllOutputConditionsMask, CompactLog),
+            { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog),
                 "[ false ]" }
-          , { new EK( CollectionCardinality  | AcceptsStruct | AllOutputConditionsMask, CompactJson),
+          , { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[false]" }
-          , { new EK( CollectionCardinality  | AcceptsStruct | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   false
@@ -102,20 +96,19 @@ public static class BoolCollectionsTestData
         }
       , new OrderedListExpect<bool>(BoolList, "\"{0,10}\"", name: "PadAndDelimited")
         {
-            { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan 
-                  |  AllOutputConditionsMask, CompactLog),
+            { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan |  AllOutputConditionsMask, CompactLog),
                 """
                 [ "      true", "      true", "     false", "      true", "     false", "     false", "     false", "      true", 
                 "      true", "     false", "     false", "      true", "      true", "      true" ]
                 """.RemoveLineEndings()
             }
-          , { new EK( CollectionCardinality  | AcceptsStruct | AllOutputConditionsMask, CompactJson),
+          , { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 """
                 ["      true","      true","     false","      true","     false","     false","     false","      true","      true",
                 "     false","     false","      true","      true","      true"]
-                """.ReplaceLineEndings()
+                """.RemoveLineEndings()
             }
-          , { new EK( CollectionCardinality  | AcceptsStruct | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   "      true",
@@ -140,9 +133,9 @@ public static class BoolCollectionsTestData
         {
             { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog),
                 "[ false, false, true, true, false ]" }
-          , { new EK( CollectionCardinality  | AcceptsStruct | AllOutputConditionsMask, CompactJson),
+          , { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[false,false,true,true,false]" }
-          , { new EK( CollectionCardinality  | AcceptsStruct | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   false,
@@ -158,28 +151,23 @@ public static class BoolCollectionsTestData
         // bool? Collections
       , new OrderedListExpect<bool?>([],  "", name: "Empty")
         {
-            { new EK(  OrderedCollectionType | AcceptsNullableStruct), "[]" }
-         ,  { new EK(   AcceptsNullableStruct | AlwaysWrites | NonNullWrites, CompactLog), "[]" }
-          , { new EK(   AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactLog), "[]" }
-          , { new EK( CollectionCardinality  | AcceptsNullableStruct |  AlwaysWrites | NonNullWrites, CompactJson), "[]" }
-          , { new EK( CollectionCardinality  | AcceptsNullableStruct |  AlwaysWrites | NonNullWrites, Pretty), "[]" }
+            { new EK(   OrderedCollectionType | AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
+           ,{ new EK(   AcceptsNullableStruct | AlwaysWrites | NonNullWrites), "[]" }
+           ,{ new EK(   AcceptsNullableStruct  | CallsAsSpan | CallsAsReadOnlySpan| AlwaysWrites), "[]" }
         }
       , new OrderedListExpect<bool?>(null,  "")
         {
-            { new EK( OrderedCollectionType | AcceptsNullableStruct), "[]" }
-          , { new EK(  AcceptsNullableStruct | AlwaysWrites), "null" }
-          , { new EK(  AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan |  AlwaysWrites, CompactLog), "[]" }
-          , { new EK( CollectionCardinality  | AcceptsNullableStruct | AlwaysWrites, CompactJson), "null" }
-          , { new EK( CollectionCardinality  | AcceptsNullableStruct | AlwaysWrites, Pretty), "null" }
+            { new EK( OrderedCollectionType | AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
+          , { new EK(AcceptsNullableStruct | AlwaysWrites), "null" }
+          , { new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
         }
       , new OrderedListExpect<bool?>(NullBoolList, "", name: "All_NoFilter")
         {
-            { new EK(  AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan 
-                  |  AllOutputConditionsMask, CompactLog),
+            { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog),
                 "[ true, null, false, true, false, null, false, true, true, null, false, true, null, null ]" }
-          , { new EK( CollectionCardinality  | AcceptsNullableStruct | AllOutputConditionsMask, CompactJson),
+          , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[true,null,false,true,false,null,false,true,true,null,false,true,null,null]" }
-          , { new EK( CollectionCardinality  | AcceptsNullableStruct | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   true,
@@ -202,12 +190,11 @@ public static class BoolCollectionsTestData
         }
       , new OrderedListExpect<bool?>(NullBoolList, "", () => NullBool_Skip_Odd_Index)
         {
-            { new EK(  AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan 
-                  |  AllOutputConditionsMask, CompactLog),
+            { new EK(  AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog),
                 "[ true, false, false, false, true, false, null ]" }
-          , { new EK( CollectionCardinality  | AcceptsNullableStruct | AllOutputConditionsMask, CompactJson),
+          , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[true,false,false,false,true,false,null]" }
-          , { new EK( CollectionCardinality  | AcceptsNullableStruct | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   true,
@@ -223,12 +210,11 @@ public static class BoolCollectionsTestData
         }
       , new OrderedListExpect<bool?>(NullBoolList, "", () => NullBool_First_False)
         {
-            { new EK(  AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan 
-                  |  AllOutputConditionsMask, CompactLog),
+            { new EK(  AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog),
                 "[ false ]" }
-          , { new EK( CollectionCardinality  | AcceptsNullableStruct | AllOutputConditionsMask, CompactJson),
+          , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[false]" }
-          , { new EK( CollectionCardinality  | AcceptsNullableStruct | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   false
@@ -238,20 +224,19 @@ public static class BoolCollectionsTestData
         }
       , new OrderedListExpect<bool?>(NullBoolList, "\"{0,10}\"", name: "PadAndDelimited")
         {
-            { new EK(  AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan 
-                  |  AllOutputConditionsMask, CompactLog),
+            { new EK(  AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan |  AllOutputConditionsMask, CompactLog),
                 """
                 [ "      true", "      null", "     false", "      true", "     false", "      null", "     false", "      true", 
                 "      true", "      null", "     false", "      true", "      null", "      null" ]
                 """.RemoveLineEndings()
             }
-          , { new EK( CollectionCardinality  | AcceptsNullableStruct | AllOutputConditionsMask, CompactJson),
+          , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 """
-                ["      true","      null","     false","      true","     false","     null","     false","      true","      true",
-                "     false","      null","      true","      null","      null"]
-                """.ReplaceLineEndings()
+                ["      true","      null","     false","      true","     false","      null","     false","      true",
+                "      true","      null","     false","      true","      null","      null"]
+                """.RemoveLineEndings()
             }
-          , { new EK( CollectionCardinality  | AcceptsNullableStruct | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   "      true",
@@ -276,9 +261,9 @@ public static class BoolCollectionsTestData
         {
             { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog),
                 "[ null, false, true, true, null ]" }
-          , { new EK( CollectionCardinality  | AcceptsNullableStruct | AllOutputConditionsMask, CompactJson),
+          , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[null,false,true,true,null]" }
-          , { new EK( CollectionCardinality  | AcceptsNullableStruct | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
                 """
                 [
                   null,

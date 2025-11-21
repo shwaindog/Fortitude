@@ -99,7 +99,7 @@ public partial class SelectTypeCollectionFieldTests
     }
 
 
-    private static IEnumerable<object[]> UnfiltereFmtCollectionsExpect =>
+    private static IEnumerable<object[]> UnfilteredFmtCollectionsExpect =>
         (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
             where fe is {ElementTypeIsNullable: false, HasRestrictingFilter: false }   
             from scaffoldToCall in 
@@ -137,7 +137,7 @@ public partial class SelectTypeCollectionFieldTests
                 select new object[] { fe, scaffoldToCall });
 
     [TestMethod]
-    [DynamicData(nameof(UnfiltereFmtCollectionsExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    [DynamicData(nameof(UnfilteredFmtCollectionsExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void UnfilteredCompactLogFmtList(IOrderedListExpect formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");

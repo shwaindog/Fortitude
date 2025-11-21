@@ -112,8 +112,8 @@ public static class FieldContentHandlingExtensions
     public static bool HasEnsureCompactFlag(this FieldContentHandling flags)                => (flags & EnsureCompact) > 0;
     public static bool DoesNotHaveEnsureCompactFlag(this FieldContentHandling flags)        => (flags & EnsureCompact) == 0;
     public static bool HasEnsurePrettyFlag(this FieldContentHandling flags)                 => (flags & EnsurePretty) > 0;
-    public static bool HasAsEmbeddedContentFlags(this FieldContentHandling flags)            => (flags & AsEmbeddedContent) == AsEmbeddedContent;
-    public static bool DoesNotHaveAsEmbeddedContentFlags(this FieldContentHandling flags)    => (flags & AsEmbeddedContent) != AsEmbeddedContent;
+    public static bool HasAsEmbeddedContentFlags(this FieldContentHandling flags)           => (flags & AsEmbeddedContent) == AsEmbeddedContent;
+    public static bool DoesNotHaveAsEmbeddedContentFlags(this FieldContentHandling flags)   => (flags & AsEmbeddedContent) != AsEmbeddedContent;
     public static bool HasExcludeWhenLogStyleFlag(this FieldContentHandling flags)          => (flags & ExcludeWhenLogStyle) > 0;
     public static bool HasExcludeWhenJsonStyleFlag(this FieldContentHandling flags)         => (flags & ExcludeWhenJsonStyle) > 0;
     public static bool HasExcludeWhenYamlStyleFlag(this FieldContentHandling flags)         => (flags & ExcludeWhenYamlStyle) > 0;
@@ -123,6 +123,8 @@ public static class FieldContentHandlingExtensions
     public static bool HasDisableAutoDelimiting(this FieldContentHandling flags)            => (flags & DisableAutoDelimiting) > 0;
     public static bool ShouldDelimit(this FieldContentHandling flags)                       => (flags & EnsureFormattedDelimited) > 0;
     public static bool DoesNotHaveLogSuppressTypeNamesFlag(this FieldContentHandling flags) => (flags & LogSuppressTypeNames) == 0;
+    public static bool HasAsCollectionFlag(this FieldContentHandling flags)                       => (flags & AsCollection) > 0;
+    public static bool DoesNotHaveAsCollectionFlag(this FieldContentHandling flags)                       => (flags & AsCollection) == 0;
 
     public static StringStyle UpdateStringStyle(this FieldContentHandling flags, StringStyle existingStyle)
     {

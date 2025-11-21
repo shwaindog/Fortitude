@@ -774,7 +774,7 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
             }
             else if (i + 1 < end)
             {
-                var iRune = new Rune(iChar, source[i + 1]);
+                var iRune = new Rune(iChar, source[++i]);
                 int appended;
                 if (isAppend)
                 {
