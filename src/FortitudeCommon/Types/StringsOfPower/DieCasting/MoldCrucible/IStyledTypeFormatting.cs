@@ -78,9 +78,9 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder CollectionNextItemFormat(IStringBuilder sb, bool? item
       , int retrieveCount, string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
-    IStringBuilder CollectionNextItemFormat<TFmt>(IStringBuilder sb, TFmt? item
+    IStringBuilder CollectionNextItemFormat<TFmt>(IStringBuilder sb, TFmt item
       , int retrieveCount, string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
-      where TFmt: ISpanFormattable;
+      where TFmt: ISpanFormattable?;
 
     IStringBuilder CollectionNextItemFormat<TFmtStruct>(IStringBuilder sb, TFmtStruct? item
       , int retrieveCount, string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
@@ -157,11 +157,11 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder FormatFieldContents(IStringBuilder sb, bool? source, string? formatString = null
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
-    IStringBuilder FormatFieldContents<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null
-    , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable;
+    IStringBuilder FormatFieldContents<TFmt>(IStringBuilder sb, TFmt source, string? formatString = null
+    , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?;
 
-    IStringBuilder FormatFieldContents<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null
-    , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : struct, ISpanFormattable;
+    IStringBuilder FormatFieldContents<TFmtStruct>(IStringBuilder sb, TFmtStruct? source, string? formatString = null
+    , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable;
 
     IStringBuilder FormatFieldContents(IStringBuilder sb, ReadOnlySpan<char> source, int sourceFrom = 0
       , string? formatString = null, int maxTransferCount = int.MaxValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags);

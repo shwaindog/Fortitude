@@ -91,7 +91,7 @@ public class FieldSpanFormattableNullableClassSpanWhenPopulatedWithFilterStringB
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterNullable
+           .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableNullableSpan)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableNullableSpan.AsSpan()
               , ElementPredicate, ValueFormatString)
@@ -343,7 +343,7 @@ public class FieldCharSequenceNullableSpanWhenPopulatedWithFilterStringBearer<TC
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterCharSeqNullable
+           .CollectionField.WhenPopulatedWithFilterCharSeq
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCharSequenceSpan)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCharSequenceSpan.AsSpan()
               , ElementPredicate, ValueFormatString)
@@ -434,7 +434,7 @@ public class FieldMatchNullableSpanWhenPopulatedWithFilterStringBearer<TAny, TAn
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
-           .WhenPopulatedWithFilterMatchNullable
+           .WhenPopulatedWithFilterMatch
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableMatchSpan)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableMatchSpan.AsSpan()
               , ElementPredicate, ValueFormatString)
@@ -566,7 +566,7 @@ public class FieldSpanFormattableNullableClassReadOnlySpanWhenPopulatedWithFilte
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterNullable
+           .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableNullableReadOnlySpan)
               , (ReadOnlySpan<TFmt?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableNullableReadOnlySpan
               , ElementPredicate, ValueFormatString)
@@ -819,7 +819,7 @@ public class FieldCharSequenceNullableReadOnlySpanWhenPopulatedWithFilterStringB
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterCharSeqNullable
+           .CollectionField.WhenPopulatedWithFilterCharSeq
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCharSequenceReadOnlySpan),
                 (ReadOnlySpan<TCharSeq?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCharSequenceReadOnlySpan
               , ElementPredicate, ValueFormatString)
@@ -909,7 +909,7 @@ public class FieldMatchNullableReadOnlySpanWhenPopulatedWithFilterStringBearer<T
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterMatchNullable
+           .CollectionField.WhenPopulatedWithFilterMatch
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableMatchReadOnlySpan)
               , (ReadOnlySpan<TAny?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableMatchReadOnlySpan
               , ElementPredicate, ValueFormatString)
@@ -919,7 +919,6 @@ public class FieldMatchNullableReadOnlySpanWhenPopulatedWithFilterStringBearer<T
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites | FilterPredicate 
                 | AcceptsNonNullableObject | SupportsValueFormatString)]
 public class FieldObjectReadOnlySpanWhenPopulatedWithFilterStringBearer : FormattedFilteredCollectionFieldMoldScaffold<object, object[]>
-  
 {
     public object[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectReadOnlySpan
     {

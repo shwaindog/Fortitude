@@ -130,7 +130,7 @@ public partial class OrderedCollectionMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactJson(StringBearerCollectionsTestData.AllStringBearerCollectionExpectations[21], ScaffoldingRegistry.AllScaffoldingTypes[109]);
+        SharedCompactJson(BoolCollectionsTestData.AllBoolCollectionExpectations[3], ScaffoldingRegistry.AllScaffoldingTypes[1]);
     }
 
     private void SharedCompactJson(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -178,7 +178,7 @@ public partial class OrderedCollectionMoldTests
         stringBearer.RevealState(tos);
         var buildExpectedOutput =
             BuildExpectedOutput
-                (stringBearer.GetType().ShortNameInCSharpFormat()
+                (stringBearer.GetType().CachedCSharpNameNoConstraints()
                , ((ISinglePropertyTestStringBearer)stringBearer).PropertyName
                , scaffoldingToCall.ScaffoldingFlags
                , formatExpectation).MakeWhiteSpaceVisible();

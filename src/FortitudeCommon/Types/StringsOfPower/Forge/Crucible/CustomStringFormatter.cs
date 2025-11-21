@@ -819,8 +819,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         }
     }
 
-    public virtual int Format<TFmt>(TFmt? source, IStringBuilder sb, ReadOnlySpan<char> formatString
-      , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable
+    public virtual int Format<TFmt>(TFmt source, IStringBuilder sb, ReadOnlySpan<char> formatString
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable?
     {
         if (source == null) return Options.NullWritesEmpty ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         int charsWritten;
@@ -905,9 +905,9 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         return charsWritten;
     }
 
-    public virtual int Format<TFmt>(TFmt? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString
+    public virtual int Format<TFmt>(TFmt source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString
       , FormattingHandlingFlags formatFlags = EncodeInnerContent)
-        where TFmt : ISpanFormattable
+        where TFmt : ISpanFormattable?
     {
         if (source == null) return Options.NullWritesEmpty ? 0 : destCharSpan.AppendReturnAddCount(Options.NullString);
         int charsWritten;
@@ -1670,11 +1670,11 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     public abstract int CollectionStart(Type collectionType, Span<char> destSpan, int destStartIndex, bool hasItems
       , FormattingHandlingFlags formatFlags = EncodeInnerContent);
 
-    public abstract int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, IStringBuilder sb, string formatString
-      , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable;
+    public abstract int CollectionNextItemFormat<TFmt>(TFmt nextItem, int retrieveCount, IStringBuilder sb, string formatString
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable?;
 
-    public abstract int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, Span<char> destination, int destStartIndex
-      , string formatString, FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable;
+    public abstract int CollectionNextItemFormat<TFmt>(TFmt nextItem, int retrieveCount, Span<char> destination, int destStartIndex
+      , string formatString, FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable?;
 
     public abstract int CollectionNextItemFormat<TFmtStruct>(TFmtStruct? nextItem, int retrieveCount, IStringBuilder sb, string formatString
       , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmtStruct : struct, ISpanFormattable;

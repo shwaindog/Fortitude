@@ -46,6 +46,8 @@ public interface ITheOneString : IReusableObject<ITheOneString>
 
     ITheOneString Clear(int indentLevel = 0, SkipTypeParts ignoreFlags = SkipTypeParts.None);
 
+    ITheOneString ClearVisitHistory();
+
     KeyValueCollectionMold StartKeyedCollectionType<T>(T toStyle, CreateContext createContext = default);
 
     ExplicitKeyedCollectionMold<TKey, TValue> StartExplicitKeyedCollectionType<TKey, TValue>(object keyValueContainerInstance
@@ -78,31 +80,6 @@ public interface ITheOneString : IReusableObject<ITheOneString>
 
     // ReSharper restore UnusedMemberInSuper.Global
     // ReSharper restore UnusedMember.Global
-}
-
-public struct CallerContext
-{
-    public FieldContentHandling FormatFlags { get; set; }
-
-    public string? FormatString { get; set; }
-}
-
-public struct CreateContext
-{
-    public CreateContext() { }
-
-    public CreateContext(string? nameOverride = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags, string? formatString = null)
-    {
-        NameOverride = nameOverride;
-        FormatFlags  = formatFlags;
-        FormatString = formatString;
-    }
-
-    public string? NameOverride { get; set; }
-
-    public FieldContentHandling FormatFlags { get; set; }
-
-    public string? FormatString { get; set; }
 }
 
 public interface ISecretStringOfPower : ITheOneString
@@ -297,9 +274,8 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         initialAppendSettings = new MoldDieCastSettings(ignoreWrite);
         Sb?.Clear();
         Sb ??= BufferFactory();
-        OrderedObjectGraph.Clear();
 
-        return this;
+        return ClearVisitHistory();
     }
 
     public ITheOneString ClearAndReinitialize(StyleOptionsValue styleOptionsValue, int indentLevel = 0
@@ -312,9 +288,25 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         initialAppendSettings = new MoldDieCastSettings(ignoreWrite);
         Sb?.Clear();
         Sb ??= BufferFactory();
+
+        return ClearVisitHistory();
+    }
+
+    public ITheOneString Clear(int indentLevel = 0, SkipTypeParts ignoreWrite = SkipTypeParts.None)
+    {
+        initialAppendSettings = new MoldDieCastSettings(ignoreWrite);
+        Sb?.Clear();
+        Sb ??= BufferFactory();
+
+        return ClearVisitHistory();
+    }
+
+    public ITheOneString ClearVisitHistory()
+    {
         OrderedObjectGraph.Clear();
 
         return this;
+        
     }
 
     void ISecretStringOfPower.TypeComplete(ITypeMolderDieCast completeType)
@@ -555,17 +547,6 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         return nextDieSettings;
     }
 
-    public ITheOneString Clear(int indentLevel = 0, SkipTypeParts ignoreWrite = SkipTypeParts.None)
-    {
-        initialAppendSettings = new MoldDieCastSettings(ignoreWrite);
-        Sb?.Clear();
-        Sb ??= BufferFactory();
-
-        OrderedObjectGraph.Clear();
-
-        return this;
-    }
-
     public CallContextDisposable ResolveContextForCallerFlags(FieldContentHandling contentFlags)
     {
         if ((contentFlags & ExcludeMask) > 0)
@@ -598,7 +579,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
            , IndentLevel, Sb!.Length
            , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1)
             {
-                TypeBuilderComponentAccess = ((ITypeBuilderComponentSource)newType).ComponentAccess
+                TypeBuilderComponentAccess = ((ITypeBuilderComponentSource)newType).MoldState
             };
         if (newVisit.ObjVisitIndex != OrderedObjectGraph.Count) throw new ArgumentException("ObjVisitIndex to be the size of OrderedObjectGraph");
 

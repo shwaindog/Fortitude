@@ -95,7 +95,7 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
         {
             {
                 var result = new MutableString();
-                result.Append(InputType.ShortNameInCSharpFormat());
+                result.Append(InputType.CachedCSharpNameNoConstraints());
                 if (Input == null) { result.Append("=null"); }
                 else
                 {
@@ -207,7 +207,7 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
     public override string ToString()
     {
         var sb = new MutableString();
-        sb.AppendLine(GetType().ShortNameInCSharpFormat());
+        sb.AppendLine(GetType().CachedCSharpNameWithConstraints());
         if (srcFile.IsNotEmpty())
         {
             sb.AppendLine();
@@ -217,7 +217,7 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
         {
             sb.Append("Name").Append(": ").Append(name).Append(", ");
         }
-        sb.Append(nameof(InputType)).Append(": ").Append(InputType.ShortNameInCSharpFormat()).Append(", ");
+        sb.Append(nameof(InputType)).Append(": ").Append(InputType.CachedCSharpNameWithConstraints()).Append(", ");
         sb.Append(nameof(Input)).Append(": ");
         if (InputIsNull) { sb.Append("null"); }
         else { sb.Append(AsStringDelimiterOpen).Append(new MutableString().Append(Input).ToString()).Append(AsStringDelimiterClose); }

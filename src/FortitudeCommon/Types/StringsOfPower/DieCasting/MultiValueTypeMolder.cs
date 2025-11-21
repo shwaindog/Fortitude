@@ -23,19 +23,19 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
       , int existingRefId
       , FieldContentHandling createFormatFlags )
     {
-        InitializeTypedStyledTypeBuilder(typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName
+        Initialize(typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName
                                        , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
     }
 
 
     public TypeFields.SelectTypeField<TExt>? LogOnlyInternalField =>
         logOnlyInternalField ??= Settings.Style.AllowsUnstructured()
-            ? PortableState.Master.Recycler.Borrow<TypeFields.SelectTypeField<TExt>>().Initialize(CompAccess)
+            ? PortableState.Master.Recycler.Borrow<TypeFields.SelectTypeField<TExt>>().Initialize(MoldStateField)
             : null;
 
     public TypeFieldCollection.SelectTypeCollectionField<TExt>? LogOnlyInternalCollectionField =>
         logOnlyInternalCollectionField ??= Settings.Style.AllowsUnstructured()
-            ? PortableState.Master.Recycler.Borrow<TypeFieldCollection.SelectTypeCollectionField<TExt>>().Initialize(CompAccess)
+            ? PortableState.Master.Recycler.Borrow<TypeFieldCollection.SelectTypeCollectionField<TExt>>().Initialize(MoldStateField)
             : null;
 
     protected override void InheritedStateReset()
@@ -45,15 +45,15 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
         logOnlyInternalField?.DecrementRefCount();
         logOnlyInternalField = null!;
 
-        CompAccess?.DecrementIndent();
-        CompAccess = null!;
+        MoldStateField?.DecrementIndent();
+        MoldStateField = null!;
     }
 
     public TExt AddBaseStyledToStringFields<T>(T thisType) where T : IStringBearer
     {
-        if (CompAccess.SkipBody) return CompAccess.StyleTypeBuilder;
-        CompAccess.Master.AddBaseFieldsStart();
-        TargetStringBearerRevealState.CallBaseStyledToStringIfSupported(thisType, CompAccess.Master);
+        if (MoldStateField.SkipBody) return MoldStateField.StyleTypeBuilder;
+        MoldStateField.Master.AddBaseFieldsStart();
+        TargetStringBearerRevealState.CallBaseStyledToStringIfSupported(thisType, MoldStateField.Master);
         
         return Me;
     }

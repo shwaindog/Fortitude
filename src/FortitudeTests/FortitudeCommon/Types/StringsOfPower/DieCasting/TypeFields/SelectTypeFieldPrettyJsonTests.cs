@@ -184,7 +184,7 @@ public partial class SelectTypeFieldTests
         var stringBearer = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall, tos.Settings);
         stringBearer.RevealState(tos);
         var buildExpectedOutput =
-            BuildExpectedOutput(stringBearer.GetType().ShortNameInCSharpFormat()
+            BuildExpectedOutput(stringBearer.GetType().CachedCSharpNameNoConstraints()
                , ((ISinglePropertyTestStringBearer)stringBearer).PropertyName
                , scaffoldingToCall.ScaffoldingFlags, formatExpectation);
         var result = tos.WriteBuffer.ToString();

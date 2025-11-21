@@ -35,35 +35,35 @@ public class ComplexTypeMold : MultiValueTypeMolder<ComplexTypeMold>
 
     public override void AppendOpening()
     {
-        CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess);
+        State.StyleFormatter.AppendComplexTypeOpening(State);
     }
     
     public override void AppendClosing()
     {
-        CompAccess.StyleFormatter.AppendTypeClosing(CompAccess);
+        State.StyleFormatter.AppendTypeClosing(State);
+    }
+
+    public virtual void StartContent()
+    {
     }
 
     public SelectTypeKeyValueCollectionField<ComplexTypeMold> KeyedCollectionField
     {
-        get => addKeyCollectionField ??= CompAccess.Recycler.Borrow<SelectTypeKeyValueCollectionField<ComplexTypeMold>>().Initialize(CompAccess);
+        get => addKeyCollectionField ??= State.Recycler.Borrow<SelectTypeKeyValueCollectionField<ComplexTypeMold>>().Initialize(State);
         protected set => addKeyCollectionField = value;
     }
 
     public SelectTypeCollectionField<ComplexTypeMold> CollectionField
     {
-        get => addCollectionField ??= CompAccess.Recycler.Borrow<SelectTypeCollectionField<ComplexTypeMold>>().Initialize(CompAccess);
+        get => addCollectionField ??= State.Recycler.Borrow<SelectTypeCollectionField<ComplexTypeMold>>().Initialize(State);
         protected set => addCollectionField = value;
     }
 
     public SelectTypeField<ComplexTypeMold> Field
     {
-        get => addField ??= CompAccess.Recycler.Borrow<SelectTypeField<ComplexTypeMold>>().Initialize(CompAccess);
+        get => addField ??= State.Recycler.Borrow<SelectTypeField<ComplexTypeMold>>().Initialize(State);
         protected set => addField = value;
     }
-
-
-    public bool InBase { get; private set; }
-
 
     protected override void InheritedStateReset()
     {

@@ -294,8 +294,8 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         return 0;
     }
 
-    public override int Format<TFmt>(TFmt? source, IStringBuilder sb, ReadOnlySpan<char> formatString
-      , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : default
+    public override int Format<TFmt>(TFmt source, IStringBuilder sb, ReadOnlySpan<char> formatString
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         if (source == null) { return (Options.NullWritesEmpty ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length)); }
         var originalLength = sb.Length;
@@ -379,8 +379,8 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         return sb.Length - originalLength;
     }
 
-    public override int Format<TFmt>(TFmt? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString
-      , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : default
+    public override int Format<TFmt>(TFmt source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         if (source == null) { return Options.NullWritesEmpty ? 0 : destCharSpan.AppendReturnAddCount(Options.NullString); }
         var charsAdded      = 0;
@@ -1371,8 +1371,8 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         return destSpan.OverWriteAt(atIndex, Cma);
     }
 
-    public override int CollectionNextItemFormat<TFmt>(TFmt? nextItem, int retrieveCount, IStringBuilder sb, string formatString
-      , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : default
+    public override int CollectionNextItemFormat<TFmt>(TFmt nextItem, int retrieveCount, IStringBuilder sb, string formatString
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
         formatFlags = ResolveStringFormattingFlags(sb.LastNonWhiteChar(), nextItem, formatFlags, formatString);
         var preAppendLen = sb.Length;

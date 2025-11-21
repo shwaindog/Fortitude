@@ -310,7 +310,7 @@ public class FieldKeyValueDictionaryBothRevealersWhenNonNullAddFilteredStringBea
               , KeyValuePredicate, ValueRevealer, KeyRevealer)
            .Complete();
 
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
+    public override string ToString() => $"{GetType().CachedCSharpNameWithConstraints()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsArray | NonNullWrites | FilterPredicate | AcceptsClass

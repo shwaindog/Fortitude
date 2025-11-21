@@ -56,7 +56,7 @@ public class NullStructStringBearerOrderedListExpect<TChildScaffoldListElement>
         if (expectValue != IFormatExpectation.NoResultExpectedValue && expectValue != "null" && expectValue != "" && !excludeCalledType)
         {
             expectValue = WhenValueExpectedOutput
-                (excludeCalledType ? "" : (calledValueType ?? typeof(TChildScaffoldListElement)).ShortNameInCSharpFormat()
+                (excludeCalledType ? "" : (calledValueType ?? typeof(TChildScaffoldListElement)).CachedCSharpNameNoConstraints()
                , RevealerScaffold.PropertyName, condition, FieldValueExpectation);
         }
         return expectValue;
@@ -221,7 +221,7 @@ public class StringBearerOrderedListExpect<TChildScaffoldListElement, TFilterBas
         if (expectValue != IFormatExpectation.NoResultExpectedValue && expectValue != "null" && expectValue != "")
         {
             expectValue = WhenValueExpectedOutput
-                (excludeCalledType ? "" :(calledValueType ?? typeof(TChildScaffoldListElement)).ShortNameInCSharpFormat()
+                (excludeCalledType ? "" :(calledValueType ?? typeof(TChildScaffoldListElement)).CachedCSharpNameNoConstraints()
                , RevealerScaffold?.PropertyName ?? "NoRevealerScaffold", condition, FieldValueExpectation);
         }
         return expectValue;

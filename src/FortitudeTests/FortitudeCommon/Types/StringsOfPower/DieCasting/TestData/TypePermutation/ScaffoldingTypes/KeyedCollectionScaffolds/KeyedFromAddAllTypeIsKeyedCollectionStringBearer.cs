@@ -267,7 +267,6 @@ public class KeyedFromPairEnumeratorValueRevealerKeyFormatStringsAddAllStringBea
               , ValueRevealer, KeyFormatString)
            .Complete();
 
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
 }
 
 [TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsDictionary  | AcceptsClass | AcceptsNullableClass

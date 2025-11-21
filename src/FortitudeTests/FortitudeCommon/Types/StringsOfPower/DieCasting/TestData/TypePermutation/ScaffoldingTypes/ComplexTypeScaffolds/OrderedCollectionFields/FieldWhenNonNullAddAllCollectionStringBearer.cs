@@ -86,7 +86,7 @@ public class FieldSpanFormattableNullableClassSpanWhenNonNullAddAllStringBearer<
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllNullable
+           .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableNullableClassSpan)
               , ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableNullableClassSpan.AsSpan()
               , ValueFormatString)
@@ -324,7 +324,7 @@ public class FieldCharSequenceNullableSpanWhenNonNullAddAllStringBearer<TCharSeq
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllCharSeqNullable
+           .CollectionField.WhenNonNullAddAllCharSeq
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceNullableSpan)
               , ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceNullableSpan.AsSpan()
               , ValueFormatString)
@@ -536,7 +536,7 @@ public class FieldSpanFormattableNullableClassReadOnlySpanWhenNonNullAddAllStrin
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllNullable
+           .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableNullableRefReadOnlySpan)
               , (ReadOnlySpan<TFmt?>)ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableNullableRefReadOnlySpan, ValueFormatString)
            .Complete();
@@ -780,7 +780,7 @@ public class FieldCharSequenceNullableReadOnlySpanWhenNonNullAddAllStringBearer<
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddAllCharSeqNullable
+           .CollectionField.WhenNonNullAddAllCharSeq
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceNullableSpan)
               , (ReadOnlySpan<TCharSeq?>)ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceNullableSpan
               , ValueFormatString)

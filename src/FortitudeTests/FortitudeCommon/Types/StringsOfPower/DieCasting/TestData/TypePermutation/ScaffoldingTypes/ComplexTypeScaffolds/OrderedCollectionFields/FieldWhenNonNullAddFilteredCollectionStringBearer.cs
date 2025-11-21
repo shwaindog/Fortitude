@@ -99,7 +99,7 @@ public class FieldSpanFormattableNullableClassSpanWhenNonNullAddFilteredStringBe
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredNullable
+           .CollectionField.WhenNonNullAddFiltered
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableNullableSpan)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableNullableSpan.AsSpan()
               , ElementPredicate, ValueFormatString)
@@ -360,7 +360,7 @@ public class FieldCharSequenceNullableSpanWhenNonNullAddFilteredStringBearer<TCh
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredCharSeqNullable
+           .CollectionField.WhenNonNullAddFilteredCharSeq
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCharSequenceSpan)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCharSequenceSpan.AsSpan()
               , ElementPredicate, ValueFormatString)
@@ -455,7 +455,7 @@ public class FieldMatchNullableSpanWhenNonNullAddFilteredStringBearer<TAny, TAny
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
-           .WhenNonNullAddFilteredMatchNullable
+           .WhenNonNullAddFilteredMatch
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableMatchSpan)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableMatchSpan.AsSpan()
               , ElementPredicate, ValueFormatString)
@@ -593,7 +593,7 @@ public class FieldSpanFormattableNullableClassReadOnlySpanWhenNonNullAddFiltered
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredNullable
+           .CollectionField.WhenNonNullAddFiltered
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableNullableReadOnlySpan)
               , (ReadOnlySpan<TFmt?>)ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableNullableReadOnlySpan
               , ElementPredicate, ValueFormatString)
@@ -854,7 +854,7 @@ public class FieldCharSequenceNullableReadOnlySpanWhenNonNullAddFilteredStringBe
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredCharSeqNullable
+           .CollectionField.WhenNonNullAddFilteredCharSeq
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCharSequenceReadOnlySpan),
                 (ReadOnlySpan<TCharSeq?>)ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCharSequenceReadOnlySpan
               , ElementPredicate, ValueFormatString)
@@ -948,7 +948,7 @@ public class FieldMatchNullableReadOnlySpanWhenNonNullAddFilteredStringBearer<TA
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredMatchNullable
+           .CollectionField.WhenNonNullAddFilteredMatch
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableMatchReadOnlySpan)
               , (ReadOnlySpan<TAny?>)ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableMatchReadOnlySpan
               , ElementPredicate, ValueFormatString)

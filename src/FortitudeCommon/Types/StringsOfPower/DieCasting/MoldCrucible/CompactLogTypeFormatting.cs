@@ -428,9 +428,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb;
     }
 
-    public virtual IStringBuilder FormatFieldContents<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null
+    public virtual IStringBuilder FormatFieldContents<TFmt>(IStringBuilder sb, TFmt source, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable
+        where TFmt : ISpanFormattable?
     {
         formatString ??= "";
 
@@ -690,8 +690,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb;
     }
 
-    public IStringBuilder CollectionNextItemFormat<TFmt>(IStringBuilder sb, TFmt? item, int retrieveCount, string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
+    public IStringBuilder CollectionNextItemFormat<TFmt>(IStringBuilder sb, TFmt item, int retrieveCount, string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
         if (item == null) { return AppendFormattedNull(sb, formatString, formatFlags); }
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);

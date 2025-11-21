@@ -1364,7 +1364,7 @@ public class ScaffoldingValidateClassTests
             {
                 le = le?.Append("  * ").Append(violating.Name).Append("\n");
             }
-            le?.Append(" to implement ").FinalAppend(typeof(ISupportsKeyFormatString).ShortNameInCSharpFormat());
+            le?.Append(" to implement ").FinalAppend(typeof(ISupportsKeyFormatString).CachedCSharpNameWithConstraints());
             Assert.Fail(le?.ToString());
         }
     }
@@ -1416,7 +1416,7 @@ public class ScaffoldingValidateClassTests
             {
                 le = le?.Append("  * ").Append(violating.Name).Append("\n");
             }
-            le?.Append(" to implement ").FinalAppend(typeof(ISupportsValueRevealer<>).ShortNameInCSharpFormat());
+            le?.Append(" to implement ").FinalAppend(typeof(ISupportsValueRevealer<>).CachedCSharpNameWithConstraints());
             Assert.Fail(le?.ToString());
         }
     }
@@ -1438,7 +1438,7 @@ public class ScaffoldingValidateClassTests
         if (violatingScaffoldEntries.Any())
         {
             var le = logger.ErrorAppend("Any Scaffolding with ")?
-                           .Append((typeof(ISupportsValueRevealer<>).ShortNameInCSharpFormat()))
+                           .Append((typeof(ISupportsValueRevealer<>).CachedCSharpNameWithConstraints()))
                            .Append("  -  Expected - ").AppendLine();
             foreach (var violating in violatingScaffoldEntries)
             {
@@ -1470,7 +1470,7 @@ public class ScaffoldingValidateClassTests
             {
                 le = le?.Append("  * ").Append(violating.Name).Append("\n");
             }
-            le?.Append(" to implement ").FinalAppend(typeof(ISupportsKeyRevealer<>).ShortNameInCSharpFormat());
+            le?.Append(" to implement ").FinalAppend(typeof(ISupportsKeyRevealer<>).CachedCSharpNameWithConstraints());
             Assert.Fail(le?.ToString());
         }
     }
@@ -1492,7 +1492,7 @@ public class ScaffoldingValidateClassTests
         if (violatingScaffoldEntries.Any())
         {
             var le = logger.ErrorAppend("Any Scaffolding with ")?
-                           .Append((typeof(ISupportsKeyRevealer<>).ShortNameInCSharpFormat()))
+                           .Append((typeof(ISupportsKeyRevealer<>).CachedCSharpNameWithConstraints()))
                            .Append("  -  Expected - ").AppendLine();
             foreach (var violating in violatingScaffoldEntries)
             {
@@ -1524,7 +1524,7 @@ public class ScaffoldingValidateClassTests
             {
                 le = le?.Append("  * ").Append(violating.Name).Append("\n");
             }
-            le?.Append(" to implement ").FinalAppend(typeof(ISupportsIndexRangeLimiting).ShortNameInCSharpFormat());
+            le?.Append(" to implement ").FinalAppend(typeof(ISupportsIndexRangeLimiting).CachedCSharpNameWithConstraints());
             Assert.Fail(le?.ToString());
         }
     }
@@ -1546,7 +1546,7 @@ public class ScaffoldingValidateClassTests
         if (violatingScaffoldEntries.Any())
         {
             var le = logger.ErrorAppend("Any Scaffolding with ")?
-                           .Append((typeof(ISupportsIndexRangeLimiting).ShortNameInCSharpFormat()))
+                           .Append((typeof(ISupportsIndexRangeLimiting).CachedCSharpNameWithConstraints()))
                            .Append("  -  Expected - ").AppendLine();
             foreach (var violating in violatingScaffoldEntries)
             {
@@ -1578,7 +1578,7 @@ public class ScaffoldingValidateClassTests
             {
                 le = le?.Append("  * ").Append(violating.Name).Append("\n");
             }
-            le?.Append(" to implement ").FinalAppend(typeof(ISupportsOrderedCollectionPredicate<>).ShortNameInCSharpFormat());
+            le?.Append(" to implement ").FinalAppend(typeof(ISupportsOrderedCollectionPredicate<>).CachedCSharpNameWithConstraints());
             Assert.Fail(le?.ToString());
         }
     }
@@ -1600,7 +1600,7 @@ public class ScaffoldingValidateClassTests
         if (violatingScaffoldEntries.Any())
         {
             var le = logger.ErrorAppend("Any Scaffolding with ")?
-                           .Append((typeof(ISupportsOrderedCollectionPredicate<>).ShortNameInCSharpFormat()))
+                           .Append((typeof(ISupportsOrderedCollectionPredicate<>).CachedCSharpNameWithConstraints()))
                            .Append("  -  Expected - ").AppendLine();
             foreach (var violating in violatingScaffoldEntries)
             {
@@ -1633,7 +1633,7 @@ public class ScaffoldingValidateClassTests
             {
                 le = le?.Append("  * ").Append(violating.Name).Append("\n");
             }
-            le?.Append(" to implement ").FinalAppend(typeof(ISupportsKeyedCollectionPredicate<,>).ShortNameInCSharpFormat());
+            le?.Append(" to implement ").FinalAppend(typeof(ISupportsKeyedCollectionPredicate<,>).CachedCSharpNameWithConstraints());
             Assert.Fail(le?.ToString());
         }
     }
@@ -1655,7 +1655,7 @@ public class ScaffoldingValidateClassTests
         if (violatingScaffoldEntries.Any())
         {
             var le = logger.ErrorAppend("Any Scaffolding with ")?
-                           .Append((typeof(ISupportsKeyedCollectionPredicate<,>).ShortNameInCSharpFormat()))
+                           .Append((typeof(ISupportsKeyedCollectionPredicate<,>).CachedCSharpNameWithConstraints()))
                            .Append("  -  Expected - ").AppendLine();
             foreach (var violating in violatingScaffoldEntries)
             {

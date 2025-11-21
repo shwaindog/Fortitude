@@ -86,7 +86,7 @@ public class FieldSpanFormattableNullableClassSpanWhenPopulatedAddAllStringBeare
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllNullable
+           .CollectionField.WhenPopulatedAddAll
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllSpanFormattableNullableClassSpan)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllSpanFormattableNullableClassSpan.AsSpan()
               , ValueFormatString)
@@ -413,7 +413,7 @@ public class FieldMatchNullableSpanWhenPopulatedAddAllStringBearer<TAny> : Forma
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllMatchNullable
+           .CollectionField.WhenPopulatedAddAllMatch
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllMatchNullableSpan)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllMatchNullableSpan.AsSpan(), ValueFormatString)
            .Complete();
@@ -543,7 +543,7 @@ public class FieldSpanFormattableNullableClassReadOnlySpanWhenPopulatedAddAllStr
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllNullable
+           .CollectionField.WhenPopulatedAddAll
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllSpanFormattableNullableRefReadOnlySpan)
               , (ReadOnlySpan<TFmt?>)ComplexTypeCollectionFieldWhenPopulatedAddAllSpanFormattableNullableRefReadOnlySpan, ValueFormatString)
            .Complete();
@@ -787,7 +787,7 @@ public class FieldCharSequenceNullableReadOnlySpanWhenPopulatedAddAllStringBeare
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllCharSeqNullable
+           .CollectionField.WhenPopulatedAddAllCharSeq
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllCharSequenceNullableSpan)
               , (ReadOnlySpan<TCharSeq?>)ComplexTypeCollectionFieldWhenPopulatedAddAllCharSequenceNullableSpan
               , ValueFormatString)
@@ -876,7 +876,7 @@ public class FieldMatchNullableReadOnlySpanWhenPopulatedAddAllStringBearer<TAny>
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllMatchNullable
+           .CollectionField.WhenPopulatedAddAllMatch
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllMatchNullableReadOnlySpan)
               , (ReadOnlySpan<TAny?>)ComplexTypeCollectionFieldWhenPopulatedAddAllMatchNullableReadOnlySpan
               , ValueFormatString)

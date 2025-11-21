@@ -58,7 +58,7 @@ public class NullableStringBearerExpect<TInput, TDefault> : FieldExpect<TInput?,
         if (expectValue != IFormatExpectation.NoResultExpectedValue && Input != null)
         {
             expectValue = WhenValueExpectedOutput
-                ((Input?.GetType() ?? typeof(TInput)).ShortNameInCSharpFormat(), ((ISinglePropertyTestStringBearer)Input!.Value).PropertyName
+                ((Input?.GetType() ?? typeof(TInput)).CachedCSharpNameNoConstraints(), ((ISinglePropertyTestStringBearer)Input!.Value).PropertyName
                , condition
                , FieldValueExpectation);
         }

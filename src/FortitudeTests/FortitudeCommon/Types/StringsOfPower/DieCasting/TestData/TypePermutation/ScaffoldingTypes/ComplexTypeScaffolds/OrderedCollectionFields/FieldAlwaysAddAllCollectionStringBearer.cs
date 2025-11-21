@@ -89,7 +89,7 @@ public class FieldSpanFormattableNullableClassSpanAlwaysAddAllStringBearer<TFmt>
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllNullable
+           .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableNullableClassSpan)
               , ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableNullableClassSpan.AsSpan(), ValueFormatString)
            .Complete();
@@ -544,7 +544,7 @@ public class FieldSpanFormattableNullableClassReadOnlySpanAlwaysAddAllStringBear
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllNullable
+           .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableNullableRefReadOnlySpan)
               , (ReadOnlySpan<TFmt?>)ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableNullableRefReadOnlySpan, ValueFormatString)
            .Complete();
@@ -795,7 +795,7 @@ public class FieldCharSequenceNullableReadOnlySpanAlwaysAddAllStringBearer<TChar
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllCharSeqNullable
+           .CollectionField.AlwaysAddAllCharSeq
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceNullableSpan)
               , (ReadOnlySpan<TCharSeq?>)ComplexTypeCollectionFieldAlwaysAddAllCharSequenceNullableSpan
               , ValueFormatString)
