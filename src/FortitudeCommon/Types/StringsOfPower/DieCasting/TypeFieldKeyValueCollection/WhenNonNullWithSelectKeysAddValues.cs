@@ -1,6 +1,8 @@
 ﻿#region
 
 using System.Diagnostics.CodeAnalysis;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 
 #endregion
 
@@ -11,191 +13,209 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKSelectDerived[] selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey =>
         !stb.SkipFields && value != null
-            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueFormatString, keyFormatString)
-            : stb.StyleTypeBuilder;
+            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueFormatString, keyFormatString, formatFlags)
+            : stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
 
     public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, Span<TKSelectDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+    , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey =>
         !stb.SkipFields && value != null
-            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueFormatString, keyFormatString)
-            : stb.StyleTypeBuilder;
+            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueFormatString, keyFormatString, formatFlags)
+            : stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
 
     public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKSelectDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+    , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey =>
         !stb.SkipFields && value != null
-            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueFormatString, keyFormatString)
-            : stb.StyleTypeBuilder;
+            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueFormatString, keyFormatString, formatFlags)
+            : stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
 
     public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKSelectDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+    , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey =>
         !stb.SkipFields && value != null
-            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueFormatString, keyFormatString)
-            : stb.StyleTypeBuilder;
+            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueFormatString, keyFormatString, formatFlags)
+            : stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
 
     public TExt WhenNonNullAddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKSelectDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+    , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey =>
         !stb.SkipFields && value != null
-            ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueFormatString, keyFormatString)
-            : stb.StyleTypeBuilder;
+            ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueFormatString, keyFormatString, formatFlags)
+            : stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
 
     public TExt WhenNonNullAddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKSelectDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+    , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey =>
         !stb.SkipFields && value != null
-            ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueFormatString, keyFormatString)
-            : stb.StyleTypeBuilder;
+            ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueFormatString, keyFormatString, formatFlags)
+            : stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
 
     public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKSelectDerived[] selectKeys
       , PalantírReveal<TVRevealBase> valueRevealer
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+    , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey 
         where TValue : TVRevealBase? 
         where TVRevealBase : notnull =>
         !stb.SkipFields && value != null
-            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueRevealer, keyFormatString)
-            : stb.StyleTypeBuilder;
+            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueRevealer, keyFormatString, formatFlags)
+            : stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
 
     public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, Span<TKSelectDerived> selectKeys
       , PalantírReveal<TVRevealBase> valueRevealer
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey 
         where TValue : TVRevealBase? 
         where TVRevealBase : notnull =>
         !stb.SkipFields && value != null
-            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueRevealer, keyFormatString)
-            : stb.StyleTypeBuilder;
+            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueRevealer, keyFormatString, formatFlags)
+            : stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
 
     public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKSelectDerived> selectKeys
       , PalantírReveal<TVRevealBase> valueRevealer
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey 
         where TValue : TVRevealBase? 
         where TVRevealBase : notnull =>
         !stb.SkipFields && value != null
-            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueRevealer, keyFormatString)
-            : stb.StyleTypeBuilder;
+            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueRevealer, keyFormatString, formatFlags)
+            : stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
 
     public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKSelectDerived> selectKeys
       , PalantírReveal<TVRevealBase> valueRevealer
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey 
         where TValue : TVRevealBase? 
         where TVRevealBase : notnull =>
         !stb.SkipFields && value != null
-            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueRevealer, keyFormatString)
-            : stb.StyleTypeBuilder;
+            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueRevealer, keyFormatString, formatFlags)
+            : stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
 
     public TExt WhenNonNullAddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TVRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKSelectDerived> selectKeys, PalantírReveal<TVRevealBase> valueRevealer
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey 
         where TValue : TVRevealBase? 
         where TVRevealBase : notnull =>
         !stb.SkipFields && value != null
-            ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueRevealer, keyFormatString)
-            : stb.StyleTypeBuilder;
+            ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueRevealer, keyFormatString, formatFlags)
+            : stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
 
     public TExt WhenNonNullAddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TVRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
       , IEnumerator<TKSelectDerived> selectKeys, PalantírReveal<TVRevealBase> valueRevealer
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey 
         where TValue : TVRevealBase? 
         where TVRevealBase : notnull =>
         !stb.SkipFields && value != null
-            ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueRevealer, keyFormatString)
-            : stb.StyleTypeBuilder;
+            ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueRevealer, keyFormatString, formatFlags)
+            : stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
 
     public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKSelectDerived[] selectKeys
-      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey 
         where TKey : TKRevealBase 
         where TValue : TVRevealBase? 
         where TKRevealBase : notnull 
         where TVRevealBase : notnull =>
         !stb.SkipFields && value != null
-            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueRevealer, keyRevealer)
-            : stb.StyleTypeBuilder;
+            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueRevealer, keyRevealer, formatFlags)
+            : stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
 
     public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, Span<TKSelectDerived> selectKeys
-      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey 
         where TKey : TKRevealBase 
         where TValue : TVRevealBase? 
         where TKRevealBase : notnull
         where TVRevealBase : notnull =>
         !stb.SkipFields && value != null
-            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueRevealer, keyRevealer)
-            : stb.StyleTypeBuilder;
+            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueRevealer, keyRevealer, formatFlags)
+            : stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
 
     public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKSelectDerived> selectKeys
-      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey 
         where TKey : TKRevealBase 
         where TValue : TVRevealBase? 
         where TKRevealBase : notnull
         where TVRevealBase : notnull =>
         !stb.SkipFields && value != null
-            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueRevealer, keyRevealer)
-            : stb.StyleTypeBuilder;
+            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueRevealer, keyRevealer, formatFlags)
+            : stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
 
     public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKSelectDerived> selectKeys
-      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey 
         where TKey : TKRevealBase 
         where TValue : TVRevealBase? 
         where TKRevealBase : notnull
         where TVRevealBase : notnull =>
         !stb.SkipFields && value != null
-            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueRevealer, keyRevealer)
-            : stb.StyleTypeBuilder;
+            ? AlwaysWithSelectKeys(fieldName, value, selectKeys, valueRevealer, keyRevealer, formatFlags)
+            : stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
 
     public TExt WhenNonNullAddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKSelectDerived> selectKeys
-      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey 
         where TKey : TKRevealBase 
         where TValue : TVRevealBase? 
         where TKRevealBase : notnull
         where TVRevealBase : notnull =>
         !stb.SkipFields && value != null
-            ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueRevealer, keyRevealer)
-            : stb.StyleTypeBuilder;
+            ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueRevealer, keyRevealer, formatFlags)
+            : stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
 
     public TExt WhenNonNullAddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKSelectDerived> selectKeys
-      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer)
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey 
         where TKey : TKRevealBase 
         where TValue : TVRevealBase? 
         where TKRevealBase : notnull
         where TVRevealBase : notnull =>
         !stb.SkipFields && value != null
-            ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueRevealer, keyRevealer)
-            : stb.StyleTypeBuilder;
+            ? AlwaysWithSelectKeysEnumerate(fieldName, value, selectKeys, valueRevealer, keyRevealer, formatFlags)
+            : stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
 }

@@ -238,12 +238,12 @@ public partial class SelectTypeFieldTests
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
-    [TestMethod]
+    // [TestMethod]
     public void CompactLogSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactLog(StringTestData.AllStringExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[926]);
+        SharedCompactLog(StringTestData.AllStringExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[896]);
     }
 
     private void SharedCompactLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -285,7 +285,7 @@ public partial class SelectTypeFieldTests
         stringBearer.RevealState(tos);
         var buildExpectedOutput =
             BuildExpectedOutput
-                (stringBearer.GetType().ShortNameInCSharpFormat()
+                (stringBearer.GetType().CachedCSharpNameNoConstraints()
                , ((ISinglePropertyTestStringBearer)stringBearer).PropertyName
                , scaffoldingToCall.ScaffoldingFlags
                , formatExpectation).MakeWhiteSpaceVisible();

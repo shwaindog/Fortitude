@@ -59,7 +59,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
     }
 
     public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement<TFmtElement>(TFmtElement? element, string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtElement : TElement, ISpanFormattable
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtElement : TElement?, ISpanFormattable?
     {
         if (CompAsOrderedCollection.SkipBody) return this;
         if (element == null)
@@ -251,10 +251,10 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
     protected override void SourceBuilderComponentAccess()
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
-        CompAccess = recycler.Borrow<CollectionBuilderCompAccess<ExplicitOrderedCollectionMold<TElement>>>()
+        MoldStateField = recycler.Borrow<CollectionBuilderCompAccess<ExplicitOrderedCollectionMold<TElement>>>()
                              .InitializeOrderCollectionComponentAccess(this, PortableState, false);
     }
     
     protected override CollectionBuilderCompAccess<ExplicitOrderedCollectionMold<TElement>> CompAsOrderedCollection =>  
-        (CollectionBuilderCompAccess<ExplicitOrderedCollectionMold<TElement>>)CompAccess;
+        (CollectionBuilderCompAccess<ExplicitOrderedCollectionMold<TElement>>)MoldStateField!;
 }

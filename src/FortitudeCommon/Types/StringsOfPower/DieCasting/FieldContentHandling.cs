@@ -23,41 +23,52 @@ public enum FieldContentHandling : ulong
   , MlEncoding               = 0x_08_00 // Not implemented just reserving
   , EncodingMask             = 0x_0F_00
   , ReformatMultiLine        = 0x_10_00
-  , UnsetEncodeBounds        = 0x_20_00
-  , UnsetEncodeInnerContent  = 0x_40_00
+  , UnsetEncodeBounds        = 0x_20_00  // Consider switching this to CapLenAppliesToOutput
+  , UnsetEncodeInnerContent  = 0x_40_00  // CappedLen Includes ellipsis
   , AsValueContent           = 0x_80_00
 
     // Mold Additional
-  , NoWhitespacesToNext      = 0x00_01_00_00
-  , NextOnSameLine           = 0x00_01_00_00
-  , NextEnsureNewLine        = 0x00_02_00_00
-  , NoFieldSeparator         = 0x00_04_00_00
-  , NullBecomesEmpty         = 0x00_08_00_00
-  , EnsureLogFormatting      = 0x00_10_00_00
-  , EnsureJsonFormatting     = 0x00_20_00_00
-  , EnsureYamlFormatting     = 0x00_40_00_00 // Not implemented just reserving  
-  , EnsureMlFormatting       = 0x00_80_00_00 // Not implemented just reserving
-  , EnsureDiagraphFormatting = 0x01_00_00_00 // Not implemented just reserving
-  , EnsureCompact            = 0x02_00_00_00
-  , OnOneLine                = 0x02_00_00_00
-  , PrettyTreatAsCompact     = 0x02_00_00_00
-  , EnsurePretty             = 0x04_00_00_00
-  , FormattingMask           = 0x07_F0_00_00
-  , TempAlwaysExclude        = 0x08_00_00_00
+  , NoWhitespacesToNext     = 0x00_01_00_00
+  , NextOnSameLine          = 0x00_01_00_00
+  , AlternatePadding        = 0x00_01_00_00
+  , NextEnsureNewLine       = 0x00_02_00_00
+  , NoFieldSeparator        = 0x00_04_00_00
+  , NullBecomesEmpty        = 0x00_08_00_00
+  , EachItemOnlyOneLine     = 0x00_10_00_00
+  , BeforeThisEnsureNewLine = 0x00_20_00_00
+  , Spare2                  = 0x00_40_00_00
+  , Spare3                  = 0x00_80_00_00
+  , EnsureLogFormatting     = 0x01_00_00_00
+  , EnsureJsonFormatting    = 0x02_00_00_00
+  , EnsureYamlFormatting    = 0x04_00_00_00 // Not implemented just reserving  
+  , EnsureMlFormatting      = 0x08_00_00_00 // Not implemented just reserving
+  , EnsureCustomFormatting  = 0x10_00_00_00 // Not implemented just reserving -  One custom style to implement Diagraph
+  , EnsureCompact           = 0x20_00_00_00
+  , OnOneLine               = 0x20_00_00_00
+  , EnsurePretty            = 0x40_00_00_00
+  , FormattingMask          = 0x7F_00_00_00
+  , AlwaysExclude           = 0x80_00_00_00
 
-  , ExcludeWhenPretty        = 0x01_00_00_00_00
-  , ExcludeWhenCompact       = 0x02_00_00_00_00
-  , ExcludeWhenLogStyle      = 0x04_00_00_00_00
-  , ExcludeWhenJsonStyle     = 0x08_00_00_00_00 // Not implemented just reserving  
-  , ExcludeWhenYamlStyle     = 0x10_00_00_00_00 // Not implemented just reserving                                             
-  , ExcludeWhenMlLStyle      = 0x20_00_00_00_00 // Not implemented just reserving          
-  , ExcludeWhenDiagraphStyle = 0x40_00_00_00_00
-  , ExcludeMask              = 0x4F_80_00_00_00
-  , NoRevisitCheck           = 0x80_00_00_00_00
+  , ExcludeWhenPretty            = 0x01_00_00_00_00
+  , IncludeOnlyWhenCompact       = 0x01_00_00_00_00
+  , IncludeOnlyWhenPretty        = 0x02_00_00_00_00
+  , ExcludeWhenCompact           = 0x02_00_00_00_00
+  , ExcludeWhenLogStyle          = 0x04_00_00_00_00
+  , IncludeOnlyWhenLogStyle      = 0x78_00_00_00_00
+  , ExcludeWhenJsonStyle         = 0x08_00_00_00_00
+  , IncludeOnlyWhenJsonStyle     = 0x74_00_00_00_00
+  , ExcludeWhenYamlStyle         = 0x10_00_00_00_00 // Not implemented just reserving                                             
+  , IncludeOnlyWhenYamlStyle     = 0x6C_00_00_00_00 // Not implemented just reserving          
+  , ExcludeWhenMlLStyle          = 0x20_00_00_00_00 // Not implemented just reserving          
+  , IncludeOnlyWhenMlStyle       = 0x5C_00_00_00_00 // Not implemented just reserving          
+  , ExcludeWhenCustomStyle       = 0x40_00_00_00_00 // Not implemented just reserving - One custom style to implement Diagraph
+  , IncludeOnlyWhenCustomStyle   = 0x3C_00_00_00_00 // Not implemented just reserving 
+  , ExcludeMask                  = 0x7F_80_00_00_00
+  , NoRevisitCheck               = 0x80_00_00_00_00
 
   , LogSuppressTypeNames        = 0x00_01_00_00_00_00_00
   , AddTypeNameField            = 0x00_02_00_00_00_00_00
-  , AlignColumns                = 0x00_04_00_00_00_00_00
+  , AddNamespace                = 0x00_04_00_00_00_00_00
   , ContentAllowAnyValueType    = 0x00_08_00_00_00_00_00
   , ContentAllowNumber          = 0x00_10_00_00_00_00_00
   , ContentAllowRawGraphNode    = 0x00_20_00_00_00_00_00
@@ -71,13 +82,14 @@ public enum FieldContentHandling : ulong
   , ContentMismatchViolationOff = 0x20_00_00_00_00_00_00
   , PrettyWrapAtLineWidth       = 0x40_00_00_00_00_00_00
   , PrettyWrapAtContentWidth    = 0x80_00_00_00_00_00_00
-    
+
   , ViolationThrowsException = 0x01_00_00_00_00_00_00_00
   , ViolationWritesAlert     = 0x02_00_00_00_00_00_00_00
   , ViolationDebuggerBreak   = 0x04_00_00_00_00_00_00_00
-  , SuppressOpening          = 0x08_00_00_00_00_00_00_00  
-  , SuppressClosing          = 0x10_00_00_00_00_00_00_00  
-  , AsEmbeddedContent        = 0x18_00_00_00_00_00_00_00  
+  , SuppressOpening          = 0x08_00_00_00_00_00_00_00
+  , SuppressClosing          = 0x10_00_00_00_00_00_00_00
+  , AsEmbeddedContent        = 0x18_00_00_00_00_00_00_00
+  , UseAlternateSeparator    = 0x20_00_00_00_00_00_00_00
 }
 
 public static class FieldContentHandlingExtensions
@@ -100,8 +112,8 @@ public static class FieldContentHandlingExtensions
     public static bool HasNoWhitespacesToNextFlag(this FieldContentHandling flags) => (flags & NoWhitespacesToNext) > 0;
     public static bool HasNextOnSameLineFlag(this FieldContentHandling flags)      => (flags & NextOnSameLine) > 0;
     public static bool HasNextEnsureNewLineFlag(this FieldContentHandling flags)   => (flags & NextEnsureNewLine) > 0;
-    
-    public static bool CanAddNewLine(this FieldContentHandling flags)   => 
+
+    public static bool CanAddNewLine(this FieldContentHandling flags) =>
         (!flags.HasNoWhitespacesToNextFlag() || flags.HasNextEnsureNewLineFlag()) && flags.DoesNotHaveEnsureCompactFlag();
 
     public static bool HasNullBecomesEmptyFlag(this FieldContentHandling flags)             => (flags & NullBecomesEmpty) > 0;
@@ -123,8 +135,8 @@ public static class FieldContentHandlingExtensions
     public static bool HasDisableAutoDelimiting(this FieldContentHandling flags)            => (flags & DisableAutoDelimiting) > 0;
     public static bool ShouldDelimit(this FieldContentHandling flags)                       => (flags & EnsureFormattedDelimited) > 0;
     public static bool DoesNotHaveLogSuppressTypeNamesFlag(this FieldContentHandling flags) => (flags & LogSuppressTypeNames) == 0;
-    public static bool HasAsCollectionFlag(this FieldContentHandling flags)                       => (flags & AsCollection) > 0;
-    public static bool DoesNotHaveAsCollectionFlag(this FieldContentHandling flags)                       => (flags & AsCollection) == 0;
+    public static bool HasAsCollectionFlag(this FieldContentHandling flags)                 => (flags & AsCollection) > 0;
+    public static bool DoesNotHaveAsCollectionFlag(this FieldContentHandling flags)         => (flags & AsCollection) == 0;
 
     public static StringStyle UpdateStringStyle(this FieldContentHandling flags, StringStyle existingStyle)
     {

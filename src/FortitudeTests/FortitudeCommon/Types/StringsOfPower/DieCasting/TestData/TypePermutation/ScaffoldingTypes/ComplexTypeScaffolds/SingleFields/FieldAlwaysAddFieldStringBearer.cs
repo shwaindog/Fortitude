@@ -156,7 +156,7 @@ public struct FieldSpanFormattableAlwaysAddStructStringBearer<TFmt> : IMoldSuppo
     // ReSharper disable once NonReadonlyMemberInGetHashCode
     public override int GetHashCode() => Value != null ? EqualityComparer<TFmt>.Default.GetHashCode(Value) : 0;
 
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
+    public override string ToString() => $"{GetType().CachedCSharpNameWithConstraints()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsOnlyNullableStructSpanFormattable | SupportsValueFormatString)]
@@ -267,7 +267,7 @@ public struct FieldNullableSpanFormattableAlwaysAddStructStringBearer<TFmtStruct
     public override int GetHashCode() => EqualityComparer<TFmtStruct?>.Default.GetHashCode(Value);
     #pragma warning restore CS8607 // A possible null value may not be used for a type marked with [NotNull] or [DisallowNull]
 
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
+    public override string ToString() => $"{GetType().CachedCSharpNameWithConstraints()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsAnyExceptNullableStruct | SupportsValueRevealer
@@ -536,7 +536,7 @@ public struct FieldStringAlwaysAddStructStringBearer : IMoldSupportedValue<strin
     // ReSharper disable once NonReadonlyMemberInGetHashCode
     public override int GetHashCode() => Value?.GetHashCode() ?? 0;
 
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
+    public override string ToString() => $"{GetType().CachedCSharpNameWithConstraints()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | AlwaysWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges)]

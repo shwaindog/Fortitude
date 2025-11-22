@@ -266,7 +266,7 @@ public class OrderedFromNullableSpanFormattableArrayAddAllSimpleOrderedCollectio
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsNonNullableSpanFormattable
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsSpanFormattableExceptNullableStruct
                 | SupportsValueFormatString)]
 public class OrderedFromSpanFormattableSpanAddAllSimpleOrderedCollectionStringBearer<TFmt>
     : FormattedCollectionMoldScaffold<TFmt, TFmt[]>
@@ -302,7 +302,7 @@ public class OrderedFromSpanFormattableNullableSpanAddAllSimpleOrderedCollection
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllNullable(OrderedCollectionAddAllSpanFormattableNullableSpan.AsSpan(), ValueFormatString)
+           .AddAll(OrderedCollectionAddAllSpanFormattableNullableSpan.AsSpan(), ValueFormatString)
            .Complete();
 }
 
@@ -326,7 +326,7 @@ public class OrderedFromNullableSpanFormattableSpanAddAllSimpleOrderedCollection
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsNonNullableSpanFormattable
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsSpanFormattableExceptNullableStruct
                 | SupportsValueFormatString)]
 public class OrderedFromSpanFormattableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TFmt>
     : FormattedCollectionMoldScaffold<TFmt, TFmt[]>
@@ -362,7 +362,7 @@ public class OrderedFromSpanFormattableNullableReadOnlySpanAddAllSimpleOrderedCo
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllNullable((ReadOnlySpan<TFmt?>)OrderedCollectionAddAllSpanFormattableNullableReadOnlySpan.AsSpan(), ValueFormatString)
+           .AddAll((ReadOnlySpan<TFmt?>)OrderedCollectionAddAllSpanFormattableNullableReadOnlySpan.AsSpan(), ValueFormatString)
            .Complete();
 }
 
@@ -1237,7 +1237,7 @@ public class OrderedFromCharSequenceArrayAddAllSimpleOrderedCollectionStringBear
 }
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsCharSequence
-                | AcceptsClass | SupportsValueFormatString)]
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceSpanAddAllSimpleOrderedCollectionStringBearer<TCharSeq> : FormattedCollectionMoldScaffold<TCharSeq, TCharSeq[]>
     where TCharSeq : ICharSequence
 {
@@ -1271,12 +1271,12 @@ public class OrderedFromCharSequenceNullableSpanAddAllSimpleOrderedCollectionStr
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllCharSeqNullable(OrderedCollectionAddAllCharSequenceNullableSpan.AsSpan(), ValueFormatString)
+           .AddAllCharSeq(OrderedCollectionAddAllCharSequenceNullableSpan.AsSpan(), ValueFormatString)
            .Complete();
 }
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsCharSequence
-                | AcceptsClass | SupportsValueFormatString)]
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TCharSeq> :
     FormattedCollectionMoldScaffold<TCharSeq, TCharSeq[]>
     where TCharSeq : ICharSequence
@@ -1310,7 +1310,7 @@ public class OrderedFromCharSequenceNullableReadOnlySpanAddAllSimpleOrderedColle
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllCharSeqNullable((ReadOnlySpan<TCharSeq?>)OrderedCollectionAddAllCharSequenceNullableReadOnlySpan.AsSpan(), ValueFormatString)
+           .AddAllCharSeq((ReadOnlySpan<TCharSeq?>)OrderedCollectionAddAllCharSequenceNullableReadOnlySpan.AsSpan(), ValueFormatString)
            .Complete();
 }
 
@@ -1584,7 +1584,7 @@ public class OrderedFromMatchNullableSpanAddAllSimpleOrderedCollectionStringBear
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllMatchNullable(OrderedCollectionAddAllMatchNullableSpan.AsSpan(), ValueFormatString)
+           .AddAllMatch(OrderedCollectionAddAllMatchNullableSpan.AsSpan(), ValueFormatString)
            .Complete();
 }
 
@@ -1623,7 +1623,7 @@ public class OrderedFromMatchNullableReadOnlySpanAddAllSimpleOrderedCollectionSt
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllMatchNullable((ReadOnlySpan<TAny?>)OrderedCollectionAddAllMatchNullableReadOnlySpan.AsSpan(), ValueFormatString)
+           .AddAllMatch((ReadOnlySpan<TAny?>)OrderedCollectionAddAllMatchNullableReadOnlySpan.AsSpan(), ValueFormatString)
            .Complete();
 }
 

@@ -112,12 +112,12 @@ public partial class SelectTypeFieldTests
         SharedPrettyJson(formatExpectation, scaffoldingToCall);
     }
 
-    [TestMethod]
+    // [TestMethod]
     public void PrettyJsonSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedPrettyJson(CharArrayTestData.AllCharArrayExpectations[3], ScaffoldingRegistry.AllScaffoldingTypes[901]);
+        SharedPrettyJson(StringTestData.AllStringExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[934]);
     }
 
     private void SharedPrettyJson(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -184,7 +184,7 @@ public partial class SelectTypeFieldTests
         var stringBearer = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall, tos.Settings);
         stringBearer.RevealState(tos);
         var buildExpectedOutput =
-            BuildExpectedOutput(stringBearer.GetType().ShortNameInCSharpFormat()
+            BuildExpectedOutput(stringBearer.GetType().CachedCSharpNameNoConstraints()
                , ((ISinglePropertyTestStringBearer)stringBearer).PropertyName
                , scaffoldingToCall.ScaffoldingFlags, formatExpectation);
         var result = tos.WriteBuffer.ToString();

@@ -43,7 +43,7 @@ public abstract class MoldScaffoldBase<TValue> : IMoldSupportedValue<TValue>
         set => Val = value;
     }
     
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
+    public override string ToString() => $"{GetType().CachedCSharpNameNoConstraints()}({Value})";
 }
 
 public interface ISupportsValueFormatString

@@ -279,7 +279,7 @@ public class FieldKeyValuePairEnumeratorValueRevealerKeyFormatStringsWhenNonNull
               , ValueRevealer, KeyFormatString)
            .Complete();
 
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
+    public override string ToString() => $"{GetType().CachedCSharpNameWithConstraints()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | NonNullWrites | AcceptsClass | AcceptsNullableClass

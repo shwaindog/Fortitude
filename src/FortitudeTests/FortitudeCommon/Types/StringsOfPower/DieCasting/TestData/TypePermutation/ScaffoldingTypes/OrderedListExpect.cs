@@ -61,7 +61,7 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
                name
             ?? ((elementFilterExpression?.Body as MemberExpression)?.Member.Name)
             ?? (inputList != null
-                   ? $"List<{typeof(TInputElement).ShortNameInCSharpFormat()}> {{ Count: {inputList.Count}}}"
+                   ? $"List<{typeof(TInputElement).CachedCSharpNameNoConstraints()}> {{ Count: {inputList.Count}}}"
                    : null), srcFile, srcLine)
     {
         if (elementFilterExpression != null)

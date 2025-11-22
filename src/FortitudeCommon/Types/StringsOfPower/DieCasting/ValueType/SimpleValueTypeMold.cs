@@ -26,7 +26,7 @@ public class SimpleValueTypeMold : ValueTypeMold<SimpleValueTypeMold>
     protected override void SourceBuilderComponentAccess()
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
-        CompAccess = recycler.Borrow<ValueTypeDieCast<SimpleValueTypeMold>>()
+        MoldStateField = recycler.Borrow<ValueTypeDieCast<SimpleValueTypeMold>>()
                              .InitializeValueBuilderCompAccess(this, PortableState, false);
     }
 

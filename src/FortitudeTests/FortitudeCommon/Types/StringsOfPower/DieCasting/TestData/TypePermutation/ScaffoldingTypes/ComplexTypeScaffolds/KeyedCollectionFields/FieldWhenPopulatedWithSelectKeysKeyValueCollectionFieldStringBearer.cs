@@ -227,7 +227,7 @@ public class FieldKeyValueDictionaryValueRevealerWhenPopulatedWithSelectKeysRead
               , (ReadOnlySpan<TKSelectDerived>)DisplayKeys.ToArray(), ValueRevealer, KeyFormatString)
            .Complete();
 
-    public override string ToString() => $"{GetType().ShortNameInCSharpFormat()}({Value})";
+    public override string ToString() => $"{GetType().CachedCSharpNameWithConstraints()}({Value})";
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | AcceptsList | NonDefaultWrites

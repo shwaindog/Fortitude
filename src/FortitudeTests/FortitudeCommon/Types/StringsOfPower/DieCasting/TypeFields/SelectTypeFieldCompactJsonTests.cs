@@ -112,12 +112,12 @@ public partial class SelectTypeFieldTests
         SharedCompactJson(formatExpectation, scaffoldingToCall);
     }
 
-    [TestMethod]
+    // [TestMethod]
     public void CompactJsonSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactJson(CharArrayTestData.AllCharArrayExpectations[3], ScaffoldingRegistry.AllScaffoldingTypes[899]);
+        SharedCompactJson(StringBuilderTestData.AllStringBuilderExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[948]);
     }
 
     private void SharedCompactJson(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -160,7 +160,7 @@ public partial class SelectTypeFieldTests
         stringBearer.RevealState(tos);
         var buildExpectedOutput =
             BuildExpectedOutput
-                (stringBearer.GetType().ShortNameInCSharpFormat()
+                (stringBearer.GetType().CachedCSharpNameNoConstraints()
                , ((ISinglePropertyTestStringBearer)stringBearer).PropertyName
                , scaffoldingToCall.ScaffoldingFlags
                , formatExpectation).MakeWhiteSpaceVisible();
@@ -177,6 +177,11 @@ public partial class SelectTypeFieldTests
                   .Append(nameof(CompactJsonSingleTest)).Append("()\n\n")
                   .Append("SharedCompactJson(")
                   .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
+            
+            logger.InfoAppend("To Debug Test past the following code into ")?
+                  .Append(nameof(CompactJsonSingleTest)).Append("()\n\n")
+                  .Append("SharedCompactJson(")
+                  .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         }
         else
         {
@@ -184,11 +189,6 @@ public partial class SelectTypeFieldTests
                   .Append(result).AppendLine()
                   .FinalAppend("");
         }
-            
-        logger.InfoAppend("To Debug Test past the following code into ")?
-              .Append(nameof(CompactJsonSingleTest)).Append("()\n\n")
-              .Append("SharedCompactJson(")
-              .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         Assert.AreEqual(buildExpectedOutput, result);
     }
 }

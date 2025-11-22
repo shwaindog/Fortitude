@@ -64,7 +64,7 @@ public class NullStructCloakedOrderedListExpect<TChildScaffoldListElement>
         if (expectValue != IFormatExpectation.NoResultExpectedValue && expectValue != "null" && expectValue != "")
         {
             expectValue = WhenValueExpectedOutput
-                ((calledValueType ?? typeof(TChildScaffoldListElement)).ShortNameInCSharpFormat()
+                ((calledValueType ?? typeof(TChildScaffoldListElement)).CachedCSharpNameNoConstraints()
                , RevealerScaffold.PropertyName, condition, FieldValueExpectation);
         }
         return expectValue;
@@ -216,7 +216,7 @@ public class CloakedOrderedListExpect<TChildScaffoldListElement, TFilterBase, TR
         if (expectValue != IFormatExpectation.NoResultExpectedValue && expectValue != "null" && expectValue != "")
         {
             expectValue = WhenValueExpectedOutput
-                ((calledValueType ?? typeof(TChildScaffoldListElement)).ShortNameInCSharpFormat()
+                ((calledValueType ?? typeof(TChildScaffoldListElement)).CachedCSharpNameNoConstraints()
                , RevealerScaffold?.PropertyName ?? "NoRevealerScaffold", condition, FieldValueExpectation);
         }
         return expectValue;

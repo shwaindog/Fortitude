@@ -23,7 +23,7 @@ public class ValueTypeMold<TMold> : KnownTypeMolder<TMold> where TMold : TypeMol
       , int existingRefId
       , FieldContentHandling createFormatFlags )
     {
-        InitializeTypedStyledTypeBuilder(typeBeingBuilt, master, typeSettings, typeName
+        Initialize(typeBeingBuilt, master, typeSettings, typeName
                                        , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
 
         return this;
@@ -31,7 +31,7 @@ public class ValueTypeMold<TMold> : KnownTypeMolder<TMold> where TMold : TypeMol
 
     public override bool IsComplexType => false;
 
-    protected ValueTypeDieCast<TMold> Stb => (ValueTypeDieCast<TMold>)CompAccess;
+    protected ValueTypeDieCast<TMold> Stb => (ValueTypeDieCast<TMold>)MoldStateField;
 
     public override void Start()
     {
@@ -42,17 +42,17 @@ public class ValueTypeMold<TMold> : KnownTypeMolder<TMold> where TMold : TypeMol
     public override void AppendOpening()
     {
         if (IsComplexType)
-            CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess);
+            MoldStateField.StyleFormatter.AppendComplexTypeOpening(MoldStateField);
         else
-            CompAccess.StyleFormatter.AppendValueTypeOpening(CompAccess);
+            MoldStateField.StyleFormatter.AppendValueTypeOpening(MoldStateField);
     }
 
     public override void AppendClosing()
     {
         if (IsComplexType)
-            CompAccess.StyleFormatter.AppendTypeClosing(CompAccess);
+            MoldStateField.StyleFormatter.AppendTypeClosing(MoldStateField);
         else
-            CompAccess.StyleFormatter.AppendValueTypeClosing(CompAccess);
+            MoldStateField.StyleFormatter.AppendValueTypeClosing(MoldStateField);
     }
 
     public TMold AsValue(ReadOnlySpan<char> nonJsonfieldName, bool value

@@ -55,7 +55,7 @@ public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilde
 
     public bool SupportsSettingValueFromString => ScaffoldingType.ImplementsInterface<ISupportsSettingValueFromString>();
 
-    public string Name { get; } = ScaffoldingType.ShortNameInCSharpFormat();
+    public string Name { get; } = ScaffoldingType.CachedCSharpNameNoConstraints();
 
     public int AtIndex { get; set; }
 
@@ -81,7 +81,7 @@ public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilde
         {
             Console.Out.WriteLine
                 ($"Problem trying to create {Name} with generic arguments " +
-                 $"{string.Join(",", genericTypeArguments.Select(t => t.ShortNameInCSharpFormat()))}." +
+                 $"{string.Join(",", genericTypeArguments.Select(t => t.CachedCSharpNameWithConstraints()))}." +
                  $"  Got {e}");
             throw;
         }

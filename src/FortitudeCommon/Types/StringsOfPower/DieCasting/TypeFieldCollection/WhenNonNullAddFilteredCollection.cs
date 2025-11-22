@@ -16,765 +16,114 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 {
     public TExt WhenNonNullAddFiltered(ReadOnlySpan<char> fieldName, Span<bool> value, OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(Span<bool>);
-        var elementType    = typeof(bool);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, true, collectionType);
-                }
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+        value is { Length: > 0 } 
+            ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+            : stb.WasSkipped<Memory<bool>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered(ReadOnlySpan<char> fieldName, Span<bool?> value, OrderedCollectionPredicate<bool?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(Span<bool?>);
-        var elementType    = typeof(bool?);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, true, collectionType);
-                }
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+        value is { Length: > 0 } 
+            ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+            : stb.WasSkipped<Memory<bool?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered<TFmt, TFmtBase>
     (ReadOnlySpan<char> fieldName, Span<TFmt> value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable, TFmtBase
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(Span<TFmt>);
-        var elementType    = typeof(TFmt);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
-
-    public TExt WhenNonNullAddFilteredNullable<TFmt, TFmtBase>
-    (ReadOnlySpan<char> fieldName, Span<TFmt?> value, OrderedCollectionPredicate<TFmtBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TFmt : class, ISpanFormattable, TFmtBase
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(Span<TFmt>);
-        var elementType    = typeof(TFmt);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item!) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+        where TFmt : ISpanFormattable?, TFmtBase? =>
+        value is { Length: > 0 } 
+            ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+            : stb.WasSkipped<Memory<TFmt>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered<TFmtStruct>
     (ReadOnlySpan<char> fieldName, Span<TFmtStruct?> value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TFmtStruct : struct, ISpanFormattable
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(Span<TFmtStruct?>);
-        var elementType    = typeof(TFmtStruct?);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+        where TFmtStruct : struct, ISpanFormattable =>
+        value is { Length: > 0 } 
+            ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+            : stb.WasSkipped<Memory<TFmtStruct?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TCloaked, TFilterBase, TRevealBase>
     (ReadOnlySpan<char> fieldName, Span<TCloaked> value, OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
         where TCloaked : TFilterBase?, TRevealBase?
-        where TRevealBase : notnull
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(Span<TCloaked>);
-        var elementType    = typeof(TCloaked);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item!) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.RevealCloakedBearerOrNull(item, palantírReveal, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, "");
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+        where TRevealBase : notnull =>
+        value is { Length: > 0 } 
+            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal, formatFlags) 
+            : stb.WasSkipped<Memory<TCloaked>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TCloakedStruct>(ReadOnlySpan<char> fieldName, Span<TCloakedStruct?> value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(Span<TCloakedStruct?>);
-        var elementType    = typeof(TCloakedStruct?);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item!) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, "");
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
+        value is { Length: > 0 } 
+            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal, formatFlags) 
+            : stb.WasSkipped<Memory<TCloakedStruct?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TBearer, TBearerBase>(ReadOnlySpan<char> fieldName, Span<TBearer> value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?, TBearerBase?
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(Span<TBearer>);
-        var elementType    = typeof(TBearer);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item!) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.RevealStringBearerOrNull(item);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, "");
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?, TBearerBase? =>
+        value is { Length: > 0 } 
+            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatFlags) 
+            : stb.WasSkipped<Memory<TBearer>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TBearerStruct>(ReadOnlySpan<char> fieldName, Span<TBearerStruct?> value
       , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(Span<TBearerStruct?>);
-        var elementType    = typeof(TBearerStruct?);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item!) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.RevealNullableStringBearerOrNull(item);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, "");
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer =>
+        value is { Length: > 0 } 
+            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatFlags) 
+            : stb.WasSkipped<Memory<TBearerStruct?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered(ReadOnlySpan<char> fieldName, Span<string> value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(Span<string>);
-        var elementType    = typeof(string);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+        value is { Length: > 0 } 
+            ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+            : stb.WasSkipped<Memory<string>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredNullable(ReadOnlySpan<char> fieldName, Span<string?> value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(Span<string>);
-        var elementType    = typeof(string);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item!) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+        value is { Length: > 0 } 
+            ? AlwaysAddFilteredNullable(fieldName, value, filterPredicate, formatString, formatFlags) 
+            : stb.WasSkipped<Memory<string?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredCharSeq<TCharSeq, TCharSeqBase>(ReadOnlySpan<char> fieldName, Span<TCharSeq> value
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TCharSeq : ICharSequence, TCharSeqBase
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(Span<TCharSeq>);
-        var elementType    = typeof(TCharSeq);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
-
-    public TExt WhenNonNullAddFilteredCharSeqNullable<TCharSeq, TCharSeqBase>(ReadOnlySpan<char> fieldName, Span<TCharSeq?> value
-      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TCharSeq : ICharSequence, TCharSeqBase
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(Span<TCharSeq>);
-        var elementType    = typeof(TCharSeq);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item!) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+        where TCharSeq : ICharSequence?, TCharSeqBase? =>
+        value is { Length: > 0 } 
+            ? AlwaysAddFilteredCharSeq(fieldName, value, filterPredicate, formatString, formatFlags) 
+            : stb.WasSkipped<Memory<TCharSeq>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered(ReadOnlySpan<char> fieldName, Span<StringBuilder> value
       , OrderedCollectionPredicate<StringBuilder> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(Span<StringBuilder>);
-        var elementType    = typeof(StringBuilder);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+        value is { Length: > 0 } 
+            ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+            : stb.WasSkipped<Memory<StringBuilder>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredNullable(ReadOnlySpan<char> fieldName, Span<StringBuilder?> value
       , OrderedCollectionPredicate<StringBuilder> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(Span<StringBuilder>);
-        var elementType    = typeof(StringBuilder);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item!) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+        value is { Length: > 0 } 
+            ? AlwaysAddFilteredNullable(fieldName, value, filterPredicate, formatString, formatFlags) 
+            : stb.WasSkipped<Memory<StringBuilder?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredMatch<TAny, TAnyBase>(ReadOnlySpan<char> fieldName, Span<TAny> value
       , OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TAny : TAnyBase
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(Span<TAny>);
-        var elementType    = typeof(TAny);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item!) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
-
-    public TExt WhenNonNullAddFilteredMatchNullable<TAny, TAnyBase>(ReadOnlySpan<char> fieldName, Span<TAny?> value
-      , OrderedCollectionPredicate<TAnyBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TAny : TAnyBase
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(Span<TAny>);
-        var elementType    = typeof(TAny);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item!) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+        where TAny : TAnyBase? =>
+        value is { Length: > 0 } 
+            ? AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString, formatFlags) 
+            : stb.WasSkipped<Memory<TAny>>( null, fieldName, formatFlags);
 
     [CallsObjectToString]
     public TExt WhenNonNullAddFilteredObject(ReadOnlySpan<char> fieldName, Span<object> value, OrderedCollectionPredicate<object> filterPredicate
@@ -791,765 +140,115 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenNonNullAddFiltered(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool> value, OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(ReadOnlySpan<bool>);
-        var elementType    = typeof(bool);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, true, collectionType);
-                }
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+        value != null 
+            ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+            : stb.WasSkipped<Memory<bool>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool?> value, OrderedCollectionPredicate<bool?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(ReadOnlySpan<bool?>);
-        var elementType    = typeof(bool?);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, true, collectionType);
-                }
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+        value != null 
+            ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+            : stb.WasSkipped<Memory<bool?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered<TFmt, TFmtBase>
     (ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmt> value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable, TFmtBase
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(ReadOnlySpan<TFmt>);
-        var elementType    = typeof(TFmt);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
-
-    public TExt WhenNonNullAddFilteredNullable<TFmt, TFmtBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmt?> value
-      , OrderedCollectionPredicate<TFmtBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TFmt : class, ISpanFormattable, TFmtBase
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(ReadOnlySpan<TFmt>);
-        var elementType    = typeof(TFmt);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item!) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+        where TFmt : ISpanFormattable?, TFmtBase? =>
+        value != null 
+            ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+            : stb.WasSkipped<Memory<TFmt>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered<TFmtStruct>
     (ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmtStruct?> value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TFmtStruct : struct, ISpanFormattable
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(ReadOnlySpan<TFmtStruct?>);
-        var elementType    = typeof(TFmtStruct?);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+        where TFmtStruct : struct, ISpanFormattable =>
+        value != null 
+            ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+            : stb.WasSkipped<Memory<TFmtStruct?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TCloaked, TFilterBase, TRevealBase>
     (ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloaked> value, OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TFilterBase?, TRevealBase?
-        where TRevealBase : notnull
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(ReadOnlySpan<TCloaked>);
-        var elementType    = typeof(TCloaked);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item!) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.RevealCloakedBearerOrNull(item, palantírReveal, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, "");
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+        where TRevealBase : notnull =>
+        value != null 
+            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal, formatFlags) 
+            : stb.WasSkipped<Memory<TCloaked>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TCloakedStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloakedStruct?> value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(ReadOnlySpan<TCloakedStruct?>);
-        var elementType    = typeof(TCloakedStruct?);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item!) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, "");
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
+        value != null 
+            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal, formatFlags) 
+            : stb.WasSkipped<Memory<TCloakedStruct?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TBearer, TFilterBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer> value
       , OrderedCollectionPredicate<TFilterBase> filterPredicate
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?, TFilterBase?
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(ReadOnlySpan<TBearer>);
-        var elementType    = typeof(TBearer);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item!) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.RevealStringBearerOrNull(item);
-                stb.GoToNextCollectionItemStart(elementType, i);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, "");
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?, TFilterBase? =>
+        value != null 
+            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatFlags) 
+            : stb.WasSkipped<Memory<TBearer>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TBearerStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearerStruct?> value
-      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate) where TBearerStruct : struct, IStringBearer
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(ReadOnlySpan<TBearerStruct?>);
-        var elementType    = typeof(TBearerStruct?);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item!) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.RevealNullableStringBearerOrNull(item);
-                stb.GoToNextCollectionItemStart(elementType, matchedItems);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, "");
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer =>
+        value != null 
+            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatFlags) 
+            : stb.WasSkipped<Memory<TBearerStruct?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered(ReadOnlySpan<char> fieldName, ReadOnlySpan<string> value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(ReadOnlySpan<string>);
-        var elementType    = typeof(string);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, matchedItems);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+        value != null 
+            ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+            : stb.WasSkipped<Memory<string>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<string?> value
       , OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(ReadOnlySpan<string>);
-        var elementType    = typeof(string);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item!) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, matchedItems);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+        value != null 
+            ? AlwaysAddFilteredNullable(fieldName, value, filterPredicate, formatString, formatFlags) 
+            : stb.WasSkipped<Memory<string?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredCharSeq<TCharSeq, TCharSeqBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCharSeq> value
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TCharSeq : ICharSequence, TCharSeqBase
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(ReadOnlySpan<TCharSeq>);
-        var elementType    = typeof(TCharSeq);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, matchedItems);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
-
-    public TExt WhenNonNullAddFilteredCharSeqNullable<TCharSeq, TCharSeqBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCharSeq?> value
-      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TCharSeq : ICharSequence, TCharSeqBase
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(ReadOnlySpan<TCharSeq>);
-        var elementType    = typeof(TCharSeq);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item!) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, matchedItems);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+        where TCharSeq : ICharSequence?, TCharSeqBase? =>
+        value != null 
+            ? AlwaysAddFilteredCharSeq(fieldName, value, filterPredicate, formatString, formatFlags) 
+            : stb.WasSkipped<Memory<TCharSeq>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder> value
       , OrderedCollectionPredicate<StringBuilder> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(ReadOnlySpan<StringBuilder>);
-        var elementType    = typeof(StringBuilder);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, matchedItems);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+        value != null 
+            ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+            : stb.WasSkipped<Memory<StringBuilder>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder?> value
       , OrderedCollectionPredicate<StringBuilder> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(ReadOnlySpan<StringBuilder>);
-        var elementType    = typeof(StringBuilder);
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      value != null 
+        ? AlwaysAddFilteredNullable(fieldName, value, filterPredicate, formatString, formatFlags) 
+        : stb.WasSkipped<Memory<StringBuilder?>>( null, fieldName, formatFlags);
 
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item!) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, matchedItems);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
-
-    public TExt WhenNonNullAddFilteredMatch<TANy, TAnyBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TANy> value
+    public TExt WhenNonNullAddFilteredMatch<TAny, TAnyBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TAny> value
       , OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TANy : TAnyBase
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(ReadOnlySpan<TANy>);
-        var elementType    = typeof(TANy);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item!) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, matchedItems);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
-
-    public TExt WhenNonNullAddFilteredMatchNullable<TAny, TAnyBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TAny?> value
-      , OrderedCollectionPredicate<TAnyBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TAny : TAnyBase
-    {
-        if (stb.SkipFields) return stb.StyleTypeBuilder;
-        var collectionType = typeof(ReadOnlySpan<TAny>);
-        var elementType    = typeof(TAny);
-
-        var matchedItems = 0;
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item         = value[i];
-                var filterResult = filterPredicate?.Invoke(i + 1, item!) ?? CollectionItemResult.IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        i += filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (matchedItems++ == 0)
-                {
-                    stb.FieldNameJoin(fieldName);
-                    stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType);
-                }
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, matchedItems);
-                if (filterResult is { KeepProcessing: false }) break;
-                i += filterResult.SkipNextCount;
-            }
-        }
-        if (matchedItems != 0)
-        {
-            stb.StyleFormatter.FormatCollectionEnd(stb, matchedItems, elementType, value.Length, formatString, formatFlags);
-            return stb.AddGoToNext();
-        }
-        return stb.StyleTypeBuilder;
-    }
+        where TAny : TAnyBase? =>
+      value != null 
+        ? AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString, formatFlags) 
+        : stb.WasSkipped<Memory<TAny>>( null, fieldName, formatFlags);
 
     [CallsObjectToString]
     public TExt WhenNonNullAddFilteredObject(ReadOnlySpan<char> fieldName, ReadOnlySpan<object> value
@@ -1569,24 +268,32 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenNonNullAddFiltered(string fieldName, bool[]? value, OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) : stb.StyleTypeBuilder;
+        value != null 
+            ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+            : stb.WasSkipped<bool[]>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered(string fieldName, bool?[]? value, OrderedCollectionPredicate<bool?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) : stb.StyleTypeBuilder;
+        value != null 
+          ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+          : stb.WasSkipped<bool?[]>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered<TFmt, TFmtBase>
     (string fieldName, TFmt?[]? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable, TFmtBase =>
-        !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) : stb.StyleTypeBuilder;
+        value != null 
+          ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+          : stb.WasSkipped<TFmt?[]>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered<TFmtStruct>
     (string fieldName, TFmtStruct?[]? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable =>
-        !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) : stb.StyleTypeBuilder;
+        value != null 
+          ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+          : stb.WasSkipped<TFmtStruct?[]>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TCloaked, TFilterBase, TRevealBase>
     (string fieldName, TCloaked?[]? value, OrderedCollectionPredicate<TFilterBase> filterPredicate
@@ -1594,87 +301,101 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
         where TCloaked : TFilterBase?, TRevealBase?
         where TRevealBase : notnull =>
-        !stb.SkipFields && value != null
+        value != null
             ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<TCloaked?[]>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TCloakedStruct>(string fieldName, TCloakedStruct?[]? value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
-        !stb.SkipFields && value != null
+        value != null
             ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<TCloakedStruct?[]>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TBearer, TBearerBase>(string fieldName, TBearer?[]? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer, TBearerBase =>
-        !stb.SkipFields && value != null ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatFlags) : stb.StyleTypeBuilder;
+        value != null 
+          ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatFlags) 
+          : stb.WasSkipped<TBearer?[]>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TBearerStruct>(string fieldName, TBearerStruct?[]? value
       , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer =>
-        !stb.SkipFields && value != null ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatFlags) : stb.StyleTypeBuilder;
+        value != null 
+          ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatFlags) 
+          : stb.WasSkipped<TBearerStruct?[]>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered
     (string fieldName, string?[]? value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) : stb.StyleTypeBuilder;
+        value != null 
+          ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+          : stb.WasSkipped<string?[]>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredCharSeq<TCharSeq, TCharSeqBase>
     (string fieldName, TCharSeq?[]? value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence, TCharSeqBase =>
-        !stb.SkipFields && value != null
+        value != null
             ? AlwaysAddFilteredCharSeq(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<TCharSeq?[]>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered
     (string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) : stb.StyleTypeBuilder;
+        value != null 
+          ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+          : stb.WasSkipped<StringBuilder?[]>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredMatch<TAny, TAnyBase>
     (string fieldName, TAny?[]? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TAny : TAnyBase =>
-        !stb.SkipFields && value != null
+        value != null
             ? AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<TAny[]>( null, fieldName, formatFlags);
 
     [CallsObjectToString]
     public TExt WhenNonNullAddFilteredObject
     (string fieldName, object?[]? value, OrderedCollectionPredicate<object> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        !stb.SkipFields && value != null
-            ? AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+    , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      WhenNonNullAddFilteredMatch(fieldName, value, filterPredicate, formatString, formatFlags);
 
     public TExt WhenNonNullAddFiltered(string fieldName, IReadOnlyList<bool>? value, OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) : stb.StyleTypeBuilder;
+        value != null 
+          ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+          : stb.WasSkipped<IReadOnlyList<bool>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered(string fieldName, IReadOnlyList<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) : stb.StyleTypeBuilder;
+        value != null 
+          ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+          : stb.WasSkipped<IReadOnlyList<bool?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered<TFmt, TFmtBase>
     (string fieldName, IReadOnlyList<TFmt?>? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable, TFmtBase =>
-        !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) : stb.StyleTypeBuilder;
+        value != null 
+          ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+          : stb.WasSkipped<IReadOnlyList<TFmt>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered<TFmtStruct>
     (string fieldName, IReadOnlyList<TFmtStruct?>? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable =>
-        !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) : stb.StyleTypeBuilder;
+        value != null 
+          ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+          : stb.WasSkipped<IReadOnlyList<TFmtStruct?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TCloaked, TFilterBase, TRevealBase>
     (string fieldName, IReadOnlyList<TCloaked?>? value, OrderedCollectionPredicate<TFilterBase> filterPredicate
@@ -1682,33 +403,39 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
         where TCloaked : TFilterBase?, TRevealBase? 
         where TRevealBase : notnull =>
-        !stb.SkipFields && value != null
+        value != null
             ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IReadOnlyList<TCloaked?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TCloakedStruct>(string fieldName, IReadOnlyList<TCloakedStruct?>? value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
-        !stb.SkipFields && value != null
+        value != null
             ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IReadOnlyList<TCloakedStruct?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TBearer, TBearerBase>(string fieldName, IReadOnlyList<TBearer?>? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer, TBearerBase =>
-        !stb.SkipFields && value != null ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatFlags) : stb.StyleTypeBuilder;
+        value != null 
+          ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatFlags) 
+          : stb.WasSkipped<IReadOnlyList<TBearer?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TBearerStruct>(string fieldName, IReadOnlyList<TBearerStruct?>? value
       , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer =>
-        !stb.SkipFields && value != null ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatFlags) : stb.StyleTypeBuilder;
+        value != null 
+          ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatFlags) 
+          : stb.WasSkipped<IReadOnlyList<TBearerStruct?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered
     (string fieldName, IReadOnlyList<string?>? value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) : stb.StyleTypeBuilder;
+        value != null 
+          ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+          : stb.WasSkipped<IReadOnlyList<string?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredCharSeq<TCharSeq, TCharSeqBase>
     (string fieldName, IReadOnlyList<TCharSeq?>? value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
@@ -1717,61 +444,61 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TCharSeq : ICharSequence, TCharSeqBase =>
         !stb.SkipFields && value != null
             ? AlwaysAddFilteredCharSeq(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IReadOnlyList<TCharSeq?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered
     (string fieldName, IReadOnlyList<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        !stb.SkipFields && value != null ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) : stb.StyleTypeBuilder;
+        value != null 
+          ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
+          : stb.WasSkipped<IReadOnlyList<StringBuilder?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredMatch<TAny, TAnyBase>
-    (string fieldName, IReadOnlyList<TAny?>? value, OrderedCollectionPredicate<TAnyBase?> filterPredicate
+    (string fieldName, IReadOnlyList<TAny>? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TAny : TAnyBase =>
-        !stb.SkipFields && value != null
+        where TAny : TAnyBase? =>
+        value != null
             ? AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IReadOnlyList<TAny?>>( null, fieldName, formatFlags);
 
     [CallsObjectToString]
     public TExt WhenNonNullAddFilteredObject
     (string fieldName, IReadOnlyList<object?>? value, OrderedCollectionPredicate<object> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        !stb.SkipFields && value != null
-            ? AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+        WhenNonNullAddFilteredMatch(fieldName, value, filterPredicate, formatString, formatFlags);
 
     public TExt WhenNonNullAddFilteredEnumerate(string fieldName, IEnumerable<bool>? value, OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        !stb.SkipFields && value != null
+        value != null
             ? AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IEnumerable<bool>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredEnumerate(string fieldName, IEnumerable<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        !stb.SkipFields && value != null
+        value != null
             ? AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IEnumerable<bool?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredEnumerate<TFmt, TFmtBase>
     (string fieldName, IEnumerable<TFmt?>? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable, TFmtBase =>
-        !stb.SkipFields && value != null
+        value != null
             ? AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IEnumerable<TFmt?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredEnumerate<TFmtStruct>
     (string fieldName, IEnumerable<TFmtStruct?>? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable =>
-        !stb.SkipFields && value != null
+        value != null
             ? AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IEnumerable<TFmtStruct?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFilteredEnumerate<TCloaked, TFilterBase, TRevealBase>
     (string fieldName, IEnumerable<TCloaked?>? value, OrderedCollectionPredicate<TFilterBase> filterPredicate
@@ -1779,27 +506,31 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
         where TCloaked : TFilterBase?, TRevealBase? 
         where TRevealBase : notnull =>
-        !stb.SkipFields && value != null
+        value != null
             ? AlwaysRevealFilteredEnumerate(fieldName, value, filterPredicate, palantírReveal, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IEnumerable<TCloaked?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFilteredEnumerate<TCloakedStruct>(string fieldName, IEnumerable<TCloakedStruct?>? value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
-        !stb.SkipFields && value != null
+        value != null
             ? AlwaysRevealFilteredEnumerate(fieldName, value, filterPredicate, palantírReveal, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IEnumerable<TCloakedStruct?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFilteredEnumerate<TBearer, TBearerBase>(string fieldName, IEnumerable<TBearer?>? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer, TBearerBase =>
-        !stb.SkipFields && value != null ? AlwaysRevealFilteredEnumerate(fieldName, value, filterPredicate, formatFlags) : stb.StyleTypeBuilder;
+        value != null 
+          ? AlwaysRevealFilteredEnumerate(fieldName, value, filterPredicate, formatFlags) 
+          : stb.WasSkipped<IEnumerable<TBearer?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFilteredEnumerate<TBearerStruct>(string fieldName, IEnumerable<TBearerStruct?>? value
       , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer =>
-        !stb.SkipFields && value != null ? AlwaysRevealFilteredEnumerate(fieldName, value, filterPredicate, formatFlags) : stb.StyleTypeBuilder;
+        value != null 
+          ? AlwaysRevealFilteredEnumerate(fieldName, value, filterPredicate, formatFlags) 
+          : stb.WasSkipped<IEnumerable<TBearerStruct?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredEnumerate
     (string fieldName, IEnumerable<string?>? value, OrderedCollectionPredicate<string> filterPredicate
@@ -1807,7 +538,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipFields && value != null
             ? AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IEnumerable<string?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredCharSeqEnumerate<TCharSeq, TCharSeqBase>
     (string fieldName, IEnumerable<TCharSeq?>? value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
@@ -1816,7 +547,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TCharSeq : ICharSequence, TCharSeqBase =>
         !stb.SkipFields && value != null
             ? AlwaysAddFilteredCharSeqEnumerate(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IEnumerable<TCharSeq?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredEnumerate
     (string fieldName, IEnumerable<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
@@ -1824,7 +555,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipFields && value != null
             ? AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IEnumerable<StringBuilder?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredMatchEnumerate<TAny, TAnyBase>
     (string fieldName, IEnumerable<TAny?>? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
@@ -1833,47 +564,45 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TAny : TAnyBase =>
         !stb.SkipFields && value != null
             ? AlwaysAddFilteredMatchEnumerate(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IEnumerable<TAny?>>( null, fieldName, formatFlags);
 
     [CallsObjectToString]
     public TExt WhenNonNullAddFilteredObjectEnumerate
     (string fieldName, IEnumerable<object?>? value, OrderedCollectionPredicate<object> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        !stb.SkipFields && value != null
-            ? AlwaysAddFilteredMatchEnumerate(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+    , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      WhenNonNullAddFilteredMatchEnumerate(fieldName, value, filterPredicate, formatString, formatFlags);
 
     public TExt WhenNonNullAddFilteredEnumerate(string fieldName, IEnumerator<bool>? value, OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        !stb.SkipFields && value != null
+        value != null
             ? AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IEnumerator<bool>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredEnumerate(string fieldName, IEnumerator<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        !stb.SkipFields && value != null
+        value != null
             ? AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IEnumerator<bool?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredEnumerate<TFmt, TFmtBase>
     (string fieldName, IEnumerator<TFmt?>? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable, TFmtBase =>
-        !stb.SkipFields && value != null
+        value != null
             ? AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IEnumerator<TFmt?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredEnumerate<TFmtStruct>
     (string fieldName, IEnumerator<TFmtStruct?>? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
         where TFmtStruct : struct, ISpanFormattable =>
-        !stb.SkipFields && value != null
+        value != null
             ? AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IEnumerator<TFmtStruct?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFilteredEnumerate<TCloaked, TFilterBase, TRevealBase>
     (string fieldName, IEnumerator<TCloaked?>? value, OrderedCollectionPredicate<TFilterBase> filterPredicate
@@ -1881,27 +610,31 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
         where TCloaked : TFilterBase?, TRevealBase? 
         where TRevealBase : notnull =>
-        !stb.SkipFields && value != null
+        value != null
             ? AlwaysRevealFilteredEnumerate(fieldName, value, filterPredicate, palantírReveal, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IEnumerator<TCloaked?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFilteredEnumerate<TCloakedStruct>(string fieldName, IEnumerator<TCloakedStruct?>? value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
-        !stb.SkipFields && value != null
+        value != null
             ? AlwaysRevealFilteredEnumerate(fieldName, value, filterPredicate, palantírReveal, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IEnumerator<TCloakedStruct?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFilteredEnumerate<TBearer, TBearerBase>(string fieldName, IEnumerator<TBearer?>? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer, TBearerBase =>
-        !stb.SkipFields && value != null ? AlwaysRevealFilteredEnumerate(fieldName, value, filterPredicate, formatFlags) : stb.StyleTypeBuilder;
+        value != null 
+          ? AlwaysRevealFilteredEnumerate(fieldName, value, filterPredicate, formatFlags) 
+          : stb.WasSkipped<IEnumerator<TBearer?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFilteredEnumerate<TBearerStruct>(string fieldName, IEnumerator<TBearerStruct?>? value
       , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer =>
-        !stb.SkipFields && value != null ? AlwaysRevealFilteredEnumerate(fieldName, value, filterPredicate, formatFlags) : stb.StyleTypeBuilder;
+        value != null 
+          ? AlwaysRevealFilteredEnumerate(fieldName, value, filterPredicate, formatFlags) 
+          : stb.WasSkipped<IEnumerator<TBearerStruct?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredEnumerate
     (string fieldName, IEnumerator<string?>? value, OrderedCollectionPredicate<string> filterPredicate
@@ -1909,7 +642,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipFields && value != null
             ? AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IEnumerator<string?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredCharSeqEnumerate<TCharSeq, TCharSeqBase>
     (string fieldName, IEnumerator<TCharSeq?>? value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
@@ -1918,7 +651,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TCharSeq : ICharSequence, TCharSeqBase =>
         !stb.SkipFields && value != null
             ? AlwaysAddFilteredCharSeqEnumerate(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IEnumerator<TCharSeq?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredEnumerate
     (string fieldName, IEnumerator<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
@@ -1926,23 +659,21 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipFields && value != null
             ? AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IEnumerator<StringBuilder?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFilteredMatchEnumerate<TAny, TAnyBase>
     (string fieldName, IEnumerator<TAny?>? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TAny : TAnyBase =>
+        where TAny : TAnyBase? =>
         !stb.SkipFields && value != null
             ? AlwaysAddFilteredMatchEnumerate(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+            : stb.WasSkipped<IEnumerator<TAny?>>( null, fieldName, formatFlags);
 
     [CallsObjectToString]
     public TExt WhenNonNullAddFilteredObjectEnumerate
     (string fieldName, IEnumerator<object?>? value, OrderedCollectionPredicate<object> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        !stb.SkipFields && value != null
-            ? AlwaysAddFilteredMatchEnumerate(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.StyleTypeBuilder;
+    , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      WhenNonNullAddFilteredMatchEnumerate(fieldName, value, filterPredicate, formatString, formatFlags);
 }

@@ -587,7 +587,7 @@ public partial class OrderedCollectionMoldTests
         stringBearer.RevealState(tos);
         var buildExpectedOutput =
             BuildExpectedOutput
-                (stringBearer.GetType().ShortNameInCSharpFormat()
+                (stringBearer.GetType().CachedCSharpNameNoConstraints()
                , ((ISinglePropertyTestStringBearer)stringBearer).PropertyName
                , scaffoldingToCall.ScaffoldingFlags
                , formatExpectation).MakeWhiteSpaceVisible();

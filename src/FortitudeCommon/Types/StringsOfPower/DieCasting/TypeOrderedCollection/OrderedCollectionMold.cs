@@ -19,7 +19,7 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
       , int existingRefId
       , FieldContentHandling createFormatFlags )
     {
-        InitializeTypedStyledTypeBuilder(typeBeingBuilt, master, typeSettings, typeName
+        Initialize(typeBeingBuilt, master, typeSettings, typeName
                                        , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
 
         stb = CompAsOrderedCollection;
@@ -34,12 +34,12 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
     {
         if (CompAsOrderedCollection.CollectionInComplexType)
         {
-            CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess);
+            MoldStateField.StyleFormatter.AppendComplexTypeOpening(MoldStateField);
         }
         else
         {
-            var elementType = CompAccess.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
-            CompAccess.StyleFormatter.FormatCollectionStart(CompAccess, elementType!, true, CompAccess.TypeBeingBuilt);
+            var elementType = MoldStateField.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
+            MoldStateField.StyleFormatter.FormatCollectionStart(MoldStateField, elementType!, true, MoldStateField.TypeBeingBuilt);
         }
     }
     
@@ -47,16 +47,16 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
     {
         if (CompAsOrderedCollection.CollectionInComplexType)
         {
-            CompAccess.StyleFormatter.AppendTypeClosing(CompAccess);
+            MoldStateField.StyleFormatter.AppendTypeClosing(MoldStateField);
         }
         else
         {
-            var elementType = CompAccess.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
-            CompAccess.StyleFormatter.FormatCollectionEnd(CompAccess, 1, elementType!, 1, "");
+            var elementType = MoldStateField.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
+            MoldStateField.StyleFormatter.FormatCollectionEnd(MoldStateField, 1, elementType!, 1, "");
         }
     }
 
-    protected virtual CollectionBuilderCompAccess<TOCMold> CompAsOrderedCollection =>  (CollectionBuilderCompAccess<TOCMold>)CompAccess;
+    protected virtual CollectionBuilderCompAccess<TOCMold> CompAsOrderedCollection =>  (CollectionBuilderCompAccess<TOCMold>)MoldStateField;
 }
 
 public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCollectionMold>
@@ -80,7 +80,7 @@ public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCo
     protected override void SourceBuilderComponentAccess()
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
-        CompAccess = recycler.Borrow<CollectionBuilderCompAccess<SimpleOrderedCollectionMold>>()
+        MoldStateField = recycler.Borrow<CollectionBuilderCompAccess<SimpleOrderedCollectionMold>>()
                              .InitializeOrderCollectionComponentAccess(this, PortableState, false);
     }
 }
@@ -112,19 +112,19 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
     protected override void SourceBuilderComponentAccess()
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
-        CompAccess = recycler.Borrow<CollectionBuilderCompAccess<ComplexOrderedCollectionMold>>()
+        MoldStateField = recycler.Borrow<CollectionBuilderCompAccess<ComplexOrderedCollectionMold>>()
                              .InitializeOrderCollectionComponentAccess(this, PortableState, true);
     }
 
     public TypeFields.SelectTypeField<ComplexOrderedCollectionMold> LogOnlyField =>
         logOnlyInternalField ??=
             PortableState.Master.Recycler
-                         .Borrow<TypeFields.SelectTypeField<ComplexOrderedCollectionMold>>().Initialize(CompAccess);
+                         .Borrow<TypeFields.SelectTypeField<ComplexOrderedCollectionMold>>().Initialize(MoldStateField);
 
     public TypeFieldCollection.SelectTypeCollectionField<ComplexOrderedCollectionMold> LogOnlyCollectionField =>
         logOnlyInternalCollectionField ??=
             PortableState.Master.Recycler
-                         .Borrow<TypeFieldCollection.SelectTypeCollectionField<ComplexOrderedCollectionMold>>().Initialize(CompAccess);
+                         .Borrow<TypeFieldCollection.SelectTypeCollectionField<ComplexOrderedCollectionMold>>().Initialize(MoldStateField);
 
     protected override void InheritedStateReset()
     {
@@ -133,13 +133,13 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
         logOnlyInternalField?.DecrementRefCount();
         logOnlyInternalField = null!;
 
-        CompAccess.DecrementIndent();
-        CompAccess = null!;
+        MoldStateField.DecrementIndent();
+        MoldStateField = null!;
     }
 
     public ComplexOrderedCollectionMold AddBaseFieldsStart()
     {
-        CompAccess.Master.AddBaseFieldsStart();
+        MoldStateField.Master.AddBaseFieldsStart();
 
         return Me;
     }

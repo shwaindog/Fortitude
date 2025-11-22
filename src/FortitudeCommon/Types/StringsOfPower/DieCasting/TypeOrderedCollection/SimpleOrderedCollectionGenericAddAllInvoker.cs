@@ -1230,9 +1230,9 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
         catch (Exception e)
         {
             Console.Out.WriteLine
-                ($"Problem creating dynamic invoker for {keyValueCollectionBuilder.ShortNameInCSharpFormat()}.{methodToCall.Name} " +
+                ($"Problem creating dynamic invoker for {keyValueCollectionBuilder.CachedCSharpNameWithConstraints()}.{methodToCall.Name} " +
                  $"with args(" +
-                 $"({string.Join(",", methodToCall.GetParameters().Select(pi => pi.ParameterType.ShortNameInCSharpFormat()))})" +
+                 $"({string.Join(",", methodToCall.GetParameters().Select(pi => pi.ParameterType.CachedCSharpNameWithConstraints()))})" +
                  $" Got {e}");
             throw;
         }

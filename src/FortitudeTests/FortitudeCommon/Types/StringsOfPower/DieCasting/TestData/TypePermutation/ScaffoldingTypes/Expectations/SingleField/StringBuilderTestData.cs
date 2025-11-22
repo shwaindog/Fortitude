@@ -9,12 +9,12 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.SingleField;
 
-public class StringBuilderTestData
+public static class StringBuilderTestData
 {
     private static PositionUpdatingList<IStringLikeExpectation>? allStringBuilderExpectations;
 
     public static PositionUpdatingList<IStringLikeExpectation> AllStringBuilderExpectations => allStringBuilderExpectations ??=
-        new PositionUpdatingList<IStringLikeExpectation>(typeof(StringTestData))
+        new PositionUpdatingList<IStringLikeExpectation>(typeof(StringBuilderTestData))
         {
             // StringBuilder
             new StringLikeExpect<StringBuilder, StringBuilder>

@@ -18,33 +18,40 @@ public interface ITypeMolderDieCast
     ISecretStringOfPower Master { get; }
 
     MoldDieCastSettings AppendSettings { get; set; }
-    
-    
+
+
     FieldContentHandling CallerContentHandling { get; }
     FieldContentHandling CreateContentHandling { get; }
 
     char IndentChar { get; }
 
     ushort IndentLevel { get; }
-    
+
     bool WriteAsComplex { get; }
 
     bool IsComplete { get; }
+
+    bool WriteAsAttribute { get; }
+    bool WriteAsContent { get; set; }
+    
+    int LastStartNewLineContentPos { get; }
 
     Type TypeBeingBuilt { get; }
     string? TypeName { get; }
 
     bool SkipBody { get; set; }
+
     bool SkipFields { get; set; }
-    
-    bool SkipField(ReadOnlySpan<char> fieldName, FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags);
-    
+
+    bool SkipField<TCallerType>(Type? actualType, ReadOnlySpan<char> fieldName
+      , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags);
+
     IStyledTypeFormatting StyleFormatter { get; }
-    
+
     int RemainingGraphDepth { get; set; }
 
     StringStyle Style { get; }
-    
+
     StyleOptions Settings { get; }
 
     IStringBuilder Sb { get; }
@@ -60,6 +67,9 @@ public interface ITypeMolderDieCast
 public interface ITypeMolderDieCast<out T> : ITypeMolderDieCast where T : TypeMolder
 {
     T StyleTypeBuilder { get; }
+
+    T WasSkipped<TCallerType>(Type? actualType, ReadOnlySpan<char> fieldName
+      , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags);
 }
 
 public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt>
@@ -72,7 +82,9 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
     public TExt StyleTypeBuilder { get; private set; } = null!;
 
     private TypeMolder.StyleTypeBuilderPortableState typeBuilderState = null!;
-    private bool                                            skipFields;
+
+    private bool skipFields;
+    private bool writeAsContent;
 
     public TypeMolderDieCast<TExt> Initialize
         (TExt externalTypeBuilder, TypeMolder.StyleTypeBuilderPortableState typeBuilderPortableState)
@@ -82,21 +94,20 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
         RemainingGraphDepth = typeBuilderPortableState.RemainingGraphDepth;
 
         var typeOfTExt = typeof(TExt);
-        hasJsonFields = typeOfTExt == typeof(ComplexTypeMold) 
+        hasJsonFields = typeOfTExt == typeof(ComplexTypeMold)
                      || typeOfTExt == typeof(KeyValueCollectionMold)
                      || typeof(MultiValueTypeMolder<TExt>).IsAssignableFrom(typeOfTExt);
-        
-        SkipBody      = typeBuilderState.ExistingRefId > 0;
-        SkipFields    = SkipBody || (Style.IsJson() && !hasJsonFields);
+
+        SkipBody   = typeBuilderState.ExistingRefId > 0;
+        SkipFields = SkipBody || (Style.IsJson() && !hasJsonFields);
 
         return this;
     }
-
-
+    
     public ISecretStringOfPower Master => typeBuilderState.Master;
 
     public string? TypeName => typeBuilderState.TypeName;
-    
+
     public Type TypeBeingBuilt => typeBuilderState.TypeBeingBuilt;
 
     public FieldContentHandling CallerContentHandling => Master.CallerContext.FormatFlags;
@@ -105,6 +116,13 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
     public ContentSeparatorRanges LastContentSeparatorPaddingRanges { get; set; }
 
     public int RemainingGraphDepth { get; set; }
+
+    public bool WriteAsAttribute => WriteAsContent;
+    public bool WriteAsContent
+    {
+        get => writeAsContent;
+        set => writeAsContent |= value;
+    }
 
     public ushort IndentLevel => (ushort)typeBuilderState.Master.IndentLevel;
     public bool WriteAsComplex => StyleTypeBuilder.IsComplexType || StyleTypeBuilder.ExistingRefId != 0 || RemainingGraphDepth <= 0;
@@ -123,12 +141,20 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
         set => skipFields = value;
     }
 
-    public StyleOptions Settings => typeBuilderState.Master.Settings;
+    public int LastStartNewLineContentPos { get; private set; } = -1;
 
-    public bool SkipField(ReadOnlySpan<char> fieldName, FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags)
+    public bool SkipField<TCallerType>(Type? actualType, ReadOnlySpan<char> fieldName
+      , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags) =>
+        SkipBody;
+
+    public TExt WasSkipped<TCallerType>(Type? actualType, ReadOnlySpan<char> fieldName
+      , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags)
+
     {
-        return SkipFields;
+        return StyleTypeBuilder;
     }
+
+    public StyleOptions Settings => typeBuilderState.Master.Settings;
 
     public int DecrementIndent()
     {
@@ -171,6 +197,7 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
 
     public override void StateReset()
     {
+        writeAsContent   = false;
         StyleTypeBuilder = null!;
         typeBuilderState = null!;
         base.StateReset();

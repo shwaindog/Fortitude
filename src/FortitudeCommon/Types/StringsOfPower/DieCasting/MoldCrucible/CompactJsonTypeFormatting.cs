@@ -293,7 +293,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
 
     public virtual IStringBuilder FormatFieldContents<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable
+        where TFmt : ISpanFormattable?
     {
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
         formatFlags = ResolveContentFormattingFlags(sb, source, formatFlags);
@@ -701,8 +701,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return sb;
     }
 
-    public IStringBuilder CollectionNextItemFormat<TFmt>(IStringBuilder sb, TFmt? item, int retrieveCount, string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
+    public IStringBuilder CollectionNextItemFormat<TFmt>(IStringBuilder sb, TFmt item, int retrieveCount, string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
         if (item == null)
         {
@@ -710,14 +710,14 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         }
         var typeofT = typeof(TFmt);
         formatString ??= "";
-;        if (!formatString.IsDblQtBounded() && !formatFlags.HasDisableAutoDelimiting() && !formatFlags.HasAsValueContentFlag())
+        if (!formatString.IsDblQtBounded() && !formatFlags.HasDisableAutoDelimiting() && !formatFlags.HasAsValueContentFlag())
         {
             formatFlags |= JsonOptions.WrapValuesInQuotes || formatFlags.HasAsStringContentFlag() || !typeofT.IsJsonStringExemptType()
                 ? EnsureFormattedDelimited
                 : None;
         }
         var preAppendLen = sb.Length;
-        CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormattingHandlingFlags)formatFlags);
+        CollectionNextItemFormat(item, retrieveCount, sb, formatString, (FormattingHandlingFlags)formatFlags);
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags, true);
         GraphBuilder.MarkContentStart(preAppendLen);
         GraphBuilder.MarkContentEnd();
@@ -740,7 +740,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
                 : None;
         }
         var preAppendLen = sb.Length;
-        CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormattingHandlingFlags)formatFlags);
+        CollectionNextItemFormat(item, retrieveCount, sb, formatString, (FormattingHandlingFlags)formatFlags);
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags, true);
         GraphBuilder.MarkContentStart(preAppendLen);
         GraphBuilder.MarkContentEnd();

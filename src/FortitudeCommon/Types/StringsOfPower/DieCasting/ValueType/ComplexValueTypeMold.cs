@@ -32,30 +32,30 @@ public class ComplexValueTypeMold : ValueTypeMold<ComplexValueTypeMold>
     
     public override void AppendOpening()
     {
-        CompAccess.StyleFormatter.AppendComplexTypeOpening(CompAccess);
+        MoldStateField.StyleFormatter.AppendComplexTypeOpening(MoldStateField);
     }
     
     public override void AppendClosing()
     {
-        CompAccess.StyleFormatter.AppendTypeClosing(CompAccess);
+        MoldStateField.StyleFormatter.AppendTypeClosing(MoldStateField);
     }
 
     protected override void SourceBuilderComponentAccess()
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
-        CompAccess = recycler.Borrow<ValueTypeDieCast<ComplexValueTypeMold>>()
+        MoldStateField = recycler.Borrow<ValueTypeDieCast<ComplexValueTypeMold>>()
                              .InitializeValueBuilderCompAccess(this, PortableState, true);
     }
     
     public TypeFields.SelectTypeField<ComplexValueTypeMold> LogOnlyField =>
         logOnlyInternalField ??=
             PortableState.Master.Recycler
-                         .Borrow<TypeFields.SelectTypeField<ComplexValueTypeMold>>().Initialize(CompAccess);
+                         .Borrow<TypeFields.SelectTypeField<ComplexValueTypeMold>>().Initialize(MoldStateField);
 
     public TypeFieldCollection.SelectTypeCollectionField<ComplexValueTypeMold> LogOnlyCollectionField =>
         logOnlyInternalCollectionField ??=
             PortableState.Master.Recycler
-                         .Borrow<TypeFieldCollection.SelectTypeCollectionField<ComplexValueTypeMold>>().Initialize(CompAccess);
+                         .Borrow<TypeFieldCollection.SelectTypeCollectionField<ComplexValueTypeMold>>().Initialize(MoldStateField);
 
     protected override void InheritedStateReset()
     {
@@ -64,13 +64,13 @@ public class ComplexValueTypeMold : ValueTypeMold<ComplexValueTypeMold>
         logOnlyInternalField?.DecrementRefCount();
         logOnlyInternalField = null!;
 
-        CompAccess.DecrementIndent();
-        CompAccess = null!;
+        MoldStateField.DecrementIndent();
+        MoldStateField = null!;
     }
 
     public ComplexValueTypeMold AddBaseFieldsStart()
     {
-        CompAccess.Master.AddBaseFieldsStart();
+        MoldStateField.Master.AddBaseFieldsStart();
 
         return Me;
     }

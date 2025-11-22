@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -311,6 +312,15 @@ public static class TypeExtensions
         return type.Name;
     }
 
+    private static readonly ConcurrentDictionary<Type, string> CachedTypeNamesNoConstraints = new ();
+    
+    private static readonly ConcurrentDictionary<Type, string> CachedTypeNamesWithConstraints = new ();
+
+    public static string CachedCSharpNameNoConstraints(this Type typeNameToFriendlify) =>
+        CachedTypeNamesNoConstraints.GetOrAdd(typeNameToFriendlify, type => type.ShortNameInCSharpFormat(false));
+    
+    public static string CachedCSharpNameWithConstraints(this Type typeNameToFriendlify) =>
+        CachedTypeNamesWithConstraints.GetOrAdd(typeNameToFriendlify, type => type.ShortNameInCSharpFormat());
 
     public static string ShortNameInCSharpFormat(this Type typeNameToFriendlify, bool includeParamConstraints = true) =>
         typeNameToFriendlify.AppendShortNameInCSharpFormat(new MutableString(), includeParamConstraints).ToString();
