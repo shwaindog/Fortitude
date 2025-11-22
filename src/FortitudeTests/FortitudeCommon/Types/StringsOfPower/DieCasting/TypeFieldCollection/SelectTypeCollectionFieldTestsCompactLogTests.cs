@@ -626,7 +626,7 @@ public partial class SelectTypeCollectionFieldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactLog(StringBearerCollectionsTestData.AllStringBearerCollectionExpectations[3], ScaffoldingRegistry.AllScaffoldingTypes[693]);
+        SharedCompactJson(SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations[5], ScaffoldingRegistry.AllScaffoldingTypes[661]);
     }
 
     private void SharedCompactLog(IOrderedListExpect formatExpectation, ScaffoldingPartEntry scaffoldingToCall)

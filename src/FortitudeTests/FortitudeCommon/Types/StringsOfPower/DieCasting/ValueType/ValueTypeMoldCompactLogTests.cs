@@ -534,12 +534,12 @@ public partial class ValueTypeMoldTests
         SharedCompactLogAsValue(formatExpectation, scaffoldingToCall);
     }
 
-    [TestMethod]
+    // [TestMethod]
     public void CompactLogSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactLogAsValue(CloakedBearerTestData.AllCloakedBearerExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[1132]);
+        SharedCompactLogAsString(StringTestData.AllStringExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[1020]);
     }
 
     private void SharedCompactLogAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)

@@ -87,17 +87,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenPopulatedAddAllCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, Span<TCharSeq> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence =>
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence? =>
         value is { Length: > 0 }
             ? AlwaysAddAllCharSeq(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped<Memory<TCharSeq>>(null, fieldName, formatFlags);
-
-    public TExt WhenPopulatedAddAllCharSeqNullable<TCharSeq>(ReadOnlySpan<char> fieldName, Span<TCharSeq?> value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence =>
-        value is { Length: > 0 }
-            ? AlwaysAddAllCharSeqNullable(fieldName, value, formatString, formatFlags)
-            : stb.WasSkipped<Memory<StringBuilder>>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, Span<StringBuilder> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null

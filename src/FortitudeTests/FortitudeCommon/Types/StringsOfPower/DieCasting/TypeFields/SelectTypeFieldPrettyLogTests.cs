@@ -112,12 +112,12 @@ public partial class SelectTypeFieldTests
         SharedPrettyLog(formatExpectation, scaffoldingToCall);
     }
 
-    [TestMethod]
+    // [TestMethod]
     public void PrettyLogSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedPrettyLog(CharArrayTestData.AllCharArrayExpectations[3], ScaffoldingRegistry.AllScaffoldingTypes[901]);
+        SharedPrettyLog(StringTestData.AllStringExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[896]);
     }
 
     private void SharedPrettyLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)

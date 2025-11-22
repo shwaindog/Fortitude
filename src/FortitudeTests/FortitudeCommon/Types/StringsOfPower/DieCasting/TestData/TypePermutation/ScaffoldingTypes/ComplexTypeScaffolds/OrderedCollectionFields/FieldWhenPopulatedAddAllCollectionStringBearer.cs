@@ -50,9 +50,9 @@ public class FieldNullableBoolSpanWhenPopulatedAddAllStringBearer : FormattedCol
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites 
-                | AcceptsNonNullableSpanFormattable | SupportsValueFormatString)]
+                | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
 public class FieldSpanFormattableSpanWhenPopulatedAddAllStringBearer<TFmt> : FormattedCollectionFieldMoldScaffold<TFmt, TFmt[]>
-    where TFmt : ISpanFormattable
+    where TFmt : ISpanFormattable?
 {
     public TFmt[] ComplexTypeCollectionFieldWhenPopulatedAddAllSpanFormattableSpan
     {
@@ -116,7 +116,7 @@ public class FieldNullableSpanFormattableSpanWhenPopulatedAddAllStringBearer<TFm
 
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | AcceptsAnyNonNullable |
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | AcceptsTypeAllButNullableStruct |
                   SupportsValueRevealer)]
 public class FieldCloakedBearerSpanWhenPopulatedAddAllStringBearer<TCloaked, TRevealBase> : 
     RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase, TCloaked[]> 
@@ -188,7 +188,7 @@ public class FieldNullableCloakedBearerSpanWhenPopulatedAddAllStringBearer<TCloa
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | AcceptsTypeAllButNullableStruct 
                 | AcceptsStringBearer)]
 public class FieldStringBearerSpanWhenPopulatedAddAllStringBearer<TBearer> : CollectionFieldMoldScaffold<TBearer, TBearer[]>
-    where TBearer : IStringBearer
+    where TBearer : IStringBearer?
 {
     public TBearer[]? ComplexTypeCollectionFieldWhenPopulatedAddAllStringBearerSpan
     {
@@ -291,9 +291,9 @@ public class FieldStringNullableSpanWhenPopulatedAddAllStringBearer : FormattedC
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | AcceptsCharSequence 
-                | AcceptsClass | SupportsValueFormatString)]
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldCharSequenceSpanWhenPopulatedAddAllStringBearer<TCharSeq> : FormattedCollectionFieldMoldScaffold<TCharSeq, TCharSeq[]>
-    where TCharSeq : ICharSequence
+    where TCharSeq : ICharSequence?
 {
     public TCharSeq[]? ComplexTypeCollectionFieldWhenPopulatedAddAllCharSequenceSpan
     {
@@ -327,7 +327,7 @@ public class FieldCharSequenceNullableSpanWhenPopulatedAddAllStringBearer<TCharS
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllCharSeqNullable
+           .CollectionField.WhenPopulatedAddAllCharSeq
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllCharSequenceNullableSpan)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllCharSequenceNullableSpan.AsSpan()
               , ValueFormatString)
@@ -378,7 +378,7 @@ public class FieldStringBuilderNullableSpanWhenPopulatedAddAllStringBearer : For
 
 }
 
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | AcceptsOnlyNonNullableGeneric 
+[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | AcceptsAnyGeneric 
                 | SupportsValueFormatString)]
 public class FieldMatchSpanWhenPopulatedAddAllStringBearer<TAny> : FormattedCollectionFieldMoldScaffold<TAny, TAny[]>
 {
@@ -395,27 +395,6 @@ public class FieldMatchSpanWhenPopulatedAddAllStringBearer<TAny> : FormattedColl
            .CollectionField.WhenPopulatedAddAllMatch
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllMatchSpan)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllMatchSpan.AsSpan(), ValueFormatString)
-           .Complete();
-
-}
-
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | AcceptsAnyGeneric 
-                | SupportsValueFormatString)]
-public class FieldMatchNullableSpanWhenPopulatedAddAllStringBearer<TAny> : FormattedCollectionFieldMoldScaffold<TAny?, TAny?[]>
-{
-    public TAny?[]? ComplexTypeCollectionFieldWhenPopulatedAddAllMatchNullableSpan
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllMatchNullableSpan);
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllMatch
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllMatchNullableSpan)
-              , ComplexTypeCollectionFieldWhenPopulatedAddAllMatchNullableSpan.AsSpan(), ValueFormatString)
            .Complete();
 
 }
@@ -506,9 +485,9 @@ public class FieldNullableBoolReadOnlySpanWhenPopulatedAddAllStringBearer : Form
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites 
-                | AcceptsNonNullableSpanFormattable | SupportsValueFormatString)]
+                | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
 public class FieldSpanFormattableReadOnlySpanWhenPopulatedAddAllStringBearer<TFmt> : FormattedCollectionFieldMoldScaffold<TFmt, TFmt[]>
-    where TFmt : ISpanFormattable
+    where TFmt : ISpanFormattable?
 {
     public TFmt[] ComplexTypeCollectionFieldWhenPopulatedAddAllSpanFormattableReadOnlySpan
     {
@@ -574,10 +553,10 @@ public class FieldNullableSpanFormattableReadOnlySpanWhenPopulatedAddAllStringBe
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites 
-                | AcceptsAnyNonNullable | SupportsValueRevealer)]
+                | AcceptsTypeAllButNullableStruct | SupportsValueRevealer)]
 public class FieldCloakedBearerReadOnlySpanWhenPopulatedAddAllStringBearer<TCloaked, TRevealBase> : 
     RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase, TCloaked[]> 
-    where TCloaked : TRevealBase
+    where TCloaked : TRevealBase?
     where TRevealBase : notnull
 {
     public TCloaked[] ComplexTypeCollectionFieldWhenPopulatedAddAllCloakedBearerReadOnlySpan
@@ -646,7 +625,7 @@ public class FieldNullableCloakedBearerReadOnlySpanWhenPopulatedAddAllStringBear
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites 
                 | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
 public class FieldStringBearerReadOnlySpanWhenPopulatedAddAllStringBearer<TBearer> : CollectionFieldMoldScaffold<TBearer, TBearer[]>
-    where TBearer : IStringBearer
+    where TBearer : IStringBearer?
 {
     public TBearer[]? ComplexTypeCollectionFieldWhenPopulatedAddAllStringBearerReadOnlySpan
     {
@@ -750,9 +729,9 @@ public class FieldStringNullableReadOnlySpanWhenPopulatedAddAllStringBearer : Fo
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites | AcceptsCharSequence 
-                | AcceptsClass | SupportsValueFormatString)]
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldCharSequenceReadOnlySpanWhenPopulatedAddAllStringBearer<TCharSeq> : FormattedCollectionFieldMoldScaffold<TCharSeq, TCharSeq[]>
-    where TCharSeq : ICharSequence
+    where TCharSeq : ICharSequence?
 {
     public TCharSeq[]? ComplexTypeCollectionFieldWhenPopulatedAddAllCharSequenceReadOnlySpan
     {
@@ -858,28 +837,6 @@ public class FieldMatchReadOnlySpanWhenPopulatedAddAllStringBearer<TAny> : Forma
            .CollectionField.WhenPopulatedAddAllMatch
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllMatchReadOnlySpan)
               , (ReadOnlySpan<TAny>)ComplexTypeCollectionFieldWhenPopulatedAddAllMatchReadOnlySpan, ValueFormatString)
-           .Complete();
-
-}
-
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites | AcceptsAnyGeneric 
-                | SupportsValueFormatString)]
-public class FieldMatchNullableReadOnlySpanWhenPopulatedAddAllStringBearer<TAny> : FormattedCollectionFieldMoldScaffold<TAny?, TAny?[]>
-{
-    public TAny?[]? ComplexTypeCollectionFieldWhenPopulatedAddAllMatchNullableReadOnlySpan
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllMatchNullableReadOnlySpan);
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllMatch
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllMatchNullableReadOnlySpan)
-              , (ReadOnlySpan<TAny?>)ComplexTypeCollectionFieldWhenPopulatedAddAllMatchNullableReadOnlySpan
-              , ValueFormatString)
            .Complete();
 
 }

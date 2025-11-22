@@ -2,18 +2,12 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Globalization;
-using System.Net;
-using System.Numerics;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.SingleField;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ValueTypeScaffolds;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
-using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
-    ScaffoldingStringBuilderInvokeFlags;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.ValueType;
 
@@ -193,12 +187,12 @@ public partial class ValueTypeMoldTests
         SharedCompactJsonAsValue(formatExpectation, scaffoldingToCall);
     }
 
-    [TestMethod]
+    // [TestMethod]
     public void CompactJsonSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactJsonAsString(SpanFormattableTestData.AllSpanFormattableExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[1083]);
+        SharedCompactJsonAsString(SpanFormattableTestData.AllSpanFormattableExpectations[230], ScaffoldingRegistry.AllScaffoldingTypes[1071]);
     }
 
     private void SharedCompactJsonAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -218,7 +212,7 @@ public partial class ValueTypeMoldTests
         var tos = new TheOneString().Initialize(Compact | Json);
         tos.Settings.NewLineStyle = "\n";
 
-        string BuildExpectedOutput(string className, string propertyName
+        string BuildExpectedOutput(string _, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
             var compactJsonTemplate = expectation.GetType().ExtendsGenericBaseType(typeof(NullableStringBearerExpect<>))
@@ -266,7 +260,7 @@ public partial class ValueTypeMoldTests
             
             logger.InfoAppend("To Debug Test past the following code into ")?
                   .Append(nameof(CompactJsonSingleTest)).Append("()\n\n")
-                  .Append("SharedCompactJsonAsValue(")?
+                  .Append("SharedCompactJsonAsValue(")
                   .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         }
         else
@@ -355,7 +349,7 @@ public partial class ValueTypeMoldTests
             
             logger.InfoAppend("To Debug Test past the following code into ")?
                   .Append(nameof(CompactJsonSingleTest)).Append("()\n\n")
-                  .Append("SharedCompactJsonAsString(")?
+                  .Append("SharedCompactJsonAsString(")
                   .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         }
         else

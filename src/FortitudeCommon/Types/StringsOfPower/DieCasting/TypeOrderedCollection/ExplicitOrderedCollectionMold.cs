@@ -59,7 +59,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
     }
 
     public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement<TFmtElement>(TFmtElement? element, string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtElement : TElement, ISpanFormattable
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtElement : TElement?, ISpanFormattable?
     {
         if (CompAsOrderedCollection.SkipBody) return this;
         if (element == null)
@@ -256,5 +256,5 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
     }
     
     protected override CollectionBuilderCompAccess<ExplicitOrderedCollectionMold<TElement>> CompAsOrderedCollection =>  
-        (CollectionBuilderCompAccess<ExplicitOrderedCollectionMold<TElement>>)MoldStateField;
+        (CollectionBuilderCompAccess<ExplicitOrderedCollectionMold<TElement>>)MoldStateField!;
 }

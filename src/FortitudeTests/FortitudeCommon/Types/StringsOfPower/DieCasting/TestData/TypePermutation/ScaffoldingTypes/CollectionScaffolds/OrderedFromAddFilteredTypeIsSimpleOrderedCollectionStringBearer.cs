@@ -294,7 +294,7 @@ public class OrderedFromNullableSpanFormattableArrayAddFilteredSimpleOrderedColl
 }
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate
-                | AcceptsNonNullableSpanFormattable | SupportsValueFormatString)]
+                | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
 public class OrderedFromSpanFormattableSpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt, TFmtBase> :
     FormattedFilteredCollectionMoldScaffold<TFmt, TFmtBase, TFmt[]>
     where TFmt : ISpanFormattable, TFmtBase
@@ -357,7 +357,7 @@ public class OrderedFromNullableSpanFormattableSpanAddFilteredSimpleOrderedColle
 }
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate
-                | AcceptsNonNullableSpanFormattable | SupportsValueFormatString)]
+                | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
 public class OrderedFromSpanFormattableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TFmt, TFmtBase> :
     FormattedFilteredCollectionMoldScaffold<TFmt, TFmtBase, TFmt[]>
     where TFmt : ISpanFormattable, TFmtBase
@@ -1328,10 +1328,10 @@ public class OrderedFromCharSequenceArrayAddFilteredSimpleOrderedCollectionStrin
 }
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate
-                | AcceptsCharSequence | AcceptsClass | SupportsValueFormatString)]
+                | AcceptsCharSequence | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceSpanAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> :
-    FormattedFilteredCollectionMoldScaffold<TCharSeq, TCharSeqBase, TCharSeq[]>
-    where TCharSeq : ICharSequence, TCharSeqBase
+    FormattedFilteredCollectionMoldScaffold<TCharSeq, TCharSeqBase?, TCharSeq[]>
+    where TCharSeq : ICharSequence?, TCharSeqBase?
 {
     public TCharSeq[]? OrderedCollectionAddFilteredCharSequenceSpan
     {
@@ -1370,7 +1370,7 @@ public class OrderedFromCharSequenceNullableSpanAddFilteredSimpleOrderedCollecti
 }
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate
-                | AcceptsCharSequence | AcceptsClass | SupportsValueFormatString)]
+                | AcceptsCharSequence | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> :
     FormattedFilteredCollectionMoldScaffold<TCharSeq, TCharSeqBase, TCharSeq[]>
     where TCharSeq : ICharSequence, TCharSeqBase

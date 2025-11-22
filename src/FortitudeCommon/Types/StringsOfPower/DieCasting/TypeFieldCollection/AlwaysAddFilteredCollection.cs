@@ -1708,13 +1708,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFiltered<TFmt, TFmtBase>
-    (string fieldName, TFmt?[]? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
+    (string fieldName, TFmt[]? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable, TFmtBase
+        where TFmt : ISpanFormattable?, TFmtBase?
     {
-        if (stb.SkipField<TFmt?[]>(value?.GetType(), fieldName, formatFlags))
-            return stb.WasSkipped<TFmt?[]>(value?.GetType(), fieldName, formatFlags);
+        if (stb.SkipField<TFmt[]>(value?.GetType(), fieldName, formatFlags))
+            return stb.WasSkipped<TFmt[]>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         ExplicitOrderedCollectionMold<TFmt>? eocm = null;
         if (value != null)
@@ -1744,7 +1744,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, typeof(TFmt), null, typeof(TFmt?[]), formatFlags);
+        stb.StyleFormatter.FormatCollectionStart(stb, typeof(TFmt), null, typeof(TFmt[]), formatFlags);
         stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(TFmt), null, formatString, formatFlags);
         return stb.AddGoToNext();
     }

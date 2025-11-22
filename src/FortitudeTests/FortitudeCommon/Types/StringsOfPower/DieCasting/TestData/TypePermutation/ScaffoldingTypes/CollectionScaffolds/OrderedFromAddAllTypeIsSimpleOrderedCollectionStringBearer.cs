@@ -266,7 +266,7 @@ public class OrderedFromNullableSpanFormattableArrayAddAllSimpleOrderedCollectio
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsNonNullableSpanFormattable
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsSpanFormattableExceptNullableStruct
                 | SupportsValueFormatString)]
 public class OrderedFromSpanFormattableSpanAddAllSimpleOrderedCollectionStringBearer<TFmt>
     : FormattedCollectionMoldScaffold<TFmt, TFmt[]>
@@ -326,7 +326,7 @@ public class OrderedFromNullableSpanFormattableSpanAddAllSimpleOrderedCollection
            .Complete();
 }
 
-[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsNonNullableSpanFormattable
+[TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsSpanFormattableExceptNullableStruct
                 | SupportsValueFormatString)]
 public class OrderedFromSpanFormattableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TFmt>
     : FormattedCollectionMoldScaffold<TFmt, TFmt[]>
@@ -1237,7 +1237,7 @@ public class OrderedFromCharSequenceArrayAddAllSimpleOrderedCollectionStringBear
 }
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsCharSequence
-                | AcceptsClass | SupportsValueFormatString)]
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceSpanAddAllSimpleOrderedCollectionStringBearer<TCharSeq> : FormattedCollectionMoldScaffold<TCharSeq, TCharSeq[]>
     where TCharSeq : ICharSequence
 {
@@ -1276,7 +1276,7 @@ public class OrderedFromCharSequenceNullableSpanAddAllSimpleOrderedCollectionStr
 }
 
 [TypeGeneratePart(OrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsCharSequence
-                | AcceptsClass | SupportsValueFormatString)]
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TCharSeq> :
     FormattedCollectionMoldScaffold<TCharSeq, TCharSeq[]>
     where TCharSeq : ICharSequence

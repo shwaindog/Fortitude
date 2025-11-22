@@ -60,9 +60,9 @@ public class FieldNullableBoolSpanWhenNonNullAddFilteredStringBearer : Formatted
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | NonNullWrites | AcceptsArray | CallsAsSpan | FilterPredicate
-                | AcceptsNonNullableSpanFormattable | SupportsValueFormatString)]
+                | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
 public class FieldSpanFormattableSpanWhenNonNullAddFilteredStringBearer<TFmt, TFmtBase> : FormattedFilteredCollectionFieldMoldScaffold<TFmt, TFmt[]>
-   where TFmt : ISpanFormattable, TFmtBase
+   where TFmt : ISpanFormattable?, TFmtBase?
 {
     public TFmt[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableSpan
     {
@@ -131,10 +131,10 @@ public class FieldNullableSpanFormattableSpanWhenNonNullAddFilteredStringBearer<
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate
-                | AcceptsAnyNonNullable | SupportsValueRevealer)]
+                | AcceptsTypeAllButNullableStruct | SupportsValueRevealer)]
 public class FieldCloakedBearerSpanWhenNonNullAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> :
     RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealBase, TCloaked[]>
-    where TCloaked : TCloakedRevealBase, TCloakedFilterBase
+    where TCloaked : TCloakedRevealBase?, TCloakedFilterBase?
     where TCloakedRevealBase : notnull
 {
     public TCloaked[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerSpan
@@ -202,10 +202,10 @@ public class FieldNullableCloakedBearerSpanWhenNonNullAddFilteredStringBearer<TC
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate
-                | AcceptsTypeNonNullable | AcceptsStringBearer)]
+                | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
 public class FieldStringBearerSpanWhenNonNullAddFilteredStringBearer<TBearer, TBearerBase>
     : FilteredCollectionFieldMoldScaffold<TBearer, TBearer[]>
-    where TBearer : IStringBearer, TBearerBase
+    where TBearer : IStringBearer?, TBearerBase?
 {
     public TBearer[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerSpan
     {
@@ -320,10 +320,10 @@ public class FieldStringNullableSpanWhenNonNullAddFilteredStringBearer : Formatt
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsCharSequence
-                | AcceptsClass | SupportsValueFormatString)]
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldCharSequenceSpanWhenNonNullAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
     : FormattedFilteredCollectionFieldMoldScaffold<TCharSeq, TCharSeq[]>
-    where TCharSeq : ICharSequence, TCharSeqFilterBase
+    where TCharSeq : ICharSequence?, TCharSeqFilterBase?
 {
     public TCharSeq[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredCharSequenceSpan
     {
@@ -414,10 +414,10 @@ public class FieldStringBuilderNullableSpanWhenNonNullAddFilteredStringBearer
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate
-                | AcceptsOnlyNonNullableGeneric | SupportsValueFormatString)]
+                | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class FieldMatchSpanWhenNonNullAddFilteredStringBearer<TAny, TAnyFilterBase>
     : FormattedFilteredCollectionFieldMoldScaffold<TAny, TAny[]>
-    where TAny : TAnyFilterBase
+    where TAny : TAnyFilterBase?
 {
     public TAny[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchSpan
     {
@@ -433,31 +433,6 @@ public class FieldMatchSpanWhenNonNullAddFilteredStringBearer<TAny, TAnyFilterBa
            .CollectionField.WhenNonNullAddFilteredMatch
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchSpan)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchSpan.AsSpan()
-              , ElementPredicate, ValueFormatString)
-           .Complete();
-}
-
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullWrites | FilterPredicate | AcceptsAnyGeneric
-                | SupportsValueFormatString)]
-public class FieldMatchNullableSpanWhenNonNullAddFilteredStringBearer<TAny, TAnyFilterBase>
-    : FormattedFilteredCollectionFieldMoldScaffold<TAny?, TAny?[]>
-    where TAny : TAnyFilterBase
-{
-    public TAny?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableMatchSpan
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableMatchSpan);
-
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .CollectionField
-           .WhenNonNullAddFilteredMatch
-               (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableMatchSpan)
-              , ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableMatchSpan.AsSpan()
               , ElementPredicate, ValueFormatString)
            .Complete();
 }
@@ -553,10 +528,10 @@ public class FieldNullableBoolReadOnlySpanWhenNonNullAddFilteredStringBearer : F
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate
-                | AcceptsNonNullableSpanFormattable | SupportsValueFormatString)]
+                | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
 public class FieldSpanFormattableReadOnlySpanWhenNonNullAddFilteredStringBearer<TFmt, TFmtBase>
     : FormattedFilteredCollectionFieldMoldScaffold<TFmt, TFmt[]>
-    where TFmt : ISpanFormattable, TFmtBase
+    where TFmt : ISpanFormattable?, TFmtBase?
 {
     public TFmt[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableReadOnlySpan
     {
@@ -625,10 +600,10 @@ public class FieldNullableSpanFormattableReadOnlySpanWhenNonNullAddFilteredStrin
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate
-                | AcceptsAnyNonNullable | SupportsValueRevealer)]
+                | AcceptsTypeAllButNullableStruct | SupportsValueRevealer)]
 public class FieldCloakedBearerReadOnlySpanWhenNonNullAddFilteredStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase>
     : RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealBase, TCloaked[]>
-    where TCloaked : TCloakedRevealBase, TCloakedFilterBase
+    where TCloaked : TCloakedRevealBase?, TCloakedFilterBase?
     where TCloakedRevealBase : notnull
 {
     public TCloaked[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerReadOnlySpan
@@ -699,7 +674,7 @@ public class FieldNullableCloakedBearerReadOnlySpanWhenNonNullAddFilteredStringB
                 | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
 public class FieldStringBearerReadOnlySpanWhenNonNullAddFilteredStringBearer<TBearer, TBearerBase>
     : FilteredCollectionFieldMoldScaffold<TBearer, TBearer[]>
-    where TBearer : IStringBearer, TBearerBase
+    where TBearer : IStringBearer?, TBearerBase?
 {
     public TBearer[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerReadOnlySpan
     {
@@ -814,10 +789,10 @@ public class FieldStringNullableReadOnlySpanWhenNonNullAddFilteredStringBearer
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate
-                | AcceptsCharSequence | AcceptsClass | SupportsValueFormatString)]
+                | AcceptsCharSequence | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldCharSequenceReadOnlySpanWhenNonNullAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
     : FormattedFilteredCollectionFieldMoldScaffold<TCharSeq, TCharSeq[]>
-    where TCharSeq : ICharSequence, TCharSeqFilterBase
+    where TCharSeq : ICharSequence?, TCharSeqFilterBase?
 {
     public TCharSeq[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredCharSequenceReadOnlySpan
     {
@@ -908,10 +883,10 @@ public class FieldStringBuilderNullableReadOnlySpanWhenNonNullAddFilteredStringB
 }
 
 [TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate
-                | AcceptsOnlyNonNullableGeneric | SupportsValueFormatString)]
+                | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class FieldMatchReadOnlySpanWhenNonNullAddFilteredStringBearer<TAny, TAnyFilterBase>
     : FormattedFilteredCollectionFieldMoldScaffold<TAny, TAny[]>
-    where TAny : TAnyFilterBase
+    where TAny : TAnyFilterBase?
 {
     public TAny[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchReadOnlySpan
     {
@@ -927,30 +902,6 @@ public class FieldMatchReadOnlySpanWhenNonNullAddFilteredStringBearer<TAny, TAny
            .CollectionField.WhenNonNullAddFilteredMatch
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchReadOnlySpan)
               , (ReadOnlySpan<TAny>)ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchReadOnlySpan
-              , ElementPredicate, ValueFormatString)
-           .Complete();
-}
-
-[TypeGeneratePart(ComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullWrites | FilterPredicate | AcceptsAnyGeneric
-                | SupportsValueFormatString)]
-public class FieldMatchNullableReadOnlySpanWhenNonNullAddFilteredStringBearer<TAny, TAnyFilterBase>
-    : FormattedFilteredCollectionFieldMoldScaffold<TAny?, TAny?[]>
-    where TAny : TAnyFilterBase
-{
-    public TAny?[]? ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableMatchReadOnlySpan
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableMatchReadOnlySpan);
-
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredMatch
-               (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableMatchReadOnlySpan)
-              , (ReadOnlySpan<TAny?>)ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableMatchReadOnlySpan
               , ElementPredicate, ValueFormatString)
            .Complete();
 }

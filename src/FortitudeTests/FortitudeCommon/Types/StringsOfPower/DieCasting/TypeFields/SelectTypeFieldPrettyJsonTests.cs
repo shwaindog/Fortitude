@@ -112,12 +112,12 @@ public partial class SelectTypeFieldTests
         SharedPrettyJson(formatExpectation, scaffoldingToCall);
     }
 
-    [TestMethod]
+    // [TestMethod]
     public void PrettyJsonSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedPrettyJson(CharArrayTestData.AllCharArrayExpectations[3], ScaffoldingRegistry.AllScaffoldingTypes[901]);
+        SharedPrettyJson(StringTestData.AllStringExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[934]);
     }
 
     private void SharedPrettyJson(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
