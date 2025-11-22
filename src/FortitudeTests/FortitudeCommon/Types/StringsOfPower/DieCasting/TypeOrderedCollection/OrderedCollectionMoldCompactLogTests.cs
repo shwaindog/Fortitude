@@ -537,7 +537,7 @@ public partial class OrderedCollectionMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactLog(StringBearerCollectionsTestData.AllStringBearerCollectionExpectations[21], ScaffoldingRegistry.AllScaffoldingTypes[109]);
+        SharedCompactLog(CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations[2], ScaffoldingRegistry.AllScaffoldingTypes[28]);
     }
 
     private void SharedCompactLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)

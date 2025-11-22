@@ -38,7 +38,7 @@ public static class BoolCollectionsTestData
                 "[ true, true, false, true, false, false, false, true, true, false, false, true, true, true ]" }
           , { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[true,true,false,true,false,false,false,true,true,false,false,true,true,true]" }
-          , { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog | Json),
                 """
                 [
                   true,
@@ -56,7 +56,7 @@ public static class BoolCollectionsTestData
                   true,
                   true
                 ]
-                """ 
+                """.Dos2Unix() 
             }
         }
       , new OrderedListExpect<bool>(BoolList, "", () => Bool_First_8)
@@ -65,7 +65,7 @@ public static class BoolCollectionsTestData
                 "[ true, true, false, true, false, false, false, true ]" }
           , { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[true,true,false,true,false,false,false,true]" }
-          , { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog | Json),
                 """
                 [
                   true,
@@ -75,9 +75,9 @@ public static class BoolCollectionsTestData
                   false,
                   false,
                   false,
-                  true,
+                  true
                 ]
-                """ 
+                """.Dos2Unix() 
             }
         }
       , new OrderedListExpect<bool>(BoolList, "", () => Bool_First_False)
@@ -86,12 +86,12 @@ public static class BoolCollectionsTestData
                 "[ false ]" }
           , { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[false]" }
-          , { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog | Json),
                 """
                 [
                   false
                 ]
-                """ 
+                """.Dos2Unix() 
             }
         }
       , new OrderedListExpect<bool>(BoolList, "\"{0,10}\"", name: "PadAndDelimited")
@@ -108,7 +108,7 @@ public static class BoolCollectionsTestData
                 "     false","     false","      true","      true","      true"]
                 """.RemoveLineEndings()
             }
-          , { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog | Json),
                 """
                 [
                   "      true",
@@ -135,7 +135,7 @@ public static class BoolCollectionsTestData
                 "[ false, false, true, true, false ]" }
           , { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[false,false,true,true,false]" }
-          , { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog | Json),
                 """
                 [
                   false,
@@ -144,7 +144,7 @@ public static class BoolCollectionsTestData
                   true,
                   false
                 ]
-                """ 
+                """.Dos2Unix() 
             }
         }
         
@@ -167,7 +167,7 @@ public static class BoolCollectionsTestData
                 "[ true, null, false, true, false, null, false, true, true, null, false, true, null, null ]" }
           , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[true,null,false,true,false,null,false,true,true,null,false,true,null,null]" }
-          , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog | Json),
                 """
                 [
                   true,
@@ -185,7 +185,7 @@ public static class BoolCollectionsTestData
                   null,
                   null
                 ]
-                """ 
+                """.Dos2Unix() 
             }
         }
       , new OrderedListExpect<bool?>(NullBoolList, "", () => NullBool_Skip_Odd_Index)
@@ -194,7 +194,7 @@ public static class BoolCollectionsTestData
                 "[ true, false, false, false, true, false, null ]" }
           , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[true,false,false,false,true,false,null]" }
-          , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog | Json),
                 """
                 [
                   true,
@@ -205,7 +205,7 @@ public static class BoolCollectionsTestData
                   false,
                   null
                 ]
-                """ 
+                """.Dos2Unix() 
             }
         }
       , new OrderedListExpect<bool?>(NullBoolList, "", () => NullBool_First_False)
@@ -214,12 +214,12 @@ public static class BoolCollectionsTestData
                 "[ false ]" }
           , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[false]" }
-          , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog | Json),
                 """
                 [
                   false
                 ]
-                """ 
+                """.Dos2Unix() 
             }
         }
       , new OrderedListExpect<bool?>(NullBoolList, "\"{0,10}\"", name: "PadAndDelimited")
@@ -236,7 +236,7 @@ public static class BoolCollectionsTestData
                 "      true","      null","     false","      true","      null","      null"]
                 """.RemoveLineEndings()
             }
-          , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog | Json),
                 """
                 [
                   "      true",
@@ -263,7 +263,7 @@ public static class BoolCollectionsTestData
                 "[ null, false, true, true, null ]" }
           , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson),
                 "[null,false,true,true,null]" }
-          , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, Pretty),
+          , { new EK( AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog | Json),
                 """
                 [
                   null,
@@ -272,7 +272,7 @@ public static class BoolCollectionsTestData
                   true,
                   null
                 ]
-                """ 
+                """.Dos2Unix() 
             }
         }
     };

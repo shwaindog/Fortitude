@@ -555,7 +555,7 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
             {
                 var item = source[i];
 
-                if (i > 0 && lastAdded > 0) charsAdded += stringFormatter.AddCollectionElementSeparator(typeof(char), destSpan, 
+                if (i > 0 && lastAdded > 0) charsAdded += stringFormatter.AddCollectionElementSeparatorAndPadding(typeof(char), destSpan, 
                  destStartIndex + charsAdded, i);
                 
                 lastAdded    = lastAdded > 0 || i == sourceFrom

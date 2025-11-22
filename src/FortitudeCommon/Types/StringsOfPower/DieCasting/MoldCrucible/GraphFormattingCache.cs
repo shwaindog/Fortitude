@@ -10,20 +10,24 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
 public class GraphTrackingBuilder
 {
-    private ContentSeparatorPaddingRangeTracking currentNodeRanges;
+    private ContentSeparatorPaddingRangeTracking currentSectionRanges;
 
     private Stack<ContentSeparatorPaddingRangeTracking> rangeHistory = new();
 
-    public ContentSeparatorPaddingRangeTracking CurrentNodeRanges
+    public ContentSeparatorPaddingRangeTracking CurrentSectionRanges
     {
-        get => currentNodeRanges;
-        set => currentNodeRanges = value;
+        get => currentSectionRanges;
+        set => currentSectionRanges = value;
     }
 
     public ContentSeparatorRanges SnapshotLastAppendSequence(FieldContentHandling formatFlags)
     {
-        PenUltimateContentSeparatorPaddingRanges = LastContentSeparatorPaddingRanges;
-        LastContentSeparatorPaddingRanges        = CurrentNodeRanges.ToContentSeparatorFromEndRanges(sb, formatFlags);
+        var checkAnyRanges        = CurrentSectionRanges.ToContentSeparatorFromEndRanges(sb, formatFlags);
+        if (checkAnyRanges.ContentRange != null || checkAnyRanges.SeparatorPaddingRange != null)
+        {
+            PenUltimateContentSeparatorPaddingRanges = LastContentSeparatorPaddingRanges;
+            LastContentSeparatorPaddingRanges        = checkAnyRanges;
+        }
         AllowEmptyContent                        = false;
         ResetCurrent(FieldContentHandling.DefaultCallerTypeFlags);
         return LastContentSeparatorPaddingRanges;
@@ -41,15 +45,15 @@ public class GraphTrackingBuilder
 
     private bool AllowEmptyContent
     {
-        get => currentNodeRanges.AllowEmptyContent;
-        set => currentNodeRanges.AllowEmptyContent = value;
+        get => currentSectionRanges.AllowEmptyContent;
+        set => currentSectionRanges.AllowEmptyContent = value;
     }
 
     public void ResetCurrent(FieldContentHandling formatFlags, bool allowEmptyContent = false)
     {
-        currentNodeRanges.Reset();
-        currentNodeRanges.FormatFlags       = formatFlags;
-        currentNodeRanges.AllowEmptyContent = allowEmptyContent;
+        currentSectionRanges.Reset();
+        currentSectionRanges.StartedWithFormatFlags       = formatFlags;
+        currentSectionRanges.AllowEmptyContent = allowEmptyContent;
     }
 
     public GraphTrackingBuilder StartNextContentSeparatorPaddingSequence(IStringBuilder writeBuffer
@@ -64,13 +68,13 @@ public class GraphTrackingBuilder
 
     public GraphTrackingBuilder MarkContentStart(int atIndex = -1)
     {
-        currentNodeRanges.FromStartContentStart = atIndex < 0 ? sb.Length : atIndex;
+        currentSectionRanges.FromStartContentStart = atIndex < 0 ? sb.Length : atIndex;
         return this;
     }
 
     public GraphTrackingBuilder MarkContentEnd(int atIndex = -1)
     {
-        currentNodeRanges.FromStartContentEnd = atIndex < 0 ? sb.Length : atIndex;
+        currentSectionRanges.FromStartContentEnd = atIndex < 0 ? sb.Length : atIndex;
         return this;
     }
 
@@ -104,14 +108,14 @@ public class GraphTrackingBuilder
     
     public GraphTrackingBuilder AppendContent(string content)
     {
-        if (currentNodeRanges is { FromStartContentStart: null }) { MarkContentStart(); }
+        if (currentSectionRanges is { FromStartContentStart: null }) { MarkContentStart(); }
         GraphEncoder.Transfer(styledFormatting, content, sb);
         return MarkContentEnd();
     }
 
     public GraphTrackingBuilder AppendContent(char toRepeat, int repeatTimes)
     {
-        if (currentNodeRanges is { FromStartContentStart: null }) { MarkContentStart(); }
+        if (currentSectionRanges is { FromStartContentStart: null }) { MarkContentStart(); }
         sb.Append(toRepeat, repeatTimes);
         return MarkContentEnd();
     }
@@ -129,31 +133,31 @@ public class GraphTrackingBuilder
 
     public GraphTrackingBuilder AppendPadding(string separator)
     {
-        if (currentNodeRanges is { FromStartContentStart: not null, FromStartContentEnd: null })
+        if (currentSectionRanges is { FromStartContentStart: not null, FromStartContentEnd: null })
         {
             MarkContentEnd();
             MarkSeparatorEnd();
         }
-        else if (currentNodeRanges is { FromStartSeparatorEnd: null }) { MarkSeparatorEnd(); }
+        else if (currentSectionRanges is { FromStartSeparatorEnd: null }) { MarkSeparatorEnd(); }
         GraphEncoder.Transfer(styledFormatting, separator, sb);
         return TagPaddingEnd();
     }
 
     public GraphTrackingBuilder AppendPadding(char toRepeat, int repeatTimes)
     {
-        if (currentNodeRanges is { FromStartContentStart: not null, FromStartContentEnd: null })
+        if (currentSectionRanges is { FromStartContentStart: not null, FromStartContentEnd: null })
         {
             MarkContentEnd();
             MarkSeparatorEnd();
         }
-        else if (currentNodeRanges is { FromStartSeparatorEnd: null }) { MarkSeparatorEnd(); }
+        else if (currentSectionRanges is { FromStartSeparatorEnd: null }) { MarkSeparatorEnd(); }
         sb.Append(toRepeat, repeatTimes);
         return TagPaddingEnd();
     }
 
     public GraphTrackingBuilder AppendSeparator(string separator)
     {
-        if (currentNodeRanges is { FromStartContentEnd: null }) { MarkContentEnd(); }
+        if (currentSectionRanges is { FromStartContentEnd: null }) { MarkContentEnd(); }
         GraphEncoder.Transfer(styledFormatting, separator, sb);
         return MarkSeparatorEnd();
     }
@@ -166,31 +170,31 @@ public class GraphTrackingBuilder
 
     public GraphTrackingBuilder MarkSeparatorEnd()
     {
-        currentNodeRanges.FromStartSeparatorEnd = sb.Length;
+        currentSectionRanges.FromStartSeparatorEnd = sb.Length;
         return this;
     }
 
     protected GraphTrackingBuilder TagPaddingEnd()
     {
-        currentNodeRanges.FromStartPaddingEnd = sb.Length;
+        currentSectionRanges.FromStartPaddingEnd = sb.Length;
         return this;
     }
 
     public ContentSeparatorRanges ContentEndToRanges(FieldContentHandling formatFlags)
     {
-        currentNodeRanges.FromStartSeparatorEnd = sb.Length;
-        return currentNodeRanges.ToContentSeparatorFromEndRanges(sb, formatFlags);
+        currentSectionRanges.FromStartSeparatorEnd = sb.Length;
+        return currentSectionRanges.ToContentSeparatorFromEndRanges(sb, formatFlags);
     }
 
     public GraphTrackingBuilder MarkPaddingEnd(int atIndex = -1)
     {
-        currentNodeRanges.FromStartPaddingEnd = atIndex < 0 ? sb.Length : atIndex;
+        currentSectionRanges.FromStartPaddingEnd = atIndex < 0 ? sb.Length : atIndex;
         return this;
     }
 
     public ContentSeparatorRanges Complete(FieldContentHandling formatFlags)
     {
-        currentNodeRanges.FromStartPaddingEnd = sb.Length;
+        currentSectionRanges.FromStartPaddingEnd = sb.Length;
 
         return SnapshotLastAppendSequence(formatFlags);
     }

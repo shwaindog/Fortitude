@@ -275,4 +275,19 @@ public static class StringExtensions
         }
         return sb.ToString();
     }
+    
+    public static int DiffPosition(this string input, string compare)
+    {
+        var sb = new StringBuilder();
+        var compareLength = Math.Min(compare.Length, input.Length);
+        for (var i = 0; i < compareLength; i++)
+        {
+            var iC = input[i];
+            var cC = input[i];
+            if (iC != cC) return i;
+        }
+        if(input.Length > compare.Length) return compare.Length;
+        if(compare.Length > input.Length) return input.Length;
+        return -1;
+    }
 }

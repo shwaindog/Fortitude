@@ -15,29 +15,29 @@ public enum FieldContentHandling : ulong
   , EnsureFormattedDelimited = 0x_00_08
   , DisableAutoDelimiting    = 0x_00_10
   , AsStringContent          = 0x_00_20
-  , NoItemSeparator          = 0x_00_40
-  , EncodeAsBase64           = 0x_00_80
-  , AsciiEscapeEncoding      = 0x_01_00
-  , JsonEncoding             = 0x_02_00
-  , YamlEncoding             = 0x_04_00 // Not implemented just reserving
-  , MlEncoding               = 0x_08_00 // Not implemented just reserving
-  , EncodingMask             = 0x_0F_00
-  , ReformatMultiLine        = 0x_10_00
-  , UnsetEncodeBounds        = 0x_20_00  // Consider switching this to CapLenAppliesToOutput
-  , UnsetEncodeInnerContent  = 0x_40_00  // CappedLen Includes ellipsis
-  , AsValueContent           = 0x_80_00
+  , AsValueContent           = 0x_00_40
+  , ReformatMultiLine        = 0x_00_80
+  , NoItemSeparator          = 0x_01_00
+  , UseAltItemSeparator      = 0x_02_00
+  , NoItemPadding            = 0x_04_00
+  , UseAltItemPadding        = 0x_08_00
+  , ToggleEncodeAsBase64     = 0x_10_00
+  , AsciiEscapeEncoding      = 0x_20_00 // minimal backslash escaping for console control chars 0-32 and 127 - 159
+  , JsamlEncoding            = 0x_40_00 // Json + Yaml => Jsaml
+  , MlEncoding               = 0x_80_00 // Not implemented just reserving
+  , EncodingMask             = 0x_F0_00
 
     // Mold Additional
-  , NoWhitespacesToNext     = 0x00_01_00_00
-  , NextOnSameLine          = 0x00_01_00_00
-  , AlternatePadding        = 0x00_01_00_00
+  , ThisStartOnNewLine      = 0x00_01_00_00
   , NextEnsureNewLine       = 0x00_02_00_00
-  , NoFieldSeparator        = 0x00_04_00_00
-  , NullBecomesEmpty        = 0x00_08_00_00
-  , EachItemOnlyOneLine     = 0x00_10_00_00
-  , BeforeThisEnsureNewLine = 0x00_20_00_00
-  , Spare2                  = 0x00_40_00_00
-  , Spare3                  = 0x00_80_00_00
+  , NullBecomesEmpty        = 0x00_04_00_00
+  , EachItemOnlyOneLine     = 0x00_08_00_00
+  , NoFieldSeparator        = 0x00_10_00_00
+  , UseAltFieldSeparator    = 0x00_20_00_00
+  , NoFieldPadding          = 0x00_40_00_00
+  , NoWhitespacesToNext     = 0x00_40_00_00
+  , UseAltFieldPadding      = 0x00_80_00_00
+  , NextFieldOnSameLine     = 0x00_80_00_00
   , EnsureLogFormatting     = 0x01_00_00_00
   , EnsureJsonFormatting    = 0x02_00_00_00
   , EnsureYamlFormatting    = 0x04_00_00_00 // Not implemented just reserving  
@@ -102,6 +102,13 @@ public static class FieldContentHandlingExtensions
     public static bool DoesNotHaveAsStringContentFlag(this FieldContentHandling flags)      => (flags & AsStringContent) == 0;
     public static bool HasAsValueContentFlag(this FieldContentHandling flags)               => (flags & AsValueContent) > 0;
     public static bool DoesNotHaveAsValueContentFlag(this FieldContentHandling flags)       => (flags & AsValueContent) == 0;
+    
+    public static bool HasNoItemSeparatorFlag(this FieldContentHandling flags) => (flags & NoItemSeparator) > 0; 
+    public static bool HasNoItemPaddingFlag(this FieldContentHandling flags)   => (flags & NoItemPadding) > 0; 
+    public static bool ShouldAddItemSeparator(this FieldContentHandling flags) => (flags & NoItemSeparator) == 0; 
+    public static bool UseMainItemSeparator(this FieldContentHandling flags)   => (flags & UseAltItemSeparator) == 0; 
+    public static bool ShouldAddItemPadding(this FieldContentHandling flags)   => (flags & NoItemPadding) == 0; 
+    public static bool UseMainItemPadding(this FieldContentHandling flags)     => (flags & UseAltItemSeparator) == 0; 
 
     public static bool IsUnspecifiedContent(this FieldContentHandling flags) =>
         !flags.IsSpecifiedContent();
@@ -110,11 +117,18 @@ public static class FieldContentHandlingExtensions
         flags.HasAsStringContentFlag() || flags.HasAsValueContentFlag();
 
     public static bool HasNoWhitespacesToNextFlag(this FieldContentHandling flags) => (flags & NoWhitespacesToNext) > 0;
-    public static bool HasNextOnSameLineFlag(this FieldContentHandling flags)      => (flags & NextOnSameLine) > 0;
+    public static bool HasNextOnSameLineFlag(this FieldContentHandling flags)      => (flags & NextFieldOnSameLine) > 0;
     public static bool HasNextEnsureNewLineFlag(this FieldContentHandling flags)   => (flags & NextEnsureNewLine) > 0;
 
     public static bool CanAddNewLine(this FieldContentHandling flags) =>
         (!flags.HasNoWhitespacesToNextFlag() || flags.HasNextEnsureNewLineFlag()) && flags.DoesNotHaveEnsureCompactFlag();
+    
+    public static bool HasNoFieldSeparatorFlag(this FieldContentHandling flags) => (flags & NoFieldSeparator) > 0; 
+    public static bool HasNoFieldPaddingFlag(this FieldContentHandling flags)   => (flags & NoFieldPadding) > 0; 
+    public static bool ShouldAddFieldSeparator(this FieldContentHandling flags) => (flags & NoFieldSeparator) == 0; 
+    public static bool UseMainFieldSeparator(this FieldContentHandling flags)   => (flags & UseAltFieldSeparator) == 0; 
+    public static bool ShouldAddFieldPadding(this FieldContentHandling flags)   => (flags & NoFieldPadding) == 0; 
+    public static bool UseMainFieldPadding(this FieldContentHandling flags)     => (flags & UseAltFieldSeparator) == 0; 
 
     public static bool HasNullBecomesEmptyFlag(this FieldContentHandling flags)             => (flags & NullBecomesEmpty) > 0;
     public static bool HasEnsureLogFormattingFlag(this FieldContentHandling flags)          => (flags & EnsureLogFormatting) > 0;
@@ -124,8 +138,6 @@ public static class FieldContentHandlingExtensions
     public static bool HasEnsureCompactFlag(this FieldContentHandling flags)                => (flags & EnsureCompact) > 0;
     public static bool DoesNotHaveEnsureCompactFlag(this FieldContentHandling flags)        => (flags & EnsureCompact) == 0;
     public static bool HasEnsurePrettyFlag(this FieldContentHandling flags)                 => (flags & EnsurePretty) > 0;
-    public static bool HasAsEmbeddedContentFlags(this FieldContentHandling flags)           => (flags & AsEmbeddedContent) == AsEmbeddedContent;
-    public static bool DoesNotHaveAsEmbeddedContentFlags(this FieldContentHandling flags)   => (flags & AsEmbeddedContent) != AsEmbeddedContent;
     public static bool HasExcludeWhenLogStyleFlag(this FieldContentHandling flags)          => (flags & ExcludeWhenLogStyle) > 0;
     public static bool HasExcludeWhenJsonStyleFlag(this FieldContentHandling flags)         => (flags & ExcludeWhenJsonStyle) > 0;
     public static bool HasExcludeWhenYamlStyleFlag(this FieldContentHandling flags)         => (flags & ExcludeWhenYamlStyle) > 0;
@@ -137,6 +149,10 @@ public static class FieldContentHandlingExtensions
     public static bool DoesNotHaveLogSuppressTypeNamesFlag(this FieldContentHandling flags) => (flags & LogSuppressTypeNames) == 0;
     public static bool HasAsCollectionFlag(this FieldContentHandling flags)                 => (flags & AsCollection) > 0;
     public static bool DoesNotHaveAsCollectionFlag(this FieldContentHandling flags)         => (flags & AsCollection) == 0;
+    public static bool DoesNotHaveSuppressOpening (this FieldContentHandling flags)         => (flags & SuppressOpening) == 0;
+    public static bool DoesNotHaveSuppressClosing (this FieldContentHandling flags)         => (flags & SuppressClosing) == 0;
+    public static bool HasAsEmbeddedContentFlags(this FieldContentHandling flags)           => (flags & AsEmbeddedContent) == AsEmbeddedContent;
+    public static bool DoesNotHaveAsEmbeddedContentFlags(this FieldContentHandling flags)   => (flags & AsEmbeddedContent) != AsEmbeddedContent;
 
     public static StringStyle UpdateStringStyle(this FieldContentHandling flags, StringStyle existingStyle)
     {

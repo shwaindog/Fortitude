@@ -884,7 +884,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value!.Current;
                 stb.RevealCloakedBearerOrNull(item, palantírReveal);
                 hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(elementType, itemCount);
+                stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
@@ -911,7 +911,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 var item = value!.Current;
                 stb.RevealNullableCloakedBearerOrNull(item, palantírReveal);
                 hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(elementType, itemCount);
+                stb.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }

@@ -12,8 +12,20 @@ public interface ICustomStringFormatter : IRecyclableObject
 {
     int AddCollectionElementSeparator(Type collectionType, IStringBuilder sb, int nextItemNumber
     , FormattingHandlingFlags formatFlags = EncodeInnerContent);
+    
+    int AddCollectionElementPadding(Type collectionType, IStringBuilder sb, int nextItemNumber
+    , FormattingHandlingFlags formatFlags = EncodeInnerContent);
+    
+    int AddCollectionElementSeparatorAndPadding(Type collectionType, IStringBuilder sb, int nextItemNumber
+    , FormattingHandlingFlags formatFlags = EncodeInnerContent);
 
     int AddCollectionElementSeparator(Type collectionType, Span<char> destSpan, int atSpanOffset, int nextItemNumber
+    , FormattingHandlingFlags formatFlags = EncodeInnerContent);
+
+    int AddCollectionElementPadding(Type collectionType, Span<char> destSpan, int atSpanOffset, int nextItemNumber
+    , FormattingHandlingFlags formatFlags = EncodeInnerContent);
+
+    int AddCollectionElementSeparatorAndPadding(Type collectionType, Span<char> destSpan, int atSpanOffset, int nextItemNumber
     , FormattingHandlingFlags formatFlags = EncodeInnerContent);
     
     int AppendDelimiterStart(Type maybeDelimited, IStringBuilder sb);
@@ -60,15 +72,15 @@ public interface ICustomStringFormatter : IRecyclableObject
     int Format<TFmt>(TFmt source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString
       , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable?;
 
-    int Format(bool source, IStringBuilder sb, ReadOnlySpan<char> formatString, FormattingHandlingFlags formatFlags = DefaultCallerType);
+    int Format(bool source, IStringBuilder sb, ReadOnlySpan<char> formatString, FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
 
     int Format(bool source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString
-      , FormattingHandlingFlags formatFlags = DefaultCallerType);
+      , FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
 
-    int Format(bool? source, IStringBuilder sb, ReadOnlySpan<char> formatString, FormattingHandlingFlags formatFlags = DefaultCallerType);
+    int Format(bool? source, IStringBuilder sb, ReadOnlySpan<char> formatString, FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
 
     int Format(bool? source, Span<char> destCharSpan, int destStartIndex, ReadOnlySpan<char> formatString
-      , FormattingHandlingFlags formatFlags = DefaultCallerType);
+      , FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
 
     int FormatBoolEnumerator(IEnumerator<bool> arg0, IStringBuilder sb, string? formatString = null
     , FormattingHandlingFlags formatFlags = EncodeInnerContent);
@@ -175,16 +187,16 @@ public interface ICustomStringFormatter : IRecyclableObject
     , FormattingHandlingFlags formatFlags = EncodeInnerContent);
 
     int CollectionNextItemFormat(bool nextItem, int retrieveCount, IStringBuilder sb, string formatString
-    , FormattingHandlingFlags formatFlags = DefaultCallerType);
+    , FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
 
     int CollectionNextItemFormat(bool nextItem, int retrieveCount, Span<char> destination, int destStartIndex, string formatString
-    , FormattingHandlingFlags formatFlags = DefaultCallerType);
+    , FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
     
     int CollectionNextItemFormat(bool? nextItem, int retrieveCount, IStringBuilder sb, string formatString
-      , FormattingHandlingFlags formatFlags = DefaultCallerType);
+      , FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
 
     int CollectionNextItemFormat(bool? nextItem, int retrieveCount, Span<char> destination, int destStartIndex, string formatString
-    , FormattingHandlingFlags formatFlags = DefaultCallerType);
+    , FormattingHandlingFlags formatFlags = DefaultCallerTypeFlags);
 
     int CollectionNextItemFormat<TFmt>(TFmt nextItem, int retrieveCount, IStringBuilder sb, string formatString
     , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable?;

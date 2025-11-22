@@ -9,7 +9,6 @@ using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandlingExtensions;
-using static FortitudeCommon.Types.StringsOfPower.Forge.FormattingHandlingFlags;
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -150,13 +149,27 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             .Complete(formatFlags)
             .SeparatorPaddingRange!.Value;
 
-    public virtual SeparatorPaddingRanges AddNextFieldSeparator(ITypeMolderDieCast moldInternal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
-        GraphBuilder
-            .AppendSeparator(Cma)
-            .AppendPadding(Spc)
-            .Complete(formatFlags)
-            .SeparatorPaddingRange!.Value;
+    public virtual Range? AddNextFieldSeparator(ITypeMolderDieCast moldInternal, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+    {
+        if (formatFlags.HasNoFieldSeparatorFlag()) return null;
+        GraphBuilder.AppendSeparator(formatFlags.UseMainFieldSeparator() ? StyleOptions.MainItemSeparator : StyleOptions.AlternateFieldSeparator);
+        return GraphBuilder.CurrentSectionRanges.CurrentSeparatorRange;
+    }
+
+    public virtual ContentSeparatorRanges AddNextFieldPadding(ITypeMolderDieCast moldInternal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+    {
+        if (formatFlags.HasNoFieldPaddingFlag()) return GraphBuilder.Complete(formatFlags);
+        GraphBuilder.AppendPadding(formatFlags.UseMainFieldPadding() ? StyleOptions.MainFieldPadding : StyleOptions.AlternateFieldPadding);
+        return GraphBuilder.Complete(formatFlags);
+    }
+
+    public virtual ContentSeparatorRanges AddNextFieldSeparatorAndPadding(ITypeMolderDieCast moldInternal
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        AddNextFieldSeparator(moldInternal, formatFlags);
+        return AddNextFieldPadding(moldInternal, formatFlags);
+    }
 
     public virtual int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel) =>
         sb.InsertAt(CmaSpc, atIndex).ReturnCharCount(2);
@@ -181,7 +194,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             Span<char> justPrefixPaddingSuffix = stackalloc char[formatStringBufferSize];
             justPrefixPaddingSuffix = justPrefixPaddingSuffix.ToPrefixLayoutSuffixOnlyFormatString(formatString);
             Format(StyleOptions.NullString, 0, sb, justPrefixPaddingSuffix
-                 , formatFlags: DefaultCallerType);
+                 , formatFlags: FormattingHandlingFlags.DefaultCallerTypeFlags);
         }
         else { sb.Append(StyleOptions.NullString); }
         GraphBuilder.MarkContentEnd();
@@ -779,16 +792,65 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return tos.WriteBuffer;
     }
 
-    public virtual IStringBuilder AddCollectionElementSeparator(IStringBuilder sb, Type elementType, int nextItemNumber
+    public virtual Range? AddCollectionElementSeparator(ITypeMolderDieCast moldInternal, Type elementType, int nextItemNumber
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        if (elementType == typeof(byte))
-        {
-            if (nextItemNumber % 4 == 0) { GraphBuilder.AppendPadding(Spc); }
-            else { GraphBuilder.Complete(formatFlags); }
-        }
-        GraphBuilder.AppendSeparator(Cma).AppendPadding(Spc).Complete(formatFlags);
-        return sb;
+        if (formatFlags.HasNoItemSeparatorFlag()) return null;
+        GraphBuilder.AppendSeparator(formatFlags.UseMainItemSeparator() ? Options.MainItemSeparator : Options.AlternateItemSeparator);
+        return GraphBuilder.CurrentSectionRanges.CurrentSeparatorRange;
+    }
+
+    public virtual ContentSeparatorRanges AddCollectionElementPadding(ITypeMolderDieCast moldInternal, Type elementType, int nextItemNumber
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+    {
+        if (formatFlags.HasNoItemPaddingFlag()) return GraphBuilder.Complete(formatFlags);
+        GraphBuilder.AppendPadding(formatFlags.UseMainItemPadding() ? Options.MainItemPadding : Options.AlternateItemPadding);
+        return GraphBuilder.Complete(formatFlags);
+    }
+
+    public ContentSeparatorRanges AddCollectionElementSeparatorAndPadding(ITypeMolderDieCast moldInternal, Type elementType, int nextItemNumber
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+    {
+        AddCollectionElementSeparator(moldInternal, elementType, nextItemNumber, formatFlags);
+        return AddCollectionElementPadding(moldInternal, elementType, nextItemNumber, formatFlags);
+    }
+
+    public override int AddCollectionElementSeparator(Type collectionElementType, IStringBuilder sb, int nextItemNumber
+      , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent)
+    {
+        if (formatFlags.HasNoItemSeparatorFlag()) return 0;
+        GraphBuilder.AppendSeparator(formatFlags.UseMainItemSeparator() ? Options.MainItemSeparator : Options.AlternateItemSeparator);
+        return GraphBuilder.CurrentSectionRanges.CurrentSeparatorRange?.Length() ?? 0;
+    }
+
+    public override int AddCollectionElementPadding(Type collectionElementType, IStringBuilder sb, int nextItemNumber
+      , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent) 
+    {
+        var fmtFlgs = GraphBuilder.CurrentSectionRanges.StartedWithFormatFlags;
+        if (formatFlags.HasNoItemPaddingFlag()) return GraphBuilder.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
+        GraphBuilder.AppendPadding(formatFlags.UseMainItemSeparator() ? Options.MainItemSeparator : Options.AlternateItemSeparator);
+        return GraphBuilder.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
+    }
+
+    public override int AddCollectionElementSeparator(Type collectionElementType, Span<char> destSpan, int atIndex, int nextItemNumber
+      , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent) 
+    {
+        var fmtFlgs = GraphBuilder.CurrentSectionRanges.StartedWithFormatFlags;
+        if (formatFlags.HasNoItemPaddingFlag()) return GraphBuilder.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
+        GraphBuilder.MarkSeparatorEnd();
+        var charsAdded = destSpan.OverWriteAt(atIndex, formatFlags.UseMainItemSeparator() ? Options.MainItemSeparator : Options.AlternateItemSeparator);
+        GraphBuilder.MarkPaddingEnd(atIndex + charsAdded);
+        GraphBuilder.Complete(fmtFlgs);
+        return charsAdded;
+    }
+
+    public override int AddCollectionElementPadding(Type collectionElementType, Span<char> destSpan, int atIndex, int nextItemNumber
+      , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent) 
+    {
+        var fmtFlgs = GraphBuilder.CurrentSectionRanges.StartedWithFormatFlags;
+        if (formatFlags.HasNoItemPaddingFlag()) return GraphBuilder.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
+        GraphBuilder.AppendPadding(formatFlags.UseMainItemSeparator() ? Options.MainItemSeparator : Options.AlternateItemSeparator);
+        return GraphBuilder.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
     }
 
     public virtual IStringBuilder FormatCollectionEnd(ITypeMolderDieCast moldInternal, int? resultsFoundCount, Type itemElementType
