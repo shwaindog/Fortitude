@@ -525,7 +525,7 @@ public class SpanFormattableCollectionTestData
           , { new EK( AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson),
                 """
                 [
-                  "'      null'",
+                  '      null',
                   "'       0.0'"
                 ]
                 """.Dos2Unix()

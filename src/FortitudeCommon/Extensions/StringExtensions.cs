@@ -278,7 +278,6 @@ public static class StringExtensions
     
     public static int DiffPosition(this string input, string compare)
     {
-        var sb = new StringBuilder();
         var compareLength = Math.Min(compare.Length, input.Length);
         for (var i = 0; i < compareLength; i++)
         {

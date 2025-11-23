@@ -149,7 +149,6 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
             return sb;
         }
     
-        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
         // Log always shows each collection and field name
         // if (formatFlags.DoesNotHaveSuppressOpening())
         // {

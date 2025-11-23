@@ -135,11 +135,16 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
     }
 
     public override IStringBuilder FormatCollectionStart(ITypeMolderDieCast moldInternal, Type itemElementType
-      , bool? hasItems, Type collectionType, FieldContentHandling callerFormattingFlags = DefaultCallerTypeFlags)
+      , bool? hasItems, Type collectionType, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         var sb = moldInternal.Sb;
-        hasItems ??= false;
-        return !hasItems.Value ? sb : CollectionStart(itemElementType, sb, hasItems.Value).ToStringBuilder(sb);
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        if (!hasItems.HasValue)
+        {
+            GraphBuilder.MarkContentEnd();
+            return sb;
+        }
+        return CollectionStart(itemElementType, sb, hasItems.Value).ToStringBuilder(sb);
     }
 
     public override int CollectionStart(Type elementType, IStringBuilder sb, bool hasItems
@@ -264,6 +269,18 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         var sb         = moldInternal.Sb;
         CharSpanCollectionScratchBuffer?.DecrementRefCount();
         CharSpanCollectionScratchBuffer = null;
+        if (!totalItemCount.HasValue)
+        {
+            if (StyleOptions.NullWritesEmpty)
+            {
+                GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
+                CollectionStart(itemElementType, sb, false, (FormattingHandlingFlags)formatFlags);
+                CollectionEnd(itemElementType, sb, 0, (FormattingHandlingFlags)formatFlags);
+                GraphBuilder.Complete(formatFlags);
+            }
+            else { AppendFormattedNull(sb, formatString, formatFlags); }
+            return sb;
+        }
         var prevFmtFlags = GraphBuilder.LastContentSeparatorPaddingRanges.PreviousFormatFlags;
 
         if (prevFmtFlags.DoesNotHaveSuppressClosing() || StyleOptions.Style.IsLog())
