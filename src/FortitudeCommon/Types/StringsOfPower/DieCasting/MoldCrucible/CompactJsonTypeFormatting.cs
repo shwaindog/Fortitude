@@ -631,7 +631,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     {
         var sb = moldInternal.Sb;
         if (!hasItems.HasValue) return sb;
-        var preAppendLen = sb.Length;
         CollectionStart(itemElementType, sb, hasItems.Value);
         AddCollectionElementPadding(moldInternal, itemElementType,1, formatFlags);
         return sb;

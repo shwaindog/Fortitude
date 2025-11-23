@@ -39,7 +39,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -69,7 +69,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -100,7 +100,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -131,7 +131,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -159,7 +159,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.RevealCloakedBearerOrNull(item, palantírReveal, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, "", formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -186,7 +186,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, "", formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -212,7 +212,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.RevealStringBearerOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, "", formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -239,7 +239,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.RevealNullableStringBearerOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, "", formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -269,7 +269,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -299,7 +299,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -330,7 +330,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -361,7 +361,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -391,7 +391,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -421,7 +421,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -451,7 +451,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -482,7 +482,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -513,7 +513,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -543,7 +543,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -573,7 +573,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -604,7 +604,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -635,7 +635,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -664,7 +664,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.RevealCloakedBearerOrNull(item, palantírReveal, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, "", formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -692,7 +692,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, "", formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -719,7 +719,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.RevealStringBearerOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, "", formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -747,7 +747,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.RevealNullableStringBearerOrNull(item);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, "", formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -777,7 +777,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -807,7 +807,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -838,7 +838,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -869,7 +869,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -900,7 +900,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -930,7 +930,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         }
-        stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, value.Length, formatString, formatFlags);
+        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
         return stb.AddGoToNext();
     }
 

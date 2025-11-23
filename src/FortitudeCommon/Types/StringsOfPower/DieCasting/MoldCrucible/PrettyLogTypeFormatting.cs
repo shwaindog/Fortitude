@@ -137,14 +137,18 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
                     , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
         return base.AppendKeyedCollectionEnd(sb, keyedCollectionType, keyType, valueType, totalItemCount, formatFlags);
     }
-
+    
     public override IStringBuilder FormatCollectionStart(ITypeMolderDieCast moldInternal, Type itemElementType
       , bool? hasItems, Type collectionType, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         var sb = moldInternal.Sb;
-        hasItems ??= false;
-        if (!hasItems.Value) return sb;
-
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        if (!hasItems.HasValue)
+        {
+            GraphBuilder.MarkContentEnd();
+            return sb;
+        }
+    
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
         // Log always shows each collection and field name
         // if (formatFlags.DoesNotHaveSuppressOpening())
@@ -157,9 +161,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         }
         StyleOptions.IndentLevel++;
 
-        sb.Append(SqBrktOpn);
-        AddCollectionElementPadding(moldInternal, itemElementType, 1, formatFlags);
-        // }
+        base.FormatCollectionStart(moldInternal, itemElementType, hasItems, collectionType, formatFlags);
         return sb;
     }
 
@@ -220,7 +222,19 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
       , int? totalItemCount
       , string? formatString, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        var sb         = moldInternal.Sb;
+        var sb = moldInternal.Sb;
+        if (!totalItemCount.HasValue)
+        {
+            if (StyleOptions.NullWritesEmpty)
+            {
+                GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
+                CollectionStart(itemElementType, sb, false, (FormattingHandlingFlags)formatFlags);
+                CollectionEnd(itemElementType, sb, 0, (FormattingHandlingFlags)formatFlags);
+                GraphBuilder.Complete(formatFlags);
+            }
+            else { AppendFormattedNull(sb, formatString, formatFlags); }
+            return sb;
+        }
         CharSpanCollectionScratchBuffer?.DecrementRefCount();
         CharSpanCollectionScratchBuffer = null;
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags, true);
@@ -240,9 +254,9 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         GraphBuilder.RemoveLastSeparatorAndPadding();
         StyleOptions.IndentLevel--;
     
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags, true);
         if (totalItemCount > 0)
         {
-            GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags, true);
             AddCollectionElementPadding(moldInternal, itemElementType, totalItemCount.Value, formatFlags);
         }
         if (itemElementType == typeof(KeyValuePair<string, JsonNode>))
@@ -280,10 +294,10 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         GraphBuilder.RemoveLastSeparatorAndPadding(destSpan, ref destIndex);
         StyleOptions.IndentLevel--;
     
+        GraphBuilder.ResetCurrent(prevFmtFlags, true);
+        GraphBuilder.MarkContentStart();
         if (itemsCount > 0)
         {
-            GraphBuilder.ResetCurrent(prevFmtFlags, true);
-            GraphBuilder.MarkContentStart();
             charsAdded += AddCollectionElementPadding(collectionType, destSpan, destIndex, itemsCount,  formatFlags);
         }
         if (collectionType == typeof(KeyValuePair<string, JsonNode>))

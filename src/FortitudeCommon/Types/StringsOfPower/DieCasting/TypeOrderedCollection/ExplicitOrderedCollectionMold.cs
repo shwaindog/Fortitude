@@ -130,8 +130,8 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
         return AppendNextCollectionItemSeparator();
     }
 
-    public ExplicitOrderedCollectionMold<TElement> AddBearerElementAndGoToNextElement<TBearer>(TBearer? element
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer, TElement
+    public ExplicitOrderedCollectionMold<TElement> AddBearerElementAndGoToNextElement<TBearer>(TBearer element
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?, TElement?
     {
         if (CompAsOrderedCollection.SkipBody) return this;
         if (element == null)
@@ -184,8 +184,8 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
         return AppendNextCollectionItemSeparator();
     }
 
-    public ExplicitOrderedCollectionMold<TElement> AddCharSequenceElementAndGoToNextElement<TCharSeq>(TCharSeq? element, string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence
+    public ExplicitOrderedCollectionMold<TElement> AddCharSequenceElementAndGoToNextElement<TCharSeq>(TCharSeq element, string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence?
     {
         if (CompAsOrderedCollection.SkipBody) return this;
         if (element == null)

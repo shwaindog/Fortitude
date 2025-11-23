@@ -8,9 +8,9 @@ using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.Ty
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.OrderedLists;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldCollection;
 
-public partial class OrderedCollectionMoldTests
+public partial class SelectTypeCollectionFieldTests
 {
 
     [TestMethod]
@@ -130,7 +130,7 @@ public partial class OrderedCollectionMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedPrettyLog(SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations[10], ScaffoldingRegistry.AllScaffoldingTypes[44]);
+        SharedPrettyLog(BoolCollectionsTestData.AllBoolCollectionExpectations[3], ScaffoldingRegistry.AllScaffoldingTypes[343]);
     }
 
     private void SharedPrettyLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -150,10 +150,31 @@ public partial class OrderedCollectionMoldTests
         var tos = new TheOneString().Initialize(Pretty | Log);
         tos.Settings.NewLineStyle = "\n";
 
-        string BuildExpectedOutput(string className, string _1
+        string BuildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            const string compactLogTemplate = "({0}){1}";
+            const string compactLogTemplate = "{0} {{{1}{2}{3}{1}}}";
+
+
+            var maybeNewLine = "";
+            var maybeIndent  = "";
+            var expectValue  = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            if (expectValue != IFormatExpectation.NoResultExpectedValue)
+            {
+                maybeNewLine = "\n";
+                maybeIndent  = "  ";
+                expectValue  = propertyName + ": " + expectValue.IndentSubsequentLines();
+            }
+
+            else { expectValue = ""; }
+
+            return string.Format(compactLogTemplate, className, maybeNewLine, maybeIndent, expectValue);
+        }
+
+        string BuildChildExpectedOutput(string className, string propertyName
+          , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
+        {
+            var compactLogTemplate = className.IsNotEmpty() ? "({0}){1}" : "{1}";
 
             var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
             if (expectValue == IFormatExpectation.NoResultExpectedValue)
@@ -161,15 +182,6 @@ public partial class OrderedCollectionMoldTests
                 expectValue = "";
             }
             return string.Format(compactLogTemplate, className, expectValue);
-        }
-
-        string BuildChildExpectedOutput(string className, string propertyName
-          , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
-        {
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
-            if (expectValue == IFormatExpectation.NoResultExpectedValue)
-            { expectValue = ""; }
-            return expectValue;
         }
 
         if (formatExpectation is IComplexFieldFormatExpectation complexFieldExpectation)
@@ -207,6 +219,4 @@ public partial class OrderedCollectionMoldTests
               .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         Assert.AreEqual(buildExpectedOutput, result, $"Difference at i={buildExpectedOutput.DiffPosition(result)}");
     }
-    
-    
 }

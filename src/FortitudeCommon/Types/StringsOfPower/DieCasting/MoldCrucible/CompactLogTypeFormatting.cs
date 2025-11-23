@@ -660,7 +660,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             sb.Append(RndBrktCls);
         }
         CollectionStart(itemElementType, sb, hasItems.Value, (FormattingHandlingFlags)formatFlags);
-        GraphBuilder.MarkContentEnd();
+        if (hasItems == true)
+            AddCollectionElementPadding(moldInternal, itemElementType, 1, formatFlags);
+        else
+            GraphBuilder.Complete(formatFlags);
         return sb;
     }
 
@@ -668,8 +671,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
       , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent)
     {
         if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray()) { return 0; }
-        GraphBuilder.StartAppendContent(SqBrktOpn, sb, this, (FieldContentHandling)formatFlags).AppendPadding(Spc)
-                    .Complete((FieldContentHandling)formatFlags);
+        
+        GraphBuilder.AppendContent(SqBrktOpn);
         return 2;
     }
 
@@ -679,7 +682,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         if (formatFlags.TreatCharArrayAsString() && collectionType.IsCharArray()) { return 0; }
         GraphBuilder.ResetCurrent((FieldContentHandling)formatFlags);
         GraphBuilder.MarkContentStart(destStartIndex);
-        var charsAdded = destSpan.OverWriteAt(destStartIndex, SqBrktOpnSpc);
+        var charsAdded = destSpan.OverWriteAt(destStartIndex, SqBrktOpn);
         GraphBuilder.MarkContentEnd(destStartIndex + charsAdded).Complete((FieldContentHandling)formatFlags);
         return charsAdded;
     }
@@ -758,9 +761,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb;
     }
 
-    public virtual IStringBuilder CollectionNextCharSeqFormat<TCharSeq>(IStringBuilder sb, TCharSeq? item, int retrieveCount
+    public virtual IStringBuilder CollectionNextCharSeqFormat<TCharSeq>(IStringBuilder sb, TCharSeq item, int retrieveCount
       , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TCharSeq : ICharSequence
+        where TCharSeq : ICharSequence?
     {
         if (item == null) { return AppendFormattedNull(sb, formatString, formatFlags); }
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
@@ -779,8 +782,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb;
     }
 
-    public virtual IStringBuilder CollectionNextStringBearerFormat<TBearer>(ITheOneString tos, TBearer? item, int retrieveCount)
-        where TBearer : IStringBearer
+    public virtual IStringBuilder CollectionNextStringBearerFormat<TBearer>(ITheOneString tos, TBearer item, int retrieveCount)
+        where TBearer : IStringBearer?
     {
         var sb = tos.WriteBuffer;
         if (item == null) { return AppendFormattedNull(sb, ""); }
