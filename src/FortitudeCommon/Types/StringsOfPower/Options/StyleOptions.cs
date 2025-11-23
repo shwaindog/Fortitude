@@ -67,7 +67,15 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     private bool?   ignoreEmptyCollection;
     private bool?   emptyCollectionWritesNull;
     private bool?   onNullWriteEmpty;
-    private string? itemSeparator;
+    private string? mainItemSeparator;
+    private string? altItemSeparator;
+    private string? mainItemPadding;
+    private string? altItemPadding;
+    
+    private string? mainFieldSeparator;
+    private string? altFieldSeparator;
+    private string? mainFieldPadding;
+    private string? altFieldPadding;
 
     private IEncodingTransfer? encodingTransfer;
 
@@ -172,10 +180,94 @@ public struct StyleOptionsValue : IJsonFormattingOptions
         set => logInnerDoubleQuoteCloseReplacement = value;
     }
 
-    public string ItemSeparator
+    public string MainItemSeparator
     {
-        readonly get => itemSeparator ?? fallbackOptions?.Values.ItemSeparator ?? IFormattingOptions.DefaultItemSeparator;
-        set => itemSeparator = value;
+        readonly get => mainItemSeparator ?? fallbackOptions?.Values.MainItemSeparator ?? IFormattingOptions.Cma;
+        set => mainItemSeparator = value;
+    }
+
+    public string AlternateItemSeparator
+    {
+        readonly get => altItemSeparator ?? fallbackOptions?.Values.AlternateItemSeparator ?? IFormattingOptions.Spc;
+        set => mainItemSeparator = value;
+    }
+
+    public string MainItemPadding
+    {
+        readonly get => altItemSeparator ?? fallbackOptions?.Values.AlternateItemSeparator
+         ?? Style switch
+            {
+              StringStyle.CompactJson => IFormattingOptions.Empty
+              , StringStyle.CompactLog => IFormattingOptions.Spc
+              , StringStyle.PrettyJson => IFormattingOptions.Spc
+              , StringStyle.PrettyLog => IFormattingOptions.Spc
+              , _                      => Style.IsCompact() & Style.IsJson() ? IFormattingOptions.Empty : IFormattingOptions.Spc
+            };
+        set => mainItemSeparator = value;
+    }
+
+    public string AlternateItemPadding
+    {
+        readonly get => altItemSeparator ?? fallbackOptions?.Values.AlternateItemSeparator
+         ?? Style switch
+            {
+                StringStyle.CompactJson => IFormattingOptions.Empty
+              , StringStyle.CompactLog  => IFormattingOptions.Spc
+              , StringStyle.PrettyJson  => IFormattingOptions.Spc
+              , StringStyle.PrettyLog   => IFormattingOptions.Spc
+              , _                       => Style.IsCompact() & Style.IsJson() ? IFormattingOptions.Empty : IFormattingOptions.Spc
+            };
+        set => mainItemSeparator = value;
+    }
+
+    public string MainFieldSeparator
+    {
+        readonly get => mainFieldSeparator ?? fallbackOptions?.Values.MainFieldSeparator
+         ?? Style switch
+            {
+                StringStyle.CompactLog => IFormattingOptions.DefaultMainItemSeparator
+              , _                      => IFormattingOptions.Cma
+            };
+        set => mainFieldSeparator = value;
+    }
+
+    public string AlternateFieldSeparator
+    {
+        readonly get => altFieldSeparator ?? fallbackOptions?.Values.AlternateFieldSeparator
+         ?? Style switch
+            {
+                StringStyle.CompactLog => IFormattingOptions.Empty
+              , StringStyle.PrettyJson => IFormattingOptions.Spc
+              , StringStyle.PrettyLog  => IFormattingOptions.Spc
+              , _                      => Style.IsCompact() & Style.IsJson() ? IFormattingOptions.Empty : IFormattingOptions.Spc
+            };
+        set => altFieldSeparator = value;
+    }
+
+    public string MainFieldPadding
+    {
+        readonly get => altFieldSeparator ?? fallbackOptions?.Values.AlternateFieldSeparator
+         ?? Style switch
+            {
+              StringStyle.CompactJson => IFormattingOptions.Empty
+              , StringStyle.PrettyJson => IFormattingOptions.Spc
+              , StringStyle.PrettyLog => IFormattingOptions.Spc
+              , _                      => Style.IsCompact() & Style.IsJson() ? IFormattingOptions.Empty : IFormattingOptions.Spc
+            };
+        set => altFieldSeparator = value;
+    }
+
+    public string AlternateFieldPadding
+    {
+        readonly get => altFieldSeparator ?? fallbackOptions?.Values.AlternateFieldSeparator
+         ?? Style switch
+            {
+                StringStyle.CompactJson => IFormattingOptions.Empty
+              , StringStyle.PrettyJson  => IFormattingOptions.Spc
+              , StringStyle.PrettyLog   => IFormattingOptions.Spc
+              , _                       => Style.IsCompact() & Style.IsJson() ? IFormattingOptions.Empty : IFormattingOptions.Spc
+            };
+        set => altFieldSeparator = value;
     }
 
     public bool NullWritesEmpty
@@ -647,10 +739,52 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
         set => values.LogInnerDoubleQuoteCloseReplacement = value;
     }
 
-    public string ItemSeparator
+    public string MainItemSeparator
     {
-        get => values.ItemSeparator;
-        set => values.ItemSeparator = value;
+        get => values.MainItemSeparator;
+        set => values.MainItemSeparator = value;
+    }
+
+    public string AlternateItemSeparator
+    {
+        get => values.AlternateItemSeparator;
+        set => values.AlternateItemSeparator = value;
+    }
+
+    public string MainItemPadding
+    {
+        get => values.MainItemPadding;
+        set => values.MainItemPadding = value;
+    }
+
+    public string AlternateItemPadding
+    {
+        get => values.AlternateItemPadding;
+        set => values.AlternateItemPadding = value;
+    }
+
+    public string MainFieldSeparator
+    {
+        get => values.MainFieldSeparator;
+        set => values.MainFieldSeparator = value;
+    }
+
+    public string AlternateFieldSeparator
+    {
+        get => values.AlternateFieldSeparator;
+        set => values.AlternateFieldSeparator = value;
+    }
+
+    public string MainFieldPadding
+    {
+        get => values.MainFieldPadding;
+        set => values.MainFieldPadding = value;
+    }
+
+    public string AlternateFieldPadding
+    {
+        get => values.AlternateFieldPadding;
+        set => values.AlternateFieldPadding = value;
     }
 
     public bool NullWritesEmpty

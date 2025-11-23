@@ -1,16 +1,26 @@
 ﻿using FortitudeCommon.DataStructures.MemoryPools;
+using static FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions.IFormattingOptions;
 
 namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
 public interface IFormattingOptions
 {
     public const string DefaultNullString = "null";
+    public const string Empty             = "";
+    public const string Cma               = ",";
+    public const string Spc               = " ";
 
-    protected const string DefaultTrueString    = "true";
-    protected const string DefaultFalseString   = "false";
-    protected const string DefaultItemSeparator = ", ";
-    
-    string ItemSeparator { get; set; }
+    protected const string DefaultTrueString             = "true";
+    protected const string DefaultFalseString            = "false";
+    protected const string DefaultMainItemSeparator      = Cma;
+    protected const string DefaultAlternateItemSeparator = Empty;
+    protected const string DefaultMainItemPadding        = Spc;
+    protected const string DefaultAlternateItemPadding   = Empty;
+
+    string MainItemSeparator { get; set; }
+    string AlternateItemSeparator { get; set; }
+    string MainItemPadding { get; set; }
+    string AlternateItemPadding { get; set; }
 
     bool NullWritesEmpty { get; set; }
 
@@ -36,23 +46,25 @@ public class FormattingOptions : ExplicitRecyclableObject, IFormattingOptions
     protected const char TokenClose = '}';
     protected const char TokenOpen  = '{';
 
-    public FormattingOptions()
-    {
-        
-    }
-    
+    public FormattingOptions() { }
+
     public FormattingOptions(IFormattingOptions toClone)
     {
-        ItemSeparator             = toClone.ItemSeparator;
+        MainItemSeparator         = toClone.MainItemSeparator;
         NullWritesNullString      = toClone.NullWritesNullString;
         EmptyCollectionWritesNull = toClone.EmptyCollectionWritesNull;
         IgnoreEmptyCollection     = toClone.IgnoreEmptyCollection;
-        NullString                = toClone.NullString;
-        True                      = toClone.True;
-        False                     = toClone.False;
+
+        NullString = toClone.NullString;
+
+        True  = toClone.True;
+        False = toClone.False;
     }
 
-    public string ItemSeparator { get; set; } = IFormattingOptions.DefaultItemSeparator;
+    public string MainItemSeparator { get; set; } = DefaultMainItemSeparator;
+    public string AlternateItemSeparator { get; set; } = DefaultAlternateItemSeparator;
+    public string MainItemPadding { get; set; } = DefaultMainItemPadding;
+    public string AlternateItemPadding { get; set; } = DefaultAlternateItemPadding;
 
     public bool NullWritesEmpty
     {
@@ -70,9 +82,8 @@ public class FormattingOptions : ExplicitRecyclableObject, IFormattingOptions
 
     public bool IgnoreEmptyCollection { get; set; }
 
-    public string NullString { get; set; } = IFormattingOptions.DefaultNullString;
+    public string NullString { get; set; } = DefaultNullString;
 
-    public string True { get; set; } = IFormattingOptions.DefaultTrueString;
-    public string False { get; set; } = IFormattingOptions.DefaultFalseString;
-
+    public string True { get; set; } = DefaultTrueString;
+    public string False { get; set; } = DefaultFalseString;
 }

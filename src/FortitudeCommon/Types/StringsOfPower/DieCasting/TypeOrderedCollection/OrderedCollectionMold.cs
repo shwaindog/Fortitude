@@ -30,6 +30,10 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
 
     public override bool IsComplexType => false;
     
+    public int ResultCount { get; set; }
+    
+    public int TotalCount { get; private set; }
+    
     public override void AppendOpening()
     {
         if (CompAsOrderedCollection.CollectionInComplexType)
@@ -52,7 +56,7 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
         else
         {
             var elementType = MoldStateField.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
-            MoldStateField.StyleFormatter.FormatCollectionEnd(MoldStateField, 1, elementType!, 1, "");
+            MoldStateField.StyleFormatter.FormatCollectionEnd(MoldStateField, ResultCount, elementType!, ResultCount, "");
         }
     }
 

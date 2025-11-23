@@ -8,7 +8,7 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
 public struct ContentSeparatorPaddingRangeTracking
 {
-    public FieldContentHandling FormatFlags;
+    public FieldContentHandling StartedWithFormatFlags;
 
     public bool AllowEmptyContent;
     public int? FromStartContentStart;
@@ -16,9 +16,56 @@ public struct ContentSeparatorPaddingRangeTracking
     public int? FromStartSeparatorEnd;
     public int? FromStartPaddingEnd;
 
+    public Range? CurrentContentRange
+    {
+        get
+        {
+            
+            if (this is { FromStartContentStart: not null, FromStartContentEnd: not null })
+            {
+                var contentStart = new Index(Math.Abs(FromStartContentStart.Value));
+                var contentEnd   = new Index(Math.Abs(FromStartContentEnd.Value));
+                if (contentStart.Value < contentEnd.Value || (AllowEmptyContent && contentStart.Value == contentEnd.Value))
+                    return new Range(contentStart, contentEnd);
+            }
+            return null;
+        }  
+    } 
+    public Range? CurrentSeparatorRange
+    {
+        get
+        {
+            
+            if (this is { FromStartContentEnd: not null, FromStartSeparatorEnd: not null })
+            {
+                var separatorStart = new Index(Math.Abs(FromStartContentEnd.Value));
+                var separatorEnd   = new Index(Math.Abs(FromStartSeparatorEnd.Value));
+                if (separatorStart.Value < separatorEnd.Value || (AllowEmptyContent && separatorStart.Value == separatorEnd.Value))
+                    return new Range(separatorStart, separatorEnd);
+            }
+            return null;
+        }  
+    } 
+    public Range? CurrentPaddingRange
+    {
+        get
+        {
+            
+            if (this is { FromStartPaddingEnd: not null } and ({ FromStartSeparatorEnd: not null } or { FromStartContentEnd : not null }))
+            {
+                var sepEndOrContentEnd = FromStartSeparatorEnd ?? FromStartContentEnd!.Value;
+                var paddingStart     = new Index(Math.Abs(sepEndOrContentEnd));
+                var paddingEnd       = new Index(Math.Abs(FromStartPaddingEnd.Value));
+                if (paddingStart.Value < paddingEnd.Value || (AllowEmptyContent && paddingStart.Value == paddingEnd.Value))
+                    return new Range(paddingStart, paddingEnd);
+            }
+            return null;
+        }  
+    } 
+    
     public void Reset()
     {
-        FormatFlags = FieldContentHandling.DefaultCallerTypeFlags;
+        StartedWithFormatFlags = FieldContentHandling.DefaultCallerTypeFlags;
 
         AllowEmptyContent     = false;
         FromStartContentStart = null;

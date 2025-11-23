@@ -33,6 +33,10 @@ public class CollectionBuilderCompAccess<TOCMold> : TypeMolderDieCast<TOCMold> w
 
     public bool ConditionalCollectionSuffix(Type elementType, int? count, string? formatString, FieldContentHandling formatFlags)
     {
+        if (StyleTypeBuilder is OrderedCollectionMold<TOCMold> ocMold)
+        {
+            ocMold.ResultCount = count ?? 0;
+        }
         if (CollectionInComplexType)
         {
             if (!count.HasValue)

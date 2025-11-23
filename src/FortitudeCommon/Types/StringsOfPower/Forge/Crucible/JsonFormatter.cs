@@ -17,11 +17,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     private byte previousByteUnusedBits;
     private byte previousByteBitCount;
 
-    protected const string BrcOpn     = "{";
-    protected const char   BrcOpnChar = '{';
-    protected const string BrcCls     = "}";
-    protected const char   BrcClsChar = '}';
-    protected const string Cma        = ",";
+    public const string BrcOpn     = "{";
+    public const char   BrcOpnChar = '{';
+    public const string BrcCls     = "}";
+    public const char   BrcClsChar = '}';
+    public const string Cma        = IFormattingOptions.Cma;
 
 
     public virtual IJsonFormattingOptions JsonOptions
@@ -532,7 +532,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         for (var i = 0; i < arg0.Length; i++)
         {
             var item              = arg0[i];
-            if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
+            if (i > 0) addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, i, formatFlags);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
                 if (iChar.IsSingleCharRune()) { addedChars += StringEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
@@ -550,14 +550,14 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             {
                 if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
                 {
-                    addedChars += CollectionNextItem(item, i, destCharSpan, destStartIndex + addedChars);
+                    addedChars += CollectionNextItem(item, i, destCharSpan, destStartIndex + addedChars, formatFlags);
                 }
-                else { addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString); }
+                else { addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString, formatFlags); }
             }
         }
         if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
-            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length);
+            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length, formatFlags);
         }
         return addedChars;
     }
@@ -572,11 +572,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             return sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
         }
         var elementType = typeof(TFmtStruct);
-        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection) { CollectionStart(elementType, sb, arg0.Length > 0); }
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection) { CollectionStart(elementType, sb, arg0.Length > 0, formatFlags); }
         for (var i = 0; i < arg0.Length; i++)
         {
             var item = arg0[i];
-            if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
+            if (i > 0) AddCollectionElementSeparatorAndPadding(elementType, sb, i, formatFlags);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
                 if (iChar.IsSingleCharRune()) { StringEncoder.Transfer(new Rune(iChar), sb); }
@@ -589,11 +589,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             else if (item is byte iByte && JsonOptions.ByteArrayWritesBase64String) { NextBase64Chars(iByte, sb); }
             else
             {
-                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString) { CollectionNextItem(item, i, sb); }
-                else { CollectionNextItemFormat(item, i, sb, formatString); }
+                if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString) { CollectionNextItem(item, i, sb, formatFlags); }
+                else { CollectionNextItemFormat(item, i, sb, formatString, formatFlags); }
             }
         }
-        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection) { CollectionEnd(elementType, sb, arg0.Length); }
+        if (arg0.Length > 0 || !Options.IgnoreEmptyCollection) { CollectionEnd(elementType, sb, arg0.Length, formatFlags); }
         return sb.Length - preAppendLen;
     }
 
@@ -605,7 +605,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         for (var i = 0; i < arg0.Length; i++)
         {
             var item              = arg0[i];
-            if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
+            if (i > 0) addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, i, formatFlags);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
                 if (iChar.IsSingleCharRune()) { addedChars += StringEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
@@ -623,14 +623,14 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             {
                 if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
                 {
-                    addedChars += CollectionNextItem(item, i, destCharSpan, destStartIndex + addedChars);
+                    addedChars += CollectionNextItem(item, i, destCharSpan, destStartIndex + addedChars, formatFlags);
                 }
-                else { addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString); }
+                else { addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString, formatFlags); }
             }
         }
         if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
-            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length);
+            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length, formatFlags);
         }
         return addedChars;
     }
@@ -681,12 +681,12 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         var elementType = typeof(TFmt);
         if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
-            addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, arg0.Length > 0);
+            addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, arg0.Length > 0, formatFlags);
         }
         for (var i = 0; i < arg0.Length; i++)
         {
             var item              = arg0[i];
-            if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
+            if (i > 0) addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, i, formatFlags);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
                 if (iChar.IsSingleCharRune()) { addedChars += StringEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
@@ -704,14 +704,14 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             {
                 if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
                 {
-                    addedChars += CollectionNextItem(item, i, destCharSpan, destStartIndex + addedChars);
+                    addedChars += CollectionNextItem(item, i, destCharSpan, destStartIndex + addedChars, formatFlags);
                 }
-                else { addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString); }
+                else { addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString, formatFlags); }
             }
         }
         if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
-            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length);
+            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length, formatFlags);
         }
         return addedChars;
     }
@@ -761,12 +761,12 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         var elementType = typeof(TFmtStruct);
         if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
-            addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, arg0.Length > 0);
+            addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, arg0.Length > 0, formatFlags);
         }
         for (var i = 0; i < arg0.Length; i++)
         {
             var item              = arg0[i];
-            if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
+            if (i > 0) addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, i, formatFlags);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
                 if (iChar.IsSingleCharRune()) { addedChars += StringEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
@@ -784,14 +784,14 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             {
                 if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
                 {
-                    addedChars += CollectionNextItem(item, i, destCharSpan, destStartIndex + addedChars);
+                    addedChars += CollectionNextItem(item, i, destCharSpan, destStartIndex + addedChars, formatFlags);
                 }
-                else { addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString); }
+                else { addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString, formatFlags); }
             }
         }
         if (arg0.Length > 0 || !Options.IgnoreEmptyCollection)
         {
-            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length);
+            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Length, formatFlags);
         }
         return addedChars;
     }
@@ -842,7 +842,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         for (var i = 0; i < arg0.Count; i++)
         {
             var item              = arg0[i];
-            if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
+            if (i > 0) addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, i, formatFlags);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
                 if (iChar.IsSingleCharRune()) { addedChars += StringEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
@@ -860,14 +860,14 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             {
                 if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
                 {
-                    addedChars += CollectionNextItem(item, i, destCharSpan, destStartIndex + addedChars);
+                    addedChars += CollectionNextItem(item, i, destCharSpan, destStartIndex + addedChars, formatFlags);
                 }
-                else { addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString); }
+                else { addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString, formatFlags); }
             }
         }
         if (arg0.Count > 0 || !Options.IgnoreEmptyCollection)
         {
-            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Count);
+            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Count, formatFlags);
         }
         return addedChars;
     }
@@ -915,7 +915,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         for (var i = 0; i < arg0.Count; i++)
         {
             var item              = arg0[i];
-            if (i > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, i);
+            if (i > 0) addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, i, formatFlags);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
                 if (iChar.IsSingleCharRune()) { addedChars += StringEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
@@ -933,14 +933,14 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             {
                 if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
                 {
-                    addedChars += CollectionNextItem(item, i, destCharSpan, destStartIndex + addedChars);
+                    addedChars += CollectionNextItem(item, i, destCharSpan, destStartIndex + addedChars, formatFlags);
                 }
-                else { addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString); }
+                else { addedChars += CollectionNextItemFormat(item, i, destCharSpan, destStartIndex + addedChars, formatString, formatFlags); }
             }
         }
         if (arg0.Count > 0 || !Options.IgnoreEmptyCollection)
         {
-            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Count);
+            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, arg0.Count, formatFlags);
         }
         return addedChars;
     }
@@ -1006,10 +1006,10 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             if (!hasStartedCollection)
             {
-                addedChars           += CollectionStart(elementType, destCharSpan, destStartIndex + addedChars, true);
+                addedChars           += CollectionStart(elementType, destCharSpan, destStartIndex + addedChars, true, formatFlags);
                 hasStartedCollection =  true;
             }
-            if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
+            if (itemCount > 0) addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, itemCount, formatFlags);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
                 if (iChar.IsSingleCharRune()) { addedChars += StringEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
@@ -1027,13 +1027,13 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             {
                 if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
                 {
-                    addedChars += CollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars);
+                    addedChars += CollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars, formatFlags);
                 }
-                else { addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString); }
+                else { addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString, formatFlags); }
             }
             itemCount++;
         }
-        if (itemCount > 0) { addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount); }
+        if (itemCount > 0) { addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount, formatFlags); }
         else
         {
             if (!Options.IgnoreEmptyCollection)
@@ -1041,8 +1041,8 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                 if (Options.EmptyCollectionWritesNull) { addedChars += destCharSpan.OverWriteAt(destStartIndex + addedChars, Options.NullString); }
                 else
                 {
-                    addedChars += CollectionStart(elementType, destCharSpan, destStartIndex + addedChars, false);
-                    addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
+                    addedChars += CollectionStart(elementType, destCharSpan, destStartIndex + addedChars, false, formatFlags);
+                    addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount, formatFlags);
                 }
             }
         }
@@ -1108,10 +1108,10 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             if (!hasStartedCollection)
             {
-                addedChars           += CollectionStart(elementType, destCharSpan, destStartIndex + addedChars, true);
+                addedChars           += CollectionStart(elementType, destCharSpan, destStartIndex + addedChars, true, formatFlags);
                 hasStartedCollection =  true;
             }
-            if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
+            if (itemCount > 0) addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, itemCount, formatFlags);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
                 if (iChar.IsSingleCharRune()) { addedChars += StringEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
@@ -1129,13 +1129,13 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             {
                 if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
                 {
-                    addedChars += CollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars);
+                    addedChars += CollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars, formatFlags);
                 }
-                else { addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString); }
+                else { addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString, formatFlags); }
             }
             itemCount++;
         }
-        if (itemCount > 0) { addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount); }
+        if (itemCount > 0) { addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount, formatFlags); }
         else
         {
             if (!Options.IgnoreEmptyCollection)
@@ -1143,8 +1143,8 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                 if (Options.EmptyCollectionWritesNull) { addedChars += destCharSpan.OverWriteAt(destStartIndex + addedChars, Options.NullString); }
                 else
                 {
-                    addedChars += CollectionStart(elementType, destCharSpan, destStartIndex + addedChars, false);
-                    addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
+                    addedChars += CollectionStart(elementType, destCharSpan, destStartIndex + addedChars, false, formatFlags);
+                    addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount, formatFlags);
                 }
             }
         }
@@ -1201,13 +1201,15 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             return destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
         }
         var elementType = typeof(TFmt);
-        if (!hasNext || !Options.IgnoreEmptyCollection) { addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, !hasNext); }
+        if (!hasNext || !Options.IgnoreEmptyCollection) { addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, !hasNext, formatFlags); }
         var  itemCount = 0;
         char lastChar  = '\0';
         while (hasNext)
         {
             var item                      = arg0.Current;
-            if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
+            if (itemCount > 0) 
+                addedChars += AddCollectionElementSeparatorAndPadding
+                    (elementType, destCharSpan, destStartIndex + addedChars, itemCount, formatFlags);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
                 if (iChar.IsSingleCharRune()) { addedChars += StringEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
@@ -1225,16 +1227,16 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             {
                 if (formatString.IsNullOrEmpty() || formatString == NoFormatFormatString)
                 {
-                    addedChars += CollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars);
+                    addedChars += CollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars, formatFlags);
                 }
-                else { addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString); }
+                else { addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString, formatFlags); }
             }
             itemCount++;
             hasNext = arg0.MoveNext();
         }
         if (itemCount > 0 || !Options.IgnoreEmptyCollection)
         {
-            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
+            addedChars += CollectionEnd(elementType, destCharSpan, destStartIndex + addedChars, itemCount, formatFlags);
         }
         return addedChars;
     }
@@ -1293,7 +1295,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         while (hasNext)
         {
             var item                      = arg0.Current;
-            if (itemCount > 0) addedChars += AddCollectionElementSeparator(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
+            if (itemCount > 0) addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
                 if (iChar.IsSingleCharRune()) { addedChars += StringEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }

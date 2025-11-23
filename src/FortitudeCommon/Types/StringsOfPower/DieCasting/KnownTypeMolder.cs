@@ -75,7 +75,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
 
     public virtual void AppendClosing()
     {
-        MoldStateField?.Sb.RemoveLastWhiteSpacedCommaIfFound();
+        MoldStateField?.StyleFormatter.GraphBuilder.RemoveLastSeparatorAndPadding();
     }
 
     protected TMold Me => (TMold)(TypeMolder)this;

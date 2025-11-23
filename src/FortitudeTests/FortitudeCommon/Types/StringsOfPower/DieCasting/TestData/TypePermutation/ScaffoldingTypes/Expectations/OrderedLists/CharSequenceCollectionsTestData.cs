@@ -899,8 +899,7 @@ public class CharSequenceCollectionsTestData
                       null,
                       Seven to the Cobol-Lords, eventually great Bitcoin miners and great cardigan wearers of the mainframe halls.,
                       For within these strings was bound the flexibility, mutability and the operators to govern each language,
-                      Deep in the land of Redmond, after many Moons of playing Doom, the Dotnet Lord Hejlsberg forged a master String, 
-                      and into this string he poured his unambiguity, his immutability desires and his will to replace all ,
+                      Deep in the land of Redmond, after many Moons of playing Doom, the Dotnet Lord Hejlsberg forged a master String,  and into this string he poured his unambiguity, his immutability desires and his will to replace all ,
                       One string to use in all, one string to find text in, One string to replace them all and in the dustbins of time confine them
                     ]
                     """.Dos2Unix()
@@ -927,8 +926,7 @@ public class CharSequenceCollectionsTestData
                       null,
                       "Seven to the Cobol-Lords, eventually great Bitcoin miners and great cardigan wearers of the mainframe halls.",
                       "For within these strings was bound the flexibility, mutability and the operators to govern each language",
-                      "Deep in the land of Redmond, after many Moons of playing Doom, the Dotnet Lord Hejlsberg forged a master String", 
-                      "and into this string he poured his unambiguity, his immutability desires and his will to replace all ",
+                      "Deep in the land of Redmond, after many Moons of playing Doom, the Dotnet Lord Hejlsberg forged a master String,  and into this string he poured his unambiguity, his immutability desires and his will to replace all ",
                       "One string to use in all, one string to find text in, One string to replace them all and in the dustbins of time confine them"
                     ]
                     """.Dos2Unix()
