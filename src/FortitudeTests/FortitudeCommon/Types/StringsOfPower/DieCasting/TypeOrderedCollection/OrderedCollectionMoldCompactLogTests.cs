@@ -532,7 +532,7 @@ public partial class OrderedCollectionMoldTests
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
-    [TestMethod]
+    // [TestMethod]
     public void CompactLogListTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");

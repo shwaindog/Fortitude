@@ -8,9 +8,9 @@ using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.Ty
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.OrderedLists;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldCollection;
 
-public partial class OrderedCollectionMoldTests
+public partial class SelectTypeCollectionFieldTests
 {
 
     [TestMethod]
@@ -125,12 +125,12 @@ public partial class OrderedCollectionMoldTests
         SharedPrettyJson(formatExpectation, scaffoldingToCall);
     }
 
-    // [TestMethod]
+    [TestMethod]
     public void PrettyJsonListTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedPrettyJson(SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations[10], ScaffoldingRegistry.AllScaffoldingTypes[44]);
+        SharedPrettyJson(BoolCollectionsTestData.AllBoolCollectionExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[344]);
     }
 
     private void SharedPrettyJson(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -145,20 +145,35 @@ public partial class OrderedCollectionMoldTests
         logger.WarnAppend("FormatExpectation - ")?
               .AppendLine(formatExpectation.ToString())
               .FinalAppend("");
+            
+        logger.InfoAppend("To Debug Test past the following code into ")?
+              .Append(nameof(PrettyJsonListTest)).Append("()\n\n")
+              .Append("SharedPrettyJson(")
+              .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         
         // ReSharper disable once RedundantArgumentDefaultValue
         var tos = new TheOneString().Initialize(Pretty | Json);
         tos.Settings.NewLineStyle = "\n";
-        
-        string BuildExpectedOutput(string _, string _1
+
+        string BuildExpectedOutput(string _, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
-            if (expectValue == IFormatExpectation.NoResultExpectedValue)
+            const string compactJsonTemplate = "{{{0}{1}{2}{0}}}";
+
+
+            var maybeNewLine = "";
+            var maybeIndent  = "";
+            var expectValue  = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
-                expectValue = "";
+                maybeNewLine = "\n";
+                maybeIndent  = "  ";
+                expectValue  = "\"" + propertyName + "\": " + expectValue.IndentSubsequentLines();
             }
-            return expectValue;
+
+            else { expectValue = ""; }
+
+            return string.Format(compactJsonTemplate, maybeNewLine, maybeIndent, expectValue);
         }
 
         string BuildChildExpectedOutput(string className, string propertyName
@@ -166,7 +181,9 @@ public partial class OrderedCollectionMoldTests
         {
             var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
             if (expectValue == IFormatExpectation.NoResultExpectedValue)
-            { expectValue = ""; }
+            {
+                expectValue = "";
+            }
             return expectValue;
         }
 
@@ -198,11 +215,6 @@ public partial class OrderedCollectionMoldTests
                   .Append(result).AppendLine()
                   .FinalAppend("");
         }
-            
-        logger.InfoAppend("To Debug Test past the following code into ")?
-              .Append(nameof(PrettyJsonListTest)).Append("()\n\n")
-              .Append("SharedPrettyJson(")
-              .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         Assert.AreEqual(buildExpectedOutput, result, $"Difference at i={buildExpectedOutput.DiffPosition(result)}");
     }
 }

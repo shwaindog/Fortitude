@@ -125,7 +125,7 @@ public partial class OrderedCollectionMoldTests
         SharedPrettyLog(formatExpectation, scaffoldingToCall);
     }
 
-    [TestMethod]
+    // [TestMethod]
     public void PrettyLogListTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
