@@ -721,7 +721,7 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
 
     public int IndentLevel
     {
-        get => values.IndentLevel;
+        get => Math.Max(0, values.IndentLevel);
         set => values.IndentLevel = value;
     }
 

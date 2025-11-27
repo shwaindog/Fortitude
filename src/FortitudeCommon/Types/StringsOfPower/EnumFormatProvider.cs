@@ -176,7 +176,7 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
 
         isFlagsEnum    = enumType.GetCustomAttributes<FlagsAttribute>().Any();
         ForType        = enumType;
-        UnderlyingType = enumType.UnderlyingSystemType;
+        UnderlyingType = enumType.GetEnumUnderlyingType();
     }
 
     public bool SupportSpanFormattable => true;
@@ -281,18 +281,23 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
                 buildNames.Append(enumValueName);
                 return enumValueName.Length;
             }
-            var underlying = singleEnumValue.ToInt64(null);
-            if (veryLongRangeEnumMaterializedNames!.TryGetValue(underlying, out var value))
+            if (UnderlyingType != typeof(ulong))
             {
-                buildNames.Append(value);
-                return value.Length;
+                var underlying = singleEnumValue.ToInt64(null);
+                if (veryLongRangeEnumMaterializedNames!.TryGetValue(underlying, out var valueLong))
+                {
+                    buildNames.Append(valueLong);
+                    return valueLong.Length;
+                }
+                return buildNames.AppendLong(underlying);
             }
-            if (UnderlyingType == typeof(ulong))
+            var underlyingUlong = singleEnumValue.ToUInt64(null);
+            if (veryLongRangeEnumMaterializedNames!.TryGetValue(underlyingUlong, out var valueULong))
             {
-                var underlyingUlong = singleEnumValue.ToUInt64(null);
-                return buildNames.AppendULong(underlyingUlong);    
+                buildNames.Append(valueULong);
+                return valueULong.Length;
             }
-            return buildNames.AppendLong(underlying);
+            return buildNames.AppendULong(underlyingUlong);
         }
         try
         {

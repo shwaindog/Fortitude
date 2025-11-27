@@ -23,6 +23,7 @@ public readonly record struct CollectionItemResult(CollectionItemFilterFlags Inc
     public static readonly CollectionItemResult IncludedAndContinue    = new (IncludeContinueToNext);
     public static readonly CollectionItemResult NotIncludedAndContinue = new (DoNotIncludeContinueToNext);
 
+
     public static CollectionItemResult IncludedAndSkipNext(int skipAmount) =>
         new ((CollectionItemFilterFlags)(Math.Abs(skipAmount)));
 

@@ -2,8 +2,10 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Text;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
@@ -135,6 +137,33 @@ public class SimpleAsValueNullableSpanFormattableClassWithFieldSimpleValueTypeSt
                (nameof(SimpleTypeAsValueNullableSpanFormattableClass)
               , SimpleTypeAsValueNullableSpanFormattableClass, ValueFormatString)
            .Complete();
+}
+
+[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableClassSpanFormattable | SupportsValueFormatString
+                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+public struct SimpleAsValueNullableSpanFormattableClassWithFieldSimpleValueTypeStructStringBearer<TFmtClass>  where TFmtClass : class, ISpanFormattable
+{
+    public TFmtClass? SimpleTypeAsValueNullableSpanFormattableClass
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public string PropertyName => nameof(SimpleTypeAsValueNullableSpanFormattableClass);
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleValueType(this).AsValueOrNull
+               (nameof(SimpleTypeAsValueNullableSpanFormattableClass)
+              , SimpleTypeAsValueNullableSpanFormattableClass, ValueFormatString)
+           .Complete();
+    
+    public string? ValueFormatString { get; set; }
+
+    public FieldContentHandling ContentHandlingFlags { get; set; }
+
+    public TFmtClass? Value { get; set; }
+
+    public override string ToString() => $"{GetType().CachedCSharpNameNoConstraints()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableClassSpanFormattable | SupportsValueFormatString
@@ -1223,6 +1252,41 @@ public class SimpleAsValueStringWithFieldSimpleValueTypeStringBearer : Formatted
               , SimpleTypeAsValueString
               , ValueFormatString)
            .Complete();
+}
+
+[TypeGeneratePart(SimpleType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | SupportsValueFormatString
+                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+public struct SimpleAsValueStringWithFieldSimpleValueTypeStructStringBearer : ISupportsSettingValueFromString
+{
+    public string SimpleTypeAsValueString
+    {
+        get => Value!;
+        set => Value = value;
+    }
+
+    public string PropertyName => nameof(SimpleTypeAsValueString);
+
+    public string? StringValue
+    {
+        get => Value;
+        set => Value = value!;
+    }
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleValueType(this)
+           .AsValueOrNull
+               (nameof(SimpleTypeAsValueString)
+              , SimpleTypeAsValueString
+              , ValueFormatString)
+           .Complete();
+    
+    public string? ValueFormatString { get; set; }
+
+    public FieldContentHandling ContentHandlingFlags { get; set; }
+
+    public string? Value { get; set; }
+
+    public override string ToString() => $"{GetType().CachedCSharpNameNoConstraints()}({Value})";
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges
