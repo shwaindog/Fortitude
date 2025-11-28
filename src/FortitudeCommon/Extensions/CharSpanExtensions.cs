@@ -1549,7 +1549,7 @@ public static class CharSpanExtensions
         return sb[Math.Max(0, i)];
     }
 
-    public static int BoundsReplaceBufferSize(this ReadOnlySpan<char> original, string lhsReplace, string rhsReplace)
+    public static int BoundsReplaceBufferSize(this ReadOnlySpan<char> original, ReadOnlySpan<char> lhsReplace, ReadOnlySpan<char> rhsReplace)
     {
         
         var replaceStartLen    = lhsReplace.Length;
@@ -1562,7 +1562,7 @@ public static class CharSpanExtensions
         return totalLength;
     }
 
-    public static Span<char> ReplaceBounds(this Span<char> formatSpan, ReadOnlySpan<char> original, char replaceCharMatch, string lhsReplace, string rhsReplace)
+    public static Span<char> ReplaceBounds(this Span<char> formatSpan, ReadOnlySpan<char> original, char replaceCharMatch, ReadOnlySpan<char> lhsReplace, ReadOnlySpan<char> rhsReplace)
     {
         
         var replaceStartLen    = lhsReplace.Length;

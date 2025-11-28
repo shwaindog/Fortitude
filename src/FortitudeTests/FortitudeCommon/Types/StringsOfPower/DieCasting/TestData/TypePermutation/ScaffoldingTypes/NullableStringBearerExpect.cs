@@ -16,15 +16,15 @@ public class NullableStringBearerExpect<TInput> : NullableStringBearerExpect<TIn
     where TInput : struct, IStringBearer
 {
     // ReSharper disable twice ExplicitCallerInfoArgument
-    public NullableStringBearerExpect(TInput? input, string? formatString = null
+    public NullableStringBearerExpect(TInput? input, string? valueFormatString = null
       , bool hasDefault = false, TInput? defaultValue = null
       , FieldContentHandling contentHandling = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
-        : base(input, formatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
+        : base(input, valueFormatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
     {
-        FieldValueExpectation = new FieldExpect<TInput?>(Input, FormatString, HasDefault, DefaultValue);
+        FieldValueExpectation = new FieldExpect<TInput?>(Input, ValueFormatString, HasDefault, DefaultValue);
     }
 }
 
@@ -39,13 +39,13 @@ public class NullableStringBearerExpect<TInput, TDefault> : FieldExpect<TInput?,
     public override bool IsNullable => InputType.IsNullable();
 
     // ReSharper disable twice ExplicitCallerInfoArgument
-    public NullableStringBearerExpect(TInput? input, string? formatString = null
+    public NullableStringBearerExpect(TInput? input, string? valueFormatString = null
       , bool hasDefault = false, TDefault? defaultValue = null, FieldContentHandling contentHandling = DefaultCallerTypeFlags
       , string? name = null, [CallerFilePath] string srcFile = "", [CallerLineNumber] int srcLine = 0)
-        : base(input, formatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
+        : base(input, valueFormatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
     {
         // ReSharper disable twice ExplicitCallerInfoArgument
-        FieldValueExpectation = new FieldExpect<TInput?, TDefault?>(Input, FormatString, HasDefault, DefaultValue, contentHandling
+        FieldValueExpectation = new FieldExpect<TInput?, TDefault?>(Input, ValueFormatString, HasDefault, DefaultValue, contentHandling
                                                                   , name, srcFile, srcLine);
     }
 
@@ -91,9 +91,9 @@ public class NullableStringBearerExpect<TInput, TDefault> : FieldExpect<TInput?,
         }
         var stringBearerInput = Input;
         // ReSharper disable once SuspiciousTypeConversion.Global
-        if (FormatString != null && stringBearerInput is ISupportsValueFormatString supportsValueFormatString)
+        if (ValueFormatString != null && stringBearerInput is ISupportsValueFormatString supportsValueFormatString)
         {
-            supportsValueFormatString.ValueFormatString = FormatString;
+            supportsValueFormatString.ValueFormatString = ValueFormatString;
 
             stringBearerInput = (TInput)(supportsValueFormatString);
         }

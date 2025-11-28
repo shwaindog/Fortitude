@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Config.LoggersHierarchy.ActivationProfiles;
 using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Types.StringsOfPower;
@@ -27,15 +28,28 @@ public class TargetStringBearerRevealStateTests
         
         Console.Out.WriteLine("Without virtual dispatch = " + stsa.WriteBuffer.ToString());
 
-        Assert.AreEqual("FLoggerActivationConfig { BuildType: ReleaseBuild, DeploymentEnvironment: AnyEnv }", stsa.WriteBuffer.ToString());
+        Assert.AreEqual(
+                        """
+                        FLoggerActivationConfig {
+                         BuildType: FLogBuildTypeProfile.ReleaseBuild,
+                         DeploymentEnvironment: FlogDeploymentEnvironmentProfileType.AnyEnv 
+                        }
+                        """.RemoveLineEndings()
+                      , stsa.WriteBuffer.ToString());
 
         stsa.Clear();
         baseHasStyledToString.RevealState(stsa);
         
         Console.Out.WriteLine("With virtual dispatch = " + stsa.WriteBuffer.ToString());
 
-        Assert.AreEqual("FLoggerActivationConfig { LoggerActivationFlags: StopWatch, GlobalLoggerTimeInterval, " +
-                        "BuildType: ReleaseBuild, DeploymentEnvironment: AnyEnv }" 
+        Assert.AreEqual(
+                        """
+                        FLoggerActivationConfig {
+                         LoggerActivationFlags: LoggerActivationFlags.StopWatch | LoggerActivationFlags.GlobalLoggerTimeInterval,
+                         BuildType: FLogBuildTypeProfile.ReleaseBuild,
+                         DeploymentEnvironment: FlogDeploymentEnvironmentProfileType.AnyEnv 
+                        }
+                        """.RemoveLineEndings() 
                       , stsa.WriteBuffer.ToString());
         
     }
@@ -57,15 +71,29 @@ public class TargetStringBearerRevealStateTests
         
         Console.Out.WriteLine("Without virtual dispatch = " + stsa.WriteBuffer.ToString());
 
-        Assert.AreEqual("FLoggerActivationConfig { BuildType: ReleaseBuild, DeploymentEnvironment: AnyEnv }", stsa.WriteBuffer.ToString());
+        Assert.AreEqual(
+                        """
+                        FLoggerActivationConfig {
+                         BuildType: FLogBuildTypeProfile.ReleaseBuild,
+                         DeploymentEnvironment: FlogDeploymentEnvironmentProfileType.AnyEnv 
+                        }
+                        """.RemoveLineEndings()
+                      , stsa.WriteBuffer.ToString());
 
         stsa.Clear();
         baseHasStyledToString.RevealState(stsa);
         
         Console.Out.WriteLine("With virtual dispatch = " + stsa.WriteBuffer.ToString());
 
-        Assert.AreEqual("FLoggerActivationConfig { LoggerActivationFlags: StopWatch, GlobalLoggerTimeInterval, " +
-                        "BuildType: ReleaseBuild, DeploymentEnvironment: AnyEnv }", stsa.WriteBuffer.ToString());
+        Assert.AreEqual(
+                        """
+                        FLoggerActivationConfig {
+                         LoggerActivationFlags: LoggerActivationFlags.StopWatch | LoggerActivationFlags.GlobalLoggerTimeInterval,
+                         BuildType: FLogBuildTypeProfile.ReleaseBuild,
+                         DeploymentEnvironment: FlogDeploymentEnvironmentProfileType.AnyEnv 
+                        }
+                        """.RemoveLineEndings()
+                      , stsa.WriteBuffer.ToString());
         
     }
 }

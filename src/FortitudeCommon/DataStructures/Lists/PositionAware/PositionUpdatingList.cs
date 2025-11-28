@@ -52,8 +52,10 @@ public class PositionUpdatingList<T> : RecyclableObject, IList<T>
 
     public void CopyTo(T[] array, int arrayIndex)
     {
-        var myIndex = 0;
-        for (int i = arrayIndex; i < array.Length; i++) { array[i] = backingList[myIndex++]; }
+        for (int i = 0; i < backingList.Count && (arrayIndex + i) < array.Length; i++)
+        {
+            array[arrayIndex + i] = backingList[i];
+        }
     }
 
     public bool Remove(T item)

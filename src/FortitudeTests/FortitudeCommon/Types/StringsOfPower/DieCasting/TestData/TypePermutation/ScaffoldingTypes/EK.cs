@@ -34,7 +34,14 @@ public class EK
     {
         var styleIsMatched        = (style & MatchStyle) == style;
         var bothCallViaObjectOrNeither = true;
-        if (MatchScaff.HasCallsUsingObject()) { bothCallViaObjectOrNeither = condition.HasCallsUsingObject(); }
+        if (MatchScaff.HasCallsUsingObject())
+        {
+            bothCallViaObjectOrNeither = condition.HasCallsUsingObject();
+        }
+        else if (MatchScaff.HasNeverWhenCallingViaObject() && condition.HasCallsUsingObject())
+        {
+            bothCallViaObjectOrNeither = false;
+        }
         var bothCallViaMatchOrNeither = true;
         if (MatchScaff.HasCallsViaMatch()) { bothCallViaMatchOrNeither = condition.HasCallsViaMatch(); }
         
@@ -44,9 +51,9 @@ public class EK
         var meetsWriteCondition    = 
             (MatchScaff & AllOutputConditionsMask & condition) > 0 
          || condition.HasSimpleTypeFlag() || condition.HasOrderedCollectionTypeFlag() || condition.HasKeyedCollectionTypeFlag();
-        var conditionHasBothBecomesNullAndFallback = (condition & OutputBecomesMask) == (DefaultBecomesNull | DefaultBecomesFallback)
+        var conditionHasBothBecomesNullAndFallback = (condition & OutputBecomesMask) == (DefaultBecomesNull | DefaultBecomesFallbackValue)
                                                   && (condition & SupportsSettingDefaultValue) > 0;
-        var scaffHasBothBecomesNullAndFallback = (MatchScaff & OutputBecomesMask) == (DefaultBecomesNull | DefaultBecomesFallback);
+        var scaffHasBothBecomesNullAndFallback = (MatchScaff & OutputBecomesMask) == (DefaultBecomesNull | DefaultBecomesFallbackValue);
         var meetsOutputType =
             ((MatchScaff.HasNoneOf(OutputTreatedMask)
            || condition.HasNoneOf(OutputTreatedMask)

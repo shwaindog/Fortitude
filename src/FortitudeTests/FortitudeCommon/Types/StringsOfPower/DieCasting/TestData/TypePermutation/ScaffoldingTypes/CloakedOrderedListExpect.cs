@@ -32,18 +32,18 @@ public class NullStructCloakedOrderedListExpect<TChildScaffoldListElement>
     public NullStructCloakedOrderedListExpect(List<TChildScaffoldListElement?>? inputList
       , PalantírReveal<TChildScaffoldListElement> itemRevealer  
       , Expression<Func<OrderedCollectionPredicate<TChildScaffoldListElement?>>>? elementFilter = null
-      , string? formatString = null
+      , string? valueFormatString = null
       , FieldContentHandling contentHandling = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
-        : base(inputList, formatString, elementFilter, contentHandling, name, srcFile, srcLine)
+        : base(inputList, valueFormatString, elementFilter, contentHandling, name, srcFile, srcLine)
     {
         ItemRevealer = itemRevealer;
         
         FieldValueExpectation = 
             new FieldExpect<TChildScaffoldListElement?>
-                (null, FormatString, false, null, contentHandling, name, srcFile, srcLine);
+                (null, ValueFormatString, false, null, contentHandling, name, srcFile, srcLine);
     }
     
     public ITypedFormatExpectation<TChildScaffoldListElement?> FieldValueExpectation { get; }
@@ -143,14 +143,14 @@ public class NullCloakedOrderedListExpect<TChildScaffoldListElement>
     List<TChildScaffoldListElement?>? inputList
   , PalantírReveal<TChildScaffoldListElement> itemRevealer
   , Expression<Func<OrderedCollectionPredicate<TChildScaffoldListElement?>>>? elementFilter = null
-  , string? formatString = null
+  , string? valueFormatString = null
   , FieldContentHandling contentHandling = DefaultCallerTypeFlags
   , string? name = null
   , [CallerFilePath] string srcFile = ""
   , [CallerLineNumber] int srcLine = 0)
     :
         CloakedOrderedListExpect<TChildScaffoldListElement?, TChildScaffoldListElement?, TChildScaffoldListElement>
-        (inputList, itemRevealer, elementFilter, formatString, contentHandling, name, srcFile, srcLine)
+        (inputList, itemRevealer, elementFilter, valueFormatString, contentHandling, name, srcFile, srcLine)
     where TChildScaffoldListElement : ISinglePropertyTestStringBearer, IUnknownPalantirRevealerFactory
 {
 }
@@ -159,14 +159,14 @@ public class CloakedOrderedListExpect<TChildScaffoldListElement>
     List<TChildScaffoldListElement>? inputList
   , PalantírReveal<TChildScaffoldListElement> itemRevealer
   , Expression<Func<OrderedCollectionPredicate<TChildScaffoldListElement>>>? elementFilter = null
-  , string? formatString = null
+  , string? valueFormatString = null
   , FieldContentHandling contentHandling = DefaultCallerTypeFlags
   , string? name = null
   , [CallerFilePath] string srcFile = ""
   , [CallerLineNumber] int srcLine = 0)
     :
         CloakedOrderedListExpect<TChildScaffoldListElement, TChildScaffoldListElement, TChildScaffoldListElement>
-        (inputList, itemRevealer, elementFilter, formatString, contentHandling, name, srcFile, srcLine)
+        (inputList, itemRevealer, elementFilter, valueFormatString, contentHandling, name, srcFile, srcLine)
     where TChildScaffoldListElement : ISinglePropertyTestStringBearer?, IUnknownPalantirRevealerFactory?
 {
 }
@@ -184,18 +184,18 @@ public class CloakedOrderedListExpect<TChildScaffoldListElement, TFilterBase, TR
     public CloakedOrderedListExpect(List<TChildScaffoldListElement>? inputList
       , PalantírReveal<TRevealBase> itemRevealer  
       , Expression<Func<OrderedCollectionPredicate<TFilterBase>>>? elementFilter = null
-      , string? formatString = null
+      , string? valueFormatString = null
       , FieldContentHandling contentHandling = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
-        : base(inputList, formatString, elementFilter, contentHandling, name, srcFile, srcLine)
+        : base(inputList, valueFormatString, elementFilter, contentHandling, name, srcFile, srcLine)
     {
         ItemRevealer = itemRevealer;
         
         FieldValueExpectation = 
             new FieldExpect<TChildScaffoldListElement?>
-                (default, FormatString, false, default, contentHandling, name, srcFile, srcLine);
+                (default, ValueFormatString, false, default, contentHandling, name, srcFile, srcLine);
     }
     
     public ITypedFormatExpectation<TChildScaffoldListElement?> FieldValueExpectation { get; }

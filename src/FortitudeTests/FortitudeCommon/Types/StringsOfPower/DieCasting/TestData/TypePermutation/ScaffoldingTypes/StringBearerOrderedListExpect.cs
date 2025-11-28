@@ -28,16 +28,16 @@ public class NullStructStringBearerOrderedListExpect<TChildScaffoldListElement>
     // ReSharper disable twice ExplicitCallerInfoArgument
     public NullStructStringBearerOrderedListExpect(List<TChildScaffoldListElement?>? inputList
       , Expression<Func<OrderedCollectionPredicate<TChildScaffoldListElement?>>>? elementFilter = null
-      , string? formatString = null
+      , string? valueFormatString = null
       , FieldContentHandling contentHandling = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
-        : base(inputList, formatString, elementFilter, contentHandling, name, srcFile, srcLine)
+        : base(inputList, valueFormatString, elementFilter, contentHandling, name, srcFile, srcLine)
     {
         FieldValueExpectation =
             new FieldExpect<TChildScaffoldListElement?>
-                (null, FormatString, false, null, contentHandling, name, srcFile, srcLine);
+                (null, ValueFormatString, false, null, contentHandling, name, srcFile, srcLine);
     }
 
     public ITypedFormatExpectation<TChildScaffoldListElement?> FieldValueExpectation { get; }
@@ -156,28 +156,28 @@ public class NullStringBearerOrderedListExpect<TChildScaffoldListElement>
 (
     List<TChildScaffoldListElement?>? inputList
   , Expression<Func<OrderedCollectionPredicate<TChildScaffoldListElement?>>>? elementFilter = null
-  , string? formatString = null
+  , string? valueFormatString = null
   , FieldContentHandling contentHandling = DefaultCallerTypeFlags
   , string? name = null
   , [CallerFilePath] string srcFile = ""
   , [CallerLineNumber] int srcLine = 0)
     :
         StringBearerOrderedListExpect<TChildScaffoldListElement?, TChildScaffoldListElement?, TChildScaffoldListElement>
-        (inputList, elementFilter, formatString, contentHandling, name, srcFile, srcLine)
+        (inputList, elementFilter, valueFormatString, contentHandling, name, srcFile, srcLine)
     where TChildScaffoldListElement : ISinglePropertyTestStringBearer, IUnknownPalantirRevealerFactory { }
 
 public class StringBearerOrderedListExpect<TChildScaffoldListElement>
 (
     List<TChildScaffoldListElement>? inputList
   , Expression<Func<OrderedCollectionPredicate<TChildScaffoldListElement>>>? elementFilter = null
-  , string? formatString = null
+  , string? valueFormatString = null
   , FieldContentHandling contentHandling = DefaultCallerTypeFlags
   , string? name = null
   , [CallerFilePath] string srcFile = ""
   , [CallerLineNumber] int srcLine = 0)
     :
         StringBearerOrderedListExpect<TChildScaffoldListElement, TChildScaffoldListElement, TChildScaffoldListElement>
-        (inputList, elementFilter, formatString, contentHandling, name, srcFile, srcLine)
+        (inputList, elementFilter, valueFormatString, contentHandling, name, srcFile, srcLine)
     where TChildScaffoldListElement : ISinglePropertyTestStringBearer?, IUnknownPalantirRevealerFactory? { }
 
 public class StringBearerOrderedListExpect<TChildScaffoldListElement, TFilterBase, TRevealBase> :
@@ -193,16 +193,16 @@ public class StringBearerOrderedListExpect<TChildScaffoldListElement, TFilterBas
     // ReSharper disable twice ExplicitCallerInfoArgument
     public StringBearerOrderedListExpect(List<TChildScaffoldListElement>? inputList
       , Expression<Func<OrderedCollectionPredicate<TFilterBase>>>? elementFilter = null
-      , string? formatString = null
+      , string? valueFormatString = null
       , FieldContentHandling contentHandling = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
-        : base(inputList, formatString, elementFilter, contentHandling, name, srcFile, srcLine)
+        : base(inputList, valueFormatString, elementFilter, contentHandling, name, srcFile, srcLine)
     {
         FieldValueExpectation =
             new FieldExpect<TChildScaffoldListElement?>
-                (default, FormatString, false, default, contentHandling, name, srcFile, srcLine);
+                (default, ValueFormatString, false, default, contentHandling, name, srcFile, srcLine);
     }
 
     public ITypedFormatExpectation<TChildScaffoldListElement?> FieldValueExpectation { get; }

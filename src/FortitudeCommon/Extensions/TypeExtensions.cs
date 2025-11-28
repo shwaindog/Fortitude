@@ -29,7 +29,25 @@ public static class TypeExtensions
     public static readonly Type CollectionType            = typeof(ICollection);
     public static readonly Type SpanFormattableType       = typeof(ISpanFormattable);
     public static readonly Type NullableTypeDef           = typeof(Nullable<>);
+    public static readonly Type EnumType           = typeof(Enum);
 
+
+
+    private static ConcurrentDictionary<Type, bool> TypeIsFlagsEnumCache = new();
+    
+    private static ConcurrentDictionary<Type, bool> TypeIsSpanFormattbleCache = new();
+    
+    private static ConcurrentDictionary<Type, bool> TypeIsNullableSpanFormattbleCache = new();
+    
+    private static ConcurrentDictionary<Type, bool> TypeIsNullableCache = new();
+    
+    private static ConcurrentDictionary<Type, Type> TypeIsNullableGetUnderlyingCache = new();
+
+    public static bool IsFlagsEnum<TEnum>() where TEnum : Enum =>
+        TypeIsFlagsEnumCache.GetOrAdd(typeof(TEnum), type => type.GetCustomAttributes<FlagsAttribute>().Any());
+    
+    public static bool IsFlagsEnum(this Type type) =>
+        TypeIsFlagsEnumCache.GetOrAdd(type, t => t.GetCustomAttributes<FlagsAttribute>().Any());
 
     public static bool ImplementsInterface<TInterface>(this Type type)               => type.GetInterfaces().Contains(typeof(TInterface));
     public static bool ImplementsInterface(this Type type, Type checkImplementsThis) => type.GetInterfaces().Contains(checkImplementsThis);
@@ -240,21 +258,38 @@ public static class TypeExtensions
     public static bool IsSpanFormattable(this Type type) =>
         type == SpanFormattableType || type.GetInterfaces().Any(i => i == SpanFormattableType);
 
+    public static bool IsSpanFormattableCached(this Type type) =>
+        TypeIsSpanFormattbleCache.GetOrAdd(type, t => t.IsSpanFormattable());
+
     public static bool IsNullableSpanFormattable(this Type type) =>
         type is { IsValueType: true, IsGenericType: true } && type.GetGenericTypeDefinition() == NullableTypeDef
                                                            && type.GenericTypeArguments[0].IsSpanFormattable();
 
+    public static bool IsNullableSpanFormattableCached(this Type type) =>
+        TypeIsNullableSpanFormattbleCache.GetOrAdd(type, t => t.IsNullableSpanFormattable());
+
     public static bool IsSpanFormattableOrNullable(this Type type) =>
         type.IsSpanFormattable() || type.IsNullableSpanFormattable();
 
+    public static bool IsSpanFormattableOrNullableCached(this Type type) =>
+        type.IsSpanFormattableCached() || type.IsNullableSpanFormattableCached();
+
     public static bool IsNullable(this Type type) =>
         type is { IsValueType: true, IsGenericType: true } && type.GetGenericTypeDefinition() == NullableTypeDef;
+
+    public static bool IsNullableCached(this Type type) =>
+        TypeIsNullableCache.GetOrAdd(type, t => t.IsNullable());
 
     public static bool IsNotNullable(this Type type) => !type.IsNullable();
 
     public static Type IfNullableGetUnderlyingTypeOrThis(this Type type) =>
         type.IsNullable()
             ? type.GenericTypeArguments[0]
+            : type;
+
+    public static Type IfNullableGetUnderlyingTypeOrThisCached(this Type type) =>
+        type.IsNullable()
+            ? TypeIsNullableGetUnderlyingCache.GetOrAdd(type, t => t.IfNullableGetUnderlyingTypeOrThis())
             : type;
 
     public static object? GetDefaultForUnderlyingNullableOrThis(this Type type) =>

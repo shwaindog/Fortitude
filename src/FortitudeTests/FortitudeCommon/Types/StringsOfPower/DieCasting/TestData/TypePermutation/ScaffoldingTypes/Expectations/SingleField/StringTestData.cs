@@ -24,7 +24,7 @@ public static class StringTestData
                ,
                 {
                     new EK(SimpleType | AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsValueOut | DefaultBecomesZero
-                         | DefaultBecomesFallback)
+                         | DefaultBecomesFallbackValue)
                   , "0"
                 }
                ,
@@ -36,7 +36,7 @@ public static class StringTestData
                ,
                 {
                     new EK(SimpleType | AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsStringOut | DefaultBecomesZero
-                         | DefaultBecomesFallback)
+                         | DefaultBecomesFallbackValue)
                   , "\"0\""
                 }
                ,
@@ -61,8 +61,8 @@ public static class StringTestData
             }
           , new StringLikeExpect<string>(null, "", true, "")
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"\"" }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback), "" }
+                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue), "\"\"" }
+              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue), "" }
               , { new EK(SimpleType | CallsViaMatch), "null" }
                ,
                 {
@@ -103,7 +103,7 @@ public static class StringTestData
                          | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull)
                   , "null"
                 }
-              , { new EK(AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
+              , { new EK(AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue), "\"0\"" }
               , { new EK(AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsValueOut | DefaultBecomesZero), "0" }
               , { new EK(AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsValueOut), "0" }
               , { new EK(AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsStringOut), "\"\"" }
@@ -111,9 +111,9 @@ public static class StringTestData
             }
           , new StringLikeExpect<string>("It", "[{0}]", false, "0", 3, 2)
             {
-                { new EK(AcceptsChars | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallback), "[0]" }
+                { new EK(AcceptsChars | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallbackValue), "[0]" }
               , { new EK(AcceptsChars | DefaultTreatedAsValueOut), "[]" }
-              , { new EK(AcceptsChars | DefaultTreatedAsStringOut | DefaultBecomesZero | DefaultBecomesFallback), "\"[0]\"" }
+              , { new EK(AcceptsChars | DefaultTreatedAsStringOut | DefaultBecomesZero | DefaultBecomesFallbackValue), "\"[0]\"" }
                ,
                 {
                     new EK(AcceptsChars | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -160,8 +160,8 @@ public static class StringTestData
           , new StringLikeExpect<string>("with", "\"{0[8..10]}\"")
             {
                 { new EK(SimpleType | CallsViaMatch | AcceptsString, Log | Compact | Pretty), "\"\"" }
-              , { new EK(SimpleType | CallsViaMatch | AcceptsString | DefaultBecomesFallback | DefaultTreatedAsValueOut), "\"\"" }
-              , { new EK(SimpleType | CallsViaMatch | AcceptsString | DefaultBecomesFallback), "\"\\u0022\\u0022\"" }
+              , { new EK(SimpleType | CallsViaMatch | AcceptsString | DefaultBecomesFallbackValue | DefaultTreatedAsValueOut), "\"\"" }
+              , { new EK(SimpleType | CallsViaMatch | AcceptsString | DefaultBecomesFallbackValue), "\"\\u0022\\u0022\"" }
               , { new EK(SimpleType | AcceptsChars | AcceptsString | CallsAsReadOnlySpan, Log | Compact | Pretty), "\"\"" }
 
               , { new EK(AcceptsChars | AcceptsString | CallsAsReadOnlySpan | DefaultTreatedAsValueOut), "\"\"" }

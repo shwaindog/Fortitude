@@ -141,7 +141,7 @@ public partial class SelectTypeFieldTests
         {
             const string compactJsonTemplate = "{{{0}}}";
 
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
                 expectValue = "\"" + propertyName + "\":" + expectValue;

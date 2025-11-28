@@ -158,7 +158,7 @@ public partial class SelectTypeCollectionFieldTests
 
             var maybeNewLine = "";
             var maybeIndent  = "";
-            var expectValue  = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue  = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
                 maybeNewLine = "\n";
@@ -176,7 +176,7 @@ public partial class SelectTypeCollectionFieldTests
         {
             var compactLogTemplate = className.IsNotEmpty() ? "({0}){1}" : "{1}";
 
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue == IFormatExpectation.NoResultExpectedValue)
             {
                 expectValue = "";

@@ -17,14 +17,14 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestDat
 public class StringBearerExpect<TInput>
 (
     TInput? input
-  , string? formatString = null
+  , string? valueFormatString = null
   , bool hasDefault = false
   , TInput? defaultValue = default
   , FieldContentHandling contentHandling = DefaultCallerTypeFlags
   , string? name = null
   , [CallerFilePath] string srcFile = ""
   , [CallerLineNumber] int srcLine = 0)
-    : StringBearerExpect<TInput, TInput>(input, formatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
+    : StringBearerExpect<TInput, TInput>(input, valueFormatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
     where TInput : IStringBearer;
 
 
@@ -32,16 +32,16 @@ public class StringBearerExpect<TInput, TDefault> : FieldExpect<TInput, TDefault
     where TInput : IStringBearer
 {
     // ReSharper disable twice ExplicitCallerInfoArgument
-    public StringBearerExpect(TInput? input, string? formatString = null
+    public StringBearerExpect(TInput? input, string? valueFormatString = null
       , bool hasDefault = false, TDefault? defaultValue = default
       , FieldContentHandling contentHandling = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
-      , [CallerLineNumber] int srcLine = 0) : base(input, formatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
+      , [CallerLineNumber] int srcLine = 0) : base(input, valueFormatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
     {
         FieldValueExpectation = 
             new FieldExpect<TInput?, TDefault?>
-                (Input, FormatString, HasDefault, DefaultValue, contentHandling , name, srcFile, srcLine);
+                (Input, ValueFormatString, HasDefault, DefaultValue, contentHandling , name, srcFile, srcLine);
     }
 
     public ITypedFormatExpectation<TInput?> FieldValueExpectation { get; }
@@ -90,9 +90,9 @@ public class StringBearerExpect<TInput, TDefault> : FieldExpect<TInput, TDefault
             createdStringBearer = (IStringBearer)supportsStringDefaultValue;
         }
         var stringBearerInput = Input;
-        if (FormatString != null && stringBearerInput is ISupportsValueFormatString supportsValueFormatString)
+        if (ValueFormatString != null && stringBearerInput is ISupportsValueFormatString supportsValueFormatString)
         {
-            supportsValueFormatString.ValueFormatString = FormatString;
+            supportsValueFormatString.ValueFormatString = ValueFormatString;
 
             stringBearerInput = (TInput)(supportsValueFormatString);
         }

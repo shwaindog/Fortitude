@@ -37,23 +37,23 @@ public interface IComplexFieldFormatExpectation : IFormatExpectation
 public class FieldExpect<TInput>
 (
     TInput? input
-  , string? formatString = null
+  , string? valueFormatString = null
   , bool hasDefault = false
   , TInput? defaultValue = default
   , FieldContentHandling contentHandling = DefaultCallerTypeFlags
   , string? name = null
   , [CallerFilePath] string srcFile = ""
   , [CallerLineNumber] int srcLine = 0)
-    : FieldExpect<TInput, TInput>(input, formatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine);
+    : FieldExpect<TInput, TInput>(input, valueFormatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine);
 
 public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldExpectation
 {
 
     // ReSharper disable twice ExplicitCallerInfoArgument
-    public FieldExpect(TInput? input, string? formatString = null, bool hasDefault = false, TDefault? defaultValue = default
+    public FieldExpect(TInput? input, string? valueFormatString = null, bool hasDefault = false, TDefault? defaultValue = default
      , FieldContentHandling contentHandling = DefaultCallerTypeFlags, string? name = null
       , [CallerFilePath] string srcFile = "", [CallerLineNumber] int srcLine = 0) :
-        base(input, formatString, contentHandling, name, srcFile, srcLine)
+        base(input, valueFormatString, contentHandling, name, srcFile, srcLine)
     {
         HasDefault   = hasDefault;
         DefaultValue = !typeof(TInput).IfNullableGetUnderlyingTypeOrThis().ImplementsInterface<IStringBearer>()
@@ -117,13 +117,13 @@ public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldEx
         var sb = new MutableString();
         switch (DefaultValue)
         {
-            case bool boolDefault:             styleFormatting.Format(boolDefault, sb, FormatString ?? ""); break;
-            case ISpanFormattable spanDefault: styleFormatting.Format(spanDefault, sb, FormatString ?? ""); break;
-            case string stringDefault:         styleFormatting.Format(stringDefault, 0, sb, FormatString ?? ""); break;
-            case char[] charArrayDefault:      styleFormatting.Format(charArrayDefault, 0, sb, FormatString ?? ""); break;
-            case ICharSequence charSeqDefault: styleFormatting.Format(charSeqDefault, 0, sb, FormatString ?? ""); break;
-            case StringBuilder sbDefault:      styleFormatting.Format(sbDefault, 0, sb, FormatString ?? ""); break;
-            default:                           styleFormatting.Format(DefaultValue?.ToString() ?? "null", 0, sb, FormatString ?? ""); break;
+            case bool boolDefault:             styleFormatting.Format(boolDefault, sb, ValueFormatString ?? ""); break;
+            case ISpanFormattable spanDefault: styleFormatting.Format(spanDefault, sb, ValueFormatString ?? ""); break;
+            case string stringDefault:         styleFormatting.Format(stringDefault, 0, sb, ValueFormatString ?? ""); break;
+            case char[] charArrayDefault:      styleFormatting.Format(charArrayDefault, 0, sb, ValueFormatString ?? ""); break;
+            case ICharSequence charSeqDefault: styleFormatting.Format(charSeqDefault, 0, sb, ValueFormatString ?? ""); break;
+            case StringBuilder sbDefault:      styleFormatting.Format(sbDefault, 0, sb, ValueFormatString ?? ""); break;
+            default:                           styleFormatting.Format(DefaultValue?.ToString() ?? "null", 0, sb, ValueFormatString ?? ""); break;
         }
         return sb.ToString();
     }
@@ -145,8 +145,8 @@ public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldEx
             isObjectMold.Value = Input;
         else
             ((IMoldSupportedValue<TInput?>)createdStringBearer).Value = Input;
-        if (FormatString != null && createdStringBearer is ISupportsValueFormatString supportsValueFormatString)
-            supportsValueFormatString.ValueFormatString = FormatString;
+        if (ValueFormatString != null && createdStringBearer is ISupportsValueFormatString supportsValueFormatString)
+            supportsValueFormatString.ValueFormatString = ValueFormatString;
         if (HasDefault && createdStringBearer is IMoldSupportedDefaultValue<object?> supportsObjectDefaultValue)
             supportsObjectDefaultValue.DefaultValue = DefaultValue;
         if (HasDefault && createdStringBearer is IMoldSupportedDefaultValue<TDefault> supportsDefaultValue)

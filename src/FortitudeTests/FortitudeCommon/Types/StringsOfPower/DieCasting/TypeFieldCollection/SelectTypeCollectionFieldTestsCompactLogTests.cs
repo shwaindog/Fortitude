@@ -650,7 +650,7 @@ public partial class SelectTypeCollectionFieldTests
         {
             const string compactLogTemplate = "{0} {{ {1}}}";
 
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
                 expectValue = propertyName + ": " + expectValue + (expectValue.Length > 0 ? " " : "");
@@ -664,7 +664,7 @@ public partial class SelectTypeCollectionFieldTests
         {
             var compactLogTemplate = className.IsNotEmpty() ? "({0}){1}" : "{1}";
 
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue == IFormatExpectation.NoResultExpectedValue)
             {
                 expectValue = "";

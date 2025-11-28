@@ -187,12 +187,12 @@ public partial class ValueTypeMoldTests
         SharedCompactJsonAsValue(formatExpectation, scaffoldingToCall);
     }
 
-    // [TestMethod]
+    [TestMethod]
     public void CompactJsonSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactJsonAsString(SpanFormattableTestData.AllSpanFormattableExpectations[230], ScaffoldingRegistry.AllScaffoldingTypes[1071]);
+        SharedCompactJsonAsString(EnumTestData.EnumExpectations[2], ScaffoldingRegistry.AllScaffoldingTypes[1042]);
     }
 
     private void SharedCompactJsonAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -219,7 +219,7 @@ public partial class ValueTypeMoldTests
                 ? "{{\"{0}\":{1}}}"
                 : "{1}";
 
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue == IFormatExpectation.NoResultExpectedValue)
             {
                 expectValue = "";
@@ -232,7 +232,7 @@ public partial class ValueTypeMoldTests
         {
             const string compactJsonTemplate = "{{\"{0}\":{1}}}";
 
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             return string.Format(compactJsonTemplate, propertyName, expectValue);
         }
 
@@ -297,7 +297,7 @@ public partial class ValueTypeMoldTests
                 : "{1}";
 
             var maybeSpace  = "";
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
@@ -316,7 +316,7 @@ public partial class ValueTypeMoldTests
         {
             const string compactJsonTemplate = "{{\"{0}\":{1}}}";
 
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
                 expectValue = propertyName + ": " + expectValue + (expectValue.Length > 0 ? " " : "");

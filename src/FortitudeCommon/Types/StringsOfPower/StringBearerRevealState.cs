@@ -1,6 +1,8 @@
 ﻿using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
+using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
 namespace FortitudeCommon.Types.StringsOfPower;
 
@@ -12,7 +14,8 @@ public interface IStringBearerRevelStateProvider<in TToStyle> : IStringBearerFor
     PalantírReveal<TToStyle>  EnumPalantír { get; }
 }
 
-public delegate int StringBearerSpanFormattable<in TToFormat>(TToFormat toFormat, Span<char> destination, ReadOnlySpan<char> format, IFormatProvider? provider);
+public delegate int StringBearerSpanFormattable<in TToFormat>(IEncodingTransfer encoder,  TToFormat toFormat, Span<char> destination
+  , ReadOnlySpan<char> format, IFormatProvider? provider, FormattingHandlingFlags formattingFlags);
 
 public interface IStringBearerFormattableProvider
 {

@@ -22,17 +22,17 @@ public class CloakedBearerExpect<TChildScaffoldType, TChildScaffold> : FieldExpe
     private ScaffoldingPartEntry? calledScaffoldingPart;
 
     // ReSharper disable twice ExplicitCallerInfoArgument
-    public CloakedBearerExpect(TChildScaffoldType? input, string? formatString = null
+    public CloakedBearerExpect(TChildScaffoldType? input, string? valueFormatString = null
       , bool hasDefault = false, TChildScaffoldType? defaultValue = default
       , FieldContentHandling contentHandling = FieldContentHandling.DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) : 
-        base(input, formatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
+        base(input, valueFormatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
     {
         FieldValueExpectation = 
             new FieldExpect<TChildScaffoldType>
-                (Input, FormatString, HasDefault, DefaultValue, contentHandling, name, srcFile, srcLine);
+                (Input, ValueFormatString, HasDefault, DefaultValue, contentHandling, name, srcFile, srcLine);
     }
 
     public ITypedFormatExpectation<TChildScaffoldType?> FieldValueExpectation { get; }
@@ -90,9 +90,9 @@ public class CloakedBearerExpect<TChildScaffoldType, TChildScaffold> : FieldExpe
 
             createdStringBearer = (IStringBearer)supportsStringDefaultValue;
         }
-        if (FormatString != null && RevealerScaffold is ISupportsValueFormatString supportsValueFormatString)
+        if (ValueFormatString != null && RevealerScaffold is ISupportsValueFormatString supportsValueFormatString)
         {
-            supportsValueFormatString.ValueFormatString = FormatString;
+            supportsValueFormatString.ValueFormatString = ValueFormatString;
 
             RevealerScaffold = (TChildScaffold)supportsValueFormatString;
         }

@@ -122,23 +122,23 @@ public class ValueTypeMold<TMold> : KnownTypeMolder<TMold> where TMold : TypeMol
       , FieldContentHandling formatFlags = AsValueContent) where TFmtStruct : struct, ISpanFormattable =>
         Stb.FieldFmtValueOrNullNext(nonJsonfieldName, value ?? defaultValue, formatString ?? "", formatFlags);
 
-    public TMold AsValueOrDefault<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string defaultValue = ""
+    public TMold AsValueOrDefault<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string defaultValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = AsValueContent) where TFmt : ISpanFormattable =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);
 
-    public TMold AsValueOrDefault<TFmt>(TFmt? value, string defaultValue = ""
+    public TMold AsValueOrDefault<TFmt>(TFmt? value, string defaultValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = AsValueContent) where TFmt : ISpanFormattable =>
         Stb.FieldValueOrDefaultNext("", value, defaultValue, formatString ?? "", formatFlags);
 
-    public TMold AsValueOrDefault<TFmtStruct>(TFmtStruct? value, string defaultValue = ""
+    public TMold AsValueOrDefault<TFmtStruct>(TFmtStruct? value, string defaultValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = AsValueContent)
         where TFmtStruct : struct, ISpanFormattable =>
         Stb.FieldValueOrDefaultNext("", value, defaultValue, formatString ?? "", formatFlags);
 
-    public TMold AsValueOrDefault<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value, string defaultValue = ""
+    public TMold AsValueOrDefault<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value, string defaultValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = AsValueContent) where TFmtStruct : struct, ISpanFormattable =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);
@@ -469,12 +469,12 @@ public class ValueTypeMold<TMold> : KnownTypeMolder<TMold> where TMold : TypeMol
       , FieldContentHandling formatFlags = EncodeAll) where TFmt : class, ISpanFormattable =>
         AsStringOrDefault("", value, defaultValue, formatString, formatFlags);
 
-    public TMold AsStringOrDefault<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string defaultValue = ""
+    public TMold AsStringOrDefault<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string defaultValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = EncodeAll) where TFmt : class, ISpanFormattable =>
         Stb.FieldStringOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);
 
-    public TMold AsStringOrDefault<TFmt>(TFmt? value, string defaultValue = ""
+    public TMold AsStringOrDefault<TFmt>(TFmt? value, string defaultValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = EncodeAll) where TFmt : class, ISpanFormattable =>
         AsStringOrDefault("", value, defaultValue, formatString, formatFlags);
@@ -500,12 +500,12 @@ public class ValueTypeMold<TMold> : KnownTypeMolder<TMold> where TMold : TypeMol
         where TFmtStruct : struct, ISpanFormattable =>
         AsStringOrDefault("", value, defaultValue, formatString, formatFlags);
 
-    public TMold AsStringOrDefault<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value, string defaultValue = ""
+    public TMold AsStringOrDefault<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value, string defaultValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = EncodeAll) where TFmtStruct : struct, ISpanFormattable =>
         Stb.FieldStringOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);
 
-    public TMold AsStringOrDefault<TFmtStruct>(TFmtStruct? value, string defaultValue = ""
+    public TMold AsStringOrDefault<TFmtStruct>(TFmtStruct? value, string defaultValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = EncodeAll)
         where TFmtStruct : struct, ISpanFormattable =>

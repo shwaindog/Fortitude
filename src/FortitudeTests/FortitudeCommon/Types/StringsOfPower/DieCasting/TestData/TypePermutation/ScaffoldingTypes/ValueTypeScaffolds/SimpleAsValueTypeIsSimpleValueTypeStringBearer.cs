@@ -185,7 +185,7 @@ public class SimpleAsValueNullableSpanFormattableClassNoFieldSimpleValueTypeStri
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableClassSpanFormattable | SupportsSettingDefaultValue
-                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull)]
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesNull)]
 public class SimpleAsValueNullableSpanFormattableClassWithDefaultWithFieldSimpleValueTypeStringBearer<TFmtClass> :
     FormattedMoldScaffold<TFmtClass?>, IMoldSupportedDefaultValue<TFmtClass> where TFmtClass : class, ISpanFormattable
 {
@@ -208,7 +208,7 @@ public class SimpleAsValueNullableSpanFormattableClassWithDefaultWithFieldSimple
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableClassSpanFormattable | SupportsSettingDefaultValue
-                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
 public class SimpleAsValueNullableSpanFormattableClassWithStringDefaultWithFieldSimpleValueTypeStringBearer<TFmtClass> :
     FormattedMoldScaffold<TFmtClass?>, IMoldSupportedDefaultValue<string> where TFmtClass : class, ISpanFormattable
 {
@@ -231,7 +231,7 @@ public class SimpleAsValueNullableSpanFormattableClassWithStringDefaultWithField
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableClassSpanFormattable | SupportsSettingDefaultValue
-                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull)]
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesNull)]
 public class SimpleAsValueNullableSpanFormattableClassWithDefaultNoFieldSimpleValueTypeStringBearer<TFmtClass> :
     FormattedMoldScaffold<TFmtClass?>, IMoldSupportedDefaultValue<TFmtClass> where TFmtClass : class, ISpanFormattable
 {
@@ -253,7 +253,7 @@ public class SimpleAsValueNullableSpanFormattableClassWithDefaultNoFieldSimpleVa
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableClassSpanFormattable | SupportsSettingDefaultValue
-                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
 public class SimpleAsValueNullableSpanFormattableClassWithStringDefaultNoFieldSimpleValueTypeStringBearer<TFmtClass> :
     FormattedMoldScaffold<TFmtClass?>, IMoldSupportedDefaultValue<string> where TFmtClass : class, ISpanFormattable
 {
@@ -313,7 +313,7 @@ public class SimpleAsValueNullableSpanFormattableStructNoFieldSimpleValueTypeStr
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableStructSpanFormattable | SupportsSettingDefaultValue
-                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull | DefaultBecomesNull)]
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesNull | DefaultBecomesNull)]
 public class SimpleAsValueNullableSpanFormattableStructWithDefaultWithFieldSimpleValueTypeStringBearer<TFmtStruct> :
     FormattedMoldScaffold<TFmtStruct?>, IMoldSupportedDefaultValue<TFmtStruct> where TFmtStruct : struct, ISpanFormattable
 {
@@ -336,7 +336,7 @@ public class SimpleAsValueNullableSpanFormattableStructWithDefaultWithFieldSimpl
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableStructSpanFormattable | SupportsSettingDefaultValue
-                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull)]
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackString | DefaultBecomesNull)]
 public class SimpleAsValueNullableSpanFormattableStructWithStringDefaultWithFieldSimpleValueTypeStringBearer<TFmtStruct> :
     FormattedMoldScaffold<TFmtStruct?>, IMoldSupportedDefaultValue<string> where TFmtStruct : struct, ISpanFormattable
 {
@@ -359,7 +359,7 @@ public class SimpleAsValueNullableSpanFormattableStructWithStringDefaultWithFiel
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableStructSpanFormattable | SupportsSettingDefaultValue
-                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull)]
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesNull)]
 public class SimpleAsValueNullableSpanFormattableStructWithDefaultNoFieldSimpleValueTypeStringBearer<TFmtStruct> :
     FormattedMoldScaffold<TFmtStruct?>, IMoldSupportedDefaultValue<TFmtStruct> where TFmtStruct : struct, ISpanFormattable
 {
@@ -381,7 +381,7 @@ public class SimpleAsValueNullableSpanFormattableStructWithDefaultNoFieldSimpleV
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableStructSpanFormattable | SupportsSettingDefaultValue
-                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallback | DefaultBecomesNull)]
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackString | DefaultBecomesNull)]
 public class SimpleAsValueNullableSpanFormattableStructWithStringDefaultNoFieldSimpleValueTypeStringBearer<TFmtStruct> :
     FormattedMoldScaffold<TFmtStruct?>, IMoldSupportedDefaultValue<string> where TFmtStruct : struct, ISpanFormattable
 {
@@ -493,7 +493,7 @@ public class SimpleAsValueCloakedBearerOrNullNoFieldSimpleValueTypeStringBearer<
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsSettingDefaultValue
-                | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+                | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
 public class SimpleAsValueCloakedBearerWithDefaultWithFieldSimpleValueTypeStringBearer<TCloaked, TRevealBase> :
     ValueRevealerMoldScaffold<TCloaked?, TRevealBase>, IMoldSupportedDefaultValue<string> 
     where TCloaked : TRevealBase
@@ -519,7 +519,7 @@ public class SimpleAsValueCloakedBearerWithDefaultWithFieldSimpleValueTypeString
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsSettingDefaultValue
-                | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+                | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
 public class SimpleAsValueCloakedBearerWithDefaultNoFieldSimpleValueTypeStringBearer<TCloaked, TRevealBase> :
     ValueRevealerMoldScaffold<TCloaked?, TRevealBase>, IMoldSupportedDefaultValue<string> 
     where TCloaked : TRevealBase
@@ -624,7 +624,7 @@ public class SimpleAsValueNullableCloakedBearerOrNullNoFieldSimpleValueTypeStrin
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyNullableStruct | SupportsValueRevealer | SupportsSettingDefaultValue
-                | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+                | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
 public class SimpleAsValueNullableCloakedBearerWithDefaultWithFieldSimpleValueTypeStringBearer<TCloakedStruct> :
     ValueRevealerMoldScaffold<TCloakedStruct?, TCloakedStruct>, IMoldSupportedDefaultValue<string>
     where TCloakedStruct : struct
@@ -649,7 +649,7 @@ public class SimpleAsValueNullableCloakedBearerWithDefaultWithFieldSimpleValueTy
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyNullableStruct | SupportsValueRevealer | SupportsSettingDefaultValue
-                | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+                | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
 public class SimpleAsValueNullableCloakedBearerWithDefaultNoFieldSimpleValueTypeStringBearer<TCloakedStruct> :
     ValueRevealerMoldScaffold<TCloakedStruct?, TCloakedStruct>, IMoldSupportedDefaultValue<string> where TCloakedStruct : struct
 {
@@ -746,7 +746,7 @@ public class SimpleAsValueStringBearerOrNullNoFieldSimpleValueTypeStringBearer<T
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | SupportsSettingDefaultValue
-                | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+                | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
 public class SimpleAsValueStringBearerWithDefaultWithFieldSimpleValueTypeStringBearer<TBearer> : MoldScaffoldBase<TBearer?>
   , IMoldSupportedDefaultValue<string> where TBearer : IStringBearer
 {
@@ -767,7 +767,7 @@ public class SimpleAsValueStringBearerWithDefaultWithFieldSimpleValueTypeStringB
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | SupportsSettingDefaultValue
-                | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+                | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
 public class SimpleAsValueStringBearerWithDefaultNoFieldSimpleValueTypeStringBearer<TBearer> : MoldScaffoldBase<TBearer?>
   , IMoldSupportedDefaultValue<string> where TBearer : IStringBearer
 {
@@ -864,7 +864,7 @@ public class SimpleAsValueNullableStringBearerOrNullNoFieldSimpleValueTypeString
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | SupportsSettingDefaultValue
-                | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+                | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
 public class SimpleAsValueNullableStringBearerWithDefaultWithFieldSimpleValueTypeStringBearer<TBearerStruct>
     : MoldScaffoldBase<TBearerStruct?>, IMoldSupportedDefaultValue<string> where TBearerStruct : struct, IStringBearer
 {
@@ -885,7 +885,7 @@ public class SimpleAsValueNullableStringBearerWithDefaultWithFieldSimpleValueTyp
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | SupportsSettingDefaultValue
-                | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+                | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
 public class SimpleAsValueNullableStringBearerWithDefaultNoFieldSimpleValueTypeStringBearer<TBearerStruct>
     : MoldScaffoldBase<TBearerStruct?>, IMoldSupportedDefaultValue<string> where TBearerStruct : struct, IStringBearer
 {
@@ -934,7 +934,7 @@ public class SimpleAsValueCharSpanWithFieldOrDefaultSimpleValueTypeStringBearer 
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsArray | CallsAsSpan | AcceptsCharArray | SupportsValueFormatString
-                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
 public class SimpleAsValueCharSpanWithDefaultWithFieldAsSpanSimpleValueTypeStringBearer : FormattedMoldScaffold<char[]>
   , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>
 {
@@ -1045,7 +1045,7 @@ public class SimpleAsValueCharReadOnlySpanWithFieldOrDefaultSimpleValueTypeStrin
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | SupportsValueFormatString |
-                  SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+                  SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
 public class SimpleAsValueCharReadOnlySpanWithDefaultWithFieldSimpleValueTypeStringBearer : FormattedMoldScaffold<string>
   , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>
 {
@@ -1350,7 +1350,7 @@ public class SimpleAsValueStringRangeSimpleValueTypeStringBearer : FormattedMold
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges
-                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
 public class SimpleAsValueStringRangeWithDefaultSimpleValueTypeStringBearer : FormattedMoldScaffold<string>
   , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting
 {
@@ -1526,7 +1526,7 @@ public class SimpleAsValueCharArrayRangeNoFieldSimpleValueTypeStringBearer : For
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges
-                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
 public class SimpleAsValueCharArrayRangeWithFieldWithDefaultSimpleValueTypeStringBearer : FormattedMoldScaffold<char[]>
   , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting
 {
@@ -1558,7 +1558,7 @@ public class SimpleAsValueCharArrayRangeWithFieldWithDefaultSimpleValueTypeStrin
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges
-                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
 public class SimpleAsValueCharArrayRangeNoFieldWithDefaultSimpleValueTypeStringBearer : FormattedMoldScaffold<char[]>
   , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting
 {
@@ -1818,7 +1818,7 @@ public class SimpleAsValueCharSequenceRangeNoFieldSimpleValueTypeStringBearer<TC
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges
-                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
 public class SimpleAsValueCharSequenceRangeWithFieldWithDefaultSimpleValueTypeStringBearer<TCharSeq> : FormattedMoldScaffold<TCharSeq>
   , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting
     where TCharSeq : ICharSequence
@@ -1860,7 +1860,7 @@ public class SimpleAsValueCharSequenceRangeWithFieldWithDefaultSimpleValueTypeSt
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges
-                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
 public class SimpleAsValueCharSequenceRangeNoFieldWithDefaultSimpleValueTypeStringBearer<TCharSeq> : FormattedMoldScaffold<TCharSeq>
   , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting
     where TCharSeq : ICharSequence
@@ -2077,7 +2077,7 @@ public class SimpleAsValueStringBuilderRangeNoFieldSimpleValueTypeStringBearer :
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges
-                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
 public class SimpleAsValueStringBuilderRangeWithFieldWithDefaultSimpleValueTypeStringBearer : FormattedMoldScaffold<StringBuilder?>
   , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting
 {
@@ -2110,7 +2110,7 @@ public class SimpleAsValueStringBuilderRangeWithFieldWithDefaultSimpleValueTypeS
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges
-                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
 public class SimpleAsValueStringBuilderRangeNoFieldWithDefaultSimpleValueTypeStringBearer : FormattedMoldScaffold<StringBuilder?>
   , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting
 {
@@ -2179,7 +2179,7 @@ public class SimpleAsValueMatchSimpleValueTypeStringBearer<TAny> : FormattedMold
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyGeneric | SupportsValueFormatString
-                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallback)]
+                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
 public class SimpleAsValueMatchWithDefaultSimpleValueTypeStringBearer<TAny> : FormattedMoldScaffold<TAny?>
   , IMoldSupportedDefaultValue<string>
 {

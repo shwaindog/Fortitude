@@ -24,7 +24,7 @@ public interface IFormatExpectation : ICodeLocationAwareListItem
 
     bool InputIsNull { get; }
     bool InputIsEmpty { get; }
-    string? FormatString { get; }
+    string? ValueFormatString { get; }
     bool IsStringLike { get; }
 
     FieldContentHandling ContentHandling { get; }
@@ -57,7 +57,7 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
     protected readonly List<KeyValuePair<EK, string>> ExpectedResults = new();
 
     // ReSharper disable once ConvertToPrimaryConstructor
-    protected ExpectBase(TInput? input, string? formatString = null
+    protected ExpectBase(TInput? input, string? valueFormatString = null
       , FieldContentHandling valueContentHandling = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = "", [CallerLineNumber] int srcLine = 0)
@@ -67,7 +67,7 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
         this.name = name;
         ContentHandling      = valueContentHandling;
         Input                = input;
-        FormatString         = formatString;
+        ValueFormatString         = valueFormatString;
     }
 
     public virtual Type InputType => typeof(TInput);
@@ -80,7 +80,7 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
     
     public string? Name => name;
 
-    public string? FormatString { get; init; }
+    public string? ValueFormatString { get; init; }
 
     public FieldContentHandling ContentHandling { get; init; }
 
@@ -108,7 +108,7 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
                     {
                         result.Append(Input);
                     }
-                    result.Append(AsStringDelimiterClose).Append("_").Append(FormatString);
+                    result.Append(AsStringDelimiterClose).Append("_").Append(ValueFormatString);
                 }
 
                 return result.ToString();
@@ -221,7 +221,7 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
         sb.Append(nameof(Input)).Append(": ");
         if (InputIsNull) { sb.Append("null"); }
         else { sb.Append(AsStringDelimiterOpen).Append(new MutableString().Append(Input).ToString()).Append(AsStringDelimiterClose); }
-        sb.Append(", ").Append(nameof(FormatString)).Append(": ").Append(FormatString != null ? $"\"{FormatString}\"" : "null");
+        sb.Append(", ").Append(nameof(ValueFormatString)).Append(": ").Append(ValueFormatString != null ? $"\"{ValueFormatString}\"" : "null");
         AdditionalToStringExpectFields(sb);
         return sb.ToString();
     }

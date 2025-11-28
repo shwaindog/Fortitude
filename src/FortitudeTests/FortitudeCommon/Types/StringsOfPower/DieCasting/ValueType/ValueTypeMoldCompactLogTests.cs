@@ -115,14 +115,14 @@ public partial class ValueTypeMoldTests
     {
         get
         {
-            var structJoins = from fe in SpanFormattableTestData.AllSpanFormattableExpectations
+            var structJoins = from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
                 where fe.InputType.IsValueType && !fe.IsNullable
                 from scaffoldToCall in
                     scafReg.IsSimpleType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNonNullStructs()
                            .HasTreatedAsValueOut()
                 select new object[] { fe, scaffoldToCall };
 
-            var classJoins = from fe in SpanFormattableTestData.AllSpanFormattableExpectations
+            var classJoins = from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
                 where !fe.InputType.IsValueType
                 from scaffoldToCall in
                     scafReg.IsSimpleType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsClasses()
@@ -146,14 +146,14 @@ public partial class ValueTypeMoldTests
     {
         get
         {
-            var structJoins = from fe in SpanFormattableTestData.AllSpanFormattableExpectations
+            var structJoins = from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
                 where fe.InputType.IsValueType && !fe.IsNullable
                 from scaffoldToCall in
                     scafReg.IsSimpleType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNonNullStructs()
                            .HasTreatedAsStringOut()
                 select new object[] { fe, scaffoldToCall };
 
-            var classJoins = from fe in SpanFormattableTestData.AllSpanFormattableExpectations
+            var classJoins = from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
                 where !fe.InputType.IsValueType
                 from scaffoldToCall in
                     scafReg.IsSimpleType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsClasses()
@@ -174,7 +174,7 @@ public partial class ValueTypeMoldTests
     }
 
     private static IEnumerable<object[]> NullableStructSpanFormattableExpectAsValue =>
-        from fe in SpanFormattableTestData.AllSpanFormattableExpectations
+        from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
         where fe is { IsNullable: true, IsStruct: true }
         from scaffoldToCall in
             scafReg.IsSimpleType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().OnlyAcceptsNullableStructs()
@@ -191,7 +191,7 @@ public partial class ValueTypeMoldTests
     }
 
     private static IEnumerable<object[]> NullableStructSpanFormattableExpectAsString =>
-        from fe in SpanFormattableTestData.AllSpanFormattableExpectations
+        from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
         where fe is { IsNullable: true, IsStruct: true }
         from scaffoldToCall in
             scafReg.IsSimpleType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().OnlyAcceptsNullableStructs()
@@ -224,8 +224,8 @@ public partial class ValueTypeMoldTests
                     .AllStringExpectations
                     .Where(fe =>
                     {
-                        var noFormatStringModifications = fe.FormatString.IsNullOrEmpty();
-                        if (!noFormatStringModifications) { noFormatStringModifications = fe.FormatString is "" or "{0}"; }
+                        var noFormatStringModifications = fe.ValueFormatString.IsNullOrEmpty();
+                        if (!noFormatStringModifications) { noFormatStringModifications = fe.ValueFormatString is "" or "{0}"; }
                         return fe.InputType.IsString() && noFormatStringModifications;
                     })
                     .SelectMany(_ =>
@@ -271,8 +271,8 @@ public partial class ValueTypeMoldTests
                     .AllStringExpectations
                     .Where(fe =>
                     {
-                        var noFormatStringModifications = fe.FormatString.IsNullOrEmpty();
-                        if (!noFormatStringModifications) { noFormatStringModifications = fe.FormatString is "" or "{0}"; }
+                        var noFormatStringModifications = fe.ValueFormatString.IsNullOrEmpty();
+                        if (!noFormatStringModifications) { noFormatStringModifications = fe.ValueFormatString is "" or "{0}"; }
                         return fe.InputType.IsString() && noFormatStringModifications;
                     })
                     .SelectMany(_ =>
@@ -318,8 +318,8 @@ public partial class ValueTypeMoldTests
                     .AllCharArrayExpectations
                     .Where(fe =>
                     {
-                        var noFormatStringModifications = fe.FormatString.IsNullOrEmpty();
-                        if (!noFormatStringModifications) { noFormatStringModifications = fe.FormatString is "" or "{0}"; }
+                        var noFormatStringModifications = fe.ValueFormatString.IsNullOrEmpty();
+                        if (!noFormatStringModifications) { noFormatStringModifications = fe.ValueFormatString is "" or "{0}"; }
                         return fe.InputType.IsCharArray() && noFormatStringModifications;
                     })
                     .SelectMany(_ =>
@@ -365,8 +365,8 @@ public partial class ValueTypeMoldTests
                     .AllCharArrayExpectations
                     .Where(fe =>
                     {
-                        var noFormatStringModifications = fe.FormatString.IsNullOrEmpty();
-                        if (!noFormatStringModifications) { noFormatStringModifications = fe.FormatString is "" or "{0}"; }
+                        var noFormatStringModifications = fe.ValueFormatString.IsNullOrEmpty();
+                        if (!noFormatStringModifications) { noFormatStringModifications = fe.ValueFormatString is "" or "{0}"; }
                         return fe.InputType.IsCharArray() && noFormatStringModifications;
                     })
                     .SelectMany(_ =>
@@ -534,12 +534,12 @@ public partial class ValueTypeMoldTests
         SharedCompactLogAsValue(formatExpectation, scaffoldingToCall);
     }
 
-    // [TestMethod]
+    [TestMethod]
     public void CompactLogSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactLogAsString(StringTestData.AllStringExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[1020]);
+        SharedCompactLogAsString(EnumTestData.EnumExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[1042]);
     }
 
     private void SharedCompactLogAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -563,11 +563,9 @@ public partial class ValueTypeMoldTests
         {
             var compactLogTemplate = expectation.GetType().ExtendsGenericBaseType(typeof(NullableStringBearerExpect<>))
                 ? (propertyName.IsNotEmpty() ? "{0} {{ {1}: {2} }}" : "{0} {{ {2} }}")
-                : expectation.InputType.IsEnum
-                    ? (propertyName.IsNotEmpty() ? "{0}.{1}: {2}" : "{0}.{2}")
-                    : (propertyName.IsNotEmpty() ? "{0}= {1}: {2}" : "{0}= {2}");
+                : (propertyName.IsNotEmpty() ? "{0}= {1}: {2}" : "{0}= {2}");
 
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue == IFormatExpectation.NoResultExpectedValue)
             {
                 expectValue = "";
@@ -580,7 +578,7 @@ public partial class ValueTypeMoldTests
         {
             const string compactLogTemplate = "{0} {{ {1}}}";
 
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
                 expectValue = propertyName + ": " + expectValue + (expectValue.Length > 0 ? " " : "");
@@ -647,11 +645,9 @@ public partial class ValueTypeMoldTests
         {
             var compactLogTemplate = expectation.GetType().ExtendsGenericBaseType(typeof(NullableStringBearerExpect<>))
                 ? (propertyName.IsNotEmpty() ? "{0} {{ {1}: {2} }}" : "{0} {{ {2} }}")
-                : expectation.InputType.IsEnum
-                    ? (propertyName.IsNotEmpty() ? "{0}.{1}: {2}" : "{0}.{2}")
-                    : (propertyName.IsNotEmpty() ? "{0}= {1}: {2}" : "{0}= {2}");
+                : (propertyName.IsNotEmpty() ? "{0}= {1}: {2}" : "{0}= {2}");
 
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
 
             if (expectValue == IFormatExpectation.NoResultExpectedValue)
             {
@@ -665,7 +661,7 @@ public partial class ValueTypeMoldTests
         {
             const string compactLogTemplate = "{0} {{ {1}}}";
 
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
                 expectValue = propertyName + ": " + expectValue + (expectValue.Length > 0 ? " " : "");
