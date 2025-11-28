@@ -88,7 +88,7 @@ public class StandardArrayPropertyFieldClass : IStringBearer
         IpAddressArrayPropield = [new IPAddress("\0\0\0\0"u8.ToArray()), null!, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")];
         UriArrayPropield       = [new Uri("https://learn.microsoft.com/en-us/dotnet/api"), null!, new Uri("https://github.com/shwaindog/Fortitude")];
 
-        SpanFormattableArrayPropield = [new TestCustomSpanFormattable(""), null!, new TestCustomSpanFormattable("SpanFormattableSingPropield")];
+        SpanFormattableArrayPropield = [new MySpanFormattableClass(""), null!, new MySpanFormattableClass("SpanFormattableSingPropield")];
         NdLNfEnumArrayPropield       = [NoDefaultLongNoFlagsEnum.NDLNFE_1, default, NoDefaultLongNoFlagsEnum.NDLNFE_34];
         NdUNfEnumArrayPropield       = [NoDefaultULongNoFlagsEnum.NDUNFE_1, default, NoDefaultULongNoFlagsEnum.NDUNFE_34];
         NdLWfEnumArrayPropield =
@@ -313,7 +313,7 @@ public class StandardArrayPropertyFieldClass : IStringBearer
                 .Select(num =>
                 {
                     if (num == null) return null!;
-                    return new TestCustomSpanFormattable(" SpanFormattableArrayPropield_" + num);
+                    return new MySpanFormattableClass(" SpanFormattableArrayPropield_" + num);
                 }).ToArray();
 
         NdLNfEnumArrayPropield = EnumTestDataGenerator.GenRandomEnumValues<NoDefaultLongNoFlagsEnum>(numberToGenerate).ToArray();
@@ -483,7 +483,7 @@ public class StandardArrayPropertyFieldClass : IStringBearer
     public IPAddress[] IpAddressArrayPropield { get; set; } = null!;
     public Uri[] UriArrayPropield = null!;
 
-    public TestCustomSpanFormattable[] SpanFormattableArrayPropield { get; set; } = null!;
+    public MySpanFormattableClass[] SpanFormattableArrayPropield { get; set; } = null!;
 
     public NoDefaultLongNoFlagsEnum[] NdLNfEnumArrayPropield = null!;
     public NoDefaultULongNoFlagsEnum[] NdUNfEnumArrayPropield { get; set; } = null!;
@@ -1049,7 +1049,7 @@ public struct StandardArrayPropertyFieldStruct
         IntPtrArrayPropield  = [new IPAddress("\0\0\0\0"u8.ToArray()), null!, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")];
         UriArrayPropield     = [new Uri(""), null!, new Uri("https://github.com/shwaindog/Fortitude")];
 
-        SpanFormattableArrayPropield = [new TestCustomSpanFormattable(""), null!, new TestCustomSpanFormattable("SpanFormattableSingPropield")];
+        SpanFormattableArrayPropield = [new MySpanFormattableClass(""), null!, new MySpanFormattableClass("SpanFormattableSingPropield")];
         NdLNfEnumArrayPropield       = [NoDefaultLongNoFlagsEnum.NDLNFE_1, default, NoDefaultLongNoFlagsEnum.NDLNFE_34];
         NdUNfEnumArrayPropield       = [NoDefaultULongNoFlagsEnum.NDUNFE_1, default, NoDefaultULongNoFlagsEnum.NDUNFE_34];
         NdLWfEnumArrayPropield =
@@ -1265,7 +1265,7 @@ public struct StandardArrayPropertyFieldStruct
                 .Select(num =>
                 {
                     if (num == null) return null!;
-                    return new TestCustomSpanFormattable(" SpanFormattableArrayPropield_" + num);
+                    return new MySpanFormattableClass(" SpanFormattableArrayPropield_" + num);
                 }).ToArray();
 
         NdLNfEnumArrayPropield = EnumTestDataGenerator.GenRandomEnumValues<NoDefaultLongNoFlagsEnum>(numberToGenerate).ToArray();
@@ -1433,7 +1433,7 @@ public struct StandardArrayPropertyFieldStruct
     public IPAddress[] IntPtrArrayPropield = null!;
     public Uri[] UriArrayPropield { get; set; } = null!;
 
-    public TestCustomSpanFormattable[] SpanFormattableArrayPropield = null!;
+    public MySpanFormattableClass[] SpanFormattableArrayPropield = null!;
 
     public NoDefaultLongNoFlagsEnum[] NdLNfEnumArrayPropield { get; set; } = null!;
     public NoDefaultULongNoFlagsEnum[] NdUNfEnumArrayPropield = null!;

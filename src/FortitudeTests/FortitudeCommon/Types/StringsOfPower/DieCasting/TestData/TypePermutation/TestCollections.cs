@@ -4,6 +4,7 @@
 using System.Numerics;
 using System.Text;
 using FortitudeCommon.Config;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.Forge;
@@ -23,30 +24,12 @@ public static class TestCollections
     public static readonly List<bool> BoolList      = [..BoolArray];
 
     public static readonly List<bool?> NullBoolList = [..NullBoolArray];
-    public static PalantírReveal<bool> BoolPad10Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "\"{0,10}\"");
-    public static PalantírReveal<bool> BoolRevealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe);
-    public static PalantírReveal<bool> NullBoolPad10Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "\"{0,10}\"");
 
-    public static PalantírReveal<bool> NullBoolRevealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe);
-
-    public static OrderedCollectionPredicate<bool> Bool_All_True       = (_, item) => EvaluateIsIncludedAndContinue(item);
-    public static OrderedCollectionPredicate<bool> Bool_All_False      = (_, item) => EvaluateIsIncludedAndContinue(!item);
-    public static OrderedCollectionPredicate<bool> Bool_First_8        = (count, _) => StopOnFirstExclusion(count <= 8);
-    public static OrderedCollectionPredicate<bool> Bool_Second_5       = (count, _) => BetweenRetrieveRange(count, 6, 11);
-    public static OrderedCollectionPredicate<bool> Bool_Skip_Odd_Index = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
-    public static OrderedCollectionPredicate<bool> Bool_All            = (_, _) => EvaluateIsIncludedAndContinue(true);
-    public static OrderedCollectionPredicate<bool> Bool_First_False    = (_, item) => First(!item);
-
-    public static OrderedCollectionPredicate<bool> Bool_None = (_, _) => EvaluateIsIncludedAndContinue(false);
-
-    public static OrderedCollectionPredicate<bool?> NullBool_All_True = (_, item) => EvaluateIsIncludedAndContinue(item.HasValue && item.Value);
-    public static OrderedCollectionPredicate<bool?> NullBool_All_NullOrFalse
-        = (_, item) => EvaluateIsIncludedAndContinue(!item.HasValue || !item.Value);
-    public static OrderedCollectionPredicate<bool?> NullBool_First_8        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<bool>  Bool_First_8            = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<bool>  Bool_Second_5           = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<bool>  Bool_First_False        = (_, item) => First(!item);
     public static OrderedCollectionPredicate<bool?> NullBool_Second_5       = (count, _) => BetweenRetrieveRange(count, 6, 11);
     public static OrderedCollectionPredicate<bool?> NullBool_Skip_Odd_Index = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
-    public static OrderedCollectionPredicate<bool?> NullBool_All            = (_, _) => EvaluateIsIncludedAndContinue(true);
-    public static OrderedCollectionPredicate<bool?> NullBool_None           = (_, _) => EvaluateIsIncludedAndContinue(false);
     public static OrderedCollectionPredicate<bool?> NullBool_First_False    = (_, item) => First(item is false);
 
     public static readonly float[] FloatArray =
@@ -61,33 +44,19 @@ public static class TestCollections
       , (float)Math.E * 3, (float)Math.PI * 4, (float)Math.E * 4, null, (float)Math.PI * 5, null, (float)Math.E * 5,
     ];
 
-    public static readonly List<float?> NullFloatList = [..NullFloatArray];
+    public static readonly List<float?>                      NullFloatList        = [..NullFloatArray];
+    public static          OrderedCollectionPredicate<float> Float_First_5        = (count, _) => StopOnFirstExclusion(count <= 5);
+    public static          OrderedCollectionPredicate<float> Float_Second_5       = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static          OrderedCollectionPredicate<float> Float_First_2        = (count, _) => StopOnFirstExclusion(count <= 2);
+    public static          OrderedCollectionPredicate<float> Float_Skip_Odd_Index = (_, _) => EvaluateIsIncludedAndContinue(true, 1);
+    public static          OrderedCollectionPredicate<float> Float_First_Gt_10    = (_, item) => First(item > 10.0f);
 
-    public static PalantírReveal<float> FloatRevealer   = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe);
-    public static PalantírReveal<float> FloatF2Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "F2");
-    public static PalantírReveal<float> FloatF4Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "F4");
-
-    public static OrderedCollectionPredicate<float> Float_Lt_10          = (_, item) => EvaluateIsIncludedAndContinue(item < 10.0f);
-    public static OrderedCollectionPredicate<float> Float_Gt_10          = (_, item) => EvaluateIsIncludedAndContinue(item > 10.0f);
-    public static OrderedCollectionPredicate<float> Float_First_5        = (count, _) => StopOnFirstExclusion(count <= 5);
-    public static OrderedCollectionPredicate<float> Float_Second_5       = (count, _) => BetweenRetrieveRange(count, 6, 11);
-    public static OrderedCollectionPredicate<float> Float_First_2        = (count, _) => StopOnFirstExclusion(count <= 2);
-    public static OrderedCollectionPredicate<float> Float_Skip_Odd_Index = (_, _) => EvaluateIsIncludedAndContinue(true, 1);
-    public static OrderedCollectionPredicate<float> Float_All            = (_, _) => EvaluateIsIncludedAndContinue(true);
-    public static OrderedCollectionPredicate<float> Float_First_Gt_10    = (_, item) => First(item > 10.0f);
-
-    public static OrderedCollectionPredicate<float> Float_None = (_, _) => EvaluateIsIncludedAndContinue(false);
-
-    public static OrderedCollectionPredicate<float?> NullFloat_Lt_10          = (_, item) => EvaluateIsIncludedAndContinue(item < 10.0f);
-    public static OrderedCollectionPredicate<float?> NullFloat_Gt_10          = (_, item) => EvaluateIsIncludedAndContinue(item > 10.0f);
     public static OrderedCollectionPredicate<float?> NullFloat_First_2        = (count, _) => StopOnFirstExclusion(count <= 2);
     public static OrderedCollectionPredicate<float?> NullFloat_First_5        = (count, _) => StopOnFirstExclusion(count <= 5);
     public static OrderedCollectionPredicate<float?> NullFloat_Second_5       = (count, _) => BetweenRetrieveRange(count, 6, 11);
     public static OrderedCollectionPredicate<float?> NullFloat_Skip_Odd_Index = (_, _) => EvaluateIsIncludedAndContinue(true, 1);
-    public static OrderedCollectionPredicate<float?> NullFloat_All            = (_, _) => EvaluateIsIncludedAndContinue(true);
     public static OrderedCollectionPredicate<float?> NullFloat_First_Gt_10    = (_, item) => First(item is > 10.0f);
 
-    public static OrderedCollectionPredicate<float?> NullFloat_None = (_, _) => EvaluateIsIncludedAndContinue(false);
 
     public static readonly sbyte[] SByteArray = [-128, -127, -126, -125, -124, 0, 1, 2, 3, 4, 5, 6, 7, 8, 120, 121, 122, 123, 124, 125, 126, 127];
     public static readonly List<sbyte> SByteList = [..SByteArray];
@@ -108,12 +77,12 @@ public static class TestCollections
 
     public static OrderedCollectionPredicate<sbyte> SByte_Lt_10 = (_, item) => EvaluateIsIncludedAndContinue(item < 10);
     public static OrderedCollectionPredicate<sbyte> SByte_Gt_10 = (_, item) => EvaluateIsIncludedAndContinue(item > 10);
-    public static OrderedCollectionPredicate<sbyte> SByte_All   = (_, _) => EvaluateIsIncludedAndContinue(true);
+    public static OrderedCollectionPredicate<sbyte> SByte_All   = (_, _) => IncludedAndContinue;
     public static OrderedCollectionPredicate<sbyte> SByte_None  = (_, _) => EvaluateIsIncludedAndContinue(false);
 
     public static OrderedCollectionPredicate<sbyte?> NullSByte_Lt_10 = (_, item) => EvaluateIsIncludedAndContinue(item < 10);
     public static OrderedCollectionPredicate<sbyte?> NullSByte_Gt_10 = (_, item) => EvaluateIsIncludedAndContinue(item > 10);
-    public static OrderedCollectionPredicate<sbyte?> NullSByte_All   = (_, _) => EvaluateIsIncludedAndContinue(true);
+    public static OrderedCollectionPredicate<sbyte?> NullSByte_All   = (_, _) => IncludedAndContinue;
 
     public static OrderedCollectionPredicate<sbyte?> NullSByte_None = (_, _) => EvaluateIsIncludedAndContinue(false);
 
@@ -128,7 +97,7 @@ public static class TestCollections
 
     public static OrderedCollectionPredicate<byte> Byte_Lt_10 = (_, item) => EvaluateIsIncludedAndContinue(item < 10);
     public static OrderedCollectionPredicate<byte> Byte_Gt_10 = (_, item) => EvaluateIsIncludedAndContinue(item > 10);
-    public static OrderedCollectionPredicate<byte> Byte_All   = (_, _) => EvaluateIsIncludedAndContinue(true);
+    public static OrderedCollectionPredicate<byte> Byte_All   = (_, _) => IncludedAndContinue;
 
     public static OrderedCollectionPredicate<byte> Byte_None = (_, _) => EvaluateIsIncludedAndContinue(false);
 
@@ -146,7 +115,7 @@ public static class TestCollections
 
     public static OrderedCollectionPredicate<long> Long_Lt_10 = (_, item) => EvaluateIsIncludedAndContinue(item < 10);
     public static OrderedCollectionPredicate<long> Long_Gt_10 = (_, item) => EvaluateIsIncludedAndContinue(item > 10);
-    public static OrderedCollectionPredicate<long> Long_All   = (_, _) => EvaluateIsIncludedAndContinue(true);
+    public static OrderedCollectionPredicate<long> Long_All   = (_, _) => IncludedAndContinue;
 
     public static OrderedCollectionPredicate<long> Long_None = (_, _) => EvaluateIsIncludedAndContinue(false);
 
@@ -160,14 +129,14 @@ public static class TestCollections
 
     public static OrderedCollectionPredicate<ulong> ULong_Lt_10 = (_, item) => EvaluateIsIncludedAndContinue(item < 10);
     public static OrderedCollectionPredicate<ulong> ULong_Gt_10 = (_, item) => EvaluateIsIncludedAndContinue(item > 10);
-    public static OrderedCollectionPredicate<ulong> ULong_All   = (_, _) => EvaluateIsIncludedAndContinue(true);
+    public static OrderedCollectionPredicate<ulong> ULong_All   = (_, _) => IncludedAndContinue;
 
     public static OrderedCollectionPredicate<ulong> ULong_None = (_, _) => EvaluateIsIncludedAndContinue(false);
 
     public static readonly decimal[] DecimalArray =
     [
         new(Math.PI), new(Math.E), new(Math.PI * 4), new(Math.E * 4), new(Math.PI * 7), new(Math.E * 7), new(Math.PI * 10), new(Math.E * 10)
-      , new(Math.PI * 12) , new(Math.E * 12)
+      , new(Math.PI * 12), new(Math.E * 12)
     ];
     public static readonly List<decimal> DecimalList = [..DecimalArray];
 
@@ -178,7 +147,7 @@ public static class TestCollections
 
     public static OrderedCollectionPredicate<decimal> Decimal_Lt_10 = (_, item) => EvaluateIsIncludedAndContinue(item < 10);
     public static OrderedCollectionPredicate<decimal> Decimal_Gt_10 = (_, item) => EvaluateIsIncludedAndContinue(item > 10);
-    public static OrderedCollectionPredicate<decimal> Decimal_All   = (_, _) => EvaluateIsIncludedAndContinue(true);
+    public static OrderedCollectionPredicate<decimal> Decimal_All   = (_, _) => IncludedAndContinue;
 
     public static OrderedCollectionPredicate<decimal> Decimal_None = (_, _) => EvaluateIsIncludedAndContinue(false);
 
@@ -196,7 +165,7 @@ public static class TestCollections
 
     public static OrderedCollectionPredicate<BigInteger> BigInteger_Lt_10 = (_, item) => EvaluateIsIncludedAndContinue(item < 10);
     public static OrderedCollectionPredicate<BigInteger> BigInteger_Gt_10 = (_, item) => EvaluateIsIncludedAndContinue(item > 10);
-    public static OrderedCollectionPredicate<BigInteger> BigInteger_All   = (_, _) => EvaluateIsIncludedAndContinue(true);
+    public static OrderedCollectionPredicate<BigInteger> BigInteger_All   = (_, _) => IncludedAndContinue;
 
     public static OrderedCollectionPredicate<BigInteger> BigInteger_None = (_, _) => EvaluateIsIncludedAndContinue(false);
 
@@ -239,29 +208,14 @@ public static class TestCollections
     public static readonly List<Version>  VersionsList     = [..VersionsArray];
     public static readonly List<Version?> NullVersionsList = [..NullVersionsArray];
 
-    public static PalantírReveal<Version> VersionRevealer            = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe);
-    public static PalantírReveal<Version> VersionRevealer_Pad_20     = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "{0,20}");
-    public static PalantírReveal<Version> VersionRevealer_F4Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "F4");
-
-    public static OrderedCollectionPredicate<Version> Version_MjrLt_10       = (_, item) => EvaluateIsIncludedAndContinue(item.Major < 10);
-    public static OrderedCollectionPredicate<Version> Version_MjrGt_10       = (_, item) => EvaluateIsIncludedAndContinue(item.Major > 10);
-    public static OrderedCollectionPredicate<Version> Version_First_5        = (count, _) => StopOnFirstExclusion(count <= 5);
-    public static OrderedCollectionPredicate<Version> Version_Second_5       = (count, _) => BetweenRetrieveRange(count, 6, 11);
-    public static OrderedCollectionPredicate<Version> Version_First_2        = (count, _) => StopOnFirstExclusion(count <= 2);
-    public static OrderedCollectionPredicate<Version> Version_Skip_Odd_Index = (_, _) => EvaluateIsIncludedAndContinue(true, 1);
-    public static OrderedCollectionPredicate<Version> Version_All            = (_, _) => EvaluateIsIncludedAndContinue(true);
-    public static OrderedCollectionPredicate<Version> Version_First_MjrGt_10 = (_, item) => First(item.Major > 10);
-    public static OrderedCollectionPredicate<Version> Version_None           = (_, _) => EvaluateIsIncludedAndContinue(false);
-
-    public static OrderedCollectionPredicate<Version?> NullVersion_MjrLt_10       = (_, item) => EvaluateIsIncludedAndContinue(item?.Major < 10);
-    public static OrderedCollectionPredicate<Version?> NullVersion_Gt_10          = (_, item) => EvaluateIsIncludedAndContinue(item?.Major > 10);
+    public static OrderedCollectionPredicate<Version>  Version_First_5            = (count, _) => StopOnFirstExclusion(count <= 5);
+    public static OrderedCollectionPredicate<Version>  Version_Second_5           = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<Version>  Version_First_2            = (count, _) => StopOnFirstExclusion(count <= 2);
+    public static OrderedCollectionPredicate<Version>  Version_First_MjrGt_10     = (_, item) => First(item.Major > 10);
     public static OrderedCollectionPredicate<Version?> NullVersion_First_2        = (count, _) => StopOnFirstExclusion(count <= 2);
     public static OrderedCollectionPredicate<Version?> NullVersion_First_5        = (count, _) => EvaluateIsIncludedAndContinue(count <= 5);
     public static OrderedCollectionPredicate<Version?> NullVersion_Second_5       = (count, _) => BetweenRetrieveRange(count, 6, 11);
-    public static OrderedCollectionPredicate<Version?> NullVersion_Skip_Odd_Index = (_, _) => EvaluateIsIncludedAndContinue(true, 1);
-    public static OrderedCollectionPredicate<Version?> NullVersion_All            = (_, _) => EvaluateIsIncludedAndContinue(true);
     public static OrderedCollectionPredicate<Version?> NullVersion_First_MjrGt_10 = (_, item) => First(item?.Major is > 10);
-    public static OrderedCollectionPredicate<Version?> NullVersion_None           = (_, _) => EvaluateIsIncludedAndContinue(false);
 
     public static string[] StringArray =
     [
@@ -303,29 +257,15 @@ public static class TestCollections
         return stringWithNulls;
     });
 
-    public static PalantírReveal<string> StringRevealer        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe);
-    public static PalantírReveal<string> StringRevealer_Pad_20 = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "|{0}|");
-    public static PalantírReveal<string> StringRevealer_Pad_80 = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "|{0,80}|");
+    public static OrderedCollectionPredicate<string> String_LenLt_100      = (_, item) => EvaluateIsIncludedAndContinue(item.Length < 100);
+    public static OrderedCollectionPredicate<string> String_First_5        = (count, _) => StopOnFirstExclusion(count <= 5);
+    public static OrderedCollectionPredicate<string> String_Second_5       = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<string> String_Skip_Odd_Index = (_, _) => IncludedAndSkipNext(1);
 
-    public static OrderedCollectionPredicate<string> String_LenLt_100       = (_, item) => EvaluateIsIncludedAndContinue(item.Length < 100);
-    public static OrderedCollectionPredicate<string> String_LenGt_100       = (_, item) => EvaluateIsIncludedAndContinue(item.Length > 100);
-    public static OrderedCollectionPredicate<string> String_First_5         = (count, _) => StopOnFirstExclusion(count <= 5);
-    public static OrderedCollectionPredicate<string> String_Second_5        = (count, _) => BetweenRetrieveRange(count, 6, 11);
-    public static OrderedCollectionPredicate<string> String_First_2         = (count, _) => StopOnFirstExclusion(count <= 2);
-    public static OrderedCollectionPredicate<string> String_Skip_Odd_Index  = (_, _) => IncludedAndSkipNext(1);
-    public static OrderedCollectionPredicate<string> String_All             = (_, _) => IncludedAndContinue;
-    public static OrderedCollectionPredicate<string> String_First_LenGt_100 = (_, item) => First(item.Length > 100);
-    public static OrderedCollectionPredicate<string> String_None            = (_, _) => NotIncludedAndComplete;
-
-    public static OrderedCollectionPredicate<string?> NullString_LenLt_100       = (_, item) => EvaluateIsIncludedAndContinue(item?.Length < 100);
-    public static OrderedCollectionPredicate<string?> NullString_LenGt_100       = (_, item) => EvaluateIsIncludedAndContinue(item?.Length > 100);
-    public static OrderedCollectionPredicate<string?> NullString_First_2         = (count, _) => StopOnFirstExclusion(count <= 2);
-    public static OrderedCollectionPredicate<string?> NullString_First_5         = (count, _) => StopOnFirstExclusion(count <= 5);
-    public static OrderedCollectionPredicate<string?> NullString_Second_5        = (count, _) => BetweenRetrieveRange(count, 6, 11);
-    public static OrderedCollectionPredicate<string?> NullString_Skip_Odd_Index  = (_, _) => IncludedAndSkipNext(1);
-    public static OrderedCollectionPredicate<string?> NullString_All             = (_, _) => IncludedAndContinue;
-    public static OrderedCollectionPredicate<string?> NullString_First_LenGt_100 = (_, item) => First(item?.Length is > 100);
-    public static OrderedCollectionPredicate<string?> NullString_None            = (_, _) => NotIncludedAndComplete;
+    public static OrderedCollectionPredicate<string?> NullString_LenLt_100      = (_, item) => EvaluateIsIncludedAndContinue(item?.Length < 100);
+    public static OrderedCollectionPredicate<string?> NullString_First_5        = (count, _) => StopOnFirstExclusion(count <= 5);
+    public static OrderedCollectionPredicate<string?> NullString_Second_5       = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<string?> NullString_Skip_Odd_Index = (_, _) => IncludedAndSkipNext(1);
 
     public static Lazy<List<char[]>> CharArrayList = new(() => StringArray.Select(s => s.ToCharArray()).ToList());
     public static Lazy<List<char[]?>> NullCharArrayList = new(() =>
@@ -377,50 +317,16 @@ public static class TestCollections
         return withNulls;
     });
 
-    public static PalantírReveal<MutableString> MutableStringRevealer = (showMe, tos) => 
-        tos.StartSimpleValueType(showMe).AsValue(showMe);
-    public static PalantírReveal<MutableString> MutableStringRevealer_Pad_20
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "|{0}|");
-    public static PalantírReveal<MutableString> MutableStringRevealer_Pad_80
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "|{0,80}|");
-
-    public static OrderedCollectionPredicate<MutableString> MutableString_LenLt_100 = (_, item) => 
-        EvaluateIsIncludedAndContinue(item.Length < 100);
-    
-    public static OrderedCollectionPredicate<MutableString> MutableString_LenGt_100 = (_, item) => 
-        EvaluateIsIncludedAndContinue(item.Length > 100);
-    
-    public static OrderedCollectionPredicate<MutableString> MutableString_First_5 = (count, _) => 
+    public static OrderedCollectionPredicate<MutableString> MutableString_First_5 = (count, _) =>
         StopOnFirstExclusion(count <= 5);
-    
-    public static OrderedCollectionPredicate<MutableString> MutableString_Second_5 = (count, _) => 
-        BetweenRetrieveRange(count, 6, 11);
-    
-    public static OrderedCollectionPredicate<MutableString> MutableString_First_2 = (count, _) => StopOnFirstExclusion(count <= 2);
-    
+
     public static OrderedCollectionPredicate<MutableString> MutableString_Skip_Odd_Index = (_, _) => IncludedAndSkipNext(1);
-    
-    public static OrderedCollectionPredicate<MutableString> MutableString_All = (_, _) => IncludedAndContinue;
-    public static OrderedCollectionPredicate<MutableString> MutableString_First_LenGt_100 = (_, item) => First(item.Length > 100);
-    public static OrderedCollectionPredicate<MutableString> MutableString_None = (_, _) => NotIncludedAndComplete;
 
     public static OrderedCollectionPredicate<MutableString?> NullMutableString_LenLt_100
         = (_, item) => EvaluateIsIncludedAndContinue(item?.Length < 100);
-    public static OrderedCollectionPredicate<MutableString?> NullMutableString_LenGt_100
-        = (_, item) => EvaluateIsIncludedAndContinue(item?.Length > 100);
-    public static OrderedCollectionPredicate<MutableString?> NullMutableString_First_2         = (count, _) => 
-        StopOnFirstExclusion(count <= 2);
-    
-    public static OrderedCollectionPredicate<MutableString?> NullMutableString_First_5         = (count, _) => 
-        StopOnFirstExclusion(count <= 5);
-    
-    public static OrderedCollectionPredicate<MutableString?> NullMutableString_Second_5        = (count, _) => 
+
+    public static OrderedCollectionPredicate<MutableString?> NullMutableString_Second_5 = (count, _) =>
         BetweenRetrieveRange(count, 6, 11);
-    
-    public static OrderedCollectionPredicate<MutableString?> NullMutableString_Skip_Odd_Index  = (_, _) => IncludedAndSkipNext(1);
-    public static OrderedCollectionPredicate<MutableString?> NullMutableString_All             = (_, _) => IncludedAndContinue;
-    public static OrderedCollectionPredicate<MutableString?> NullMutableString_First_LenGt_100 = (_, item) => First(item?.Length is > 100);
-    public static OrderedCollectionPredicate<MutableString?> NullMutableString_None            = (_, _) => NotIncludedAndComplete;
 
     public static Lazy<List<CharArrayStringBuilder>> CharArrayStringBuilderList
         = new(() => StringArray.Select(s => new CharArrayStringBuilder(s)).ToList());
@@ -448,41 +354,14 @@ public static class TestCollections
         return withNulls;
     });
 
-    public static PalantírReveal<CharArrayStringBuilder> CharArrayStringBuilderAsValueRevealer
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe);
-    public static PalantírReveal<CharArrayStringBuilder> CharArrayStringBuilderAsValueRevealer_Pad_20
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "|{0}|");
-    public static PalantírReveal<CharArrayStringBuilder> CharArrayStringBuilderAsValueRevealer_Pad_80
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "|{0,80}|");
-
     public static OrderedCollectionPredicate<CharArrayStringBuilder> CharArrayStringBuilder_LenLt_100
         = (_, item) => EvaluateIsIncludedAndContinue(item.Length < 100);
-    public static OrderedCollectionPredicate<CharArrayStringBuilder> CharArrayStringBuilder_LenGt_100
-        = (_, item) => EvaluateIsIncludedAndContinue(item.Length > 100);
-    public static OrderedCollectionPredicate<CharArrayStringBuilder> CharArrayStringBuilder_First_5 = (count, _) => StopOnFirstExclusion(count <= 5);
     public static OrderedCollectionPredicate<CharArrayStringBuilder> CharArrayStringBuilder_Second_5
         = (count, _) => BetweenRetrieveRange(count, 6, 11);
-    public static OrderedCollectionPredicate<CharArrayStringBuilder> CharArrayStringBuilder_First_2 = (count, _) => StopOnFirstExclusion(count <= 2);
-    public static OrderedCollectionPredicate<CharArrayStringBuilder> CharArrayStringBuilder_Skip_Odd_Index = (_, _) => IncludedAndSkipNext(1);
-    public static OrderedCollectionPredicate<CharArrayStringBuilder> CharArrayStringBuilder_All = (_, _) => IncludedAndContinue;
-    public static OrderedCollectionPredicate<CharArrayStringBuilder> CharArrayStringBuilder_First_LenGt_100 = (_, item) => First(item.Length > 100);
-    public static OrderedCollectionPredicate<CharArrayStringBuilder> CharArrayStringBuilder_None = (_, _) => NotIncludedAndComplete;
 
-    public static OrderedCollectionPredicate<CharArrayStringBuilder?> NullCharArrayStringBuilder_LenLt_100
-        = (_, item) => EvaluateIsIncludedAndContinue(item?.Length < 100);
-    public static OrderedCollectionPredicate<CharArrayStringBuilder?> NullCharArrayStringBuilder_LenGt_100
-        = (_, item) => EvaluateIsIncludedAndContinue(item?.Length > 100);
-    public static OrderedCollectionPredicate<CharArrayStringBuilder?> NullCharArrayStringBuilder_First_2
-        = (count, _) => StopOnFirstExclusion(count <= 2);
     public static OrderedCollectionPredicate<CharArrayStringBuilder?> NullCharArrayStringBuilder_First_5
         = (count, _) => StopOnFirstExclusion(count <= 5);
-    public static OrderedCollectionPredicate<CharArrayStringBuilder?> NullCharArrayStringBuilder_Second_5
-        = (count, _) => BetweenRetrieveRange(count, 6, 11);
     public static OrderedCollectionPredicate<CharArrayStringBuilder?> NullCharArrayStringBuilder_Skip_Odd_Index = (_, _) => IncludedAndSkipNext(1);
-    public static OrderedCollectionPredicate<CharArrayStringBuilder?> NullCharArrayStringBuilder_All            = (_, _) => IncludedAndContinue;
-    public static OrderedCollectionPredicate<CharArrayStringBuilder?> NullCharArrayStringBuilder_First_LenGt_100
-        = (_, item) => First(item?.Length is > 100);
-    public static OrderedCollectionPredicate<CharArrayStringBuilder?> NullCharArrayStringBuilder_None = (_, _) => NotIncludedAndComplete;
 
     public static Lazy<List<StringBuilder>> StringBuilderList = new(() => StringArray.Select(s => new StringBuilder(s)).ToList());
     public static Lazy<List<StringBuilder?>> NullStringBuilderList = new(() =>
@@ -509,42 +388,19 @@ public static class TestCollections
         return withNulls;
     });
 
-    public static PalantírReveal<StringBuilder> StringBuilderRevealer = (showMe, tos) => 
-        tos.StartSimpleValueType(showMe).AsValue(showMe);
-    
-    public static PalantírReveal<StringBuilder> StringBuilderRevealer_Pad_20 = (showMe, tos) => 
-        tos.StartSimpleValueType(showMe).AsValue(showMe, "|{0}|");
-    
-    public static PalantírReveal<StringBuilder> StringBuilderRevealer_Pad_80 = (showMe, tos) => 
-        tos.StartSimpleValueType(showMe).AsValue(showMe, "|{0,80}|");
-
-    public static OrderedCollectionPredicate<StringBuilder> StringBuilder_LenLt_100 = (_, item) => 
+    public static OrderedCollectionPredicate<StringBuilder> StringBuilder_LenLt_100 = (_, item) =>
         EvaluateIsIncludedAndContinue(item.Length < 100);
-    
-    public static OrderedCollectionPredicate<StringBuilder> StringBuilder_LenGt_100 = (_, item) => 
-        EvaluateIsIncludedAndContinue(item.Length > 100);
-    
-    public static OrderedCollectionPredicate<StringBuilder> StringBuilder_First_5 = (count, _) => StopOnFirstExclusion(count <= 5);
-    public static OrderedCollectionPredicate<StringBuilder> StringBuilder_Second_5 = (count, _) => BetweenRetrieveRange(count, 6, 11);
-    public static OrderedCollectionPredicate<StringBuilder> StringBuilder_First_2 = (count, _) => StopOnFirstExclusion(count <= 2);
-    public static OrderedCollectionPredicate<StringBuilder> StringBuilder_Skip_Odd_Index = (_, _) => IncludedAndSkipNext(1);
-    public static OrderedCollectionPredicate<StringBuilder> StringBuilder_All = (_, _) => IncludedAndContinue;
-    public static OrderedCollectionPredicate<StringBuilder> StringBuilder_First_LenGt_100 = (_, item) => First(item.Length > 100);
-    public static OrderedCollectionPredicate<StringBuilder> StringBuilder_None = (_, _) => NotIncludedAndComplete;
 
-    public static OrderedCollectionPredicate<StringBuilder?> NullStringBuilder_LenLt_100 = (_, item) => 
+    public static OrderedCollectionPredicate<StringBuilder> StringBuilder_First_5        = (count, _) => StopOnFirstExclusion(count <= 5);
+    public static OrderedCollectionPredicate<StringBuilder> StringBuilder_Second_5       = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<StringBuilder> StringBuilder_Skip_Odd_Index = (_, _) => IncludedAndSkipNext(1);
+
+    public static OrderedCollectionPredicate<StringBuilder?> NullStringBuilder_LenLt_100 = (_, item) =>
         EvaluateIsIncludedAndContinue(item?.Length < 100);
-    
-    public static OrderedCollectionPredicate<StringBuilder?> NullStringBuilder_LenGt_100 = (_, item) => 
-        EvaluateIsIncludedAndContinue(item?.Length > 100);
-    
-    public static OrderedCollectionPredicate<StringBuilder?> NullStringBuilder_First_2 = (count, _) => StopOnFirstExclusion(count <= 2);
-    public static OrderedCollectionPredicate<StringBuilder?> NullStringBuilder_First_5 = (count, _) => StopOnFirstExclusion(count <= 5);
-    public static OrderedCollectionPredicate<StringBuilder?> NullStringBuilder_Second_5 = (count, _) => BetweenRetrieveRange(count, 6, 11);
+
+    public static OrderedCollectionPredicate<StringBuilder?> NullStringBuilder_First_5        = (count, _) => StopOnFirstExclusion(count <= 5);
+    public static OrderedCollectionPredicate<StringBuilder?> NullStringBuilder_Second_5       = (count, _) => BetweenRetrieveRange(count, 6, 11);
     public static OrderedCollectionPredicate<StringBuilder?> NullStringBuilder_Skip_Odd_Index = (_, _) => IncludedAndSkipNext(1);
-    public static OrderedCollectionPredicate<StringBuilder?> NullStringBuilder_All            = (_, _) => IncludedAndContinue;
-    public static OrderedCollectionPredicate<StringBuilder?> NullStringBuilder_First_LenGt_100 = (_, item) => First(item?.Length is > 100);
-    public static OrderedCollectionPredicate<StringBuilder?> NullStringBuilder_None = (_, _) => NotIncludedAndComplete;
 
     public static readonly Lazy<List<FieldSpanFormattableAlwaysAddStringBearer<decimal>>> StringBearerClassList = new(() =>
     {
@@ -592,44 +448,20 @@ public static class TestCollections
     public static PalantírReveal<FieldSpanFormattableAlwaysAddStringBearer<decimal>> StringBearerClassListRevealer =
         (showMe, tos) => showMe.RevealState(tos);
 
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStringBearer<decimal>> StringBearerClassList_Lt_20 =
-        (_, item) => EvaluateIsIncludedAndContinue(item.Value < 20);
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStringBearer<decimal>> StringBearerClassList_Gt_20 =
-        (_, item) => EvaluateIsIncludedAndContinue(item.Value > 20);
     public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStringBearer<decimal>> StringBearerClassList_First_5 =
         (count, _) => StopOnFirstExclusion(count <= 5);
     public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStringBearer<decimal>> StringBearerClassList_Second_5 =
         (count, _) => BetweenRetrieveRange(count, 6, 11);
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStringBearer<decimal>> StringBearerClassList_First_2 =
-        (count, _) => StopOnFirstExclusion(count <= 2);
     public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStringBearer<decimal>> StringBearerClassList_Skip_Odd_Index =
         (_, _) => IncludedAndSkipNext(1);
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStringBearer<decimal>> StringBearerClassList_All =
-        (_, _) => IncludedAndContinue;
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStringBearer<decimal>> StringBearerClassList_First_Gt_20 =
-        (_, item) => First(item.Value > 20);
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStringBearer<decimal>> StringBearerClassList_None =
-        (_, _) => NotIncludedAndComplete;
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStringBearer<decimal>?> NullStringBearerClassList_LenLt_20
-        = (_, item) => EvaluateIsIncludedAndContinue(item?.Value < 20);
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStringBearer<decimal>?> NullStringBearerClassList_LenGt_20
-        = (_, item) => EvaluateIsIncludedAndContinue(item?.Value > 20);
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStringBearer<decimal>?> NullStringBearerClassList_First_2
-        = (count, _) => StopOnFirstExclusion(count <= 2);
     public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStringBearer<decimal>?> NullStringBearerClassList_First_5
         = (count, _) => StopOnFirstExclusion(count <= 5);
     public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStringBearer<decimal>?> NullStringBearerClassList_Second_5
         = (count, _) => BetweenRetrieveRange(count, 6, 11);
     public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStringBearer<decimal>?> NullStringBearerClassList_Skip_Odd_Index
         = (_, _) => IncludedAndSkipNext(1);
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStringBearer<decimal>?> NullStringBearerClassList_All
-        = (_, _) => IncludedAndContinue;
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStringBearer<decimal>?> NullStringBearerClassList_First_LenGt_20
-        = (_, item) => First(item?.Value is > 20);
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStringBearer<decimal>?> NullStringBearerClassList_None
-        = (_, _) => NotIncludedAndComplete;
-    
-    
+
+
     public static readonly Lazy<List<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>>> StringBearerStructList = new(() =>
     {
         return DecimalArray.Select(d => new FieldSpanFormattableAlwaysAddStructStringBearer<decimal>
@@ -676,40 +508,669 @@ public static class TestCollections
     public static PalantírReveal<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>> StringBearerStructListRevealer =
         (showMe, tos) => showMe.RevealState(tos);
 
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>> StringBearerStructList_Lt_20 =
-        (_, item) => EvaluateIsIncludedAndContinue(item.Value < 20);
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>> StringBearerStructList_Gt_20 =
-        (_, item) => EvaluateIsIncludedAndContinue(item.Value > 20);
     public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>> StringBearerStructList_First_5 =
         (count, _) => StopOnFirstExclusion(count <= 5);
     public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>> StringBearerStructList_Second_5 =
         (count, _) => BetweenRetrieveRange(count, 6, 11);
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>> StringBearerStructList_First_2 =
-        (count, _) => StopOnFirstExclusion(count <= 2);
     public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>> StringBearerStructList_Skip_Odd_Index =
         (_, _) => IncludedAndSkipNext(1);
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>> StringBearerStructList_All =
-        (_, _) => IncludedAndContinue;
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>> StringBearerStructList_First_Gt_20 =
-        (_, item) => First(item.Value > 20);
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>> StringBearerStructList_None =
-        (_, _) => NotIncludedAndComplete;
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>?> NullStringBearerStructList_LenLt_20
-        = (_, item) => EvaluateIsIncludedAndContinue(item?.Value < 20);
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>?> NullStringBearerStructList_LenGt_20
-        = (_, item) => EvaluateIsIncludedAndContinue(item?.Value > 20);
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>?> NullStringBearerStructList_First_2
-        = (count, _) => StopOnFirstExclusion(count <= 2);
     public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>?> NullStringBearerStructList_First_5
         = (count, _) => StopOnFirstExclusion(count <= 5);
     public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>?> NullStringBearerStructList_Second_5
         = (count, _) => BetweenRetrieveRange(count, 6, 11);
     public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>?> NullStringBearerStructList_Skip_Odd_Index
         = (_, _) => IncludedAndSkipNext(1);
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>?> NullStringBearerStructList_All
-        = (_, _) => IncludedAndContinue;
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>?> NullStringBearerStructList_First_LenGt_20
-        = (_, item) => First(item?.Value is > 20);
-    public static OrderedCollectionPredicate<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>?> NullStringBearerStructList_None
-        = (_, _) => NotIncludedAndComplete;
+
+
+    public static readonly object[] ObjArray =
+    [
+        true
+      , (byte)186
+      , new MySpanFormattableClass("MySpanFormattableClass")
+      , ushort.MaxValue
+      , 'c'
+      , double.MinValue
+      , "String"
+      , new Uri("https://github.com/shwaindog/Fortitude/")
+      , false
+      , new MyOtherTypeStruct("MyOtherTypeStruct.ToString()")
+      , short.MinValue
+      , double.MaxValue
+      , new Version(1, 1, 1, 1)
+      , new CharArrayStringBuilder("CharArrayStringBuilder")
+      , new MySpanFormattableStruct("MySpanFormattableStruct")
+      , ulong.MaxValue
+      , float.MaxValue
+      , Guid.ParseExact("BEEEEEEF-BEEF-BEEF-BEEF-CAAAAAAAAA4E", "D")
+      , int.MinValue
+      , new MutableString("MutableString")
+      , uint.MaxValue
+      , new MyOtherTypeClass("MyOtherTypeClass.ToString()")
+      , long.MinValue
+      , Rune.GetRuneAt("𝄞", 0)
+      , decimal.MinValue
+      , new StringBuilder("StringBuilder")
+    ];
+    public static readonly List<object> ObjList = [..ObjArray];
+
+    public static Lazy<List<object?>> NullObjArray = new(() =>
+    {
+        var withNulls = new List<object?>();
+        for (int i = 0; i < DecimalArray.Length; i++)
+        {
+            var objAtIndex = DecimalArray[i];
+            switch (i)
+            {
+                case 0:
+                case 8:
+                    withNulls.Add(null);
+                    withNulls.Add(objAtIndex);
+                    break;
+                case 3:
+                    withNulls.Add(null);
+                    withNulls.Add(null);
+                    withNulls.Add(objAtIndex);
+                    break;
+                default: withNulls.Add(objAtIndex); break;
+            }
+        }
+        withNulls.Add(null);
+        return withNulls;
+    });
+
+    public static PalantírReveal<object> ObjPad10Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe, "\"{0,10}\"");
+    public static PalantírReveal<object> ObjRevealer      = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe);
+
+    public static OrderedCollectionPredicate<object> Obj_All_Numbers    = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
+    public static OrderedCollectionPredicate<object> Obj_All_NonNumbers = (_, item) => EvaluateIsIncludedAndContinue(!item.GetType().IsNumericType());
+    public static OrderedCollectionPredicate<object> Obj_First_8        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<object> Obj_Second_5       = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<object> Obj_Skip_Odd_Index = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<object> Obj_All            = (_, _) => IncludedAndContinue;
+    public static OrderedCollectionPredicate<object> Obj_None           = (_, _) => EvaluateIsIncludedAndContinue(false);
+
+    public static OrderedCollectionPredicate<object?> NullObj_All_Numbers
+        = (_, item) => EvaluateIsIncludedAndContinue(item?.GetType().IsNumericType() ?? false);
+    public static OrderedCollectionPredicate<object?> NullObj_All_NonNumbers
+        = (_, item) => EvaluateIsIncludedAndContinue(!(item?.GetType().IsNumericType() ?? false));
+    public static OrderedCollectionPredicate<object?> NullObj_All_NonNull    = (_, item) => EvaluateIsIncludedAndContinue(item != null);
+    public static OrderedCollectionPredicate<object?> NullObj_First_8        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<object?> NullObj_Second_5       = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<object?> NullObj_Skip_Odd_Index = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<object?> NullObj_All            = (_, _) => IncludedAndContinue;
+    public static OrderedCollectionPredicate<object?> NullObj_None           = (_, _) => NotIncludedAndContinue;
+
+
+    // 1. Start No Flags enums
+    // 1. a) No Default No Flags
+    public static readonly NoDefaultLongNoFlagsEnum[] NoDefaultLongNoFlagsEnumArray =
+    [
+        NoDefaultLongNoFlagsEnum.NDLNFE_4
+      , NoDefaultLongNoFlagsEnum.NDLNFE_34
+      , NoDefaultLongNoFlagsEnum.NDLNFE_1.JustUnnamed()
+      , NoDefaultLongNoFlagsEnum.NDLNFE_1
+      , NoDefaultLongNoFlagsEnum.NDLNFE_1.Default()
+      , NoDefaultLongNoFlagsEnum.NDLNFE_13
+      , NoDefaultLongNoFlagsEnum.NDLNFE_2
+    ];
+    public static readonly List<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlagsEnumList = [..NoDefaultLongNoFlagsEnumArray];
+    public static readonly Lazy<List<NoDefaultLongNoFlagsEnum?>> NullNoDefaultLongNoFlagsEnumList = new(() =>
+    {
+        var withNulls = new List<NoDefaultLongNoFlagsEnum?>();
+        for (int i = 0; i < DecimalArray.Length; i++)
+        {
+            var enumAtIndex = NoDefaultLongNoFlagsEnumArray[i];
+            switch (i)
+            {
+                case 0:
+                case 8:
+                    withNulls.Add(null);
+                    withNulls.Add(enumAtIndex);
+                    break;
+                case 3:
+                    withNulls.Add(null);
+                    withNulls.Add(null);
+                    withNulls.Add(enumAtIndex);
+                    break;
+                default: withNulls.Add(enumAtIndex); break;
+            }
+        }
+        withNulls.Add(null);
+        return withNulls;
+    });
+
+    public static PalantírReveal<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlagsEnumPad10Revealer
+        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe, "\"{0,10}\"");
+    public static PalantírReveal<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlagsEnumRevealer
+        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe);
+    public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlagsEnum_All_Numbers
+        = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
+    public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlagsEnum_All_NonNumbers
+        = (_, item) => EvaluateIsIncludedAndContinue(!item.GetType().IsNumericType());
+    public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlagsEnum_First_8
+        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlagsEnum_Second_5
+        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlagsEnum_Skip_Odd_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlagsEnum_All = (_, _) => IncludedAndContinue;
+    public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum?> NullNoDefaultLongNoFlagsEnum_All_Numbers
+        = (_, item) => EvaluateIsIncludedAndContinue(item?.GetType().IsNumericType() ?? false);
+    public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum?> NullNoDefaultLongNoFlagsEnum_All_NonNumbers
+        = (_, item) => EvaluateIsIncludedAndContinue(!(item?.GetType().IsNumericType() ?? false));
+    public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum?> NullNoDefaultLongNoFlagsEnum_All_NonNull
+        = (_, item) => EvaluateIsIncludedAndContinue(item != null);
+    public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum?> NullNoDefaultLongNoFlagsEnum_First_8
+        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum?> NullNoDefaultLongNoFlagsEnum_Second_5
+        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum?> NullNoDefaultLongNoFlagsEnum_Skip_Odd_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum?> NullNoDefaultLongNoFlagsEnum_All  = (_, _) => IncludedAndContinue;
+    public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum?> NullNoDefaultLongNoFlagsEnum_None = (_, _) => NotIncludedAndContinue;
+
+
+    public static readonly NoDefaultULongNoFlagsEnum[] NoDefaultULongNoFlagsEnumArray =
+    [
+        NoDefaultULongNoFlagsEnum.NDUNFE_4
+      , NoDefaultULongNoFlagsEnum.NDUNFE_34
+      , NoDefaultULongNoFlagsEnum.NDUNFE_1.JustUnnamed()
+      , NoDefaultULongNoFlagsEnum.NDUNFE_1
+      , NoDefaultULongNoFlagsEnum.NDUNFE_1.Default()
+      , NoDefaultULongNoFlagsEnum.NDUNFE_13
+      , NoDefaultULongNoFlagsEnum.NDUNFE_2
+    ];
+    public static readonly List<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlagsEnumList = [..NoDefaultULongNoFlagsEnumArray];
+    public static readonly Lazy<List<NoDefaultULongNoFlagsEnum?>> NullNoDefaultULongNoFlagsEnumList = new(() =>
+    {
+        var withNulls = new List<NoDefaultULongNoFlagsEnum?>();
+        for (int i = 0; i < DecimalArray.Length; i++)
+        {
+            var enumAtIndex = NoDefaultULongNoFlagsEnumArray[i];
+            switch (i)
+            {
+                case 0:
+                case 8:
+                    withNulls.Add(null);
+                    withNulls.Add(enumAtIndex);
+                    break;
+                case 3:
+                    withNulls.Add(null);
+                    withNulls.Add(null);
+                    withNulls.Add(enumAtIndex);
+                    break;
+                default: withNulls.Add(enumAtIndex); break;
+            }
+        }
+        withNulls.Add(null);
+        return withNulls;
+    });
+
+    public static PalantírReveal<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlagsEnumPad10Revealer
+        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe, "\"{0,10}\"");
+    public static PalantírReveal<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlagsEnumRevealer
+        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe);
+    public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlagsEnum_All_Numbers
+        = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
+    public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlagsEnum_All_NonNumbers
+        = (_, item) => EvaluateIsIncludedAndContinue(!item.GetType().IsNumericType());
+    public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlagsEnum_First_8
+        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlagsEnum_Second_5
+        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlagsEnum_Skip_Odd_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlagsEnum_All = (_, _) => IncludedAndContinue;
+    public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum?> NullNoDefaultULongNoFlagsEnum_All_Numbers
+        = (_, item) => EvaluateIsIncludedAndContinue(item?.GetType().IsNumericType() ?? false);
+    public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum?> NullNoDefaultULongNoFlagsEnum_All_NonNumbers
+        = (_, item) => EvaluateIsIncludedAndContinue(!(item?.GetType().IsNumericType() ?? false));
+    public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum?> NullNoDefaultULongNoFlagsEnum_All_NonNull
+        = (_, item) => EvaluateIsIncludedAndContinue(item != null);
+    public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum?> NullNoDefaultULongNoFlagsEnum_First_8
+        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum?> NullNoDefaultULongNoFlagsEnum_Second_5
+        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum?> NullNoDefaultULongNoFlagsEnum_Skip_Odd_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum?> NullNoDefaultULongNoFlagsEnum_All  = (_, _) => IncludedAndContinue;
+    public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum?> NullNoDefaultULongNoFlagsEnum_None = (_, _) => NotIncludedAndContinue;
+
+
+    // 1. b) With Default No Flags
+    public static readonly WithDefaultLongNoFlagsEnum[] WithDefaultLongNoFlagsEnumArray =
+    [
+        WithDefaultLongNoFlagsEnum.WDLNFE_4
+      , WithDefaultLongNoFlagsEnum.WDLNFE_34
+      , WithDefaultLongNoFlagsEnum.WDLNFE_1.JustUnnamed()
+      , WithDefaultLongNoFlagsEnum.WDLNFE_1
+      , WithDefaultLongNoFlagsEnum.WDLNFE_1.Default()
+      , WithDefaultLongNoFlagsEnum.WDLNFE_13
+      , WithDefaultLongNoFlagsEnum.WDLNFE_2
+    ];
+    public static readonly List<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlagsEnumList = [..WithDefaultLongNoFlagsEnumArray];
+    public static readonly Lazy<List<WithDefaultLongNoFlagsEnum?>> NullWithDefaultLongNoFlagsEnumList = new(() =>
+    {
+        var withNulls = new List<WithDefaultLongNoFlagsEnum?>();
+        for (int i = 0; i < DecimalArray.Length; i++)
+        {
+            var enumAtIndex = WithDefaultLongNoFlagsEnumArray[i];
+            switch (i)
+            {
+                case 0:
+                case 8:
+                    withNulls.Add(null);
+                    withNulls.Add(enumAtIndex);
+                    break;
+                case 3:
+                    withNulls.Add(null);
+                    withNulls.Add(null);
+                    withNulls.Add(enumAtIndex);
+                    break;
+                default: withNulls.Add(enumAtIndex); break;
+            }
+        }
+        withNulls.Add(null);
+        return withNulls;
+    });
+
+    public static PalantírReveal<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlagsEnumPad10Revealer
+        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe, "\"{0,10}\"");
+    public static PalantírReveal<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlagsEnumRevealer
+        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe);
+    public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlagsEnum_All_Numbers
+        = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
+    public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlagsEnum_All_NonNumbers
+        = (_, item) => EvaluateIsIncludedAndContinue(!item.GetType().IsNumericType());
+    public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlagsEnum_First_8
+        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlagsEnum_Second_5
+        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlagsEnum_Skip_Odd_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlagsEnum_All = (_, _) => IncludedAndContinue;
+    public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum?> NullWithDefaultLongNoFlagsEnum_All_Numbers
+        = (_, item) => EvaluateIsIncludedAndContinue(item?.GetType().IsNumericType() ?? false);
+    public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum?> NullWithDefaultLongNoFlagsEnum_All_NonNumbers
+        = (_, item) => EvaluateIsIncludedAndContinue(!(item?.GetType().IsNumericType() ?? false));
+    public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum?> NullWithDefaultLongNoFlagsEnum_All_NonNull
+        = (_, item) => EvaluateIsIncludedAndContinue(item != null);
+    public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum?> NullWithDefaultLongNoFlagsEnum_First_8
+        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum?> NullWithDefaultLongNoFlagsEnum_Second_5
+        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum?> NullWithDefaultLongNoFlagsEnum_Skip_Odd_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum?> NullWithDefaultLongNoFlagsEnum_All  = (_, _) => IncludedAndContinue;
+    public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum?> NullWithDefaultLongNoFlagsEnum_None = (_, _) => NotIncludedAndContinue;
+
+
+    public static readonly WithDefaultULongNoFlagsEnum[] WithDefaultULongNoFlagsEnumArray =
+    [
+        WithDefaultULongNoFlagsEnum.WDUNFE_4
+      , WithDefaultULongNoFlagsEnum.WDUNFE_34
+      , WithDefaultULongNoFlagsEnum.WDUNFE_1.JustUnnamed()
+      , WithDefaultULongNoFlagsEnum.WDUNFE_1
+      , WithDefaultULongNoFlagsEnum.WDUNFE_1.Default()
+      , WithDefaultULongNoFlagsEnum.WDUNFE_13
+      , WithDefaultULongNoFlagsEnum.WDUNFE_2
+    ];
+    public static readonly List<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlagsEnumList = [..WithDefaultULongNoFlagsEnumArray];
+    public static readonly Lazy<List<WithDefaultULongNoFlagsEnum?>> NullWithDefaultULongNoFlagsEnumList = new(() =>
+    {
+        var withNulls = new List<WithDefaultULongNoFlagsEnum?>();
+        for (int i = 0; i < DecimalArray.Length; i++)
+        {
+            var enumAtIndex = WithDefaultULongNoFlagsEnumArray[i];
+            switch (i)
+            {
+                case 0:
+                case 8:
+                    withNulls.Add(null);
+                    withNulls.Add(enumAtIndex);
+                    break;
+                case 3:
+                    withNulls.Add(null);
+                    withNulls.Add(null);
+                    withNulls.Add(enumAtIndex);
+                    break;
+                default: withNulls.Add(enumAtIndex); break;
+            }
+        }
+        withNulls.Add(null);
+        return withNulls;
+    });
+
+    public static PalantírReveal<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlagsEnumPad10Revealer
+        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe, "\"{0,10}\"");
+    public static PalantírReveal<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlagsEnumRevealer
+        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe);
+    public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlagsEnum_All_Numbers
+        = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
+    public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlagsEnum_All_NonNumbers
+        = (_, item) => EvaluateIsIncludedAndContinue(!item.GetType().IsNumericType());
+    public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlagsEnum_First_8
+        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlagsEnum_Second_5
+        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlagsEnum_Skip_Odd_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlagsEnum_All = (_, _) => IncludedAndContinue;
+    public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum?> NullWithDefaultULongNoFlagsEnum_All_Numbers
+        = (_, item) => EvaluateIsIncludedAndContinue(item?.GetType().IsNumericType() ?? false);
+    public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum?> NullWithDefaultULongNoFlagsEnum_All_NonNumbers
+        = (_, item) => EvaluateIsIncludedAndContinue(!(item?.GetType().IsNumericType() ?? false));
+    public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum?> NullWithDefaultULongNoFlagsEnum_All_NonNull
+        = (_, item) => EvaluateIsIncludedAndContinue(item != null);
+    public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum?> NullWithDefaultULongNoFlagsEnum_First_8
+        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum?> NullWithDefaultULongNoFlagsEnum_Second_5
+        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum?> NullWithDefaultULongNoFlagsEnum_Skip_Odd_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum?> NullWithDefaultULongNoFlagsEnum_All  = (_, _) => IncludedAndContinue;
+    public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum?> NullWithDefaultULongNoFlagsEnum_None = (_, _) => NotIncludedAndContinue;
+
+
+    // 2. Start With Flags enums
+    // 1. a) No Default With Flags
+    public static readonly NoDefaultLongWithFlagsEnum[] NoDefaultLongWithFlagsEnumArray =
+    [
+        NoDefaultLongWithFlagsEnum.NDLWFE_4
+      , NoDefaultLongWithFlagsEnum.NDLWFE_1.First8MinusFlag6Mask()
+      , NoDefaultLongWithFlagsEnum.NDLWFE_34
+      , NoDefaultLongWithFlagsEnum.NDLWFE_1.JustUnnamed()
+      , NoDefaultLongWithFlagsEnum.NDLWFE_1
+      | NoDefaultLongWithFlagsEnum.NDLWFE_2
+      | NoDefaultLongWithFlagsEnum.NDLWFE_6 
+      | NoDefaultLongWithFlagsEnum.NDLWFE_7
+      , NoDefaultLongWithFlagsEnum.NDLWFE_1.Default()
+      , NoDefaultLongWithFlagsEnum.NDLWFE_13
+      , NoDefaultLongWithFlagsEnum.NDLWFE_1.First8MinusFlag2Mask()
+      , NoDefaultLongWithFlagsEnum.NDLWFE_1.First8AndLast2Mask()
+      , NoDefaultLongWithFlagsEnum.NDLWFE_1.First8AndLast2MaskPlusUnnamed()
+      , NoDefaultLongWithFlagsEnum.NDLWFE_2
+      , NoDefaultLongWithFlagsEnum.NDLWFE_2.First4Mask()
+    ];
+    public static readonly List<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlagsEnumList = [..NoDefaultLongWithFlagsEnumArray];
+    public static readonly Lazy<List<NoDefaultLongWithFlagsEnum?>> NullNoDefaultLongWithFlagsEnumList = new(() =>
+    {
+        var withNulls = new List<NoDefaultLongWithFlagsEnum?>();
+        for (int i = 0; i < DecimalArray.Length; i++)
+        {
+            var enumAtIndex = NoDefaultLongWithFlagsEnumArray[i];
+            switch (i)
+            {
+                case 0:
+                case 8:
+                    withNulls.Add(null);
+                    withNulls.Add(enumAtIndex);
+                    break;
+                case 3:
+                    withNulls.Add(null);
+                    withNulls.Add(null);
+                    withNulls.Add(enumAtIndex);
+                    break;
+                default: withNulls.Add(enumAtIndex); break;
+            }
+        }
+        withNulls.Add(null);
+        return withNulls;
+    });
+
+    public static PalantírReveal<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlagsEnumPad10Revealer
+        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe, "\"{0,10}\"");
+    public static PalantírReveal<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlagsEnumRevealer
+        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe);
+    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlagsEnum_All_Numbers
+        = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
+    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlagsEnum_All_NonNumbers
+        = (_, item) => EvaluateIsIncludedAndContinue(!item.GetType().IsNumericType());
+    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlagsEnum_First_8
+        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlagsEnum_Second_5
+        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlagsEnum_Skip_Odd_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlagsEnum_All = (_, _) => IncludedAndContinue;
+    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum?> NullNoDefaultLongWithFlagsEnum_All_Numbers
+        = (_, item) => EvaluateIsIncludedAndContinue(item?.GetType().IsNumericType() ?? false);
+    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum?> NullNoDefaultLongWithFlagsEnum_All_NonNumbers
+        = (_, item) => EvaluateIsIncludedAndContinue(!(item?.GetType().IsNumericType() ?? false));
+    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum?> NullNoDefaultLongWithFlagsEnum_All_NonNull
+        = (_, item) => EvaluateIsIncludedAndContinue(item != null);
+    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum?> NullNoDefaultLongWithFlagsEnum_First_8
+        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum?> NullNoDefaultLongWithFlagsEnum_Second_5
+        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum?> NullNoDefaultLongWithFlagsEnum_Skip_Odd_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum?> NullNoDefaultLongWithFlagsEnum_All  = (_, _) => IncludedAndContinue;
+    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum?> NullNoDefaultLongWithFlagsEnum_None = (_, _) => NotIncludedAndContinue;
+
+
+    public static readonly NoDefaultULongWithFlagsEnum[] NoDefaultULongWithFlagsEnumArray =
+    [
+        NoDefaultULongWithFlagsEnum.NDUWFE_4
+      , NoDefaultULongWithFlagsEnum.NDUWFE_1.First8MinusFlag6Mask()
+      , NoDefaultULongWithFlagsEnum.NDUWFE_34
+      , NoDefaultULongWithFlagsEnum.NDUWFE_1.JustUnnamed()
+      , NoDefaultULongWithFlagsEnum.NDUWFE_1
+      | NoDefaultULongWithFlagsEnum.NDUWFE_2
+      | NoDefaultULongWithFlagsEnum.NDUWFE_6 
+      | NoDefaultULongWithFlagsEnum.NDUWFE_7
+      , NoDefaultULongWithFlagsEnum.NDUWFE_1.Default()
+      , NoDefaultULongWithFlagsEnum.NDUWFE_13
+      , NoDefaultULongWithFlagsEnum.NDUWFE_1.First8MinusFlag2Mask()
+      , NoDefaultULongWithFlagsEnum.NDUWFE_1.First8AndLast2Mask()
+      , NoDefaultULongWithFlagsEnum.NDUWFE_1.First8AndLast2MaskPlusUnnamed()
+      , NoDefaultULongWithFlagsEnum.NDUWFE_2
+      , NoDefaultULongWithFlagsEnum.NDUWFE_2.First4Mask()
+    ];
+    public static readonly List<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlagsEnumList = [..NoDefaultULongWithFlagsEnumArray];
+    public static readonly Lazy<List<NoDefaultULongWithFlagsEnum?>> NullNoDefaultULongWithFlagsEnumList = new(() =>
+    {
+        var withNulls = new List<NoDefaultULongWithFlagsEnum?>();
+        for (int i = 0; i < DecimalArray.Length; i++)
+        {
+            var enumAtIndex = NoDefaultULongWithFlagsEnumArray[i];
+            switch (i)
+            {
+                case 0:
+                case 8:
+                    withNulls.Add(null);
+                    withNulls.Add(enumAtIndex);
+                    break;
+                case 3:
+                    withNulls.Add(null);
+                    withNulls.Add(null);
+                    withNulls.Add(enumAtIndex);
+                    break;
+                default: withNulls.Add(enumAtIndex); break;
+            }
+        }
+        withNulls.Add(null);
+        return withNulls;
+    });
+
+    public static PalantírReveal<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlagsEnumPad10Revealer
+        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe, "\"{0,10}\"");
+    public static PalantírReveal<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlagsEnumRevealer
+        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe);
+    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlagsEnum_All_Numbers
+        = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
+    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlagsEnum_All_NonNumbers
+        = (_, item) => EvaluateIsIncludedAndContinue(!item.GetType().IsNumericType());
+    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlagsEnum_First_8
+        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlagsEnum_Second_5
+        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlagsEnum_Skip_Odd_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlagsEnum_All = (_, _) => IncludedAndContinue;
+    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum?> NullNoDefaultULongWithFlagsEnum_All_Numbers
+        = (_, item) => EvaluateIsIncludedAndContinue(item?.GetType().IsNumericType() ?? false);
+    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum?> NullNoDefaultULongWithFlagsEnum_All_NonNumbers
+        = (_, item) => EvaluateIsIncludedAndContinue(!(item?.GetType().IsNumericType() ?? false));
+    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum?> NullNoDefaultULongWithFlagsEnum_All_NonNull
+        = (_, item) => EvaluateIsIncludedAndContinue(item != null);
+    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum?> NullNoDefaultULongWithFlagsEnum_First_8
+        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum?> NullNoDefaultULongWithFlagsEnum_Second_5
+        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum?> NullNoDefaultULongWithFlagsEnum_Skip_Odd_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum?> NullNoDefaultULongWithFlagsEnum_All  = (_, _) => IncludedAndContinue;
+    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum?> NullNoDefaultULongWithFlagsEnum_None = (_, _) => NotIncludedAndContinue;
+
+
+    public static readonly WithDefaultLongWithFlagsEnum[] WithDefaultLongWithFlagsEnumArray =
+    [
+        WithDefaultLongWithFlagsEnum.WDLWFE_4
+      , WithDefaultLongWithFlagsEnum.WDLWFE_1.First8MinusFlag6Mask()
+      , WithDefaultLongWithFlagsEnum.WDLWFE_34
+      , WithDefaultLongWithFlagsEnum.WDLWFE_1.JustUnnamed()
+      , WithDefaultLongWithFlagsEnum.WDLWFE_1
+      | WithDefaultLongWithFlagsEnum.WDLWFE_2
+      | WithDefaultLongWithFlagsEnum.WDLWFE_6 
+      | WithDefaultLongWithFlagsEnum.WDLWFE_7
+      , WithDefaultLongWithFlagsEnum.WDLWFE_1.Default()
+      , WithDefaultLongWithFlagsEnum.WDLWFE_13
+      , WithDefaultLongWithFlagsEnum.WDLWFE_1.First8MinusFlag2Mask()
+      , WithDefaultLongWithFlagsEnum.WDLWFE_1.First8AndLast2Mask()
+      , WithDefaultLongWithFlagsEnum.WDLWFE_1.First8AndLast2MaskPlusUnnamed()
+      , WithDefaultLongWithFlagsEnum.WDLWFE_2
+      , WithDefaultLongWithFlagsEnum.WDLWFE_2.First4Mask()
+    ];
+    public static readonly List<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlagsEnumList = [..WithDefaultLongWithFlagsEnumArray];
+    public static readonly Lazy<List<WithDefaultLongWithFlagsEnum?>> NullWithDefaultLongWithFlagsEnumList = new(() =>
+    {
+        var withNulls = new List<WithDefaultLongWithFlagsEnum?>();
+        for (int i = 0; i < DecimalArray.Length; i++)
+        {
+            var enumAtIndex = WithDefaultLongWithFlagsEnumArray[i];
+            switch (i)
+            {
+                case 0:
+                case 8:
+                    withNulls.Add(null);
+                    withNulls.Add(enumAtIndex);
+                    break;
+                case 3:
+                    withNulls.Add(null);
+                    withNulls.Add(null);
+                    withNulls.Add(enumAtIndex);
+                    break;
+                default: withNulls.Add(enumAtIndex); break;
+            }
+        }
+        withNulls.Add(null);
+        return withNulls;
+    });
+
+    public static PalantírReveal<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlagsEnumPad10Revealer
+        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe, "\"{0,10}\"");
+    public static PalantírReveal<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlagsEnumRevealer
+        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe);
+    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlagsEnum_All_Numbers
+        = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
+    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlagsEnum_All_NonNumbers
+        = (_, item) => EvaluateIsIncludedAndContinue(!item.GetType().IsNumericType());
+    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlagsEnum_First_8
+        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlagsEnum_Second_5
+        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlagsEnum_Skip_Odd_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlagsEnum_All = (_, _) => IncludedAndContinue;
+    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum?> NullWithDefaultLongWithFlagsEnum_All_Numbers
+        = (_, item) => EvaluateIsIncludedAndContinue(item?.GetType().IsNumericType() ?? false);
+    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum?> NullWithDefaultLongWithFlagsEnum_All_NonNumbers
+        = (_, item) => EvaluateIsIncludedAndContinue(!(item?.GetType().IsNumericType() ?? false));
+    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum?> NullWithDefaultLongWithFlagsEnum_All_NonNull
+        = (_, item) => EvaluateIsIncludedAndContinue(item != null);
+    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum?> NullWithDefaultLongWithFlagsEnum_First_8
+        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum?> NullWithDefaultLongWithFlagsEnum_Second_5
+        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum?> NullWithDefaultLongWithFlagsEnum_Skip_Odd_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum?> NullWithDefaultLongWithFlagsEnum_All  = (_, _) => IncludedAndContinue;
+    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum?> NullWithDefaultLongWithFlagsEnum_None = (_, _) => NotIncludedAndContinue;
+
+
+    public static readonly WithDefaultULongWithFlagsEnum[] WithDefaultULongWithFlagsEnumArray =
+    [
+        WithDefaultULongWithFlagsEnum.WDUWFE_4
+      , WithDefaultULongWithFlagsEnum.WDUWFE_1.First8MinusFlag6Mask()
+      , WithDefaultULongWithFlagsEnum.WDUWFE_34
+      , WithDefaultULongWithFlagsEnum.WDUWFE_1.JustUnnamed()
+      , WithDefaultULongWithFlagsEnum.WDUWFE_1
+      | WithDefaultULongWithFlagsEnum.WDUWFE_2
+      | WithDefaultULongWithFlagsEnum.WDUWFE_6 
+      | WithDefaultULongWithFlagsEnum.WDUWFE_7
+      , WithDefaultULongWithFlagsEnum.WDUWFE_1.Default()
+      , WithDefaultULongWithFlagsEnum.WDUWFE_13
+      , WithDefaultULongWithFlagsEnum.WDUWFE_1.First8MinusFlag2Mask()
+      , WithDefaultULongWithFlagsEnum.WDUWFE_1.First8AndLast2Mask()
+      , WithDefaultULongWithFlagsEnum.WDUWFE_1.First8AndLast2MaskPlusUnnamed()
+      , WithDefaultULongWithFlagsEnum.WDUWFE_2
+      , WithDefaultULongWithFlagsEnum.WDUWFE_2.First4Mask()
+    ];
+    public static readonly List<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlagsEnumList = [..WithDefaultULongWithFlagsEnumArray];
+    public static readonly Lazy<List<WithDefaultULongWithFlagsEnum?>> NullWithDefaultULongWithFlagsEnumList = new(() =>
+    {
+        var withNulls = new List<WithDefaultULongWithFlagsEnum?>();
+        for (int i = 0; i < DecimalArray.Length; i++)
+        {
+            var enumAtIndex = WithDefaultULongWithFlagsEnumArray[i];
+            switch (i)
+            {
+                case 0:
+                case 8:
+                    withNulls.Add(null);
+                    withNulls.Add(enumAtIndex);
+                    break;
+                case 3:
+                    withNulls.Add(null);
+                    withNulls.Add(null);
+                    withNulls.Add(enumAtIndex);
+                    break;
+                default: withNulls.Add(enumAtIndex); break;
+            }
+        }
+        withNulls.Add(null);
+        return withNulls;
+    });
+
+    public static PalantírReveal<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlagsEnumPad10Revealer
+        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe, "\"{0,10}\"");
+    public static PalantírReveal<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlagsEnumRevealer
+        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe);
+    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlagsEnum_All_Numbers
+        = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
+    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlagsEnum_All_NonNumbers
+        = (_, item) => EvaluateIsIncludedAndContinue(!item.GetType().IsNumericType());
+    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlagsEnum_First_8
+        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlagsEnum_Second_5
+        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlagsEnum_Skip_Odd_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlagsEnum_All = (_, _) => IncludedAndContinue;
+    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum?> NullWithDefaultULongWithFlagsEnum_All_Numbers
+        = (_, item) => EvaluateIsIncludedAndContinue(item?.GetType().IsNumericType() ?? false);
+    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum?> NullWithDefaultULongWithFlagsEnum_All_NonNumbers
+        = (_, item) => EvaluateIsIncludedAndContinue(!(item?.GetType().IsNumericType() ?? false));
+    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum?> NullWithDefaultULongWithFlagsEnum_All_NonNull
+        = (_, item) => EvaluateIsIncludedAndContinue(item != null);
+    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum?> NullWithDefaultULongWithFlagsEnum_First_8
+        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum?> NullWithDefaultULongWithFlagsEnum_Second_5
+        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum?> NullWithDefaultULongWithFlagsEnum_Skip_Odd_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum?> NullWithDefaultULongWithFlagsEnum_All = (_, _) => IncludedAndContinue;
+    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum?>
+        NullWithDefaultULongWithFlagsEnum_None = (_, _) => NotIncludedAndContinue;
 }

@@ -91,7 +91,7 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         IpAddressSingPropield  = IPAddress.Parse("192.168.0.1");
         UriSingPropield     = new Uri("https://github.com/shwaindog/Fortitude");
 
-        SpanFormattableSingPropield = new TestCustomSpanFormattable("SpanFormattableSingPropield");
+        SpanFormattableSingPropield = new MySpanFormattableClass("SpanFormattableSingPropield");
         NdLNfEnumSingPropield       = NoDefaultLongNoFlagsEnum.NDLNFE_16;
         NdUNfEnumSingPropield       = NoDefaultULongNoFlagsEnum.NDUNFE_3;
         NdLWfEnumSingPropield =
@@ -284,7 +284,7 @@ public class StandardSinglePropertyFieldClass : IStringBearer
     public IPAddress IpAddressSingPropield { get; set; } = null!;
     public Uri UriSingPropield = null!;
 
-    public TestCustomSpanFormattable SpanFormattableSingPropield { get; set; } = null!;
+    public MySpanFormattableClass SpanFormattableSingPropield { get; set; } = null!;
 
     public NoDefaultLongNoFlagsEnum NdLNfEnumSingPropield;
     public NoDefaultULongNoFlagsEnum NdUNfEnumSingPropield { get; set; }
@@ -724,7 +724,7 @@ public struct StandardSinglePropertyFieldStruct
         IntPtrSingPropield  = IPAddress.Parse("192.168.0.1");
         UriSingPropield     = new Uri("https://github.com/shwaindog/Fortitude");
 
-        SpanFormattableSingPropield = new TestCustomSpanFormattable("SpanFormattableSingPropield");
+        SpanFormattableClassSingPropield = new MySpanFormattableClass("SpanFormattableSingPropield");
         NdLNfEnumSingPropield       = NoDefaultLongNoFlagsEnum.NDLNFE_16;
         NdUNfEnumSingPropield       = NoDefaultULongNoFlagsEnum.NDUNFE_3;
         NdLWfEnumSingPropield =
@@ -830,7 +830,7 @@ public struct StandardSinglePropertyFieldStruct
         IntPtrSingPropield  = null!;
         UriSingPropield     = null!;
 
-        SpanFormattableSingPropield = null!;
+        SpanFormattableClassSingPropield = null!;
 
         NdLNfEnumSingPropield = default;
         NdUNfEnumSingPropield = default;
@@ -917,7 +917,7 @@ public struct StandardSinglePropertyFieldStruct
     public IPAddress IntPtrSingPropield = null!;
     public Uri UriSingPropield { get; set; } = null!;
 
-    public TestCustomSpanFormattable SpanFormattableSingPropield = null!;
+    public MySpanFormattableClass SpanFormattableClassSingPropield = null!;
 
     public NoDefaultLongNoFlagsEnum NdLNfEnumSingPropield { get; set; }
     public NoDefaultULongNoFlagsEnum NdUNfEnumSingPropield;
@@ -1019,7 +1019,7 @@ public struct StandardSinglePropertyFieldStruct
                     ctb.Field.AlwaysAdd(nameof(VersionSingPropield), ssps.VersionSingPropield);
                     ctb.Field.AlwaysAdd(nameof(IntPtrSingPropield), ssps.IntPtrSingPropield);
                     ctb.Field.AlwaysAdd(nameof(UriSingPropield), ssps.UriSingPropield);
-                    ctb.Field.AlwaysAdd(nameof(SpanFormattableSingPropield), ssps.SpanFormattableSingPropield);
+                    ctb.Field.AlwaysAdd(nameof(SpanFormattableClassSingPropield), ssps.SpanFormattableClassSingPropield);
                     ctb.Field.AlwaysAdd(nameof(NdLNfEnumSingPropield), ssps.NdLNfEnumSingPropield);
                     ctb.Field.AlwaysAdd(nameof(NdUNfEnumSingPropield), ssps.NdUNfEnumSingPropield);
                     ctb.Field.AlwaysAdd(nameof(NdLWfEnumSingPropield), ssps.NdLWfEnumSingPropield);
@@ -1108,7 +1108,7 @@ public struct StandardSinglePropertyFieldStruct
                     ctb.Field.WhenNonDefaultAdd(nameof(VersionSingPropield), ssps.VersionSingPropield);
                     ctb.Field.WhenNonDefaultAdd(nameof(IntPtrSingPropield), ssps.IntPtrSingPropield);
                     ctb.Field.WhenNonDefaultAdd(nameof(UriSingPropield), ssps.UriSingPropield);
-                    ctb.Field.WhenNonDefaultAdd(nameof(SpanFormattableSingPropield), ssps.SpanFormattableSingPropield);
+                    ctb.Field.WhenNonDefaultAdd(nameof(SpanFormattableClassSingPropield), ssps.SpanFormattableClassSingPropield);
                     ctb.Field.WhenNonDefaultAdd(nameof(NdLNfEnumSingPropield), ssps.NdLNfEnumSingPropield);
                     ctb.Field.WhenNonDefaultAdd(nameof(NdUNfEnumSingPropield), ssps.NdUNfEnumSingPropield);
                     ctb.Field.WhenNonDefaultAdd(nameof(NdLWfEnumSingPropield), ssps.NdLWfEnumSingPropield);
@@ -1197,7 +1197,7 @@ public struct StandardSinglePropertyFieldStruct
                     ctb.Field.WhenNonNullAdd(nameof(VersionSingPropield), ssps.VersionSingPropield);
                     ctb.Field.WhenNonNullAdd(nameof(IntPtrSingPropield), ssps.IntPtrSingPropield);
                     ctb.Field.WhenNonNullAdd(nameof(UriSingPropield), ssps.UriSingPropield);
-                    ctb.Field.WhenNonNullAdd(nameof(SpanFormattableSingPropield), ssps.SpanFormattableSingPropield);
+                    ctb.Field.WhenNonNullAdd(nameof(SpanFormattableClassSingPropield), ssps.SpanFormattableClassSingPropield);
                     ctb.Field.WhenNonNullAdd(nameof(NdLNfEnumSingPropield), ssps.NdLNfEnumSingPropield);
                     ctb.Field.WhenNonNullAdd(nameof(NdUNfEnumSingPropield), ssps.NdUNfEnumSingPropield);
                     ctb.Field.WhenNonNullAdd(nameof(NdLWfEnumSingPropield), ssps.NdLWfEnumSingPropield);
@@ -1286,7 +1286,7 @@ public struct StandardSinglePropertyFieldStruct
                     ctb.Field.WhenNonNullOrDefaultAdd(nameof(VersionSingPropield), ssps.VersionSingPropield);
                     ctb.Field.WhenNonNullOrDefaultAdd(nameof(IntPtrSingPropield), ssps.IntPtrSingPropield);
                     ctb.Field.WhenNonNullOrDefaultAdd(nameof(UriSingPropield), ssps.UriSingPropield);
-                    ctb.Field.WhenNonNullOrDefaultAdd(nameof(SpanFormattableSingPropield), ssps.SpanFormattableSingPropield);
+                    ctb.Field.WhenNonNullOrDefaultAdd(nameof(SpanFormattableClassSingPropield), ssps.SpanFormattableClassSingPropield);
                     ctb.Field.WhenNonNullOrDefaultAdd(nameof(NdLNfEnumSingPropield), ssps.NdLNfEnumSingPropield);
                     ctb.Field.WhenNonNullOrDefaultAdd(nameof(NdUNfEnumSingPropield), ssps.NdUNfEnumSingPropield);
                     ctb.Field.WhenNonNullOrDefaultAdd(nameof(NdLWfEnumSingPropield), ssps.NdLWfEnumSingPropield);

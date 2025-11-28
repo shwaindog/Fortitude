@@ -5,15 +5,15 @@ using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.Ty
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TextJsonConverters;
 
-public class TestCustomSpanFormattableConverter: JsonConverter<TestCustomSpanFormattable>
+public class TestCustomSpanFormattableConverter: JsonConverter<MySpanFormattableClass>
 {
-    public override TestCustomSpanFormattable Read(ref Utf8JsonReader reader,
+    public override MySpanFormattableClass Read(ref Utf8JsonReader reader,
         Type typeToConvert, JsonSerializerOptions options)
     {
-        return new TestCustomSpanFormattable(reader.GetString()!);
+        return new MySpanFormattableClass(reader.GetString()!);
     }
 
-    public override void Write(Utf8JsonWriter writer, TestCustomSpanFormattable value,
+    public override void Write(Utf8JsonWriter writer, MySpanFormattableClass value,
         JsonSerializerOptions options)
     {
         writer.WriteStringValue(value.ToString());

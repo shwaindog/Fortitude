@@ -84,7 +84,7 @@ public class StandardListPropertyFieldClass : IStringBearer
         IntPtrListPropield  = [new IPAddress("\0\0\0\0"u8.ToArray()), null!, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")];
         UriListPropield     = [new Uri(""), null!, new Uri("https://github.com/shwaindog/Fortitude")];
 
-        SpanFormattableListPropield = [new TestCustomSpanFormattable(""), null!, new TestCustomSpanFormattable("SpanFormattableSingPropield")];
+        SpanFormattableListPropield = [new MySpanFormattableClass(""), null!, new MySpanFormattableClass("SpanFormattableSingPropield")];
         NdLNfEnumListPropield       = [NoDefaultLongNoFlagsEnum.NDLNFE_1, default, NoDefaultLongNoFlagsEnum.NDLNFE_34];
         NdUNfEnumListPropield       = [NoDefaultULongNoFlagsEnum.NDUNFE_1, default, NoDefaultULongNoFlagsEnum.NDUNFE_34];
         NdLWfEnumListPropield =
@@ -298,7 +298,7 @@ public class StandardListPropertyFieldClass : IStringBearer
                 .Select(num =>
                 {
                     if(num == null) return null!;
-                    return new TestCustomSpanFormattable(" SpanFormattableListPropield_" + num);
+                    return new MySpanFormattableClass(" SpanFormattableListPropield_" + num);
                 }) .ToList();
         
         NdLNfEnumListPropield = EnumTestDataGenerator.GenRandomEnumValues<NoDefaultLongNoFlagsEnum>(numberToGenerate).ToList();
@@ -468,7 +468,7 @@ public class StandardListPropertyFieldClass : IStringBearer
     public List<IPAddress> IntPtrListPropield { get; set; } = null!;
     public List<Uri> UriListPropield = null!;
 
-    public List<TestCustomSpanFormattable> SpanFormattableListPropield { get; set; } = null!;
+    public List<MySpanFormattableClass> SpanFormattableListPropield { get; set; } = null!;
 
     public List<NoDefaultLongNoFlagsEnum> NdLNfEnumListPropield = null!;
     public List<NoDefaultULongNoFlagsEnum> NdUNfEnumListPropield { get; set; } = null!;
@@ -1034,7 +1034,7 @@ public struct StandardListPropertyFieldStruct
         IntPtrListPropield  = [new IPAddress("\0\0\0\0"u8.ToArray()), null!, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")];
         UriListPropield     = [new Uri(""), null!, new Uri("https://github.com/shwaindog/Fortitude")];
 
-        SpanFormattableListPropield = [new TestCustomSpanFormattable(""), null!, new TestCustomSpanFormattable("SpanFormattableSingPropield")];
+        SpanFormattableListPropield = [new MySpanFormattableClass(""), null!, new MySpanFormattableClass("SpanFormattableSingPropield")];
         NdLNfEnumListPropield       = [NoDefaultLongNoFlagsEnum.NDLNFE_1, default, NoDefaultLongNoFlagsEnum.NDLNFE_34];
         NdUNfEnumListPropield       = [NoDefaultULongNoFlagsEnum.NDUNFE_1, default, NoDefaultULongNoFlagsEnum.NDUNFE_34];
         NdLWfEnumListPropield =
@@ -1247,7 +1247,7 @@ public struct StandardListPropertyFieldStruct
                 .Select(num =>
                 {
                     if(num == null) return null!;
-                    return new TestCustomSpanFormattable(" SpanFormattableListPropield_" + num);
+                    return new MySpanFormattableClass(" SpanFormattableListPropield_" + num);
                 }) .ToList();
         
         NdLNfEnumListPropield = EnumTestDataGenerator.GenRandomEnumValues<NoDefaultLongNoFlagsEnum>(numberToGenerate).ToList();
@@ -1415,7 +1415,7 @@ public struct StandardListPropertyFieldStruct
     public List<IPAddress> IntPtrListPropield = null!;
     public List<Uri> UriListPropield { get; set; } = null!;
 
-    public List<TestCustomSpanFormattable> SpanFormattableListPropield = null!;
+    public List<MySpanFormattableClass> SpanFormattableListPropield = null!;
 
     public List<NoDefaultLongNoFlagsEnum> NdLNfEnumListPropield { get; set; } = null!;
     public List<NoDefaultULongNoFlagsEnum> NdUNfEnumListPropield = null!;
