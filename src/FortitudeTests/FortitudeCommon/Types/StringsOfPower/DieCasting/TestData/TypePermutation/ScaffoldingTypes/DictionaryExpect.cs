@@ -162,7 +162,7 @@ public class KeyedCollectionExpect<TKey, TValue, TKFilterBase, TVFilterBase> : E
         return createdStringBearer;
     }
 
-    protected override void AdditionalToStringExpectFields(IStringBuilder sb)
+    protected override void AdditionalToStringExpectFields(IStringBuilder sb, ScaffoldingStringBuilderInvokeFlags forThisScaffold)
     {
         if (filterName != null)
         {

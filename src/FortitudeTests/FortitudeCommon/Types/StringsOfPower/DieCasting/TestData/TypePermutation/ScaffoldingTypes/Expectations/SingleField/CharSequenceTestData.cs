@@ -78,8 +78,10 @@ public class CharSequenceTestData
           , new StringLikeExpect<CharArrayStringBuilder, CharArrayStringBuilder>
                 (null, "", true, new CharArrayStringBuilder(""))
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue), "" }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue), "\"\"" }
+                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString)
+                  , "" }
+              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue  | DefaultBecomesFallbackString)
+                  , "\"\"" }
               , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut), "null" }
                ,
                 {
@@ -100,8 +102,10 @@ public class CharSequenceTestData
           , new StringLikeExpect<MutableString, MutableString>
                 (null, "", true, new MutableString(""))
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue), "" }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue), "\"\"" }
+                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString)
+                  , "" }
+              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString)
+                  , "\"\"" }
               , { new EK(SimpleType | CallsViaMatch), "null" }
                ,
                 {

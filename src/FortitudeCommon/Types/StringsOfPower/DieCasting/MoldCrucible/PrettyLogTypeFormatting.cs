@@ -5,7 +5,6 @@ using System.Text.Json.Nodes;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
-using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 
@@ -285,7 +284,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         {
             if (prevFmtFlags.DoesNotHaveAsValueContentFlag() || prevFmtFlags.HasAsStringContentFlag())
             {
-                charsAdded += GraphBuilder.GraphEncoder.Transfer(this, DblQt, destSpan, destIndex);
+                charsAdded += GraphBuilder.GraphEncoder.Transfer(DblQt, destSpan, destIndex);
             }
             GraphBuilder.MarkContentEnd(destIndex + charsAdded);
             return charsAdded;

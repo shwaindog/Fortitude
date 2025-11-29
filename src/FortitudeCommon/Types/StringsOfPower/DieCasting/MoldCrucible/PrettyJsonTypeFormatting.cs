@@ -5,7 +5,6 @@ using System.Text.Json.Nodes;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
-using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 
@@ -185,15 +184,15 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             if ((elementType == typeof(char) && JsonOptions.CharArrayWritesString) || 
                 (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String))
             {
-                charsAdded = GraphBuilder.GraphEncoder.Transfer(this, DblQt, destSpan, destStartIndex);
+                charsAdded = GraphBuilder.GraphEncoder.Transfer(DblQt, destSpan, destStartIndex);
                 return charsAdded; 
             }
             StyleOptions.IndentLevel++;
             if (elementType == typeof(KeyValuePair<string, JsonNode>))
             {
-                charsAdded = GraphBuilder.GraphEncoder.Transfer(this, BrcOpn, destSpan, destStartIndex);
+                charsAdded = GraphBuilder.GraphEncoder.Transfer(BrcOpn, destSpan, destStartIndex);
             }
-            else { charsAdded = GraphBuilder.GraphEncoder.Transfer(this, SqBrktOpn, destSpan, destStartIndex); }
+            else { charsAdded = GraphBuilder.GraphEncoder.Transfer(SqBrktOpn, destSpan, destStartIndex); }
             charsAdded += AddCollectionElementPadding(elementType, destSpan, destStartIndex + charsAdded, 1, formatFlags);
         }
 
@@ -373,7 +372,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             {
                 if (prevFmtFlags.DoesNotHaveAsValueContentFlag() || prevFmtFlags.HasAsStringContentFlag())
                 {
-                    charsAdded += GraphBuilder.GraphEncoder.Transfer(this, DblQt, destSpan, destIndex);
+                    charsAdded += GraphBuilder.GraphEncoder.Transfer(DblQt, destSpan, destIndex);
                 }
                 GraphBuilder.MarkContentEnd(destIndex + charsAdded);
                 return charsAdded;
@@ -399,12 +398,12 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             }
             if (elementType == typeof(KeyValuePair<string, JsonNode>))
             {
-                charsAdded += GraphBuilder.GraphEncoder.Transfer(this, BrcCls, destSpan, destIndex);
+                charsAdded += GraphBuilder.GraphEncoder.Transfer(BrcCls, destSpan, destIndex);
                 GraphBuilder.MarkContentEnd(destIndex + charsAdded);
             }
             else
             {
-                charsAdded += GraphBuilder.GraphEncoder.Transfer(this, SqBrktCls, destSpan, destIndex);
+                charsAdded += GraphBuilder.GraphEncoder.Transfer(SqBrktCls, destSpan, destIndex);
                 GraphBuilder.MarkContentEnd(destIndex + charsAdded);
             }
         }

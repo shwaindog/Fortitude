@@ -44,13 +44,19 @@ public static class JsonFormatterExtensions
     ];
 
     private static ConcurrentDictionary<Type, bool> typeIsDoubleQtDelimited = new();
+    private static ConcurrentDictionary<Type, bool> typeIsDoubleQtExemptCache = new();
 
     public static bool IsDoubleQuoteDelimitedSpanFormattable<T>(this T check)
     {
+        return check.IsDoubleQuoteDelimitedSpanFormattable("");
+    }
+
+    public static bool IsDoubleQuoteDelimitedSpanFormattable<T>(this T check, ReadOnlySpan<char> fallbackValue)
+    {
         var typeOfT = typeof(T) == typeof(Type) ? (Type)(object)check! : typeof(T);
-        
+
         var nullableSpanFormattable = (typeOfT.IsSpanFormattableOrNullableCached());
-        
+
         var doubleQtDelimited = typeIsDoubleQtDelimited.GetOrAdd(typeOfT, t => nullableSpanFormattable && !t.IsJsonStringExemptType());
 
         if (!doubleQtDelimited)
@@ -61,13 +67,14 @@ public static class JsonFormatterExtensions
                 case float floatSource:   doubleQtDelimited = float.IsNaN(floatSource); break;
                 case double doubleSource: doubleQtDelimited = double.IsNaN(doubleSource); break;
             }
-        } else if (nullableSpanFormattable && check == null && typeOfT.IfNullableGetUnderlyingTypeOrThisCached().IsEnum)
-        {
-            doubleQtDelimited = false;
         }
+        else if (nullableSpanFormattable
+              && check == null
+              && typeOfT.IfNullableGetUnderlyingTypeOrThisCached().IsEnum
+              && fallbackValue.IsValidEnumIntegerSpan()) { doubleQtDelimited = false; }
         return doubleQtDelimited;
     }
-    
+
     public static bool IsJsonStringExemptType(this Type checkType)
     {
         if (checkType.IsUniversalStringExemptNumberType()) return true;
@@ -75,4 +82,7 @@ public static class JsonFormatterExtensions
         if (checkType.IsNullableBool()) return true;
         return false;
     }
+
+    public static bool IsJsonStringExemptTypeCached(this Type checkType) => 
+        typeIsDoubleQtExemptCache.GetOrAdd(checkType, t => t.IsJsonStringExemptType());
 }

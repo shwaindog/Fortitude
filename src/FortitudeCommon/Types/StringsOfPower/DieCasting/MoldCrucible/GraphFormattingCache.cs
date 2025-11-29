@@ -85,7 +85,7 @@ public class GraphTrackingBuilder
         styledFormatting = styledTypeFormatting;
         ResetCurrent(formatFlags, allowEmptyContent);
         MarkContentStart();
-        GraphEncoder.Transfer(styledFormatting, content, sb);
+        GraphEncoder.Transfer(content, sb);
         return MarkContentEnd();
     }
 
@@ -96,20 +96,20 @@ public class GraphTrackingBuilder
         styledFormatting = styledTypeFormatting;
         ResetCurrent(formatFlags, allowEmptyContent);
         MarkContentStart();
-        GraphEncoder.Transfer(styledFormatting, content, sb);
+        GraphEncoder.Transfer(content, sb);
         return MarkContentEnd();
     }
     
     public GraphTrackingBuilder AppendContent(ReadOnlySpan<char> content)
     {
-        GraphEncoder.Transfer(styledFormatting, content, sb);
+        GraphEncoder.Transfer(content, sb);
         return MarkContentEnd();
     }
     
     public GraphTrackingBuilder AppendContent(string content)
     {
         if (currentSectionRanges is { FromStartContentStart: null }) { MarkContentStart(); }
-        GraphEncoder.Transfer(styledFormatting, content, sb);
+        GraphEncoder.Transfer(content, sb);
         return MarkContentEnd();
     }
 
@@ -139,7 +139,7 @@ public class GraphTrackingBuilder
             MarkSeparatorEnd();
         }
         else if (currentSectionRanges is { FromStartSeparatorEnd: null }) { MarkSeparatorEnd(); }
-        GraphEncoder.Transfer(styledFormatting, separator, sb);
+        GraphEncoder.Transfer(separator, sb);
         return TagPaddingEnd();
     }
 
@@ -158,13 +158,13 @@ public class GraphTrackingBuilder
     public GraphTrackingBuilder AppendSeparator(string separator)
     {
         if (currentSectionRanges is { FromStartContentEnd: null }) { MarkContentEnd(); }
-        GraphEncoder.Transfer(styledFormatting, separator, sb);
+        GraphEncoder.Transfer(separator, sb);
         return MarkSeparatorEnd();
     }
 
     public ContentSeparatorRanges AppendPaddingAndComplete(string content, FieldContentHandling formatFlags)
     {
-        GraphEncoder.Transfer(styledFormatting, content, sb);
+        GraphEncoder.Transfer(content, sb);
         return Complete(formatFlags);
     }
 

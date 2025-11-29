@@ -174,12 +174,6 @@ public interface ICustomStringFormatter : IRecyclableObject
         where TFmtStruct : struct, ISpanFormattable;
 
 
-    int StringValueDelimiter(IStringBuilder sb);
-    int StringValueDelimiter(Span<char> destSpan, int destStartIndex);
-    int StringFieldDelimiter(IStringBuilder sb);
-    int StringFieldDelimiter(Span<char> destSpan, int destStartIndex);
-
-
     int CollectionStart(Type collectionType, IStringBuilder sb, bool hasItems
       , FormattingHandlingFlags formatFlags = EncodeInnerContent);
     

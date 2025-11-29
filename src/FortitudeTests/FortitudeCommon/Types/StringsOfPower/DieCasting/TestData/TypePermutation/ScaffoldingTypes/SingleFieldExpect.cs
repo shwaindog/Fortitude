@@ -56,14 +56,19 @@ public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldEx
         base(input, valueFormatString, contentHandling, name, srcFile, srcLine)
     {
         HasDefault   = hasDefault;
-        DefaultValue = !typeof(TInput).IfNullableGetUnderlyingTypeOrThis().ImplementsInterface<IStringBearer>()
-            ? defaultValue.IfNullableGetNonNullableUnderlyingDefault()
+        DefaultValue = !InputType.IfNullableGetUnderlyingTypeOrThis().ImplementsInterface<IStringBearer>()
+            ? (InputType.IsValueType
+                ? defaultValue.IfNullableGetNonNullableUnderlyingDefault()
+                : defaultValue)
             : defaultValue;
     }
     
     public bool HasDefault { get; init; }
 
     public TDefault? DefaultValue { get; init; }
+
+
+    public virtual Type DefaultType { get; } = typeof(TDefault);
 
     public string? FormattedDefault { get; protected set; }
 
@@ -111,7 +116,7 @@ public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldEx
         // if (!HasDefault && !InputType.IsValueType && InputIsNull) return DefaultValue?.ToString() ?? "null";
         if (!HasDefault
          && ((InputType.IsValueType && InputType.IsNullable())
-          || !InputType.IsValueType && Equals(DefaultValue, null)))
+          || (!InputType.IsValueType && Equals(DefaultValue, null))))
             return "null";
         if (!HasDefault && InputType.IsValueType && Equals(DefaultValue, default(TInput))) return "0";
         var sb = new MutableString();
@@ -157,7 +162,7 @@ public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldEx
             FormattedDefault = new MutableString().Append(expectedDefaultString).ToString();
             supportsStringDefaultValue.DefaultValue =
                 scaffoldEntry.ScaffoldingFlags.HasAnyOf(DefaultTreatedAsValueOut | DefaultTreatedAsStringOut)
-             && !InputType.IsAnyTypeHoldingChars() && !InputType.IsSpanFormattableOrNullable()
+             && !InputType.IsAnyTypeHoldingChars() && !InputType.IsSpanFormattableOrNullable() && DefaultType == InputType
                     ? expectedDefaultString
                     : new MutableString().Append(DefaultValue).ToString();
 
@@ -169,16 +174,21 @@ public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldEx
         return createdStringBearer;
     }
 
-    protected override void AdditionalToStringExpectFields(IStringBuilder sb)
+    protected override void AdditionalToStringExpectFields(IStringBuilder sb, ScaffoldingStringBuilderInvokeFlags forThisScaffold)
     {
         sb.Append(", ").Append(nameof(HasDefault)).Append(": ").Append(HasDefault ? "true" : "false");
         sb.Append(", ").Append(nameof(DefaultValue)).Append(": ");
         if (DefaultValue == null) { sb.Append("null"); }
         else { sb.Append(AsStringDelimiterOpen).Append(new MutableString().Append(DefaultValue).ToString()).Append(AsStringDelimiterClose); }
+        var defaultStringFromInput = forThisScaffold.HasAnyOf(DefaultTreatedAsValueOut | DefaultTreatedAsStringOut)
+                                  && !InputType.IsAnyTypeHoldingChars() 
+                                  && !InputType.IsSpanFormattableOrNullable() 
+                                  && DefaultType == InputType ; 
         sb.Append(", ").Append(nameof(DefaultAsString)).Append(": ")
           .Append(AsStringDelimiterOpen)
-          .Append(new MutableString()
-                  .Append(DefaultAsString(new CompactJsonTypeFormatting())).ToString())
+          .Append(defaultStringFromInput 
+                      ? new MutableString() .Append(DefaultAsString(new CompactJsonTypeFormatting())).ToString()
+                      : new MutableString().Append(DefaultValue).ToString() )
           .Append(AsStringDelimiterClose);
         AddExpectedResultsList(sb);
     }

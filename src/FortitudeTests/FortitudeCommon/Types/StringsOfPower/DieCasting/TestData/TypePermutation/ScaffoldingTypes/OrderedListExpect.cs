@@ -171,7 +171,7 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
         return createdStringBearer;
     }
 
-    protected override void AdditionalToStringExpectFields(IStringBuilder sb)
+    protected override void AdditionalToStringExpectFields(IStringBuilder sb, ScaffoldingStringBuilderInvokeFlags forThisScaffold)
     {
         if (filterName != null)
         {

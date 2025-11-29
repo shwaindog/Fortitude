@@ -948,12 +948,8 @@ public static class SpanFormattableStructTestData
           , new FieldExpect<TimeOnly?>(null, "HH:mm:ss.FFFFFFF", true)
             {
                 { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
-               ,
-                {
-                    new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut 
-                         | DefaultBecomesFallbackValue, Log | Compact | Pretty)
-                  , "00:00:00"
-                }
+               , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString
+                        , CompactLog | Pretty) , "00:00:00" }
               , { new EK(SimpleType | CallsViaMatch), "\"00:00:00\"" }
               , {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut  

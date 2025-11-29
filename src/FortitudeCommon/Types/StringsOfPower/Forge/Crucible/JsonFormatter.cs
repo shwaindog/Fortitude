@@ -76,7 +76,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         if (maybeDelimited.IsAnyTypeHoldingChars()
          || maybeDelimited.IsChar()
          || (maybeDelimited.IsSpanFormattableOrNullable()
-          && maybeDelimited.IsDoubleQuoteDelimitedSpanFormattable())) { return StringValueDelimiter(sb); }
+          && maybeDelimited.IsDoubleQuoteDelimitedSpanFormattable())) { return StringEncoder.StringValueDelimiter(sb); }
         return 0;
     }
 
@@ -85,7 +85,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         if (maybeDelimited.IsAnyTypeHoldingChars()
          || maybeDelimited.IsChar()
          || (maybeDelimited.IsSpanFormattableOrNullable()
-          && maybeDelimited.IsDoubleQuoteDelimitedSpanFormattable())) { return StringValueDelimiter(sb); }
+          && maybeDelimited.IsDoubleQuoteDelimitedSpanFormattable())) { return StringEncoder.StringValueDelimiter(sb); }
         return 0;
     }
 
@@ -94,7 +94,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         if (maybeDelimited.IsAnyTypeHoldingChars()
          || maybeDelimited.IsChar()
          || (maybeDelimited.IsSpanFormattableOrNullable()
-          && maybeDelimited.IsDoubleQuoteDelimitedSpanFormattable())) { return StringValueDelimiter(destSpan, fromIndex); }
+          && maybeDelimited.IsDoubleQuoteDelimitedSpanFormattable())) { return StringEncoder.StringValueDelimiter(destSpan, fromIndex); }
         return 0;
     }
 
@@ -103,7 +103,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         if (maybeDelimited.IsAnyTypeHoldingChars()
          || maybeDelimited.IsChar()
          || (maybeDelimited.IsSpanFormattableOrNullable()
-          && maybeDelimited.IsDoubleQuoteDelimitedSpanFormattable())) { return StringValueDelimiter(destSpan, fromIndex); }
+          && maybeDelimited.IsDoubleQuoteDelimitedSpanFormattable())) { return StringEncoder.StringValueDelimiter(destSpan, fromIndex); }
         return 0;
     }
 
@@ -244,14 +244,14 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         if (IsBracesEnclosed(justAppended) || IsSquareBracketsEnclosed(justAppended)) { return 0; }
         if (IsDoubleQuoteEnclosed(justAppended))
         {
-            StringEncoder.Transfer(this, justAppended, 0, sb, fromIndex, justAppended.Length);
+            StringEncoder.Transfer(justAppended, 0, sb, fromIndex, justAppended.Length);
             return sb.Length - originalSbLen;
         }
         if (JsonOptions.WrapValuesInQuotes)
         {
             scratchFull[0]  = '\"';
             scratchFull[^1] = '\"';
-            StringEncoder.Transfer(this, scratchFull, 0, sb, fromIndex, scratchFull.Length);
+            StringEncoder.Transfer(scratchFull, 0, sb, fromIndex, scratchFull.Length);
         }
         return sb.Length - originalSbLen;
     }
@@ -281,14 +281,14 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         if (IsBracesEnclosed(justAppended) || IsSquareBracketsEnclosed(justAppended)) { return 0; }
         if (IsDoubleQuoteEnclosed(justAppended))
         {
-            var charsAdded = StringEncoder.Transfer(this, justAppended, 0, destSpan, fromIndex, justAppended.Length);
+            var charsAdded = StringEncoder.Transfer(justAppended, 0, destSpan, fromIndex, justAppended.Length);
             return charsAdded - appendLen;
         }
         if (JsonOptions.WrapValuesInQuotes)
         {
             scratchFull[0]  = '\"';
             scratchFull[^1] = '\"';
-            var charsAdded = StringEncoder.Transfer(this, scratchFull, 0, destSpan, fromIndex, scratchFull.Length);
+            var charsAdded = StringEncoder.Transfer(scratchFull, 0, destSpan, fromIndex, scratchFull.Length);
             return charsAdded - appendLen;
         }
         return 0;

@@ -2179,7 +2179,7 @@ public class SimpleAsValueMatchSimpleValueTypeStringBearer<TAny> : FormattedMold
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyGeneric | SupportsValueFormatString
-                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
+                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackString)]
 public class SimpleAsValueMatchWithDefaultSimpleValueTypeStringBearer<TAny> : FormattedMoldScaffold<TAny?>
   , IMoldSupportedDefaultValue<string>
 {

@@ -75,8 +75,8 @@ public static class BoolTestData
       , new FieldExpect<bool?>(null, "{0}",true, false)
         {
             { new EK( SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesNull | DefaultBecomesFallbackValue), "null" }
-           ,{ new EK( SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue), "false" }
-           ,{ new EK( SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue), "\"false\"" }
+           ,{ new EK( SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString), "false" }
+           ,{ new EK( SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString), "\"false\"" }
            ,{ new EK( SimpleType | CallsViaMatch), "null" }
           , { new EK(AcceptsNullableStruct | AlwaysWrites | NonDefaultWrites | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut), "null" }
         }

@@ -84,7 +84,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         if (callContext.ShouldSkip || SkipField<TFmt?>(value?.GetType(), nonJsonfieldName, formatFlags)) 
             return WasSkipped<TFmt?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value , formatFlags | StyleFormatter.ResolveContentAsValueFormattingFlags(value, true));
+            (Sb, value , formatFlags | StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinWithDefaultValue(value, defaultValue, formatString, formatFlags);
@@ -97,7 +97,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TFmt?>(value?.GetType(), "", formatFlags)) 
             return WasSkipped<TFmt?>(value?.GetType(), "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsValueFormattingFlags(value, true));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString));
         return VettedJoinWithDefaultValue(value, defaultValue, formatString, formatFlags);
     }
     
@@ -122,7 +123,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TFmt?>(value?.GetType(), nonJsonfieldName, formatFlags)) 
             return WasSkipped<TFmt?>(value?.GetType(), nonJsonfieldName, formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsValueFormattingFlags(value, false) );
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString) );
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinValue(value, formatString, formatFlags);
@@ -135,7 +137,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TFmt?>(value?.GetType(), "", formatFlags)) 
             return WasSkipped<TFmt?>(value?.GetType(), "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsValueFormattingFlags(value, false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString));
         return VettedJoinValue(value, formatString, formatFlags);
     }
     
@@ -152,7 +155,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TFmtStruct?>(value?.GetType(), nonJsonfieldName, formatFlags)) 
             return WasSkipped<TFmtStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags  | StyleFormatter.ResolveContentAsValueFormattingFlags(value, true));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags  | StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinWithDefaultValue(value, defaultValue, formatString, formatFlags);
@@ -165,7 +169,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TFmtStruct?>(value?.GetType(), "", formatFlags)) 
             return WasSkipped<TFmtStruct?>(value?.GetType(), "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsValueFormattingFlags(value, true));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString));
         return VettedJoinWithDefaultValue(value, defaultValue, formatString, formatFlags);
     }
     
@@ -189,7 +194,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TFmtStruct?>(value?.GetType(), nonJsonfieldName, formatFlags)) 
             return WasSkipped<TFmtStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsValueFormattingFlags(value, false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinValue(value, formatString, formatFlags);
@@ -202,7 +208,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TFmtStruct?>(value?.GetType(), "", formatFlags)) 
             return WasSkipped<TFmtStruct?>(value?.GetType(), "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value,formatFlags  | StyleFormatter.ResolveContentAsValueFormattingFlags(value, false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value,formatFlags  | StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString));
         return VettedJoinValue(value, formatString, formatFlags);
     }
     
@@ -853,7 +860,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
             var capLength = Math.Clamp(length, 0, value.Length - capStart);
-            if (capLength > 0) { StyleFormatter.FormatFieldContents(Sb, value, capStart, formatString, capLength,  formatFlags: formatFlags); }
+            if (capLength > 0) { StyleFormatter.FormatFieldContents
+                (Sb, value, capStart, formatString, capLength,  formatFlags: formatFlags); }
             else
             {
                 if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
@@ -900,7 +908,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
             var capLength = Math.Clamp(length, 0, value.Length - capStart);
-            if (capLength > 0) { StyleFormatter.FormatFieldContents(Sb, value, capStart, formatString, capLength, formatFlags: formatFlags); }
+            if (capLength > 0) { StyleFormatter.FormatFieldContents
+                (Sb, value, capStart, formatString, capLength, formatFlags: formatFlags); }
             else
             {
                 if (formatString.Length > 0)
@@ -1029,7 +1038,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TAny?>(value?.GetType(), nonJsonfieldName, formatFlags)) 
             return WasSkipped<TAny?>(value?.GetType(), "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsValueFormattingFlags(value, false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString));
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedValueMatchJoinValue(value, formatString, formatFlags);
         return ConditionalValueTypeSuffix();
@@ -1040,7 +1050,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TAny?>(value?.GetType(), "", formatFlags)) 
             return WasSkipped<TAny?>(value?.GetType(), "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsValueFormattingFlags(value, false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString));
         return VettedValueMatchJoinValue(value, formatString, formatFlags);
     }
     
@@ -1062,7 +1073,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TAny?>(value?.GetType(), nonJsonfieldName, formatFlags)) 
             return WasSkipped<TAny?>(value?.GetType(), nonJsonfieldName, formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsValueFormattingFlags(value, true));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString));
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinValueMatchWithDefaultValue(value, defaultValue, formatString, formatFlags);
         return ConditionalValueTypeSuffix();
@@ -1074,7 +1086,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TAny?>(value?.GetType(), "", formatFlags)) 
             return WasSkipped<TAny?>(value?.GetType(), "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsValueFormattingFlags(value, true));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString));
         return VettedJoinValueMatchWithDefaultValue(value, defaultValue, formatString, formatFlags );
     }
     
@@ -1099,7 +1112,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<bool?>(value?.GetType(), nonJsonfieldName, formatFlags)) 
             return WasSkipped<bool?>(value?.GetType(), nonJsonfieldName, formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags   | StyleFormatter.ResolveContentAsStringFormattingFlags( value, false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags   | StyleFormatter.ResolveContentAsStringFormattingFlags( value, "", formatString));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
@@ -1112,7 +1126,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<bool?>(value?.GetType(), "", formatFlags)) 
             return WasSkipped<bool?>(value?.GetType(), "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags  | StyleFormatter.ResolveContentAsStringFormattingFlags( value, false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags  | StyleFormatter.ResolveContentAsStringFormattingFlags( value, "", formatString));
         return VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     
@@ -1145,7 +1160,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TFmt?>(value?.GetType(), nonJsonfieldName, formatFlags)) 
             return WasSkipped<TFmt?>(value?.GetType(), nonJsonfieldName, formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags( value, true));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags( value, defaultValue, formatString));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
@@ -1159,12 +1175,13 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TFmt?>(value?.GetType(), "", formatFlags)) 
             return WasSkipped<TFmt?>(value?.GetType(), "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, true));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString));
         return VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     
-    public TVMold VettedJoinStringWithDefault<TFmt>(TFmt? value, string defaultValue = "", string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags
-      , bool addStartDblQt = false, bool addEndDblQt = false)
+    public TVMold VettedJoinStringWithDefault<TFmt>(TFmt? value, string defaultValue = "", string formatString = ""
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
         where TFmt : ISpanFormattable
     {
         if(addStartDblQt) StyleFormatter.GraphBuilder.AppendContent("\"");
@@ -1187,7 +1204,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TFmt?>(value?.GetType(), nonJsonfieldName, formatFlags)) 
             return WasSkipped<TFmt?>(value?.GetType(), nonJsonfieldName, formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
@@ -1201,7 +1219,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TFmt?>(value?.GetType(), "", formatFlags)) 
             return WasSkipped<TFmt?>(value?.GetType(), "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString));
         return VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     
@@ -1235,7 +1254,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TFmtStruct?>(value?.GetType(), nonJsonfieldName, formatFlags)) 
             return WasSkipped<TFmtStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, true));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
@@ -1249,7 +1269,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TFmtStruct?>(value?.GetType(), "", formatFlags)) 
             return WasSkipped<TFmtStruct?>(value?.GetType(), "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, true));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString));
         return VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     
@@ -1280,7 +1301,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TFmtStruct?>(value?.GetType(), nonJsonfieldName, formatFlags)) 
             return WasSkipped<TFmtStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
@@ -1294,7 +1316,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TFmtStruct?>(value?.GetType(), "", formatFlags)) 
             return WasSkipped<TFmtStruct?>(value?.GetType(), "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString));
         return VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     
@@ -1715,7 +1738,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<Memory<char>?>(value.Length > 0 ? typeof(Span<char>) : null, nonJsonfieldName, formatFlags)) 
             return WasSkipped<Memory<char>>(value.Length > 0 ? typeof(Span<char>) : null, nonJsonfieldName, formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "Span", formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags("Span", false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, "Span", formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags("Span", "", formatString));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
@@ -1728,7 +1752,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<Memory<char>?>(value.Length > 0 ? typeof(Span<char>) : null, "", formatFlags)) 
             return WasSkipped<Memory<char>>(value.Length > 0 ? typeof(Span<char>) : null, "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "Span", formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags("Span", false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, "Span", formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags("Span", "", formatString));
         return VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     
@@ -1758,7 +1783,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<ReadOnlyMemory<char>?>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, nonJsonfieldName, formatFlags)) 
             return WasSkipped<ReadOnlyMemory<char>>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, nonJsonfieldName, formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "ReadOnlySpan", formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags("ReadOnlySpan", false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, "ReadOnlySpan", formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags("ReadOnlySpan", ""));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinString(value, formatFlags, addStartDblQt, addEndDblQt);
@@ -1771,7 +1797,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<ReadOnlyMemory<char>?>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, "", formatFlags)) 
             return WasSkipped<ReadOnlyMemory<char>>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "ReadOnlySpan", formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags("ReadOnlySpan", false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, "ReadOnlySpan", formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags("ReadOnlySpan", ""));
         return VettedJoinString(value, formatFlags, addStartDblQt, addEndDblQt);
     }
     
@@ -1801,7 +1828,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<ReadOnlyMemory<char>?>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, nonJsonfieldName, formatFlags)) 
             return WasSkipped<ReadOnlyMemory<char>>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, nonJsonfieldName, formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "Span", formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags("Span", true));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, "Span", formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags("Span", defaultValue, formatString));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
@@ -1814,7 +1842,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<ReadOnlyMemory<char>?>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, "", formatFlags)) 
             return WasSkipped<ReadOnlyMemory<char>>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "Span", formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags("Span", true));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, "Span", formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags("Span", defaultValue, formatString));
         return VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     
@@ -1840,7 +1869,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<ReadOnlyMemory<char>?>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, nonJsonfieldName, formatFlags)) 
             return WasSkipped<ReadOnlyMemory<char>>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, nonJsonfieldName, formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "ReadOnlySpan", formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags("ReadOnlySpan", false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, "ReadOnlySpan", formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags("ReadOnlySpan", "", formatString));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
@@ -1853,7 +1883,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<ReadOnlyMemory<char>?>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, "", formatFlags)) 
             return WasSkipped<ReadOnlyMemory<char>>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "ReadOnlySpan", formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags("ReadOnlySpan", false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, "ReadOnlySpan", formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags("ReadOnlySpan", "", formatString));
         return VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     
@@ -1883,7 +1914,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<string?>(value?.GetType(), nonJsonfieldName, formatFlags)) 
             return WasSkipped<string?>(value?.GetType(), nonJsonfieldName, formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt);
@@ -1896,7 +1928,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<string?>(value?.GetType(), "", formatFlags)) 
             return WasSkipped<string?>(value?.GetType(), "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString));
         return VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     
@@ -1945,7 +1978,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<string?>(value?.GetType(), nonJsonfieldName, formatFlags)) 
             return WasSkipped<string?>(value?.GetType(), nonJsonfieldName, formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, true));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
@@ -1959,7 +1993,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<string?>(value?.GetType(), "", formatFlags)) 
             return WasSkipped<string?>(value?.GetType(), "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, true));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString));
         return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     
@@ -1997,7 +2032,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<char[]?>(value?.GetType(), nonJsonfieldName, formatFlags)) 
             return WasSkipped<char[]?>(value?.GetType(), nonJsonfieldName, formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt);
@@ -2010,7 +2046,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<char[]?>(value?.GetType(), "", formatFlags)) 
             return WasSkipped<char[]?>(value?.GetType(), "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString));
         return VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     
@@ -2059,7 +2096,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<char[]?>(value?.GetType(), nonJsonfieldName, formatFlags)) 
             return WasSkipped<char[]?>(value?.GetType(), nonJsonfieldName, formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, true));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
@@ -2073,7 +2111,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<char[]?>(value?.GetType(), "", formatFlags)) 
             return WasSkipped<char[]?>(value?.GetType(), "" , formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, true));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString));
         return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     
@@ -2111,7 +2150,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TCharSeq?>(value?.GetType(), nonJsonfieldName, formatFlags)) 
             return WasSkipped<TCharSeq?>(value?.GetType(), nonJsonfieldName , formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, true));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
@@ -2126,7 +2166,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TCharSeq?>(value?.GetType(), "", formatFlags)) 
             return WasSkipped<TCharSeq?>(value?.GetType(), "" , formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags  | StyleFormatter.ResolveContentAsStringFormattingFlags(value, true));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags  | StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString));
         return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     
@@ -2164,7 +2205,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TCharSeq?>(value?.GetType(), nonJsonfieldName, formatFlags)) 
             return WasSkipped<TCharSeq?>(value?.GetType(), nonJsonfieldName , formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags   | StyleFormatter.ResolveContentAsStringFormattingFlags(value, false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags   | StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt);
@@ -2178,7 +2220,9 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TCharSeq?>(value?.GetType(), "", formatFlags)) 
             return WasSkipped<TCharSeq?>(value?.GetType(), "" , formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString));
+        
         return VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     
@@ -2228,7 +2272,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<StringBuilder?>(value?.GetType(), nonJsonfieldName, formatFlags)) 
             return WasSkipped<StringBuilder?>(value?.GetType(), nonJsonfieldName, formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, true));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
@@ -2242,7 +2287,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<StringBuilder?>(value?.GetType(), "", formatFlags)) 
             return WasSkipped<StringBuilder?>(value?.GetType(), "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags  | StyleFormatter.ResolveContentAsStringFormattingFlags(value, true));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags  | StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString));
         return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     
@@ -2278,7 +2324,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<StringBuilder?>(value?.GetType(), nonJsonfieldName, formatFlags)) 
             return WasSkipped<StringBuilder?>(value?.GetType(), nonJsonfieldName, formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags  | StyleFormatter.ResolveContentAsStringFormattingFlags(value, false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags  | StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString));
         
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt);
@@ -2291,7 +2338,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<StringBuilder?>(value?.GetType(), "", formatFlags)) 
             return WasSkipped<StringBuilder?>(value?.GetType(), "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags  | StyleFormatter.ResolveContentAsStringFormattingFlags(value, false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags  | StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString));
         return VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     
@@ -2339,7 +2387,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TAny?>(value?.GetType(), nonJsonfieldName, formatFlags)) 
             return WasSkipped<TAny?>(value?.GetType(), nonJsonfieldName, formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString));
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinStringMatchJoin(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
         return ConditionalValueTypeSuffix();
@@ -2351,7 +2400,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TAny?>(value?.GetType(), "", formatFlags)) 
             return WasSkipped<TAny?>(value?.GetType(), "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, false));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString));
         return VettedJoinStringMatchJoin(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
     }
     
@@ -2382,7 +2432,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TAny?>(value?.GetType(), nonJsonfieldName, formatFlags)) 
             return WasSkipped<TAny?>(value?.GetType(), nonJsonfieldName, formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, true));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString));
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         VettedJoinStringMatchWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
         return ConditionalValueTypeSuffix();
@@ -2394,7 +2445,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         var callContext = Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip || SkipField<TAny?>(value?.GetType(), "", formatFlags)) 
             return WasSkipped<TAny?>(value?.GetType(), "", formatFlags);
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, true));
+        formatFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, formatFlags | StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString));
         return VettedJoinStringMatchWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt );
     }
     

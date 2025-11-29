@@ -31,7 +31,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
 
     public GraphTrackingBuilder GraphBuilder { get; protected set; } = null!;
 
-    public FieldContentHandling ResolveContentFormattingFlags<T>(IStringBuilder sb, T input, FieldContentHandling callerFormattingFlags
+    public virtual FieldContentHandling ResolveContentFormattingFlags<T>(IStringBuilder sb, T input, FieldContentHandling callerFormattingFlags
       , string formatString = "", bool isFieldName = false)
     {
         if (callerFormattingFlags.HasDisableAddingAutoCallerTypeFlags() || input == null) { return callerFormattingFlags; }
@@ -52,25 +52,25 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return setFlags;
     }
 
-    public FieldContentHandling ResolveContentAsValueFormattingFlags<T>(T input, bool hasFallbackValue)
+    public virtual FieldContentHandling ResolveContentAsValueFormattingFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = "")
     {
-        if (input == null && !hasFallbackValue) return DefaultCallerTypeFlags;
-        var typeOfT = typeof(T);
-        if (typeOfT.IsAnyTypeHoldingChars() || typeOfT.IsChar() || typeOfT.IsNullableChar()) return DisableAutoDelimiting | AsValueContent;
-        var isSpanFormattableOrNullable           = typeOfT.IsSpanFormattableOrNullable();
-        var isDoubleQuoteDelimitedSpanFormattable = input.IsDoubleQuoteDelimitedSpanFormattable();
+        var typeOfT                     = typeof(T);
+        var isSpanFormattableOrNullable = typeOfT.IsSpanFormattableOrNullableCached();
+        var isAnyTypeHoldingChars       = typeOfT.IsAnyTypeHoldingCharsCached() || typeOfT.IsChar() || typeOfT.IsNullableChar();
+        if (isAnyTypeHoldingChars) return DisableAutoDelimiting | AsValueContent;
+        var isDoubleQuoteDelimitedSpanFormattable = input.IsDoubleQuoteDelimitedSpanFormattable(fallbackValue);
         if (isSpanFormattableOrNullable && isDoubleQuoteDelimitedSpanFormattable) return EnsureFormattedDelimited | AsValueContent;
         return AsValueContent;
     }
 
-    public FieldContentHandling ResolveContentAsStringFormattingFlags<T>(T input, bool hasFallbackValue)
+    public virtual FieldContentHandling ResolveContentAsStringFormattingFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = "")
     {
-        if (input == null && !hasFallbackValue) return DefaultCallerTypeFlags;
-        var typeOfT = typeof(T);
-        if (typeOfT.IsAnyTypeHoldingChars() || typeOfT.IsChar() || typeOfT.IsNullableChar()) return DisableAutoDelimiting | AsStringContent;
-        var isSpanFormattableOrNullable           = typeOfT.IsSpanFormattableOrNullable();
-        var isJsonStringExemptType                = typeOfT.IsJsonStringExemptType();
-        var isDoubleQuoteDelimitedSpanFormattable = input.IsDoubleQuoteDelimitedSpanFormattable() || !isJsonStringExemptType;
+        var typeOfT                     = typeof(T);
+        var isSpanFormattableOrNullable = typeOfT.IsSpanFormattableOrNullableCached();
+        var isAnyTypeHoldingChars       = typeOfT.IsAnyTypeHoldingCharsCached() || typeOfT.IsChar() || typeOfT.IsNullableChar();
+        if (isAnyTypeHoldingChars) return DisableAutoDelimiting | AsStringContent;
+        var isJsonStringExemptType                = typeOfT.IsJsonStringExemptTypeCached();
+        var isDoubleQuoteDelimitedSpanFormattable = input.IsDoubleQuoteDelimitedSpanFormattable(fallbackValue) || !isJsonStringExemptType;
         if (isSpanFormattableOrNullable && isDoubleQuoteDelimitedSpanFormattable) return DisableAutoDelimiting | AsStringContent;
         return AsStringContent;
     }
@@ -1026,7 +1026,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
                 if (prevFmtFlags.DoesNotHaveAsValueContentFlag() ||
                     prevFmtFlags.HasAsStringContentFlag())
                 {
-                    charsAdded += GraphBuilder.GraphEncoder.Transfer(this, DblQt, destSpan, destIndex);
+                    charsAdded += GraphBuilder.GraphEncoder.Transfer(DblQt, destSpan, destIndex);
                     GraphBuilder.MarkContentEnd(destIndex + charsAdded);
                     return charsAdded;
                 }
@@ -1044,7 +1044,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
                 GraphBuilder.RemoveLastSeparatorAndPadding(destSpan, ref destIndex);
                 GraphBuilder.ResetCurrent((FieldContentHandling)formatFlags, true);
                 GraphBuilder.MarkContentStart(destIndex);
-                charsAdded += GraphBuilder.GraphEncoder.Transfer(this, BrcCls, destSpan, destIndex);
+                charsAdded += GraphBuilder.GraphEncoder.Transfer(BrcCls, destSpan, destIndex);
                 GraphBuilder.MarkContentEnd(destIndex + charsAdded);
                 return charsAdded;
             }
@@ -1052,7 +1052,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             GraphBuilder.RemoveLastSeparatorAndPadding(destSpan, ref destIndex);
             GraphBuilder.ResetCurrent((FieldContentHandling)formatFlags, true);
             GraphBuilder.MarkContentStart(destIndex);
-            charsAdded += GraphBuilder.GraphEncoder.Transfer(this, SqBrktCls, destSpan, destIndex);
+            charsAdded += GraphBuilder.GraphEncoder.Transfer(SqBrktCls, destSpan, destIndex);
             GraphBuilder.MarkContentEnd(destIndex + charsAdded);
         }
         return charsAdded;

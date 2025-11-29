@@ -9,6 +9,14 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
 
     public static PassThroughEncodingTransfer Instance { get; } = new();
 
+    public int StringValueDelimiter(IStringBuilder sb) => sb.Append(DblQtChar).ReturnCharCount(1);
+
+    public int StringValueDelimiter(Span<char> destSpan, int destStartIndex) => destSpan[destStartIndex].ReturnInt(1);
+
+    public int StringFieldDelimiter(IStringBuilder sb) => sb.Append(DblQtChar).ReturnCharCount(1);
+
+    public int StringFieldDelimiter(Span<char> destSpan, int destStartIndex) => destSpan[destStartIndex].ReturnInt(1);
+
     public int Transfer(Rune? source, IStringBuilder destSb)
     {
         var preAppendLength = destSb.Length;
@@ -25,18 +33,18 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
 
 
     public virtual int TransferPrefix(bool encodeFirst, ReadOnlySpan<char> source, IStringBuilder destSb) => 
-        Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSb);
+        Transfer(source, 0, destSb);
 
     public virtual int TransferPrefix(bool encodeFirst, ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex) => 
-        Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSpan, destStartIndex);
+        Transfer(source, 0, destSpan, destStartIndex);
 
     public virtual int TransferSuffix(ReadOnlySpan<char> source, IStringBuilder destSb, bool encodeLast) => 
-        Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSb);
+        Transfer(source, 0, destSb);
 
     public virtual int TransferSuffix(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex, bool encodeLast) => 
-        Transfer(ICustomStringFormatter.DefaultAsciiEscapeFormatter, source, 0, destSpan, destStartIndex);
+        Transfer(source, 0, destSpan, destStartIndex);
 
-    public virtual int Transfer(ICustomStringFormatter stringFormatter, ReadOnlySpan<char> source, IStringBuilder destSb
+    public virtual int Transfer(ReadOnlySpan<char> source, IStringBuilder destSb
       , int destStartIndex = int.MaxValue)
     {
         var preAppendLength = destSb.Length;
@@ -44,11 +52,11 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
         return destSb.Length - preAppendLength;
     }
 
-    public virtual int Transfer(ICustomStringFormatter stringFormatter, ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex
+    public virtual int Transfer(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex
       , int maxTransferCount = int.MaxValue) =>
-        Transfer(stringFormatter, source, 0, destSpan, destStartIndex, maxTransferCount);
+        Transfer(source, 0, destSpan, destStartIndex, maxTransferCount);
 
-    public virtual int Transfer(ICustomStringFormatter stringFormatter, ReadOnlySpan<char> source, int sourceFrom, Span<char> destSpan
+    public virtual int Transfer(ReadOnlySpan<char> source, int sourceFrom, Span<char> destSpan
       , int destStartIndex, int maxTransferCount = int.MaxValue)
     {
         var cappedFrom   = Math.Clamp(sourceFrom, 0, source.Length);
@@ -58,7 +66,7 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
         return cappedLength;
     }
 
-    public virtual int Transfer(ICustomStringFormatter stringFormatter, ReadOnlySpan<char> source, int sourceFrom, IStringBuilder destSb
+    public virtual int Transfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder destSb
       , int destStartIndex = int.MaxValue, int maxTransferCount = int.MaxValue)
     {
         var cappedFrom   = Math.Clamp(sourceFrom, 0, source.Length);
@@ -104,7 +112,7 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
         return cappedLength;
     }
 
-    public virtual int Transfer(ICustomStringFormatter stringFormatter, StringBuilder source, IStringBuilder destSb
+    public virtual int Transfer(StringBuilder source, IStringBuilder destSb
       , int destStartIndex = int.MaxValue)
     {
         var preAppendLength = destSb.Length;
@@ -112,7 +120,7 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
         return destSb.Length - preAppendLength;
     }
 
-    public virtual int Transfer(ICustomStringFormatter stringFormatter, StringBuilder source, Span<char> destSpan, int destStartIndex
+    public virtual int Transfer(StringBuilder source, Span<char> destSpan, int destStartIndex
       , int maxTransferCount = int.MaxValue)
     {
         var cappedLength = Math.Clamp(maxTransferCount, 0, Math.Max(0, Math.Min(source.Length, destSpan.Length - destStartIndex)));
@@ -121,7 +129,7 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
         return cappedLength;
     }
 
-    public virtual int Transfer(ICustomStringFormatter stringFormatter, StringBuilder source, int sourceFrom, IStringBuilder destSb
+    public virtual int Transfer(StringBuilder source, int sourceFrom, IStringBuilder destSb
       , int destStartIndex = int.MaxValue, int maxTransferCount = int.MaxValue)
     {
         var cappedLength = Math.Clamp(maxTransferCount, 0, Math.Max(0, source.Length));
@@ -129,7 +137,7 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
         return cappedLength;
     }
 
-    public virtual int Transfer(ICustomStringFormatter stringFormatter, StringBuilder source, int sourceFrom, Span<char> destSpan, int destStartIndex
+    public virtual int Transfer(StringBuilder source, int sourceFrom, Span<char> destSpan, int destStartIndex
       , int maxTransferCount = int.MaxValue)
     {
         var cappedLength = Math.Clamp(maxTransferCount, 0, Math.Max(0, Math.Min(source.Length - sourceFrom, destSpan.Length - destStartIndex)));
