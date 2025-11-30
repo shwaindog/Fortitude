@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.DataStructures.Lists.PositionAware;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
@@ -525,6 +526,38 @@ public static class EnumTestData
               , "NoDefaultLongWithFlagsEnum.NDLWFE_First4Mask"  }
               , { new EK(AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson | Pretty)
                 , "\"NDLWFE_First4Mask\"" }
+            }
+          , new FieldExpect<NoDefaultLongWithFlagsEnum>(NoDefaultLongWithFlagsEnum.NDLWFE_1.First8Mask(), "[\"{0}\"]")
+            {
+                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
+                , "NoDefaultLongWithFlagsEnum.[\"NDLWFE_First8Mask\"]" 
+                }
+              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, CompactLog | Pretty)
+              , "\"NoDefaultLongWithFlagsEnum.[\"NDLWFE_First8Mask\"]\"" }
+              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactJson | Pretty)
+                , "[\"NDLWFE_First8Mask\"]" }
+              , { new EK(SimpleType | AcceptsSpanFormattable ), "\"[\\u0022NDLWFE_First8Mask\\u0022]\"" }
+              , { new EK(AcceptsSpanFormattable | AllOutputConditionsMask, CompactLog | Pretty)
+              , "NoDefaultLongWithFlagsEnum.[\"NDLWFE_First8Mask\"]"  }
+              , { new EK(AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson | Pretty)
+                , "[\"NDLWFE_First8Mask\"]" }
+            }
+          , new FieldExpect<NoDefaultLongWithFlagsEnum>(NoDefaultLongWithFlagsEnum.NDLWFE_1.First8AndLast2Mask(), "[\"{0,/, /\", \"/}\"]"
+                                                       ,  contentHandling: ReformatMultiLine)
+            {
+                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
+                , "NoDefaultLongWithFlagsEnum.[\"NDLWFE_First8Mask\" | NoDefaultLongWithFlagsEnum.\"NDLWFE_LastTwoMask\"]" 
+                }
+              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, CompactLog | Pretty)
+              , "\"NoDefaultLongWithFlagsEnum.[\"NDLWFE_First8Mask\" | NoDefaultLongWithFlagsEnum.\"NDLWFE_LastTwoMask\"]\"" }
+              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactJson | Pretty)
+                , "[\"NDLWFE_First8Mask\", \"NDLWFE_LastTwoMask\"]" }
+              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, CompactJson | Pretty)
+                , "\"[\\u0022NDLWFE_First8Mask\\u0022, \\u0022NDLWFE_LastTwoMask\\u0022]\"" }
+              , { new EK(AcceptsSpanFormattable | AllOutputConditionsMask, CompactLog | Pretty)
+              , "NoDefaultLongWithFlagsEnum.[\"NDLWFE_First8Mask\" | NoDefaultLongWithFlagsEnum.\"NDLWFE_LastTwoMask\"]"   }
+              , { new EK(AcceptsSpanFormattable | AllOutputConditionsMask, CompactJson | Pretty)
+                , "[\"NDLWFE_First8Mask\", \"NDLWFE_LastTwoMask\"]" }
             }
           , new FieldExpect<NoDefaultLongWithFlagsEnum>(NoDefaultLongWithFlagsEnum.NDLWFE_1.JustUnnamed(), "\"{0,-25}\"")
             {

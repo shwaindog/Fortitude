@@ -65,7 +65,7 @@ public class NullableStringBearerExpect<TInput, TDefault> : FieldExpect<TInput?,
         return expectValue;
     }
 
-    public override IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
+    public override ISinglePropertyTestStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
     {
         return scaffoldEntry.ScaffoldingFlags.HasAcceptsNullableStruct() && !scaffoldEntry.ScaffoldingFlags.IsAcceptsAnyGeneric()
             ? scaffoldEntry.CreateStringBearerFunc(CoreType)()

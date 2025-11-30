@@ -126,7 +126,7 @@ public class KeyedCollectionExpect<TKey, TValue, TKFilterBase, TVFilterBase> : E
 
     public KeyValuePredicate<TKFilterBase, TVFilterBase>? KeyValuePredicate { get; init; }
 
-    public override IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
+    public override ISinglePropertyTestStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
     {
         var flags = scaffoldEntry.ScaffoldingFlags;
 

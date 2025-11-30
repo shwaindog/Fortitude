@@ -61,7 +61,7 @@ public class CloakedBearerExpect<TChildScaffoldType, TChildScaffold> : FieldExpe
         return expectValue;
     }
 
-    public override IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
+    public override ISinglePropertyTestStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
     {
         return scaffoldEntry.ScaffoldingFlags.IsNullableSpanFormattableOnly()
             ? scaffoldEntry.CreateStringBearerFunc(CoreType)()
@@ -88,7 +88,7 @@ public class CloakedBearerExpect<TChildScaffoldType, TChildScaffold> : FieldExpe
                     ? expectedDefaultString
                     : new MutableString().Append(DefaultValue).ToString();
 
-            createdStringBearer = (IStringBearer)supportsStringDefaultValue;
+            createdStringBearer = (ISinglePropertyTestStringBearer)supportsStringDefaultValue;
         }
         if (ValueFormatString != null && RevealerScaffold is ISupportsValueFormatString supportsValueFormatString)
         {

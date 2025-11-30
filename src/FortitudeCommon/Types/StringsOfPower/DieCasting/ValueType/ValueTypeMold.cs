@@ -31,7 +31,7 @@ public class ValueTypeMold<TMold> : KnownTypeMolder<TMold> where TMold : TypeMol
 
     public override bool IsComplexType => false;
 
-    protected ValueTypeDieCast<TMold> Stb => (ValueTypeDieCast<TMold>)MoldStateField;
+    protected ValueTypeDieCast<TMold> Stb => (ValueTypeDieCast<TMold>)MoldStateField!;
 
     public override void Start()
     {
@@ -42,17 +42,17 @@ public class ValueTypeMold<TMold> : KnownTypeMolder<TMold> where TMold : TypeMol
     public override void AppendOpening()
     {
         if (IsComplexType)
-            MoldStateField.StyleFormatter.AppendComplexTypeOpening(MoldStateField);
+            MoldStateField!.StyleFormatter.AppendComplexTypeOpening(MoldStateField);
         else
-            MoldStateField.StyleFormatter.AppendValueTypeOpening(MoldStateField);
+            MoldStateField!.StyleFormatter.AppendValueTypeOpening(MoldStateField);
     }
 
     public override void AppendClosing()
     {
         if (IsComplexType)
-            MoldStateField.StyleFormatter.AppendTypeClosing(MoldStateField);
+            MoldStateField!.StyleFormatter.AppendTypeClosing(MoldStateField);
         else
-            MoldStateField.StyleFormatter.AppendValueTypeClosing(MoldStateField);
+            MoldStateField!.StyleFormatter.AppendValueTypeClosing(MoldStateField);
     }
 
     public TMold AsValue(ReadOnlySpan<char> nonJsonfieldName, bool value
@@ -76,7 +76,7 @@ public class ValueTypeMold<TMold> : KnownTypeMolder<TMold> where TMold : TypeMol
     public TMold AsValue<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = AsValueContent) where TFmt : ISpanFormattable =>
-        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, "0", formatString ?? "");
+        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, "0", formatString ?? "", formatFlags);
 
     public TMold AsValue<TFmt>(TFmt value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = AsValueContent) where TFmt : ISpanFormattable =>

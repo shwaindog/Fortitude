@@ -5,6 +5,8 @@ using FortitudeCommon.Extensions;
 
 namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
+
+
 public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
 {
     protected const char DblQtChar = '"';
@@ -21,6 +23,8 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
     [
         (StartIncl: 0, EndExcl: 0), (StartIncl: 0, EndExcl: 0), (StartIncl: 0, EndExcl: 0), (StartIncl: 0, EndExcl: 0)
     ];
+
+    public EncodingType Type => EncodingType.JsonEncoding;
 
     public int StringValueDelimiter(IStringBuilder sb) => sb.Append(DblQtChar).ReturnCharCount(1);
 
@@ -254,109 +258,94 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
         return ProcessRune(source.Value, dest, destIndex);
     }
 
-    public int TransferPrefix(bool encodeFirst, ReadOnlySpan<char> source, IStringBuilder destSb)
+    public int TransferPrefix(bool encodePrefix, ReadOnlySpan<char> source, IStringBuilder destSb)
     {
-        if (!encodeFirst)
+        if (!encodePrefix)
         {
-            if (source.Length > 0)
+            var i = 0;
+
+            for (; i < source.Length; i++)
             {
-                var firstChar = source[0];
-                destSb.Append(firstChar);
-                if (source.Length > 1)
-                {
-                    if (firstChar.IsTwoCharHighSurrogate())
-                    {
-                        destSb.Append(source[1]);
-                        if (source.Length > 2) { return JsEscapingTransfer(source, 2, destSb) + 2; }
-                    }
-                    return JsEscapingTransfer(source, 1, destSb) + 1;
-                }
-                return 1;
+                var nextChar = source[i];
+                if (nextChar.IsValidJsonTypeOpening())
+                    destSb.Append(nextChar);
+                else
+                    break;
             }
-            return 0;
+            if (i < source.Length) { return JsEscapingTransfer(source, i, destSb) + i; }
+            return i;
         }
         else { return JsEscapingTransfer(source, 0, destSb); }
     }
 
-    public int TransferPrefix(bool encodeFirst, ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex)
+    public int TransferPrefix(bool encodePrefix, ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex)
     {
-        if (!encodeFirst)
+        if (!encodePrefix)
         {
-            if (source.Length > 0)
+            var i = 0;
+
+            for (; i < source.Length; i++)
             {
-                var firstChar = source[0];
-                destSpan.OverWriteAt(destStartIndex, firstChar);
-                if (source.Length > 1)
-                {
-                    if (firstChar.IsTwoCharHighSurrogate())
-                    {
-                        destSpan.OverWriteAt(destStartIndex + 1, source[1]);
-                        if (source.Length > 2) { return JsEscapingTransfer(source, 2, destSpan, destStartIndex + 2) + 2; }
-                    }
-                    return JsEscapingTransfer(source, 1, destSpan, destStartIndex + 1) + 1;
-                }
-                return 1;
+                var nextChar = source[i];
+                if (nextChar.IsValidJsonTypeOpening())
+                    destSpan.OverWriteAt(destStartIndex + i, nextChar);
+                else
+                    break;
             }
-            return 0;
+            if (i < source.Length)
+            {
+                return JsEscapingTransfer(source, i, destSpan, destStartIndex + i) + i;
+            }
+            return i;
         }
         else { return JsEscapingTransfer(source, 0, destSpan, destStartIndex); }
     }
 
-    public int TransferSuffix(ReadOnlySpan<char> source, IStringBuilder destSb, bool encodeLast)
+    public int TransferSuffix(ReadOnlySpan<char> source, IStringBuilder destSb, bool encodeSuffix)
     {
-        if (!encodeLast)
+        if (!encodeSuffix)
         {
+            var i = source.Length - 1;
+
+            for (; i >= 0; i--)
+            {
+                var prevChar = source[i];
+                if (!prevChar.IsValidJsonTypeClosing()) break;
+            }
+            i += 1;
             if (source.Length > 0)
             {
-                var lastChar = source[^1];
-                if (source.Length > 1)
-                {
-                    var encodedCount = 0;
-                    if (lastChar.IsTwoCharLowSurrogate())
-                    {
-                        if (source.Length > 2) { encodedCount = JsEscapingTransfer(source, 0, destSb, maxTransferCount: source.Length - 2); }
-                        destSb.Append(source[^2]);
-                        destSb.Append(lastChar);
-                        return encodedCount + 2;
-                    }
-                    encodedCount = JsEscapingTransfer(source, 0, destSb, maxTransferCount: source.Length - 1);
-                    destSb.Append(lastChar);
-                    return encodedCount + 1;
-                }
-                destSb.Append(lastChar);
-                return 1;
+                var encodedCount = JsEscapingTransfer(source, 0, destSb, maxTransferCount: i);
+                var escapedChars = source.Length - i;
+                for (var j = i; j < source.Length; j++) { destSb.Append(source[j]); }
+                return encodedCount + escapedChars;
             }
             return 0;
         }
         else { return JsEscapingTransfer(source, 0, destSb); }
     }
 
-    public int TransferSuffix(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex, bool encodeLast)
+    public int TransferSuffix(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex, bool encodeSuffix)
     {
-        if (!encodeLast)
+        if (!encodeSuffix)
         {
+            var i = source.Length - 1;
+
+            for (; i >= 0; i--)
+            {
+                var prevChar = source[i];
+                if (!prevChar.IsValidJsonTypeClosing()) break;
+            }
+            i += 1;
             if (source.Length > 0)
             {
-                var lastChar = source[^1];
-                if (source.Length > 1)
+                var encodedCount = JsEscapingTransfer(source, 0, destSpan, destStartIndex, maxTransferCount: i);
+                var escapedChars = source.Length - i;
+                for (var j = 0; j < escapedChars; j++)
                 {
-                    var encodedCount = 0;
-                    if (lastChar.IsTwoCharLowSurrogate())
-                    {
-                        if (source.Length > 2)
-                        {
-                            encodedCount = JsEscapingTransfer(source, 0, destSpan, destStartIndex, maxTransferCount: source.Length - 2);
-                        }
-                        destSpan.OverWriteAt(destStartIndex + encodedCount, source[^2]);
-                        destSpan.OverWriteAt(destStartIndex + encodedCount + 1, lastChar);
-                        return encodedCount + 2;
-                    }
-                    encodedCount = JsEscapingTransfer(source, 0, destSpan, destStartIndex, maxTransferCount: source.Length - 1);
-                    destSpan.OverWriteAt(destStartIndex + encodedCount, lastChar);
-                    return encodedCount + 1;
+                    destSpan.OverWriteAt(destStartIndex + encodedCount + j, source[i + j]);
                 }
-                destSpan.OverWriteAt(destStartIndex, lastChar);
-                return 1;
+                return encodedCount + escapedChars;
             }
             return 0;
         }

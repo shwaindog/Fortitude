@@ -8,6 +8,7 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandlingExtensions;
@@ -30,6 +31,15 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     }
 
     public GraphTrackingBuilder GraphBuilder { get; protected set; } = null!;
+
+    public override IEncodingTransfer LayoutEncoder
+    {
+        get =>  
+            GraphBuilder.CurrentSectionRanges.StartedWithFormatFlags.HasReformatMultiLineFlag()
+                ? GraphBuilder.ParentGraphEncoder
+                : ContentEncoder;
+        set => GraphBuilder.GraphEncoder = value;
+    }
 
     public virtual FieldContentHandling ResolveContentFormattingFlags<T>(IStringBuilder sb, T input, FieldContentHandling callerFormattingFlags
       , string formatString = "", bool isFieldName = false)
@@ -56,9 +66,10 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     {
         var typeOfT                     = typeof(T);
         var isSpanFormattableOrNullable = typeOfT.IsSpanFormattableOrNullableCached();
+        // if (input == null && fallbackValue.Length > 0) return DefaultCallerTypeFlags;
         var isAnyTypeHoldingChars       = typeOfT.IsAnyTypeHoldingCharsCached() || typeOfT.IsChar() || typeOfT.IsNullableChar();
         if (isAnyTypeHoldingChars) return DisableAutoDelimiting | AsValueContent;
-        var isDoubleQuoteDelimitedSpanFormattable = input.IsDoubleQuoteDelimitedSpanFormattable(fallbackValue);
+        var isDoubleQuoteDelimitedSpanFormattable = input.IsDoubleQuoteDelimitedSpanFormattable(fallbackValue, formatString);
         if (isSpanFormattableOrNullable && isDoubleQuoteDelimitedSpanFormattable) return EnsureFormattedDelimited | AsValueContent;
         return AsValueContent;
     }
@@ -70,7 +81,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         var isAnyTypeHoldingChars       = typeOfT.IsAnyTypeHoldingCharsCached() || typeOfT.IsChar() || typeOfT.IsNullableChar();
         if (isAnyTypeHoldingChars) return DisableAutoDelimiting | AsStringContent;
         var isJsonStringExemptType                = typeOfT.IsJsonStringExemptTypeCached();
-        var isDoubleQuoteDelimitedSpanFormattable = input.IsDoubleQuoteDelimitedSpanFormattable(fallbackValue) || !isJsonStringExemptType;
+        var isDoubleQuoteDelimitedSpanFormattable = input.IsDoubleQuoteDelimitedSpanFormattable(fallbackValue, formatString) || !isJsonStringExemptType;
         if (isSpanFormattableOrNullable && isDoubleQuoteDelimitedSpanFormattable) return DisableAutoDelimiting | AsStringContent;
         return AsStringContent;
     }

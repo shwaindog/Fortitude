@@ -19,6 +19,7 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeKeyValueCollection;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.ValueType;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 
 #endregion
@@ -107,7 +108,15 @@ public interface ISecretStringOfPower : ITheOneString
     ITheOneString AddBaseFieldsEnd();
 }
 
-public readonly struct CallContextDisposable(bool shouldSkip, ITheOneString? stringMaster = null, StyleOptions? toRestoreOnDispose = null)
+public readonly record struct StyleFormattingState
+    (IStyledTypeFormatting StyleFormatter, IEncodingTransfer StringEncoder, IEncodingTransfer GraphEncoder, IEncodingTransfer ParentGraphEncoder) { }
+
+public readonly struct CallContextDisposable
+(
+    bool shouldSkip
+  , ISecretStringOfPower? stringMaster = null
+  , StyleOptions? toRestoreOnDispose = null
+  , StyleFormattingState? formattingState = null)
     : IDisposable
 {
     public bool ShouldSkip => shouldSkip;
@@ -118,7 +127,14 @@ public readonly struct CallContextDisposable(bool shouldSkip, ITheOneString? str
     {
         if (toRestoreOnDispose != null && stringMaster != null)
         {
-            stringMaster.Settings.Values = toRestoreOnDispose.Values;
+
+            stringMaster.Settings.CopyFrom(toRestoreOnDispose);
+            if (formattingState != null)
+            {
+                stringMaster.GraphBuilder.GraphEncoder                  = formattingState.Value.GraphEncoder;
+                stringMaster.GraphBuilder.ParentGraphEncoder            = formattingState.Value.ParentGraphEncoder;
+                stringMaster.Settings.StyledTypeFormatter.ContentEncoder = formattingState.Value.StringEncoder;
+            }
             ((IRecyclableObject)toRestoreOnDispose).DecrementRefCount();
         }
     }
@@ -164,7 +180,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         initialAppendSettings  = toClone.initialAppendSettings;
         nextTypeAppendSettings = toClone.nextTypeAppendSettings;
 
-        Settings.Style         = toClone.Style;
+        Settings.Style     = toClone.Style;
         Settings.Formatter = CurrentStyledTypeFormatter;
     }
 
@@ -306,7 +322,6 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         OrderedObjectGraph.Clear();
 
         return this;
-        
     }
 
     void ISecretStringOfPower.TypeComplete(ITypeMolderDieCast completeType)
@@ -549,6 +564,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     public CallContextDisposable ResolveContextForCallerFlags(FieldContentHandling contentFlags)
     {
+        var previousStyle = Settings.Style;
         if ((contentFlags & ExcludeMask) > 0)
         {
             var shouldSkip = false;
@@ -558,13 +574,39 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
             shouldSkip |= Settings.Style.IsPretty() && contentFlags.HasExcludeWhenPrettyFlag();
             if (shouldSkip) return new CallContextDisposable(true);
         }
-        if (Settings.IsSame(contentFlags)) return new CallContextDisposable(false);
+        if (Settings.IsSame(contentFlags)
+         && !(previousStyle.IsJson()
+           && contentFlags.HasAsStringContentFlag()
+           && GraphBuilder.GraphEncoder.Type != EncodingType.JsonEncoding)
+            && GraphBuilder.GraphEncoder.Type == GraphBuilder.ParentGraphEncoder.Type)
+            return new CallContextDisposable(false);
         Settings.IfExistsIncrementFormatterRefCount();
-        var saveCurrentOptions = Recycler.Borrow<StyleOptions>().Initialize(Settings.Values);
-        var existingOptions    = new CallContextDisposable(false, this, saveCurrentOptions);
+        var saveCurrentOptions = Recycler.Borrow<StyleOptions>().Initialize(Settings);
+
+        var existingOptions =
+            new CallContextDisposable
+                (false, this, saveCurrentOptions
+               , new StyleFormattingState
+                     (Settings.StyledTypeFormatter
+                    , Settings.StyledTypeFormatter.ContentEncoder
+                    , Settings.StyledTypeFormatter.GraphBuilder.GraphEncoder
+                    , Settings.StyledTypeFormatter.GraphBuilder.ParentGraphEncoder));
 
         Settings.Style     = contentFlags.UpdateStringStyle(Settings.Style);
         Settings.Formatter = this.ResolveStyleFormatter();
+        
+        if (Settings.Style.IsJson()
+         && contentFlags.HasAsStringContentFlag()
+         && GraphBuilder.GraphEncoder.Type != EncodingType.JsonEncoding)
+        {
+            GraphBuilder.GraphEncoder = Settings.StyledTypeFormatter.ContentEncoder.Type == EncodingType.JsonEncoding 
+                ? Settings.StyledTypeFormatter.ContentEncoder 
+                : this.ResolveStyleEncoder(EncodingType.JsonEncoding);
+        } else if (Settings.Style == previousStyle && GraphBuilder.ParentGraphEncoder != GraphBuilder.GraphEncoder)
+        {
+            // no change so parent and child have same encoder
+            GraphBuilder.ParentGraphEncoder = GraphBuilder.GraphEncoder;
+        }
 
         return existingOptions;
     }
@@ -699,7 +741,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
             var shiftBy = idSpan.Length;
             Sb!.InsertAt(idSpan, indexToInsertAt, shiftBy);
             shiftBy += CurrentStyledTypeFormatter.InsertFieldSeparatorAt(Sb!, indexToInsertAt + idSpan.Length, Settings
-                                                                , forThisNode.IndentLevel + 1);
+                                                                       , forThisNode.IndentLevel + 1);
             for (int i = graphNodeIndex; i < OrderedObjectGraph.Count; i++)
             {
                 var shiftCharsNode = OrderedObjectGraph[i];

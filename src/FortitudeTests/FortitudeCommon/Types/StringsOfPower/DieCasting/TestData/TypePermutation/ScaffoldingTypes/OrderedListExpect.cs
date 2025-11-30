@@ -120,7 +120,7 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
 
     public OrderedCollectionPredicate<TFilterBase>? ElementPredicate { get; init; }
 
-    public override IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
+    public override ISinglePropertyTestStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
     {
         var flags = scaffoldEntry.ScaffoldingFlags;
 

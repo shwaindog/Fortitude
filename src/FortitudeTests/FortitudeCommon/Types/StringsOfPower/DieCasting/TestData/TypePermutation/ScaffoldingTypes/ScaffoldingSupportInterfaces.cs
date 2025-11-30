@@ -18,13 +18,13 @@ public class TypeGeneratePartAttribute(ScaffoldingStringBuilderInvokeFlags flags
 public interface ISinglePropertyTestStringBearer : IStringBearer
 {
     [JsonIgnore] string PropertyName { get; }
+    
+    [JsonIgnore] FieldContentHandling ContentHandlingFlags { get; set; }
 }
 
 public interface IMoldSupportedValue<TValue> : ISinglePropertyTestStringBearer
 {
     [JsonIgnore] TValue? Value { get; set; }
-    
-    [JsonIgnore] FieldContentHandling ContentHandlingFlags { get; set; }
 }
 
 public abstract class MoldScaffoldBase<TValue> : IMoldSupportedValue<TValue>
@@ -139,11 +139,6 @@ public interface ISupportsIndexRangeLimiting
     [JsonIgnore] int FromIndex { get; set; }
 
     [JsonIgnore] int Length { get; set; }
-}
-
-public interface ISupportsFieldHandling
-{
-    [JsonIgnore] FieldContentHandling FieldContentHandling { get; set; }
 }
 
 public interface ISupportsSettingValueFromString

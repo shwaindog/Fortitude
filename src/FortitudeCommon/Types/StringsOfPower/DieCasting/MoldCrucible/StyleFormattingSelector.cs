@@ -9,17 +9,15 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
 public static class StyleFormattingSelector
 {
-    public static Func<ISecretStringOfPower, EncodingType, IStyledTypeFormatting> StyleFormattingResolverSelector { get; set; }
+    public static Func<ISecretStringOfPower, IStyledTypeFormatting> StyleFormattingResolverSelector { get; set; }
         = DefaultResolveStyleFormatter;
     
-    public static IStyledTypeFormatting ResolveStyleFormatter(this ISecretStringOfPower theStringMaster
-      , EncodingType encodingType = EncodingType.DefaultForStyle )
+    public static IStyledTypeFormatting ResolveStyleFormatter(this ISecretStringOfPower theStringMaster)
     {
-        return StyleFormattingResolverSelector(theStringMaster, encodingType );
+        return StyleFormattingResolverSelector(theStringMaster);
     }
 
-    private static IStyledTypeFormatting DefaultResolveStyleFormatter(ISecretStringOfPower theStringMaster
-      , EncodingType encodingType = EncodingType.DefaultForStyle)
+    private static IStyledTypeFormatting DefaultResolveStyleFormatter(ISecretStringOfPower theStringMaster)
     {
         
         return theStringMaster.Settings.Style switch
@@ -37,4 +35,23 @@ public static class StyleFormattingSelector
                                 .Initialize(theStringMaster.GraphBuilder, theStringMaster.Settings)
                };
     }
+    
+    public static Func<ISecretStringOfPower, EncodingType, IEncodingTransfer> StyleEncoderResolverSelector { get; set; }
+        = DefaultResolveStyleEncoder;
+    
+    public static IEncodingTransfer ResolveStyleEncoder(this ISecretStringOfPower theStringMaster, EncodingType encodingType)
+    {
+        return StyleEncoderResolverSelector(theStringMaster, encodingType);
+    }
+
+    private static IEncodingTransfer DefaultResolveStyleEncoder(ISecretStringOfPower theStringMaster, EncodingType encodingType) =>
+        encodingType switch
+        {
+            EncodingType.PassThrough =>
+                PassThroughEncodingTransfer.Instance
+          , EncodingType.JsonEncoding =>
+                theStringMaster.Recycler.Borrow<JsonEscapingEncodingTransfer>()
+                               .Initialize(theStringMaster.Settings, theStringMaster.Settings.CachedMappingFactoryRanges)
+          , _ => PassThroughEncodingTransfer.Instance                      
+        };
 }

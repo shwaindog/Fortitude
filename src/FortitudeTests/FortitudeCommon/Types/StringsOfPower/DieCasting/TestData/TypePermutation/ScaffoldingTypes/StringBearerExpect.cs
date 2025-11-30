@@ -65,7 +65,7 @@ public class StringBearerExpect<TInput, TDefault> : FieldExpect<TInput, TDefault
         return expectValue;
     }
 
-    public override IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
+    public override ISinglePropertyTestStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
     {
         return scaffoldEntry.CreateStringBearerFunc(InputType)();
     }
@@ -87,7 +87,7 @@ public class StringBearerExpect<TInput, TDefault> : FieldExpect<TInput, TDefault
                     ? expectedDefaultString
                     : new MutableString().Append(DefaultValue).ToString();
 
-            createdStringBearer = (IStringBearer)supportsStringDefaultValue;
+            createdStringBearer = (ISinglePropertyTestStringBearer)supportsStringDefaultValue;
         }
         var stringBearerInput = Input;
         if (ValueFormatString != null && stringBearerInput is ISupportsValueFormatString supportsValueFormatString)

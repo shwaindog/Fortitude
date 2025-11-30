@@ -5,7 +5,9 @@ namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 public class PassThroughEncodingTransfer : IEncodingTransfer
 {
     protected const char DblQtChar = '"';
-    public string EncodingTransferConfigKey { get; private set; } = "PassThrough";
+    public string EncodingTransferConfigKey { get; private set; } = nameof(EncodingType.PassThrough);
+
+    public EncodingType Type => EncodingType.PassThrough;
 
     public static PassThroughEncodingTransfer Instance { get; } = new();
 
@@ -32,16 +34,16 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
     }
 
 
-    public virtual int TransferPrefix(bool encodeFirst, ReadOnlySpan<char> source, IStringBuilder destSb) => 
+    public virtual int TransferPrefix(bool encodePrefix, ReadOnlySpan<char> source, IStringBuilder destSb) => 
         Transfer(source, 0, destSb);
 
-    public virtual int TransferPrefix(bool encodeFirst, ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex) => 
+    public virtual int TransferPrefix(bool encodePrefix, ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex) => 
         Transfer(source, 0, destSpan, destStartIndex);
 
-    public virtual int TransferSuffix(ReadOnlySpan<char> source, IStringBuilder destSb, bool encodeLast) => 
+    public virtual int TransferSuffix(ReadOnlySpan<char> source, IStringBuilder destSb, bool encodeSuffix) => 
         Transfer(source, 0, destSb);
 
-    public virtual int TransferSuffix(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex, bool encodeLast) => 
+    public virtual int TransferSuffix(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex, bool encodeSuffix) => 
         Transfer(source, 0, destSpan, destStartIndex);
 
     public virtual int Transfer(ReadOnlySpan<char> source, IStringBuilder destSb

@@ -185,8 +185,8 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
 
     public IEnumerator<KeyValuePair<EK, string>> GetEnumerator() => ExpectedResults.GetEnumerator();
 
-    public abstract IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry);
-    public abstract IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry, StyleOptions stringStyle);
+    public abstract ISinglePropertyTestStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry);
+    public abstract IStringBearer                   CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry, StyleOptions stringStyle);
 
     protected virtual void AdditionalToStringExpectFields(IStringBuilder sb, ScaffoldingStringBuilderInvokeFlags forThisScaffold)
     {

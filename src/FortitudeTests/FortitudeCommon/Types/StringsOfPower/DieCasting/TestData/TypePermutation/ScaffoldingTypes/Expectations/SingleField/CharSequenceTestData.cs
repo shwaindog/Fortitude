@@ -3,6 +3,7 @@
 
 using FortitudeCommon.DataStructures.Lists.PositionAware;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
@@ -784,7 +785,7 @@ public class CharSequenceTestData
           , new StringLikeExpect<CharArrayStringBuilder>
                 (new CharArrayStringBuilder
                      ("For within these strings was bound the flexibility, mutability and the operators to govern each language")
-               , "{0,0/ /\n/[1..^1]}")
+               , "{0,0/ /\n/[1..^1]}", contentHandling: FieldContentHandling.JsamlEncoding)
                 {
                     {
                         new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | CallsAsSpan | DefaultTreatedAsValueOut

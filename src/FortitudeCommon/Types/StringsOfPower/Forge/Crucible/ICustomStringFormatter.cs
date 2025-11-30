@@ -34,7 +34,8 @@ public interface ICustomStringFormatter : IRecyclableObject
     int AppendDelimiterEnd(Type maybeDelimited, Span<char> destSpan, int fromIndex);
 
     IFormattingOptions Options { get; set; }
-    IEncodingTransfer StringEncoder { get; set; }
+    IEncodingTransfer ContentEncoder { get; set; }
+    IEncodingTransfer LayoutEncoder { get; set; }
     
     FormattingHandlingFlags ResolveStringFormattingFlags<T>(char lastNonWhiteSpace, T input, FormattingHandlingFlags callerFormattingFlags
       , string formatString = "");

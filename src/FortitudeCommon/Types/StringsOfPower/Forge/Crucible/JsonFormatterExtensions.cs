@@ -12,6 +12,12 @@ namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 
 public static class JsonFormatterExtensions
 {
+    public const char DblQtChar     = '"';
+    public const char SqBrktOpnChar = '[';
+    public const char BrcOpnChar    = '{';
+    public const char SqBrktClsChar = ']';
+    public const char BrcClsChar    = '}';
+    
     public static readonly Type[] DoubleQuoteWrappedSpanFormattableTypes =
     [
         typeof(char)
@@ -43,21 +49,27 @@ public static class JsonFormatterExtensions
       , typeof(Version)
     ];
 
+    public static bool IsValidJsonTypeOpening(this char check) => check is DblQtChar or SqBrktOpnChar or BrcOpnChar; 
+    public static bool IsValidJsonTypeClosing(this char check) => check is DblQtChar or SqBrktClsChar or BrcClsChar; 
+
     private static ConcurrentDictionary<Type, bool> typeIsDoubleQtDelimited = new();
     private static ConcurrentDictionary<Type, bool> typeIsDoubleQtExemptCache = new();
 
     public static bool IsDoubleQuoteDelimitedSpanFormattable<T>(this T check)
     {
-        return check.IsDoubleQuoteDelimitedSpanFormattable("");
+        return check.IsDoubleQuoteDelimitedSpanFormattable("", "");
     }
 
-    public static bool IsDoubleQuoteDelimitedSpanFormattable<T>(this T check, ReadOnlySpan<char> fallbackValue)
+    public static bool IsDoubleQuoteDelimitedSpanFormattable<T>(this T check, ReadOnlySpan<char> fallbackValue, ReadOnlySpan<char> formatString)
     {
         var typeOfT = typeof(T) == typeof(Type) ? (Type)(object)check! : typeof(T);
 
+        var formatStringDelmited = formatString.IsDblQtBounded() || formatString.IsSqBrktBounded() || formatString.IsBrcBounded();
         var nullableSpanFormattable = (typeOfT.IsSpanFormattableOrNullableCached());
 
-        var doubleQtDelimited = typeIsDoubleQtDelimited.GetOrAdd(typeOfT, t => nullableSpanFormattable && !t.IsJsonStringExemptType());
+        var doubleQtDelimited = 
+            !formatStringDelmited 
+         && typeIsDoubleQtDelimited.GetOrAdd(typeOfT, t => nullableSpanFormattable && !t.IsJsonStringExemptType());
 
         if (!doubleQtDelimited)
         {

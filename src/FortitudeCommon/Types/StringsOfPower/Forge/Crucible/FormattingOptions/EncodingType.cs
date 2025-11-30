@@ -5,7 +5,7 @@ namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
 public enum EncodingType
 {
-    DefaultForStyle = 0
+    PassThrough = 0
    , AsciiEscaping
    , JsonEncoding
    , YamlEncoding

@@ -103,6 +103,8 @@ public static class FieldContentHandlingExtensions
     public static bool HasAsValueContentFlag(this FieldContentHandling flags)               => (flags & AsValueContent) > 0;
     public static bool DoesNotHaveAsValueContentFlag(this FieldContentHandling flags)       => (flags & AsValueContent) == 0;
     
+    public static bool HasReformatMultiLineFlag(this FieldContentHandling flags)    => (flags & ReformatMultiLine) > 0; 
+    public static bool HasJsamlEncodingFlag(this FieldContentHandling flags)    => (flags & JsamlEncoding) > 0; 
     public static bool HasNoItemSeparatorFlag(this FieldContentHandling flags) => (flags & NoItemSeparator) > 0; 
     public static bool HasNoItemPaddingFlag(this FieldContentHandling flags)   => (flags & NoItemPadding) > 0; 
     public static bool ShouldAddItemSeparator(this FieldContentHandling flags) => (flags & NoItemSeparator) == 0; 
@@ -146,6 +148,7 @@ public static class FieldContentHandlingExtensions
     public static bool HasExcludeWhenCompactFlag(this FieldContentHandling flags)           => (flags & ExcludeWhenCompact) > 0;
     public static bool HasDisableAutoDelimiting(this FieldContentHandling flags)            => (flags & DisableAutoDelimiting) > 0;
     public static bool ShouldDelimit(this FieldContentHandling flags)                       => (flags & EnsureFormattedDelimited) > 0;
+    public static bool HasEachItemOnlyOneLineFlag(this FieldContentHandling flags)                 => (flags & EachItemOnlyOneLine) > 0;
     public static bool DoesNotHaveLogSuppressTypeNamesFlag(this FieldContentHandling flags) => (flags & LogSuppressTypeNames) == 0;
     public static bool HasAsCollectionFlag(this FieldContentHandling flags)                 => (flags & AsCollection) > 0;
     public static bool DoesNotHaveAsCollectionFlag(this FieldContentHandling flags)         => (flags & AsCollection) == 0;

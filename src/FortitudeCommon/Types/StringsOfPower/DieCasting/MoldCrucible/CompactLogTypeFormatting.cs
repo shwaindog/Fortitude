@@ -84,7 +84,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var isAnyTypeHoldingChars       = typeOfT.IsAnyTypeHoldingChars() || typeOfT.IsChar() || typeOfT.IsNullableChar();
         if (isAnyTypeHoldingChars)
             return DisableAutoDelimiting | AsStringContent;
-        var isDoubleQuoteDelimitedSpanFormattable = input.IsDoubleQuoteDelimitedSpanFormattable(fallbackValue);
+        var isDoubleQuoteDelimitedSpanFormattable = input.IsDoubleQuoteDelimitedSpanFormattable(fallbackValue, formatString);
         if (isSpanFormattableOrNullable && isDoubleQuoteDelimitedSpanFormattable)
             return DisableAutoDelimiting | AsStringContent;
         return AsStringContent;

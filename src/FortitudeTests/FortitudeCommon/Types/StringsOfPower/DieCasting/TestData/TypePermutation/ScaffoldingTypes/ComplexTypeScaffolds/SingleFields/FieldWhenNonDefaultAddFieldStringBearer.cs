@@ -4,7 +4,6 @@
 using System.Text;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
@@ -30,14 +29,14 @@ public class FieldBoolWhenNonDefaultStringBearer : FormattedMoldScaffold<bool>, 
            .Field.WhenNonDefaultAdd
                (nameof(ComplexTypeFieldWhenNonDefaultBool)
               , ComplexTypeFieldWhenNonDefaultBool
-              , DefaultValue, ValueFormatString)
+              , DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonDefaultWrites | AcceptsSpanFormattableExceptNullableStruct
                 | SupportsValueFormatString)]
 public class FieldSpanFormattableWhenNonDefaultStringBearer<TFmt> : FormattedMoldScaffold<TFmt>, IMoldSupportedDefaultValue<TFmt>
-  , ISupportsFieldHandling where TFmt : ISpanFormattable
+   where TFmt : ISpanFormattable
 {
     public TFmt ComplexTypeFieldWhenNonDefaultSpanFormattableAs
     {
@@ -48,20 +47,19 @@ public class FieldSpanFormattableWhenNonDefaultStringBearer<TFmt> : FormattedMol
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonDefaultSpanFormattableAs);
     public TFmt DefaultValue { get; set; } = default!;
 
-    public FieldContentHandling FieldContentHandling { get; set; }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonDefaultAdd
                (nameof(ComplexTypeFieldWhenNonDefaultSpanFormattableAs)
               , ComplexTypeFieldWhenNonDefaultSpanFormattableAs
-              , DefaultValue, ValueFormatString, FieldContentHandling)
+              , DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonDefaultWrites | AcceptsOnlyNullableStructSpanFormattable | SupportsValueFormatString)]
 public class FieldNullableSpanFormattableWhenNonDefaultStringBearer<TFmtStruct> : FormattedMoldScaffold<TFmtStruct?>
-  , IMoldSupportedDefaultValue<TFmtStruct?>, ISupportsFieldHandling where TFmtStruct : struct, ISpanFormattable
+  , IMoldSupportedDefaultValue<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
 {
     public TFmtStruct? ComplexTypeFieldWhenNonDefaultNullableSpanFormattableAs
     {
@@ -72,21 +70,20 @@ public class FieldNullableSpanFormattableWhenNonDefaultStringBearer<TFmtStruct> 
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonDefaultNullableSpanFormattableAs);
     public TFmtStruct? DefaultValue { get; set; } = default(TFmtStruct);
 
-    public FieldContentHandling FieldContentHandling { get; set; }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonDefaultAdd
                (nameof(ComplexTypeFieldWhenNonDefaultNullableSpanFormattableAs)
               , ComplexTypeFieldWhenNonDefaultNullableSpanFormattableAs
-              , DefaultValue, ValueFormatString, FieldContentHandling)
+              , DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonDefaultWrites | AcceptsAnyExceptNullableStruct | SupportsValueRevealer)]
 public class FieldCloakedBearerWhenNonDefaultStringBearer<TCloaked, TRevealBase>
     : ValueRevealerMoldScaffold<TCloaked, TRevealBase>, IMoldSupportedDefaultValue<TCloaked>
-      , ISupportsFieldHandling 
+       
     where TCloaked : TRevealBase
     where TRevealBase : notnull
 {
@@ -99,7 +96,6 @@ public class FieldCloakedBearerWhenNonDefaultStringBearer<TCloaked, TRevealBase>
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonDefaultCloakedBearerAs);
     public TCloaked DefaultValue { get; set; } = default!;
 
-    public FieldContentHandling FieldContentHandling { get; set; }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -107,13 +103,13 @@ public class FieldCloakedBearerWhenNonDefaultStringBearer<TCloaked, TRevealBase>
            .WhenNonDefaultReveal
                (nameof(ComplexTypeFieldWhenNonDefaultCloakedBearerAs)
               , ComplexTypeFieldWhenNonDefaultCloakedBearerAs
-              , ValueRevealer, DefaultValue, FieldContentHandling)
+              , ValueRevealer, DefaultValue, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonDefaultWrites | AcceptsAnyNullableStruct | SupportsValueRevealer)]
 public class FieldNullableCloakedBearerWhenNonDefaultStringBearer<TCloakedStruct> : ValueRevealerMoldScaffold<TCloakedStruct?, TCloakedStruct>
-  , IMoldSupportedDefaultValue<TCloakedStruct?>, ISupportsFieldHandling where TCloakedStruct : struct
+  , IMoldSupportedDefaultValue<TCloakedStruct?> where TCloakedStruct : struct
 {
     public TCloakedStruct? ComplexTypeFieldWhenNonDefaultCloakedBearerAs
     {
@@ -124,20 +120,19 @@ public class FieldNullableCloakedBearerWhenNonDefaultStringBearer<TCloakedStruct
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonDefaultCloakedBearerAs);
     public TCloakedStruct? DefaultValue { get; set; } = default(TCloakedStruct);
 
-    public FieldContentHandling FieldContentHandling { get; set; }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonDefaultReveal
                (nameof(ComplexTypeFieldWhenNonDefaultCloakedBearerAs)
               , ComplexTypeFieldWhenNonDefaultCloakedBearerAs
-              , ValueRevealer, DefaultValue, FieldContentHandling)
+              , ValueRevealer, DefaultValue, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonDefaultWrites | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
 public class FieldStringBearerWhenNonDefaultStringBearer<TBearer> : MoldScaffoldBase<TBearer?>
-  , IMoldSupportedDefaultValue<TBearer?>, ISupportsFieldHandling
+  , IMoldSupportedDefaultValue<TBearer?>
     where TBearer : IStringBearer
 {
     public TBearer? ComplexTypeFieldWhenNonDefaultStringBearerAs
@@ -149,20 +144,19 @@ public class FieldStringBearerWhenNonDefaultStringBearer<TBearer> : MoldScaffold
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonDefaultStringBearerAs);
     public TBearer? DefaultValue { get; set; }
 
-    public FieldContentHandling FieldContentHandling { get; set; }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonDefaultReveal
                (nameof(ComplexTypeFieldWhenNonDefaultStringBearerAs)
               , ComplexTypeFieldWhenNonDefaultStringBearerAs
-              , DefaultValue, FieldContentHandling)
+              , DefaultValue, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonDefaultWrites | AcceptsNullableStruct | AcceptsStringBearer)]
 public class FieldNullableStringBearerWhenNonDefaultStringBearer<TBearerStruct> : MoldScaffoldBase<TBearerStruct?>
-  , IMoldSupportedDefaultValue<TBearerStruct?>, ISupportsFieldHandling where TBearerStruct : struct, IStringBearer
+  , IMoldSupportedDefaultValue<TBearerStruct?> where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct? ComplexTypeFieldWhenNonDefaultStringBearerAs
     {
@@ -173,20 +167,19 @@ public class FieldNullableStringBearerWhenNonDefaultStringBearer<TBearerStruct> 
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonDefaultStringBearerAs);
     public TBearerStruct? DefaultValue { get; set; }
 
-    public FieldContentHandling FieldContentHandling { get; set; }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonDefaultReveal
                (nameof(ComplexTypeFieldWhenNonDefaultStringBearerAs)
               , ComplexTypeFieldWhenNonDefaultStringBearerAs
-              , DefaultValue, FieldContentHandling)
+              , DefaultValue, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | CallsAsSpan | NonDefaultWrites | AcceptsCharArray | SupportsValueFormatString)]
 public class FieldCharSpanWhenNonDefaultStringBearer : FormattedMoldScaffold<char[]>, IMoldSupportedDefaultValue<string>
-  , ISupportsSettingValueFromString, ISupportsFieldHandling
+  , ISupportsSettingValueFromString
 {
     public char[] ComplexTypeFieldWhenNonDefaultCharSpanAs
     {
@@ -197,7 +190,6 @@ public class FieldCharSpanWhenNonDefaultStringBearer : FormattedMoldScaffold<cha
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonDefaultCharSpanAs);
     public string DefaultValue { get; set; } = "";
 
-    public FieldContentHandling FieldContentHandling { get; set; }
 
     public string? StringValue
     {
@@ -210,13 +202,13 @@ public class FieldCharSpanWhenNonDefaultStringBearer : FormattedMoldScaffold<cha
            .Field.WhenNonDefaultAdd
                (nameof(ComplexTypeFieldWhenNonDefaultCharSpanAs)
               , ComplexTypeFieldWhenNonDefaultCharSpanAs.AsSpan()
-              , DefaultValue, ValueFormatString, FieldContentHandling)
+              , DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | CallsAsReadOnlySpan | NonDefaultWrites | AcceptsString | SupportsValueFormatString)]
 public class FieldCharReadOnlySpanWhenNonDefaultStringBearer : FormattedMoldScaffold<string>
-  , IMoldSupportedDefaultValue<string>, ISupportsSettingValueFromString, ISupportsFieldHandling
+  , IMoldSupportedDefaultValue<string>, ISupportsSettingValueFromString
 {
     public string ComplexTypeFieldWhenNonDefaultCharReadOnlySpanAs
     {
@@ -228,7 +220,6 @@ public class FieldCharReadOnlySpanWhenNonDefaultStringBearer : FormattedMoldScaf
 
     public string DefaultValue { get; set; } = "";
 
-    public FieldContentHandling FieldContentHandling { get; set; }
 
     public string? StringValue
     {
@@ -241,13 +232,13 @@ public class FieldCharReadOnlySpanWhenNonDefaultStringBearer : FormattedMoldScaf
            .Field.WhenNonDefaultAdd
                (nameof(ComplexTypeFieldWhenNonDefaultCharReadOnlySpanAs)
               , ComplexTypeFieldWhenNonDefaultCharReadOnlySpanAs.AsSpan()
-              , DefaultValue, ValueFormatString, FieldContentHandling)
+              , DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonDefaultWrites | AcceptsString | SupportsValueFormatString)]
 public class FieldStringWhenNonDefaultStringBearer : FormattedMoldScaffold<string>, IMoldSupportedDefaultValue<string>
-  , ISupportsFieldHandling, ISupportsSettingValueFromString
+  , ISupportsSettingValueFromString
 {
     public string ComplexTypeFieldWhenNonDefaultStringAs
     {
@@ -258,7 +249,6 @@ public class FieldStringWhenNonDefaultStringBearer : FormattedMoldScaffold<strin
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonDefaultStringAs);
     public string DefaultValue { get; set; } = "";
 
-    public FieldContentHandling FieldContentHandling { get; set; }
 
     public string? StringValue
     {
@@ -271,13 +261,13 @@ public class FieldStringWhenNonDefaultStringBearer : FormattedMoldScaffold<strin
            .Field.WhenNonDefaultAdd
                (nameof(ComplexTypeFieldWhenNonDefaultStringAs)
               , ComplexTypeFieldWhenNonDefaultStringAs
-              , DefaultValue, ValueFormatString, FieldContentHandling)
+              , DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonDefaultWrites | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class FieldStringRangeWhenNonDefaultStringBearer : FormattedMoldScaffold<string>, IMoldSupportedDefaultValue<string>
-  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
+  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
     public string ComplexTypeFieldWhenNonDefaultStringRangeAs
     {
@@ -288,7 +278,6 @@ public class FieldStringRangeWhenNonDefaultStringBearer : FormattedMoldScaffold<
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonDefaultStringRangeAs);
     public string DefaultValue { get; set; } = "";
 
-    public FieldContentHandling FieldContentHandling { get; set; }
 
     public int FromIndex { get; set; }
 
@@ -305,13 +294,13 @@ public class FieldStringRangeWhenNonDefaultStringBearer : FormattedMoldScaffold<
            .Field.WhenNonDefaultAdd
                (nameof(ComplexTypeFieldWhenNonDefaultStringRangeAs)
               , ComplexTypeFieldWhenNonDefaultStringRangeAs
-              , FromIndex, Length, DefaultValue, ValueFormatString, FieldContentHandling)
+              , FromIndex, Length, DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonDefaultWrites | AcceptsCharArray | SupportsValueFormatString)]
 public class FieldCharArrayWhenNonDefaultStringBearer : FormattedMoldScaffold<char[]>, IMoldSupportedDefaultValue<string>
-  , ISupportsSettingValueFromString, ISupportsFieldHandling
+  , ISupportsSettingValueFromString
 {
     public char[] ComplexTypeFieldWhenNonDefaultCharArrayAs
     {
@@ -322,7 +311,6 @@ public class FieldCharArrayWhenNonDefaultStringBearer : FormattedMoldScaffold<ch
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonDefaultCharArrayAs);
     public string DefaultValue { get; set; } = "";
 
-    public FieldContentHandling FieldContentHandling { get; set; }
 
     public string? StringValue
     {
@@ -335,13 +323,13 @@ public class FieldCharArrayWhenNonDefaultStringBearer : FormattedMoldScaffold<ch
            .Field.WhenNonDefaultAdd
                (nameof(ComplexTypeFieldWhenNonDefaultCharArrayAs)
               , ComplexTypeFieldWhenNonDefaultCharArrayAs
-              , DefaultValue, ValueFormatString, FieldContentHandling)
+              , DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonDefaultWrites | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class FieldCharArrayRangeWhenNonDefaultStringBearer : FormattedMoldScaffold<char[]>, IMoldSupportedDefaultValue<string>
-  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
+  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
     public char[] ComplexTypeFieldWhenNonDefaultCharArrayRangeAs
     {
@@ -352,7 +340,6 @@ public class FieldCharArrayRangeWhenNonDefaultStringBearer : FormattedMoldScaffo
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonDefaultCharArrayRangeAs);
     public string DefaultValue { get; set; } = "";
 
-    public FieldContentHandling FieldContentHandling { get; set; }
 
     public int FromIndex { get; set; }
 
@@ -369,13 +356,13 @@ public class FieldCharArrayRangeWhenNonDefaultStringBearer : FormattedMoldScaffo
            .Field.WhenNonDefaultAdd
                (nameof(ComplexTypeFieldWhenNonDefaultCharArrayRangeAs)
               , ComplexTypeFieldWhenNonDefaultCharArrayRangeAs
-              , FromIndex, Length, DefaultValue, ValueFormatString, FieldContentHandling)
+              , FromIndex, Length, DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonDefaultWrites | AcceptsCharSequence | SupportsValueFormatString)]
 public class FieldCharSequenceWhenNonDefaultStringBearer<TCharSeq> : FormattedMoldScaffold<TCharSeq>
-  , IMoldSupportedDefaultValue<string>, ISupportsSettingValueFromString, ISupportsFieldHandling
+  , IMoldSupportedDefaultValue<string>, ISupportsSettingValueFromString
     where TCharSeq : ICharSequence
 {
     public TCharSeq ComplexTypeFieldWhenNonDefaultCharSequenceAs
@@ -387,7 +374,6 @@ public class FieldCharSequenceWhenNonDefaultStringBearer<TCharSeq> : FormattedMo
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonDefaultCharSequenceAs);
     public string DefaultValue { get; set; } = "";
 
-    public FieldContentHandling FieldContentHandling { get; set; }
 
     public string? StringValue
     {
@@ -408,14 +394,14 @@ public class FieldCharSequenceWhenNonDefaultStringBearer<TCharSeq> : FormattedMo
            .Field.WhenNonDefaultAddCharSeq
                (nameof(ComplexTypeFieldWhenNonDefaultCharSequenceAs)
               , ComplexTypeFieldWhenNonDefaultCharSequenceAs
-              , DefaultValue, ValueFormatString, FieldContentHandling)
+              , DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonDefaultWrites | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges)]
 public class FieldCharSequenceRangeWhenNonDefaultStringBearer<TCharSeq> : FormattedMoldScaffold<TCharSeq>
   , IMoldSupportedDefaultValue<string>
-  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting, ISupportsFieldHandling
+  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
     where TCharSeq : ICharSequence
 {
     public TCharSeq ComplexTypeFieldWhenNonDefaultCharSequenceRangeAs
@@ -427,7 +413,6 @@ public class FieldCharSequenceRangeWhenNonDefaultStringBearer<TCharSeq> : Format
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonDefaultCharSequenceRangeAs);
     public string DefaultValue { get; set; } = "";
 
-    public FieldContentHandling FieldContentHandling { get; set; }
 
     public int FromIndex { get; set; }
 
@@ -452,13 +437,13 @@ public class FieldCharSequenceRangeWhenNonDefaultStringBearer<TCharSeq> : Format
            .Field.WhenNonDefaultAddCharSeq
                (nameof(ComplexTypeFieldWhenNonDefaultCharSequenceRangeAs)
               , ComplexTypeFieldWhenNonDefaultCharSequenceRangeAs
-              , FromIndex, Length, DefaultValue, ValueFormatString, FieldContentHandling)
+              , FromIndex, Length, DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonDefaultWrites | AcceptsStringBuilder | SupportsValueFormatString)]
 public class FieldStringBuilderWhenNonDefaultStringBearer : FormattedMoldScaffold<StringBuilder>
-  , IMoldSupportedDefaultValue<string>, ISupportsSettingValueFromString, ISupportsFieldHandling
+  , IMoldSupportedDefaultValue<string>, ISupportsSettingValueFromString
 {
     public StringBuilder ComplexTypeFieldWhenNonDefaultAddStringBuilderAs
     {
@@ -469,7 +454,6 @@ public class FieldStringBuilderWhenNonDefaultStringBearer : FormattedMoldScaffol
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonDefaultAddStringBuilderAs);
     public string DefaultValue { get; set; } = "";
 
-    public FieldContentHandling FieldContentHandling { get; set; }
 
     public string? StringValue
     {
@@ -482,7 +466,7 @@ public class FieldStringBuilderWhenNonDefaultStringBearer : FormattedMoldScaffol
            .Field.WhenNonDefaultAdd
                (nameof(ComplexTypeFieldWhenNonDefaultAddStringBuilderAs)
               , ComplexTypeFieldWhenNonDefaultAddStringBuilderAs
-              , DefaultValue, ValueFormatString, FieldContentHandling)
+              , DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
@@ -490,7 +474,7 @@ public class FieldStringBuilderWhenNonDefaultStringBearer : FormattedMoldScaffol
                   SupportsIndexSubRanges)]
 public class FieldStringBuilderRangeWhenNonDefaultStringBearer : FormattedMoldScaffold<StringBuilder>
   , IMoldSupportedDefaultValue<string>
-  , ISupportsSettingValueFromString, ISupportsFieldHandling, ISupportsIndexRangeLimiting
+  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
     public StringBuilder ComplexTypeFieldWhenNonDefaultAddStringBuilderRangeAs
     {
@@ -501,7 +485,6 @@ public class FieldStringBuilderRangeWhenNonDefaultStringBearer : FormattedMoldSc
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonDefaultAddStringBuilderRangeAs);
     public string DefaultValue { get; set; } = "";
 
-    public FieldContentHandling FieldContentHandling { get; set; }
 
     public int FromIndex { get; set; }
 
@@ -518,13 +501,13 @@ public class FieldStringBuilderRangeWhenNonDefaultStringBearer : FormattedMoldSc
            .Field.WhenNonDefaultAdd
                (nameof(ComplexTypeFieldWhenNonDefaultAddStringBuilderRangeAs)
               , ComplexTypeFieldWhenNonDefaultAddStringBuilderRangeAs
-              , FromIndex, Length, DefaultValue, ValueFormatString, FieldContentHandling)
+              , FromIndex, Length, DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonDefaultWrites | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class FieldMatchWhenNonDefaultStringBearer<TAny> : FormattedMoldScaffold<TAny?>, IMoldSupportedDefaultValue<TAny?>
-  , ISupportsFieldHandling
+  
 {
     public TAny? ComplexTypeFieldWhenNonDefaultMatch
     {
@@ -536,19 +519,18 @@ public class FieldMatchWhenNonDefaultStringBearer<TAny> : FormattedMoldScaffold<
     public TAny? DefaultValue { get; set; }
 
 
-    public FieldContentHandling FieldContentHandling { get; set; }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonDefaultAddMatch
                (nameof(ComplexTypeFieldWhenNonDefaultMatch)
-              , ComplexTypeFieldWhenNonDefaultMatch, DefaultValue, ValueFormatString, FieldContentHandling)
+              , ComplexTypeFieldWhenNonDefaultMatch, DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonDefaultWrites | AcceptsNullableObject | SupportsValueFormatString)]
 public class FieldObjectWhenNonDefaultStringBearer : FormattedMoldScaffold<object?>, IMoldSupportedDefaultValue<object?>
-  , ISupportsFieldHandling
+  
 {
     public object? ComplexTypeFieldWhenNonDefaultObject
     {
@@ -560,12 +542,11 @@ public class FieldObjectWhenNonDefaultStringBearer : FormattedMoldScaffold<objec
     public object? DefaultValue { get; set; }
 
 
-    public FieldContentHandling FieldContentHandling { get; set; }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonDefaultAddObject
                (nameof(ComplexTypeFieldWhenNonDefaultObject)
-              , ComplexTypeFieldWhenNonDefaultObject, DefaultValue, ValueFormatString, FieldContentHandling)
+              , ComplexTypeFieldWhenNonDefaultObject, DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }

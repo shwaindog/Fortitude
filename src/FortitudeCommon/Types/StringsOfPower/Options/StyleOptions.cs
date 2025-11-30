@@ -4,6 +4,7 @@
 using System.Text;
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
@@ -77,7 +78,8 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     private string? mainFieldPadding;
     private string? altFieldPadding;
 
-    private IEncodingTransfer? encodingTransfer;
+    private EncodingType? graphEncoderType;
+    private EncodingType? stringEncoderType;
 
     private bool explicitlySetEncodingTransfer;
 
@@ -329,13 +331,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
         get =>
             sourceEncodingTransferResolver
                 ??= fallbackOptions?.Values.SourceEncodingTransfer ?? DefaultEncodingTransferSelectorFactory;
-        set
-        {
-            sourceEncodingTransferResolver = value;
-            if (explicitlySetEncodingTransfer) return;
-            if (encodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer) { jsonEscapingEncodingTransfer.DecrementRefCount(); }
-            encodingTransfer = SourceEncodingTransfer(this);
-        }
+        set => sourceEncodingTransferResolver = value;
     }
 
     public static Func<IJsonFormattingOptions, IEncodingTransfer> DefaultEncodingTransferSelectorFactory
@@ -379,9 +375,6 @@ public struct StyleOptionsValue : IJsonFormattingOptions
                 }
             }
             else { UnicodeEscapingRanges = []; }
-            if (explicitlySetEncodingTransfer) return;
-            if (encodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer) { jsonEscapingEncodingTransfer.DecrementRefCount(); }
-            encodingTransfer = SourceEncodingTransfer(this);
         }
     }
 
@@ -407,13 +400,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
                     ];
             }
         }
-        set
-        {
-            cachedMappingFactoryRanges = value;
-            if (explicitlySetEncodingTransfer) return;
-            if (encodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer) { jsonEscapingEncodingTransfer.DecrementRefCount(); }
-            encodingTransfer = SourceEncodingTransfer(this);
-        }
+        set => cachedMappingFactoryRanges = value;
     }
 
     public Range[] ExemptEscapingRanges
@@ -423,9 +410,6 @@ public struct StyleOptionsValue : IJsonFormattingOptions
         {
             if (exemptEscapingRanges != null && value.SequenceEqual(exemptEscapingRanges)) return;
             exemptEscapingRanges = value;
-            if (explicitlySetEncodingTransfer) return;
-            if (encodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer) { jsonEscapingEncodingTransfer.DecrementRefCount(); }
-            encodingTransfer = SourceEncodingTransfer(this);
         }
     }
 
@@ -438,10 +422,19 @@ public struct StyleOptionsValue : IJsonFormattingOptions
         {
             if (unicodeEscapingRanges != null && value.SequenceEqual(unicodeEscapingRanges)) return;
             unicodeEscapingRanges = value;
-            if (explicitlySetEncodingTransfer) return;
-            if (encodingTransfer is JsonEscapingEncodingTransfer jsonEscapingEncodingTransfer) { jsonEscapingEncodingTransfer.DecrementRefCount(); }
-            encodingTransfer = SourceEncodingTransfer(this);
         }
+    }
+
+    public EncodingType GraphEncoderType
+    {
+        readonly get => graphEncoderType ?? fallbackOptions?.Values.GraphEncoderType ?? EncodingType.PassThrough;
+        set => graphEncoderType = value;
+    }
+
+    public EncodingType StringEncoderType
+    {
+        readonly get => stringEncoderType ?? fallbackOptions?.Values.GraphEncoderType ?? EncodingType.PassThrough;
+        set => stringEncoderType = value;
     }
 
     public string NullString
@@ -636,7 +629,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     }
 }
 
-public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
+public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, ITransferState<StyleOptions>
 {
     private StyleOptionsValue values;
 
@@ -655,6 +648,14 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
     public StyleOptions Initialize(StyleOptionsValue styleOptions)
     {
         values = styleOptions;
+        return this;
+    }
+
+    public StyleOptions Initialize(StyleOptions styleOptions)
+    {
+        values               = styleOptions.Values;
+        values.MyObjInstance = this;
+        formatter            = styleOptions.formatter;
         return this;
     }
 
@@ -871,6 +872,18 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
         set => values.UnicodeEscapingRanges = value;
     }
 
+    public EncodingType GraphEncoderType
+    {
+        get => values.GraphEncoderType;
+        set => values.GraphEncoderType = value;
+    }
+
+    public EncodingType StringEncoder
+    {
+        get => values.StringEncoderType;
+        set => values.StringEncoderType = value;
+    }
+
     public ICustomStringFormatter? Formatter
     {
         get => formatter;
@@ -1040,6 +1053,24 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions
     {
         get => values.DefaultGraphMaxDepth;
         set => values.DefaultGraphMaxDepth = value;
+    }
+
+    public ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags)
+    {
+        if (source is StyleOptions styleOptions)
+        {
+            CopyFrom(styleOptions, copyMergeFlags);
+        }
+        return this;
+    }
+
+    public StyleOptions   CopyFrom(StyleOptions source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        values               = source.Values;
+        values.MyObjInstance = this;
+        formatter            = source.formatter;
+
+        return this;
     }
 
     protected override void InheritedStateReset()

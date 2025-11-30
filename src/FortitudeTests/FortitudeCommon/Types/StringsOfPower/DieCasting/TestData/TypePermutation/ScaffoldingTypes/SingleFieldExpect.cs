@@ -134,7 +134,7 @@ public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldEx
     }
 
 
-    public override IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
+    public override ISinglePropertyTestStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
     {
         return scaffoldEntry.ScaffoldingFlags.IsNullableSpanFormattableOnly()
             ? scaffoldEntry.CreateStringBearerFunc(CoreType)()
@@ -156,12 +156,13 @@ public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldEx
             supportsObjectDefaultValue.DefaultValue = DefaultValue;
         if (HasDefault && createdStringBearer is IMoldSupportedDefaultValue<TDefault> supportsDefaultValue)
             supportsDefaultValue.DefaultValue = DefaultValue ?? default(TDefault)!;
+        var scaffFlags = scaffoldEntry.ScaffoldingFlags;
         if (createdStringBearer is IMoldSupportedDefaultValue<string?> supportsStringDefaultValue)
         {
             var expectedDefaultString = DefaultAsString(stringStyle.StyledTypeFormatter);
             FormattedDefault = new MutableString().Append(expectedDefaultString).ToString();
             supportsStringDefaultValue.DefaultValue =
-                scaffoldEntry.ScaffoldingFlags.HasAnyOf(DefaultTreatedAsValueOut | DefaultTreatedAsStringOut)
+                scaffFlags.HasAnyOf(DefaultTreatedAsValueOut | DefaultTreatedAsStringOut)
              && !InputType.IsAnyTypeHoldingChars() && !InputType.IsSpanFormattableOrNullable() && DefaultType == InputType
                     ? expectedDefaultString
                     : new MutableString().Append(DefaultValue).ToString();
@@ -170,6 +171,18 @@ public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldEx
             {
                 supportsStringDefaultValue.DefaultValue = expectedDefaultString.Replace("\"", "").Replace("\'", "").Trim();
             }
+        }
+        if (!ContentHandling.HasDisableAddingAutoCallerTypeFlags() && scaffFlags.HasOutputTreatedAsValue())
+        {
+            createdStringBearer.ContentHandlingFlags = ContentHandling | AsValueContent;
+        } 
+        else if (!ContentHandling.HasDisableAddingAutoCallerTypeFlags() && scaffFlags.HasOutputTreatedAsString())
+        {
+            createdStringBearer.ContentHandlingFlags = ContentHandling | AsStringContent;
+        }
+        else 
+        {
+            createdStringBearer.ContentHandlingFlags = ContentHandling;
         }
         return createdStringBearer;
     }
