@@ -25,8 +25,6 @@ public interface IMutableFLoggerActivationConfig : IFLoggerActivationConfig, IMu
     new LoggerActivationFlags LoggerActivationFlags { get; set; }
 }
 
-
-
 public class FLoggerActivationConfig : FLogBuildTypeAndDeployEnvConfig, IMutableFLoggerActivationConfig
 {
     public FLoggerActivationConfig(IConfigurationRoot root, string path) : base(root, path) { }
