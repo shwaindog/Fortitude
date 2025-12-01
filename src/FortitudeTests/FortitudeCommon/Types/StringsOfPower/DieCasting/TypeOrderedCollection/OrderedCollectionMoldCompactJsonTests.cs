@@ -152,7 +152,7 @@ public partial class OrderedCollectionMoldTests
         string BuildExpectedOutput(string _, string _1
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue == IFormatExpectation.NoResultExpectedValue)
             {
                 expectValue = "";
@@ -163,7 +163,7 @@ public partial class OrderedCollectionMoldTests
         string BuildChildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue == IFormatExpectation.NoResultExpectedValue)
             { expectValue = ""; }
             return expectValue;

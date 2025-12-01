@@ -364,7 +364,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                 var checkChar = sb[markInsertIndex + i];
                 isInt = checkChar.IsDigit() || (checkChar.IsMinus() && i == 0);
             }
-            if (!isInt)
+            if (!isInt && wrapInQuotes && !hasFormatQuotes && !formatFlags.HasDisableAutoDelimiting())
             {
                 sb.InsertAt(DblQt, markInsertIndex);
                 sb.Append(DblQt);

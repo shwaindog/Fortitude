@@ -33,14 +33,14 @@ public interface IOrderedListExpect : IFormatExpectation
 public class OrderedListExpect<TInputElement>
 (
     List<TInputElement>? inputList
-  , string? formatString = null
+  , string? valueFormatString = null
   , Expression<Func<OrderedCollectionPredicate<TInputElement>>>? elementFilterExpression = null
   , FieldContentHandling contentHandling = DefaultCallerTypeFlags
   , string? name = null
   , [CallerFilePath] string srcFile = ""
   , [CallerLineNumber] int srcLine = 0)
     : OrderedListExpect<TInputElement, TInputElement>
-        (inputList, formatString, elementFilterExpression, contentHandling
+        (inputList, valueFormatString, elementFilterExpression, contentHandling
        , name, srcFile, srcLine);
 
 public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TInputElement>?>, IOrderedListExpect
@@ -51,13 +51,13 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
 
     // ReSharper disable once ConvertToPrimaryConstructor
     // ReSharper disable twice ExplicitCallerInfoArgument
-    public OrderedListExpect(List<TInputElement>? inputList, string? formatString = null
+    public OrderedListExpect(List<TInputElement>? inputList, string? valueFormatString = null
       , Expression<Func<OrderedCollectionPredicate<TFilterBase>>>? elementFilterExpression = null
       , FieldContentHandling contentHandling = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
-        : base(inputList, formatString, contentHandling,
+        : base(inputList, valueFormatString, contentHandling,
                name
             ?? ((elementFilterExpression?.Body as MemberExpression)?.Member.Name)
             ?? (inputList != null
@@ -165,8 +165,8 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
             supportsSettingObjPredicateFilter.ElementPredicate = ElementPredicate!.ToObjectCastingFilter();
         if (HasRestrictingFilter && createdStringBearer is ISupportsOrderedCollectionPredicate<TFilterBase> supportsSettingPredicateFilter)
             supportsSettingPredicateFilter.ElementPredicate = ElementPredicate!;
-        if (FormatString != null && createdStringBearer is ISupportsValueFormatString supportsValueFormatString)
-            supportsValueFormatString.ValueFormatString = FormatString;
+        if (ValueFormatString != null && createdStringBearer is ISupportsValueFormatString supportsValueFormatString)
+            supportsValueFormatString.ValueFormatString = ValueFormatString;
 
         return createdStringBearer;
     }

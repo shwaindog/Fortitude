@@ -154,7 +154,7 @@ public partial class SelectTypeCollectionFieldTests
         {
             const string compactLogTemplate = "{{{0}}}";
 
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
                 expectValue = "\"" + propertyName + "\":" + expectValue;
@@ -166,7 +166,7 @@ public partial class SelectTypeCollectionFieldTests
         string BuildChildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue == IFormatExpectation.NoResultExpectedValue)
             { expectValue = ""; }
             return expectValue;

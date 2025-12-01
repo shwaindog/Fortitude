@@ -200,7 +200,10 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmt : struct, ISpanFormattable
     {
-        if (!source.HasValue) { return sb.Append(StyleOptions.NullString); }
+        if (!source.HasValue)
+        {
+            return sb.Append(StyleOptions.NullString);
+        }
         return FormatFieldName(sb, source.Value, formatString);
     }
 
@@ -325,7 +328,10 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         where TFmtStruct : struct, ISpanFormattable
     {
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
-        if (!source.HasValue) { return sb.Append(StyleOptions.NullString); }
+        if (!source.HasValue)
+        {
+            return AppendFormattedNull(sb, formatString, formatFlags);
+        }
         FormatFieldContents(sb, source.Value, formatString, formatFlags);
         GraphBuilder.MarkContentEnd();
         return sb;

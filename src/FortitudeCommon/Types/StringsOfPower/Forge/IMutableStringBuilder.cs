@@ -160,6 +160,7 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
     T Replace(char find, char replace, int startIndex, int length);
     T Replace(string find, string? replace);
     T Replace(string find, string replace, int startIndex, int length);
+    T Replace(ReadOnlySpan<char> find, ReadOnlySpan<char> replace, int startIndex, int length);
     T Replace(ICharSequence find, ICharSequence replace);
     T Replace(StringBuilder find, StringBuilder replace);
     T Replace(ICharSequence find, ICharSequence replace, int startIndex, int length);

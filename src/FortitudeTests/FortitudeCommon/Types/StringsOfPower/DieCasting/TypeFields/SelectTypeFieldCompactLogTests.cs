@@ -74,7 +74,7 @@ public partial class SelectTypeFieldTests
     }
 
     private static IEnumerable<object[]> NonNullableSpanFormattableExpect =>
-        from fe in SpanFormattableTestData.AllSpanFormattableExpectations
+        from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
         where !fe.IsNullable
         from scaffoldToCall in
             scafReg.IsComplexType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNonNullables()
@@ -88,9 +88,27 @@ public partial class SelectTypeFieldTests
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
+    //
+    // [TestMethod]
+    // public void PrintCompositeList()
+    // {
+    //     List<ISingleFieldExpectation> list = 
+    //     [
+    //       ..NumberTestData.AllNumberExpectations.Value
+    //       , ..SpanFormattableStructTestData.SpanFormattableStructExpectations
+    //       , ..SpanFormattableClassTestData.SpanFormattableClassExpectations
+    //       , ..EnumTestData.EnumExpectations
+    //     ];
+    //
+    //     for (var i = 0; i < list.Count; i++)
+    //     {
+    //         var enumExpectations = list[i];
+    //         logger.Info($"[{i}] : " + enumExpectations);
+    //     }
+    // }
 
     private static IEnumerable<object[]> NullableStructSpanFormattableExpect =>
-        from fe in SpanFormattableTestData.AllSpanFormattableExpectations
+        from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
         where fe is { IsNullable: true, IsStruct: true }
         from scaffoldToCall in
             scafReg.IsComplexType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().OnlyAcceptsNullableStructs()
@@ -267,7 +285,7 @@ public partial class SelectTypeFieldTests
         {
             const string compactLogTemplate = "{0} {{ {1}}}";
 
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
                 expectValue = propertyName + ": " + expectValue + (expectValue.Length > 0 ? " " : "");

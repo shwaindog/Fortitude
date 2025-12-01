@@ -64,6 +64,7 @@ public enum ScaffoldingStringBuilderInvokeFlags : ulong
   , CallsAsSpan                                = 0x00_00_00_20_00_00_00
   , CallsAsReadOnlySpan                        = 0x00_00_00_40_00_00_00
   , SubSpanCallMask                            = 0x00_00_00_60_00_00_00
+  , NeverWhenCallingViaObject                  = 0x00_00_00_80_00_00_00
   , FilterPredicate                            = 0x00_00_02_00_00_00_00
   , SubsetListFilter                           = 0x00_00_04_00_00_00_00
   , StatefulFilter                             = 0x00_00_08_00_00_00_00
@@ -81,10 +82,11 @@ public enum ScaffoldingStringBuilderInvokeFlags : ulong
   , DefaultBecomesZero                         = 0x00_40_00_00_00_00_00
   , DefaultBecomesNull                         = 0x00_80_00_00_00_00_00
   , DefaultBecomesEmpty                        = 0x01_00_00_00_00_00_00
-  , DefaultBecomesFallback                     = 0x02_00_00_00_00_00_00
-  , EmptyBecomesNull                           = 0x04_00_00_00_00_00_00
-  , OutputBecomesMask                          = 0x07_C0_00_00_00_00_00
-  , OutputMask                                 = 0x07_F0_00_00_00_00_00
+  , DefaultBecomesFallbackValue                = 0x02_00_00_00_00_00_00
+  , DefaultBecomesFallbackString               = 0x04_00_00_00_00_00_00
+  , EmptyBecomesNull                           = 0x08_00_00_00_00_00_00
+  , OutputBecomesMask                          = 0x0F_C0_00_00_00_00_00
+  , OutputMask                                 = 0x0F_F0_00_00_00_00_00
 }
 
 public static class ScaffoldingStringBuilderInvokeFlagsExtensions
@@ -123,6 +125,7 @@ public static class ScaffoldingStringBuilderInvokeFlagsExtensions
     public static bool IsAcceptsAnyGeneric(this ScaffoldingStringBuilderInvokeFlags flags)      => (flags & AcceptsAnyGeneric) == AcceptsAnyGeneric;
     public static bool HasCallsViaMatch(this ScaffoldingStringBuilderInvokeFlags flags)         => (flags & CallsViaMatch) > 0;
     public static bool HasCallsUsingObject(this ScaffoldingStringBuilderInvokeFlags flags)      => (flags & CallsUsingObject) > 0;
+    public static bool HasNeverWhenCallingViaObject(this ScaffoldingStringBuilderInvokeFlags flags)      => (flags & NeverWhenCallingViaObject) > 0;
     public static bool IsNotAcceptsAnyGeneric(this ScaffoldingStringBuilderInvokeFlags flags)   => !flags.HasAllOf(AcceptsAnyGeneric);
     public static bool HasAcceptsNullableStruct(this ScaffoldingStringBuilderInvokeFlags flags) => (flags & AcceptsNullableStruct) > 0;
     

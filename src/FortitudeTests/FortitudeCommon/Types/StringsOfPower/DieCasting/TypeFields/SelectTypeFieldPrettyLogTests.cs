@@ -143,7 +143,7 @@ public partial class SelectTypeFieldTests
 
             var maybeNewLine = "";
             var maybeIndent = "";
-            var expectValue  = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue  = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
                 maybeNewLine = "\n";
@@ -163,7 +163,7 @@ public partial class SelectTypeFieldTests
 
             var maybeNewLine = "";
             var maybeIndent = "";
-            var expectValue  = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue  = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
                 maybeNewLine = "\n";

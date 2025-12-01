@@ -44,12 +44,13 @@ public static class TestCollections
       , (float)Math.E * 3, (float)Math.PI * 4, (float)Math.E * 4, null, (float)Math.PI * 5, null, (float)Math.E * 5,
     ];
 
-    public static readonly List<float?>                      NullFloatList        = [..NullFloatArray];
-    public static          OrderedCollectionPredicate<float> Float_First_5        = (count, _) => StopOnFirstExclusion(count <= 5);
-    public static          OrderedCollectionPredicate<float> Float_Second_5       = (count, _) => BetweenRetrieveRange(count, 6, 11);
-    public static          OrderedCollectionPredicate<float> Float_First_2        = (count, _) => StopOnFirstExclusion(count <= 2);
-    public static          OrderedCollectionPredicate<float> Float_Skip_Odd_Index = (_, _) => EvaluateIsIncludedAndContinue(true, 1);
-    public static          OrderedCollectionPredicate<float> Float_First_Gt_10    = (_, item) => First(item > 10.0f);
+    public static readonly List<float?> NullFloatList = [..NullFloatArray];
+
+    public static OrderedCollectionPredicate<float> Float_First_5        = (count, _) => StopOnFirstExclusion(count <= 5);
+    public static OrderedCollectionPredicate<float> Float_Second_5       = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<float> Float_First_2        = (count, _) => StopOnFirstExclusion(count <= 2);
+    public static OrderedCollectionPredicate<float> Float_Skip_Odd_Index = (_, _) => EvaluateIsIncludedAndContinue(true, 1);
+    public static OrderedCollectionPredicate<float> Float_First_Gt_10    = (_, item) => First(item > 10.0f);
 
     public static OrderedCollectionPredicate<float?> NullFloat_First_2        = (count, _) => StopOnFirstExclusion(count <= 2);
     public static OrderedCollectionPredicate<float?> NullFloat_First_5        = (count, _) => StopOnFirstExclusion(count <= 5);
@@ -882,7 +883,7 @@ public static class TestCollections
       , NoDefaultLongWithFlagsEnum.NDLWFE_1.JustUnnamed()
       , NoDefaultLongWithFlagsEnum.NDLWFE_1
       | NoDefaultLongWithFlagsEnum.NDLWFE_2
-      | NoDefaultLongWithFlagsEnum.NDLWFE_6 
+      | NoDefaultLongWithFlagsEnum.NDLWFE_6
       | NoDefaultLongWithFlagsEnum.NDLWFE_7
       , NoDefaultLongWithFlagsEnum.NDLWFE_1.Default()
       , NoDefaultLongWithFlagsEnum.NDLWFE_13
@@ -957,7 +958,7 @@ public static class TestCollections
       , NoDefaultULongWithFlagsEnum.NDUWFE_1.JustUnnamed()
       , NoDefaultULongWithFlagsEnum.NDUWFE_1
       | NoDefaultULongWithFlagsEnum.NDUWFE_2
-      | NoDefaultULongWithFlagsEnum.NDUWFE_6 
+      | NoDefaultULongWithFlagsEnum.NDUWFE_6
       | NoDefaultULongWithFlagsEnum.NDUWFE_7
       , NoDefaultULongWithFlagsEnum.NDUWFE_1.Default()
       , NoDefaultULongWithFlagsEnum.NDUWFE_13
@@ -1032,7 +1033,7 @@ public static class TestCollections
       , WithDefaultLongWithFlagsEnum.WDLWFE_1.JustUnnamed()
       , WithDefaultLongWithFlagsEnum.WDLWFE_1
       | WithDefaultLongWithFlagsEnum.WDLWFE_2
-      | WithDefaultLongWithFlagsEnum.WDLWFE_6 
+      | WithDefaultLongWithFlagsEnum.WDLWFE_6
       | WithDefaultLongWithFlagsEnum.WDLWFE_7
       , WithDefaultLongWithFlagsEnum.WDLWFE_1.Default()
       , WithDefaultLongWithFlagsEnum.WDLWFE_13
@@ -1107,7 +1108,7 @@ public static class TestCollections
       , WithDefaultULongWithFlagsEnum.WDUWFE_1.JustUnnamed()
       , WithDefaultULongWithFlagsEnum.WDUWFE_1
       | WithDefaultULongWithFlagsEnum.WDUWFE_2
-      | WithDefaultULongWithFlagsEnum.WDUWFE_6 
+      | WithDefaultULongWithFlagsEnum.WDUWFE_6
       | WithDefaultULongWithFlagsEnum.WDUWFE_7
       , WithDefaultULongWithFlagsEnum.WDUWFE_1.Default()
       , WithDefaultULongWithFlagsEnum.WDUWFE_13

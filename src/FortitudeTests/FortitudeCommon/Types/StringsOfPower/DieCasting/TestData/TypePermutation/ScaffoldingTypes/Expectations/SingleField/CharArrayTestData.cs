@@ -24,7 +24,7 @@ public class CharArrayTestData
                ,
                 {
                     new EK(SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsValueOut | DefaultBecomesZero
-                         | DefaultBecomesFallback)
+                         | DefaultBecomesFallbackValue)
                   , "0"
                 }
                ,
@@ -36,7 +36,7 @@ public class CharArrayTestData
                ,
                 {
                     new EK(SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsStringOut | DefaultBecomesZero
-                         | DefaultBecomesFallback)
+                         | DefaultBecomesFallbackValue)
                   , "\"0\""
                 }
               , { new EK(SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsValueOut), "" }
@@ -70,10 +70,10 @@ public class CharArrayTestData
           , new StringLikeExpect<char[], char[]>(null, "", true, [])
             {
                 { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull), "null" }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback), "" }
+              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue), "" }
               , { new EK(SimpleType | CallsViaMatch), "\"\"" }
               , { new EK(SimpleType | AcceptsChars | CallsAsSpan | AcceptsCharArray | DefaultBecomesNull), "null" }
-              , { new EK(SimpleType | AcceptsChars | CallsAsSpan | AcceptsCharArray | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"\"" }
+              , { new EK(SimpleType | AcceptsChars | CallsAsSpan | AcceptsCharArray | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue), "\"\"" }
                ,
                 {
                     new EK(AcceptsChars | AlwaysWrites | NonDefaultWrites | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut
@@ -93,7 +93,7 @@ public class CharArrayTestData
           , new StringLikeExpect<char[], char[]>(null, "", false, [], 10, 50)
             {
                 { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull), "null" }
-              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback), "\"\"" }
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallbackValue), "\"\"" }
                ,
                 {
                     new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonDefaultWrites
@@ -107,8 +107,8 @@ public class CharArrayTestData
             }
           , new StringLikeExpect<char[], char[]>(null, "", true, ['0'], -1, -10)
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback), "0" }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
+                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue), "0" }
+              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue), "\"0\"" }
               , { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull), "null" }
                ,
                 {
@@ -116,7 +116,7 @@ public class CharArrayTestData
                          | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull)
                   , "null"
                 }
-              , { new EK(AcceptsChars | CallsAsSpan | DefaultTreatedAsStringOut | DefaultBecomesFallback), "\"0\"" }
+              , { new EK(AcceptsChars | CallsAsSpan | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue), "\"0\"" }
               , { new EK(AcceptsChars | CallsAsSpan | DefaultTreatedAsValueOut | DefaultBecomesZero), "0" }
               , { new EK(AcceptsChars | CallsAsSpan | DefaultTreatedAsValueOut), "0" }
               , { new EK(AcceptsChars | CallsAsSpan | DefaultTreatedAsStringOut), "\"\"" }
@@ -125,30 +125,30 @@ public class CharArrayTestData
           , new StringLikeExpect<char[], char[]>("It".ToCharArray(), "\"{0}\"", false, ['0'], 3, 2)
             {
                 {
-                    new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback, Log | Compact | Pretty)
+                    new EK(SimpleType | CallsViaMatch | DefaultBecomesFallbackValue, Log | Compact | Pretty)
                   , "\"0\""
                 }
                ,
                 {
-                    new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallback)
+                    new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)
                   , "\"0\""
                 }
-              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallback), "\"\\u00220\\u0022\"" }
+              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallbackValue), "\"\\u00220\\u0022\"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultBecomesFallback | DefaultBecomesZero
+                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultBecomesFallbackValue | DefaultBecomesZero
                          , Log | Compact | Pretty)
                   , "\"0\""
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut | DefaultBecomesFallback
+                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue
                          | DefaultBecomesZero)
                   , "\"0\""
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultBecomesFallback | DefaultBecomesZero)
+                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultBecomesFallbackValue | DefaultBecomesZero)
                   , "\"\\u00220\\u0022\""
                 }
                ,
@@ -233,8 +233,8 @@ public class CharArrayTestData
           , new StringLikeExpect<char[]>("with".ToCharArray(), "\"{0[8..10]}\"")
             {
                 { new EK(SimpleType | CallsViaMatch | AcceptsCharArray | CallsAsSpan, Log | Compact | Pretty), "\"\"" }
-              , { new EK(SimpleType | CallsViaMatch | AcceptsCharArray | DefaultBecomesFallback | DefaultTreatedAsValueOut), "\"\"" }
-              , { new EK(SimpleType | CallsViaMatch | AcceptsCharArray | DefaultBecomesFallback), "\"\\u0022\\u0022\"" }
+              , { new EK(SimpleType | CallsViaMatch | AcceptsCharArray | DefaultBecomesFallbackValue | DefaultTreatedAsValueOut), "\"\"" }
+              , { new EK(SimpleType | CallsViaMatch | AcceptsCharArray | DefaultBecomesFallbackValue), "\"\\u0022\\u0022\"" }
               , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan, Log | Compact | Pretty), "\"\"" }
               , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut), "\"\"" }
                ,

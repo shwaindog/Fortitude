@@ -581,10 +581,11 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
 
     public void Replace(ReadOnlySpan<char> find, ReadOnlySpan<char> replace, int startIndex, int searchLength)
     {
+        var cappedLength = Math.Clamp(searchLength,  0, length - startIndex);
         if (startIndex >= 0 && startIndex < length)
         {
             var arraySpan = backingArray.AsSpan().Slice(startIndex);
-            length += arraySpan.ReplaceCapped(length, find, replace);
+            length += arraySpan.ReplaceCapped(cappedLength, find, replace);
         }
     }
 

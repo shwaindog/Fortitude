@@ -78,15 +78,41 @@ public static class StringBuilderExtensions
         return toWriteTo;
     }
 
+    public static StringBuilder OverwriteAt(this StringBuilder toWriteTo, int insertIndex, ReadOnlySpan<char> source)
+    {
+        var endSizeDiff = source.Length - (toWriteTo.Length - insertIndex);
+        if (endSizeDiff > 0)
+        {
+            toWriteTo.Length += endSizeDiff;
+        }
+        for (var i = 0; i < source.Length; i++)
+        {
+            toWriteTo[insertIndex + i] = source[i];
+        }
+        return toWriteTo;
+    }
+
     public static StringBuilder ShiftRightAt(this StringBuilder toMutate, int from, int by)
     {
         if (by < 0) return toMutate;
 
         toMutate.Length += by;
-        for (var i = toMutate.Length - 1 + by; i >= from; i--)
+        for (var i = toMutate.Length - 1; i - by >= from; i--)
         {
             toMutate[i] = toMutate[i - by];
         }
+        return toMutate;
+    }
+
+    public static StringBuilder ShiftLeftAt(this StringBuilder toMutate, int from, int by)
+    {
+        if (by < 0) return toMutate;
+
+        for (var i = from; i < toMutate.Length - 1 - by; i++)
+        {
+            toMutate[i] = toMutate[i + by];
+        }
+        toMutate.Length -= by;
         return toMutate;
     }
 

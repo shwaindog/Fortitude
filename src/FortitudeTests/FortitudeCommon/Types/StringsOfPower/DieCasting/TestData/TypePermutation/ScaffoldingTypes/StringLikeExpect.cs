@@ -22,7 +22,7 @@ public class StringLikeExpect<TInput> : StringLikeExpect<TInput, string>
     public StringLikeExpect
     (
         TInput? input
-      , string? formatString = null
+      , string? valueFormatString = null
       , bool hasDefault = false
       , string? defaultValue = null
       , int fromIndex = 0
@@ -31,7 +31,7 @@ public class StringLikeExpect<TInput> : StringLikeExpect<TInput, string>
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
-        : base(input, formatString, hasDefault, defaultValue, fromIndex, length, contentHandling, name, srcFile, srcLine) { }
+        : base(input, valueFormatString, hasDefault, defaultValue, fromIndex, length, contentHandling, name, srcFile, srcLine) { }
 }
 
 public class StringLikeExpect<TInput, TDefault>: FieldExpect<TInput, TDefault>, IStringLikeExpectation
@@ -40,7 +40,7 @@ public class StringLikeExpect<TInput, TDefault>: FieldExpect<TInput, TDefault>, 
     public StringLikeExpect
     (
         TInput? input
-      , string? formatString = null
+      , string? valueFormatString = null
       , bool hasDefault = false
       , TDefault? defaultValue = default
       , int fromIndex = 0
@@ -49,7 +49,7 @@ public class StringLikeExpect<TInput, TDefault>: FieldExpect<TInput, TDefault>, 
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
-        : base(input, formatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
+        : base(input, valueFormatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
     {
         FromIndex = fromIndex;
         Length    = length;
@@ -86,7 +86,7 @@ public class StringLikeExpect<TInput, TDefault>: FieldExpect<TInput, TDefault>, 
     public override IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry, StyleOptions stringStyle)
     {
         var createdStringBearer = base.CreateStringBearerWithValueFor(scaffoldEntry, stringStyle);
-        if (FormatString != null && createdStringBearer is ISupportsIndexRangeLimiting indexRangeLimiting)
+        if (ValueFormatString != null && createdStringBearer is ISupportsIndexRangeLimiting indexRangeLimiting)
         {
             indexRangeLimiting.FromIndex = FromIndex;
             indexRangeLimiting.Length    = Length;

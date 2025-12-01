@@ -192,7 +192,7 @@ public partial class ValueTypeMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactJsonAsValue(SpanFormattableTestData.AllSpanFormattableExpectations[209], ScaffoldingRegistry.AllScaffoldingTypes[1139]);
+        SharedCompactJsonAsValue(SpanFormattableTestData.AllSpanFormattableExpectations.Value[209], ScaffoldingRegistry.AllScaffoldingTypes[1139]);
     }
 
     private void SharedPrettyLogAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -218,7 +218,7 @@ public partial class ValueTypeMoldTests
             const string prettyLogTemplate = "{0}= {1}{2}";
 
             var maybeProperty = propertyName.IsNotEmpty() ? $"{propertyName}: " : "";
-            var expectValue   = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue   = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue == IFormatExpectation.NoResultExpectedValue)
             {
                 expectValue = "";
@@ -234,7 +234,7 @@ public partial class ValueTypeMoldTests
 
             var maybeNewLine = "";
             var maybeIndent  = "";
-            var expectValue  = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue  = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
                 maybeNewLine = "\n";
@@ -307,7 +307,7 @@ public partial class ValueTypeMoldTests
             const string prettyLogTemplate = "{0}= {1}{2}";
 
             var maybeProperty = propertyName.IsNotEmpty() ? $"{propertyName}: " : "";
-            var expectValue   = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue   = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue == IFormatExpectation.NoResultExpectedValue)
             {
                 expectValue = "";
@@ -323,7 +323,7 @@ public partial class ValueTypeMoldTests
 
             var maybeNewLine = "";
             var maybeIndent  = "";
-            var expectValue  = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.FormatString);
+            var expectValue  = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
                 maybeNewLine = "\n";

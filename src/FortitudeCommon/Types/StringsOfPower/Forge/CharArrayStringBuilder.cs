@@ -1462,6 +1462,12 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         return this;
     }
 
+    public CharArrayStringBuilder Replace(ReadOnlySpan<char> find, ReadOnlySpan<char> replace, int startIndex, int length)
+    {
+        ca.Replace(find, replace, startIndex, length);
+        return this;
+    }
+
     public CharArrayStringBuilder Replace(ICharSequence find, ICharSequence replace) => Replace(find, replace, 0, Length);
 
     public CharArrayStringBuilder Replace(ICharSequence find, ICharSequence replace, int startIndex, int length)
@@ -1803,6 +1809,9 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(StringBuilder find, StringBuilder replace) => Replace(find, replace);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(string find, string replace, int startIndex, int length) =>
+        Replace(find, replace, startIndex, length);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(ReadOnlySpan<char> find, ReadOnlySpan<char> replace, int startIndex, int length) =>
         Replace(find, replace, startIndex, length);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(char find, char replace, int startIndex, int length) =>

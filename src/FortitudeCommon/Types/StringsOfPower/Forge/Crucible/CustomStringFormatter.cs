@@ -850,8 +850,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         if (TryGetCachedCustomSpanFormatter<TFmt>(out var formatter))
         {
             var charSpan = stackalloc char[2048].ResetMemory();
-            charsWritten = formatter(source, charSpan, formatString, null);
-            StringEncoder.Transfer(this, charSpan[..charsWritten], sb);
+            charsWritten = formatter(StringEncoder, source, charSpan, formatString, null, formatFlags);
+            PassThroughEncodingTransfer.Instance.Transfer(this, charSpan[..charsWritten], sb);
             return charsWritten;
         }
         if (source is Enum sourceEnum)
@@ -859,17 +859,17 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
             var enumFormatProvider = EnumFormatterRegistry.GetOrCreateEnumFormatProvider(source.GetType());
             TryAddCustomSpanFormattableProvider(typeof(TFmt), enumFormatProvider);
             var charSpan             = stackalloc char[2048].ResetMemory();
-            var spanEnumFormatProver = enumFormatProvider.AsSpanFormattableEnumFormatProvider<TFmt>();
-            if (spanEnumFormatProver != null)
+            var spanEnumFormatProvider = enumFormatProvider.AsSpanFormattableEnumFormatProvider<TFmt>();
+            if (spanEnumFormatProvider != null)
             {
-                charsWritten = spanEnumFormatProver.StringBearerSpanFormattable(source, charSpan, formatString, null);
+                charsWritten = spanEnumFormatProvider.StringBearerSpanFormattable(StringEncoder, source, charSpan, formatString, null, formatFlags);
             }
             else
             {
                 var asEnumFormatter = enumFormatProvider.AsEnumFormatProvider()!;
-                charsWritten = asEnumFormatter.StringBearerSpanFormattable(sourceEnum, charSpan, formatString, null);
+                charsWritten = asEnumFormatter.StringBearerSpanFormattable(StringEncoder, sourceEnum, charSpan, formatString, null, formatFlags);
             }
-            StringEncoder.Transfer(this, charSpan[..charsWritten], sb);
+            PassThroughEncodingTransfer.Instance.Transfer(this, charSpan[..charsWritten], sb);
             return charsWritten;
         }
         try
@@ -929,8 +929,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         var charSpan = stackalloc char[2048].ResetMemory();
         if (TryGetCachedCustomSpanFormatter<TFmt>(out var formatter))
         {
-            charsWritten = formatter(source, charSpan, formatString, null);
-            return StringEncoder.Transfer(this, charSpan[..charsWritten], destCharSpan, destStartIndex);
+            charsWritten = formatter(StringEncoder, source, charSpan, formatString, null, formatFlags);
+            return PassThroughEncodingTransfer.Instance.Transfer(this, charSpan[..charsWritten], destCharSpan, destStartIndex);
         }
         if (source is Enum sourceEnum)
         {
@@ -939,14 +939,14 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
             var spanEnumFormatProver = enumFormatProvider.AsSpanFormattableEnumFormatProvider<TFmt>();
             if (spanEnumFormatProver != null)
             {
-                charsWritten = spanEnumFormatProver.StringBearerSpanFormattable(source, charSpan, formatString, null);
+                charsWritten = spanEnumFormatProver.StringBearerSpanFormattable(StringEncoder, source, charSpan, formatString, null, formatFlags);
             }
             else
             {
                 var asEnumFormatter = enumFormatProvider.AsEnumFormatProvider()!;
-                charsWritten = asEnumFormatter.StringBearerSpanFormattable(sourceEnum, charSpan, formatString, null);
+                charsWritten = asEnumFormatter.StringBearerSpanFormattable(StringEncoder, sourceEnum, charSpan, formatString, null, formatFlags);
             }
-            return StringEncoder.Transfer(this, charSpan[..charsWritten], destCharSpan, destStartIndex);
+            return PassThroughEncodingTransfer.Instance.Transfer(this, charSpan[..charsWritten], destCharSpan, destStartIndex);
         }
         formatString.ExtractExtendedStringFormatStages(out var prefix, out _, out var outputSubRange
                                                      , out var layout, out _, out var format, out var suffix);

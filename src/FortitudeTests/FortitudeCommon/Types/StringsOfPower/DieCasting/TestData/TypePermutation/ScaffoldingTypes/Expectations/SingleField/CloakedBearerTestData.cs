@@ -81,17 +81,17 @@ public static class CloakedBearerTestData
       , new CloakedBearerExpect<byte?, FieldNullableSpanFormattableAlwaysAddStringBearer<byte>>
             (null, "null", true)
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesNull), "0" }
+                { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallbackValue | DefaultBecomesNull), "0" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull), "null" }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesZero), "0" }
+              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallbackValue | DefaultBecomesZero), "0" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites), "null" }
             }
       , new CloakedBearerExpect<byte?, FieldSpanFormattableAlwaysAddStringBearer<byte>>
             (null, "null", true)
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesNull), "0" }
+                { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallbackValue | DefaultBecomesNull), "0" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull), "null" }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesZero), "0" }
+              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallbackValue | DefaultBecomesZero), "0" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites), "null" }
             }
       , new CloakedBearerExpect<byte?, FieldNullableSpanFormattableAlwaysAddStructStringBearer<byte>>(255)
@@ -237,17 +237,17 @@ public static class CloakedBearerTestData
       , new CloakedBearerExpect<DateTime?, FieldNullableSpanFormattableAlwaysAddStringBearer<DateTime>>
             (null, "yyyy-MM-ddTHH:mm:ss", true)
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesNull), "1/1/0001 12:00:00 AM" }
+                { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallbackValue | DefaultBecomesNull), "1/1/0001 12:00:00 AM" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull), "null" }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesZero), "1/1/0001 12:00:00 AM" }
+              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallbackValue | DefaultBecomesZero), "1/1/0001 12:00:00 AM" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites), "null" }
             }
       , new CloakedBearerExpect<DateTime?, FieldSpanFormattableAlwaysAddStringBearer<DateTime>>
             (null, "yyyy-MM-ddTHH:mm:ss", true)
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesNull), "1/1/0001 12:00:00 AM" }
+                { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallbackValue | DefaultBecomesNull), "1/1/0001 12:00:00 AM" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull), "null" }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesZero), "1/1/0001 12:00:00 AM" }
+              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallbackValue | DefaultBecomesZero), "1/1/0001 12:00:00 AM" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites), "null" }
             }
       , new CloakedBearerExpect<DateTime?, FieldNullableSpanFormattableAlwaysAddStringBearer<DateTime>>
@@ -405,17 +405,17 @@ public static class CloakedBearerTestData
       , new CloakedBearerExpect<TimeSpan?, FieldNullableSpanFormattableAlwaysAddStringBearer<TimeSpan>>
             (null, "")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesNull), "00:00:00" }
+                { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallbackValue | DefaultBecomesNull), "00:00:00" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull), "null" }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesZero), "00:00:00" }
+              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallbackValue | DefaultBecomesZero), "00:00:00" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites), "null" }
             }
       , new CloakedBearerExpect<TimeSpan?, FieldNullableSpanFormattableAlwaysAddStructStringBearer<TimeSpan>>
             (null, "")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesNull), "00:00:00" }
+                { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallbackValue | DefaultBecomesNull), "00:00:00" }
               , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull), "null" }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback | DefaultBecomesZero), "00:00:00" }
+              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallbackValue | DefaultBecomesZero), "00:00:00" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites), "null" }
             }
       , new CloakedBearerExpect<TimeSpan?, FieldNullableSpanFormattableAlwaysAddStringBearer<TimeSpan>>
@@ -507,7 +507,7 @@ public static class CloakedBearerTestData
         }
       , new CloakedBearerExpect<IPAddress, FieldSpanFormattableAlwaysAddStructStringBearer<IPAddress>>(null, "")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallback), "" }
+            { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallbackValue), "" }
           , { new EK(SimpleType | AcceptsSpanFormattable), "null" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
         }

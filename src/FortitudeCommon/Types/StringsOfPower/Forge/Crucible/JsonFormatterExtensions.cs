@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Collections.Concurrent;
 using System.Net;
 using System.Numerics;
 using System.Text;
@@ -42,11 +43,15 @@ public static class JsonFormatterExtensions
       , typeof(Version)
     ];
 
+    private static ConcurrentDictionary<Type, bool> typeIsDoubleQtDelimited = new();
+
     public static bool IsDoubleQuoteDelimitedSpanFormattable<T>(this T check)
     {
         var typeOfT = typeof(T) == typeof(Type) ? (Type)(object)check! : typeof(T);
-        var nullableSpanFormattable = (typeOfT.IsSpanFormattableOrNullable());
-        var doubleQtDelimited = (nullableSpanFormattable && !typeOfT.IsJsonStringExemptType());
+        
+        var nullableSpanFormattable = (typeOfT.IsSpanFormattableOrNullableCached());
+        
+        var doubleQtDelimited = typeIsDoubleQtDelimited.GetOrAdd(typeOfT, t => nullableSpanFormattable && !t.IsJsonStringExemptType());
 
         if (!doubleQtDelimited)
         {
@@ -56,6 +61,9 @@ public static class JsonFormatterExtensions
                 case float floatSource:   doubleQtDelimited = float.IsNaN(floatSource); break;
                 case double doubleSource: doubleQtDelimited = double.IsNaN(doubleSource); break;
             }
+        } else if (nullableSpanFormattable && check == null && typeOfT.IfNullableGetUnderlyingTypeOrThisCached().IsEnum)
+        {
+            doubleQtDelimited = false;
         }
         return doubleQtDelimited;
     }

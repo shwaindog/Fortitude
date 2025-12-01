@@ -414,6 +414,9 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(string find, string replace, int startIndex, int length) =>
         Replace(find, replace, startIndex, length);
 
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(ReadOnlySpan<char> find, ReadOnlySpan<char> replace, int startIndex, int length) =>
+        Replace(find, replace, startIndex, length);
+
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(ICharSequence find, ICharSequence replace) => Replace(find, replace);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(ICharSequence find, ICharSequence replace, int startIndex, int length) =>
@@ -1659,6 +1662,41 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     {
         if (IsFrozen) return ShouldThrow();
         sb.Replace(find, replace, startIndex, length);
+        return this;
+    }
+
+    public MutableString Replace(ReadOnlySpan<char> find, ReadOnlySpan<char> replace, int startIndex, int length)
+    {
+        if (IsFrozen) return ShouldThrow();
+        startIndex = Math.Clamp(0, startIndex, Length);
+        var endIndex         = Math.Clamp(0, startIndex + length - find.Length, Length);
+        var deltaReplaceSize = find.Length - replace.Length;
+        for (int i = endIndex - 1; i >= startIndex; i--)
+        {
+            var allMatch = true;
+            for (int j = 0; j < find.Length; j++)
+            {
+                var checkChar   = this[i + j];
+                var compareChar = find[j];
+                if (checkChar != compareChar)
+                {
+                    allMatch = false;
+                    break;
+                }
+            }
+            if (allMatch)
+            {
+                if (deltaReplaceSize < 0)
+                {
+                    sb.ShiftRightAt(i, -deltaReplaceSize);
+                }
+                if (deltaReplaceSize < 0)
+                {
+                    sb.ShiftLeftAt(i + replace.Length, deltaReplaceSize);
+                }
+                sb.OverwriteAt(i, replace);
+            }
+        }
         return this;
     }
 
