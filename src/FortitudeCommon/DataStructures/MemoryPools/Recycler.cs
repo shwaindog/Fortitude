@@ -106,11 +106,11 @@ public class Recycler : IRecycler
         {
             recyclable.Recycler = this;
 
+            recyclable.IsInRecycler = false;
             while (shouldAutoRecycleOnRefCountZero && recyclable.RefCount < 1) recyclable.IncrementRefCount();
             while (shouldAutoRecycleOnRefCountZero && recyclable.RefCount > 1) recyclable.DecrementRefCount();
             recyclable.AutoRecycleAtRefCountZero = shouldAutoRecycleOnRefCountZero;
 
-            recyclable.IsInRecycler = false;
         }
 
         return borrowed;

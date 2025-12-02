@@ -1,4 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
+using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
 namespace FortitudeCommon.Extensions;
 
@@ -15,16 +17,16 @@ public enum FormatStringType
   , Suffix                 = 0x40
 }
 
-[InlineArray(4)]
-public struct FourChars
+[InlineArray(128)]
+public struct DoubleCacheLineChars
 {
     private char element;
 }
 
 public readonly struct SplitJoinRange : ISpanFormattable
 {
-    private readonly FourChars splitChars;
-    private readonly FourChars joinChars;
+    private readonly DoubleCacheLineChars splitChars;
+    private readonly DoubleCacheLineChars joinChars;
     private readonly Range     splitElementsRange;
 
     private readonly byte splitLength;
@@ -108,7 +110,7 @@ public readonly struct SplitJoinRange : ISpanFormattable
 
     public Range SplitElementsRange => splitElementsRange;
 
-    public int ApplySplitJoin(Span<char> bufferWritten, ReadOnlySpan<char> original)
+    public int ApplySplitJoin(Span<char> bufferWritten, ReadOnlySpan<char> original, IEncodingTransfer contentEncoder, IEncodingTransfer joinEncoder)
     {
         var splitSpan           = splitChars[..splitLength];
         var splitOccurenceCount = -1;
@@ -118,12 +120,7 @@ public readonly struct SplitJoinRange : ISpanFormattable
         }
         if (IsNoSplitJoin || splitOccurenceCount < 1)
         {
-            var end = Math.Min(bufferWritten.Length, original.Length);
-            for (int i = 0; i < end; i++)
-            {
-                bufferWritten[i] = original[i];
-            }
-            return end;
+            return contentEncoder.Transfer(original, bufferWritten, 0);
         }
         Span<Range> splitRanges    = stackalloc Range[splitOccurenceCount+1];
         var         numberOfRanges = original.Split(splitRanges, splitSpan);
@@ -136,17 +133,42 @@ public readonly struct SplitJoinRange : ISpanFormattable
         for (int i = 0; i < splitRanges.Length; i++)
         {
             var toCopy = original[splitRanges[i]];
-            var end    = Math.Min(bufferWritten.Length - bufi, toCopy.Length);
-            for (int j = 0; j < end; j++)
-            {
-                bufferWritten[bufi++] = toCopy[j];
-            }
+            bufi += contentEncoder.Transfer(toCopy, bufferWritten, bufi);
             if (i < splitRanges.Length - 1)
             {
-                for (int j = 0; j < joinSpan.Length && bufi < bufferWritten.Length; j++)
-                {
-                    bufferWritten[bufi++] = joinSpan[j];
-                }
+                bufi += joinEncoder.Transfer(joinSpan, bufferWritten, bufi);
+            }
+        }
+        return bufi;
+    }
+
+    public int ApplySplitJoin(IStringBuilder sb, ReadOnlySpan<char> original, IEncodingTransfer contentEncoder, IEncodingTransfer joinEncoder)
+    {
+        var splitSpan           = splitChars[..splitLength];
+        var splitOccurenceCount = -1;
+        if (!IsNoSplitJoin)
+        {
+            splitOccurenceCount = original.SubSequenceOccurenceCount(splitSpan);
+        }
+        if (IsNoSplitJoin || splitOccurenceCount < 1)
+        {
+            return contentEncoder.Transfer(original, sb);
+        }
+        Span<Range> splitRanges    = stackalloc Range[splitOccurenceCount+1];
+        var         numberOfRanges = original.Split(splitRanges, splitSpan);
+        splitRanges = splitRanges[..numberOfRanges];
+        var boundRange = splitElementsRange.BoundRangeToLength(splitRanges.Length);
+        splitRanges = splitRanges[boundRange];
+
+        var joinSpan = joinChars[..joinLength];
+        var bufi     = 0;
+        for (int i = 0; i < splitRanges.Length; i++)
+        {
+            var toCopy = original[splitRanges[i]];
+            bufi += contentEncoder.Transfer(toCopy, sb);
+            if (i < splitRanges.Length - 1)
+            {
+                bufi += joinEncoder.Transfer(joinSpan, sb);
             }
         }
         return bufi;

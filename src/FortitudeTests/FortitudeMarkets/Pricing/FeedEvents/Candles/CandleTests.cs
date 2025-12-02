@@ -247,7 +247,7 @@ public class CandleTests
 
         Assert.IsTrue(toString.Contains(q.GetType().Name));
 
-        Assert.IsTrue(toString.Contains($"{nameof(q.TimeBoundaryPeriod)}: {q.TimeBoundaryPeriod}"));
+        Assert.IsTrue(toString.Contains($"{nameof(q.TimeBoundaryPeriod)}: {nameof(TimeBoundaryPeriod)}.{q.TimeBoundaryPeriod}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.PeriodStartTime)}: {q.PeriodStartTime:O}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.PeriodEndTime)}: {q.PeriodEndTime:O}"));
         Assert.IsTrue(toString.Contains($"{nameof(q.StartBidPrice)}: {q.StartBidPrice:N5}"));

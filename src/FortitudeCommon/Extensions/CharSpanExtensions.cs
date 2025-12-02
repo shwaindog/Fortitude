@@ -490,7 +490,7 @@ public static class CharSpanExtensions
                 for (int j = 1; j < findLength && i + j < lastCharIndex; j++)
                 {
                     checkChar = searchSpan[i+j];
-                    var matchChar = searchSpan[j];
+                    var matchChar = findSequence[j];
                     if (checkChar != matchChar)
                     {
                         allSame = false;
@@ -500,7 +500,7 @@ public static class CharSpanExtensions
                 if (allSame)
                 {
                     foundCount++;
-                    i = i + findLength - 1;
+                    i = i + findLength;
                 }
             }
         }
@@ -1531,8 +1531,42 @@ public static class CharSpanExtensions
     public static bool IsSglQtBounded(this ReadOnlySpan<char> input)  => input.Length > 1 &&  input[0] == '\'' && input[^1] == '\'';
     public static bool IsDblQtBounded(this ReadOnlySpan<char> input)  => input.Length > 1 &&  input[0] == '\"' && input[^1] == '\"';
     public static bool IsSqBrktBounded(this ReadOnlySpan<char> input) => input.Length > 1 &&   input[0] == '[' && input[^1] == ']';
-    public static bool IsBrcBounded(this ReadOnlySpan<char> input)    => input.Length > 1 &&   input[0] == '{' && input[^1] == '}';
     
+    public static bool IsBrcBounded(this ReadOnlySpan<char> input)
+    {
+        var hasTwoOpeningBraces  = input.Length > 1 && input[0] == '{';
+        if(!hasTwoOpeningBraces) return false;
+        var hasTwoClosingBraces = input[^1] == '}';
+        if(!hasTwoClosingBraces) return false;
+        for (int i = 1; i < input.Length && hasTwoOpeningBraces; i++)
+        {
+            var checkChar = input[i];
+            if (checkChar == '{')
+            {
+                break;
+            }
+            if (checkChar == '}')
+            {
+                hasTwoOpeningBraces = false;
+                break;
+            }
+        }
+        for (int i = input.Length - 2; i >= 0 && hasTwoClosingBraces; i--)
+        {
+            var checkChar = input[i];
+            if (checkChar == '}')
+            {
+                break;
+            }
+            if (checkChar == '{')
+            {
+                hasTwoClosingBraces = false;
+                break;
+            }
+        }
+        return hasTwoOpeningBraces && hasTwoClosingBraces;
+    }
+
     public static char LastNonWhiteChar(this ReadOnlySpan<char> sb, int fromEndIndex)
     {
         if (fromEndIndex <= 0) return '\0';

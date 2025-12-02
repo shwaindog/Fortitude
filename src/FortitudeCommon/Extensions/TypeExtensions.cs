@@ -42,6 +42,8 @@ public static class TypeExtensions
     private static ConcurrentDictionary<Type, bool> TypeIsNullableCache = new();
     
     private static ConcurrentDictionary<Type, Type> TypeIsNullableGetUnderlyingCache = new();
+    
+    private static ConcurrentDictionary<Type, bool> IsAnyTypeHoldingCache = new();
 
     public static bool IsFlagsEnum<TEnum>() where TEnum : Enum =>
         TypeIsFlagsEnumCache.GetOrAdd(typeof(TEnum), type => type.GetCustomAttributes<FlagsAttribute>().Any());
@@ -692,6 +694,9 @@ public static class TypeExtensions
         check.IsString() || check.IsStringArray() || check.IsStringList() || check.IsCharArray()
      || check.IsCharSequence() || check.IsCharSequenceSupportArray() || check.IsCharSequenceSupportingList()
      || check.IsStringBuilder() || check.IsStringBuilderArray() || check.IsStringBuilderList();
+
+    public static bool IsAnyTypeHoldingCharsCached(this Type check) =>
+        IsAnyTypeHoldingCache.GetOrAdd(check, t => t.IsAnyTypeHoldingChars());
 
 
     public static bool IsStringToStringMap(this Type check) =>

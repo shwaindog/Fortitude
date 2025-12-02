@@ -43,7 +43,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual string Name => nameof(CompactLogTypeFormatting);
     public StyleOptions StyleOptions => (StyleOptions)Options;
 
-    public FieldContentHandling ResolveContentFormattingFlags<T>(IStringBuilder sb, T input
+    public virtual FieldContentHandling ResolveContentFormattingFlags<T>(IStringBuilder sb, T input
       , FieldContentHandling callerFormattingFlags, string? formatString = "", bool isFieldName = false)
     {
         if (callerFormattingFlags.HasDisableAddingAutoCallerTypeFlags()) { return callerFormattingFlags; }
@@ -58,35 +58,36 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             var notAsStringOrValue = !(callerFormattingFlags.HasAsStringContentFlag()
                                     || callerFormattingFlags.HasAsValueContentFlag());
             setFlags |= !callerFormattingFlags.HasDisableAutoDelimiting() && notAsStringOrValue
-                ? FieldContentHandling.EnsureFormattedDelimited
+                ? EnsureFormattedDelimited
                 : None;
             setFlags |= setFlags.ShouldDelimit() || callerFormattingFlags.HasAsStringContentFlag()
-                ? FieldContentHandling.EncodeAll
-                : FieldContentHandling.EncodeInnerContent;
+                ? EncodeAll
+                : EncodeInnerContent;
         }
         return setFlags;
     }
 
-    public FieldContentHandling ResolveContentAsValueFormattingFlags<T>(T input, bool hasFallbackValue)
+    public virtual FieldContentHandling ResolveContentAsValueFormattingFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = "")
     {
-        if (input == null && !hasFallbackValue) return DefaultCallerTypeFlags;
-        var typeOfT = typeof(T);
-        if (typeOfT.IsAnyTypeHoldingChars() || typeOfT.IsChar() || typeOfT.IsNullableChar())
-            return FieldContentHandling.DisableAutoDelimiting | FieldContentHandling.AsValueContent;
-        return FieldContentHandling.AsValueContent;
+        var typeOfT                     = typeof(T);
+        var isAnyTypeHoldingChars       = typeOfT.IsAnyTypeHoldingChars() || typeOfT.IsChar() || typeOfT.IsNullableChar();
+        if (input == null && (fallbackValue.Length == 0 && !isAnyTypeHoldingChars)) return AsValueContent;
+        if (isAnyTypeHoldingChars)
+            return DisableAutoDelimiting | AsValueContent;
+        return AsValueContent;
     }
 
-    public FieldContentHandling ResolveContentAsStringFormattingFlags<T>(T input, bool hasFallbackValue)
+    public virtual FieldContentHandling ResolveContentAsStringFormattingFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = "")
     {
-        if (input == null && !hasFallbackValue) return DefaultCallerTypeFlags;
-        var typeOfT = typeof(T);
-        if (typeOfT.IsAnyTypeHoldingChars() || typeOfT.IsChar() || typeOfT.IsNullableChar())
-            return FieldContentHandling.DisableAutoDelimiting | FieldContentHandling.AsStringContent;
-        var isSpanFormattableOrNullable           = typeOfT.IsSpanFormattableOrNullable();
-        var isDoubleQuoteDelimitedSpanFormattable = input.IsDoubleQuoteDelimitedSpanFormattable();
+        var typeOfT                     = typeof(T);
+        var isSpanFormattableOrNullable = typeOfT.IsSpanFormattableOrNullable();
+        var isAnyTypeHoldingChars       = typeOfT.IsAnyTypeHoldingChars() || typeOfT.IsChar() || typeOfT.IsNullableChar();
+        if (isAnyTypeHoldingChars)
+            return DisableAutoDelimiting | AsStringContent;
+        var isDoubleQuoteDelimitedSpanFormattable = input.IsDoubleQuoteDelimitedSpanFormattable(fallbackValue, formatString);
         if (isSpanFormattableOrNullable && isDoubleQuoteDelimitedSpanFormattable)
-            return FieldContentHandling.DisableAutoDelimiting | FieldContentHandling.AsStringContent;
-        return FieldContentHandling.AsStringContent;
+            return DisableAutoDelimiting | AsStringContent;
+        return AsStringContent;
     }
 
     public virtual ContentSeparatorRanges AppendValueTypeOpening(ITypeMolderDieCast moldInternal

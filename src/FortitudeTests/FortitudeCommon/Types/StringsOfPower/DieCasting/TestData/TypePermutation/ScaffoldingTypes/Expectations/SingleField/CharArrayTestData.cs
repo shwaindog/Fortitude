@@ -3,6 +3,7 @@
 
 using FortitudeCommon.DataStructures.Lists.PositionAware;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
@@ -70,7 +71,7 @@ public class CharArrayTestData
           , new StringLikeExpect<char[], char[]>(null, "", true, [])
             {
                 { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull), "null" }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue), "" }
+              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString), "" }
               , { new EK(SimpleType | CallsViaMatch), "\"\"" }
               , { new EK(SimpleType | AcceptsChars | CallsAsSpan | AcceptsCharArray | DefaultBecomesNull), "null" }
               , { new EK(SimpleType | AcceptsChars | CallsAsSpan | AcceptsCharArray | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue), "\"\"" }
@@ -107,8 +108,8 @@ public class CharArrayTestData
             }
           , new StringLikeExpect<char[], char[]>(null, "", true, ['0'], -1, -10)
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue), "0" }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue), "\"0\"" }
+                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString), "0" }
+              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString), "\"0\"" }
               , { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull), "null" }
                ,
                 {

@@ -385,7 +385,7 @@ public static class TestEnumExtensions
     public static NoDefaultLongWithFlagsEnum First8MinusFlag6Mask(this NoDefaultLongWithFlagsEnum _)  => 
         NoDefaultLongWithFlagsEnum.NDLWFE_First8Mask & ~NoDefaultLongWithFlagsEnum.NDLWFE_6;
     
-    public static NoDefaultLongWithFlagsEnum Last2MaskMinusFlag1(this NoDefaultLongWithFlagsEnum _)  => 
+    public static NoDefaultLongWithFlagsEnum First8Last2MaskMinusFlag1(this NoDefaultLongWithFlagsEnum _)  => 
         (NoDefaultLongWithFlagsEnum.NDLWFE_First8Mask | NoDefaultLongWithFlagsEnum.NDLWFE_LastTwoMask) 
       & ~NoDefaultLongWithFlagsEnum.NDLWFE_1;
     
@@ -422,7 +422,7 @@ public static class TestEnumExtensions
     public static NoDefaultULongWithFlagsEnum First8MinusFlag6Mask(this NoDefaultULongWithFlagsEnum _)  => 
         NoDefaultULongWithFlagsEnum.NDUWFE_First8Mask & ~NoDefaultULongWithFlagsEnum.NDUWFE_6;
     
-    public static NoDefaultULongWithFlagsEnum Last2MaskMinusFlag1(this NoDefaultULongWithFlagsEnum _)  => 
+    public static NoDefaultULongWithFlagsEnum First8Last2MaskMinusFlag1(this NoDefaultULongWithFlagsEnum _)  => 
         (NoDefaultULongWithFlagsEnum.NDUWFE_First8Mask | NoDefaultULongWithFlagsEnum.NDUWFE_LastTwoMask) 
       & ~NoDefaultULongWithFlagsEnum.NDUWFE_1;
     
@@ -459,7 +459,7 @@ public static class TestEnumExtensions
     public static WithDefaultLongWithFlagsEnum First8MinusFlag6Mask(this WithDefaultLongWithFlagsEnum _)  => 
         WithDefaultLongWithFlagsEnum.WDLWFE_First8Mask & ~WithDefaultLongWithFlagsEnum.WDLWFE_6;
     
-    public static WithDefaultLongWithFlagsEnum Last2MaskMinusFlag1(this WithDefaultLongWithFlagsEnum _)  => 
+    public static WithDefaultLongWithFlagsEnum First8Last2MaskMinusFlag1(this WithDefaultLongWithFlagsEnum _)  => 
         (WithDefaultLongWithFlagsEnum.WDLWFE_First8Mask | WithDefaultLongWithFlagsEnum.WDLWFE_LastTwoMask) 
       & ~WithDefaultLongWithFlagsEnum.WDLWFE_1;
     
@@ -496,7 +496,7 @@ public static class TestEnumExtensions
     public static WithDefaultULongWithFlagsEnum First8MinusFlag6Mask(this WithDefaultULongWithFlagsEnum _)  => 
         WithDefaultULongWithFlagsEnum.WDUWFE_First8Mask & ~WithDefaultULongWithFlagsEnum.WDUWFE_6;
     
-    public static WithDefaultULongWithFlagsEnum Last2MaskMinusFlag1(this WithDefaultULongWithFlagsEnum _)  => 
+    public static WithDefaultULongWithFlagsEnum First8Last2MaskMinusFlag1(this WithDefaultULongWithFlagsEnum _)  => 
         (WithDefaultULongWithFlagsEnum.WDUWFE_First8Mask | WithDefaultULongWithFlagsEnum.WDUWFE_LastTwoMask) 
       & ~WithDefaultULongWithFlagsEnum.WDUWFE_1;
     

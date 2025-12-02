@@ -51,8 +51,6 @@ public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilde
 
     public bool SupportsIndexRangeLimiting => ScaffoldingType.ImplementsInterface<ISupportsIndexRangeLimiting>();
 
-    public bool SupportsCustomFieldHandling => ScaffoldingType.ImplementsInterface<ISupportsFieldHandling>();
-
     public bool SupportsSettingValueFromString => ScaffoldingType.ImplementsInterface<ISupportsSettingValueFromString>();
 
     public string Name { get; } = ScaffoldingType.CachedCSharpNameNoConstraints();
@@ -67,15 +65,15 @@ public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilde
         ? $"{ListOwningType.Name}.{ListMemberName}[{AtIndex}]"
         : $"UnsetListOwnerType.UnknownListMemberName[{AtIndex}]";
 
-    public Func<IStringBearer> CreateStringBearerFunc(params Type[] genericTypeArguments)
+    public Func<ISinglePropertyTestStringBearer> CreateStringBearerFunc(params Type[] genericTypeArguments)
     {
         try
         {
             if (ScaffoldingType.IsGenericType)
             {
-                return ReflectionHelper.GenericTypeDefaultCtorBinder<IStringBearer>(ScaffoldingType, genericTypeArguments);
+                return ReflectionHelper.GenericTypeDefaultCtorBinder<ISinglePropertyTestStringBearer>(ScaffoldingType, genericTypeArguments);
             }
-            return ReflectionHelper.DefaultCtorFunc<IStringBearer>(ScaffoldingType);
+            return ReflectionHelper.DefaultCtorFunc<ISinglePropertyTestStringBearer>(ScaffoldingType);
         }
         catch (Exception e)
         {

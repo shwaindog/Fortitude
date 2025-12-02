@@ -889,6 +889,27 @@ public static class NumberExtensions
     private static readonly char DecimalSeparator = Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator[0];
     private static readonly char GroupSeparator   = Thread.CurrentThread.CurrentCulture.NumberFormat.NumberGroupSeparator[0];
 
+    public static bool IsValidEnumIntegerSpan(this ReadOnlySpan<char> checkIsAllowedNumberSequence)
+    {
+        // long.MinValue -9223372036854775808 (20 chars)
+        // ulong.MaxValue 18446744073709551615 (20 chars)
+        var isValidNumber = checkIsAllowedNumberSequence.Length is > 0 and <= 20;
+        var foundNumber   = false;
+        for (int i = 0; i < checkIsAllowedNumberSequence.Length; i++)
+        {
+            var checkChar = checkIsAllowedNumberSequence[i];
+            if (checkChar.IsDigit())
+            {
+                foundNumber = true;
+                continue;
+            }
+            if(i == 0 && checkChar.IsNumberSign()) continue;
+            isValidNumber = false;
+            break;
+        }
+        return isValidNumber && foundNumber;
+    }
+
     public static bool CharsAreAllowedInNumbers(this ReadOnlySpan<char> checkIsAllowedNumberSequence
       , bool allowGroupSeparators = false, string allowedIgnorePrefixSuffixChars = "")
     {

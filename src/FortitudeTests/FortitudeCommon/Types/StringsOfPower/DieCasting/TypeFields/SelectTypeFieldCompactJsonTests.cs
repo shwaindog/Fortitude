@@ -112,12 +112,12 @@ public partial class SelectTypeFieldTests
         SharedCompactJson(formatExpectation, scaffoldingToCall);
     }
 
-    // [TestMethod]
+    [TestMethod]
     public void CompactJsonSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactJson(StringBuilderTestData.AllStringBuilderExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[948]);
+        SharedCompactJson(EnumTestData.EnumExpectations[32], ScaffoldingRegistry.AllScaffoldingTypes[916]);
     }
 
     private void SharedCompactJson(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)

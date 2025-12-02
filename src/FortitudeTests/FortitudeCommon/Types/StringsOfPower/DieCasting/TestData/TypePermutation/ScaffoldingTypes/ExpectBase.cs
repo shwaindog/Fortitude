@@ -70,7 +70,7 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
         ValueFormatString         = valueFormatString;
     }
 
-    public virtual Type InputType => typeof(TInput);
+    public virtual Type InputType { get; } = typeof(TInput);
 
     public bool IsStringLike => InputType.IsAnyTypeHoldingChars();
 
@@ -185,10 +185,10 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
 
     public IEnumerator<KeyValuePair<EK, string>> GetEnumerator() => ExpectedResults.GetEnumerator();
 
-    public abstract IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry);
-    public abstract IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry, StyleOptions stringStyle);
+    public abstract ISinglePropertyTestStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry);
+    public abstract IStringBearer                   CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry, StyleOptions stringStyle);
 
-    protected virtual void AdditionalToStringExpectFields(IStringBuilder sb)
+    protected virtual void AdditionalToStringExpectFields(IStringBuilder sb, ScaffoldingStringBuilderInvokeFlags forThisScaffold)
     {
         AddExpectedResultsList(sb);
     }
@@ -204,7 +204,7 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
         }
     }
 
-    public override string ToString()
+    public string ToStringForScaffold(ScaffoldingStringBuilderInvokeFlags forThisScaffold = 0)
     {
         var sb = new MutableString();
         sb.AppendLine(GetType().CachedCSharpNameWithConstraints());
@@ -222,7 +222,12 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
         if (InputIsNull) { sb.Append("null"); }
         else { sb.Append(AsStringDelimiterOpen).Append(new MutableString().Append(Input).ToString()).Append(AsStringDelimiterClose); }
         sb.Append(", ").Append(nameof(ValueFormatString)).Append(": ").Append(ValueFormatString != null ? $"\"{ValueFormatString}\"" : "null");
-        AdditionalToStringExpectFields(sb);
+        AdditionalToStringExpectFields(sb, forThisScaffold);
         return sb.ToString();
+    }
+
+    public override string ToString()
+    {
+        return ToStringForScaffold(0);
     }
 }

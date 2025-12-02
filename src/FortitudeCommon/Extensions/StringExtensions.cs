@@ -234,7 +234,41 @@ public static class StringExtensions
     public static bool IsSglQtBounded(this string input)  => input.Length > 1 &&  input[0] == '\'' && input[^1] == '\'';
     public static bool IsDblQtBounded(this string input)  => input.Length > 1 &&  input[0] == '\"' && input[^1] == '\"';
     public static bool IsSqBrktBounded(this string input) => input.Length > 1 &&  input[0] == '[' && input[^1] == ']';
-    public static bool IsBrcBounded(this string input)    => input.Length > 1 &&  input[0] == '{' && input[^1] == '}';
+    
+    public static bool IsBrcBounded(this string input)
+    {
+        var hasTwoOpeningBraces  = input.Length > 1 && input[0] == '{';
+        if(!hasTwoOpeningBraces) return false;
+        var hasTwoClosingBraces = input[^1] == '}';
+        if(!hasTwoClosingBraces) return false;
+        for (int i = 1; i < input.Length && hasTwoOpeningBraces; i++)
+        {
+            var checkChar = input[i];
+            if (checkChar == '{')
+            {
+                break;
+            }
+            if (checkChar == '}')
+            {
+                hasTwoOpeningBraces = false;
+                break;
+            }
+        }
+        for (int i = input.Length - 2; i >= 0 && hasTwoClosingBraces; i--)
+        {
+            var checkChar = input[i];
+            if (checkChar == '}')
+            {
+                break;
+            }
+            if (checkChar == '{')
+            {
+                hasTwoClosingBraces = false;
+                break;
+            }
+        }
+        return hasTwoOpeningBraces && hasTwoClosingBraces;
+    }
     
     public static string MakeWhiteSpaceVisible(this string input)
     {

@@ -19,9 +19,9 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     FieldContentHandling ResolveContentFormattingFlags<T>(IStringBuilder sb, T input, FieldContentHandling callerFormattingFlags
     , string formatString = "", bool isFieldName = false);
     
-    FieldContentHandling ResolveContentAsValueFormattingFlags<T>(T input, bool hasFallbackValue);
+    FieldContentHandling ResolveContentAsValueFormattingFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = "");
     
-    FieldContentHandling ResolveContentAsStringFormattingFlags<T>(T input, bool hasFallbackValue);
+    FieldContentHandling ResolveContentAsStringFormattingFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = "");
 
     ContentSeparatorRanges AppendValueTypeOpening(ITypeMolderDieCast moldInternal, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 

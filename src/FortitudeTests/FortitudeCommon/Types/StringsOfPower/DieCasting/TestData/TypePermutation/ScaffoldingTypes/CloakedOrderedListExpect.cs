@@ -70,7 +70,7 @@ public class NullStructCloakedOrderedListExpect<TChildScaffoldListElement>
         return expectValue;
     }
 
-    public override IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
+    public override ISinglePropertyTestStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
     {
         var flags = scaffoldEntry.ScaffoldingFlags;
 
@@ -222,7 +222,7 @@ public class CloakedOrderedListExpect<TChildScaffoldListElement, TFilterBase, TR
         return expectValue;
     }
 
-    public override IStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
+    public override ISinglePropertyTestStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
     {
         var flags = scaffoldEntry.ScaffoldingFlags;
 

@@ -21,10 +21,7 @@ public static class EnumFormatterRegistry
         where TEnumValue : ISpanFormattable
     {
         var type = typeof(TEnumValue);
-        if (!type.IsEnum)
-        {
-            throw new ArgumentException($"Type '{typeof(TEnumValue).FullName}' is not an enum.");
-        }
+        if (!type.IsEnum) { throw new ArgumentException($"Type '{typeof(TEnumValue).FullName}' is not an enum."); }
         if (!MaterializedFormatters.TryGetValue(type, out var formatter))
         {
             lock (SyncLock)
@@ -43,10 +40,7 @@ public static class EnumFormatterRegistry
         where TEnum : Enum
     {
         var type = typeof(TEnum);
-        if (!type.IsEnum)
-        {
-            throw new ArgumentException($"Type '{typeof(TEnum).FullName}' is not an enum.");
-        }
+        if (!type.IsEnum) { throw new ArgumentException($"Type '{typeof(TEnum).FullName}' is not an enum."); }
         if (!MaterializedFormatters.TryGetValue(type, out var formatter))
         {
             lock (SyncLock)
@@ -63,10 +57,7 @@ public static class EnumFormatterRegistry
 
     public static IEnumFormatter GetOrCreateEnumFormatProvider(Type enumType)
     {
-        if (!enumType.IsEnum)
-        {
-            throw new ArgumentException($"Type '{enumType.FullName}' is not an enum.");
-        }
+        if (!enumType.IsEnum) { throw new ArgumentException($"Type '{enumType.FullName}' is not an enum."); }
         IEnumFormatter? formatter;
         lock (SyncLock)
         {
@@ -85,13 +76,12 @@ public interface IEnumFormatter : IStringBearerFormattableProvider
     IStructEnumFormatProvider<TEnum>? AsSpanFormattableEnumFormatProvider<TEnum>() where TEnum : ISpanFormattable?;
 
     IEnumFormatProvider<TEnum>? AsTypedEnumFormatProvider<TEnum>() where TEnum : Enum;
-    IEnumFormatProvider<Enum>? AsEnumFormatProvider();
+    IEnumFormatProvider<Enum>?  AsEnumFormatProvider();
 }
 
 public interface IStructEnumFormatProvider<in TEnum> : IEnumFormatter, IStringBearerRevelStateProvider<TEnum>
   , IStringBearerSpanFormattableProvider<TEnum>
-    where TEnum : notnull
-{ }
+    where TEnum : notnull { }
 
 public interface IEnumFormatProvider<in TEnum> : IEnumFormatter, IStringBearerRevelStateProvider<TEnum>, IStringBearerSpanFormattableProvider<TEnum>
     where TEnum : Enum { }
@@ -126,12 +116,6 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
         TEnumValue highest = enumValues.Max();
 
         decimal range = highest.ToDecimal(null) - lowest.ToDecimal(null);
-        // switch (firstValue)
-        // {
-        //     case ulong: range = highest.ToDecimal(null) - lowest.ToDecimal(null); break;
-        //     case long: range = highest.ToDecimal(null) - lowest.ToDecimal(null); break;
-        //     default:    range = highest.ToInt64(null) - lowest.ToInt64(null); break;
-        // }
 
         if (range < 1024m)
         {
@@ -145,10 +129,7 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
                 var valueShort = (ushort)(item.ToInt64(null) - lowestOffset);
                 var name       = Enum.GetName(enumType, item)!;
                 var nameLength = name.Length;
-                if (longestNameCharCount < nameLength)
-                {
-                    longestNameCharCount = nameLength;
-                }
+                if (longestNameCharCount < nameLength) { longestNameCharCount = nameLength; }
                 allValuesCharCount                          += nameLength + 2;
                 shortRangeEnumMaterializedNames[valueShort] =  name;
             }
@@ -162,15 +143,12 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
             {
                 var name       = Enum.GetName(enumType, item)!;
                 var nameLength = name.Length;
-                if (longestNameCharCount < nameLength)
-                {
-                    longestNameCharCount = nameLength;
-                }
+                if (longestNameCharCount < nameLength) { longestNameCharCount = nameLength; }
                 allValuesCharCount += nameLength + 2;
                 veryLongRangeEnumMaterializedNames.TryAdd((Int128)item.ToDecimal(null), name);
             }
         }
-        EnumPalantír     = EnumStyler;
+        EnumPalantír                = EnumStyler;
         StringBearerSpanFormattable = EnumExtendedSpanFormattable;
 
         asEnumTypeStyler      = EnumStyler;
@@ -192,7 +170,7 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
     }
 
     public Type ForType { get; }
-    
+
     public Type UnderlyingType { get; }
 
     public IStructEnumFormatProvider<TEnum>? AsSpanFormattableEnumFormatProvider<TEnum>() where TEnum : ISpanFormattable =>
@@ -211,7 +189,8 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
         using (var sb = tb.StartDelimitedStringBuilder())
         {
             var buildNames = stackalloc char[allValuesCharCount].ResetMemory();
-            SourceEnumNamesFromEnum(stsa.CurrentStyledTypeFormatter.StringEncoder, toFormatEnum, buildNames, ReadOnlySpan<char>.Empty);
+            SourceEnumNamesFromEnum(toFormatEnum, buildNames, ReadOnlySpan<char>.Empty, stsa.CurrentStyledTypeFormatter.ContentEncoder
+                                  , stsa.CurrentStyledTypeFormatter.GraphBuilder.GraphEncoder);
             sb.Append(buildNames, 0, buildNames.PopulatedLength());
         }
 
@@ -223,45 +202,65 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
         return EnumStyler((TEnumValue)toFormatEnum, stsa);
     }
 
-    private int SourceEnumNamesFromEnum(IEncodingTransfer encoder, TEnumValue enumValue, Span<char> buildNames, ReadOnlySpan<char> format
-      , IFormatProvider? provider = null, FormattingHandlingFlags formattingFlags = FormattingHandlingFlags.DefaultCallerTypeFlags)
+    private int SourceEnumNamesFromEnum(TEnumValue enumValue, Span<char> buildNames, ReadOnlySpan<char> format
+      , IEncodingTransfer enumEncoder, IEncodingTransfer joinEncoder, IFormatProvider? provider = null
+      , FormattingHandlingFlags formattingFlags = FormattingHandlingFlags.DefaultCallerTypeFlags)
     {
-        if (!isFlagsEnum)
-        {
-            return SourceSingleNameFromEnum(encoder, enumValue, buildNames, format, provider, formattingFlags);
-        }
+        if (!isFlagsEnum) { return SourceSingleNameFromEnum(enumValue, buildNames, format, enumEncoder, joinEncoder, provider, formattingFlags); }
         var countChars = 0;
+        // check if this is a single flag covering all flags set
         foreach (var eachEnumValue in enumValues)
         {
             if (eachEnumValue.CompareTo(enumValue) != 0) continue;
-            countChars += SourceSingleNameFromEnum(encoder, eachEnumValue, buildNames, format, provider, formattingFlags);
+            countChars += SourceSingleNameFromEnum(eachEnumValue, buildNames, format, enumEncoder, joinEncoder, provider, formattingFlags);
             return countChars;
+        }
+        // check if this is a bit set not in the enum
+        var remainingFlags   = enumValue.ToUInt64(null);
+        foreach (var eachEnumValue in enumValues)
+        {
+            var flag = eachEnumValue.ToUInt64(null);
+            remainingFlags &= ~flag;
+        }
+        if (remainingFlags != 0)
+        {
+            if (UnderlyingType != typeof(ulong))
+            {
+                var underlying = enumValue.ToInt64(null);
+                return buildNames.AppendLong(underlying);
+            }
+            remainingFlags   = enumValue.ToUInt64(null);
+            return buildNames.AppendULong(remainingFlags);
         }
         // else check each flag combination
         var hasWrittenValues = false;
-        if (enumValue.CompareTo(default(TEnumValue)) != 0)
+        remainingFlags   = enumValue.ToUInt64(null);
+        if (remainingFlags.CompareTo(default(TEnumValue)) != 0)
         {
             foreach (var eachEnumValue in enumValues)
-                if (enumValue.HasFlag(eachEnumValue) && (eachEnumValue.CompareTo(default(TEnumValue)) != 0 || enumValue.CompareTo(default(TEnumValue)) == 0))
+            {
+                var flag = eachEnumValue.ToUInt64(null);
+                if ((remainingFlags & flag) != 0)
                 {
                     if (hasWrittenValues)
                     {
                         countChars += 2;
                         buildNames.Append(", ");
                     }
-                    countChars       += SourceSingleNameFromEnum(encoder, eachEnumValue, buildNames, format, provider, formattingFlags);
+                    countChars       += SourceSingleNameFromEnum(eachEnumValue, buildNames, format, enumEncoder, joinEncoder, provider, formattingFlags);
                     hasWrittenValues =  true;
+                    remainingFlags &= ~flag;
+                    if (remainingFlags.CompareTo(default(TEnumValue)) == 0) break;
                 }
+            }
         }
-        else
-        {
-            countChars       += SourceSingleNameFromEnum(encoder, enumValue, buildNames, format, provider, formattingFlags);
-        }
+        else { countChars += SourceSingleNameFromEnum(enumValue, buildNames, format, enumEncoder, joinEncoder, provider, formattingFlags); }
         return countChars;
     }
 
-    private int SourceSingleNameFromEnum(IEncodingTransfer encoder, TEnumValue singleEnumValue, Span<char> buildNames, ReadOnlySpan<char> format
-      , IFormatProvider? provider = null, FormattingHandlingFlags formattingFlags = FormattingHandlingFlags.DefaultCallerTypeFlags)
+    private int SourceSingleNameFromEnum(TEnumValue singleEnumValue, Span<char> buildNames, ReadOnlySpan<char> format
+      , IEncodingTransfer enumEncoder, IEncodingTransfer joinEncoder, IFormatProvider? provider = null
+      , FormattingHandlingFlags formattingFlags = FormattingHandlingFlags.DefaultCallerTypeFlags)
     {
         if (format.Length == 0)
         {
@@ -302,28 +301,23 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
             }
             return buildNames.AppendULong(underlyingUlong);
         }
-        try
-        {
-            return EnumExtendedSpanFormattable(encoder, singleEnumValue, buildNames, format, provider, formattingFlags);
-        }
-        catch (FormatException)
-        {
-            return EnumExtendedSpanFormattable(encoder, singleEnumValue, buildNames, null, provider,  formattingFlags);
-        }
+        try { return EnumExtendedSpanFormattable(singleEnumValue, buildNames, format, enumEncoder, joinEncoder, provider, formattingFlags); }
+        catch (FormatException) { return EnumExtendedSpanFormattable(singleEnumValue, buildNames, null, enumEncoder, joinEncoder, provider, formattingFlags); }
     }
 
     public StringBearerSpanFormattable<TEnumValue> StringBearerSpanFormattable { get; }
 
     protected virtual string? CachedResult(TEnumValue toFormat, ReadOnlySpan<char> format, IFormatProvider? provider) => null;
 
-    private int EnumExtendedSpanFormattable(IEncodingTransfer encoder,  Enum toFormat, Span<char> destination
-      , ReadOnlySpan<char> formatString, IFormatProvider? provider, FormattingHandlingFlags formattingFlags)
+    private int EnumExtendedSpanFormattable(Enum toFormat, Span<char> destination
+      , ReadOnlySpan<char> formatString, IEncodingTransfer enumEncoder, IEncodingTransfer joinEncoder, IFormatProvider? provider
+      , FormattingHandlingFlags formattingFlags)
     {
-        return EnumExtendedSpanFormattable(encoder, (TEnumValue)toFormat, destination, formatString, provider, formattingFlags);
+        return EnumExtendedSpanFormattable((TEnumValue)toFormat, destination, formatString, enumEncoder, joinEncoder, provider, formattingFlags);
     }
 
-    private int EnumExtendedSpanFormattable(IEncodingTransfer encoder, TEnumValue toFormat, Span<char> destination, ReadOnlySpan<char> formatString
-      , IFormatProvider? provider, FormattingHandlingFlags formattingFlags)
+    private int EnumExtendedSpanFormattable(TEnumValue toFormat, Span<char> destination, ReadOnlySpan<char> formatString
+      , IEncodingTransfer enumEncoder, IEncodingTransfer joinEncoder, IFormatProvider? provider, FormattingHandlingFlags formattingFlags)
     {
         var cachedResult = CachedResult(toFormat, formatString, provider);
         if (cachedResult != null)
@@ -332,25 +326,108 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
             return cachedResult.Length;
         }
 
-        var buildVanillaName = stackalloc char[allValuesCharCount].ResetMemory();
-        var vanillaSize      = SourceEnumNamesFromEnum(encoder, toFormat, buildVanillaName, null, provider, formattingFlags);
-        var vanillaEnumNames = buildVanillaName[..vanillaSize];
+        Span<char> buildVanillaName = stackalloc char[allValuesCharCount];
+
         formatString.ExtractExtendedStringFormatStages
-            (out var prefix, out _, out _ , out var layout, out _, out _, out var suffix);
+            (out var prefix, out _, out var extendLengthRange, out var layout, out var splitJoinRange,
+             out var format, out var suffix);
+
+        int vanillaSize;
+        switch (format)
+        {
+            case "" :
+            case "G" :
+            case "g" :
+            case "F" :
+            case "f" :
+            case "D" :
+            case "d" :
+            case "X" :
+            case "x" :
+                if (!toFormat.TryFormat(buildVanillaName, out vanillaSize, format, provider))
+                {
+                    vanillaSize = SourceEnumNamesFromEnum(toFormat, buildVanillaName, null, enumEncoder, joinEncoder, provider, formattingFlags);
+                };
+                break;
+            default:
+                vanillaSize = SourceEnumNamesFromEnum(toFormat, buildVanillaName, null, enumEncoder, joinEncoder, provider, formattingFlags);
+                break;
+        }
+        var vanillaEnumNames = buildVanillaName[..vanillaSize];
 
         var enumNextSpan = destination;
         var charsAdded   = 0;
         if (prefix.Length > 0)
         {
-            charsAdded   += encoder.TransferPrefix(formattingFlags.HasEncodeBoundsFlag(), prefix, enumNextSpan, 0);
+            charsAdded   += enumEncoder.TransferPrefix(formattingFlags.HasEncodeBoundsFlag(), prefix, enumNextSpan, 0);
             enumNextSpan =  enumNextSpan[charsAdded..];
         }
-        
-        var lastAdded  = enumNextSpan.PadAndAlign(vanillaEnumNames, layout);
+
+        var rawSourceFrom   = 0;
+        var rawSourceTo     = Math.Clamp(vanillaSize, 0, vanillaEnumNames.Length);
+        var rawCappedLength = Math.Min(vanillaSize, rawSourceTo);
+        if (!extendLengthRange.IsAllRange())
+        {
+            extendLengthRange = extendLengthRange.BoundRangeToLength(vanillaSize);
+            var start = extendLengthRange.Start;
+            if (start.IsFromEnd || start.Value > 0)
+            {
+                rawSourceFrom = start.IsFromEnd
+                    ? Math.Max(rawSourceFrom, vanillaSize - start.Value)
+                    : Math.Min(vanillaSize, rawSourceFrom + start.Value);
+            }
+            var end = extendLengthRange.End;
+            if (!end.IsFromEnd || end.Value > 0)
+            {
+                rawSourceTo = end.IsFromEnd
+                    ? Math.Max(rawSourceFrom, rawSourceTo - end.Value)
+                    : Math.Min(rawSourceTo, rawSourceFrom + end.Value);
+            }
+            rawCappedLength = Math.Clamp(rawSourceTo - rawSourceFrom, 0, rawCappedLength);
+        }
+
+        int lastAdded;
+        if (layout.Length == 0 && splitJoinRange.IsNoSplitJoin)
+        {
+            lastAdded = enumEncoder.Transfer(vanillaEnumNames, rawSourceFrom, enumNextSpan, 0, rawCappedLength);
+
+            enumNextSpan = enumNextSpan[lastAdded..];
+            charsAdded += lastAdded;
+            if (suffix.Length > 0) charsAdded += enumEncoder.TransferSuffix(suffix, enumNextSpan, 0, formattingFlags.HasEncodeBoundsFlag());
+            return charsAdded;
+        }
+        var alignedLength = rawCappedLength.CalculatePaddedAlignedLength(layout) + 256;
+        Span<char> sourceInSpan = stackalloc char[rawCappedLength];
+        sourceInSpan.Append(vanillaEnumNames, rawSourceFrom, rawCappedLength);
+        Span<char> padSpan = stackalloc char[alignedLength];
+
+        int padSize;
+
+        if (!splitJoinRange.IsNoSplitJoin)
+        {
+            Span<char> splitJoinResultSpan = stackalloc char[alignedLength + 256];
+
+            var size = splitJoinRange.ApplySplitJoin(splitJoinResultSpan, sourceInSpan, enumEncoder, joinEncoder);
+            splitJoinResultSpan = splitJoinResultSpan[..size];
+
+            padSize   = padSpan.PadAndAlign(splitJoinResultSpan, layout);
+            padSize   = Math.Min(padSize, alignedLength);
+            lastAdded = PassThroughEncodingTransfer.Instance.Transfer(padSpan[..padSize], enumNextSpan, 0);
+        }
+        else
+        {
+            padSize   = padSpan.PadAndAlign(sourceInSpan, layout);
+            padSize   = Math.Min(padSize, alignedLength);
+            lastAdded = enumEncoder.Transfer(padSpan[..padSize], enumNextSpan, 0);
+        }
+
         enumNextSpan =  enumNextSpan[lastAdded..];
-        charsAdded += lastAdded;
-        
-        if (suffix.Length > 0) charsAdded += encoder.TransferSuffix(suffix, enumNextSpan, 0,  formattingFlags.HasEncodeBoundsFlag());
+        charsAdded   += lastAdded;
+
+        if (suffix.Length > 0)
+        {
+            charsAdded += enumEncoder.TransferSuffix(suffix, enumNextSpan, 0, formattingFlags.HasEncodeBoundsFlag());
+        }
 
         return charsAdded;
     }
@@ -363,19 +440,13 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
 
         public IStructEnumFormatProvider<TEnum>? AsSpanFormattableEnumFormatProvider<TEnum>() where TEnum : ISpanFormattable
         {
-            if (typeof(TEnum) == typeof(TEnumValue))
-            {
-                return (IStructEnumFormatProvider<TEnum>)parent;
-            }
+            if (typeof(TEnum) == typeof(TEnumValue)) { return (IStructEnumFormatProvider<TEnum>)parent; }
             return null;
         }
 
         public IEnumFormatProvider<TEnum>? AsTypedEnumFormatProvider<TEnum>() where TEnum : Enum
         {
-            if (typeof(TEnum).IsAssignableFrom(typeof(TEnumValue)))
-            {
-                return (IEnumFormatProvider<TEnum>)parent;
-            }
+            if (typeof(TEnum).IsAssignableFrom(typeof(TEnumValue))) { return (IEnumFormatProvider<TEnum>)parent; }
             return null;
         }
 

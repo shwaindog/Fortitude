@@ -113,6 +113,9 @@ public static class ScaffoldingStringBuilderInvokeFlagsExtensions
 
     public static bool HasCallsAsSpan(this ScaffoldingStringBuilderInvokeFlags flags) => (flags & CallsAsSpan) > 0;
 
+    public static bool HasOutputTreatedAsValue(this ScaffoldingStringBuilderInvokeFlags flags) => (flags & DefaultTreatedAsValueOut) > 0;
+    public static bool HasOutputTreatedAsString(this ScaffoldingStringBuilderInvokeFlags flags) => (flags & DefaultTreatedAsStringOut) > 0;
+
     public static bool DoesNotHaveKeyedCollectionTypeFlag(this ScaffoldingStringBuilderInvokeFlags flags) =>
         (flags & KeyedCollectionType) == 0;
 

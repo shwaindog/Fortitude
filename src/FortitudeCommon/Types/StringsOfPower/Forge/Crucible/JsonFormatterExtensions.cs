@@ -12,6 +12,12 @@ namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 
 public static class JsonFormatterExtensions
 {
+    public const char DblQtChar     = '"';
+    public const char SqBrktOpnChar = '[';
+    public const char BrcOpnChar    = '{';
+    public const char SqBrktClsChar = ']';
+    public const char BrcClsChar    = '}';
+    
     public static readonly Type[] DoubleQuoteWrappedSpanFormattableTypes =
     [
         typeof(char)
@@ -43,15 +49,27 @@ public static class JsonFormatterExtensions
       , typeof(Version)
     ];
 
+    public static bool IsValidJsonTypeOpening(this char check) => check is DblQtChar or SqBrktOpnChar or BrcOpnChar; 
+    public static bool IsValidJsonTypeClosing(this char check) => check is DblQtChar or SqBrktClsChar or BrcClsChar; 
+
     private static ConcurrentDictionary<Type, bool> typeIsDoubleQtDelimited = new();
+    private static ConcurrentDictionary<Type, bool> typeIsDoubleQtExemptCache = new();
 
     public static bool IsDoubleQuoteDelimitedSpanFormattable<T>(this T check)
     {
+        return check.IsDoubleQuoteDelimitedSpanFormattable("", "");
+    }
+
+    public static bool IsDoubleQuoteDelimitedSpanFormattable<T>(this T check, ReadOnlySpan<char> fallbackValue, ReadOnlySpan<char> formatString)
+    {
         var typeOfT = typeof(T) == typeof(Type) ? (Type)(object)check! : typeof(T);
-        
+
+        var formatStringDelmited = formatString.IsDblQtBounded() || formatString.IsSqBrktBounded() || formatString.IsBrcBounded();
         var nullableSpanFormattable = (typeOfT.IsSpanFormattableOrNullableCached());
-        
-        var doubleQtDelimited = typeIsDoubleQtDelimited.GetOrAdd(typeOfT, t => nullableSpanFormattable && !t.IsJsonStringExemptType());
+
+        var doubleQtDelimited = 
+            !formatStringDelmited 
+         && typeIsDoubleQtDelimited.GetOrAdd(typeOfT, t => nullableSpanFormattable && !t.IsJsonStringExemptType());
 
         if (!doubleQtDelimited)
         {
@@ -61,13 +79,14 @@ public static class JsonFormatterExtensions
                 case float floatSource:   doubleQtDelimited = float.IsNaN(floatSource); break;
                 case double doubleSource: doubleQtDelimited = double.IsNaN(doubleSource); break;
             }
-        } else if (nullableSpanFormattable && check == null && typeOfT.IfNullableGetUnderlyingTypeOrThisCached().IsEnum)
-        {
-            doubleQtDelimited = false;
         }
+        else if (nullableSpanFormattable
+              && check == null
+              && typeOfT.IfNullableGetUnderlyingTypeOrThisCached().IsEnum
+              && fallbackValue.IsValidEnumIntegerSpan()) { doubleQtDelimited = false; }
         return doubleQtDelimited;
     }
-    
+
     public static bool IsJsonStringExemptType(this Type checkType)
     {
         if (checkType.IsUniversalStringExemptNumberType()) return true;
@@ -75,4 +94,7 @@ public static class JsonFormatterExtensions
         if (checkType.IsNullableBool()) return true;
         return false;
     }
+
+    public static bool IsJsonStringExemptTypeCached(this Type checkType) => 
+        typeIsDoubleQtExemptCache.GetOrAdd(checkType, t => t.IsJsonStringExemptType());
 }

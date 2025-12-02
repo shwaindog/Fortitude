@@ -14,8 +14,9 @@ public interface IStringBearerRevelStateProvider<in TToStyle> : IStringBearerFor
     PalantírReveal<TToStyle>  EnumPalantír { get; }
 }
 
-public delegate int StringBearerSpanFormattable<in TToFormat>(IEncodingTransfer encoder,  TToFormat toFormat, Span<char> destination
-  , ReadOnlySpan<char> format, IFormatProvider? provider, FormattingHandlingFlags formattingFlags);
+public delegate int StringBearerSpanFormattable<in TToFormat>(TToFormat toFormat, Span<char> destination
+  , ReadOnlySpan<char> format, IEncodingTransfer enumEncoder, IEncodingTransfer joinEncoder, IFormatProvider? provider
+  , FormattingHandlingFlags formattingFlags);
 
 public interface IStringBearerFormattableProvider
 {

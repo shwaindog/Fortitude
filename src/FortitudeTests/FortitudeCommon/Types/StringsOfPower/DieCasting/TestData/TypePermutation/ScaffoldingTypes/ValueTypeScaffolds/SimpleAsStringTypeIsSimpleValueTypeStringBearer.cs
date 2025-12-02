@@ -2164,8 +2164,6 @@ public class SimpleAsStringMatchSimpleValueTypeStringBearer<TAny> : FormattedMol
 
     public override string PropertyName => nameof(SimpleTypeAsStringMatch);
 
-    public string DefaultValue { get; set; } = "";
-
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .AsStringMatchOrNull(nameof(SimpleTypeAsStringMatch), SimpleTypeAsStringMatch, ValueFormatString)
@@ -2174,7 +2172,7 @@ public class SimpleAsStringMatchSimpleValueTypeStringBearer<TAny> : FormattedMol
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyGeneric | SupportsValueFormatString | SupportsSettingDefaultValue
-                | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue)]
+                | DefaultTreatedAsStringOut | DefaultBecomesFallbackString)]
 public class SimpleAsStringMatchWithDefaultSimpleValueTypeStringBearer<TAny> : FormattedMoldScaffold<TAny?>
   , IMoldSupportedDefaultValue<string>
 {

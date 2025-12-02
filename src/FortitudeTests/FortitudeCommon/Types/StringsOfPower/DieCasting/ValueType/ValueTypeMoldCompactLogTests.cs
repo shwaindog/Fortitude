@@ -539,7 +539,7 @@ public partial class ValueTypeMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactLogAsString(EnumTestData.EnumExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[1042]);
+        SharedCompactLogAsValue(SpanFormattableClassTestData.SpanFormattableClassExpectations[7], ScaffoldingRegistry.AllScaffoldingTypes[1126]);
     }
 
     private void SharedCompactLogAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)

@@ -34,7 +34,8 @@ public interface ICustomStringFormatter : IRecyclableObject
     int AppendDelimiterEnd(Type maybeDelimited, Span<char> destSpan, int fromIndex);
 
     IFormattingOptions Options { get; set; }
-    IEncodingTransfer StringEncoder { get; set; }
+    IEncodingTransfer ContentEncoder { get; set; }
+    IEncodingTransfer LayoutEncoder { get; set; }
     
     FormattingHandlingFlags ResolveStringFormattingFlags<T>(char lastNonWhiteSpace, T input, FormattingHandlingFlags callerFormattingFlags
       , string formatString = "");
@@ -172,12 +173,6 @@ public interface ICustomStringFormatter : IRecyclableObject
     int FormatEnumerator<TFmtStruct>(IEnumerator<TFmtStruct?> arg0, Span<char> destCharSpan, int destStartIndex, string? formatString = null
     , FormattingHandlingFlags formatFlags = EncodeInnerContent)
         where TFmtStruct : struct, ISpanFormattable;
-
-
-    int StringValueDelimiter(IStringBuilder sb);
-    int StringValueDelimiter(Span<char> destSpan, int destStartIndex);
-    int StringFieldDelimiter(IStringBuilder sb);
-    int StringFieldDelimiter(Span<char> destSpan, int destStartIndex);
 
 
     int CollectionStart(Type collectionType, IStringBuilder sb, bool hasItems

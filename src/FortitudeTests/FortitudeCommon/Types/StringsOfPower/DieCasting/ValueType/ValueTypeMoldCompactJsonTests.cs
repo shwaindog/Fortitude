@@ -192,7 +192,7 @@ public partial class ValueTypeMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactJsonAsString(EnumTestData.EnumExpectations[2], ScaffoldingRegistry.AllScaffoldingTypes[1042]);
+        SharedCompactJsonAsValue(CharArrayTestData.AllCharArrayExpectations[13], ScaffoldingRegistry.AllScaffoldingTypes[1096]);
     }
 
     private void SharedCompactJsonAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
