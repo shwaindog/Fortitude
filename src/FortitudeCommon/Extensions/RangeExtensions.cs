@@ -123,6 +123,24 @@ public static class RangeExtensions
         return fromDestIndex - startIndex;
     }
 
+    public static int WriteSplitJoinAsSlashSearchSlashReplace(this Span<char> destination, int fromDestIndex, SplitJoinRange toConvert)
+    {
+        var startIndex = fromDestIndex;
+        
+        destination[fromDestIndex++] = '/';
+        fromDestIndex                += toConvert.WriteSplitOn(destination, fromDestIndex);
+        destination[fromDestIndex++] =  '/';
+        fromDestIndex                += toConvert.WriteJoinOn(destination, fromDestIndex);
+        destination[fromDestIndex++] =  '/';
+        
+        if (toConvert.SplitElementsRange.IsAllRange())
+        {
+            return fromDestIndex - startIndex; 
+        }
+        fromDestIndex += destination.WriteRangeAsSlice(fromDestIndex, toConvert.SplitElementsRange);
+        return fromDestIndex - startIndex; 
+    }
+
     public static int CalculateRangeAsSliceStringSize(this Range toConvert)
     {
         var size = 0;

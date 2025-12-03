@@ -270,6 +270,8 @@ public static class ExtendedSpanFormattableExtensions
         return foundFormatStages;
     }
 
+    public static bool HasFormatStringPadding(this string toCheck) => ((ReadOnlySpan<char>)toCheck).HasFormatStringPadding();
+
 
     public static bool HasFormatStringPadding(this ReadOnlySpan<char> toCheck)
     {
@@ -309,7 +311,79 @@ public static class ExtendedSpanFormattableExtensions
         return false;
     }
 
-    public static int PrefixSuffixLength(this ReadOnlySpan<char> toCheck)
+    public static bool FormatStringHasFormatSequence(this string formatString) => 
+        ((ReadOnlySpan<char>)formatString).HasFormatStringPadding();
+
+    public static bool FormatStringHasFormatSequence(this ReadOnlySpan<char> toCheck)
+    {
+        var indexOfBrcOpn = toCheck.IndexOf('{');
+        if (indexOfBrcOpn < 0) return toCheck.Length > 0;
+        var remainingSpan = toCheck[indexOfBrcOpn..];
+        var indexOfBrcCls = remainingSpan.IndexOf('}');
+        if (indexOfBrcCls < 0) return false;
+        remainingSpan = toCheck[..indexOfBrcCls];
+        var foundColon         = false;
+        var countAfterColon        = 0;
+        for (var i = 1; i < remainingSpan.Length; i++)
+        {
+            var checkChar = remainingSpan[i];
+            if (!foundColon)
+            {
+                if(!checkChar.IsColon()) continue;
+                foundColon = true;
+            }
+            countAfterColon++;
+        }
+        return foundColon && countAfterColon > 0;
+    }
+
+    public static ReadOnlySpan<char> ExtractFormatStringFormatSequence(this ReadOnlySpan<char> toCheck)
+    {
+        var indexOfBrcOpn = toCheck.IndexOf('{');
+        if (indexOfBrcOpn < 0) return toCheck;
+        var remainingSpan = toCheck[indexOfBrcOpn..];
+        var indexOfBrcCls = remainingSpan.IndexOf('}');
+        if (indexOfBrcCls < 0) return toCheck;
+        remainingSpan = toCheck[..indexOfBrcCls];
+        var indexAfterColon = -1;
+        for (var i = 1; i < remainingSpan.Length; i++)
+        {
+            var checkChar = remainingSpan[i];
+            if(!checkChar.IsColon()) continue;
+            indexAfterColon = i + 1;
+            break;
+        }
+        
+        return indexAfterColon > 0 ? remainingSpan[indexAfterColon..] : "";
+    }
+
+    public static Span<char> InjectFormatSequenceIntoExistingFormatString(this Span<char> toBuild, ReadOnlySpan<char> existing, ReadOnlySpan<char> fmtSequence)
+    {
+        existing.ExtractExtendedStringFormatStages
+            (out var prefix, out var identifier, out var sliceLength
+           , out var layout, out var splitJoinRange, out _, out var suffix);
+
+        var charsAdded = 0;
+        if (prefix.Length > 0)
+        {
+            charsAdded = toBuild.OverWriteAt(0, prefix);
+        }
+        charsAdded += toBuild.AddIdentifierAndSliceLength(charsAdded, identifier, sliceLength);
+        charsAdded += toBuild.AddPaddingAndSplitJoin(charsAdded, layout, splitJoinRange);
+        charsAdded += toBuild.AddFormatSequence(charsAdded, !identifier.IsEmpty, fmtSequence);
+        if (!identifier.IsEmpty)
+        {
+            toBuild[charsAdded++] = '}';
+        }
+        
+        if (suffix.Length > 0)
+        {
+            charsAdded += toBuild.OverWriteAt(charsAdded, suffix);
+        }
+        return toBuild[..charsAdded];
+    }
+
+    public static int PrefixSuffixLength(this string toCheck)
     {
         var indexOfBrcOpn = toCheck.IndexOf('{');
         if (indexOfBrcOpn < 0) return 0;
@@ -319,79 +393,14 @@ public static class ExtendedSpanFormattableExtensions
         
     }
 
-    public static FormatStringType ExtractExtendedStringFormatStages
-    (this ReadOnlySpan<char> toCheck, out ReadOnlySpan<char> formatPrefix, out ReadOnlySpan<char> identifier, out Range extendedSliceLengthRange
-      , out ReadOnlySpan<char> layout, out ReadOnlySpan<char> format, out ReadOnlySpan<char> formatSuffix
-      , int fromIndex = 0)
+    public static int PrefixSuffixLength(this ReadOnlySpan<char> toCheck)
     {
-        formatPrefix             = toCheck.Slice(0, 0);
-        identifier               = toCheck.Slice(0, 0);
-        extendedSliceLengthRange = Range.All;
-        layout                   = toCheck.Slice(0, 0);
-        format                   = toCheck.Slice(0, 0);
-        formatSuffix             = toCheck.Slice(0, 0);
-
-        var foundFormatStages = FormatStringType.None;
-        if (toCheck.Length == 0) return foundFormatStages;
-        ReadOnlySpan<char> remainingSpan = toCheck[fromIndex..];
-
-        var indexOfBrcOpn = remainingSpan.IndexOf('{');
-
-        int stage = 0;
-        if (indexOfBrcOpn >= 0)
-        {
-            if (indexOfBrcOpn > 0)
-            {
-                foundFormatStages |= FormatStringType.Prefix;
-                formatPrefix      =  remainingSpan[..fromIndex];
-                remainingSpan     =  remainingSpan[fromIndex..];
-            }
-            var indexOfBrcCls = remainingSpan.IndexOf('}');
-            if (indexOfBrcCls == -1)
-            {
-                throw new FormatException("Invalid format string expected matching closing braces from " + remainingSpan.ToString());
-            }
-            formatSuffix = remainingSpan[(indexOfBrcCls + 1)..];
-            if (indexOfBrcCls < remainingSpan.Length - 1)
-            {
-                foundFormatStages |= FormatStringType.Suffix;
-            }
-            remainingSpan = remainingSpan[1..indexOfBrcCls];
-        }
-        else
-        { // just format string
-            identifier = "0";
-            layout     = "0";
-            stage      = 3;
-        }
-        while (remainingSpan.Length > 0)
-        {
-            switch (stage)
-            {
-                case 0:
-                    var (nextStage, foundStages, consumedSpan, lengthSliceRange) = IdentifierAndSlice(remainingSpan, out identifier);
-
-                    stage                    =  nextStage;
-                    foundFormatStages        |= foundStages;
-                    remainingSpan            =  remainingSpan[consumedSpan..];
-                    extendedSliceLengthRange =  lengthSliceRange;
-                    break;
-                case 1:
-                    var (next, foundParts, nextSpanIndex) = LayoutOnly(remainingSpan, out layout);
-
-                    stage             =  next;
-                    foundFormatStages |= foundParts;
-                    remainingSpan     =  remainingSpan[nextSpanIndex..];
-                    break;
-                case 2:
-                    stage             =  3;
-                    format            =  remainingSpan;
-                    foundFormatStages |= FormatStringType.Format;
-                    break;
-                default: return foundFormatStages;
-            }
-        }
-        return foundFormatStages;
+        var indexOfBrcOpn = toCheck.IndexOf('{');
+        if (indexOfBrcOpn < 0) return 0;
+        var indexOfBrcCls = toCheck.IndexOf('}');
+        if (indexOfBrcCls < 0) return 0;
+        return indexOfBrcOpn + toCheck.Length - 1 - indexOfBrcCls;
+        
     }
 
     public static FormatStringType ExtractStandardStringFormatStages
@@ -845,6 +854,53 @@ public static class ExtendedSpanFormattableExtensions
         }
         toBuild.Append("}");
         return toBuild[..3];
+    }
+
+    private static int AddIdentifierAndSliceLength(this Span<char> toBuild, int atOffset, ReadOnlySpan<char> identifierSpan, Range sliceLengthRange)
+    {
+        var charsAdded = 0;
+        charsAdded += toBuild.OverWriteAt(atOffset, "{");
+        charsAdded +=  toBuild.OverWriteAt(atOffset + charsAdded, identifierSpan);
+
+        if (sliceLengthRange.IsAllRange())
+        {
+            return charsAdded; 
+        }
+        charsAdded += toBuild.WriteRangeAsSlice(charsAdded, sliceLengthRange);
+        return charsAdded;
+    }
+
+    private static int AddPaddingAndSplitJoin(this Span<char> toBuild, int atOffset, ReadOnlySpan<char> paddingSpan, SplitJoinRange splitJoinRange)
+    {
+        if (splitJoinRange.IsNoSplitJoin && paddingSpan.IsEmpty) return 0;
+        
+        var charsAdded = 0;
+        charsAdded += toBuild.OverWriteAt(atOffset, ",");
+        if (paddingSpan.Length > 0)
+        {
+            charsAdded += toBuild.OverWriteAt(atOffset + charsAdded, paddingSpan);
+        }
+        if (splitJoinRange.IsNoSplitJoin)
+        {
+            return charsAdded;
+        }
+        charsAdded += toBuild.WriteSplitJoinAsSlashSearchSlashReplace(atOffset + charsAdded, splitJoinRange);
+        
+        return charsAdded;
+    }
+
+    private static int AddFormatSequence(this Span<char> toBuild, int atOffset, bool isComposite, ReadOnlySpan<char> formatSequenceSpan)
+    {
+        if (formatSequenceSpan.IsEmpty)
+        {
+            return 0;
+        }
+        
+        var charsAdded = 0;
+        if(isComposite) charsAdded += toBuild.OverWriteAt(atOffset, ":");
+        charsAdded += toBuild.OverWriteAt(atOffset + charsAdded, formatSequenceSpan);
+        
+        return charsAdded;
     }
 
     public static int CalculatePrefixPaddedAlignedAndSuffixFormatStringLength(this int toInsertLength, ReadOnlySpan<char> formatStringToExtract)

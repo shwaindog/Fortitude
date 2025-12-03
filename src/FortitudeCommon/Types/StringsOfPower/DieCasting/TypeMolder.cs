@@ -907,7 +907,7 @@ public static class StyledTypeBuilderExtensions
       , int retrieveCount, string formatString = "", FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable
     {
-        stf.CollectionNextItemFormat(value, retrieveCount, sb, formatString, (FormattingHandlingFlags)formatFlags);
+        stf.CollectionNextItemFormat(sb, value, retrieveCount, formatString, formatFlags);
         return sb;
     }
 

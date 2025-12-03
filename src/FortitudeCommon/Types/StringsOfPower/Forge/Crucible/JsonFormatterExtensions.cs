@@ -69,7 +69,8 @@ public static class JsonFormatterExtensions
 
         var doubleQtDelimited = 
             !formatStringDelmited 
-         && typeIsDoubleQtDelimited.GetOrAdd(typeOfT, t => nullableSpanFormattable && !t.IsJsonStringExemptType());
+         && typeIsDoubleQtDelimited.GetOrAdd(typeOfT, t => 
+                                                 !t.IsEnumOrNullable() &&  nullableSpanFormattable && !t.IsJsonStringExemptType());
 
         if (!doubleQtDelimited)
         {
@@ -80,10 +81,6 @@ public static class JsonFormatterExtensions
                 case double doubleSource: doubleQtDelimited = double.IsNaN(doubleSource); break;
             }
         }
-        else if (nullableSpanFormattable
-              && check == null
-              && typeOfT.IfNullableGetUnderlyingTypeOrThisCached().IsEnum
-              && fallbackValue.IsValidEnumIntegerSpan()) { doubleQtDelimited = false; }
         return doubleQtDelimited;
     }
 

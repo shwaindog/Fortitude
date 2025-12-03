@@ -16,6 +16,8 @@ public interface IFormattingOptions
     protected const string DefaultAlternateItemSeparator = Empty;
     protected const string DefaultMainItemPadding        = Spc;
     protected const string DefaultAlternateItemPadding   = Empty;
+    
+    protected const bool DefaultEnumAsNumber   = false;
 
     string MainItemSeparator { get; set; }
     string AlternateItemSeparator { get; set; }
@@ -35,6 +37,8 @@ public interface IFormattingOptions
     string True { get; set; }
 
     string False { get; set; }
+    
+    bool EnumsDefaultAsNumber { get; set; }
 }
 
 public class FormattingOptions : ExplicitRecyclableObject, IFormattingOptions
@@ -86,4 +90,6 @@ public class FormattingOptions : ExplicitRecyclableObject, IFormattingOptions
 
     public string True { get; set; } = DefaultTrueString;
     public string False { get; set; } = DefaultFalseString;
+    
+    public bool EnumsDefaultAsNumber { get; set; }
 }

@@ -100,7 +100,7 @@ public partial class SelectTypeCollectionFieldTests
 
 
     private static IEnumerable<object[]> UnfilteredFmtCollectionsExpect =>
-        (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
+        (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
             where fe is {ElementTypeIsNullable: false, HasRestrictingFilter: false }   
             from scaffoldToCall in 
                 scafReg
@@ -112,7 +112,7 @@ public partial class SelectTypeCollectionFieldTests
                     .AcceptsNonNullables()
             select new object[] { fe, scaffoldToCall })
         .Concat( 
-                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
+                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
                 where fe is { ElementTypeIsNullable: true, ElementTypeIsStruct: true, HasRestrictingFilter: false }   
                 from scaffoldToCall in 
                     scafReg
@@ -124,7 +124,7 @@ public partial class SelectTypeCollectionFieldTests
                         .OnlyAcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall })
         .Concat( 
-                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
+                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
                 where fe is {ElementTypeIsClass : true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
                     scafReg
@@ -146,7 +146,7 @@ public partial class SelectTypeCollectionFieldTests
 
     private static IEnumerable<object[]> FilteredFmtCollectionsExpect =>
         // Non nullables and classes
-        (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
+        (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
             where fe is {ElementTypeIsNullable: false, HasRestrictingFilter: true }   
             from scaffoldToCall in 
                 scafReg
@@ -159,7 +159,7 @@ public partial class SelectTypeCollectionFieldTests
             select new object[] { fe, scaffoldToCall })
         .Concat( 
                 // Nullable structs
-                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
+                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
                 where fe is { ElementTypeIsNullable: true, ElementTypeIsStruct: true, HasRestrictingFilter: true }   
                 from scaffoldToCall in 
                     scafReg
@@ -172,7 +172,7 @@ public partial class SelectTypeCollectionFieldTests
                 select new object[] { fe, scaffoldToCall })
         .Concat( 
                 // classes
-                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
+                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
                 where fe is {ElementTypeIsClass : true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
                     scafReg
@@ -626,7 +626,7 @@ public partial class SelectTypeCollectionFieldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactJson(SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations[5], ScaffoldingRegistry.AllScaffoldingTypes[661]);
+        SharedCompactLog(EnumCollectionsTestData.AllEnumCollectionsExpectations[2], ScaffoldingRegistry.AllScaffoldingTypes[692]);
     }
 
     private void SharedCompactLog(IOrderedListExpect formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -653,7 +653,16 @@ public partial class SelectTypeCollectionFieldTests
             var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
-                expectValue = propertyName + ": " + expectValue + (expectValue.Length > 0 ? " " : "");
+                if (expectValue != "null" &&  expectation is IOrderedListExpect orderedListExpectation 
+                 && orderedListExpectation.ElementCallType.IsEnum())
+                {
+                    expectValue = propertyName + ": (" + orderedListExpectation.CollectionCallType.ShortNameInCSharpFormat() + ")" + 
+                                  expectValue + (expectValue.Length > 0 ? " " : "");    
+                }
+                else
+                {
+                    expectValue = propertyName + ": " + expectValue + (expectValue.Length > 0 ? " " : "");
+                }
             }
             else { expectValue = ""; }
             return string.Format(compactLogTemplate, className, expectValue);
