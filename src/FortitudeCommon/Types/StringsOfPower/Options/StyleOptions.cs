@@ -65,6 +65,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     private string? falseString;
     private string? trueString;
     private string? nullString;
+    private bool?   enumDefaultAsNumber;
     private bool?   ignoreEmptyCollection;
     private bool?   emptyCollectionWritesNull;
     private bool?   onNullWriteEmpty;
@@ -306,6 +307,12 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     {
         readonly get => falseString ?? fallbackOptions?.Values.False ?? IFormattingOptions.DefaultFalseString;
         set => falseString = value;
+    }
+    
+    public bool EnumsDefaultAsNumber
+    {
+        readonly get => enumDefaultAsNumber ?? fallbackOptions?.Values.EnumsDefaultAsNumber ?? IFormattingOptions.DefaultEnumAsNumber;
+        set => enumDefaultAsNumber = value;
     }
 
     public bool CharArrayWritesString
@@ -804,6 +811,12 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
     {
         get => values.EmptyCollectionWritesNull;
         set => values.EmptyCollectionWritesNull = value;
+    }
+    
+    public bool EnumsDefaultAsNumber
+    {
+        get => values.EnumsDefaultAsNumber;
+        set => values.EnumsDefaultAsNumber = value;
     }
 
     public bool IgnoreEmptyCollection

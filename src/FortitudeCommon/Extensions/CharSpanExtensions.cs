@@ -364,6 +364,22 @@ public static class CharSpanExtensions
         return toClear;
     }
 
+    public static bool IsEitherUpperOrLowerCaseOf(this ReadOnlySpan<char> toCheck, ReadOnlySpan<char> compare)
+    {
+        if(compare.Length == 0) return false;
+        Span<char> toCase = stackalloc char[compare.Length];
+        toCase.OverWritAsUpperAt(0, compare);
+        var indexOf = toCheck.IndexOf(toCase);
+        if (indexOf == 0) return true;
+        toCase.OverWritAsLowerAt(0, compare);
+        return toCheck.IndexOf(toCase) == 0;
+    }
+
+    public static bool IsNeitherUpperOrLowerCaseOf(this ReadOnlySpan<char> toCheck, ReadOnlySpan<char> compare)
+    {
+        return !toCheck.IsEitherUpperOrLowerCaseOf(compare);
+    }
+
     public static int IndexOf(this Span<char> subject, char toFind = Terminator, int startingAtIndex = 0)
     {
         var length = subject.Length;
@@ -711,6 +727,28 @@ public static class CharSpanExtensions
         for (int i = 0; i < toAppend.Length && spanIndex < toUpdate.Length; i++)
         {
             toUpdate[spanIndex++] = toAppend[i];
+            charsWritten++;
+        }
+        return charsWritten;
+    }
+
+    public static int OverWritAsUpperAt(this Span<char> toUpdate, int spanIndex, ReadOnlySpan<char> toAppend)
+    {
+        var charsWritten = 0;
+        for (int i = 0; i < toAppend.Length && spanIndex < toUpdate.Length; i++)
+        {
+            toUpdate[spanIndex++] = char.ToUpper(toAppend[i]);
+            charsWritten++;
+        }
+        return charsWritten;
+    }
+
+    public static int OverWritAsLowerAt(this Span<char> toUpdate, int spanIndex, ReadOnlySpan<char> toAppend)
+    {
+        var charsWritten = 0;
+        for (int i = 0; i < toAppend.Length && spanIndex < toUpdate.Length; i++)
+        {
+            toUpdate[spanIndex++] = char.ToLower(toAppend[i]);
             charsWritten++;
         }
         return charsWritten;

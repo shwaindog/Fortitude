@@ -56,11 +56,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
 
         FormattingHandlingFlags setFlags = callerFormattingFlags;
 
-        var typeofT = typeof(T);
-        if (!formatString.IsDblQtBounded()
-         && !formatString.IsSqBrktBounded()
-         && !formatString.IsBrcBounded()
+        var typeofT = (input?.GetType() ?? typeof(T));
+        if (formatString.IsNotJsonTypeOpenCloseBounded()
          && typeofT.IsSpanFormattableOrNullableCached()
+         && !typeofT.IsEnum() // enums will by default auto select, but will always delimit
+            // if EnsureFormattedDelimited unless format string does so already   
          && !callerFormattingFlags.HasDisableAutoDelimiting()
          && !callerFormattingFlags.HasAsValueContentFlag())
         {
@@ -303,8 +303,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         var originalLength = sb.Length;
         var fmtType        = typeof(TFmt);
         fmtType = fmtType == typeof(ISpanFormattable) ? source.GetType() : fmtType;
-        var alreadyFormatDelimited = formatString.IsDblQtBounded() || formatString.IsSqBrktBounded() || formatString.IsBrcBounded();
-        var wrapInQuotes    = formatFlags.ShouldDelimit();
+        var alreadyDblQtDelimited  = formatString.IsDblQtBounded();
+        var alreadyFormatDelimited = alreadyDblQtDelimited || formatString.IsSqBrktBounded() || formatString.IsBrcBounded();
+        var wrapInQuotes           = formatFlags.ShouldDelimit();
         if (fmtType.IsValueType && fmtType.IsNumericType())
         {
             if (!wrapInQuotes) { wrapInQuotes = source.IsDoubleQuoteDelimitedSpanFormattable(); }
@@ -359,14 +360,17 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         else if (source is Enum)
         {
             var markInsertIndex = sb.Length;
-            var enumLen         = base.Format(source, sb, formatString, formatFlags);
-            var isInt           = enumLen > 0;
+
+            if (wrapInQuotes && !alreadyFormatDelimited && !formatFlags.HasDisableAutoDelimiting()) sb.Append(DblQt);
+            var enumLen = base.Format(source, sb, formatString, formatFlags);
+            if (wrapInQuotes && !alreadyFormatDelimited && !formatFlags.HasDisableAutoDelimiting()) sb.Append(DblQt);
+            var isInt = enumLen > 0;
             for (int i = 0; i < enumLen && isInt; i++)
             {
                 var checkChar = sb[markInsertIndex + i];
                 isInt = checkChar.IsDigit() || (checkChar.IsMinus() && i == 0);
             }
-            if (!isInt && wrapInQuotes && !alreadyFormatDelimited && !formatFlags.HasDisableAutoDelimiting())
+            if (!isInt && !wrapInQuotes && !alreadyFormatDelimited && !formatFlags.HasDisableAutoDelimiting())
             {
                 sb.InsertAt(DblQt, markInsertIndex);
                 sb.Append(DblQt);
@@ -387,7 +391,8 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         if (source == null) { return Options.NullWritesEmpty ? 0 : destCharSpan.AppendReturnAddCount(Options.NullString); }
         var charsAdded             = 0;
         var fmtType                = typeof(TFmt);
-        var alreadyFormatDelimited = formatString.IsDblQtBounded() || formatString.IsSqBrktBounded() || formatString.IsBrcBounded();
+        var alreadyDblQtDelimited  = formatString.IsDblQtBounded();
+        var alreadyFormatDelimited = alreadyDblQtDelimited || formatString.IsSqBrktBounded() || formatString.IsBrcBounded();
         var wrapInQuotes           = formatFlags.ShouldDelimit();
         if (fmtType.IsValueType && fmtType.IsNumericType())
         {
@@ -448,21 +453,25 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         }
         else if (source is Enum)
         {
+            if (wrapInQuotes && !alreadyFormatDelimited && !formatFlags.HasDisableAutoDelimiting())
+                charsAdded += destCharSpan.OverWriteAt(destStartIndex, DblQt);
             var enumLen = base.Format(source, destCharSpan, destStartIndex, formatString, formatFlags);
-            var isInt   = enumLen > 0;
+            if (wrapInQuotes && !alreadyFormatDelimited && !formatFlags.HasDisableAutoDelimiting())
+                charsAdded += destCharSpan.OverWriteAt(destStartIndex, DblQt);
+            var isInt = enumLen > 0;
             for (int i = 0; i < enumLen && isInt; i++)
             {
                 var checkChar = destCharSpan[destStartIndex + i];
                 isInt = checkChar.IsDigit() || (checkChar.IsMinus() && i == 0);
             }
-            if (!isInt && wrapInQuotes && !alreadyFormatDelimited && !formatFlags.HasDisableAutoDelimiting())
+            if (!isInt && !wrapInQuotes && !alreadyFormatDelimited && !formatFlags.HasDisableAutoDelimiting())
             {
                 destCharSpan.ShiftByAmount(destStartIndex, destStartIndex + enumLen, 1);
                 destCharSpan.OverWriteAt(destStartIndex, DblQt);
                 destCharSpan.OverWriteAt(destStartIndex + enumLen + 1, DblQt);
                 charsAdded = enumLen + 2;
             }
-            else { charsAdded = enumLen; }
+            else { charsAdded += enumLen; }
         }
         else
         {
@@ -1011,7 +1020,8 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                 addedChars           += CollectionStart(elementType, destCharSpan, destStartIndex + addedChars, true, formatFlags);
                 hasStartedCollection =  true;
             }
-            if (itemCount > 0) addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, itemCount, formatFlags);
+            if (itemCount > 0)
+                addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, itemCount, formatFlags);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
                 if (iChar.IsSingleCharRune()) { addedChars += ContentEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
@@ -1031,7 +1041,10 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     addedChars += CollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars, formatFlags);
                 }
-                else { addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString, formatFlags); }
+                else
+                {
+                    addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString, formatFlags);
+                }
             }
             itemCount++;
         }
@@ -1113,7 +1126,8 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                 addedChars           += CollectionStart(elementType, destCharSpan, destStartIndex + addedChars, true, formatFlags);
                 hasStartedCollection =  true;
             }
-            if (itemCount > 0) addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, itemCount, formatFlags);
+            if (itemCount > 0)
+                addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, itemCount, formatFlags);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
                 if (iChar.IsSingleCharRune()) { addedChars += ContentEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
@@ -1133,7 +1147,10 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     addedChars += CollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars, formatFlags);
                 }
-                else { addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString, formatFlags); }
+                else
+                {
+                    addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString, formatFlags);
+                }
             }
             itemCount++;
         }
@@ -1203,13 +1220,16 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             return destCharSpan.OverWriteAt(destStartIndex, Options.NullString);
         }
         var elementType = typeof(TFmt);
-        if (!hasNext || !Options.IgnoreEmptyCollection) { addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, !hasNext, formatFlags); }
+        if (!hasNext || !Options.IgnoreEmptyCollection)
+        {
+            addedChars += CollectionStart(elementType, destCharSpan, destStartIndex, !hasNext, formatFlags);
+        }
         var  itemCount = 0;
         char lastChar  = '\0';
         while (hasNext)
         {
-            var item                      = arg0.Current;
-            if (itemCount > 0) 
+            var item = arg0.Current;
+            if (itemCount > 0)
                 addedChars += AddCollectionElementSeparatorAndPadding
                     (elementType, destCharSpan, destStartIndex + addedChars, itemCount, formatFlags);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
@@ -1231,7 +1251,10 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     addedChars += CollectionNextItem(item, itemCount, destCharSpan, destStartIndex + addedChars, formatFlags);
                 }
-                else { addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString, formatFlags); }
+                else
+                {
+                    addedChars += CollectionNextItemFormat(item, itemCount, destCharSpan, destStartIndex + addedChars, formatString, formatFlags);
+                }
             }
             itemCount++;
             hasNext = arg0.MoveNext();
@@ -1296,8 +1319,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         char lastChar  = '\0';
         while (hasNext)
         {
-            var item                      = arg0.Current;
-            if (itemCount > 0) addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
+            var item = arg0.Current;
+            if (itemCount > 0)
+                addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
             if (item is char iChar && JsonOptions.CharArrayWritesString)
             {
                 if (iChar.IsSingleCharRune()) { addedChars += ContentEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }

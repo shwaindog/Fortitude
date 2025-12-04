@@ -12,7 +12,6 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFie
 
 public partial class SelectTypeCollectionFieldTests
 {
-
     [TestMethod]
     [DynamicData(nameof(UnfilteredBooleanCollectionsExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void UnfilteredPrettyLogBoolCollections(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -60,7 +59,7 @@ public partial class SelectTypeCollectionFieldTests
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedPrettyLog(formatExpectation, scaffoldingToCall);
     }
-    
+
     [TestMethod]
     [DynamicData(nameof(UnfilteredCharSequenceCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void UnfilteredPrettyLogCharSequenceList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -68,7 +67,7 @@ public partial class SelectTypeCollectionFieldTests
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedPrettyLog(formatExpectation, scaffoldingToCall);
     }
-    
+
     [TestMethod]
     [DynamicData(nameof(FilteredCharSequenceCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void FilteredPrettyLogCharSequenceList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -145,7 +144,7 @@ public partial class SelectTypeCollectionFieldTests
         logger.WarnAppend("FormatExpectation - ")?
               .AppendLine(formatExpectation.ToString())
               .FinalAppend("");
-        
+
         // ReSharper disable once RedundantArgumentDefaultValue
         var tos = new TheOneString().Initialize(Pretty | Log);
         tos.Settings.NewLineStyle = "\n";
@@ -163,7 +162,14 @@ public partial class SelectTypeCollectionFieldTests
             {
                 maybeNewLine = "\n";
                 maybeIndent  = "  ";
-                expectValue  = propertyName + ": " + expectValue.IndentSubsequentLines();
+                if (expectValue != "null"
+                 && expectation is IOrderedListExpect orderedListExpectation
+                 && orderedListExpectation.ElementCallType.IsEnumOrNullable())
+                {
+                    expectValue = propertyName + ": (" + orderedListExpectation.CollectionCallType.ShortNameInCSharpFormat() + ")" +
+                                  expectValue.IndentSubsequentLines();
+                }
+                else { expectValue = propertyName + ": " + expectValue.IndentSubsequentLines(); }
             }
 
             else { expectValue = ""; }
@@ -177,10 +183,7 @@ public partial class SelectTypeCollectionFieldTests
             var compactLogTemplate = className.IsNotEmpty() ? "({0}){1}" : "{1}";
 
             var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
-            if (expectValue == IFormatExpectation.NoResultExpectedValue)
-            {
-                expectValue = "";
-            }
+            if (expectValue == IFormatExpectation.NoResultExpectedValue) { expectValue = ""; }
             return string.Format(compactLogTemplate, className, expectValue);
         }
 
@@ -212,7 +215,7 @@ public partial class SelectTypeCollectionFieldTests
                   .Append(result).AppendLine()
                   .FinalAppend("");
         }
-            
+
         logger.InfoAppend("To Debug Test past the following code into ")?
               .Append(nameof(PrettyLogListTest)).Append("()\n\n")
               .Append("SharedPrettyLog(")

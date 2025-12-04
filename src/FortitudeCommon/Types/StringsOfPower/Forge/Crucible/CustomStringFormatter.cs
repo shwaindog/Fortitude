@@ -554,7 +554,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         if (layout.Length == 0 && splitJoinRange.IsNoSplitJoin)
         {
             charsAdded += ContentEncoder.Transfer(source, 0, destCharSpan, destStartIndex + charsAdded
-                                               , rawCappedLength);
+                                                , rawCappedLength);
             if (suffix.Length > 0)
                 charsAdded += ContentEncoder.TransferSuffix(suffix, destCharSpan, destStartIndex + charsAdded, formatFlags.HasEncodeBoundsFlag());
             return charsAdded;
@@ -603,7 +603,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 padSize         = padSpan.PadAndAlign(splitJoinResult, layout);
                 splitJoinBuffer.DecrementRefCount();
                 padSize    =  Math.Min(padSize, cappedLength);
-                charsAdded +=  PassThroughEncodingTransfer.Instance.Transfer(padSpan[..padSize], destCharSpan, destStartIndex + charsAdded);
+                charsAdded += PassThroughEncodingTransfer.Instance.Transfer(padSpan[..padSize], destCharSpan, destStartIndex + charsAdded);
             }
             else
             {
@@ -873,16 +873,30 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         {
             var enumFormatProvider = EnumFormatterRegistry.GetOrCreateEnumFormatProvider(source.GetType());
             TryAddCustomSpanFormattableProvider(typeof(TFmt), enumFormatProvider);
+
             var charSpan               = stackalloc char[2048].ResetMemory();
             var spanEnumFormatProvider = enumFormatProvider.AsSpanFormattableEnumFormatProvider<TFmt>();
+
+            Span<char> formatStringModified = stackalloc char[formatString.Length + 2];
+            if (Options.EnumsDefaultAsNumber && !formatString.FormatStringHasFormatSequence())
+            {
+                formatStringModified = formatStringModified.InjectFormatSequenceIntoExistingFormatString(formatString, "d");
+            }
+            else
+            {
+                formatStringModified.Append(formatString);
+                formatStringModified = formatStringModified[..formatString.Length];
+            }
             if (spanEnumFormatProvider != null)
             {
-                charsWritten = spanEnumFormatProvider.StringBearerSpanFormattable(source, charSpan, formatString, ContentEncoder, LayoutEncoder, null, formatFlags);
+                charsWritten = spanEnumFormatProvider.StringBearerSpanFormattable(source, charSpan, formatStringModified, ContentEncoder, LayoutEncoder, null
+                                                                                , formatFlags);
             }
             else
             {
                 var asEnumFormatter = enumFormatProvider.AsEnumFormatProvider()!;
-                charsWritten = asEnumFormatter.StringBearerSpanFormattable(sourceEnum, charSpan, formatString, ContentEncoder, LayoutEncoder, null, formatFlags);
+                charsWritten = asEnumFormatter.StringBearerSpanFormattable(sourceEnum, charSpan, formatStringModified, ContentEncoder, LayoutEncoder, null
+                                                                         , formatFlags);
             }
             PassThroughEncodingTransfer.Instance.Transfer(charSpan[..charsWritten], sb);
             return charsWritten;
@@ -949,17 +963,30 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         }
         if (source is Enum sourceEnum)
         {
-            var enumFormatProvider = EnumFormatterRegistry.GetOrCreateEnumFormatProvider(source.GetType());
-            TryAddCustomSpanFormattableProvider(typeof(TFmt), enumFormatProvider);
-            var spanEnumFormatProver = enumFormatProvider.AsSpanFormattableEnumFormatProvider<TFmt>();
+            var enumType           = source.GetType();
+            var enumFormatProvider = EnumFormatterRegistry.GetOrCreateEnumFormatProvider(enumType);
+            TryAddCustomSpanFormattableProvider(enumType, enumFormatProvider);
+            var        spanEnumFormatProver = enumFormatProvider.AsSpanFormattableEnumFormatProvider<TFmt>();
+            Span<char> formatStringModified = stackalloc char[formatString.Length + 2];
+            if (Options.EnumsDefaultAsNumber && !formatString.FormatStringHasFormatSequence())
+            {
+                formatStringModified = formatStringModified.InjectFormatSequenceIntoExistingFormatString(formatString, "d");
+            }
+            else
+            {
+                formatStringModified.Append(formatString);
+                formatStringModified = formatStringModified[..formatString.Length];
+            }
             if (spanEnumFormatProver != null)
             {
-                charsWritten = spanEnumFormatProver.StringBearerSpanFormattable(source, charSpan, formatString, ContentEncoder, LayoutEncoder, null, formatFlags);
+                charsWritten = spanEnumFormatProver.StringBearerSpanFormattable(source, charSpan, formatStringModified, ContentEncoder, LayoutEncoder
+                                                                              , null, formatFlags);
             }
             else
             {
                 var asEnumFormatter = enumFormatProvider.AsEnumFormatProvider()!;
-                charsWritten = asEnumFormatter.StringBearerSpanFormattable(sourceEnum, charSpan, formatString, ContentEncoder, LayoutEncoder, null, formatFlags);
+                charsWritten = asEnumFormatter.StringBearerSpanFormattable(sourceEnum, charSpan, formatStringModified, ContentEncoder, LayoutEncoder
+                                                                         , null, formatFlags);
             }
             return PassThroughEncodingTransfer.Instance.Transfer(charSpan[..charsWritten], destCharSpan, destStartIndex);
         }
@@ -985,7 +1012,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                     charsAdded += charsWritten;
                     if (suffix.Length > 0)
                         charsAdded += ContentEncoder.TransferSuffix(suffix, destCharSpan, destStartIndex + charsAdded
-                                                                 , formatFlags.HasEncodeBoundsFlag());
+                                                                  , formatFlags.HasEncodeBoundsFlag());
                     return charsAdded;
                 }
                 var padSpan = stackalloc char[charsWritten + 256].ResetMemory();

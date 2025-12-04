@@ -49,9 +49,9 @@ public interface IJsonFormattingOptions : IFormattingOptions
     
     bool DateTimeIsString { get; }
 
-    public string DateTimeAsStringFormatString { get; set; }
+    string DateTimeAsStringFormatString { get; set; }
 
-    public string DateOnlyAsStringFormatString { get; set; }
+    string DateOnlyAsStringFormatString { get; set; }
     
     string TimeAsStringFormatString { get; set; }
 

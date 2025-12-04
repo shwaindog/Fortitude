@@ -125,12 +125,12 @@ public partial class OrderedCollectionMoldTests
         SharedCompactJson(formatExpectation, scaffoldingToCall);
     }
 
-    // [TestMethod]
+    [TestMethod]
     public void CompactJsonListTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactJson(BoolCollectionsTestData.AllBoolCollectionExpectations[3], ScaffoldingRegistry.AllScaffoldingTypes[1]);
+        SharedCompactJson(SpanFormattableClassCollectionTestData.SpanFormattableClassCollectionsExpectations[11], ScaffoldingRegistry.AllScaffoldingTypes[45]);
     }
 
     private void SharedCompactJson(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)

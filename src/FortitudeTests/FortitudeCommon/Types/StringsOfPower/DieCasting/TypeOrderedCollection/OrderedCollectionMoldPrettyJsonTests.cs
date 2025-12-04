@@ -130,7 +130,7 @@ public partial class OrderedCollectionMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedPrettyJson(SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations[10], ScaffoldingRegistry.AllScaffoldingTypes[44]);
+        SharedPrettyJson(SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value[10], ScaffoldingRegistry.AllScaffoldingTypes[44]);
     }
 
     private void SharedPrettyJson(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)

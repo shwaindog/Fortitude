@@ -248,4 +248,6 @@ public static class CustomStringFormatterExtensions
 {
     public static int ReturnCharCount(this IStringBuilder sb, int charsAdded) => charsAdded;
     public static int ReturnInt<T>(this T _,  int charsAdded) => charsAdded;
+    
+    
 }

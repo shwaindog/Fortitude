@@ -129,7 +129,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
             StyleFormatter.GraphBuilder.StartNextContentSeparatorPaddingSequence(Sb, StyleFormatter, formatFlags, true);
-            StyleFormatter.FormatFieldContents(Sb, defaultValue, 0, formatString, formatFlags: formatFlags);
+            StyleFormatter.FormatFallbackFieldContents<TFmt>(Sb, defaultValue, 0, formatString, formatFlags: formatFlags);
             return StyleTypeBuilder;
         }
         StyleFormatter.FormatFieldContents(Sb, value, formatString, formatFlags);
@@ -219,7 +219,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         if (value == null)
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-            StyleFormatter.FormatFieldContents(Sb, defaultValue, 0, formatString, formatFlags: formatFlags);
+            StyleFormatter.FormatFallbackFieldContents<TFmtStruct>(Sb, defaultValue, 0, formatString, formatFlags: formatFlags);
             return StyleTypeBuilder;
         }
         StyleFormatter.FormatFieldContents(Sb, value, formatString, formatFlags);
@@ -1346,7 +1346,7 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
         else
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder;
-            StyleFormatter.FormatFieldContents(Sb, defaultValue, 0, formatString, formatFlags: formatFlags);
+            StyleFormatter.FormatFallbackFieldContents<TAny>(Sb, defaultValue, 0, formatString, formatFlags: formatFlags);
         }
         return StyleTypeBuilder;
     }

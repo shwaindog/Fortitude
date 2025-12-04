@@ -96,7 +96,7 @@ public partial class OrderedCollectionMoldTests
     
     private static IEnumerable<object[]> UnfilteredFmtCollectionsExpect =>
         // Non nullables and classes
-        (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
+        (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
             where fe is {ElementTypeIsNullable: false, HasRestrictingFilter: false }   
             from scaffoldToCall in 
                 scafReg
@@ -108,7 +108,7 @@ public partial class OrderedCollectionMoldTests
             select new object[] { fe, scaffoldToCall })
         .Concat( 
                 // Nullable structs
-                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
+                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
                 where fe is { ElementTypeIsNullable: true, ElementTypeIsStruct: true, HasRestrictingFilter: false }   
                 from scaffoldToCall in 
                     scafReg
@@ -120,7 +120,7 @@ public partial class OrderedCollectionMoldTests
                 select new object[] { fe, scaffoldToCall })
         .Concat( 
                 // classes
-                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
+                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
                 where fe is {ElementTypeIsClass : true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
                     scafReg
@@ -140,7 +140,7 @@ public partial class OrderedCollectionMoldTests
     }
 
     private static IEnumerable<object[]> FilteredFmtCollectionsExpect =>
-        (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
+        (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
             where fe is {ElementTypeIsNullable: false, HasRestrictingFilter: true }   
             from scaffoldToCall in 
                 scafReg
@@ -151,7 +151,7 @@ public partial class OrderedCollectionMoldTests
                     .AcceptsNonNullables()
             select new object[] { fe, scaffoldToCall })
         .Concat( 
-                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
+                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
                 where fe is { ElementTypeIsNullable: true, ElementTypeIsStruct: true, HasRestrictingFilter: true }   
                 from scaffoldToCall in 
                     scafReg
@@ -162,7 +162,7 @@ public partial class OrderedCollectionMoldTests
                         .OnlyAcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall })
         .Concat( 
-                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations
+                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
                 where fe is {ElementTypeIsClass : true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
                     scafReg

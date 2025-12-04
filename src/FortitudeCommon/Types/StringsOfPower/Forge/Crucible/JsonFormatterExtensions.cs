@@ -48,6 +48,16 @@ public static class JsonFormatterExtensions
       , typeof(IPAddress)
       , typeof(Version)
     ];
+    
+    public static bool IsNotJsonTypeOpenCloseBounded(this string formatString) => !formatString.IsJsonTypeOpenCloseBounded();
+    
+    public static bool IsNotJsonTypeOpenCloseBounded(this ReadOnlySpan<char> formatString) => !formatString.IsJsonTypeOpenCloseBounded();
+    
+    public static bool IsJsonTypeOpenCloseBounded(this string formatString) =>
+        formatString.IsDblQtBounded() || formatString.IsSqBrktBounded() || formatString.IsBrcBounded();
+    
+    public static bool IsJsonTypeOpenCloseBounded(this ReadOnlySpan<char> formatString) =>
+        formatString.IsDblQtBounded() || formatString.IsSqBrktBounded() || formatString.IsBrcBounded();
 
     public static bool IsValidJsonTypeOpening(this char check) => check is DblQtChar or SqBrktOpnChar or BrcOpnChar; 
     public static bool IsValidJsonTypeClosing(this char check) => check is DblQtChar or SqBrktClsChar or BrcClsChar; 
@@ -69,7 +79,8 @@ public static class JsonFormatterExtensions
 
         var doubleQtDelimited = 
             !formatStringDelmited 
-         && typeIsDoubleQtDelimited.GetOrAdd(typeOfT, t => nullableSpanFormattable && !t.IsJsonStringExemptType());
+         && typeIsDoubleQtDelimited.GetOrAdd(typeOfT, t => 
+                                                 !t.IsEnumOrNullable() &&  nullableSpanFormattable && !t.IsJsonStringExemptType());
 
         if (!doubleQtDelimited)
         {
@@ -80,10 +91,6 @@ public static class JsonFormatterExtensions
                 case double doubleSource: doubleQtDelimited = double.IsNaN(doubleSource); break;
             }
         }
-        else if (nullableSpanFormattable
-              && check == null
-              && typeOfT.IfNullableGetUnderlyingTypeOrThisCached().IsEnum
-              && fallbackValue.IsValidEnumIntegerSpan()) { doubleQtDelimited = false; }
         return doubleQtDelimited;
     }
 

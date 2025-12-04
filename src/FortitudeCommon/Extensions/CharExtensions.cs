@@ -259,6 +259,9 @@ public static class CharExtensions
     public static bool IsComma(this char check) => check == ',';
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsColon(this char check) => check == ':';
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsFullStop(this char check) => check == '.';
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

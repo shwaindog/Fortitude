@@ -438,8 +438,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     }
 
     public virtual IStringBuilder FormatFieldContents<TFmt>(IStringBuilder sb, TFmt source, string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable?
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
         formatString ??= "";
 
@@ -519,6 +518,16 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         if (formatFlags.ShouldDelimit()) sb.Append(DblQt);
         GraphBuilder.MarkContentEnd();
         return sb;
+    }
+
+    public virtual IStringBuilder FormatFallbackFieldContents<TAny>(IStringBuilder sb, ReadOnlySpan<char> source, int sourceFrom = 0
+      , string? formatString = null, int maxTransferCount = int.MaxValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        formatString ??= "";
+
+        formatFlags = ResolveContentFormattingFlags<TAny>(sb, default! , formatFlags, formatString);
+
+        return FormatFieldContents(sb, source, sourceFrom, formatString, maxTransferCount, formatFlags);
     }
 
     public virtual IStringBuilder FormatFieldContents(IStringBuilder sb, char[] source, int sourceFrom = 0, string? formatString = null
@@ -707,7 +716,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     {
         if (item == null) { return AppendFormattedNull(sb, formatString, formatFlags); }
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
-        CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormattingHandlingFlags)formatFlags);
+        FormatFieldContents(sb, item, formatString ?? "", formatFlags);
         GraphBuilder.MarkContentEnd();
         return sb;
     }
@@ -717,7 +726,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     {
         if (item == null) { return AppendFormattedNull(sb, formatString, formatFlags); }
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
-        CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormattingHandlingFlags)formatFlags);
+        FormatFieldContents(sb, item.Value, formatString ?? "", formatFlags);
         GraphBuilder.MarkContentEnd();
         return sb;
     }
