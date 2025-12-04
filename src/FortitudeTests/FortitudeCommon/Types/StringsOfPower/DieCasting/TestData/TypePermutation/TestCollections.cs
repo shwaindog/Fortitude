@@ -618,7 +618,7 @@ public static class TestCollections
     public static readonly Lazy<List<NoDefaultLongNoFlagsEnum?>> NullNoDefaultLongNoFlagsEnumList = new(() =>
     {
         var withNulls = new List<NoDefaultLongNoFlagsEnum?>();
-        for (int i = 0; i < DecimalArray.Length; i++)
+        for (int i = 0; i < NoDefaultLongNoFlagsEnumArray.Length; i++)
         {
             var enumAtIndex = NoDefaultLongNoFlagsEnumArray[i];
             switch (i)
@@ -648,12 +648,14 @@ public static class TestCollections
         = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
     public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlagsEnum_All_NonNumbers
         = (_, item) => EvaluateIsIncludedAndContinue(!item.GetType().IsNumericType());
-    public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlagsEnum_First_8
-        = (count, _) => StopOnFirstExclusion(count <= 8);
-    public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlagsEnum_Second_5
-        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlagsEnum_First_3
+        = (count, _) => StopOnFirstExclusion(count <= 3);
+    public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlagsEnum_Second_3
+        = (count, _) => BetweenRetrieveRange(count, 4, 7);
     public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlagsEnum_Skip_Odd_Index
         = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlagsEnum_Skip_Even_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count) % 2) == 0, count == 1 ? 0 : 1);
     public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlagsEnum_All = (_, _) => IncludedAndContinue;
     public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum?> NullNoDefaultLongNoFlagsEnum_All_Numbers
         = (_, item) => EvaluateIsIncludedAndContinue(item?.GetType().IsNumericType() ?? false);
@@ -661,12 +663,14 @@ public static class TestCollections
         = (_, item) => EvaluateIsIncludedAndContinue(!(item?.GetType().IsNumericType() ?? false));
     public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum?> NullNoDefaultLongNoFlagsEnum_All_NonNull
         = (_, item) => EvaluateIsIncludedAndContinue(item != null);
-    public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum?> NullNoDefaultLongNoFlagsEnum_First_8
-        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum?> NullNoDefaultLongNoFlagsEnum_First_5
+        = (count, _) => StopOnFirstExclusion(count <= 5);
     public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum?> NullNoDefaultLongNoFlagsEnum_Second_5
         = (count, _) => BetweenRetrieveRange(count, 6, 11);
     public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum?> NullNoDefaultLongNoFlagsEnum_Skip_Odd_Index
         = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum?> NullNoDefaultLongNoFlagsEnum_Skip_Even_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count) % 2) == 0, count == 1 ? 0 : 1);
     public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum?> NullNoDefaultLongNoFlagsEnum_All  = (_, _) => IncludedAndContinue;
     public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum?> NullNoDefaultLongNoFlagsEnum_None = (_, _) => NotIncludedAndContinue;
 
@@ -685,7 +689,7 @@ public static class TestCollections
     public static readonly Lazy<List<NoDefaultULongNoFlagsEnum?>> NullNoDefaultULongNoFlagsEnumList = new(() =>
     {
         var withNulls = new List<NoDefaultULongNoFlagsEnum?>();
-        for (int i = 0; i < DecimalArray.Length; i++)
+        for (int i = 0; i < NoDefaultULongNoFlagsEnumArray.Length; i++)
         {
             var enumAtIndex = NoDefaultULongNoFlagsEnumArray[i];
             switch (i)
@@ -715,12 +719,14 @@ public static class TestCollections
         = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
     public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlagsEnum_All_NonNumbers
         = (_, item) => EvaluateIsIncludedAndContinue(!item.GetType().IsNumericType());
-    public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlagsEnum_First_8
-        = (count, _) => StopOnFirstExclusion(count <= 8);
-    public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlagsEnum_Second_5
-        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlagsEnum_First_3
+        = (count, _) => StopOnFirstExclusion(count <= 3);
+    public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlagsEnum_Second_3
+        = (count, _) => BetweenRetrieveRange(count, 4, 7);
     public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlagsEnum_Skip_Odd_Index
         = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlagsEnum_Skip_Even_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count) % 2) == 0, count == 1 ? 0 : 1);
     public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlagsEnum_All = (_, _) => IncludedAndContinue;
     public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum?> NullNoDefaultULongNoFlagsEnum_All_Numbers
         = (_, item) => EvaluateIsIncludedAndContinue(item?.GetType().IsNumericType() ?? false);
@@ -728,12 +734,14 @@ public static class TestCollections
         = (_, item) => EvaluateIsIncludedAndContinue(!(item?.GetType().IsNumericType() ?? false));
     public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum?> NullNoDefaultULongNoFlagsEnum_All_NonNull
         = (_, item) => EvaluateIsIncludedAndContinue(item != null);
-    public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum?> NullNoDefaultULongNoFlagsEnum_First_8
-        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum?> NullNoDefaultULongNoFlagsEnum_First_5
+        = (count, _) => StopOnFirstExclusion(count <= 5);
     public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum?> NullNoDefaultULongNoFlagsEnum_Second_5
         = (count, _) => BetweenRetrieveRange(count, 6, 11);
     public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum?> NullNoDefaultULongNoFlagsEnum_Skip_Odd_Index
         = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum?> NullNoDefaultULongNoFlagsEnum_Skip_Even_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count) % 2) == 0, count == 1 ? 0 : 1);
     public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum?> NullNoDefaultULongNoFlagsEnum_All  = (_, _) => IncludedAndContinue;
     public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum?> NullNoDefaultULongNoFlagsEnum_None = (_, _) => NotIncludedAndContinue;
 
@@ -753,7 +761,7 @@ public static class TestCollections
     public static readonly Lazy<List<WithDefaultLongNoFlagsEnum?>> NullWithDefaultLongNoFlagsEnumList = new(() =>
     {
         var withNulls = new List<WithDefaultLongNoFlagsEnum?>();
-        for (int i = 0; i < DecimalArray.Length; i++)
+        for (int i = 0; i < WithDefaultLongNoFlagsEnumArray.Length; i++)
         {
             var enumAtIndex = WithDefaultLongNoFlagsEnumArray[i];
             switch (i)
@@ -783,12 +791,14 @@ public static class TestCollections
         = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
     public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlagsEnum_All_NonNumbers
         = (_, item) => EvaluateIsIncludedAndContinue(!item.GetType().IsNumericType());
-    public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlagsEnum_First_8
-        = (count, _) => StopOnFirstExclusion(count <= 8);
-    public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlagsEnum_Second_5
-        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlagsEnum_First_3
+        = (count, _) => StopOnFirstExclusion(count <= 3);
+    public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlagsEnum_Second_3
+        = (count, _) => BetweenRetrieveRange(count, 4, 7);
     public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlagsEnum_Skip_Odd_Index
         = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlagsEnum_Skip_Even_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count) % 2) == 0, count == 1 ? 0 : 1);
     public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlagsEnum_All = (_, _) => IncludedAndContinue;
     public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum?> NullWithDefaultLongNoFlagsEnum_All_Numbers
         = (_, item) => EvaluateIsIncludedAndContinue(item?.GetType().IsNumericType() ?? false);
@@ -796,12 +806,14 @@ public static class TestCollections
         = (_, item) => EvaluateIsIncludedAndContinue(!(item?.GetType().IsNumericType() ?? false));
     public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum?> NullWithDefaultLongNoFlagsEnum_All_NonNull
         = (_, item) => EvaluateIsIncludedAndContinue(item != null);
-    public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum?> NullWithDefaultLongNoFlagsEnum_First_8
-        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum?> NullWithDefaultLongNoFlagsEnum_First_5
+        = (count, _) => StopOnFirstExclusion(count <= 5);
     public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum?> NullWithDefaultLongNoFlagsEnum_Second_5
         = (count, _) => BetweenRetrieveRange(count, 6, 11);
     public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum?> NullWithDefaultLongNoFlagsEnum_Skip_Odd_Index
         = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum?> NullWithDefaultLongNoFlagsEnum_Skip_Even_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count) % 2) == 0, count == 1 ? 0 : 1);
     public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum?> NullWithDefaultLongNoFlagsEnum_All  = (_, _) => IncludedAndContinue;
     public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum?> NullWithDefaultLongNoFlagsEnum_None = (_, _) => NotIncludedAndContinue;
 
@@ -820,7 +832,7 @@ public static class TestCollections
     public static readonly Lazy<List<WithDefaultULongNoFlagsEnum?>> NullWithDefaultULongNoFlagsEnumList = new(() =>
     {
         var withNulls = new List<WithDefaultULongNoFlagsEnum?>();
-        for (int i = 0; i < DecimalArray.Length; i++)
+        for (int i = 0; i < WithDefaultULongNoFlagsEnumArray.Length; i++)
         {
             var enumAtIndex = WithDefaultULongNoFlagsEnumArray[i];
             switch (i)
@@ -850,12 +862,14 @@ public static class TestCollections
         = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
     public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlagsEnum_All_NonNumbers
         = (_, item) => EvaluateIsIncludedAndContinue(!item.GetType().IsNumericType());
-    public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlagsEnum_First_8
-        = (count, _) => StopOnFirstExclusion(count <= 8);
-    public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlagsEnum_Second_5
-        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlagsEnum_First_3
+        = (count, _) => StopOnFirstExclusion(count <= 3);
+    public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlagsEnum_Second_3
+        = (count, _) => BetweenRetrieveRange(count, 4, 7);
     public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlagsEnum_Skip_Odd_Index
         = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlagsEnum_Skip_Even_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count) % 2) == 0, count == 1 ? 0 : 1);
     public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlagsEnum_All = (_, _) => IncludedAndContinue;
     public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum?> NullWithDefaultULongNoFlagsEnum_All_Numbers
         = (_, item) => EvaluateIsIncludedAndContinue(item?.GetType().IsNumericType() ?? false);
@@ -863,12 +877,14 @@ public static class TestCollections
         = (_, item) => EvaluateIsIncludedAndContinue(!(item?.GetType().IsNumericType() ?? false));
     public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum?> NullWithDefaultULongNoFlagsEnum_All_NonNull
         = (_, item) => EvaluateIsIncludedAndContinue(item != null);
-    public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum?> NullWithDefaultULongNoFlagsEnum_First_8
-        = (count, _) => StopOnFirstExclusion(count <= 8);
+    public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum?> NullWithDefaultULongNoFlagsEnum_First_5
+        = (count, _) => StopOnFirstExclusion(count <= 5);
     public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum?> NullWithDefaultULongNoFlagsEnum_Second_5
         = (count, _) => BetweenRetrieveRange(count, 6, 11);
     public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum?> NullWithDefaultULongNoFlagsEnum_Skip_Odd_Index
         = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum?> NullWithDefaultULongNoFlagsEnum_Skip_Even_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count) % 2) == 0, count == 1 ? 0 : 1);
     public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum?> NullWithDefaultULongNoFlagsEnum_All  = (_, _) => IncludedAndContinue;
     public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum?> NullWithDefaultULongNoFlagsEnum_None = (_, _) => NotIncludedAndContinue;
 
@@ -897,7 +913,7 @@ public static class TestCollections
     public static readonly Lazy<List<NoDefaultLongWithFlagsEnum?>> NullNoDefaultLongWithFlagsEnumList = new(() =>
     {
         var withNulls = new List<NoDefaultLongWithFlagsEnum?>();
-        for (int i = 0; i < DecimalArray.Length; i++)
+        for (int i = 0; i < NoDefaultLongWithFlagsEnumArray.Length; i++)
         {
             var enumAtIndex = NoDefaultLongWithFlagsEnumArray[i];
             switch (i)
@@ -927,12 +943,14 @@ public static class TestCollections
         = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
     public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlagsEnum_All_NonNumbers
         = (_, item) => EvaluateIsIncludedAndContinue(!item.GetType().IsNumericType());
-    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlagsEnum_First_8
-        = (count, _) => StopOnFirstExclusion(count <= 8);
-    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlagsEnum_Second_5
-        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlagsEnum_First_3
+        = (count, _) => StopOnFirstExclusion(count <= 3);
+    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlagsEnum_Second_3
+        = (count, _) => BetweenRetrieveRange(count, 4, 7);
     public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlagsEnum_Skip_Odd_Index
         = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlagsEnum_Skip_Even_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count) % 2) == 0, count == 1 ? 0 : 1);
     public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlagsEnum_All = (_, _) => IncludedAndContinue;
     public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum?> NullNoDefaultLongWithFlagsEnum_All_Numbers
         = (_, item) => EvaluateIsIncludedAndContinue(item?.GetType().IsNumericType() ?? false);
@@ -940,12 +958,14 @@ public static class TestCollections
         = (_, item) => EvaluateIsIncludedAndContinue(!(item?.GetType().IsNumericType() ?? false));
     public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum?> NullNoDefaultLongWithFlagsEnum_All_NonNull
         = (_, item) => EvaluateIsIncludedAndContinue(item != null);
-    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum?> NullNoDefaultLongWithFlagsEnum_First_8
-        = (count, _) => StopOnFirstExclusion(count <= 8);
-    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum?> NullNoDefaultLongWithFlagsEnum_Second_5
-        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum?> NullNoDefaultLongWithFlagsEnum_First_3
+        = (count, _) => StopOnFirstExclusion(count <= 3);
+    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum?> NullNoDefaultLongWithFlagsEnum_Second_3
+        = (count, _) => BetweenRetrieveRange(count, 4, 7);
     public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum?> NullNoDefaultLongWithFlagsEnum_Skip_Odd_Index
         = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum?> NullNoDefaultLongWithFlagsEnum_Skip_Even_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count) % 2) == 0, count == 1 ? 0 : 1);
     public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum?> NullNoDefaultLongWithFlagsEnum_All  = (_, _) => IncludedAndContinue;
     public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum?> NullNoDefaultLongWithFlagsEnum_None = (_, _) => NotIncludedAndContinue;
 
@@ -972,7 +992,7 @@ public static class TestCollections
     public static readonly Lazy<List<NoDefaultULongWithFlagsEnum?>> NullNoDefaultULongWithFlagsEnumList = new(() =>
     {
         var withNulls = new List<NoDefaultULongWithFlagsEnum?>();
-        for (int i = 0; i < DecimalArray.Length; i++)
+        for (int i = 0; i < NoDefaultULongWithFlagsEnumArray.Length; i++)
         {
             var enumAtIndex = NoDefaultULongWithFlagsEnumArray[i];
             switch (i)
@@ -1002,12 +1022,14 @@ public static class TestCollections
         = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
     public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlagsEnum_All_NonNumbers
         = (_, item) => EvaluateIsIncludedAndContinue(!item.GetType().IsNumericType());
-    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlagsEnum_First_8
-        = (count, _) => StopOnFirstExclusion(count <= 8);
-    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlagsEnum_Second_5
-        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlagsEnum_First_3
+        = (count, _) => StopOnFirstExclusion(count <= 3);
+    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlagsEnum_Second_3
+        = (count, _) => BetweenRetrieveRange(count, 4, 7);
     public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlagsEnum_Skip_Odd_Index
         = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlagsEnum_Skip_Even_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count) % 2) == 0, count == 1 ? 0 : 1);
     public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlagsEnum_All = (_, _) => IncludedAndContinue;
     public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum?> NullNoDefaultULongWithFlagsEnum_All_Numbers
         = (_, item) => EvaluateIsIncludedAndContinue(item?.GetType().IsNumericType() ?? false);
@@ -1015,12 +1037,14 @@ public static class TestCollections
         = (_, item) => EvaluateIsIncludedAndContinue(!(item?.GetType().IsNumericType() ?? false));
     public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum?> NullNoDefaultULongWithFlagsEnum_All_NonNull
         = (_, item) => EvaluateIsIncludedAndContinue(item != null);
-    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum?> NullNoDefaultULongWithFlagsEnum_First_8
-        = (count, _) => StopOnFirstExclusion(count <= 8);
-    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum?> NullNoDefaultULongWithFlagsEnum_Second_5
-        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum?> NullNoDefaultULongWithFlagsEnum_First_3
+        = (count, _) => StopOnFirstExclusion(count <= 3);
+    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum?> NullNoDefaultULongWithFlagsEnum_Second_3
+        = (count, _) => BetweenRetrieveRange(count, 4, 7);
     public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum?> NullNoDefaultULongWithFlagsEnum_Skip_Odd_Index
         = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum?> NullNoDefaultULongWithFlagsEnum_Skip_Even_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count) % 2) == 0, count == 1 ? 0 : 1);
     public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum?> NullNoDefaultULongWithFlagsEnum_All  = (_, _) => IncludedAndContinue;
     public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum?> NullNoDefaultULongWithFlagsEnum_None = (_, _) => NotIncludedAndContinue;
 
@@ -1047,7 +1071,7 @@ public static class TestCollections
     public static readonly Lazy<List<WithDefaultLongWithFlagsEnum?>> NullWithDefaultLongWithFlagsEnumList = new(() =>
     {
         var withNulls = new List<WithDefaultLongWithFlagsEnum?>();
-        for (int i = 0; i < DecimalArray.Length; i++)
+        for (int i = 0; i < WithDefaultLongWithFlagsEnumArray.Length; i++)
         {
             var enumAtIndex = WithDefaultLongWithFlagsEnumArray[i];
             switch (i)
@@ -1077,12 +1101,14 @@ public static class TestCollections
         = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
     public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlagsEnum_All_NonNumbers
         = (_, item) => EvaluateIsIncludedAndContinue(!item.GetType().IsNumericType());
-    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlagsEnum_First_8
-        = (count, _) => StopOnFirstExclusion(count <= 8);
-    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlagsEnum_Second_5
-        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlagsEnum_First_3
+        = (count, _) => StopOnFirstExclusion(count <= 3);
+    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlagsEnum_Second_3
+        = (count, _) => BetweenRetrieveRange(count, 4, 7);
     public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlagsEnum_Skip_Odd_Index
         = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlagsEnum_Skip_Even_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count) % 2) == 0, count == 1 ? 0 : 1);
     public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlagsEnum_All = (_, _) => IncludedAndContinue;
     public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum?> NullWithDefaultLongWithFlagsEnum_All_Numbers
         = (_, item) => EvaluateIsIncludedAndContinue(item?.GetType().IsNumericType() ?? false);
@@ -1090,12 +1116,14 @@ public static class TestCollections
         = (_, item) => EvaluateIsIncludedAndContinue(!(item?.GetType().IsNumericType() ?? false));
     public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum?> NullWithDefaultLongWithFlagsEnum_All_NonNull
         = (_, item) => EvaluateIsIncludedAndContinue(item != null);
-    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum?> NullWithDefaultLongWithFlagsEnum_First_8
-        = (count, _) => StopOnFirstExclusion(count <= 8);
-    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum?> NullWithDefaultLongWithFlagsEnum_Second_5
-        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum?> NullWithDefaultLongWithFlagsEnum_First_3
+        = (count, _) => StopOnFirstExclusion(count <= 3);
+    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum?> NullWithDefaultLongWithFlagsEnum_Second_3
+        = (count, _) => BetweenRetrieveRange(count, 4, 7);
     public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum?> NullWithDefaultLongWithFlagsEnum_Skip_Odd_Index
         = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum?> NullWithDefaultLongWithFlagsEnum_Skip_Even_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count) % 2) == 0, count == 1 ? 0 : 1);
     public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum?> NullWithDefaultLongWithFlagsEnum_All  = (_, _) => IncludedAndContinue;
     public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum?> NullWithDefaultLongWithFlagsEnum_None = (_, _) => NotIncludedAndContinue;
 
@@ -1122,7 +1150,7 @@ public static class TestCollections
     public static readonly Lazy<List<WithDefaultULongWithFlagsEnum?>> NullWithDefaultULongWithFlagsEnumList = new(() =>
     {
         var withNulls = new List<WithDefaultULongWithFlagsEnum?>();
-        for (int i = 0; i < DecimalArray.Length; i++)
+        for (int i = 0; i < WithDefaultULongWithFlagsEnumArray.Length; i++)
         {
             var enumAtIndex = WithDefaultULongWithFlagsEnumArray[i];
             switch (i)
@@ -1152,12 +1180,14 @@ public static class TestCollections
         = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
     public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlagsEnum_All_NonNumbers
         = (_, item) => EvaluateIsIncludedAndContinue(!item.GetType().IsNumericType());
-    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlagsEnum_First_8
-        = (count, _) => StopOnFirstExclusion(count <= 8);
-    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlagsEnum_Second_5
-        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlagsEnum_First_3
+        = (count, _) => StopOnFirstExclusion(count <= 3);
+    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlagsEnum_Second_3
+        = (count, _) => BetweenRetrieveRange(count, 4, 7);
     public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlagsEnum_Skip_Odd_Index
         = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlagsEnum_Skip_Even_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count) % 2) == 0, count == 1 ? 0 : 1);
     public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlagsEnum_All = (_, _) => IncludedAndContinue;
     public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum?> NullWithDefaultULongWithFlagsEnum_All_Numbers
         = (_, item) => EvaluateIsIncludedAndContinue(item?.GetType().IsNumericType() ?? false);
@@ -1165,12 +1195,14 @@ public static class TestCollections
         = (_, item) => EvaluateIsIncludedAndContinue(!(item?.GetType().IsNumericType() ?? false));
     public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum?> NullWithDefaultULongWithFlagsEnum_All_NonNull
         = (_, item) => EvaluateIsIncludedAndContinue(item != null);
-    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum?> NullWithDefaultULongWithFlagsEnum_First_8
-        = (count, _) => StopOnFirstExclusion(count <= 8);
-    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum?> NullWithDefaultULongWithFlagsEnum_Second_5
-        = (count, _) => BetweenRetrieveRange(count, 6, 11);
+    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum?> NullWithDefaultULongWithFlagsEnum_First_3
+        = (count, _) => StopOnFirstExclusion(count <= 3);
+    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum?> NullWithDefaultULongWithFlagsEnum_Second_3
+        = (count, _) => BetweenRetrieveRange(count, 4, 7);
     public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum?> NullWithDefaultULongWithFlagsEnum_Skip_Odd_Index
         = (count, _) => EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum?> NullWithDefaultULongWithFlagsEnum_Skip_Even_Index
+        = (count, _) => EvaluateIsIncludedAndContinue(((count) % 2) == 0, count == 1 ? 0 : 1);
     public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum?> NullWithDefaultULongWithFlagsEnum_All = (_, _) => IncludedAndContinue;
     public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum?>
         NullWithDefaultULongWithFlagsEnum_None = (_, _) => NotIncludedAndContinue;

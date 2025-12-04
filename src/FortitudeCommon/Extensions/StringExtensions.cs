@@ -316,7 +316,7 @@ public static class StringExtensions
         for (var i = 0; i < compareLength; i++)
         {
             var iC = input[i];
-            var cC = input[i];
+            var cC = compare[i];
             if (iC != cC) return i;
         }
         if(input.Length > compare.Length) return compare.Length;

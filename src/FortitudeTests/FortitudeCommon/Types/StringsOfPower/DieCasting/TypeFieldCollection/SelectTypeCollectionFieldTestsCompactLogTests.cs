@@ -626,7 +626,7 @@ public partial class SelectTypeCollectionFieldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactLog(EnumCollectionsTestData.AllEnumCollectionsExpectations[2], ScaffoldingRegistry.AllScaffoldingTypes[692]);
+        SharedCompactLog(EnumCollectionsTestData.AllEnumCollectionsExpectations[10], ScaffoldingRegistry.AllScaffoldingTypes[610]);
     }
 
     private void SharedCompactLog(IOrderedListExpect formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -654,7 +654,7 @@ public partial class SelectTypeCollectionFieldTests
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
                 if (expectValue != "null" &&  expectation is IOrderedListExpect orderedListExpectation 
-                 && orderedListExpectation.ElementCallType.IsEnum())
+                 && orderedListExpectation.ElementCallType.IsEnumOrNullable())
                 {
                     expectValue = propertyName + ": (" + orderedListExpectation.CollectionCallType.ShortNameInCSharpFormat() + ")" + 
                                   expectValue + (expectValue.Length > 0 ? " " : "");    

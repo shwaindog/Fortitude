@@ -752,10 +752,9 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
         if (item == null) { return AppendFormattedNull(sb, formatString, formatFlags); }
-        var typeofT = item?.GetType() ?? typeof(TFmt);
+        var typeofT = item.GetType();
         formatString ??= "";
-        if (!formatString.IsDblQtBounded() && !formatFlags.HasDisableAutoDelimiting() && !formatFlags.HasAsValueContentFlag()
-         && !((typeofT.IsEnum() && !StyleOptions.EnumsDefaultAsNumber) && !formatString.EnumFormatStringIsNotAsNumberFormatSequence()))
+        if (formatString.IsNotJsonTypeOpenCloseBounded() && !formatFlags.HasDisableAutoDelimiting() && !formatFlags.HasAsValueContentFlag())
         {
             formatFlags |= JsonOptions.WrapValuesInQuotes || formatFlags.HasAsStringContentFlag() || typeofT.IsDoubleQuoteDelimitedSpanFormattable()
                 ? EnsureFormattedDelimited
@@ -773,9 +772,9 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
         if (item == null) { return AppendFormattedNull(sb, formatString, formatFlags); }
-        var typeofT = item?.GetType() ?? typeof(TFmtStruct);
+        var typeofT = item.GetType();
         formatString ??= "";
-        if (!formatString.IsDblQtBounded() && !formatFlags.HasDisableAutoDelimiting() && !formatFlags.HasAsValueContentFlag())
+        if (formatString.IsNotJsonTypeOpenCloseBounded() && !formatFlags.HasDisableAutoDelimiting() && !formatFlags.HasAsValueContentFlag())
         {
             formatFlags |= JsonOptions.WrapValuesInQuotes || formatFlags.HasAsStringContentFlag() || typeofT.IsDoubleQuoteDelimitedSpanFormattable()
                 ? EnsureFormattedDelimited
@@ -837,7 +836,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     }
 
     public virtual IStringBuilder CollectionNextCharSeqFormat<TCharSeq>(IStringBuilder sb, TCharSeq? item, int retrieveCount
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence
+      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence?
     {
         if (item == null) { return AppendFormattedNull(sb, formatString, formatFlags); }
         if (formatFlags.HasAsCollectionFlag())
@@ -868,7 +867,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     }
 
     public virtual IStringBuilder CollectionNextStringBearerFormat<TBearer>(ITheOneString tos, TBearer? item, int retrieveCount)
-        where TBearer : IStringBearer
+        where TBearer : IStringBearer?
     {
         var sb = tos.WriteBuffer;
         if (item == null) { return AppendFormattedNull(sb, ""); }

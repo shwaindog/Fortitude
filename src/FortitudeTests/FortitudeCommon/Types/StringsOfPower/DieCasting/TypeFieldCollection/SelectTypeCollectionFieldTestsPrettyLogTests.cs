@@ -164,7 +164,7 @@ public partial class SelectTypeCollectionFieldTests
                 maybeIndent  = "  ";
                 if (expectValue != "null"
                  && expectation is IOrderedListExpect orderedListExpectation
-                 && orderedListExpectation.ElementCallType.IsEnum())
+                 && orderedListExpectation.ElementCallType.IsEnumOrNullable())
                 {
                     expectValue = propertyName + ": (" + orderedListExpectation.CollectionCallType.ShortNameInCSharpFormat() + ")" +
                                   expectValue.IndentSubsequentLines();

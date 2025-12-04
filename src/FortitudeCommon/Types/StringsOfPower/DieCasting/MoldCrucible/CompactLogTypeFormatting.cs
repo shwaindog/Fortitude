@@ -438,8 +438,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     }
 
     public virtual IStringBuilder FormatFieldContents<TFmt>(IStringBuilder sb, TFmt source, string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable?
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
         formatString ??= "";
 

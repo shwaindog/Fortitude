@@ -112,8 +112,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (stb.SkipField<Memory<TFmtStruct?>>(value.Length > 0 ? typeof(Span<TFmtStruct?>) : null, fieldName, formatFlags))
             return stb.WasSkipped<Memory<TFmtStruct?>>(value.Length > 0 ? typeof(Span<TFmtStruct?>) : null, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
-        var collectionType = typeof(Span<TFmtStruct>);
-        var elementType    = typeof(TFmtStruct);
+        var collectionType = typeof(Span<TFmtStruct?>);
+        var elementType    = typeof(TFmtStruct?);
         if (value.Length == 0)
         {
             stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
@@ -616,8 +616,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (stb.SkipField<ReadOnlyMemory<TFmtStruct?>>(value.Length > 0 ? typeof(ReadOnlySpan<TFmtStruct?>) : null, fieldName, formatFlags))
             return stb.WasSkipped<ReadOnlyMemory<TFmtStruct?>>(value.Length > 0 ? typeof(ReadOnlySpan<TFmtStruct?>) : null, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
-        var collectionType = typeof(ReadOnlySpan<TFmtStruct>);
-        var elementType    = typeof(TFmtStruct);
+        var collectionType = typeof(ReadOnlySpan<TFmtStruct?>);
+        var elementType    = typeof(TFmtStruct?);
         if (value.Length == 0)
         {
             stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);

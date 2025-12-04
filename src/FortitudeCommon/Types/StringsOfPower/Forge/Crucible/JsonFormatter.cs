@@ -57,9 +57,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         FormattingHandlingFlags setFlags = callerFormattingFlags;
 
         var typeofT = (input?.GetType() ?? typeof(T));
-        if (!formatString.IsDblQtBounded()
-         && !formatString.IsSqBrktBounded()
-         && !formatString.IsBrcBounded()
+        if (formatString.IsNotJsonTypeOpenCloseBounded()
          && typeofT.IsSpanFormattableOrNullableCached()
          && !typeofT.IsEnum() // enums will by default auto select, but will always delimit
             // if EnsureFormattedDelimited unless format string does so already   
