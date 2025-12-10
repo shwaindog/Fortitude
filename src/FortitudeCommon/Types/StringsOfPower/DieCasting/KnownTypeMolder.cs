@@ -90,6 +90,11 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         {
             AppendClosing();
         }
+        else
+        {
+            MoldStateField.StyleFormatter.GraphBuilder.RemoveLastSeparatorAndPadding();
+            MoldStateField.StyleFormatter.GraphBuilder.AddHighWaterMark();
+        }
         var currentAppenderIndex = MoldStateField.Master.WriteBuffer.Length;
         var typeWriteRange       = new Range(Index.FromStart(StartIndex), Index.FromStart(currentAppenderIndex));
         var result               = new StateExtractStringRange(TypeName ?? TypeBeingBuilt.CachedCSharpNameWithConstraints(), MoldStateField.Master, typeWriteRange);

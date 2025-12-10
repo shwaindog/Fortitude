@@ -132,7 +132,7 @@ public static class StyledTypeBuilderExtensions
     public static TExt AddGoToNext<TExt>(this ITypeMolderDieCast<TExt> stb)
         where TExt : TypeMolder
     {
-        return stb.StyleFormatter.AddNextFieldSeparatorAndPadding(stb).ToTypeBuilder(stb);
+        return stb.StyleFormatter.AddNextFieldSeparatorAndPadding().ToTypeBuilder(stb);
     }
 
     public static TExt ToTypeBuilder<TExt, T>(this T _, ITypeMolderDieCast<TExt> typeBuilder)

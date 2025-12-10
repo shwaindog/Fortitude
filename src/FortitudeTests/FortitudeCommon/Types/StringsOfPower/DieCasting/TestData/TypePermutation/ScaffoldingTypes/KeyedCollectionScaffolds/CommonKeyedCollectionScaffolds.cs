@@ -121,7 +121,7 @@ public abstract class FilteredKeyRevealerValueRevealerMoldScaffold<TKey, TValue,
 }
 
 public abstract class SelectFormattedKeyValueMoldScaffold<TKey, TValue, TKSelectDerived> : 
-    FormattedKeyValueMoldScaffold<TKey, TValue>
+    FormattedKeyValueMoldScaffold<TKey, TValue>, ISupportsSubsetDisplayKeys<TKSelectDerived>
     where TKey : notnull
     where TKSelectDerived : TKey
 {
@@ -135,7 +135,7 @@ public abstract class SelectFormattedKeyValueMoldScaffold<TKey, TValue, TKSelect
 }
 
 public abstract class SelectFormattedKeyValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived, TVRevealBase> 
-    : FormattedKeyValueRevealerMoldScaffold<TKey, TValue, TVRevealBase>
+    : FormattedKeyValueRevealerMoldScaffold<TKey, TValue, TVRevealBase>, ISupportsSubsetDisplayKeys<TKSelectDerived>
     where TKey : notnull
     where TValue : TVRevealBase?
     where TVRevealBase : notnull
@@ -150,7 +150,7 @@ public abstract class SelectFormattedKeyValueRevealerMoldScaffold<TKey, TValue, 
 }
 
 public abstract class SelectKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase> : 
-    KeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKRevealBase, TVRevealBase>
+    KeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKRevealBase, TVRevealBase>, ISupportsSubsetDisplayKeys<TKSelectDerived>
     where TKey : TKRevealBase
     where TValue : TVRevealBase?
     where TKRevealBase : notnull

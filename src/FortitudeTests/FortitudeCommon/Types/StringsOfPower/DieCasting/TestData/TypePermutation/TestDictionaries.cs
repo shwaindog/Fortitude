@@ -5,9 +5,13 @@ using System.Net;
 using System.Numerics;
 using System.Text;
 using FluentAssertions.Formatting;
+using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification.CollectionItemResult;
+// ReSharper disable FormatStringProblem
+
+// ReSharper disable InconsistentNaming
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation;
 
@@ -19,12 +23,23 @@ public class TestDictionaries
       , { false, 0 }
     };
 
-    public static KeyValuePredicate<bool, int> BoolIntMap_First_8        = (count, _, _) => StopOnFirstExclusion(count <= 8);
+    public static readonly KeyValuePredicate<bool, int> BoolIntMap_First_1        = (count, _, _) => StopOnFirstExclusion(count <= 1);
     
-    public static KeyValuePredicate<bool, int> BoolIntMap_Second_5       = (count, _, _) => 
-        BetweenRetrieveRange(count, 6, 11);
+    public static readonly KeyValuePredicate<bool, int> BoolIntMap_Second_1       = (count, _, _) => 
+        BetweenRetrieveRange(count, 2, 31);
     
-    public static KeyValuePredicate<bool, int> BoolIntMap_First_FalseKey = (_, key, _) => First(!key);
+    public static readonly KeyValuePredicate<bool, int> BoolIntMap_First_FalseKey = (_, key, _) => First(!key);
+
+    public static readonly List<bool> Bool_True_SubList = [true];
+
+    public static readonly List<bool> Bool_False_SubList = [false];
+
+    public static readonly PalantírReveal<bool> Bool_Reveal          = (b, tos) => tos.StartSimpleValueType(b).AsValue(b);
+    public static readonly PalantírReveal<bool> Bool_Reveal_AsString          = (b, tos) => tos.StartSimpleValueType(b).AsString(b);
+    public static readonly PalantírReveal<bool> Bool_OneChar_Reveal          = (b, tos) => tos.StartSimpleValueType(b).AsValue(b, "{0[..1]}");
+
+    public static readonly PalantírReveal<int> Int_Money_Reveal = (i, tos) => tos.StartSimpleValueType(i).AsValue(i, "{0:C2}");
+    public static readonly PalantírReveal<int> Int_NegativeString_Reveal = (i, tos) => tos.StartSimpleValueType(i).AsValue(-i, "\"{0}\"");
 
     public static readonly List<KeyValuePair<bool?, int?>> NullBoolNullIntKvpList = new()
     {
@@ -32,13 +47,16 @@ public class TestDictionaries
       , new KeyValuePair<bool?, int?>(true, 1)
       , new KeyValuePair<bool?, int?>(false, null)
     };
-    public static KeyValuePredicate<bool?, int?> NullIntMap_Second_5 = (count, _, _) => 
-        BetweenRetrieveRange(count, 6, 11);
     
-    public static KeyValuePredicate<bool?, int?> NullIntMap_Skip_Odd_Index = (count, _, _) => 
-        EvaluateIsIncludedAndContinue(((count - 1) % 2) == 0, 1);
+    public static KeyValuePredicate<bool, int> NullBoolIntMap_First_1        = (count, _, _) => 
+        StopOnFirstExclusion(count <= 1);
     
-    public static KeyValuePredicate<bool?, int?> NullIntMap_First_FalseKey = (_, key, _) => First(key is false);
+    public static KeyValuePredicate<bool?, int?> NullBoolIntMap_Second_1       = (count, _, _) => 
+        BetweenRetrieveRange(count, 2, 3);
+    
+    public static KeyValuePredicate<bool?, int?> NullBoolIntMap_KeyNonNull       = (_, key, _) => 
+        EvaluateIsIncludedAndContinue(key != null);
+    
 
     public static readonly Dictionary<double, ICharSequence> DoubleCharSequenceMap = new()
     {
@@ -51,11 +69,11 @@ public class TestDictionaries
       , { -1, new CharArrayStringBuilder("Imagine there's no tax havens, it's easy if you try") }
     };
 
-    public static KeyValuePredicate<double, ICharSequence> DoubleCharSequenceMap_First_5  = (count, _, _) => 
-        StopOnFirstExclusion(count <= 5);
+    public static KeyValuePredicate<double, ICharSequence> DoubleCharSequenceMap_First_4  = (count, _, _) => 
+        StopOnFirstExclusion(count <= 4);
     
-    public static KeyValuePredicate<double, ICharSequence> DoubleCharSequenceMap_Second_5 = (count, _, _) => 
-        BetweenRetrieveRange(count, 6, 11);
+    public static KeyValuePredicate<double, ICharSequence> DoubleCharSequenceMap_Second_4 = (count, _, _) => 
+        BetweenRetrieveRange(count, 5, 9);
     
     public static KeyValuePredicate<double, ICharSequence> DoubleCharSequenceMap_First_2  = (count, _, _) => 
         StopOnFirstExclusion(count <= 2);
@@ -64,6 +82,21 @@ public class TestDictionaries
         EvaluateIsIncludedAndContinue(true, 1);
     
     public static KeyValuePredicate<double, ICharSequence> DoubleCharSequenceMap_FirstKey_Lt_5  = (_, key, _) => First(key < 5.0f);
+
+    public static readonly List<double> Double_First_SubList = [Math.PI];
+
+    public static readonly List<double> Double_First_4_SubList = [Math.PI, 2 * Math.PI, Math.E, 2 * Math.E];
+
+    public static readonly List<double> Double_Second_4_SubList = [Math.PI * Math.E, 1, -1, 100];
+    
+    public static PalantírReveal<double> Double_Reveal     = (d, tos) => tos.StartSimpleValueType(d).AsValue(d);
+    public static PalantírReveal<double> Double_Reveal_1Dp = (d, tos) => tos.StartSimpleValueType(d).AsValue(d, "N1");
+    public static PalantírReveal<double> Double_Reveal_Pad17 = (d, tos) => tos.StartSimpleValueType(d).AsValue(d, "{0,17}");
+    public static PalantírReveal<double> Double_Reveal_PadMinus17 = (d, tos) => tos.StartSimpleValueType(d).AsValue(d, "{0,-17}");
+    
+    public static PalantírReveal<ICharSequence> CharSequenceMap_10Chars  = (cs, tos) => tos.StartSimpleValueType(cs).AsString(cs, "{0[..10]}");
+    public static PalantírReveal<ICharSequence> CharSequenceMap_Pad50  = (cs, tos) => tos.StartSimpleValueType(cs).AsString(cs, "{0,-50}");
+    public static PalantírReveal<ICharSequence> CharSequenceMap_Last10Chars  = (cs, tos) => tos.StartSimpleValueType(cs).AsString(cs, "{0[^10..]}");
 
     public static readonly List<KeyValuePair<double?, ICharSequence?>> NullDoubleNullCharSequence = new()
     {
@@ -132,7 +165,7 @@ public class TestDictionaries
     public static readonly Dictionary<IPAddress, Uri> IPAddressUriMap = new()
     {
         { new IPAddress([0, 0, 0, 0]), new Uri("http://First-null.com") }
-      , { new IPAddress([127, 0, 0, 1]), new Uri("localhost") }
+      , { new IPAddress([127, 0, 0, 1]), new Uri("tcp://localhost") }
       , { new IPAddress([255, 255, 255, 255]), new Uri("http://unknown.com") }
       , { new IPAddress([192, 168, 1, 1]), new Uri("tcp://Default-Gateway") }
     };
@@ -140,7 +173,7 @@ public class TestDictionaries
     public static readonly List<KeyValuePair<IPAddress?, Uri?>> NullIPAddressUriMap = new()
     {
         new KeyValuePair<IPAddress?, Uri?>(null, new Uri("http://First-null.com"))
-      , new KeyValuePair<IPAddress?, Uri?>(new IPAddress([0, 0, 0, 0]), new Uri("localhost"))
+      , new KeyValuePair<IPAddress?, Uri?>(new IPAddress([0, 0, 0, 0]), new Uri("tcp://localhost"))
       , new KeyValuePair<IPAddress?, Uri?>(new IPAddress([255, 255, 255, 255]), new Uri("http://unknown.com"))
       , new KeyValuePair<IPAddress?, Uri?>(new IPAddress([192, 168, 1, 1]), new Uri("tcp://Default-Gateway"))
       , new KeyValuePair<IPAddress?, Uri?>(null, null)

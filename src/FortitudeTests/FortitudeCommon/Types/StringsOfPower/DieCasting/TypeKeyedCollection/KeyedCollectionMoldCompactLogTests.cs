@@ -1,0 +1,295 @@
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using System.Globalization;
+using System.Reflection;
+using FortitudeCommon.Extensions;
+using FortitudeCommon.Logging.Config.ExampleConfig;
+using FortitudeCommon.Logging.Core;
+using FortitudeCommon.Logging.Core.LoggerViews;
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.Dictionaries;
+using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
+
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TypeKeyedCollection;
+
+[TestClass]
+public partial class KeyedCollectionMoldTests
+{
+    private static IReadOnlyList<ScaffoldingPartEntry> scafReg = ScaffoldingRegistry.AllScaffoldingTypes;
+    
+    private static IVersatileFLogger logger = null!;
+
+    [ClassInitialize]
+    public static void AllTestsInClassStaticSetup(TestContext testContext)
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        FLogConfigExamples.SyncColoredTestConsoleExample.LoadExampleAsCurrentContext();
+
+        logger = FLog.FLoggerForType.As<IVersatileFLogger>();
+    }
+
+    public static string CreateDataDrivenTestName(MethodInfo methodInfo, object[] data)
+    {
+        return $"{methodInfo.Name}_{(((IFormatExpectation)data[0]).ShortTestName)}_{((ScaffoldingPartEntry)data[1]).Name}";
+    }
+
+    private static IEnumerable<object[]> SimpleUnfilteredDictExpect =>
+        from kce in SimpleDictTestData.AllUnfilteredSimpleDictExpectations
+        where !kce.HasRestrictingPredicateFilter
+        from scaffoldToCall in 
+            scafReg
+                .IsKeyedCollectionType()
+                .NotHasSupportsKeyRevealer()
+                .NotHasSupportsValueRevealer()
+                .NoFilterPredicate()
+                .NoSubsetListFilter()
+        select new object[] { kce, scaffoldToCall };
+
+    [TestMethod]
+    [DynamicData(nameof(SimpleUnfilteredDictExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void SimpleUnfilteredCompactLogDict(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        SharedCompactLog(formatExpectation, scaffoldingToCall);
+    }
+
+    private static IEnumerable<object[]> SimplePredicateFilteredDictExpect =>
+        from kce in SimpleDictTestData.AllPredicateFilteredSimpleDictExpectations
+        from scaffoldToCall in
+            scafReg
+                .IsKeyedCollectionType()
+                .NotHasSupportsKeyRevealer()
+                .NotHasSupportsValueRevealer()
+                .HasFilterPredicate()
+                .NoSubsetListFilter()
+        select new object[] { kce, scaffoldToCall };
+
+    [TestMethod]
+    [DynamicData(nameof(SimplePredicateFilteredDictExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void SimplePredicateFilteredCompactLogDict(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        SharedCompactLog(formatExpectation, scaffoldingToCall);
+    }
+
+    private static IEnumerable<object[]> SimpleSubListFilteredDictExpect =>
+        from kce in SimpleDictTestData.AllSubListFilteredDictExpectations
+        from scaffoldToCall in
+            scafReg
+                .IsKeyedCollectionType()
+                .NotHasSupportsKeyRevealer()
+                .NotHasSupportsValueRevealer()
+                .HasSubsetListFilter()
+                .NoFilterPredicate()
+        select new object[] { kce, scaffoldToCall };
+
+    [TestMethod]
+    [DynamicData(nameof(SimpleSubListFilteredDictExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void SimpleSubListFilteredCompactLogDict(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        SharedCompactLog(formatExpectation, scaffoldingToCall);
+    }
+
+    private static IEnumerable<object[]> ValueRevealerUnfilteredDict =>
+        from kce in ValueRevealerDictTestData.AllValueRevealerUnfilteredDictExpectations
+        from scaffoldToCall in
+            scafReg
+                .IsKeyedCollectionType()
+                .NotHasSupportsKeyRevealer()
+                .HasSupportsValueRevealer()
+                .NoFilterPredicate()
+                .NoSubsetListFilter()
+        select new object[] { kce, scaffoldToCall };
+
+    [TestMethod]
+    [DynamicData(nameof(ValueRevealerUnfilteredDict), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void ValueRevealerUnfilteredCompactLogDict(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        SharedCompactLog(formatExpectation, scaffoldingToCall);
+    }
+
+    private static IEnumerable<object[]> ValueRevealerPredicateFilteredDictExpect =>
+        from kce in ValueRevealerDictTestData.AllPredicateFilteredDictExpectations
+        from scaffoldToCall in
+            scafReg
+                .IsKeyedCollectionType()
+                .NotHasSupportsKeyRevealer()
+                .HasSupportsValueRevealer()
+                .HasFilterPredicate()
+                .NoSubsetListFilter()
+        select new object[] { kce, scaffoldToCall };
+
+    [TestMethod]
+    [DynamicData(nameof(ValueRevealerPredicateFilteredDictExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void ValueRevealerPredicateFilteredCompactLogDict
+        (IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        SharedCompactLog(formatExpectation, scaffoldingToCall);
+    }
+
+    private static IEnumerable<object[]> ValueRevealerSubListFilteredDictExpect =>
+        from kce in ValueRevealerDictTestData.AllValueRevealerSubListFilteredDictExpectations
+        from scaffoldToCall in
+            scafReg
+                .IsKeyedCollectionType()
+                .NotHasSupportsKeyRevealer()
+                .HasSupportsValueRevealer()
+                .HasSubsetListFilter()
+                .NoFilterPredicate()
+        select new object[] { kce, scaffoldToCall };
+
+    [TestMethod]
+    [DynamicData(nameof(ValueRevealerSubListFilteredDictExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void ValueRevealerSubListFilteredCompactLogDict
+        (IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        SharedCompactLog(formatExpectation, scaffoldingToCall);
+    }
+
+    private static IEnumerable<object[]> BothRevealersUnfilteredDictExpect =>
+        from kce in BothRevealersDictTestData.AllBothRevealersUnfilteredDictExpectations
+        from scaffoldToCall in
+            scafReg
+                .IsKeyedCollectionType()
+                .HasSupportsKeyRevealer()
+                .HasSupportsValueRevealer()
+                .NoFilterPredicate()
+                .NoSubsetListFilter()
+        select new object[] { kce, scaffoldToCall };
+
+    [TestMethod]
+    [DynamicData(nameof(BothRevealersUnfilteredDictExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void BothRevealersUnfilteredCompactLogDict(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        SharedCompactLog(formatExpectation, scaffoldingToCall);
+    }
+
+    private static IEnumerable<object[]> BothRevealersPredicateFilteredDictExpect =>
+        from kce in BothRevealersDictTestData.AllPredicateFilteredKeyedCollectionsExpectations
+        from scaffoldToCall in
+            scafReg
+                .IsKeyedCollectionType()
+                .HasSupportsKeyRevealer()
+                .HasSupportsValueRevealer()
+                .HasFilterPredicate()
+                .NoSubsetListFilter()
+        select new object[] { kce, scaffoldToCall };
+
+    [TestMethod]
+    [DynamicData(nameof(BothRevealersPredicateFilteredDictExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void BothRevealersPredicateFilteredCompactLogDict
+        (IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        SharedCompactLog(formatExpectation, scaffoldingToCall);
+    }
+
+    private static IEnumerable<object[]> BothRevealersSubListFilteredDictExpect =>
+        from kce in BothRevealersDictTestData.AllBothRevealersSubListFilteredDictExpectations
+        from scaffoldToCall in
+            scafReg
+                .IsKeyedCollectionType()
+                .HasSupportsKeyRevealer()
+                .HasSupportsValueRevealer()
+                .HasSubsetListFilter()
+                .NoFilterPredicate()
+        select new object[] { kce, scaffoldToCall };
+
+    [TestMethod]
+    [DynamicData(nameof(BothRevealersSubListFilteredDictExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void BothRevealersSubListFilteredCompactLogDict
+        (IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        SharedCompactLog(formatExpectation, scaffoldingToCall);
+    }
+    
+    [TestMethod]
+    public void CompactLogDictionaryTest()
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
+        SharedCompactLog(BothRevealersDictTestData.AllPredicateFilteredKeyedCollectionsExpectations[2], ScaffoldingRegistry.AllScaffoldingTypes[968]);
+    }
+
+    private void SharedCompactLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    {
+        logger.InfoAppend("Keyed Collection Type Field  Scaffolding Class - ")?
+              .AppendLine(scaffoldingToCall.Name)
+              .AppendLine()
+              .AppendLine("Scaffolding Flags -")
+              .AppendLine(scaffoldingToCall.ScaffoldingFlags.ToString("F").Replace(",", " |"))
+              .FinalAppend("\n");
+
+        logger.WarnAppend("FormatExpectation - ")?
+              .AppendLine(formatExpectation.ToString())
+              .FinalAppend("");
+        
+        // ReSharper disable once RedundantArgumentDefaultValue
+        var tos = new TheOneString().Initialize(Compact | Log);
+
+        string BuildExpectedOutput(string className, string propertyName
+          , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
+        {
+            const string compactLogTemplate = "{0} {1}";
+
+            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
+            if (expectValue == IFormatExpectation.NoResultExpectedValue)
+            {
+                expectValue = "";
+            }
+            return string.Format(compactLogTemplate, className, expectValue);
+        }
+
+        string BuildChildExpectedOutput(string className, string propertyName
+          , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
+        {
+            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
+            if (expectValue == IFormatExpectation.NoResultExpectedValue)
+            { expectValue = ""; }
+            return expectValue;
+        }
+
+        if (formatExpectation is IComplexFieldFormatExpectation complexFieldExpectation)
+        {
+            complexFieldExpectation.WhenValueExpectedOutput = BuildChildExpectedOutput;
+        }
+        tos.Clear();
+        var stringBearer = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall, tos.Settings);
+        stringBearer.RevealState(tos);
+        var buildExpectedOutput =
+            BuildExpectedOutput
+                (stringBearer.GetType().CachedCSharpNameNoConstraints()
+               , ((ISinglePropertyTestStringBearer)stringBearer).PropertyName
+               , scaffoldingToCall.ScaffoldingFlags
+               , formatExpectation).MakeWhiteSpaceVisible();
+        var result = tos.WriteBuffer.ToString().MakeWhiteSpaceVisible();
+        if (buildExpectedOutput != result)
+        {
+            logger.ErrorAppend("Result Did not match Expected - ")?.AppendLine()
+                  .Append(result).AppendLine()
+                  .AppendLine("Expected it to match -")
+                  .AppendLine(buildExpectedOutput)
+                  .FinalAppend("");
+        }
+        else
+        {
+            logger.InfoAppend("Result Matched Expected - ")?.AppendLine()
+                  .Append(result).AppendLine()
+                  .FinalAppend("");
+        }
+            
+        logger.InfoAppend("To Debug Test past the following code into ")?
+              .Append(nameof(SharedCompactLog)).Append("()\n\n")
+              .Append("SharedCompactLog(")
+              .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
+        Assert.AreEqual(buildExpectedOutput, result);
+    }
+}

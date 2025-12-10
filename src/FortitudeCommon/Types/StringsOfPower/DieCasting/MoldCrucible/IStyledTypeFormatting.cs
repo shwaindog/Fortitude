@@ -15,6 +15,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     string Name { get; }
     
     public GraphTrackingBuilder GraphBuilder { get; }
+    
 
     FieldContentHandling ResolveContentFormattingFlags<T>(IStringBuilder sb, T input, FieldContentHandling callerFormattingFlags
     , string formatString = "", bool isFieldName = false);
@@ -31,9 +32,9 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     SeparatorPaddingRanges AppendFieldValueSeparator(ITypeMolderDieCast moldInternal, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
-    Range? AddNextFieldSeparator(ITypeMolderDieCast moldInternal, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
-    ContentSeparatorRanges AddNextFieldPadding(ITypeMolderDieCast moldInternal, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
-    ContentSeparatorRanges AddNextFieldSeparatorAndPadding(ITypeMolderDieCast moldInternal, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
+    Range? AddNextFieldSeparator(FieldContentHandling formatFlags = DefaultCallerTypeFlags);
+    ContentSeparatorRanges AddNextFieldPadding(FieldContentHandling formatFlags = DefaultCallerTypeFlags);
+    ContentSeparatorRanges AddNextFieldSeparatorAndPadding(FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
     int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel);
 
@@ -69,7 +70,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
         where TVRevealBase : notnull;
 
     IStringBuilder AppendKeyedCollectionNextItem(IStringBuilder sb, Type keyedCollectionType
-      , Type keyType, Type valueType, int previousItemNumber);
+      , Type keyType, Type valueType, int previousItemNumber, FieldContentHandling valueFlags = DefaultCallerTypeFlags);
 
     IStringBuilder FormatCollectionStart(ITypeMolderDieCast moldInternal, Type itemElementType, bool? hasItems, Type collectionType
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags);

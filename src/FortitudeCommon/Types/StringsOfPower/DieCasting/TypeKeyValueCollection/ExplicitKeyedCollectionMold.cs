@@ -118,7 +118,7 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
     public ExplicitKeyedCollectionMold<TKey, TValue> AppendNextKeyedCollectionEntrySeparator()
     {
         if (stb.SkipBody) return this;
-        stb.StyleFormatter.AddNextFieldSeparator(stb);
+        stb.StyleFormatter.AddNextFieldSeparator();
         return this;
     }
     

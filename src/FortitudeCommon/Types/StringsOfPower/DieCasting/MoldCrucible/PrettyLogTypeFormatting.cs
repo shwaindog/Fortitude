@@ -63,8 +63,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
             .Complete(formatFlags)
             .SeparatorPaddingRange!.Value;
     
-    public override ContentSeparatorRanges AddNextFieldPadding(ITypeMolderDieCast moldInternal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    public override ContentSeparatorRanges AddNextFieldPadding(FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (formatFlags.HasNoFieldPaddingFlag()) return GraphBuilder.Complete(formatFlags);
         if (formatFlags.UseMainFieldPadding() && formatFlags.CanAddNewLine())

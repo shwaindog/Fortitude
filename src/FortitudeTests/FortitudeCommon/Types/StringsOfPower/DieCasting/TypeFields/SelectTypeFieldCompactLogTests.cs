@@ -256,12 +256,12 @@ public partial class SelectTypeFieldTests
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
-    // [TestMethod]
+    [TestMethod]
     public void CompactLogSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactLog(StringTestData.AllStringExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[896]);
+        SharedCompactLog(CharArrayTestData.AllCharArrayExpectations[3], ScaffoldingRegistry.AllScaffoldingTypes[889]);
     }
 
     private void SharedCompactLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -283,15 +283,17 @@ public partial class SelectTypeFieldTests
         string BuildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            const string compactLogTemplate = "{0} {{ {1}}}";
+            const string compactLogTemplate = "{0} {{{1}{2}{1}}}";
 
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
+            var maybePadding = "";
+            var expectValue  = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
-                expectValue = propertyName + ": " + expectValue + (expectValue.Length > 0 ? " " : "");
+                maybePadding = expectValue.Length > 0 ? " " : "";
+                expectValue  = propertyName + ": " + expectValue;
             }
             else { expectValue = ""; }
-            return string.Format(compactLogTemplate, className, expectValue);
+            return string.Format(compactLogTemplate, className, maybePadding, expectValue);
         }
 
         if (formatExpectation is IComplexFieldFormatExpectation complexFieldExpectation)

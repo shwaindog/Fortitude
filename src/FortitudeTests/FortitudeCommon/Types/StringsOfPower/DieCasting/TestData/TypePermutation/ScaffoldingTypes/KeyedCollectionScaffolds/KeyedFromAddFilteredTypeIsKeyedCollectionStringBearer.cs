@@ -301,7 +301,7 @@ public class KeyedFromDictionaryBothRevealersAddFilteredStringBearer<TKey, TValu
 
 [TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsArray  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
-public class KeyedFromPairArrayBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
+public class KeyedFromPairArrayBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     : FilteredKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     where TKey : TKFilterBase, TKRevealBase
     where TValue : TVFilterBase?, TVRevealBase?
@@ -326,7 +326,7 @@ public class KeyedFromPairArrayBothRevealersAddFilteredStringBearer<TKey, TValue
 
 [TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsList  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
-public class KeyedFromPairListBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
+public class KeyedFromPairListBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     : FilteredKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     where TKey : TKFilterBase, TKRevealBase
     where TValue : TVFilterBase?, TVRevealBase?
@@ -351,7 +351,7 @@ public class KeyedFromPairListBothRevealersAddFilteredStringBearer<TKey, TValue,
 
 [TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerable  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
-public class KeyedFromPairEnumerableBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
+public class KeyedFromPairEnumerableBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     : FilteredKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     where TKey : TKFilterBase, TKRevealBase
     where TValue : TVFilterBase?, TVRevealBase?
@@ -376,7 +376,7 @@ public class KeyedFromPairEnumerableBothRevealersAddFilteredStringBearer<TKey, T
 
 [TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerator  | FilterPredicate | AcceptsClass
                 | AcceptsNullableClass | SupportsValueRevealer | SupportsKeyRevealer)]
-public class KeyedFromPairEnumeratorBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
+public class KeyedFromPairEnumeratorBothRevealersAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     : FilteredKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     where TKey : TKFilterBase, TKRevealBase
     where TValue : TVFilterBase?, TVRevealBase?

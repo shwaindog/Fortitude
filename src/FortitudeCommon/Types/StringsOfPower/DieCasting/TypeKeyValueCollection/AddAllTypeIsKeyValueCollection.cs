@@ -36,7 +36,7 @@ public partial class KeyValueCollectionMold
             }
             ItemCount = value.Length;
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddAll<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
@@ -60,7 +60,7 @@ public partial class KeyValueCollectionMold
             }
             ItemCount = value.Count;
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddAllEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
@@ -83,7 +83,7 @@ public partial class KeyValueCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddAllEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
@@ -109,7 +109,7 @@ public partial class KeyValueCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddAll<TKey, TValue, TVRevealBase>(IReadOnlyDictionary<TKey, TValue>? value
@@ -141,7 +141,7 @@ public partial class KeyValueCollectionMold
             }
             ItemCount = value.Length;
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddAll<TKey, TValue, TVRevealBase>
@@ -167,7 +167,7 @@ public partial class KeyValueCollectionMold
             }
             ItemCount = value.Count;
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddAllEnumerate<TKey, TValue, TVRevealBase>(IEnumerable<KeyValuePair<TKey, TValue>>? value
@@ -191,7 +191,7 @@ public partial class KeyValueCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddAllEnumerate<TKey, TValue, TVRevealBase>
@@ -219,7 +219,7 @@ public partial class KeyValueCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddAll<TKey, TValue, TKRevealBase, TVRevealBase>(IReadOnlyDictionary<TKey, TValue>? value
@@ -253,7 +253,7 @@ public partial class KeyValueCollectionMold
             }
             ItemCount = value.Length;
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddAll<TKey, TValue, TKRevealBase, TVRevealBase>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
@@ -278,7 +278,7 @@ public partial class KeyValueCollectionMold
             }
             ItemCount = value.Count;
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddAllEnumerate<TKey, TValue, TKRevealBase, TVRevealBase>(IEnumerable<KeyValuePair<TKey, TValue>>? value
@@ -302,7 +302,7 @@ public partial class KeyValueCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddAllEnumerate<TKey, TValue, TKRevealBase, TVRevealBase>(IEnumerator<KeyValuePair<TKey, TValue>>? value
@@ -329,6 +329,6 @@ public partial class KeyValueCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 }

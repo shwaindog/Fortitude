@@ -21,9 +21,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     protected const string CmaSpc    = ", ";
     protected const string Spc       = " ";
     protected const string Cln       = ":";
-    protected const string BrcOpn    = "{";
-    protected const string BrcOpnSpc = "{ ";
-    protected const string SpcBrcCls = " }";
+    protected const char BrcOpnChar = '{';
+    protected const string BrcOpn = "{";
+    protected const string BrcCls = "}";
     protected const string EqlsSpc   = "= ";
 
     protected const string SqBrktOpnSpc = "[ ";
@@ -98,7 +98,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var alternativeName = moldInternal.TypeName;
         var buildingType    = moldInternal.TypeBeingBuilt;
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
-        if (formatFlags.DoesNotHaveLogSuppressTypeNamesFlag())
+        if (formatFlags.DoesNotHaveLogSuppressTypeNamesFlag()
+            && !(StyleOptions.LogSuppressDisplayTypeNames.Any(s => buildingType.FullName?.StartsWith(s) ?? false)))
         {
             if (alternativeName.IsNotNullOrEmpty())
                 sb.Append(alternativeName);
@@ -145,26 +146,24 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             .Complete(formatFlags)
             .SeparatorPaddingRange!.Value;
 
-    public virtual Range? AddNextFieldSeparator(ITypeMolderDieCast moldInternal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    public virtual Range? AddNextFieldSeparator(FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (formatFlags.HasNoFieldSeparatorFlag()) return null;
         GraphBuilder.AppendSeparator(formatFlags.UseMainFieldSeparator() ? StyleOptions.MainItemSeparator : StyleOptions.AlternateFieldSeparator);
         return GraphBuilder.CurrentSectionRanges.CurrentSeparatorRange;
     }
 
-    public virtual ContentSeparatorRanges AddNextFieldPadding(ITypeMolderDieCast moldInternal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    public virtual ContentSeparatorRanges AddNextFieldPadding(FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (formatFlags.HasNoFieldPaddingFlag()) return GraphBuilder.Complete(formatFlags);
         GraphBuilder.AppendPadding(formatFlags.UseMainFieldPadding() ? StyleOptions.MainFieldPadding : StyleOptions.AlternateFieldPadding);
         return GraphBuilder.Complete(formatFlags);
     }
 
-    public virtual ContentSeparatorRanges AddNextFieldSeparatorAndPadding(ITypeMolderDieCast moldInternal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    public virtual ContentSeparatorRanges AddNextFieldSeparatorAndPadding(FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        AddNextFieldSeparator(moldInternal, formatFlags);
-        return AddNextFieldPadding(moldInternal, formatFlags);
+        AddNextFieldSeparator(formatFlags);
+        return AddNextFieldPadding(formatFlags);
     }
 
     public virtual int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel) =>
@@ -176,8 +175,15 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
         var previousContentPadSpacing = GraphBuilder.LastContentSeparatorPaddingRanges;
 
-        GraphBuilder.RemoveLastSeparatorAndPadding();
-        GraphBuilder.StartAppendContent(SpcBrcCls, sb, this, DefaultCallerTypeFlags);
+        var lastContentChar = GraphBuilder.RemoveLastSeparatorAndPadding();
+        if (lastContentChar != BrcOpnChar)
+        {
+            GraphBuilder.StartAppendContent(Spc, sb, this, DefaultCallerTypeFlags).AppendContent(BrcCls);
+        }
+        else
+        {
+            GraphBuilder.StartAppendContent(BrcCls, sb, this, DefaultCallerTypeFlags);
+        }
         return GraphBuilder.Complete(previousContentPadSpacing.PreviousFormatFlags);
     }
 
@@ -200,16 +206,33 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType
       , Type keyType, Type valueType, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        keyedCollectionType.AppendShortNameInCSharpFormat(sb);
-        sb.Append(Spc);
-        return sb.Append(BrcOpnSpc).ToStringBuilder(sb);
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        var kvpTypes = keyedCollectionType.GetKeyedCollectionTypes();
+        if (formatFlags.DoesNotHaveLogSuppressTypeNamesFlag() &&
+            !(StyleOptions.LogSuppressDisplayCollectionNames.Any(s => keyedCollectionType.FullName?.StartsWith(s) ?? false)
+           && StyleOptions.LogSuppressDisplayCollectionElementNames.Any(s => kvpTypes?.Key.FullName?.StartsWith(s) ?? false)
+           && StyleOptions.LogSuppressDisplayCollectionElementNames.Any(s => kvpTypes?.Value.FullName?.StartsWith(s) ?? false)))
+        {
+            keyedCollectionType.AppendShortNameInCSharpFormat(sb);
+        }
+        GraphBuilder.AppendContent(Spc).AppendContent(BrcOpn).AppendPadding(Spc);
+        GraphBuilder.Complete(formatFlags);
+        return sb;
     }
 
     public virtual IStringBuilder AppendKeyedCollectionEnd(IStringBuilder sb, Type keyedCollectionType
       , Type keyType, Type valueType, int totalItemCount, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
-        sb.RemoveLastWhiteSpacedCommaIfFound();
-        return sb.Append(SpcBrcCls);
+        var lastContentChar = GraphBuilder.RemoveLastSeparatorAndPadding();
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        if(lastContentChar != BrcOpnChar)
+            GraphBuilder.AppendContent(Spc).AppendContent(BrcCls);
+        else
+        {
+            GraphBuilder.AppendContent(BrcCls);
+        }
+        GraphBuilder.MarkContentEnd();
+        return sb;
     }
 
     public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
@@ -253,7 +276,12 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     }
 
     public virtual IStringBuilder AppendKeyedCollectionNextItem(IStringBuilder sb, Type keyedCollectionType
-      , Type keyType, Type valueType, int previousItemNumber) => sb.Append(CmaSpc);
+      , Type keyType, Type valueType, int previousItemNumber, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    {
+        AddNextFieldSeparator(formatFlags);
+        AddNextFieldPadding(formatFlags);
+        return sb;
+    }
 
     public virtual IStringBuilder AppendFieldName(IStringBuilder sb, ReadOnlySpan<char> fieldName)
     {

@@ -72,6 +72,15 @@ public class GraphTrackingBuilder
         currentSectionRanges.AllowEmptyContent = allowEmptyContent;
     }
 
+    public void AddHighWaterMark()
+    {
+        var highWaterMark = new ContentSeparatorRanges
+            (FieldContentHandling.DefaultCallerTypeFlags
+           , new Range(Index.End, Index.End)); // Empty content Range stops penultimate seperator/padding removal.
+        PenUltimateContentSeparatorPaddingRanges = LastContentSeparatorPaddingRanges;
+        LastContentSeparatorPaddingRanges        = highWaterMark;
+    }
+
     public GraphTrackingBuilder StartNextContentSeparatorPaddingSequence(IStringBuilder writeBuffer
       , IStyledTypeFormatting styledTypeFormatting, FieldContentHandling formatFlags,  bool allowEmptyContent = false)
     {
@@ -165,7 +174,7 @@ public class GraphTrackingBuilder
         return SnapshotLastAppendSequence(formatFlags);
     }
 
-    public GraphTrackingBuilder AppendPadding(string separator)
+    public GraphTrackingBuilder AppendPadding(string padding)
     {
         if (currentSectionRanges is { FromStartContentStart: not null, FromStartContentEnd: null })
         {
@@ -173,7 +182,7 @@ public class GraphTrackingBuilder
             MarkSeparatorEnd();
         }
         else if (currentSectionRanges is { FromStartSeparatorEnd: null }) { MarkSeparatorEnd(); }
-        GraphEncoder.Transfer(separator, sb);
+        GraphEncoder.Transfer(padding, sb);
         return TagPaddingEnd();
     }
 

@@ -111,6 +111,9 @@ public interface IMoldSupportedDefaultValue<TValue>
 
 public interface ISupportsSubsetDisplayKeys<TKeyDerivedType>
 {
+    public static List<TKeyDerivedType>? GetAllKeysSubListPredicate<TKey, TValue>(List<KeyValuePair<TKey, TValue>>? kvPairs) => 
+        kvPairs?.Select(kvp => kvp.Key).OfType<TKeyDerivedType>().ToList();
+    
     [JsonIgnore] IReadOnlyList<TKeyDerivedType> DisplayKeys { get; set; }
 }
 
@@ -125,7 +128,9 @@ public interface ISupportsOrderedCollectionPredicate<TElement>
 
 public interface ISupportsKeyedCollectionPredicate<TKey, TValue>
 {
-    public static KeyValuePredicate<TKey, TValue> GetNoFilterPredicate => (_, _, _) => CollectionItemResult.IncludedContinueToNext;
+    private static KeyValuePredicate<TKey, TValue>? cachedNoFilterPredicate;
+    public static KeyValuePredicate<TKey, TValue> GetNoFilterPredicate => 
+        cachedNoFilterPredicate ??= (_, _, _) => CollectionItemResult.IncludedContinueToNext;
     [JsonIgnore] KeyValuePredicate<TKey, TValue> KeyValuePredicate { get; set; }
 }
 

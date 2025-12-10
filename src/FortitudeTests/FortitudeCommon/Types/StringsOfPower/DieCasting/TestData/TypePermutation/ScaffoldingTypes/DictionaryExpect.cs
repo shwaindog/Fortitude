@@ -29,15 +29,85 @@ public interface IKeyedCollectionExpect : IFormatExpectation
     
     bool ContainsDuplicateKeys { get; }
 
-    bool HasRestrictingFilter { get; }
+    bool HasRestrictingPredicateFilter { get; }
+    bool HasRestrictingSubListFilter { get; }
     
     string? KeyFormatString { get; }
 }
 
+public class KeyedSubListDictionaryExpect<TKey, TValue> : DictionaryExpect<TKey, TValue, TKey, TValue, TKey>
+{
+    // ReSharper disable once ConvertToPrimaryConstructor
+    // ReSharper disable twice ExplicitCallerInfoArgument
+    public KeyedSubListDictionaryExpect(List<KeyValuePair<TKey, TValue>>? inputList, string? valueFormatString = null, string? keyFormatString = null
+      , Expression<Func<List<TKey?>>>? elementFilterExpression = null
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueFormatString, keyFormatString, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+    {
+    }
+    
+    public KeyedSubListDictionaryExpect(List<KeyValuePair<TKey, TValue>>? inputList
+      , Expression<Func<List<TKey?>>>? elementFilterExpression = null
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, null, null, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+    {
+    }
+    
+    public KeyedSubListDictionaryExpect(List<KeyValuePair<TKey, TValue>>? inputList
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, null, null, (Expression<Func<List<TKey?>>>?)null, contentHandling, name, srcFile, srcLine)
+    {
+    }
+}
 
-public class KeyedCollectionExpect<TKey, TValue, TKFilterBase, TVFilterBase> : ExpectBase<List<KeyValuePair<TKey, TValue>>?>, IKeyedCollectionExpect
-    where TKey : TKFilterBase
-    where TValue : TVFilterBase
+public class DictionaryExpect<TKey, TValue> : DictionaryExpect<TKey, TValue, TKey, TValue, TKey>
+{
+    // ReSharper disable once ConvertToPrimaryConstructor
+    // ReSharper disable twice ExplicitCallerInfoArgument
+    public DictionaryExpect(List<KeyValuePair<TKey, TValue>>? inputList, string? valueFormatString = null, string? keyFormatString = null
+      , Expression<Func<KeyValuePredicate<TKey, TValue>>>? elementFilterExpression = null
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueFormatString, keyFormatString, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+    {
+    }
+    
+    public DictionaryExpect(List<KeyValuePair<TKey, TValue>>? inputList
+      , Expression<Func<KeyValuePredicate<TKey, TValue>>>? elementFilterExpression = null
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, null, null, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+    {
+    }
+    
+    public DictionaryExpect(List<KeyValuePair<TKey, TValue>>? inputList
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, null, null, (Expression<Func<KeyValuePredicate<TKey, TValue>>>?)null, contentHandling, name, srcFile, srcLine)
+    {
+    }
+}
+
+public class DictionaryExpect<TKey, TValue, TKFilterBase, TVFilterBase, TKSubListDerived> : 
+    ExpectBase<List<KeyValuePair<TKey, TValue>>?>, IKeyedCollectionExpect
+    where TKey : TKFilterBase?
+    where TValue : TVFilterBase?
+    where TKSubListDerived : TKey?
 {
     private readonly string? filterName;
 
@@ -46,10 +116,11 @@ public class KeyedCollectionExpect<TKey, TValue, TKFilterBase, TVFilterBase> : E
 
     private Type? keyFilterBaseType;
     private Type? valueFilterBaseType;
+    private Type? subListDerivedType;
 
     // ReSharper disable once ConvertToPrimaryConstructor
     // ReSharper disable twice ExplicitCallerInfoArgument
-    public KeyedCollectionExpect(List<KeyValuePair<TKey, TValue>>? inputList, string? valueFormatString = null, string? keyFormatString = null
+    public DictionaryExpect(List<KeyValuePair<TKey, TValue>>? inputList, string? valueFormatString = null, string? keyFormatString = null
       , Expression<Func<KeyValuePredicate<TKFilterBase, TVFilterBase>>>? elementFilterExpression = null
       , FieldContentHandling contentHandling = DefaultCallerTypeFlags
       , string? name = null
@@ -71,6 +142,32 @@ public class KeyedCollectionExpect<TKey, TValue, TKFilterBase, TVFilterBase> : E
             filterName = expression.Member.Name;
         }
         else { KeyValuePredicate = ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase>.GetNoFilterPredicate; }
+    }
+
+    // ReSharper disable once ConvertToPrimaryConstructor
+    // ReSharper disable twice ExplicitCallerInfoArgument
+    public DictionaryExpect(List<KeyValuePair<TKey, TValue>>? inputList, string? valueFormatString = null, string? keyFormatString = null
+      , Expression<Func<List<TKSubListDerived?>>>? elementFilterExpression = null
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0)
+        : base(inputList, valueFormatString, contentHandling,
+               name
+            ?? ((elementFilterExpression?.Body as MemberExpression)?.Member.Name)
+            ?? (inputList != null
+                   ? $"List<{typeof(KeyValuePair<TKey, TValue>).CachedCSharpNameNoConstraints()}> {{ Count: {inputList.Count}}}"
+                   : null), srcFile, srcLine)
+    {
+        KeyFormatString = keyFormatString;
+        if (elementFilterExpression != null)
+        {
+            var elementFilter = elementFilterExpression.Compile();
+            KeySubListPredicate = elementFilter.Invoke();
+            var expression = (MemberExpression)elementFilterExpression.Body;
+            filterName = expression.Member.Name;
+        }
+        else { KeySubListPredicate = ISupportsSubsetDisplayKeys<TKSubListDerived?>.GetAllKeysSubListPredicate(inputList); }
     }
 
     public override bool InputIsEmpty => (Input?.Count ?? 0) >= 0;
@@ -96,14 +193,25 @@ public class KeyedCollectionExpect<TKey, TValue, TKFilterBase, TVFilterBase> : E
 
     public Type KeyFilterBaseType => keyFilterBaseType ??= typeof(TKFilterBase);
     public Type ValueFilterBaseType => valueFilterBaseType ??= typeof(TVFilterBase);
+    public Type KeySubListFilterBaseType => subListDerivedType ??= typeof(TKSubListDerived);
     
     public string? KeyFormatString { get; private set; }
 
     public override Type CoreType => typeof(TKey).IfNullableGetUnderlyingTypeOrThis();
 
-    public bool HasRestrictingFilter =>
-        KeyValuePredicate == null
-     || !Equals(KeyValuePredicate, ISupportsKeyedCollectionPredicate<TKey, TValue>.GetNoFilterPredicate);
+    public bool HasRestrictingPredicateFilter =>
+        KeyValuePredicate != null
+     && !Equals(KeyValuePredicate, ISupportsKeyedCollectionPredicate<TKey, TValue>.GetNoFilterPredicate);
+
+    public bool HasRestrictingSubListFilter
+    {
+        get
+        {
+            var kFilterBases = Input?.Select(kvp => kvp.Key).Distinct().ToList();
+            return KeySubListPredicate != null
+                || kFilterBases?.Intersect(KeySubListPredicate?.OfType<TKey>() ?? []).Count() < (kFilterBases?.Count ?? 0);
+        }
+    }
 
     public override string ShortTestName
     {
@@ -126,13 +234,17 @@ public class KeyedCollectionExpect<TKey, TValue, TKFilterBase, TVFilterBase> : E
 
     public KeyValuePredicate<TKFilterBase, TVFilterBase>? KeyValuePredicate { get; init; }
 
+    public IReadOnlyList<TKSubListDerived?>? KeySubListPredicate { get; init; }
+
     public override ISinglePropertyTestStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
     {
         var flags = scaffoldEntry.ScaffoldingFlags;
 
-        return flags.HasFilterPredicate()
-            ? scaffoldEntry.CreateStringBearerFunc(KeyType, ValueType, KeyFilterBaseType, ValueFilterBaseType)()
-            : scaffoldEntry.CreateStringBearerFunc(KeyType, ValueType)();
+        return flags.HasSubListFilter()
+            ? scaffoldEntry.CreateStringBearerFunc(KeyType, ValueType, KeySubListFilterBaseType)()
+            : (flags.HasFilterPredicate()
+                ? scaffoldEntry.CreateStringBearerFunc(KeyType, ValueType, KeyFilterBaseType, ValueFilterBaseType)()
+                : scaffoldEntry.CreateStringBearerFunc(KeyType, ValueType)());
     }
 
     public override IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry, StyleOptions stringStyle)
@@ -141,7 +253,7 @@ public class KeyedCollectionExpect<TKey, TValue, TKFilterBase, TVFilterBase> : E
 
         var acceptsNullables = scaffoldEntry.ScaffoldingFlags.HasAcceptsNullables();
 
-        if (acceptsNullables && createdStringBearer is IMoldSupportedValue<IReadOnlyDictionary<TKey, TValue>?> nullArrayMold)
+        if (createdStringBearer is IMoldSupportedValue<Dictionary<TKey, TValue>?> nullArrayMold)
             nullArrayMold.Value = Input?.ToDictionary();
         else if (createdStringBearer is IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?> arrayMold)
             arrayMold.Value = Input?.ToArray();
@@ -152,7 +264,9 @@ public class KeyedCollectionExpect<TKey, TValue, TKFilterBase, TVFilterBase> : E
         else if (createdStringBearer is IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?> enumeratorMold)
             enumeratorMold.Value = Input?.GetEnumerator();
 
-        if (HasRestrictingFilter && createdStringBearer is ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase> supportsSettingPredicateFilter)
+        if (HasRestrictingSubListFilter && createdStringBearer is ISupportsSubsetDisplayKeys<TKSubListDerived> supportsSettingSubListFilter)
+            supportsSettingSubListFilter.DisplayKeys = KeySubListPredicate!;
+        if (HasRestrictingPredicateFilter && createdStringBearer is ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase> supportsSettingPredicateFilter)
             supportsSettingPredicateFilter.KeyValuePredicate = KeyValuePredicate!;
         if (ValueFormatString != null && createdStringBearer is ISupportsValueFormatString supportsValueFormatString)
             supportsValueFormatString.ValueFormatString = ValueFormatString;

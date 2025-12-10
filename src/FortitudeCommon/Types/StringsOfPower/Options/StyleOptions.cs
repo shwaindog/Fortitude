@@ -38,9 +38,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     public const string DefaultLogInnerDblQtReplacementOpenChars  = ""; //  considered  "\u201C";  “
     public const string DefaultLogInnerDblQtReplacementCloseChars = ""; //  considered  "\u201D";  ”
 
-    public static readonly string[] DefaultLogSuppressTypeNames = [];
-    public static readonly string[] DefaultLogSuppressCollectionNames =
-    [
+    public static readonly string[] DefaultLogSuppressNames = [
         "System"
       , "FortitudeCommon.Types.StringsOfPower.Forge"
     ];
@@ -110,6 +108,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     private Range[]?  exemptEscapingRanges;
     private string[]? logSuppressDisplayTypeNames;
     private string[]? logSuppressDisplayCollectionNames;
+    private string[]? logSuppressDisplayCollectionElementNames;
 
     private FieldContentHandling contextContentHandlingFlags;
     private StringStyle?         style;
@@ -594,14 +593,21 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     public string[] LogSuppressDisplayTypeNames
     {
         readonly get => logSuppressDisplayTypeNames ??
-                        fallbackOptions?.Values.LogSuppressDisplayTypeNames ?? DefaultLogSuppressTypeNames;
+                        fallbackOptions?.Values.LogSuppressDisplayTypeNames ?? DefaultLogSuppressNames;
         set => logSuppressDisplayTypeNames = value;
+    }
+
+    public string[] LogSuppressDisplayCollectionElementNames
+    {
+        readonly get => logSuppressDisplayCollectionElementNames ??
+                        fallbackOptions?.Values.LogSuppressDisplayCollectionElementNames ?? DefaultLogSuppressNames;
+        set => logSuppressDisplayCollectionElementNames = value;
     }
 
     public string[] LogSuppressDisplayCollectionNames
     {
         readonly get => logSuppressDisplayCollectionNames ??
-                        fallbackOptions?.Values.LogSuppressDisplayCollectionNames ?? DefaultLogSuppressCollectionNames;
+                        fallbackOptions?.Values.LogSuppressDisplayCollectionNames ?? DefaultLogSuppressNames;
         set => logSuppressDisplayCollectionNames = value;
     }
 
@@ -1054,6 +1060,12 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
     {
         get => values.LogSuppressDisplayTypeNames;
         set => values.LogSuppressDisplayTypeNames = value;
+    }
+
+    public string[] LogSuppressDisplayCollectionElementNames
+    {
+        get => values.LogSuppressDisplayCollectionElementNames;
+        set => values.LogSuppressDisplayCollectionElementNames = value;
     }
 
     public string[] LogSuppressDisplayCollectionNames

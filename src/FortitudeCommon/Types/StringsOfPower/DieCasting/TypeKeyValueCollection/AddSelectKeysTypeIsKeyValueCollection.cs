@@ -33,7 +33,7 @@ public partial class KeyValueCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived>
@@ -60,7 +60,7 @@ public partial class KeyValueCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived>
@@ -87,7 +87,7 @@ public partial class KeyValueCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived>
@@ -114,7 +114,7 @@ public partial class KeyValueCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived>
@@ -140,7 +140,7 @@ public partial class KeyValueCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived>
@@ -170,7 +170,7 @@ public partial class KeyValueCollectionMold
             stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             hasValue = selectKeys.MoveNext();
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>
@@ -197,7 +197,7 @@ public partial class KeyValueCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>
@@ -225,7 +225,7 @@ public partial class KeyValueCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>
@@ -253,7 +253,7 @@ public partial class KeyValueCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>
@@ -281,7 +281,7 @@ public partial class KeyValueCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TVRevealBase>
@@ -307,7 +307,7 @@ public partial class KeyValueCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TVRevealBase>
@@ -337,7 +337,7 @@ public partial class KeyValueCollectionMold
             stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             hasValue = selectKeys.MoveNext();
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
@@ -365,7 +365,7 @@ public partial class KeyValueCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
@@ -393,7 +393,7 @@ public partial class KeyValueCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
@@ -421,7 +421,7 @@ public partial class KeyValueCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
@@ -448,7 +448,7 @@ public partial class KeyValueCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
@@ -475,7 +475,7 @@ public partial class KeyValueCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 
     public KeyValueCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
@@ -506,6 +506,6 @@ public partial class KeyValueCollectionMold
             stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             hasValue = selectKeys.MoveNext();
         }
-        return stb.AddGoToNext();
+        return stb.StyleTypeBuilder;
     }
 }

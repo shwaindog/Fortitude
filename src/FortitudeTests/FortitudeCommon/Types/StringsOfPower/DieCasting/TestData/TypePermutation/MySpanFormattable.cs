@@ -2,7 +2,7 @@
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation;
 
-public class MySpanFormattableClass(string? data) : ISpanFormattable
+public class MySpanFormattableClass(string? data, bool sameAsToString = false) : ISpanFormattable
 {
     private readonly string? data = data;
     
@@ -19,7 +19,7 @@ public class MySpanFormattableClass(string? data) : ISpanFormattable
         return true;
     }
 
-    public override string ToString() => data!;
+    public override string ToString() => sameAsToString ? data! : "From - ToString() => " + data!;
 
     public string ToString(string? format, IFormatProvider? formatProvider) => data!;
     
@@ -37,7 +37,7 @@ public class MySpanFormattableClass(string? data) : ISpanFormattable
     public override int GetHashCode() => data?.GetHashCode() ?? 0;
 }
 
-public readonly struct MySpanFormattableStruct(string? data) : ISpanFormattable
+public readonly struct MySpanFormattableStruct(string? data, bool sameAsToString = false) : ISpanFormattable
 {
     private readonly string? data = data;
     
@@ -54,7 +54,7 @@ public readonly struct MySpanFormattableStruct(string? data) : ISpanFormattable
         return true;
     }
 
-    public override string ToString() => data!;
+    public override string ToString() => sameAsToString ? data! : "From - ToString() => " + data!;
 
     public string ToString(string? format, IFormatProvider? formatProvider) => data!;
     

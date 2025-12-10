@@ -149,6 +149,8 @@ public static class ScaffoldingStringBuilderInvokeFlagsExtensions
     public static bool HasAcceptsEnumerator(this ScaffoldingStringBuilderInvokeFlags flags)               => (flags & AcceptsEnumerator) > 0;
     public static bool HasFilterPredicate(this ScaffoldingStringBuilderInvokeFlags flags)                 => (flags & FilterPredicate) > 0;
     public static bool DoesNotHaveFilterPredicate(this ScaffoldingStringBuilderInvokeFlags flags)         => (flags & FilterPredicate) == 0;
+    public static bool HasSubListFilter(this ScaffoldingStringBuilderInvokeFlags flags)                 => (flags & SubsetListFilter) > 0;
+    public static bool DoesNotHaveSubListFilter(this ScaffoldingStringBuilderInvokeFlags flags)         => (flags & SubsetListFilter) == 0;
     
     public static bool HasAcceptsNonNullableObject(this ScaffoldingStringBuilderInvokeFlags flags) => 
         (flags & AcceptsNonNullableObject) == AcceptsNonNullableObject;

@@ -135,7 +135,7 @@ public partial class OrderedCollectionMoldTests
 
     private void SharedPrettyJson(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
-        logger.InfoAppend("Ordered Collection Type Single Value Field  Scaffolding Class - ")?
+        logger.InfoAppend("Ordered Collection Type Field  Scaffolding Class - ")?
               .AppendLine(scaffoldingToCall.Name)
               .AppendLine()
               .AppendLine("Scaffolding Flags -")
