@@ -6,14 +6,14 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.KeyedCollectionFields;
 
-public abstract class FormattedKeyValueFieldMoldScaffold<TKey, TValue> : FormattedMoldScaffold<Dictionary<TKey, TValue>>, ISupportsKeyFormatString
+public abstract class FormattedKeyValueFieldMoldScaffold<TKey, TValue> : FormattedMoldScaffold<List<KeyValuePair<TKey, TValue>>>, ISupportsKeyFormatString
     where TKey : notnull
 {
     public string? KeyFormatString { get; set; }
 }
 
 public abstract class FormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, TVRevealBase> : 
-    MoldScaffoldBase<Dictionary<TKey, TValue>>, ISupportsKeyFormatString, ISupportsValueRevealer<TVRevealBase>
+    MoldScaffoldBase<List<KeyValuePair<TKey, TValue>>>, ISupportsKeyFormatString, ISupportsValueRevealer<TVRevealBase>
     where TKey : notnull
     where TValue : TVRevealBase?
     where TVRevealBase : notnull
@@ -29,7 +29,7 @@ public abstract class FormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, T
 }
 
 public abstract class KeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKRevealBase, TVRevealBase> : 
-    MoldScaffoldBase<Dictionary<TKey, TValue>>, ISupportsKeyRevealer<TKRevealBase>, ISupportsValueRevealer<TVRevealBase>
+    MoldScaffoldBase<List<KeyValuePair<TKey, TValue>>>, ISupportsKeyRevealer<TKRevealBase>, ISupportsValueRevealer<TVRevealBase>
     where TKey : TKRevealBase
     where TValue : TVRevealBase?
     where TKRevealBase : notnull
@@ -90,7 +90,7 @@ public abstract class SelectFormattedKeyValueFieldMoldScaffold<TKey, TValue, TKS
 
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
+        get => displayKeys ??= Value?.Select(kvp => (TKSelectDerived)(object?)kvp.Key!).ToList() ?? [];
         set => displayKeys = value;
     }
 }
@@ -106,7 +106,7 @@ public abstract class SelectFormattedKeyValueRevealerFieldMoldScaffold<TKey, TVa
 
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
+        get => displayKeys ??= Value?.Select(kvp => (TKSelectDerived)(object?)kvp.Key!).ToList() ?? [];
         set => displayKeys = value;
     }
 }
@@ -123,7 +123,7 @@ public abstract class SelectKeyRevealerValueRevealerFieldMoldScaffold<TKey, TVal
 
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
+        get => displayKeys ??= Value?.Select(kvp => (TKSelectDerived)(object?)kvp.Key!).ToList() ?? [];
         set => displayKeys = value;
     }
 }

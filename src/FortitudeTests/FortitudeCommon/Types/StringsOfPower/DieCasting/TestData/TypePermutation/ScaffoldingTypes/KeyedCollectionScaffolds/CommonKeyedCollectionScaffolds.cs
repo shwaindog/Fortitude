@@ -18,23 +18,23 @@ public abstract class FormattedKeyValueMoldScaffold<TKey, TValue> : FormattedKey
 
     public int Count => Value!.Count;
 
-    public bool ContainsKey(TKey key) => Value?.ContainsKey(key) ?? false;
+    public bool ContainsKey(TKey key) => Value?.Any(kvp => Equals(kvp.Key, key)) ?? false;
 
     public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
     {
-        value = default;
-        return Value?.TryGetValue(key, out value) ?? false;
+        value = ( Value != null ? Value.FirstOrDefault(kvp => Equals(kvp.Key, key)).Value : default);
+        return Value?.Any(kvp => Equals(kvp.Key, key)) ?? false;
     }
 
     public TValue this[TKey key] => TryGetValue(key, out var result) ? result : default!;
     
-    public IEnumerable<TKey> Keys => Value?.Keys ?? Enumerable.Empty<TKey>();
+    public IEnumerable<TKey> Keys => Value?.Select(kvp => kvp.Key) ?? [];
     
-    public IEnumerable<TValue> Values => Value?.Values ?? Enumerable.Empty<TValue>();
+    public IEnumerable<TValue> Values => Value?.Select(kvp => kvp.Value) ?? [];
 }
 
 public abstract class FormattedKeyValueRevealerMoldScaffold<TKey, TValue, TVRevealBase> : 
-    FormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, TVRevealBase>, IReadOnlyDictionary<TKey, TValue?>
+    FormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, TVRevealBase>, IReadOnlyDictionary<TKey, TValue>
     where TKey : notnull
     where TValue : TVRevealBase?
     where TVRevealBase : notnull
@@ -42,23 +42,23 @@ public abstract class FormattedKeyValueRevealerMoldScaffold<TKey, TValue, TVReve
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<KeyValuePair<TKey, TValue?>> GetEnumerator() => Value!.GetEnumerator();
+    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => Value!.GetEnumerator();
 
     public int Count => Value!.Count;
 
-    public bool ContainsKey(TKey key) => Value?.ContainsKey(key) ?? false;
+    public bool ContainsKey(TKey key) => Value?.Any(kvp => Equals(kvp.Key, key)) ?? false;
 
     public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
     {
-        value = default;
-        return Value?.TryGetValue(key, out value) ?? false;
+        value = ( Value != null ? Value.FirstOrDefault(kvp => Equals(kvp.Key, key)).Value : default);
+        return Value?.Any(kvp => Equals(kvp.Key, key)) ?? false;
     }
 
     public TValue this[TKey key] => TryGetValue(key, out var result) ? result : default!;
     
-    public IEnumerable<TKey> Keys => Value?.Keys ?? Enumerable.Empty<TKey>();
+    public IEnumerable<TKey> Keys => Value?.Select(kvp => kvp.Key) ?? [];
     
-    public IEnumerable<TValue?> Values => Value?.Values ?? Enumerable.Empty<TValue?>();
+    public IEnumerable<TValue> Values => Value?.Select(kvp => kvp.Value) ?? [];
 }
 
 public abstract class KeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKRevealBase, TVRevealBase> : 
@@ -75,19 +75,19 @@ public abstract class KeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKRevea
 
     public int Count => Value!.Count;
 
-    public bool ContainsKey(TKey key) => Value?.ContainsKey(key) ?? false;
+    public bool ContainsKey(TKey key) => Value?.Any(kvp => Equals(kvp.Key, key)) ?? false;
 
     public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
     {
-        value = default;
-        return Value?.TryGetValue(key, out value) ?? false;
+        value = ( Value != null ? Value.FirstOrDefault(kvp => Equals(kvp.Key, key)).Value : default);
+        return Value?.Any(kvp => Equals(kvp.Key, key)) ?? false;
     }
 
     public TValue this[TKey key] => TryGetValue(key, out var result) ? result : default!;
     
-    public IEnumerable<TKey> Keys => Value?.Keys ?? Enumerable.Empty<TKey>();
+    public IEnumerable<TKey> Keys => Value?.Select(kvp => kvp.Key) ?? [];
     
-    public IEnumerable<TValue> Values => Value?.Values ?? Enumerable.Empty<TValue>();
+    public IEnumerable<TValue> Values => Value?.Select(kvp => kvp.Value) ?? [];
 }
 
 public abstract class FilteredFormattedKeyValueMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase> : 
@@ -129,7 +129,7 @@ public abstract class SelectFormattedKeyValueMoldScaffold<TKey, TValue, TKSelect
 
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
+        get => displayKeys ??= Value?.Select(kvp => (TKSelectDerived)(object?)kvp.Key!).ToList() ?? [];
         set => displayKeys = value;
     }
 }
@@ -144,7 +144,7 @@ public abstract class SelectFormattedKeyValueRevealerMoldScaffold<TKey, TValue, 
 
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
+        get => displayKeys ??= Value?.Select(kvp => (TKSelectDerived)(object?)kvp.Key!).ToList() ?? [];
         set => displayKeys = value;
     }
 }
@@ -160,7 +160,7 @@ public abstract class SelectKeyRevealerValueRevealerMoldScaffold<TKey, TValue, T
 
     public IReadOnlyList<TKSelectDerived> DisplayKeys
     {
-        get => displayKeys ??= Value?.Keys.Select(key => (TKSelectDerived)(object?)key!).ToList() ?? [];
+        get => displayKeys ??= Value?.Select(kvp => (TKSelectDerived)(object?)kvp.Key!).ToList() ?? [];
         set => displayKeys = value;
     }
 }

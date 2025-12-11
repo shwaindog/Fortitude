@@ -18,8 +18,8 @@ public class KeyedFromDictionaryFormatStringsAddAllStringBearer<TKey, TValue> :
 {
     public IReadOnlyDictionary<TKey, TValue>? KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryBothFormatStrings
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryBothFormatStrings);
@@ -39,7 +39,7 @@ public class KeyedFromPairArrayBothFormatStringsAddAllStringBearer<TKey, TValue>
     public KeyValuePair<TKey, TValue>[]? KeyedCollectionTypeKeyedCollectionFieldAddAllArrayBothFormatStrings
     {
         get => Value?.ToArray();
-        set => Value = value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllArrayBothFormatStrings);
@@ -61,7 +61,7 @@ public class KeyedFromPairListBothFormatStringsAddAllStringBearer<TKey, TValue> 
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllListBothFormatStrings
     {
         get => Value?.ToList();
-        set => Value = value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllListBothFormatStrings);
@@ -83,7 +83,7 @@ public class KeyedFromPairEnumerableBothFormatStringsAddAllStringBearer<TKey, TV
     public IEnumerable<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothFormatStrings
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothFormatStrings);
@@ -112,11 +112,11 @@ public class KeyedFromPairEnumeratorBothFormatStringsAddAllStringBearer<TKey, TV
                 Value = null;
                 return;
             }
-            var newValue       = new Dictionary<TKey, TValue>();
+            var newValue       = new List<KeyValuePair<TKey, TValue>>();
             var shouldContinue = value.MoveNext();
             while (shouldContinue)
             {
-                newValue.Add(value.Current.Key, value.Current.Value);
+                newValue.Add(value.Current);
                 shouldContinue = value.MoveNext();
             }
             Value = newValue;
@@ -143,8 +143,8 @@ public class KeyedFromDictionaryValueRevealerKeyFormatStringsAddAllStringBearer<
 {
     public IReadOnlyDictionary<TKey, TValue>? KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryValueRevealerKeyFormatString
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryValueRevealerKeyFormatString);
@@ -168,7 +168,7 @@ public class KeyedFromPairArrayValueRevealerKeyFormatStringsAddAllStringBearer<T
     public KeyValuePair<TKey, TValue>[]? KeyedCollectionTypeKeyedCollectionFieldAddAllArrayValueRevealerKeyFormatString
     {
         get => Value?.ToArray();
-        set => Value = value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllArrayValueRevealerKeyFormatString);
@@ -192,7 +192,7 @@ public class KeyedFromPairListValueRevealerKeyFormatStringsAddAllStringBearer<TK
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllListValueRevealerKeyFormatStrings
     {
         get => Value?.ToList();
-        set => Value = value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllListValueRevealerKeyFormatStrings);
@@ -216,7 +216,7 @@ public class KeyedFromPairEnumerableValueRevealerKeyFormatStringsAddAllStringBea
     public IEnumerable<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableValueRevealerKeyFormatString
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableValueRevealerKeyFormatString);
@@ -247,11 +247,11 @@ public class KeyedFromPairEnumeratorValueRevealerKeyFormatStringsAddAllStringBea
                 Value = null;
                 return;
             }
-            var newValue       = new Dictionary<TKey, TValue>();
+            var newValue       = new List<KeyValuePair<TKey, TValue>>();
             var shouldContinue = value.MoveNext();
             while (shouldContinue)
             {
-                newValue.Add(value.Current.Key, value.Current.Value);
+                newValue.Add(value.Current);
                 shouldContinue = value.MoveNext();
             }
             Value = newValue;
@@ -280,8 +280,8 @@ public class KeyedFromDictionaryBothRevealersAddAllStringBearer<TKey, TValue, TK
 {
     public IReadOnlyDictionary<TKey, TValue>? KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryBothRevealers
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllDictionaryBothRevealers);
@@ -306,7 +306,7 @@ public class KeyedFromPairArrayBothRevealersAddAllStringBearer<TKey, TValue, TKR
     public KeyValuePair<TKey, TValue>[]? KeyedCollectionTypeKeyedCollectionFieldAddAllArrayBothRevealers
     {
         get => Value?.ToArray();
-        set => Value = value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllArrayBothRevealers);
@@ -331,7 +331,7 @@ public class KeyedFromPairListBothRevealersAddAllStringBearer<TKey, TValue, TKRe
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllListBothRevealers
     {
         get => Value?.ToList();
-        set => Value = value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllListBothRevealers);
@@ -356,7 +356,7 @@ public class KeyedFromPairEnumerableBothRevealersAddAllStringBearer<TKey, TValue
     public IEnumerable<KeyValuePair<TKey, TValue>>? KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothRevealers
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothRevealers);
@@ -386,11 +386,11 @@ public class KeyedFromPairEnumeratorBothRevealersAddAllStringBearer<TKey, TValue
                 Value = null;
                 return;
             }
-            var newValue       = new Dictionary<TKey, TValue>();
+            var newValue       = new List<KeyValuePair<TKey, TValue>>();
             var shouldContinue = value.MoveNext();
             while (shouldContinue)
             {
-                newValue.Add(value.Current.Key, value.Current.Value);
+                newValue.Add(value.Current);
                 shouldContinue = value.MoveNext();
             }
             Value = newValue;

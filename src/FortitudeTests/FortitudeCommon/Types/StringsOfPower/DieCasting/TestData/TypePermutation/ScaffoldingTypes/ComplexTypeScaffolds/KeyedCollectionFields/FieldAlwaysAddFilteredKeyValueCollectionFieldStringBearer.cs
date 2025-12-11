@@ -18,8 +18,8 @@ public class FieldKeyValueDictionaryFormatStringsAlwaysAddFilteredStringBearer<T
 {
     public IReadOnlyDictionary<TKey, TValue>? ComplexTypeKeyedCollectionFieldAlwaysAddFilteredDictionaryBothFormatStrings
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredDictionaryBothFormatStrings);
@@ -43,7 +43,7 @@ public class FieldKeyValuePairArrayBothFormatStringsAlwaysAddFilteredStringBeare
     public KeyValuePair<TKey, TValue>[]? ComplexTypeKeyedCollectionFieldAlwaysAddFilteredArrayBothFormatStrings
     {
         get => Value?.ToArray();
-        set => Value = value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredArrayBothFormatStrings);
@@ -66,8 +66,8 @@ public class FieldKeyValuePairListBothFormatStringsAlwaysAddFilteredStringBearer
 {
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldAlwaysAddFilteredListBothFormatStrings
     {
-        get => Value?.ToList();
-        set => Value = value?.ToDictionary();
+        get => Value;
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredListBothFormatStrings);
@@ -91,7 +91,7 @@ public class FieldKeyValuePairEnumerableBothFormatStringsAlwaysAddFilteredString
     public IEnumerable<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumerableBothFormatStrings
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumerableBothFormatStrings);
@@ -122,11 +122,11 @@ public class FieldKeyValuePairEnumeratorBothFormatStringsAlwaysAddFilteredString
                 Value = null;
                 return;
             }
-            var newValue       = new Dictionary<TKey, TValue>();
+            var newValue       = new List<KeyValuePair<TKey, TValue>>();
             var shouldContinue = value.MoveNext();
             while (shouldContinue)
             {
-                newValue.Add(value.Current.Key, value.Current.Value);
+                newValue.Add(value.Current);
                 shouldContinue = value.MoveNext();
             }
             Value = newValue;
@@ -154,8 +154,8 @@ public class FieldKeyValueDictionaryValueRevealerKeyFormatStringsAlwaysAddFilter
 {
     public IReadOnlyDictionary<TKey, TValue>? ComplexTypeKeyedCollectionFieldAlwaysAddFilteredDictionaryValueRevealerKeyFormatString
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredDictionaryValueRevealerKeyFormatString);
@@ -180,7 +180,7 @@ public class FieldKeyValuePairArrayValueRevealerKeyFormatStringsAlwaysAddFiltere
     public KeyValuePair<TKey, TValue>[]? ComplexTypeKeyedCollectionFieldAlwaysAddFilteredArrayValueRevealerKeyFormatString
     {
         get => Value?.ToArray();
-        set => Value = value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredArrayValueRevealerKeyFormatString);
@@ -204,8 +204,8 @@ public class FieldKeyValuePairListValueRevealerKeyFormatStringsAlwaysAddFiltered
 {
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldAlwaysAddFilteredListValueRevealerKeyFormatString
     {
-        get => Value?.ToList();
-        set => Value = value?.ToDictionary();
+        get => Value;
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredListValueRevealerKeyFormatString);
@@ -230,7 +230,7 @@ public class FieldKeyValuePairEnumerableValueRevealerKeyFormatStringsAlwaysAddFi
     public IEnumerable<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumerableValueRevealerKeyFormatString
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumerableValueRevealerKeyFormatString);
@@ -262,11 +262,11 @@ public class FieldKeyValuePairEnumeratorValueRevealerKeyFormatStringsAlwaysAddFi
                 Value = null;
                 return;
             }
-            var newValue       = new Dictionary<TKey, TValue>();
+            var newValue       = new List<KeyValuePair<TKey, TValue>>();
             var shouldContinue = value.MoveNext();
             while (shouldContinue)
             {
-                newValue.Add(value.Current.Key, value.Current.Value);
+                newValue.Add(value.Current);
                 shouldContinue = value.MoveNext();
             }
             Value = newValue;
@@ -295,8 +295,8 @@ public class FieldKeyValueDictionaryBothRevealersAlwaysAddFilteredStringBearer<T
 {
     public IReadOnlyDictionary<TKey, TValue>? ComplexTypeKeyedCollectionFieldAlwaysAddFilteredDictionaryBothRevealers
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredDictionaryBothRevealers);
@@ -322,7 +322,7 @@ public class FieldKeyValuePairArrayBothRevealersAlwaysAddFilteredStringBearer<TK
     public KeyValuePair<TKey, TValue>[]? ComplexTypeKeyedCollectionFieldAlwaysAddFilteredArrayBothRevealers
     {
         get => Value?.ToArray();
-        set => Value = value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredArrayBothRevealers);
@@ -348,7 +348,7 @@ public class FieldKeyValuePairListBothRevealersAlwaysAddFilteredStringBearer<TKe
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldAlwaysAddFilteredListBothRevealers
     {
         get => Value?.ToList();
-        set => Value = value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredListBothRevealers);
@@ -374,7 +374,7 @@ public class FieldKeyValuePairEnumerableBothRevealersAlwaysAddFilteredStringBear
     public IEnumerable<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumerableBothRevealers
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumerableBothRevealers);
@@ -407,11 +407,11 @@ public class FieldKeyValuePairEnumeratorBothRevealersAlwaysAddFilteredStringBear
                 Value = null;
                 return;
             }
-            var newValue       = new Dictionary<TKey, TValue>();
+            var newValue       = new List<KeyValuePair<TKey, TValue>>();
             var shouldContinue = value.MoveNext();
             while (shouldContinue)
             {
-                newValue.Add(value.Current.Key, value.Current.Value);
+                newValue.Add(value.Current);
                 shouldContinue = value.MoveNext();
             }
             Value = newValue;

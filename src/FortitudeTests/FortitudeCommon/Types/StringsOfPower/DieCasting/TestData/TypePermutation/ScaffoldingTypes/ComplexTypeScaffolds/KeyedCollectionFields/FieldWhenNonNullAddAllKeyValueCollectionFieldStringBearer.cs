@@ -18,8 +18,8 @@ public class FieldKeyValueDictionaryFormatStringsWhenNonNullAddAllStringBearer<T
 {
     public IReadOnlyDictionary<TKey, TValue>? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllDictionaryBothFormatStrings
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllDictionaryBothFormatStrings);
@@ -42,7 +42,7 @@ public class FieldKeyValuePairArrayBothFormatStringsWhenNonNullAddAllStringBeare
     public KeyValuePair<TKey, TValue>[]? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllArrayBothFormatStrings
     {
         get => Value?.ToArray();
-        set => Value = value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllArrayBothFormatStrings);
@@ -64,8 +64,8 @@ public class FieldKeyValuePairListBothFormatStringsWhenNonNullAddAllStringBearer
 {
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllListBothFormatStrings
     {
-        get => Value?.ToList();
-        set => Value = value?.ToDictionary();
+        get => Value;
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllListBothFormatStrings);
@@ -88,7 +88,7 @@ public class FieldKeyValuePairEnumerableBothFormatStringsWhenNonNullAddAllString
     public IEnumerable<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumerableBothFormatStrings
     {
         get => Value;
-        set => Value = value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumerableBothFormatStrings);
@@ -118,11 +118,11 @@ public class FieldKeyValuePairEnumeratorBothFormatStringsWhenNonNullAddAllString
                 Value = null;
                 return;
             }
-            var newValue       = new Dictionary<TKey, TValue>();
+            var newValue       = new List<KeyValuePair<TKey, TValue>>();
             var shouldContinue = value.MoveNext();
             while (shouldContinue)
             {
-                newValue.Add(value.Current.Key, value.Current.Value);
+                newValue.Add(value.Current);
                 shouldContinue = value.MoveNext();
             }
             Value = newValue;
@@ -150,8 +150,8 @@ public class FieldKeyValueDictionaryValueRevealerKeyFormatStringsWhenNonNullAddA
 {
     public IReadOnlyDictionary<TKey, TValue>? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllDictionaryValueRevealerKeyFormatString
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllDictionaryValueRevealerKeyFormatString);
@@ -176,7 +176,7 @@ public class FieldKeyValuePairArrayValueRevealerKeyFormatStringsWhenNonNullAddAl
     public KeyValuePair<TKey, TValue>[]? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllArrayValueRevealerKeyFormatString
     {
         get => Value?.ToArray();
-        set => Value = value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllArrayValueRevealerKeyFormatString);
@@ -200,8 +200,8 @@ public class FieldKeyValuePairListValueRevealerKeyFormatStringsWhenNonNullAddAll
 {
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllListValueRevealerKeyFormatStrings
     {
-        get => Value?.ToList();
-        set => Value = value?.ToDictionary();
+        get => Value;
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllListValueRevealerKeyFormatStrings);
@@ -226,7 +226,7 @@ public class FieldKeyValuePairEnumerableValueRevealerKeyFormatStringsWhenNonNull
     public IEnumerable<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumerableValueRevealerKeyFormatString
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumerableValueRevealerKeyFormatString);
@@ -258,11 +258,11 @@ public class FieldKeyValuePairEnumeratorValueRevealerKeyFormatStringsWhenNonNull
                 Value = null;
                 return;
             }
-            var newValue       = new Dictionary<TKey, TValue>();
+            var newValue       = new List<KeyValuePair<TKey, TValue>>();
             var shouldContinue = value.MoveNext();
             while (shouldContinue)
             {
-                newValue.Add(value.Current.Key, value.Current.Value);
+                newValue.Add(value.Current);
                 shouldContinue = value.MoveNext();
             }
             Value = newValue;
@@ -293,8 +293,8 @@ public class FieldKeyValueDictionaryBothRevealersWhenNonNullAddAllStringBearer<T
 {
     public IReadOnlyDictionary<TKey, TValue>? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllDictionaryBothRevealers
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllDictionaryBothRevealers);
@@ -320,7 +320,7 @@ public class FieldKeyValuePairArrayBothRevealersWhenNonNullAddAllStringBearer<TK
     public KeyValuePair<TKey, TValue>[]? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllArrayBothRevealers
     {
         get => Value?.ToArray();
-        set => Value = value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllArrayBothRevealers);
@@ -345,8 +345,8 @@ public class FieldKeyValuePairListBothRevealersWhenNonNullAddAllStringBearer<TKe
 {
     public IReadOnlyList<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllListBothRevealers
     {
-        get => Value?.ToList();
-        set => Value = value?.ToDictionary();
+        get => Value;
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllListBothRevealers);
@@ -372,7 +372,7 @@ public class FieldKeyValuePairEnumerableBothRevealersWhenNonNullAddAllStringBear
     public IEnumerable<KeyValuePair<TKey, TValue>>? ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumerableBothRevealers
     {
         get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddAllEnumerableBothRevealers);
@@ -405,11 +405,11 @@ public class FieldKeyValuePairEnumeratorBothRevealersWhenNonNullAddAllStringBear
                 Value = null;
                 return;
             }
-            var newValue       = new Dictionary<TKey, TValue>();
+            var newValue       = new List<KeyValuePair<TKey, TValue>>();
             var shouldContinue = value.MoveNext();
             while (shouldContinue)
             {
-                newValue.Add(value.Current.Key, value.Current.Value);
+                newValue.Add(value.Current);
                 shouldContinue = value.MoveNext();
             }
             Value = newValue;

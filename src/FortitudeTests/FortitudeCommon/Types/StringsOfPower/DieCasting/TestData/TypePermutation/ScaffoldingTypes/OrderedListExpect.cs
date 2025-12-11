@@ -75,7 +75,8 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
             filterName = expression.Member.Name;
         }
         else { ElementPredicate = ISupportsOrderedCollectionPredicate<TFilterBase?>.GetNoFilterPredicate; }
-        ElementCallType = ElementType;
+        ElementCallType    = ElementType;
+        CollectionCallType = inputList?.GetType() ?? typeof(List<TInputElement>);
     }
 
     public override bool InputIsEmpty => (Input?.Count ?? 0) >= 0;

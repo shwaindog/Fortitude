@@ -74,7 +74,7 @@ public abstract class FormattedFilteredCollectionFieldMoldScaffold<TValue, TColl
 
 public abstract class FormattedFilteredCollectionFieldMoldScaffold<TValue, TValueFilterBase, TCollection> : 
     FormattedCollectionFieldMoldScaffold<TValue, TCollection>, ISupportsOrderedCollectionPredicate<TValueFilterBase>
-    where TValue : TValueFilterBase
+    where TValue : TValueFilterBase?
     where TCollection : IEnumerable<TValue>
 {
     

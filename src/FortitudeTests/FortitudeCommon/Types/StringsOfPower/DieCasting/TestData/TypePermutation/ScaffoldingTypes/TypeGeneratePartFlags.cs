@@ -151,6 +151,8 @@ public static class ScaffoldingStringBuilderInvokeFlagsExtensions
     public static bool DoesNotHaveFilterPredicate(this ScaffoldingStringBuilderInvokeFlags flags)         => (flags & FilterPredicate) == 0;
     public static bool HasSubListFilter(this ScaffoldingStringBuilderInvokeFlags flags)                 => (flags & SubsetListFilter) > 0;
     public static bool DoesNotHaveSubListFilter(this ScaffoldingStringBuilderInvokeFlags flags)         => (flags & SubsetListFilter) == 0;
+    public static bool HasAcceptsDictionary(this ScaffoldingStringBuilderInvokeFlags flags)         => (flags & AcceptsDictionary) > 0;
+    public static bool DoesNotHaveAcceptsDictionary(this ScaffoldingStringBuilderInvokeFlags flags)         => (flags & AcceptsDictionary) == 0;
     
     public static bool HasAcceptsNonNullableObject(this ScaffoldingStringBuilderInvokeFlags flags) => 
         (flags & AcceptsNonNullableObject) == AcceptsNonNullableObject;

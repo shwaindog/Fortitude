@@ -48,7 +48,7 @@ public class TestDictionaries
       , new KeyValuePair<bool?, int?>(false, null)
     };
     
-    public static KeyValuePredicate<bool, int> NullBoolIntMap_First_1        = (count, _, _) => 
+    public static KeyValuePredicate<bool?, int?> NullBoolIntMap_First_1        = (count, _, _) => 
         StopOnFirstExclusion(count <= 1);
     
     public static KeyValuePredicate<bool?, int?> NullBoolIntMap_Second_1       = (count, _, _) => 
@@ -56,6 +56,8 @@ public class TestDictionaries
     
     public static KeyValuePredicate<bool?, int?> NullBoolIntMap_KeyNonNull       = (_, key, _) => 
         EvaluateIsIncludedAndContinue(key != null);
+
+    public static readonly List<bool?> Bool_NullOrFalse_SubList = [null, false];
     
 
     public static readonly Dictionary<double, ICharSequence> DoubleCharSequenceMap = new()
@@ -110,6 +112,28 @@ public class TestDictionaries
       , new KeyValuePair<double?, ICharSequence?>(-1, new CharArrayStringBuilder("Imagine there's no tax havens, it's easy if you try"))
     };
 
+    public static KeyValuePredicate<double?, ICharSequence?> NullDoubleCharSequenceMap_First_4  = (count, _, _) => 
+        StopOnFirstExclusion(count <= 4);
+    
+    public static KeyValuePredicate<double?, ICharSequence?> NullDoubleCharSequenceMap_Second_4 = (count, _, _) => 
+        BetweenRetrieveRange(count, 5, 9);
+    
+    public static KeyValuePredicate<double?, ICharSequence?> NullDoubleCharSequenceMap_First_2  = (count, _, _) => 
+        StopOnFirstExclusion(count <= 2);
+
+    public static KeyValuePredicate<double?, ICharSequence?> NullDoubleCharSequenceMap_Skip_Odd_Index = (_, _, _) => 
+        EvaluateIsIncludedAndContinue(true, 1);
+    
+    public static KeyValuePredicate<double?, ICharSequence?> NullDoubleCharSequenceMap_FirstKey_Lt_5  = (_, key, _) => First(key < 5.0f);
+
+    public static readonly List<double?> NullDouble_First_SubList = [Math.PI];
+
+    public static readonly List<double?> NullDouble_First_4_SubList = [Math.PI, 2 * Math.PI, Math.E, 2 * Math.E];
+
+    public static readonly List<double?> NullDouble_Second_4_SubList = [Math.PI * Math.E, 1, -1, 100];
+
+    public static readonly List<double?> NullDouble_NullOrNeg1_SubList = [null, -1];
+
     public static KeyValuePredicate<double?, ICharSequence?>
         NullDoubleNullCharSequenceMap_First_2 = (count, _, _) => StopOnFirstExclusion(count <= 2);
     
@@ -123,6 +147,40 @@ public class TestDictionaries
         = (_, _, _) => EvaluateIsIncludedAndContinue(true, 1);
     
     public static KeyValuePredicate<double?, ICharSequence?> NullDoubleNullCharSequenceMap_FirstKey_Lt_5 = (_, key, _) => First(key is < 5.0f);
+
+
+    public static readonly Dictionary<UInt128, BigInteger> VeryULongBigIntegerMap = new()
+    {
+        { UInt128.MinValue, BigInteger.Zero }
+      , { UInt128.MaxValue/2, UInt128.MaxValue/2 }
+      , { UInt128.One, BigInteger.One }
+      , { UInt128.MaxValue/3, UInt128.MaxValue/3 }
+      , { UInt128.MaxValue/4, UInt128.MaxValue/4 }
+      , { UInt128.MaxValue, UInt128.MaxValue }
+    };
+
+    public static readonly List<UInt128> VeryULong_First_3_SubList = [UInt128.MinValue, UInt128.MaxValue/2, UInt128.One];
+
+    public static readonly List<UInt128> VeryULong_Second_3_SubList = [UInt128.MaxValue/3, UInt128.MaxValue/4, UInt128.MaxValue];
+
+    public static KeyValuePredicate<UInt128, BigInteger> VeryULongBigIntegerMap_First_3  = (count, _, _) => 
+        StopOnFirstExclusion(count <= 3);
+
+    public static readonly List<KeyValuePair<UInt128, BigInteger?>> NullVeryULongBigIntegerMap = new()
+    {
+        new KeyValuePair<UInt128, BigInteger?>( UInt128.MinValue, BigInteger.Zero )
+      , new KeyValuePair<UInt128, BigInteger?>( UInt128.MaxValue/2, null )
+      , new KeyValuePair<UInt128, BigInteger?>( UInt128.One, BigInteger.One )
+      , new KeyValuePair<UInt128, BigInteger?>( UInt128.MaxValue/3, UInt128.MaxValue/3 )
+      , new KeyValuePair<UInt128, BigInteger?>( UInt128.MaxValue/4, null )
+      , new KeyValuePair<UInt128, BigInteger?>( UInt128.MaxValue, UInt128.MaxValue )
+    };
+
+    public static KeyValuePredicate<UInt128, BigInteger?> NullVeryULongBigIntegerMap_First_3  = (count, _, _) => 
+        StopOnFirstExclusion(count <= 3);
+    
+    public static KeyValuePredicate<UInt128, BigInteger?> NullVeryULongBigIntegerMap_Second_3 = (count, _, _) => 
+        BetweenRetrieveRange(count, 4, 7);
 
 
     public static readonly Dictionary<TimeSpan, char> TimeSpanCharMap = new()
@@ -169,11 +227,14 @@ public class TestDictionaries
       , { new IPAddress([255, 255, 255, 255]), new Uri("http://unknown.com") }
       , { new IPAddress([192, 168, 1, 1]), new Uri("tcp://Default-Gateway") }
     };
-
-    public static readonly List<KeyValuePair<IPAddress?, Uri?>> NullIPAddressUriMap = new()
+    
+    public static KeyValuePredicate<IPAddress, Uri> IPAddress_First_10 = (count, _, _) => 
+        StopOnFirstExclusion(count <= 10);
+    
+    public static readonly List<KeyValuePair<IPAddress, Uri?>> NullIPAddressUriMap = new()
     {
-        new KeyValuePair<IPAddress?, Uri?>(null, new Uri("http://First-null.com"))
-      , new KeyValuePair<IPAddress?, Uri?>(new IPAddress([0, 0, 0, 0]), new Uri("tcp://localhost"))
+        new KeyValuePair<IPAddress?, Uri?>(new IPAddress([0, 0, 0, 0]), new Uri("http://First-null.com"))
+      , new KeyValuePair<IPAddress?, Uri?>(new IPAddress([127, 0, 0, 1]), new Uri("tcp://localhost"))
       , new KeyValuePair<IPAddress?, Uri?>(new IPAddress([255, 255, 255, 255]), new Uri("http://unknown.com"))
       , new KeyValuePair<IPAddress?, Uri?>(new IPAddress([192, 168, 1, 1]), new Uri("tcp://Default-Gateway"))
       , new KeyValuePair<IPAddress?, Uri?>(null, null)

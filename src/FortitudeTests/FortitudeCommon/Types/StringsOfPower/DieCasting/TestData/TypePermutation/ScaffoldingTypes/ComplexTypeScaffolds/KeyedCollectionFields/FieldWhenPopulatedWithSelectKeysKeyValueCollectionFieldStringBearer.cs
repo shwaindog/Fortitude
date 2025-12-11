@@ -15,8 +15,8 @@ public class FieldKeyValueDictionaryBothFormatStringsWhenPopulatedWithSelectKeys
 {
     public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromArrayBothFormatStrings
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromArrayBothFormatStrings);
@@ -39,8 +39,8 @@ public class FieldKeyValueDictionaryBothFormatStringsWhenPopulatedWithSelectKeys
 {
     public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromSpanBothFormatStrings
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromSpanBothFormatStrings);
@@ -63,8 +63,8 @@ public class FieldKeyValueDictionaryBothFormatStringsWhenPopulatedWithSelectKeys
 {
     public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromReadOnlySpanBothFormatStrings
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromReadOnlySpanBothFormatStrings);
@@ -87,8 +87,8 @@ public class FieldKeyValueDictionaryBothFormatStringsWhenPopulatedWithSelectKeys
 {
     public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromListBothFormatStrings
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromListBothFormatStrings);
@@ -111,8 +111,8 @@ public class FieldKeyValueDictionaryBothFormatStringsWhenPopulatedWithSelectKeys
 {
     public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromEnumerableBothFormatStrings 
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromEnumerableBothFormatStrings );
@@ -135,8 +135,8 @@ public class FieldKeyValueDictionaryBothFormatStringsWhenPopulatedWithSelectKeys
 {
     public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysKeyValuePairEnumeratorBothFormatStrings 
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumeratorBothFormatStrings );
@@ -161,8 +161,8 @@ public class FieldKeyValueDictionaryValueRevealerWhenPopulatedWithSelectKeysArra
 {
     public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromArrayValueRevealerKeyFormatString 
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromArrayValueRevealerKeyFormatString );
@@ -187,8 +187,8 @@ public class FieldKeyValueDictionaryValueRevealerWhenPopulatedWithSelectKeysSpan
 {
     public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromSpanValueRevealerKeyFormatString 
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromSpanValueRevealerKeyFormatString );
@@ -213,8 +213,8 @@ public class FieldKeyValueDictionaryValueRevealerWhenPopulatedWithSelectKeysRead
 {
     public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString 
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString );
@@ -241,8 +241,8 @@ public class FieldKeyValueDictionaryValueRevealerWhenPopulatedWithSelectKeysList
 {
     public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromListValueRevealerKeyFormatString 
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromListValueRevealerKeyFormatString );
@@ -267,8 +267,8 @@ public class FieldKeyValueDictionaryValueRevealerWhenPopulatedWithSelectKeysEnum
 {
     public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings 
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings );
@@ -293,8 +293,8 @@ public class FieldKeyValueDictionaryValueRevealerWhenPopulatedWithSelectKeysEnum
 {
     public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings 
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings );
@@ -320,8 +320,8 @@ public class FieldKeyValueDictionaryBothRevealersWhenPopulatedWithSelectKeysArra
 {
     public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromArrayBothRevealers 
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromArrayBothRevealers );
@@ -347,8 +347,8 @@ public class FieldKeyValueDictionaryBothRevealersWhenPopulatedWithSelectKeysSpan
 {
     public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromSpanBothRevealers 
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromSpanBothRevealers );
@@ -374,8 +374,8 @@ public class FieldKeyValueDictionaryBothRevealersWhenPopulatedWithSelectKeysRead
 {
     public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromReadOnlySpanBothRevealers 
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromReadOnlySpanBothRevealers );
@@ -401,8 +401,8 @@ public class FieldKeyValueDictionaryBothRevealersWhenPopulatedWithSelectKeysList
 {
     public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysFromListBothRevealers 
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromListBothRevealers );
@@ -428,8 +428,8 @@ public class FieldKeyValueDictionaryBothRevealersWhenPopulatedWithSelectKeysEnum
 {
     public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysKeyValuePairEnumerableBothRevealers 
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumerableBothRevealers );
@@ -455,8 +455,8 @@ public class FieldKeyValueDictionaryBothRevealersWhenPopulatedWithSelectKeysEnum
 {
     public IReadOnlyDictionary<TKey, TValue>? WhenPopulatedWithSelectKeysKeyValuePairEnumeratorBothRevealers 
     {
-        get => Value;
-        set => Value = value as Dictionary<TKey, TValue> ?? value?.ToDictionary();
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
     }
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumeratorBothRevealers );

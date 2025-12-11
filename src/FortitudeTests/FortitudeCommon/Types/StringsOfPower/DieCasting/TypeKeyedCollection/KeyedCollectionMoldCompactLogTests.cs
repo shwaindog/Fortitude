@@ -45,6 +45,7 @@ public partial class KeyedCollectionMoldTests
                 .NotHasSupportsValueRevealer()
                 .NoFilterPredicate()
                 .NoSubsetListFilter()
+        where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()    
         select new object[] { kce, scaffoldToCall };
 
     [TestMethod]
@@ -64,6 +65,7 @@ public partial class KeyedCollectionMoldTests
                 .NotHasSupportsValueRevealer()
                 .HasFilterPredicate()
                 .NoSubsetListFilter()
+        where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()    
         select new object[] { kce, scaffoldToCall };
 
     [TestMethod]
@@ -83,6 +85,7 @@ public partial class KeyedCollectionMoldTests
                 .NotHasSupportsValueRevealer()
                 .HasSubsetListFilter()
                 .NoFilterPredicate()
+        where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()    
         select new object[] { kce, scaffoldToCall };
 
     [TestMethod]
@@ -102,6 +105,7 @@ public partial class KeyedCollectionMoldTests
                 .HasSupportsValueRevealer()
                 .NoFilterPredicate()
                 .NoSubsetListFilter()
+        where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()    
         select new object[] { kce, scaffoldToCall };
 
     [TestMethod]
@@ -121,6 +125,7 @@ public partial class KeyedCollectionMoldTests
                 .HasSupportsValueRevealer()
                 .HasFilterPredicate()
                 .NoSubsetListFilter()
+        where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()    
         select new object[] { kce, scaffoldToCall };
 
     [TestMethod]
@@ -141,6 +146,7 @@ public partial class KeyedCollectionMoldTests
                 .HasSupportsValueRevealer()
                 .HasSubsetListFilter()
                 .NoFilterPredicate()
+        where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()    
         select new object[] { kce, scaffoldToCall };
 
     [TestMethod]
@@ -161,6 +167,7 @@ public partial class KeyedCollectionMoldTests
                 .HasSupportsValueRevealer()
                 .NoFilterPredicate()
                 .NoSubsetListFilter()
+        where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()    
         select new object[] { kce, scaffoldToCall };
 
     [TestMethod]
@@ -180,6 +187,7 @@ public partial class KeyedCollectionMoldTests
                 .HasSupportsValueRevealer()
                 .HasFilterPredicate()
                 .NoSubsetListFilter()
+        where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()    
         select new object[] { kce, scaffoldToCall };
 
     [TestMethod]
@@ -200,6 +208,7 @@ public partial class KeyedCollectionMoldTests
                 .HasSupportsValueRevealer()
                 .HasSubsetListFilter()
                 .NoFilterPredicate()
+        where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()    
         select new object[] { kce, scaffoldToCall };
 
     [TestMethod]
@@ -216,7 +225,7 @@ public partial class KeyedCollectionMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactLog(BothRevealersDictTestData.AllPredicateFilteredKeyedCollectionsExpectations[2], ScaffoldingRegistry.AllScaffoldingTypes[968]);
+        SharedCompactLog(SimpleDictTestData.AllPredicateFilteredSimpleDictExpectations[7], ScaffoldingRegistry.AllScaffoldingTypes[986]);
     }
 
     private void SharedCompactLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -290,6 +299,9 @@ public partial class KeyedCollectionMoldTests
               .Append(nameof(SharedCompactLog)).Append("()\n\n")
               .Append("SharedCompactLog(")
               .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
-        Assert.AreEqual(buildExpectedOutput, result);
+        Assert.AreEqual(buildExpectedOutput, result, $"Difference at i={buildExpectedOutput.DiffPosition(result)}");
     }
 }
+
+
+//KeyedFromDictionaryFormatStringsAddFilteredStringBearer<IPAddress,·Uri,·IPAddress,·Uri>·{············0.0.0.0:·==>·http://first-null.com/,··········127.0.0.1:·==>·tcp://localhost/,····255.255.255.255:·==>·http://unknown.com/,········192.168.1.1:·==>·tcp://default-gateway/·}

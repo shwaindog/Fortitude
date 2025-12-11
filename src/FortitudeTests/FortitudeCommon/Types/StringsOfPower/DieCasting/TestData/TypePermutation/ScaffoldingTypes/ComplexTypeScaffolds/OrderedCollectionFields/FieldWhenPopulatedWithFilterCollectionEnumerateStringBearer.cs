@@ -217,7 +217,7 @@ public class FieldStringEnumerableWhenPopulatedWithFilterStringBearer : Formatte
                 | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldCharSequenceEnumerableWhenPopulatedWithFilterStringBearer<TCharSeq, TCharSeqFilterBase>
     : FormattedFilteredCollectionFieldMoldScaffold<TCharSeq, TCharSeqFilterBase, IEnumerable<TCharSeq>>
-    where TCharSeq : ICharSequence, TCharSeqFilterBase
+    where TCharSeq : ICharSequence?, TCharSeqFilterBase?
 {
     public IEnumerable<TCharSeq?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceEnumerable
     {

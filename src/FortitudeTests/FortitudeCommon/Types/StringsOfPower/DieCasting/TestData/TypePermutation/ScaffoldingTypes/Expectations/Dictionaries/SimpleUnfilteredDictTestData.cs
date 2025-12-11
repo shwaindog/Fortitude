@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Numerics;
 using FortitudeCommon.DataStructures.Lists.PositionAware;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.Forge;
@@ -8,6 +9,7 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldCon
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.TestDictionaries;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.Dictionaries;
 
@@ -32,7 +34,7 @@ public partial class SimpleDictTestData
                   , { new EK(AcceptsTypeAllButNullableStruct | AlwaysWrites), "null" }
                   , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
                 }
-              , new DictionaryExpect<bool, int>(TestDictionaries.BoolIntMap.ToList(), DefaultCallerTypeFlags, name: "All_NoFilter")
+              , new DictionaryExpect<bool, int>(BoolIntMap.ToList(), DefaultCallerTypeFlags, name: "All_NoFilter")
                 {
                     {
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -64,6 +66,40 @@ public partial class SimpleDictTestData
                         """.Dos2Unix()
                     }
                 }
+              , new DictionaryExpect<bool?, int?>(NullBoolNullIntKvpList.ToList(), DefaultCallerTypeFlags, name: "NullAll_NoFilter")
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , "{ null: 0, true: 1, false: null }"
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , "{\"null\":0,\"true\":1,\"false\":null}"
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
+                      , """
+                        {
+                          null: 0,
+                          true: 1,
+                          false: null
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
+                      , """
+                        {
+                          "null": 0,
+                          "true": 1,
+                          "false": null
+                        }
+                        """.Dos2Unix()
+                    }
+                }
               , new DictionaryExpect<double, ICharSequence>([], DefaultCallerTypeFlags, name: "Empty")
                 {
                     { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "{}" }
@@ -76,7 +112,7 @@ public partial class SimpleDictTestData
                   , { new EK(AcceptsTypeAllButNullableStruct | AlwaysWrites), "null" }
                   , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
                 }
-              , new DictionaryExpect<double, ICharSequence>(TestDictionaries.DoubleCharSequenceMap.ToList(), DefaultCallerTypeFlags
+              , new DictionaryExpect<double, ICharSequence>(DoubleCharSequenceMap.ToList(), DefaultCallerTypeFlags
                                                                , "All_NoFilter")
                 {
                     {
@@ -123,18 +159,177 @@ public partial class SimpleDictTestData
                         }
                         """.Dos2Unix()
                     }
+                }
+              , new DictionaryExpect<double?, ICharSequence?>(NullDoubleNullCharSequence, "", "N3", name: "All_NoFilter")
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         null: null,
+                         3.142: "Eating the crust edges of one pie means you have eaten the length of two pi",
+                         2.718: "One doesn't simply write Euler nature number.",
+                         1.000: "All for one and one for all.",
+                         null: ""Your contract is null AND void", apparently not the same thing or why say both.",
+                         -1.000: "Imagine there's no tax havens, it's easy if you try" 
+                        }
+                        """.RemoveLineEndings()
+                    }
                    ,
                     {
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                          "3.141592653589793":"Eating the crust edges of one pie means you have eaten the length of two pi",
-                          "6.283185307179586":"You have now eaten only 1 pie length, but if it is blood pudding pie it will feel like 2",
-                          "2.718281828459045":"One doesn't simply write Euler nature number.",
-                          "5.43656365691809":"One doesn't even appear at the start of Euler nature number.",
-                          "8.539734222673566":"Oiler and Euler are very different things.",
-                          "1":"All for one and one for all.",
-                          "-1":"Imagine there's no tax havens, it's easy if you try"
+                        "null": null,
+                        "3.142": "Eating the crust edges of one pie means you have eaten the length of two pi",
+                        "2.718": "One doesn't simply write Euler nature number.",
+                        "1.000": "All for one and one for all.",
+                        "null": ""Your contract is null AND void", apparently not the same thing or why say both.",
+                        "-1.000": "Imagine there's no tax havens, it's easy if you try"
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          null: null,
+                          3.142: "Eating the crust edges of one pie means you have eaten the length of two pi",
+                          2.718: "One doesn't simply write Euler nature number.",
+                          1.000: "All for one and one for all.",
+                          null: ""Your contract is null AND void", apparently not the same thing or why say both.",
+                          -1.000: "Imagine there's no tax havens, it's easy if you try"
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "null": null,
+                          "3.142": "Eating the crust edges of one pie means you have eaten the length of two pi",
+                          "2.718": "One doesn't simply write Euler nature number.",
+                          "1.000": "All for one and one for all.",
+                          "null": ""Your contract is null AND void", apparently not the same thing or why say both.",
+                          "-1.000": "Imagine there's no tax havens, it's easy if you try" 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                }
+              , new DictionaryExpect<UInt128, BigInteger>(VeryULongBigIntegerMap.ToList(), "-{0}", "'{0}'")
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         '0': -0,
+                         '170141183460469231731687303715884105727': -170141183460469231731687303715884105727,
+                         '1': -1,
+                         '113427455640312821154458202477256070485': -113427455640312821154458202477256070485,
+                         '85070591730234615865843651857942052863': -85070591730234615865843651857942052863,
+                         '340282366920938463463374607431768211455': -340282366920938463463374607431768211455 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "'0'": -0,
+                        "'170141183460469231731687303715884105727'": -170141183460469231731687303715884105727,
+                        "'1'": -1,
+                        "'113427455640312821154458202477256070485'":-113427455640312821154458202477256070485,
+                        "'85070591730234615865843651857942052863'":-85070591730234615865843651857942052863,
+                        "'340282366920938463463374607431768211455'":-340282366920938463463374607431768211455
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          '0': -0,
+                          '170141183460469231731687303715884105727': -170141183460469231731687303715884105727,
+                          '1': -1,
+                          '113427455640312821154458202477256070485': -113427455640312821154458202477256070485,
+                          '85070591730234615865843651857942052863': -85070591730234615865843651857942052863,
+                          '340282366920938463463374607431768211455': -340282366920938463463374607431768211455
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "'0'": -0,
+                          "'170141183460469231731687303715884105727'": -170141183460469231731687303715884105727,
+                          "'1'": -1,
+                          "'113427455640312821154458202477256070485'": -113427455640312821154458202477256070485,
+                          "'85070591730234615865843651857942052863'": -85070591730234615865843651857942052863,
+                          "'340282366920938463463374607431768211455'": -340282366920938463463374607431768211455
+                        }
+                        """.RemoveLineEndings()
+                    }
+                }
+              , new DictionaryExpect<UInt128, BigInteger?>(NullVeryULongBigIntegerMap, "{0,45}","\"{0,-45}\"")
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         "0                                            ":                                             0,
+                         "170141183460469231731687303715884105727      ":                                          null,
+                         "1                                            ":                                             1,
+                         "113427455640312821154458202477256070485      ":       113427455640312821154458202477256070485,
+                         "85070591730234615865843651857942052863       ":                                          null,
+                         "340282366920938463463374607431768211455      ":       340282366920938463463374607431768211455 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "0                                            ":                                             0,
+                        "170141183460469231731687303715884105727      ":                                          null,
+                        "1                                            ":                                             1,
+                        "113427455640312821154458202477256070485      ":       113427455640312821154458202477256070485,
+                        "85070591730234615865843651857942052863       ":                                          null,
+                        "340282366920938463463374607431768211455      ":       340282366920938463463374607431768211455
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          "0                                            ":                                             0,
+                          "170141183460469231731687303715884105727      ":                                          null,
+                          "1                                            ":                                             1,
+                          "113427455640312821154458202477256070485      ":       113427455640312821154458202477256070485,
+                          "85070591730234615865843651857942052863       ":                                          null,
+                          "340282366920938463463374607431768211455      ":       340282366920938463463374607431768211455
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "0                                            ":                                             0,
+                          "170141183460469231731687303715884105727      ":                                          null,
+                          "1                                            ":                                             1,
+                          "113427455640312821154458202477256070485      ":       113427455640312821154458202477256070485,
+                          "85070591730234615865843651857942052863       ":                                          null,
+                          "340282366920938463463374607431768211455      ":       340282366920938463463374607431768211455
                         }
                         """.RemoveLineEndings()
                     }

@@ -154,18 +154,8 @@ public class ValueRevealerDictExpect<TKey, TValue, TKFilterBase, TVFilterBase, T
     {
         var createdStringBearer = CreateNewStringBearer(scaffoldEntry);
 
-        var acceptsNullables = scaffoldEntry.ScaffoldingFlags.HasAcceptsNullables();
-
-        if (createdStringBearer is IMoldSupportedValue<Dictionary<TKey, TValue>?> nullArrayMold)
-            nullArrayMold.Value = Input?.ToDictionary();
-        else if (createdStringBearer is IMoldSupportedValue<KeyValuePair<TKey, TValue>[]?> arrayMold)
-            arrayMold.Value = Input?.ToArray();
-        else if (createdStringBearer is IMoldSupportedValue<IReadOnlyList<KeyValuePair<TKey, TValue>>?> listMold)
-            listMold.Value = Input!;
-        else if (createdStringBearer is IMoldSupportedValue<IEnumerable<KeyValuePair<TKey, TValue>>?> enumerableMold)
-            enumerableMold.Value = Input!;
-        else if (createdStringBearer is IMoldSupportedValue<IEnumerator<KeyValuePair<TKey, TValue>>?> enumeratorMold)
-            enumeratorMold.Value = Input?.GetEnumerator();
+        if (createdStringBearer is IMoldSupportedValue<List<KeyValuePair< TKey, TValue>>> nullArrayMold)
+            nullArrayMold.Value = Input;
 
         if (HasRestrictingSubListFilter && createdStringBearer is ISupportsSubsetDisplayKeys<TKSubListDerived> supportsSettingSubListFilter)
             supportsSettingSubListFilter.DisplayKeys = KeySubListPredicate!;

@@ -294,6 +294,7 @@ public static class ExtendedSpanFormattableExtensions
                 {
                     expectIdentifier = false;
                     expectLayout = true;
+                    continue;
                 }
                 else { return false; }
             }
