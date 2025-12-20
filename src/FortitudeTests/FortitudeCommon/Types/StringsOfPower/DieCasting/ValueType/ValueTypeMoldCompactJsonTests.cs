@@ -192,7 +192,7 @@ public partial class ValueTypeMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactJsonAsValue(EnumTestData.EnumExpectations[3], ScaffoldingRegistry.AllScaffoldingTypes[1126]);
+        SharedCompactJsonAsString(StringTestData.AllStringExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[1209]);
     }
 
     private void SharedCompactJsonAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -207,6 +207,11 @@ public partial class ValueTypeMoldTests
         logger.WarnAppend("FormatExpectation - ")?
               .AppendLine(formatExpectation.ToString())
               .FinalAppend("");
+            
+        logger.InfoAppend("To Debug Test past the following code into ")?
+              .Append(nameof(CompactJsonSingleTest)).Append("()\n\n")
+              .Append("SharedCompactJsonAsValue(")
+              .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
 
         // ReSharper disable once RedundantArgumentDefaultValue
         var tos = new TheOneString().Initialize(Compact | Json);
@@ -257,11 +262,6 @@ public partial class ValueTypeMoldTests
                   .AppendLine("Expected it to match -")
                   .AppendLine(buildExpectedOutput)
                   .FinalAppend("");
-            
-            logger.InfoAppend("To Debug Test past the following code into ")?
-                  .Append(nameof(CompactJsonSingleTest)).Append("()\n\n")
-                  .Append("SharedCompactJsonAsValue(")
-                  .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         }
         else
         {
@@ -284,6 +284,11 @@ public partial class ValueTypeMoldTests
         logger.WarnAppend("FormatExpectation - ")?
               .AppendLine(formatExpectation.ToString())
               .FinalAppend("");
+            
+        logger.InfoAppend("To Debug Test past the following code into ")?
+              .Append(nameof(CompactJsonSingleTest)).Append("()\n\n")
+              .Append("SharedCompactJsonAsString(")
+              .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
 
         // ReSharper disable once RedundantArgumentDefaultValue
         var tos = new TheOneString().Initialize(Compact | Json);
@@ -346,11 +351,6 @@ public partial class ValueTypeMoldTests
                   .AppendLine("Expected it to match -")
                   .AppendLine(buildExpectedOutput)
                   .FinalAppend("");
-            
-            logger.InfoAppend("To Debug Test past the following code into ")?
-                  .Append(nameof(CompactJsonSingleTest)).Append("()\n\n")
-                  .Append("SharedCompactJsonAsString(")
-                  .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         }
         else
         {

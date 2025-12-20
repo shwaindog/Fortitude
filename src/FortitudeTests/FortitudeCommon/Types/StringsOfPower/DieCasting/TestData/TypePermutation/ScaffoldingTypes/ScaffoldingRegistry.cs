@@ -342,8 +342,14 @@ public static class ScaffoldingRegistry
     public static IEnumerable<ScaffoldingPartEntry> AcceptsNullables(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsNullableClass | AcceptsNullableStruct));
 
-    public static IEnumerable<ScaffoldingPartEntry> OnlyAcceptsNullableStructs(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+    public static IEnumerable<ScaffoldingPartEntry> AcceptsNullableStructs(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsNullableStruct));
+
+    public static IEnumerable<ScaffoldingPartEntry> AcceptsKeyNullableStruct(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(KeyNullableStruct));
+
+    public static IEnumerable<ScaffoldingPartEntry> AcceptsKeyIsNotNullableStruct(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(KeyNullableStruct));
 
     public static IEnumerable<ScaffoldingPartEntry> AcceptsNullableClasses(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsNullableClass));
@@ -358,9 +364,12 @@ public static class ScaffoldingRegistry
     public static IEnumerable<ScaffoldingPartEntry> AcceptsNonNullStructs(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsStruct));
 
+    public static IEnumerable<ScaffoldingPartEntry> AcceptsStructClassNullableClass(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsClass | AcceptsStruct | AcceptsNullableClass));
+
     public static IEnumerable<ScaffoldingPartEntry> AcceptsAllButNullStructs(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsClass | AcceptsStruct | AcceptsNullableClass)
-                         && spe.ScaffoldingFlags.HasNoneOf(AcceptsStruct));
+                         && spe.ScaffoldingFlags.HasNoneOf(AcceptsNullableStruct));
 
     public static IEnumerable<ScaffoldingPartEntry> AcceptsNonNullClasses(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsClass) && spe.ScaffoldingFlags.HasNoneOf(AcceptsNullableClass));

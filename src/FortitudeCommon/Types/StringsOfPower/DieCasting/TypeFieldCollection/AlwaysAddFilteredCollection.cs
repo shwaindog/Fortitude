@@ -243,7 +243,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt AlwaysRevealFiltered<TCloaked, TFilterBase, TRevealBase>
     (ReadOnlySpan<char> fieldName, Span<TCloaked> value, OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TFilterBase?, TRevealBase?
         where TRevealBase : notnull
     {
@@ -279,7 +279,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 {
                     stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
                 }
-                stb.RevealCloakedBearerOrNull(item, palantírReveal, formatFlags);
+                stb.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, matchedItems);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -301,7 +301,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt AlwaysRevealFiltered<TCloakedStruct>(ReadOnlySpan<char> fieldName, Span<TCloakedStruct?> value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
+      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
     {
         if (stb.SkipField<Memory<TCloakedStruct?>>(value.Length > 0 ? typeof(Span<TCloakedStruct?>) : null, fieldName, formatFlags))
             return stb.WasSkipped<Memory<TCloakedStruct?>>(value.Length > 0 ? typeof(Span<TCloakedStruct?>) : null, fieldName, formatFlags);
@@ -335,7 +335,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 {
                     stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
                 }
-                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatFlags);
+                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, matchedItems);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1048,7 +1048,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt AlwaysRevealFiltered<TCloaked, TFilterBase, TRevealBase>
     (ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloaked> value, OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TFilterBase?, TRevealBase?
         where TRevealBase : notnull
     {
@@ -1084,7 +1084,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 {
                     stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
                 }
-                stb.RevealCloakedBearerOrNull(item, palantírReveal, formatFlags);
+                stb.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, matchedItems);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1106,7 +1106,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt AlwaysRevealFiltered<TCloakedStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloakedStruct?> value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
+      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
     {
         if (stb.SkipField<ReadOnlyMemory<TCloakedStruct?>>(value.Length > 0 ? typeof(ReadOnlySpan<TCloakedStruct?>) : null, fieldName, formatFlags))
             return stb.WasSkipped<ReadOnlyMemory<TCloakedStruct?>>(value.Length > 0 ? typeof(ReadOnlySpan<TCloakedStruct?>) : null, fieldName
@@ -1141,7 +1141,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 {
                     stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
                 }
-                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatFlags);
+                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, matchedItems);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;

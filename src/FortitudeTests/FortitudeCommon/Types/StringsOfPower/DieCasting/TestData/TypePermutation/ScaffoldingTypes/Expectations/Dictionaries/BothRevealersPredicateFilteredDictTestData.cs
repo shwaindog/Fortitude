@@ -146,7 +146,7 @@ public partial class BothRevealersDictTestData
                               "2.7":"re number.",
                               "5.4":"re number."
                             }
-                            """.RemoveLineEndings()
+                            """.Dos2Unix()
                         }
                 }
               , new BothRevealersDictExpect<double, ICharSequence>(DoubleCharSequenceMap.ToList()
@@ -195,7 +195,7 @@ public partial class BothRevealersDictTestData
                           "                1":"e for all.",
                           "               -1":"if you try"
                         }
-                        """.RemoveLineEndings()
+                        """.Dos2Unix()
                     }
                 }
             };

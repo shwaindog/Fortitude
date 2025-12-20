@@ -80,8 +80,6 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     private EncodingType? graphEncoderType;
     private EncodingType? stringEncoderType;
 
-    private bool explicitlySetEncodingTransfer;
-
     private Func<IJsonFormattingOptions, IEncodingTransfer>? sourceEncodingTransferResolver;
 
     private char?     indentChar;
@@ -191,12 +189,12 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     public string AlternateItemSeparator
     {
         readonly get => altItemSeparator ?? fallbackOptions?.Values.AlternateItemSeparator ?? IFormattingOptions.Spc;
-        set => mainItemSeparator = value;
+        set => altItemSeparator = value;
     }
 
     public string MainItemPadding
     {
-        readonly get => altItemSeparator ?? fallbackOptions?.Values.AlternateItemSeparator
+        readonly get => mainItemPadding ?? fallbackOptions?.Values.AlternateItemSeparator
          ?? Style switch
             {
               StringStyle.CompactJson => IFormattingOptions.Empty
@@ -205,12 +203,12 @@ public struct StyleOptionsValue : IJsonFormattingOptions
               , StringStyle.PrettyLog => IFormattingOptions.Spc
               , _                      => Style.IsCompact() & Style.IsJson() ? IFormattingOptions.Empty : IFormattingOptions.Spc
             };
-        set => mainItemSeparator = value;
+        set => mainItemPadding = value;
     }
 
     public string AlternateItemPadding
     {
-        readonly get => altItemSeparator ?? fallbackOptions?.Values.AlternateItemSeparator
+        readonly get => altItemPadding ?? fallbackOptions?.Values.AlternateItemSeparator
          ?? Style switch
             {
                 StringStyle.CompactJson => IFormattingOptions.Empty
@@ -219,7 +217,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
               , StringStyle.PrettyLog   => IFormattingOptions.Spc
               , _                       => Style.IsCompact() & Style.IsJson() ? IFormattingOptions.Empty : IFormattingOptions.Spc
             };
-        set => mainItemSeparator = value;
+        set => altItemPadding = value;
     }
 
     public string MainFieldSeparator
@@ -248,7 +246,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
 
     public string MainFieldPadding
     {
-        readonly get => altFieldSeparator ?? fallbackOptions?.Values.AlternateFieldSeparator
+        readonly get => mainFieldPadding ?? fallbackOptions?.Values.AlternateFieldSeparator
          ?? Style switch
             {
               StringStyle.CompactJson => IFormattingOptions.Empty
@@ -256,12 +254,12 @@ public struct StyleOptionsValue : IJsonFormattingOptions
               , StringStyle.PrettyLog => IFormattingOptions.Spc
               , _                      => Style.IsCompact() & Style.IsJson() ? IFormattingOptions.Empty : IFormattingOptions.Spc
             };
-        set => altFieldSeparator = value;
+        set => mainFieldPadding = value;
     }
 
     public string AlternateFieldPadding
     {
-        readonly get => altFieldSeparator ?? fallbackOptions?.Values.AlternateFieldSeparator
+        readonly get => altFieldPadding ?? fallbackOptions?.Values.AlternateFieldSeparator
          ?? Style switch
             {
                 StringStyle.CompactJson => IFormattingOptions.Empty
@@ -269,7 +267,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
               , StringStyle.PrettyLog   => IFormattingOptions.Spc
               , _                       => Style.IsCompact() & Style.IsJson() ? IFormattingOptions.Empty : IFormattingOptions.Spc
             };
-        set => altFieldSeparator = value;
+        set => altFieldPadding = value;
     }
 
     public bool NullWritesEmpty

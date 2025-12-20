@@ -132,7 +132,7 @@ public partial class BothRevealersDictTestData
                           "2.718281828459045":"One doesn't simply write Euler nature number.     ",
                           "5.43656365691809":"One doesn't even appear at the start of Euler nature number."
                         }
-                        """.RemoveLineEndings()
+                        """.Dos2Unix()
                     }
                 }
               , new BothRevealersKeyedSubListDictExpect<double, ICharSequence>
@@ -180,7 +180,7 @@ public partial class BothRevealersDictTestData
                           "1                ":"All for one and one for all.                      ",
                           "-1               ":"Imagine there's no tax havens, it's easy if you try"
                         }
-                        """.RemoveLineEndings()
+                        """.Dos2Unix()
                     }
                 }
             };

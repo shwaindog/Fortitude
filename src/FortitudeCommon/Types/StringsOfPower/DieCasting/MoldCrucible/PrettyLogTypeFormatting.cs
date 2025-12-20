@@ -14,9 +14,6 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
 public class PrettyLogTypeFormatting : CompactLogTypeFormatting
 {
-    protected const char   BrcOpnChar = '{';
-    protected const string BrcCls     = "}";
-
     public override PrettyLogTypeFormatting Initialize(GraphTrackingBuilder graphTrackingBuilder, StyleOptions styleOptions)
     {
         base.Initialize(graphTrackingBuilder, styleOptions);

@@ -90,6 +90,26 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return AsStringContent;
     }
 
+    public SkipTypeParts GetNextValueTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType)
+    {
+        var isLastType      = tos.IsLastVisitedObject(forValue);
+        if (forValue is ISpanFormattable || isLastType)
+        {
+            return SkipTypeParts.TypeStart | SkipTypeParts.TypeName | SkipTypeParts.TypeEnd;
+        }
+        return SkipTypeParts.None;
+    }
+
+    public SkipTypeParts GetNextComplexTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType)
+    {
+        var isLastType      = tos.IsLastVisitedObject(forValue);
+        if (isLastType)
+        {
+            return SkipTypeParts.TypeStart | SkipTypeParts.TypeName | SkipTypeParts.TypeEnd;
+        }
+        return SkipTypeParts.None;
+    }
+
     public virtual ContentSeparatorRanges AppendValueTypeOpening(ITypeMolderDieCast moldInternal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
@@ -99,7 +119,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var buildingType    = moldInternal.TypeBeingBuilt;
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
         if (formatFlags.DoesNotHaveLogSuppressTypeNamesFlag()
-            && !(StyleOptions.LogSuppressDisplayTypeNames.Any(s => buildingType.FullName?.StartsWith(s) ?? false)))
+            && !(StyleOptions.LogSuppressDisplayTypeNames.Any(s => buildingType.FullName?.StartsWith(s) ?? false))
+            )
         {
             if (alternativeName.IsNotNullOrEmpty())
                 sb.Append(alternativeName);
@@ -127,11 +148,14 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var buildingType    = moldInternal.TypeBeingBuilt;
 
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
-        if (alternativeName != null)
-            sb.Append(alternativeName);
-        else
-            buildingType.AppendShortNameInCSharpFormat(sb);
-        sb.Append(Spc);
+        if (!moldInternal.AppendSettings.SkipTypeParts.HasTypeNameFlag())
+        {
+            if (alternativeName != null)
+                sb.Append(alternativeName);
+            else
+                buildingType.AppendShortNameInCSharpFormat(sb);
+            sb.Append(Spc);
+        }
         return GraphBuilder
                .AppendContent(BrcOpn)
                .AppendPadding(Spc)
@@ -176,13 +200,18 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var previousContentPadSpacing = GraphBuilder.LastContentSeparatorPaddingRanges;
 
         var lastContentChar = GraphBuilder.RemoveLastSeparatorAndPadding();
-        if (lastContentChar != BrcOpnChar)
+
+        if (moldInternal.AppendSettings.SkipTypeParts.HasTypeEndFlag())
         {
-            GraphBuilder.StartAppendContent(Spc, sb, this, DefaultCallerTypeFlags).AppendContent(BrcCls);
+            GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags, true);
         }
         else
         {
-            GraphBuilder.StartAppendContent(BrcCls, sb, this, DefaultCallerTypeFlags);
+            if (lastContentChar != BrcOpnChar)
+            {
+                GraphBuilder.StartAppendContent(Spc, sb, this, DefaultCallerTypeFlags).AppendContent(BrcCls);
+            }
+            else { GraphBuilder.StartAppendContent(BrcCls, sb, this, DefaultCallerTypeFlags); }
         }
         return GraphBuilder.Complete(previousContentPadSpacing.PreviousFormatFlags);
     }
@@ -257,6 +286,19 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return typeMold;
     }
 
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler, string? keyFormatString = null
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
+        where TMold : TypeMolder
+        where TValue : struct, TVRevealBase
+        where TVRevealBase : notnull
+    {
+        typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", DefaultCallerTypeFlags, true).FieldEnd();
+        if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
+        else { valueStyler(value.Value, typeMold.Master); }
+        return typeMold;
+    }
+
     public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
       , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler
       , PalantírReveal<TKRevealBase> keyStyler, FieldContentHandling valueFlags = DefaultCallerTypeFlags)
@@ -272,6 +314,60 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         typeMold.FieldEnd();
         if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
         else { valueStyler(value, typeMold.Master); }
+        return typeMold;
+    }
+
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType, TKey? key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler, FieldContentHandling valueFlags = DefaultCallerTypeFlags)
+        where TMold : TypeMolder
+        where TKey : struct, TKRevealBase
+        where TValue : TVRevealBase?
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
+    {
+        var sb = typeMold.Sb;
+        if (key == null) { AppendFormattedNull(sb, ""); }
+        else { keyStyler(key.Value, typeMold.Master); }
+        typeMold.FieldEnd();
+        if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
+        else { valueStyler(value, typeMold.Master); }
+        return typeMold;
+    }
+
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler, FieldContentHandling valueFlags = DefaultCallerTypeFlags)
+        where TMold : TypeMolder
+        where TKey : TKRevealBase?
+        where TValue : struct, TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
+    {
+        var sb = typeMold.Sb;
+        if (key == null) { AppendFormattedNull(sb, ""); }
+        else { keyStyler(key, typeMold.Master); }
+        typeMold.FieldEnd();
+        if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
+        else { valueStyler(value.Value, typeMold.Master); }
+        return typeMold;
+    }
+
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType, TKey? key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler, FieldContentHandling valueFlags = DefaultCallerTypeFlags)
+        where TMold : TypeMolder
+        where TKey : struct, TKRevealBase
+        where TValue : struct, TVRevealBase
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
+    {
+        var sb = typeMold.Sb;
+        if (key == null) { AppendFormattedNull(sb, ""); }
+        else { keyStyler(key.Value, typeMold.Master); }
+        typeMold.FieldEnd();
+        if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
+        else { valueStyler(value.Value, typeMold.Master); }
         return typeMold;
     }
 
@@ -322,22 +418,18 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb;
     }
 
-    public virtual IStringBuilder FormatFieldName<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
+    public virtual IStringBuilder FormatFieldName<TFmt>(IStringBuilder sb, TFmt source, string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
-        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
-        base.Format(source, sb, formatString ?? "");
-        GraphBuilder.MarkContentEnd();
+        FormatFieldContents(sb, source, formatString, formatFlags);
         return sb;
     }
 
-    public virtual IStringBuilder FormatFieldName<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null
+    public virtual IStringBuilder FormatFieldName<TFmtStruct>(IStringBuilder sb, TFmtStruct? source, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
-        where TFmt : struct, ISpanFormattable
+        where TFmtStruct : struct, ISpanFormattable
     {
-        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
-        base.Format(source, sb, formatString ?? "");
-        GraphBuilder.MarkContentEnd();
+        FormatFieldContents(sb, source, formatString, formatFlags);
         return sb;
     }
 
@@ -381,24 +473,29 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb;
     }
 
-    public virtual IStringBuilder FormatFieldName<TCloaked, TRevealBase>(ITheOneString tos, TCloaked value
-      , PalantírReveal<TRevealBase> valueRevealer)
+    public virtual IStringBuilder FormatFieldName<TCloaked, TRevealBase>(ISecretStringOfPower tos, TCloaked value
+      , PalantírReveal<TRevealBase> valueRevealer, string? callerFormatString = null, FieldContentHandling callerFormatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
         var sb = tos.WriteBuffer;
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
+        tos.SetCallerFormatString(callerFormatString);
+        tos.SetCallerFormatFlags(callerFormatFlags);
         if (value == null) { AppendFormattedNull(sb, ""); }
         else { valueRevealer(value, tos); }
         GraphBuilder.MarkContentEnd();
         return sb;
     }
 
-    public virtual IStringBuilder FormatFieldName<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer?
+    public virtual IStringBuilder FormatFieldName<TBearer>(ISecretStringOfPower tos, TBearer styledObj
+      , string? callerFormatString = null, FieldContentHandling callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?
     {
         var sb = tos.WriteBuffer;
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
-        if (styledObj == null) { AppendFormattedNull(sb, ""); }
+        tos.SetCallerFormatString(callerFormatString);
+        tos.SetCallerFormatFlags(callerFormatFlags);
+        if (styledObj == null) { AppendFormattedNull(sb, callerFormatString, callerFormatFlags); }
         else { styledObj.RevealState(tos); }
         GraphBuilder.MarkContentEnd();
         return sb;
@@ -645,13 +742,16 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb;
     }
 
-    public virtual IStringBuilder FormatFieldContents<TCloaked, TRevealBase>(ITheOneString tos, TCloaked value
-      , PalantírReveal<TRevealBase> valueRevealer)
+    public virtual IStringBuilder FormatFieldContents<TCloaked, TRevealBase>(ISecretStringOfPower tos, TCloaked value
+      , PalantírReveal<TRevealBase> valueRevealer, string? callerFormatString = null
+      , FieldContentHandling callerFormatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
         var sb           = tos.WriteBuffer;
         var contentStart = sb.Length;
+        tos.SetCallerFormatString(callerFormatString);
+        tos.SetCallerFormatFlags(callerFormatFlags);
         if (value == null) { AppendFormattedNull(sb, ""); }
         else { valueRevealer(value, tos); }
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
@@ -660,11 +760,14 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb;
     }
 
-    public virtual IStringBuilder FormatFieldContents<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer?
+    public virtual IStringBuilder FormatFieldContents<TBearer>(ISecretStringOfPower tos, TBearer styledObj, 
+        string? callerFormatString = null, FieldContentHandling callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?
     {
         var sb = tos.WriteBuffer;
 
         var contentStart = sb.Length;
+        tos.SetCallerFormatString(callerFormatString);
+        tos.SetCallerFormatFlags(callerFormatFlags);
         if (styledObj == null) { AppendFormattedNull(sb, ""); }
         else { styledObj.RevealState(tos); }
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);

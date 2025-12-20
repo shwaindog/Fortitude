@@ -217,7 +217,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
       , ICustomStringFormatter? customStringFormatter, FormattingHandlingFlags formatFlags) =>
         Append(value, startIndex, length, formatString, customStringFormatter, formatFlags);
 
-    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append<TStruct>(TStruct arg0, ICustomStringFormatter? customStringFormatter) =>
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append<TFmt>(TFmt arg0, ICustomStringFormatter? customStringFormatter) =>
         Append(arg0, customStringFormatter);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(Span<char> value, ICustomStringFormatter? customStringFormatter) =>
@@ -257,7 +257,8 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         AppendFormat(customStringFormatter, format, arg0, formatFlags);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat<TFmt>(ICustomStringFormatter customStringFormatter
-      , ReadOnlySpan<char> format, TFmt arg0, FormattingHandlingFlags formatFlags) => AppendFormat(customStringFormatter, format, arg0, formatFlags);
+      , ReadOnlySpan<char> format, TFmt arg0, FormattingHandlingFlags formatFlags) => 
+        AppendFormat(customStringFormatter, format, arg0, formatFlags);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.AppendFormat(ICustomStringFormatter customStringFormatter, string format, object? arg0
       , FormattingHandlingFlags formatFlags) => AppendFormat(customStringFormatter, format, arg0, formatFlags);
@@ -1060,7 +1061,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public MutableString Append<TFmt>(TFmt arg0, ICustomStringFormatter? customStringFormatter) where TFmt : ISpanFormattable
+    public MutableString Append<TFmt>(TFmt arg0, ICustomStringFormatter? customStringFormatter) where TFmt : ISpanFormattable?
     {
         customStringFormatter ??= ICustomStringFormatter.DefaultBufferFormatter;
         customStringFormatter.Format(arg0, this, "");
@@ -1223,14 +1224,14 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     public MutableString AppendFormat<TFmt>(ICustomStringFormatter customStringFormatter
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TFmt arg0
-      , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable?
     {
         return AppendFormat(customStringFormatter, format.AsSpan(), arg0, formatFlags);
     }
 
     public MutableString AppendFormat<TFmt>(ICustomStringFormatter customStringFormatter,
         [StringSyntax(StringSyntaxAttribute.CompositeFormat)] ReadOnlySpan<char> format, TFmt arg0
-      , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable?
     {
         if (IsFrozen) return ShouldThrow();
         customStringFormatter.Format(arg0, this, format, formatFlags);
@@ -1238,11 +1239,11 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     }
 
     public MutableString AppendFormat<TFmt>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TFmt arg0)
-        where TFmt : ISpanFormattable =>
+        where TFmt : ISpanFormattable? =>
         AppendFormat(ICustomStringFormatter.DefaultBufferFormatter, format, arg0);
 
     public MutableString AppendFormat<TFmt>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] ReadOnlySpan<char> format, TFmt arg0)
-        where TFmt : ISpanFormattable =>
+        where TFmt : ISpanFormattable? =>
         AppendFormat(ICustomStringFormatter.DefaultBufferFormatter, format, arg0);
 
     public MutableString AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, string arg0) =>

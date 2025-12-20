@@ -8,6 +8,7 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
+
 #pragma warning disable CS8714 // The type cannot be used as type parameter in the generic type or method. Nullability of type argument doesn't match 'notnull' constraint.
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
@@ -24,10 +25,8 @@ public class BothRevealersKeyedSubListDictExpect<TKey, TValue> : BothRevealersDi
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, keyRevealerExpression, elementFilterExpression, contentHandling, name, srcFile, srcLine)
-    {
-    }
-    
+        base(inputList, valueRevealerExpression, keyRevealerExpression, elementFilterExpression, contentHandling, name, srcFile, srcLine) { }
+
     public BothRevealersKeyedSubListDictExpect(List<KeyValuePair<TKey, TValue>>? inputList
       , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
       , Expression<Func<PalantírReveal<TKey>>> keyRevealerExpression
@@ -35,9 +34,8 @@ public class BothRevealersKeyedSubListDictExpect<TKey, TValue> : BothRevealersDi
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, keyRevealerExpression, (Expression<Func<List<TKey?>>>?)null, contentHandling, name, srcFile, srcLine)
-    {
-    }
+        base(inputList, valueRevealerExpression, keyRevealerExpression, (Expression<Func<List<TKey?>>>?)null, contentHandling, name, srcFile
+           , srcLine) { }
 }
 
 public class BothRevealersDictExpect<TKey, TValue> : BothRevealersDictExpect<TKey, TValue, TKey, TValue, TKey, TValue, TKey>
@@ -52,10 +50,8 @@ public class BothRevealersDictExpect<TKey, TValue> : BothRevealersDictExpect<TKe
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, keyRevealerExpression, elementFilterExpression, contentHandling, name, srcFile, srcLine)
-    {
-    }
-    
+        base(inputList, valueRevealerExpression, keyRevealerExpression, elementFilterExpression, contentHandling, name, srcFile, srcLine) { }
+
     public BothRevealersDictExpect(List<KeyValuePair<TKey, TValue>>? inputList
       , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
       , Expression<Func<PalantírReveal<TKey>>> keyRevealerExpression
@@ -63,12 +59,11 @@ public class BothRevealersDictExpect<TKey, TValue> : BothRevealersDictExpect<TKe
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, keyRevealerExpression, (Expression<Func<KeyValuePredicate<TKey, TValue>>>?)null, contentHandling, name, srcFile, srcLine)
-    {
-    }
+        base(inputList, valueRevealerExpression, keyRevealerExpression, (Expression<Func<KeyValuePredicate<TKey, TValue>>>?)null, contentHandling
+           , name, srcFile, srcLine) { }
 }
 
-public class BothRevealersDictExpect<TKey, TValue, TKFilterBase, TVFilterBase, TKSubListDerived, TVRevealBase, TKRevealBase> : 
+public class BothRevealersDictExpect<TKey, TValue, TKFilterBase, TVFilterBase, TKSubListDerived, TVRevealBase, TKRevealBase> :
     ValueRevealerDictExpect<TKey, TValue, TKFilterBase, TVFilterBase, TKSubListDerived, TVRevealBase>
     where TKey : TKFilterBase, TKRevealBase?
     where TValue : TVFilterBase?, TVRevealBase?
@@ -111,44 +106,65 @@ public class BothRevealersDictExpect<TKey, TValue, TKFilterBase, TVFilterBase, T
     }
 
     public override bool InputIsEmpty => (Input?.Count ?? 0) >= 0;
-    
+
     public PalantírReveal<TKRevealBase> KeyRevealer { get; init; }
 
     public Type KeyRevealerBaseType { get; init; } = typeof(TKRevealBase);
-    
+
     public string KeyRevealerName { get; init; }
 
     public override ISinglePropertyTestStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
     {
-        
         var flags = scaffoldEntry.ScaffoldingFlags;
 
         return flags.HasSubListFilter()
-            ? scaffoldEntry.CreateStringBearerFunc(KeyType, ValueType, KeySubListFilterBaseType, KeyRevealerBaseType, ValueRevealerBaseType)()
+            ? (flags.HasAcceptsNullableStruct()
+                ? (flags.HasKeyNullableStruct()
+                    ? scaffoldEntry.CreateStringBearerFunc(KeyUnderlyingType, ValueUnderlyingType, KeySubListFilterBaseType)()
+                    : scaffoldEntry.CreateStringBearerFunc(KeyType, ValueUnderlyingType, KeySubListFilterBaseType, KeyRevealerBaseType)())
+                : (flags.HasKeyNullableStruct()
+                    ? scaffoldEntry.CreateStringBearerFunc(KeyUnderlyingType, ValueType, KeySubListFilterBaseType, ValueRevealerBaseType)()
+                    : scaffoldEntry.CreateStringBearerFunc(KeyType, ValueType, KeySubListFilterBaseType, KeyRevealerBaseType
+                                                         , ValueRevealerBaseType)())
+            )
             : (flags.HasFilterPredicate()
-                ? scaffoldEntry.CreateStringBearerFunc(KeyType, ValueType, KeyFilterBaseType, ValueFilterBaseType, KeyRevealerBaseType, ValueRevealerBaseType)()
-                : scaffoldEntry.CreateStringBearerFunc(KeyType, ValueType, KeyRevealerBaseType, ValueRevealerBaseType)());
+                ? (flags.HasAcceptsNullableStruct()
+                    ? (flags.HasKeyNullableStruct()
+                        ? scaffoldEntry.CreateStringBearerFunc(KeyUnderlyingType, ValueUnderlyingType)()
+                        : scaffoldEntry.CreateStringBearerFunc(KeyType, ValueUnderlyingType, KeyFilterBaseType, KeyRevealerBaseType)())
+                    : (flags.HasKeyNullableStruct()
+                        ? scaffoldEntry.CreateStringBearerFunc(KeyUnderlyingType, ValueType, ValueFilterBaseType, ValueRevealerBaseType)()
+                        : scaffoldEntry.CreateStringBearerFunc(KeyType, ValueType, KeyFilterBaseType, ValueFilterBaseType, KeyRevealerBaseType
+                                                             , ValueRevealerBaseType)()
+                    ))
+                : (flags.HasAcceptsNullableStruct()
+                    ? (flags.HasKeyNullableStruct()
+                        ? scaffoldEntry.CreateStringBearerFunc(KeyUnderlyingType, ValueUnderlyingType)()
+                        : scaffoldEntry.CreateStringBearerFunc(KeyType, ValueUnderlyingType, KeyRevealerBaseType)())
+                    : (flags.HasKeyNullableStruct()
+                        ? scaffoldEntry.CreateStringBearerFunc(KeyUnderlyingType, ValueType, ValueRevealerBaseType)()
+                        : scaffoldEntry.CreateStringBearerFunc(KeyType, ValueType, KeyRevealerBaseType , ValueRevealerBaseType)()
+                    )
+                )
+            );
     }
 
     public override IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry, StyleOptions stringStyle)
     {
         var createdStringBearer = CreateNewStringBearer(scaffoldEntry);
-        
-        if (createdStringBearer is IMoldSupportedValue<List<KeyValuePair<TKey, TValue>>> nullArrayMold)
-            nullArrayMold.Value = Input;
+
+        if (createdStringBearer is IMoldSupportedValue<List<KeyValuePair<TKey, TValue>>> nullArrayMold) nullArrayMold.Value = Input;
 
         if (HasRestrictingSubListFilter && createdStringBearer is ISupportsSubsetDisplayKeys<TKSubListDerived> supportsSettingSubListFilter)
             supportsSettingSubListFilter.DisplayKeys = KeySubListPredicate!;
-        if (HasRestrictingPredicateFilter && createdStringBearer is ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase> supportsSettingPredicateFilter)
+        if (HasRestrictingPredicateFilter &&
+            createdStringBearer is ISupportsKeyedCollectionPredicate<TKFilterBase, TVFilterBase> supportsSettingPredicateFilter)
             supportsSettingPredicateFilter.KeyValuePredicate = KeyValuePredicate!;
-        if (createdStringBearer is ISupportsKeyRevealer<TKRevealBase> supportsKeyRevealer)
-            supportsKeyRevealer.KeyRevealer = KeyRevealer;
-        if (createdStringBearer is ISupportsValueRevealer<TVRevealBase> supportsValueRevealer)
-            supportsValueRevealer.ValueRevealer = ValueRevealer;
+        if (createdStringBearer is ISupportsKeyRevealer<TKRevealBase> supportsKeyRevealer) supportsKeyRevealer.KeyRevealer         = KeyRevealer;
+        if (createdStringBearer is ISupportsValueRevealer<TVRevealBase> supportsValueRevealer) supportsValueRevealer.ValueRevealer = ValueRevealer;
         if (KeyFormatString != null && createdStringBearer is ISupportsKeyFormatString supportsKeyFormatString)
             supportsKeyFormatString.KeyFormatString = KeyFormatString;
 
         return createdStringBearer;
     }
 };
-

@@ -97,16 +97,32 @@ public partial class KeyedCollectionMoldTests
     }
 
     private static IEnumerable<object[]> ValueRevealerUnfilteredDict =>
-        from kce in ValueRevealerDictTestData.AllValueRevealerUnfilteredDictExpectations
-        from scaffoldToCall in
-            scafReg
-                .IsKeyedCollectionType()
-                .NotHasSupportsKeyRevealer()
-                .HasSupportsValueRevealer()
-                .NoFilterPredicate()
-                .NoSubsetListFilter()
-        where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()    
-        select new object[] { kce, scaffoldToCall };
+        (from kce in ValueRevealerDictTestData.AllValueRevealerUnfilteredDictExpectations
+            where kce.ValueTypeIsNotNullableStruct
+            from scaffoldToCall in
+                scafReg
+                    .IsKeyedCollectionType()
+                    .NotHasSupportsKeyRevealer()
+                    .HasSupportsValueRevealer()
+                    .NoFilterPredicate()
+                    .AcceptsStructClassNullableClass()
+                    .NoSubsetListFilter()
+            where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()
+            select new object[] { kce, scaffoldToCall })
+        .Concat(
+                from kce in ValueRevealerDictTestData.AllValueRevealerUnfilteredDictExpectations
+                where kce.ValueTypeIsNullableStruct
+                from scaffoldToCall in
+                    scafReg
+                        .IsKeyedCollectionType()
+                        .NotHasSupportsKeyRevealer()
+                        .HasSupportsValueRevealer()
+                        .NoFilterPredicate()
+                        .AcceptsNullableStructs()
+                        .NoSubsetListFilter()
+                where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()
+                select new object[] { kce, scaffoldToCall }
+               );
 
     [TestMethod]
     [DynamicData(nameof(ValueRevealerUnfilteredDict), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
@@ -117,16 +133,32 @@ public partial class KeyedCollectionMoldTests
     }
 
     private static IEnumerable<object[]> ValueRevealerPredicateFilteredDictExpect =>
-        from kce in ValueRevealerDictTestData.AllPredicateFilteredDictExpectations
-        from scaffoldToCall in
+        (from kce in ValueRevealerDictTestData.AllPredicateFilteredDictExpectations
+         where kce.ValueTypeIsNotNullableStruct
+         from scaffoldToCall in
             scafReg
                 .IsKeyedCollectionType()
                 .NotHasSupportsKeyRevealer()
                 .HasSupportsValueRevealer()
                 .HasFilterPredicate()
+                .AcceptsStructClassNullableClass()
                 .NoSubsetListFilter()
         where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()    
-        select new object[] { kce, scaffoldToCall };
+        select new object[] { kce, scaffoldToCall })
+        .Concat(
+                from kce in ValueRevealerDictTestData.AllPredicateFilteredDictExpectations
+                where kce.ValueTypeIsNullableStruct
+                from scaffoldToCall in
+                    scafReg
+                        .IsKeyedCollectionType()
+                        .NotHasSupportsKeyRevealer()
+                        .HasSupportsValueRevealer()
+                        .HasFilterPredicate()
+                        .AcceptsNullableStructs()
+                        .NoSubsetListFilter()
+                where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()
+                select new object[] { kce, scaffoldToCall }
+               );
 
     [TestMethod]
     [DynamicData(nameof(ValueRevealerPredicateFilteredDictExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
@@ -138,7 +170,8 @@ public partial class KeyedCollectionMoldTests
     }
 
     private static IEnumerable<object[]> ValueRevealerSubListFilteredDictExpect =>
-        from kce in ValueRevealerDictTestData.AllValueRevealerSubListFilteredDictExpectations
+        (from kce in ValueRevealerDictTestData.AllValueRevealerSubListFilteredDictExpectations
+            where kce.ValueTypeIsNotNullableStruct
         from scaffoldToCall in
             scafReg
                 .IsKeyedCollectionType()
@@ -146,8 +179,23 @@ public partial class KeyedCollectionMoldTests
                 .HasSupportsValueRevealer()
                 .HasSubsetListFilter()
                 .NoFilterPredicate()
+                .AcceptsStructClassNullableClass()
         where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()    
-        select new object[] { kce, scaffoldToCall };
+        select new object[] { kce, scaffoldToCall })
+        .Concat(
+                from kce in ValueRevealerDictTestData.AllValueRevealerSubListFilteredDictExpectations
+                where kce.ValueTypeIsNullableStruct
+                from scaffoldToCall in
+                    scafReg
+                        .IsKeyedCollectionType()
+                        .NotHasSupportsKeyRevealer()
+                        .HasSupportsValueRevealer()
+                        .HasSubsetListFilter()
+                        .NoFilterPredicate()
+                        .AcceptsNullableStructs()
+                where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()
+                select new object[] { kce, scaffoldToCall }
+               );
 
     [TestMethod]
     [DynamicData(nameof(ValueRevealerSubListFilteredDictExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
@@ -159,16 +207,60 @@ public partial class KeyedCollectionMoldTests
     }
 
     private static IEnumerable<object[]> BothRevealersUnfilteredDictExpect =>
-        from kce in BothRevealersDictTestData.AllBothRevealersUnfilteredDictExpectations
-        from scaffoldToCall in
+        (from kce in BothRevealersDictTestData.AllBothRevealersUnfilteredDictExpectations
+         where kce.KeyTypeIsNotNullableStruct && kce.ValueTypeIsNotNullableStruct
+         from scaffoldToCall in
             scafReg
                 .IsKeyedCollectionType()
                 .HasSupportsKeyRevealer()
                 .HasSupportsValueRevealer()
                 .NoFilterPredicate()
                 .NoSubsetListFilter()
-        where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()    
-        select new object[] { kce, scaffoldToCall };
+                .AcceptsStructClassNullableClass()
+                .AcceptsKeyIsNotNullableStruct()
+        select new object[] { kce, scaffoldToCall })
+        .Concat(
+                from kce in BothRevealersDictTestData.AllBothRevealersUnfilteredDictExpectations
+                where kce.KeyTypeIsNullableStruct  && kce.ValueTypeIsNotNullableStruct
+                from scaffoldToCall in
+                    scafReg
+                        .IsKeyedCollectionType()
+                        .HasSupportsKeyRevealer()
+                        .HasSupportsValueRevealer()
+                        .NoFilterPredicate()
+                        .NoSubsetListFilter()
+                        .AcceptsKeyNullableStruct()
+                        .AcceptsStructClassNullableClass()
+                select new object[] { kce, scaffoldToCall }
+               )
+        .Concat(
+                from kce in BothRevealersDictTestData.AllBothRevealersUnfilteredDictExpectations
+                where kce.KeyTypeIsNotNullableStruct  && kce.ValueTypeIsNullableStruct
+                from scaffoldToCall in
+                    scafReg
+                        .IsKeyedCollectionType()
+                        .HasSupportsKeyRevealer()
+                        .HasSupportsValueRevealer()
+                        .NoFilterPredicate()
+                        .NoSubsetListFilter()
+                        .AcceptsKeyIsNotNullableStruct()
+                        .AcceptsNullableStructs()
+                select new object[] { kce, scaffoldToCall }
+               )
+        .Concat(
+                from kce in BothRevealersDictTestData.AllBothRevealersUnfilteredDictExpectations
+                where kce.KeyTypeIsNullableStruct  && kce.ValueTypeIsNullableStruct
+                from scaffoldToCall in
+                    scafReg
+                        .IsKeyedCollectionType()
+                        .HasSupportsKeyRevealer()
+                        .HasSupportsValueRevealer()
+                        .NoFilterPredicate()
+                        .NoSubsetListFilter()
+                        .AcceptsKeyNullableStruct()
+                        .AcceptsNullableStructs()
+                select new object[] { kce, scaffoldToCall }
+               );
 
     [TestMethod]
     [DynamicData(nameof(BothRevealersUnfilteredDictExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
@@ -179,16 +271,60 @@ public partial class KeyedCollectionMoldTests
     }
 
     private static IEnumerable<object[]> BothRevealersPredicateFilteredDictExpect =>
-        from kce in BothRevealersDictTestData.AllPredicateFilteredKeyedCollectionsExpectations
-        from scaffoldToCall in
+        (from kce in BothRevealersDictTestData.AllPredicateFilteredKeyedCollectionsExpectations
+         where kce.KeyTypeIsNotNullableStruct && kce.ValueTypeIsNotNullableStruct
+         from scaffoldToCall in
             scafReg
                 .IsKeyedCollectionType()
                 .HasSupportsKeyRevealer()
                 .HasSupportsValueRevealer()
                 .HasFilterPredicate()
                 .NoSubsetListFilter()
-        where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()    
-        select new object[] { kce, scaffoldToCall };
+                .AcceptsStructClassNullableClass()
+                .AcceptsKeyIsNotNullableStruct()
+        select new object[] { kce, scaffoldToCall })
+        .Concat(
+                from kce in BothRevealersDictTestData.AllPredicateFilteredKeyedCollectionsExpectations
+                where kce.KeyTypeIsNullableStruct  && kce.ValueTypeIsNotNullableStruct
+                from scaffoldToCall in
+                    scafReg
+                        .IsKeyedCollectionType()
+                        .HasSupportsKeyRevealer()
+                        .HasSupportsValueRevealer()
+                        .HasFilterPredicate()
+                        .NoSubsetListFilter()
+                        .AcceptsKeyNullableStruct()
+                        .AcceptsStructClassNullableClass()
+                select new object[] { kce, scaffoldToCall }
+               )
+        .Concat(
+                from kce in BothRevealersDictTestData.AllPredicateFilteredKeyedCollectionsExpectations
+                where kce.KeyTypeIsNotNullableStruct  && kce.ValueTypeIsNullableStruct
+                from scaffoldToCall in
+                    scafReg
+                        .IsKeyedCollectionType()
+                        .HasSupportsKeyRevealer()
+                        .HasSupportsValueRevealer()
+                        .HasFilterPredicate()
+                        .NoSubsetListFilter()
+                        .AcceptsKeyIsNotNullableStruct()
+                        .AcceptsNullableStructs()
+                select new object[] { kce, scaffoldToCall }
+               )
+        .Concat(
+                from kce in BothRevealersDictTestData.AllPredicateFilteredKeyedCollectionsExpectations
+                where kce.KeyTypeIsNullableStruct  && kce.ValueTypeIsNullableStruct
+                from scaffoldToCall in
+                    scafReg
+                        .IsKeyedCollectionType()
+                        .HasSupportsKeyRevealer()
+                        .HasSupportsValueRevealer()
+                        .HasFilterPredicate()
+                        .NoSubsetListFilter()
+                        .AcceptsKeyNullableStruct()
+                        .AcceptsNullableStructs()
+                select new object[] { kce, scaffoldToCall }
+               );
 
     [TestMethod]
     [DynamicData(nameof(BothRevealersPredicateFilteredDictExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
@@ -200,16 +336,60 @@ public partial class KeyedCollectionMoldTests
     }
 
     private static IEnumerable<object[]> BothRevealersSubListFilteredDictExpect =>
-        from kce in BothRevealersDictTestData.AllBothRevealersSubListFilteredDictExpectations
-        from scaffoldToCall in
+        (from kce in BothRevealersDictTestData.AllBothRevealersSubListFilteredDictExpectations
+         where kce.KeyTypeIsNotNullableStruct && kce.ValueTypeIsNotNullableStruct
+         from scaffoldToCall in
             scafReg
                 .IsKeyedCollectionType()
                 .HasSupportsKeyRevealer()
                 .HasSupportsValueRevealer()
-                .HasSubsetListFilter()
                 .NoFilterPredicate()
-        where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()    
-        select new object[] { kce, scaffoldToCall };
+                .HasSubsetListFilter()
+                .AcceptsStructClassNullableClass()
+                .AcceptsKeyIsNotNullableStruct()
+        select new object[] { kce, scaffoldToCall })
+        .Concat(
+                from kce in BothRevealersDictTestData.AllBothRevealersSubListFilteredDictExpectations
+                where kce.KeyTypeIsNullableStruct  && kce.ValueTypeIsNotNullableStruct
+                from scaffoldToCall in
+                    scafReg
+                        .IsKeyedCollectionType()
+                        .HasSupportsKeyRevealer()
+                        .HasSupportsValueRevealer()
+                        .NoFilterPredicate()
+                        .HasSubsetListFilter()
+                        .AcceptsKeyNullableStruct()
+                        .AcceptsStructClassNullableClass()
+                select new object[] { kce, scaffoldToCall }
+               )
+        .Concat(
+                from kce in BothRevealersDictTestData.AllBothRevealersSubListFilteredDictExpectations
+                where kce.KeyTypeIsNotNullableStruct  && kce.ValueTypeIsNullableStruct
+                from scaffoldToCall in
+                    scafReg
+                        .IsKeyedCollectionType()
+                        .HasSupportsKeyRevealer()
+                        .HasSupportsValueRevealer()
+                        .NoFilterPredicate()
+                        .HasSubsetListFilter()
+                        .AcceptsKeyIsNotNullableStruct()
+                        .AcceptsNullableStructs()
+                select new object[] { kce, scaffoldToCall }
+               )
+        .Concat(
+                from kce in BothRevealersDictTestData.AllBothRevealersSubListFilteredDictExpectations
+                where kce.KeyTypeIsNullableStruct  && kce.ValueTypeIsNullableStruct
+                from scaffoldToCall in
+                    scafReg
+                        .IsKeyedCollectionType()
+                        .HasSupportsKeyRevealer()
+                        .HasSupportsValueRevealer()
+                        .NoFilterPredicate()
+                        .HasSubsetListFilter()
+                        .AcceptsKeyNullableStruct()
+                        .AcceptsNullableStructs()
+                select new object[] { kce, scaffoldToCall }
+               );
 
     [TestMethod]
     [DynamicData(nameof(BothRevealersSubListFilteredDictExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
@@ -225,7 +405,7 @@ public partial class KeyedCollectionMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactLog(SimpleDictTestData.AllPredicateFilteredSimpleDictExpectations[7], ScaffoldingRegistry.AllScaffoldingTypes[986]);
+        SharedCompactLog(SimpleDictTestData.AllPredicateFilteredSimpleDictExpectations[2], ScaffoldingRegistry.AllScaffoldingTypes[1112]);
     }
 
     private void SharedCompactLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -240,6 +420,11 @@ public partial class KeyedCollectionMoldTests
         logger.WarnAppend("FormatExpectation - ")?
               .AppendLine(formatExpectation.ToString())
               .FinalAppend("");
+            
+        logger.InfoAppend("To Debug Test past the following code into ")?
+              .Append(nameof(SharedCompactLog)).Append("()\n\n")
+              .Append("SharedCompactLog(")
+              .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         
         // ReSharper disable once RedundantArgumentDefaultValue
         var tos = new TheOneString().Initialize(Compact | Log);
@@ -294,11 +479,6 @@ public partial class KeyedCollectionMoldTests
                   .Append(result).AppendLine()
                   .FinalAppend("");
         }
-            
-        logger.InfoAppend("To Debug Test past the following code into ")?
-              .Append(nameof(SharedCompactLog)).Append("()\n\n")
-              .Append("SharedCompactLog(")
-              .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         Assert.AreEqual(buildExpectedOutput, result, $"Difference at i={buildExpectedOutput.DiffPosition(result)}");
     }
 }

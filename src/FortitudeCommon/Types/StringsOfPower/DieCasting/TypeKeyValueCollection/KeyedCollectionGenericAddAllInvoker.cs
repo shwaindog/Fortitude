@@ -45,7 +45,7 @@ public static class KeyedCollectionGenericAddAllInvoker
     public static void CallAddAll<TKeyColl, TKey, TValue>(KeyValueCollectionMold typeMolder, TKeyColl keyColl, string? valueFormatString = null)
         where TKeyColl : IEnumerable<KeyValuePair<TKey, TValue>>
     {
-        var keyedCollType = keyColl!.GetType();
+        var keyedCollType = keyColl.GetType();
         var callBaseToString = (Func<KeyValueCollectionMold, TKeyColl, string?, string?, KeyValueCollectionMold>)
             KeyedCollAddAllInvokers.GetOrAdd(keyedCollType, CreateInvokeMethod);
 
@@ -55,7 +55,7 @@ public static class KeyedCollectionGenericAddAllInvoker
     public static void CallAddAllEnumerate<TKeyColl, TKey, TValue>(KeyValueCollectionMold typeMolder, TKeyColl keyColl, string? valueFormatString = null)
         where TKeyColl : IEnumerator<KeyValuePair<TKey, TValue>>
     {
-        var keyedCollType = keyColl!.GetType();
+        var keyedCollType = keyColl.GetType();
         var callBaseToString = (Func<KeyValueCollectionMold, TKeyColl, string?, string?, KeyValueCollectionMold>)
             KeyedCollAddAllInvokers.GetOrAdd(keyedCollType, CreateInvokeMethod);
 
@@ -303,8 +303,6 @@ public static class KeyedCollectionGenericAddAllInvoker
 
     // Created with help from https://blog.adamfurmanek.pl/2020/01/11/net-inside-out-part-14-calling-virtual-method-without-dynamic-dispatch/index.html
     // Full credit and thanks for posting 
-
-
     public static Delegate GetAddAllInvoker(Type keyValueCollectionBuilder, Type collectionToAdd, MethodInfo methodToCall, Type invokerFunc)
     {
         var helperMethod =

@@ -44,6 +44,8 @@ public static class TypeExtensions
     private static ConcurrentDictionary<Type, Type> TypeIsNullableGetUnderlyingCache = new();
     
     private static ConcurrentDictionary<Type, bool> IsAnyTypeHoldingCache = new();
+    
+    private static ConcurrentDictionary<(Type,Type), bool> TypeImplementsOrIsInterface = new();
 
     public static bool IsFlagsEnum<TEnum>() where TEnum : Enum =>
         TypeIsFlagsEnumCache.GetOrAdd(typeof(TEnum), type => type.GetCustomAttributes<FlagsAttribute>().Any());
@@ -53,6 +55,14 @@ public static class TypeExtensions
 
     public static bool ImplementsInterface<TInterface>(this Type type)               => type.GetInterfaces().Contains(typeof(TInterface));
     public static bool ImplementsInterface(this Type type, Type checkImplementsThis) => type.GetInterfaces().Contains(checkImplementsThis);
+
+    public static bool ImplementsInterfaceOrIs<TInterface>(this Type type)               => 
+        TypeImplementsOrIsInterface.GetOrAdd
+            ((type, typeof(TInterface)), types => types.Item1 == types.Item2 || types.Item1.GetInterfaces().Contains(types.Item2));
+    
+    public static bool ImplementsInterfaceOrIs(this Type type, Type checkImplementsThis) => 
+        TypeImplementsOrIsInterface.GetOrAdd
+            ((type, checkImplementsThis), types => types.Item1 == types.Item2 || types.Item1.GetInterfaces().Contains(types.Item2));
 
     public static bool ImplementsGenericTypeInterface(this Type type, Type genericTypeDef) =>
         type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericTypeDef);

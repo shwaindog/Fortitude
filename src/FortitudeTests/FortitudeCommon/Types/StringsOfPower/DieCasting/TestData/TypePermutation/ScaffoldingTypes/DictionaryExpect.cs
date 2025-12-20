@@ -18,11 +18,16 @@ public interface IKeyedCollectionExpect : IFormatExpectation
 {
     Type KeyType { get; }
     
+    Type KeyUnderlyingType { get; }
+    
     Type ValueType { get; }
+    Type ValueUnderlyingType { get; }
     
     bool KeyTypeIsNullable { get; }
     bool KeyTypeIsNullableStruct { get; }
     bool KeyTypeIsNotNullableStruct { get; }
+    bool ValueTypeIsNullableStruct { get; }
+    bool ValueTypeIsNotNullableStruct { get; }
     bool KeyTypeIsStruct { get; }
     bool KeyTypeIsClass { get; }
     bool ContainsNullKeys { get; }
@@ -178,6 +183,9 @@ public class DictionaryExpect<TKey, TValue, TKFilterBase, TVFilterBase, TKSubLis
     public bool KeyTypeIsClass => !KeyTypeIsStruct;
     public bool KeyTypeIsStruct => KeyType.IsValueType;
 
+    public bool ValueTypeIsNullableStruct => ValueType.IsNullable();
+    public bool ValueTypeIsNotNullableStruct => !ValueTypeIsNullableStruct;
+
     public bool ContainsNullKeys
     {
         get { return Input?.Any(kvp => kvp.Key == null) ?? false; }
@@ -190,6 +198,9 @@ public class DictionaryExpect<TKey, TValue, TKFilterBase, TVFilterBase, TKSubLis
 
     public Type KeyType => keyType ??= typeof(TKey);
     public Type ValueType => valueType ??= typeof(TValue);
+
+    public Type KeyUnderlyingType => KeyType.IfNullableGetUnderlyingTypeOrThis();
+    public Type ValueUnderlyingType => ValueType.IfNullableGetUnderlyingTypeOrThis();
 
     public Type KeyFilterBaseType => keyFilterBaseType ??= typeof(TKFilterBase);
     public Type ValueFilterBaseType => valueFilterBaseType ??= typeof(TVFilterBase);

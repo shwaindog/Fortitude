@@ -28,7 +28,7 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
 
     public TMold AlwaysAdd<TFmt>(ReadOnlySpan<char> fieldName, TFmt? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable =>
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable? =>
       !stb.SkipField<TFmt?>(value?.GetType(), fieldName, formatFlags) 
         ? stb.AppendFormattableField(fieldName, value, formatString ?? "", formatFlags).AddGoToNext()
         : stb.WasSkipped<TFmt?>(value?.GetType(), fieldName, formatFlags);
@@ -41,30 +41,31 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
         : stb.WasSkipped<TFmtStruct?>(value?.GetType(), fieldName, formatFlags);
 
     public TMold AlwaysReveal<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, TCloaked? value
-      , PalantírReveal<TRevealBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TRevealBase> palantírReveal, string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase
         where TRevealBase : notnull =>
         !stb.SkipField<TCloaked?>(value?.GetType(), fieldName, formatFlags) 
-          ? stb.RevealCloakedBearerField(fieldName, value, palantírReveal, formatFlags).AddGoToNext()
+          ? stb.RevealCloakedBearerField(fieldName, value, palantírReveal, formatString, formatFlags).AddGoToNext()
           : stb.WasSkipped<TCloaked?>(value?.GetType(), fieldName, formatFlags);
 
     public TMold AlwaysReveal<TCloakedStruct>(ReadOnlySpan<char> fieldName, TCloakedStruct? value
-      , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
+      , PalantírReveal<TCloakedStruct> palantírReveal, string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+      where TCloakedStruct : struct =>
       !stb.SkipField<TCloakedStruct?>(value?.GetType(), fieldName, formatFlags) 
-        ? stb.RevealNullableCloakedBearerField(fieldName, value, palantírReveal, formatFlags).AddGoToNext()
+        ? stb.RevealNullableCloakedBearerField(fieldName, value, palantírReveal, formatString, formatFlags).AddGoToNext()
         : stb.WasSkipped<TCloakedStruct?>(value?.GetType(), fieldName, formatFlags);
 
-    public TMold AlwaysReveal<TBearer>(ReadOnlySpan<char> fieldName, TBearer? value
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer =>
+    public TMold AlwaysReveal<TBearer>(ReadOnlySpan<char> fieldName, TBearer value
+    , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer? =>
       !stb.SkipField<TBearer?>(value?.GetType(), fieldName, formatFlags) 
-        ? stb.RevealStringBearerField(fieldName, value, "", formatFlags).AddGoToNext()
+        ? stb.RevealStringBearerField(fieldName, value, formatString ?? "", formatFlags).AddGoToNext()
         : stb.WasSkipped<TBearer?>(value?.GetType(), fieldName, formatFlags);
 
     public TMold AlwaysReveal<TBearerStruct>(ReadOnlySpan<char> fieldName, TBearerStruct? value
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer =>
       !stb.SkipField<TBearerStruct?>(value?.GetType(), fieldName, formatFlags) 
-        ? stb.RevealNullableStringBearerField(fieldName, value, formatFlags).AddGoToNext()
+        ? stb.RevealNullableStringBearerField(fieldName, value, formatString ?? "", formatFlags).AddGoToNext()
         : stb.WasSkipped<TBearerStruct?>(value?.GetType(), fieldName, formatFlags);
 
     public TMold AlwaysAdd(ReadOnlySpan<char> fieldName, Span<char> value
@@ -109,9 +110,9 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
         ? stb.AppendCharArrayField(fieldName, value, formatString ?? "", startIndex, length, formatFlags).AddGoToNext()
         : stb.WasSkipped<char[]>(value?.GetType(), fieldName, formatFlags);
 
-    public TMold AlwaysAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq? value
+    public TMold AlwaysAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-    , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence =>
+    , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence? =>
       !stb.SkipField<TCharSeq>(value?.GetType(), fieldName, formatFlags)
         ? stb.AppendCharSequenceField(fieldName, value, formatString ?? "", formatFlags: formatFlags).AddGoToNext()
         : stb.WasSkipped<TCharSeq>(value?.GetType(), fieldName, formatFlags);

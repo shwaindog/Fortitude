@@ -45,18 +45,21 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenPopulatedRevealAll<TCloaked, TRevealBase>
     (ReadOnlySpan<char> fieldName, Span<TCloaked> value, PalantírReveal<TRevealBase> palantírReveal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags
+        )
         where TCloaked : TRevealBase?
         where TRevealBase : notnull =>
         value is { Length: > 0 }
-            ? AlwaysRevealAll(fieldName, value, palantírReveal, formatFlags)
+            ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped<Memory<TCloaked>>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedRevealAll<TCloakedStruct>
     (ReadOnlySpan<char> fieldName, Span<TCloakedStruct?> value, PalantírReveal<TCloakedStruct> palantírReveal
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
         value is { Length: > 0 }
-            ? AlwaysRevealAll(fieldName, value, palantírReveal, formatFlags)
+            ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped<Memory<TCloakedStruct?>>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedRevealAll<TBearer>(ReadOnlySpan<char> fieldName, Span<TBearer> value
@@ -155,18 +158,20 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenPopulatedRevealAll<TCloaked, TRevealBase>
     (ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloaked> value, PalantírReveal<TRevealBase> palantírReveal
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull =>
         value is { Length: > 0 }
-            ? AlwaysRevealAll(fieldName, value, palantírReveal, formatFlags)
+            ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped<Memory<TCloaked>>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedRevealAll<TCloakedStruct>
     (ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloakedStruct?> value, PalantírReveal<TCloakedStruct> palantírReveal
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
         value is { Length: > 0 }
-            ? AlwaysRevealAll(fieldName, value, palantírReveal, formatFlags)
+            ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped<Memory<TCloakedStruct?>>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedRevealAll<TBearer>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer> value

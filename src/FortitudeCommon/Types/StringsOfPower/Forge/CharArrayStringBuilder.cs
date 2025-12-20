@@ -790,7 +790,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     }
 
     public CharArrayStringBuilder Append<TFmt>(TFmt arg0, ICustomStringFormatter? customStringFormatter = null)
-        where TFmt : ISpanFormattable
+        where TFmt : ISpanFormattable?
     {
         customStringFormatter ??= ICustomStringFormatter.DefaultBufferFormatter;
         var charArraySpan = ca.RemainingAsSpan();
@@ -949,7 +949,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
     public CharArrayStringBuilder AppendFormat<TFmt>(ICustomStringFormatter customStringFormatter
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TFmt arg0
-      , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable?
     {
         var charArraySpan = ca.RemainingAsSpan();
         ca.Length += customStringFormatter.Format(arg0, charArraySpan, 0, format, formatFlags);
@@ -958,7 +958,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
     public CharArrayStringBuilder AppendFormat<TFmt>(ICustomStringFormatter customStringFormatter
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] ReadOnlySpan<char> format, TFmt arg0
-      , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable
+      , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable?
     {
         var charArraySpan = ca.RemainingAsSpan();
         ca.Length += customStringFormatter.Format(arg0, charArraySpan, 0, format, formatFlags);
@@ -966,13 +966,13 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     }
 
     public CharArrayStringBuilder AppendFormat<TFmt>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TFmt arg0)
-        where TFmt : ISpanFormattable
+        where TFmt : ISpanFormattable?
     {
         return AppendFormat(format.AsSpan(), arg0);
     }
 
     public CharArrayStringBuilder AppendFormat<TFmt>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] ReadOnlySpan<char> format, TFmt arg0)
-        where TFmt : ISpanFormattable
+        where TFmt : ISpanFormattable?
     {
         var charArraySpan = ca.RemainingAsSpan();
         ca.Length += ICustomStringFormatter.DefaultBufferFormatter.Format(arg0, charArraySpan, 0, format);
@@ -1056,8 +1056,8 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     public CharArrayStringBuilder AppendFormat(ICustomStringFormatter customStringFormatter, string format, object? arg0
       , FormattingHandlingFlags formatFlags = EncodeInnerContent)
     {
-        var wasSuccessfull = customStringFormatter.TryFormat(arg0, this, format);
-        if (wasSuccessfull != 0) return this;
+        var wasSuccessful = customStringFormatter.TryFormat(arg0, this, format);
+        if (wasSuccessful != 0) return this;
 
         var preAppendLen = Length;
          AppendFormatHelper(null, format, new ReadOnlySpan<object?>(in arg0));
@@ -1559,7 +1559,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
       , ICustomStringFormatter? customStringFormatter, FormattingHandlingFlags formatFlags) =>
         Append(value, startIndex, length, formatString, customStringFormatter, formatFlags);
 
-    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append<TStruct>(TStruct arg0, ICustomStringFormatter? customStringFormatter) =>
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Append<TFmt>(TFmt arg0, ICustomStringFormatter? customStringFormatter) =>
         Append(arg0, customStringFormatter);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ReadOnlyMemory<char> value, ICustomStringFormatter? customStringFormatter) =>

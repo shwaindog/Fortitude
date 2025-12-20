@@ -184,14 +184,25 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>(IReadOnlyDictionary<TKey, TValue>? value
-      , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
-      , PalantírReveal<TVRevealBase> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
+        (IReadOnlyDictionary<TKey, TValue>? value
+          , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+          , PalantírReveal<TVRevealBase> valueStyler
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+          , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase
         where TValue : TVFilterBase?, TVRevealBase?
         where TVRevealBase : notnull =>
+        AddFilteredEnumerate(value, filterPredicate, valueStyler, keyFormatString, formatFlags);
+
+    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase>
+        (IReadOnlyDictionary<TKey, TValue?>? value
+          , KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
+          , PalantírReveal<TValue> valueStyler
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+          , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TKey : TKFilterBase
+        where TValue : struct =>
         AddFilteredEnumerate(value, filterPredicate, valueStyler, keyFormatString, formatFlags);
 
     public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>(KeyValuePair<TKey, TValue>[]? value
@@ -223,7 +234,45 @@ public partial class KeyValueCollectionMold
                     break;
                 }
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, formatFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
+            }
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase>
+    (KeyValuePair<TKey, TValue?>[]? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
+      , PalantírReveal<TValue> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TKey : TKFilterBase?
+        where TValue : struct
+    {
+        if (stb.SkipField<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags))
+            return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags);
+        if (value != null)
+        {
+            keyFormatString ??= "";
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            for (var i = 0; i < value.Length; i++)
+            {
+                var kvp          = value[i];
+                var filterResult = filterPredicate(i+1, kvp.Key!, kvp.Value!);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -262,7 +311,44 @@ public partial class KeyValueCollectionMold
                     break;
                 }
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, formatFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
+            }
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase>
+    (IReadOnlyList<KeyValuePair<TKey, TValue?>>? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
+      , PalantírReveal<TValue> valueStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TKey : TKFilterBase?
+        where TValue : struct
+    {
+        if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
+            return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags);
+        if (value != null)
+        {
+            keyFormatString ??= "";
+            var kvpType = typeof(KeyValuePair<TKey, TValue?>);
+            ItemCount = 0;
+            for (var i = 0; i < value.Count; i++)
+            {
+                var kvp          = value[i];
+                var filterResult = filterPredicate(i+1, kvp.Key!, kvp.Value!);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -303,7 +389,128 @@ public partial class KeyValueCollectionMold
                     break;
                 }
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, formatFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                skipCount = filterResult.SkipNextCount;
+            }
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TVFilterBase, TVRevealBase>
+    (IEnumerable<KeyValuePair<TKey?, TValue>>? value, KeyValuePredicate<TKey?, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TKey : struct
+        where TValue : TVFilterBase?, TVRevealBase?
+        where TVRevealBase : notnull
+    {
+        if (stb.SkipField<IEnumerable<KeyValuePair<TKey?, TValue>>>(value?.GetType(), "", formatFlags))
+            return stb.WasSkipped<IEnumerable<KeyValuePair<TKey?, TValue>>>(value?.GetType(), "", formatFlags);
+        if (value != null)
+        {
+            keyFormatString ??= "";
+            var kvpType   = typeof(KeyValuePair<TKey?, TValue>);
+            var skipCount = 0;
+            int count     = 0;
+            ItemCount = 0;
+            foreach (var kvp in value)
+            {
+                count++;
+                if (skipCount-- > 0) continue;
+                var filterResult = filterPredicate(count, kvp.Key!, kvp.Value!);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        skipCount = filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                skipCount = filterResult.SkipNextCount;
+            }
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase>
+    (IEnumerable<KeyValuePair<TKey, TValue?>>? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
+      , PalantírReveal<TValue> valueStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TKey : TKFilterBase?
+        where TValue : struct
+    {
+        if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
+            return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags);
+        if (value != null)
+        {
+            keyFormatString ??= "";
+            var kvpType   = typeof(KeyValuePair<TKey, TValue?>);
+            var skipCount = 0;
+            int count     = 0;
+            ItemCount = 0;
+            foreach (var kvp in value)
+            {
+                count++;
+                if (skipCount-- > 0) continue;
+                var filterResult = filterPredicate(count, kvp.Key!, kvp.Value!);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        skipCount = filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                skipCount = filterResult.SkipNextCount;
+            }
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue>
+    (IEnumerable<KeyValuePair<TKey?, TValue?>>? value, KeyValuePredicate<TKey?, TValue?> filterPredicate
+      , PalantírReveal<TValue> valueStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TKey : struct
+        where TValue : struct
+    {
+        if (stb.SkipField<IEnumerable<KeyValuePair<TKey?, TValue?>>>(value?.GetType(), "", formatFlags))
+            return stb.WasSkipped<IEnumerable<KeyValuePair<TKey?, TValue?>>>(value?.GetType(), "", formatFlags);
+        if (value != null)
+        {
+            keyFormatString ??= "";
+            var kvpType   = typeof(KeyValuePair<TKey?, TValue?>);
+            var skipCount = 0;
+            int count     = 0;
+            ItemCount = 0;
+            foreach (var kvp in value)
+            {
+                count++;
+                if (skipCount-- > 0) continue;
+                var filterResult = filterPredicate(count, kvp.Key!, kvp.Value!);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        skipCount = filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -351,7 +558,55 @@ public partial class KeyValueCollectionMold
                     break;
                 }
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, formatFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
+                hasValue = value.MoveNext();
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount);
+                if (filterResult is { KeepProcessing: false }) break;
+                skipCount = filterResult.SkipNextCount;
+            }
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase>(
+        IEnumerator<KeyValuePair<TKey, TValue?>>? value
+      , KeyValuePredicate<TKFilterBase, TValue?> filterPredicate, PalantírReveal<TValue> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TKey : TKFilterBase?
+        where TValue : struct
+    {
+        if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
+            return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
+        var hasValue = value?.MoveNext() ?? false;
+        if (hasValue)
+        {
+            keyFormatString ??= "";
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var count     = 0;
+            var skipCount = 0;
+            while (hasValue)
+            {
+                count++;
+                if (skipCount-- > 0)
+                {
+                    hasValue = value!.MoveNext();
+                    continue;
+                }
+                var kvp          = value!.Current;
+                var filterResult = filterPredicate(count, kvp.Key!, kvp.Value!);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        skipCount = filterResult.SkipNextCount;
+                        hasValue  = value.MoveNext();
+                        continue;
+                    }
+                    break;
+                }
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -369,6 +624,15 @@ public partial class KeyValueCollectionMold
         where TValue : TVFilterBase?, TVRevealBase?
         where TKRevealBase : notnull
         where TVRevealBase : notnull =>
+        AddFilteredEnumerate(value, filterPredicate, valueStyler, keyStyler, formatFlags);
+
+    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>
+    (IReadOnlyDictionary<TKey, TValue?>? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
+      , PalantírReveal<TValue> valueStyler, PalantírReveal<TKRevealBase> keyStyler
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TKey : TKFilterBase, TKRevealBase
+        where TValue : struct
+        where TKRevealBase : notnull =>
         AddFilteredEnumerate(value, filterPredicate, valueStyler, keyStyler, formatFlags);
 
     public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
@@ -398,8 +662,115 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, formatFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
+            }
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public KeyValueCollectionMold AddFiltered<TKey, TValue, TVFilterBase, TVRevealBase>
+    (KeyValuePair<TKey?, TValue>[]? value, KeyValuePredicate<TKey?, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKey> keyStyler, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TKey : struct
+        where TValue : TVFilterBase?, TVRevealBase?
+        where TVRevealBase : notnull
+    {
+        if (stb.SkipField<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags))
+            return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags);
+        if (value != null)
+        {
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            for (var i = 0; i < value.Length; i++)
+            {
+                var kvp          = value[i];
+                var filterResult = filterPredicate(i+1, kvp.Key!, kvp.Value!);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
+            }
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>
+    (KeyValuePair<TKey, TValue?>[]? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
+      , PalantírReveal<TValue> valueStyler, PalantírReveal<TKRevealBase> keyStyler, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TKey : TKFilterBase?, TKRevealBase?
+        where TValue : struct
+        where TKRevealBase : notnull
+    {
+        if (stb.SkipField<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags))
+            return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags);
+        if (value != null)
+        {
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            for (var i = 0; i < value.Length; i++)
+            {
+                var kvp          = value[i];
+                var filterResult = filterPredicate(i+1, kvp.Key!, kvp.Value!);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
+            }
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public KeyValueCollectionMold AddFiltered<TKey, TValue>
+    (KeyValuePair<TKey?, TValue?>[]? value, KeyValuePredicate<TKey?, TValue?> filterPredicate
+      , PalantírReveal<TValue> valueStyler, PalantírReveal<TKey> keyStyler, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TKey : struct
+        where TValue : struct
+    {
+        if (stb.SkipField<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags))
+            return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags);
+        if (value != null)
+        {
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            for (var i = 0; i < value.Length; i++)
+            {
+                var kvp          = value[i];
+                var filterResult = filterPredicate(i+1, kvp.Key!, kvp.Value!);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -436,8 +807,118 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, formatFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
+            }
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public KeyValueCollectionMold AddFiltered<TKey, TValue, TVFilterBase, TVRevealBase>
+    (IReadOnlyList<KeyValuePair<TKey?, TValue>>? value, KeyValuePredicate<TKey?, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKey> keyStyler
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TKey : struct
+        where TValue : TVFilterBase?, TVRevealBase?
+        where TVRevealBase : notnull
+    {
+        if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
+            return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
+        if (value != null)
+        {
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            for (var i = 0; i < value.Count; i++)
+            {
+                var kvp          = value[i];
+                var filterResult = filterPredicate(i+1, kvp.Key!, kvp.Value!);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
+            }
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>
+    (IReadOnlyList<KeyValuePair<TKey, TValue?>>? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
+      , PalantírReveal<TValue> valueStyler, PalantírReveal<TKRevealBase> keyStyler
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TKey : TKFilterBase?, TKRevealBase?
+        where TValue : struct
+        where TKRevealBase : notnull
+    {
+        if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
+            return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
+        if (value != null)
+        {
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            for (var i = 0; i < value.Count; i++)
+            {
+                var kvp          = value[i];
+                var filterResult = filterPredicate(i+1, kvp.Key!, kvp.Value!);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                i += filterResult.SkipNextCount;
+            }
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public KeyValueCollectionMold AddFiltered<TKey, TValue>
+    (IReadOnlyList<KeyValuePair<TKey?, TValue?>>? value, KeyValuePredicate<TKey?, TValue?> filterPredicate
+      , PalantírReveal<TValue> valueStyler, PalantírReveal<TKey> keyStyler
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TKey : struct
+        where TValue : struct
+    {
+        if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
+            return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
+        if (value != null)
+        {
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            for (var i = 0; i < value.Count; i++)
+            {
+                var kvp          = value[i];
+                var filterResult = filterPredicate(i+1, kvp.Key!, kvp.Value!);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        i += filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -477,8 +958,127 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, formatFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                skipCount = filterResult.SkipNextCount;
+            }
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TVFilterBase, TVRevealBase>
+    (IEnumerable<KeyValuePair<TKey?, TValue>>? value, KeyValuePredicate<TKey?, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKey> keyStyler
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TKey : struct
+        where TValue : TVFilterBase?, TVRevealBase?
+        where TVRevealBase : notnull
+    {
+        if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
+            return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
+        if (value != null)
+        {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var skipCount = 0;
+            int count     = 0;
+            ItemCount = 0;
+            foreach (var kvp in value)
+            {
+                count++;
+                if (skipCount-- > 0) continue;
+                var filterResult = filterPredicate(count, kvp.Key!, kvp.Value!);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        skipCount = filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                skipCount = filterResult.SkipNextCount;
+            }
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TKRevealBase>
+    (IEnumerable<KeyValuePair<TKey, TValue?>>? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
+      , PalantírReveal<TValue> valueStyler, PalantírReveal<TKRevealBase> keyStyler
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TKey : TKFilterBase?, TKRevealBase?
+        where TValue : struct
+        where TKRevealBase : notnull
+    {
+        if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
+            return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags);
+        if (value != null)
+        {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue?>);
+            var skipCount = 0;
+            int count     = 0;
+            ItemCount = 0;
+            foreach (var kvp in value)
+            {
+                count++;
+                if (skipCount-- > 0) continue;
+                var filterResult = filterPredicate(count, kvp.Key!, kvp.Value!);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        skipCount = filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                skipCount = filterResult.SkipNextCount;
+            }
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue>
+    (IEnumerable<KeyValuePair<TKey?, TValue?>>? value, KeyValuePredicate<TKey?, TValue?> filterPredicate
+      , PalantírReveal<TValue> valueStyler, PalantírReveal<TKey> keyStyler
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TKey : struct
+        where TValue : struct
+    {
+        if (stb.SkipField<IEnumerable<KeyValuePair<TKey?, TValue?>>>(value?.GetType(), "", formatFlags))
+            return stb.WasSkipped<IEnumerable<KeyValuePair<TKey?, TValue?>>>(value?.GetType(), "", formatFlags);
+        if (value != null)
+        {
+            var kvpType   = typeof(KeyValuePair<TKey?, TValue?>);
+            var skipCount = 0;
+            int count     = 0;
+            ItemCount = 0;
+            foreach (var kvp in value)
+            {
+                count++;
+                if (skipCount-- > 0) continue;
+                var filterResult = filterPredicate(count, kvp.Key!, kvp.Value!);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        skipCount = filterResult.SkipNextCount;
+                        continue;
+                    }
+                    break;
+                }
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -524,8 +1124,148 @@ public partial class KeyValueCollectionMold
                     }
                     break;
                 }
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, formatFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
+                hasValue = value.MoveNext();
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                skipCount = filterResult.SkipNextCount;
+            }
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TVFilterBase, TVRevealBase>
+    (IEnumerator<KeyValuePair<TKey?, TValue>>? value, KeyValuePredicate<TKey?, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKey> keyStyler
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TKey : struct
+        where TValue : TVFilterBase?, TVRevealBase?
+        where TVRevealBase : notnull
+    {
+        if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
+            return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
+        var hasValue = value?.MoveNext() ?? false;
+        if (hasValue)
+        {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var count     = 0;
+            var skipCount = 0;
+            while (hasValue)
+            {
+                count++;
+                if (skipCount-- > 0)
+                {
+                    hasValue = value!.MoveNext();
+                    continue;
+                }
+                var kvp          = value!.Current;
+                var filterResult = filterPredicate(count, kvp.Key!, kvp.Value!);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        skipCount = filterResult.SkipNextCount;
+                        hasValue  = value.MoveNext();
+                        continue;
+                    }
+                    break;
+                }
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
+                hasValue = value.MoveNext();
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                skipCount = filterResult.SkipNextCount;
+            }
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TKRevealBase>
+    (IEnumerator<KeyValuePair<TKey, TValue?>>? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
+      , PalantírReveal<TValue> valueStyler, PalantírReveal<TKRevealBase> keyStyler
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TKey : TKFilterBase?, TKRevealBase?
+        where TValue : struct
+        where TKRevealBase : notnull
+    {
+        if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
+            return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
+        var hasValue = value?.MoveNext() ?? false;
+        if (hasValue)
+        {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var count     = 0;
+            var skipCount = 0;
+            while (hasValue)
+            {
+                count++;
+                if (skipCount-- > 0)
+                {
+                    hasValue = value!.MoveNext();
+                    continue;
+                }
+                var kvp          = value!.Current;
+                var filterResult = filterPredicate(count, kvp.Key!, kvp.Value!);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        skipCount = filterResult.SkipNextCount;
+                        hasValue  = value.MoveNext();
+                        continue;
+                    }
+                    break;
+                }
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
+                hasValue = value.MoveNext();
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+                if (filterResult is { KeepProcessing: false }) break;
+                skipCount = filterResult.SkipNextCount;
+            }
+        }
+        return stb.StyleTypeBuilder;
+    }
+
+    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue>
+    (IEnumerator<KeyValuePair<TKey?, TValue?>>? value, KeyValuePredicate<TKey?, TValue?> filterPredicate
+      , PalantírReveal<TValue> valueStyler, PalantírReveal<TKey> keyStyler
+      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TKey : struct
+        where TValue : struct
+    {
+        if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
+            return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
+        var hasValue = value?.MoveNext() ?? false;
+        if (hasValue)
+        {
+            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+            var count     = 0;
+            var skipCount = 0;
+            while (hasValue)
+            {
+                count++;
+                if (skipCount-- > 0)
+                {
+                    hasValue = value!.MoveNext();
+                    continue;
+                }
+                var kvp          = value!.Current;
+                var filterResult = filterPredicate(count, kvp.Key!, kvp.Value!);
+                if (filterResult is { IncludeItem: false })
+                {
+                    if (filterResult is { KeepProcessing: true })
+                    {
+                        skipCount = filterResult.SkipNextCount;
+                        hasValue  = value.MoveNext();
+                        continue;
+                    }
+                    break;
+                }
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;

@@ -20,9 +20,9 @@ public abstract class FormattedEnumeratorFieldMoldScaffold<TValue, TCollection> 
     where TCollection : IEnumerator<TValue>
 { }
 
-public abstract class RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase, TCollection> : MoldScaffoldBase<TCollection?>
-  , ISupportsValueRevealer<TRevealBase>
-    where TCollection : IEnumerable<TCloaked?>
+public abstract class RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase, TCollection> 
+    : MoldScaffoldBase<TCollection>, ISupportsValueRevealer<TRevealBase>
+    where TCollection : IEnumerable<TCloaked>
     where TRevealBase : notnull
 {
     public Delegate ValueRevealerDelegate { get; set; } = null!;
@@ -34,7 +34,8 @@ public abstract class RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase,
     }
 }
 
-public abstract class RevealerEnumeratorFieldMoldScaffold<TCloaked, TRevealBase, TCollection> : MoldScaffoldBase<TCollection?>
+public abstract class RevealerEnumeratorFieldMoldScaffold<TCloaked, TRevealBase, TCollection> : 
+    MoldScaffoldBase<TCollection>
   , ISupportsValueRevealer<TRevealBase>
     where TCollection : IEnumerator<TCloaked>
     where TRevealBase : notnull

@@ -6,6 +6,8 @@ using System.Numerics;
 using FortitudeCommon.DataStructures.Lists.PositionAware;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ComplexTypeScaffolds.SingleFields;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ValueTypeScaffolds;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
@@ -175,7 +177,7 @@ public partial class SimpleDictTestData
                           "2.718281828459045":"One doesn't simply write Euler nature number.",
                           "5.43656365691809":"One doesn't even appear at the start of Euler nature number."
                         }
-                        """.RemoveLineEndings()
+                        """.Dos2Unix()
                     }
                 }
               , new DictionaryExpect<double, ICharSequence>(DoubleCharSequenceMap.ToList(), "", "{0,17}"
@@ -222,7 +224,7 @@ public partial class SimpleDictTestData
                           "                1":"All for one and one for all.",
                           "               -1":"Imagine there's no tax havens, it's easy if you try"
                         }
-                        """.RemoveLineEndings()
+                        """.Dos2Unix()
                     }
                 }
               , new DictionaryExpect<double?, ICharSequence?>(NullDoubleNullCharSequence.ToList()
@@ -273,7 +275,7 @@ public partial class SimpleDictTestData
                           "2.718281828459045":"One doesn't simply write Euler nature number.",
                           "1": "All for one and one for all."
                         }
-                        """.RemoveLineEndings()
+                        """.Dos2Unix()
                     }
                 }
               , new DictionaryExpect<double?, ICharSequence?>(NullDoubleNullCharSequence, "", "{0,17}"
@@ -316,11 +318,11 @@ public partial class SimpleDictTestData
                           "             null": ""Your contract is null AND void", apparently not the same thing or why say both.",
                           "               -1": "Imagine there's no tax havens, it's easy if you try"
                         }
-                        """.RemoveLineEndings()
+                        """.Dos2Unix()
                     }
                 }
               , new DictionaryExpect<UInt128, BigInteger>(VeryULongBigIntegerMap.ToList(), "-{0}", "'{0}'"
-                                                        , () => VeryULongBigIntegerMap_First_3)
+                                                        , () => VeryULongBigInteger_First_3)
                 {
                     {
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -363,11 +365,11 @@ public partial class SimpleDictTestData
                           "'170141183460469231731687303715884105727'": -170141183460469231731687303715884105727,
                           "'1'": -1
                         }
-                        """.RemoveLineEndings()
+                        """.Dos2Unix()
                     }
                 }
               , new DictionaryExpect<UInt128, BigInteger?>(NullVeryULongBigIntegerMap, "\"{0,4}\"","{0,-45}"
-                                                        , () => NullVeryULongBigIntegerMap_First_3)
+                                                        , () => NullVeryULongBigInteger_First_3)
                 {
                     {
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -410,10 +412,10 @@ public partial class SimpleDictTestData
                           "170141183460469231731687303715884105727      ":"null",
                           "1                                            ":"   1"
                         }
-                        """.RemoveLineEndings()
+                        """.Dos2Unix()
                     }
                 }
-              , new DictionaryExpect<IPAddress, Uri>(IPAddressUriMap.ToList(), "==> {0}", "{0,18}", () => IPAddress_First_10)
+              , new DictionaryExpect<IPAddress, Uri>(IPAddressUriMap.ToList(), "==> {0}", "{0,18}", () => IPAddressUri_First_10)
                 {
                     {
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -431,10 +433,10 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                        "        0.0.0.0": ==> http://first-null.com/,
-                        "      127.0.0.1": ==> tcp://localhost/,
-                        "255.255.255.255": ==> http://unknown.com/,
-                        "    192.168.1.1": ==> tcp://default-gateway/
+                        "        0.0.0.0":"==> http://first-null.com/",
+                        "      127.0.0.1":"==> tcp://localhost/",
+                        "255.255.255.255":"==> http://unknown.com/",
+                        "    192.168.1.1":"==> tcp://default-gateway/"
                         }
                         """.RemoveLineEndings()
                     }
@@ -443,10 +445,10 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                          "        0.0.0.0": ==> http://first-null.com/,
-                          "      127.0.0.1": ==> tcp://localhost/,
-                          "255.255.255.255": ==> http://unknown.com/,
-                          "    192.168.1.1": ==> tcp://default-gateway/
+                                  0.0.0.0: ==> http://first-null.com/,
+                                127.0.0.1: ==> tcp://localhost/,
+                          255.255.255.255: ==> http://unknown.com/,
+                              192.168.1.1: ==> tcp://default-gateway/
                         }
                         """.Dos2Unix()
                     }
@@ -455,12 +457,1250 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                          "        0.0.0.0": ==> http://first-null.com/,
-                          "      127.0.0.1": ==> tcp://localhost/,
-                          "255.255.255.255": ==> http://unknown.com/,
-                          "    192.168.1.1": ==> tcp://default-gateway/
+                          "        0.0.0.0": "==> http://first-null.com/",
+                          "      127.0.0.1": "==> tcp://localhost/",
+                          "255.255.255.255": "==> http://unknown.com/",
+                          "    192.168.1.1": "==> tcp://default-gateway/"
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<IPAddress?, Uri?>(NullIPAddressUriMap, "==> {0}", "{0,18}", () => NullIPAddressUri_First_10)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                                    0.0.0.0: ==> http://first-null.com/,
+                                  127.0.0.1: ==> tcp://localhost/,
+                                192.168.1.1: ==> tcp://default-gateway/,
+                            255.255.255.255: ==> null,
+                                       null: ==> null 
                         }
                         """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "        0.0.0.0":"==> http://first-null.com/",
+                        "      127.0.0.1":"==> tcp://localhost/",
+                        "    192.168.1.1":"==> tcp://default-gateway/",
+                        "255.255.255.255":==> null,
+                        "           null":==> null
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                                  0.0.0.0: ==> http://first-null.com/,
+                                127.0.0.1: ==> tcp://localhost/,
+                              192.168.1.1: ==> tcp://default-gateway/,
+                          255.255.255.255: ==> null,
+                                     null: ==> null
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "        0.0.0.0": "==> http://first-null.com/",
+                          "      127.0.0.1": "==> tcp://localhost/",
+                          "    192.168.1.1": "==> tcp://default-gateway/",
+                          "255.255.255.255": ==> null,
+                          "           null": ==> null 
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<MySpanFormattableStruct, MySpanFormattableClass>
+                    (MySpanFormattableStructClassMap.ToList(), "{0,-20}", "{0,20}", () => MySpanFormattableStructClass_Second_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                            Fourth_SpanStruct: Fourth_SpanClass    ,
+                             Fifth_SpanStruct: Fifth_SpanClass     ,
+                             Sixth_SpanStruct: Sixth_SpanClass      
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "  Fourth_SpanStruct":"Fourth_SpanClass    ",
+                        "   Fifth_SpanStruct":"Fifth_SpanClass     ",
+                        "   Sixth_SpanStruct":"Sixth_SpanClass     "
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                               Fourth_SpanStruct: Fourth_SpanClass    ,
+                                Fifth_SpanStruct: Fifth_SpanClass     ,
+                                Sixth_SpanStruct: Sixth_SpanClass     
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "  Fourth_SpanStruct": "Fourth_SpanClass    ",
+                          "   Fifth_SpanStruct": "Fifth_SpanClass     ",
+                          "   Sixth_SpanStruct": "Sixth_SpanClass     "
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<MySpanFormattableStruct?, MySpanFormattableClass?>
+                    (NullMySpanFormattableStructClassMap, "{0,20}", "{0,-20}", () => NullMySpanFormattableStructClass_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         First_SpanStruct    :      First_SpanClass,
+                         null                :     Second_SpanClass,
+                         Third_SpanStruct    :      Third_SpanClass 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "First_SpanStruct    ":"      First_SpanClass",
+                        "null                ":"     Second_SpanClass",
+                        "Third_SpanStruct    ":"      Third_SpanClass"
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          First_SpanStruct    :      First_SpanClass,
+                          null                :     Second_SpanClass,
+                          Third_SpanStruct    :      Third_SpanClass 
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "First_SpanStruct    ":"      First_SpanClass",
+                          "null                ":"     Second_SpanClass",
+                          "Third_SpanStruct    ":"      Third_SpanClass"
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<MySpanFormattableClass, MySpanFormattableStruct>
+                    (MySpanFormattableClassStructMap.ToList(), "{0,-20}", "{0,20}", () => MySpanFormattableClassStruct_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                              First_SpanClass: First_SpanStruct    ,
+                             Second_SpanClass: Second_SpanStruct   ,
+                              Third_SpanClass: Third_SpanStruct     
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "     First_SpanClass":"First_SpanStruct    ",
+                        "    Second_SpanClass":"Second_SpanStruct   ",
+                        "     Third_SpanClass":"Third_SpanStruct    "
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                                First_SpanClass: First_SpanStruct    ,
+                               Second_SpanClass: Second_SpanStruct   ,
+                                Third_SpanClass: Third_SpanStruct     
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "     First_SpanClass":"First_SpanStruct    ",
+                          "    Second_SpanClass":"Second_SpanStruct   ",
+                          "     Third_SpanClass":"Third_SpanStruct    "
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<MySpanFormattableClass?, MySpanFormattableStruct?>
+                    (NullMySpanFormattableClassStructMap.ToList(), "{0,20}", "{0,-20}", () => NullMySpanFormattableClassStruct_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         First_SpanClass     :     First_SpanStruct,
+                         null                :    Second_SpanStruct,
+                         Third_SpanClass     :     Third_SpanStruct 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "First_SpanClass     ":"    First_SpanStruct",
+                        "null                ":"   Second_SpanStruct",
+                        "Third_SpanClass     ":"    Third_SpanStruct"
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          First_SpanClass     :    First_SpanStruct,
+                          null                :   Second_SpanStruct,
+                          Third_SpanClass     :    Third_SpanStruct
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "First_SpanClass     ":"    First_SpanStruct",
+                          "null                ":"   Second_SpanStruct",
+                          "Third_SpanClass     ":"    Third_SpanStruct"
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>
+                      , FieldSpanFormattableAlwaysAddStructStringBearer<Uri>>
+                    (StructBearerToComplexBearerMap.ToList(), "{0,30}", "N3", () => StructBearerToComplexBearer_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>=
+                         SimpleTypeAsValueSpanFormattableStruct: 3.142: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/ },
+                         SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>=
+                         SimpleTypeAsValueSpanFormattableStruct: 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/ },
+                         SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>=
+                         SimpleTypeAsValueSpanFormattableStruct: 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/ } 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "3.142":"http://first-value.com/",
+                        "2.718":"http://second-value.com/",
+                        "31.416":"http://third-value.com/"
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 3.142: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> { 
+                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/ 
+                           },
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> { 
+                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/ 
+                           },
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/ 
+                          }
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "3.142":"http://first-value.com/",
+                          "2.718":"http://second-value.com/",
+                          "31.416":"http://third-value.com/"
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>?
+                      , FieldSpanFormattableAlwaysAddStructStringBearer<Uri>?>
+                    (NullStructBearerToComplexBearerMap, "{0,30}", "N3", () => NullStructBearerToComplexBearerMap_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/ },
+                         SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>=
+                         SimpleTypeAsValueSpanFormattableStruct: 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/ },
+                         SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>=
+                         SimpleTypeAsValueSpanFormattableStruct: 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/ } 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "null":"http://first-value.com/",
+                        "2.718":"http://second-value.com/",
+                        "31.416":"http://third-value.com/"
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> { 
+                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/ 
+                           },
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> { 
+                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/ 
+                           },
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/ 
+                          }
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "null":"http://first-value.com/",
+                          "2.718":"http://second-value.com/",
+                          "31.416":"http://third-value.com/"
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>
+                      , FieldSpanFormattableAlwaysAddStringBearer<Uri>>
+                    (ClassBearerToComplexBearerMap.ToList(), "{0,30}", "N3", () => ClassBearerToComplexBearer_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>=
+                         SimpleTypeAsValueSpanFormattable: 3.142: FieldSpanFormattableAlwaysAddStringBearer<Uri> {
+                         ComplexTypeFieldAlwaysAddSpanFormattable: http://first-value.com/ },
+                         SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>=
+                         SimpleTypeAsValueSpanFormattable: 2.718: FieldSpanFormattableAlwaysAddStringBearer<Uri> {
+                         ComplexTypeFieldAlwaysAddSpanFormattable: http://second-value.com/ },
+                         SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>=
+                         SimpleTypeAsValueSpanFormattable: 31.416: FieldSpanFormattableAlwaysAddStringBearer<Uri> {
+                         ComplexTypeFieldAlwaysAddSpanFormattable: http://third-value.com/ } 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "3.142":"http://first-value.com/",
+                        "2.718":"http://second-value.com/",
+                        "31.416":"http://third-value.com/"
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>= SimpleTypeAsValueSpanFormattable: 3.142: FieldSpanFormattableAlwaysAddStringBearer<Uri> { 
+                             ComplexTypeFieldAlwaysAddSpanFormattable: http://first-value.com/ 
+                           },
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>= SimpleTypeAsValueSpanFormattable: 2.718: FieldSpanFormattableAlwaysAddStringBearer<Uri> { 
+                             ComplexTypeFieldAlwaysAddSpanFormattable: http://second-value.com/ 
+                           },
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>= SimpleTypeAsValueSpanFormattable: 31.416: FieldSpanFormattableAlwaysAddStringBearer<Uri> {
+                             ComplexTypeFieldAlwaysAddSpanFormattable: http://third-value.com/ 
+                          }
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "3.142":"http://first-value.com/",
+                          "2.718":"http://second-value.com/",
+                          "31.416":"http://third-value.com/"
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>?
+                      , FieldSpanFormattableAlwaysAddStructStringBearer<Uri>?>
+                    (NullClassBearerToComplexBearerMap, "{0,30}", "N3", () => NullClassBearerToComplexBearer_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/ },
+                         SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>=
+                         SimpleTypeAsValueSpanFormattable: 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/ },
+                         SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>=
+                         SimpleTypeAsValueSpanFormattable: 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/ } 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "null":"http://first-value.com/",
+                        "2.718":"http://second-value.com/",
+                        "31.416":"http://third-value.com/"
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> { 
+                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/ 
+                           },
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>= SimpleTypeAsValueSpanFormattable: 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> { 
+                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/ 
+                           },
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>= SimpleTypeAsValueSpanFormattable: 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/ 
+                          }
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "null":"http://first-value.com/",
+                          "2.718":"http://second-value.com/",
+                          "31.416":"http://third-value.com/"
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<NoDefaultLongNoFlagsEnum, WithDefaultLongWithFlagsEnum>
+                    (EnumLongNdNfToWdWfMap.ToList(), "", null, () => EnumLongNdNfToWdWf_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         NoDefaultLongNoFlagsEnum.NDLNFE_4: WithDefaultLongWithFlagsEnum.WDLWFE_4,
+                         NoDefaultLongNoFlagsEnum.NDLNFE_34: WithDefaultLongWithFlagsEnum.WDLWFE_34,
+                         NoDefaultLongNoFlagsEnum.0: WithDefaultLongWithFlagsEnum.Default 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "NDLNFE_4":"WDLWFE_4",
+                        "NDLNFE_34":"WDLWFE_34",
+                        "0":"Default" 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          NoDefaultLongNoFlagsEnum.NDLNFE_4: WithDefaultLongWithFlagsEnum.WDLWFE_4,
+                          NoDefaultLongNoFlagsEnum.NDLNFE_34: WithDefaultLongWithFlagsEnum.WDLWFE_34,
+                          NoDefaultLongNoFlagsEnum.0: WithDefaultLongWithFlagsEnum.Default
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "NDLNFE_4":"WDLWFE_4",
+                          "NDLNFE_34":"WDLWFE_34",
+                          "0":"Default"
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<NoDefaultLongNoFlagsEnum?, WithDefaultLongWithFlagsEnum?>
+                    (NullEnumLongNdNfToWdWfMap.ToList(), null, "", () => NullEnumLongNdNfToWdWf_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         NoDefaultLongNoFlagsEnum.NDLNFE_4: null,
+                         null: WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask,
+                         NoDefaultLongNoFlagsEnum.NDLNFE_1: null 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "NDLNFE_4":null,
+                        "null":"WDLWFE_Second4Mask",
+                        "NDLNFE_1": null
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          NoDefaultLongNoFlagsEnum.NDLNFE_4: null,
+                          null: WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask,
+                          NoDefaultLongNoFlagsEnum.NDLNFE_1: null
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "NDLNFE_4":null,
+                          "null":"WDLWFE_Second4Mask",
+                          "NDLNFE_1":null
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<NoDefaultULongNoFlagsEnum, WithDefaultULongWithFlagsEnum>
+                    (EnumULongNdNfDateTimeMap.ToList(), "", null, () => EnumULongNdNfToWdWf_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         NoDefaultULongNoFlagsEnum.NDUNFE_4: WithDefaultULongWithFlagsEnum.WDUWFE_4,
+                         NoDefaultULongNoFlagsEnum.NDUNFE_34: WithDefaultULongWithFlagsEnum.WDUWFE_34,
+                         NoDefaultULongNoFlagsEnum.0: WithDefaultULongWithFlagsEnum.Default 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "NDUWFE_4":"WDUWFE_4",
+                        "NDUNFE_34":"WDUWFE_34",
+                        "0":"Default" 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          NoDefaultULongNoFlagsEnum.NDUNFE_4: WithDefaultULongWithFlagsEnum.WDUWFE_4,
+                          NoDefaultULongNoFlagsEnum.NDUNFE_34: WithDefaultULongWithFlagsEnum.WDUWFE_34,
+                          NoDefaultULongNoFlagsEnum.0: WithDefaultULongWithFlagsEnum.Default
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "NDUNFE_4":"WDUWFE_4",
+                          "NDUNFE_34":"WDUWFE_34",
+                          "0":"Default"
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<NoDefaultULongNoFlagsEnum?, WithDefaultULongWithFlagsEnum?>
+                    (NullEnumULongNdNfNullStringMap, "", null, () => NullEnumULongNdNfToWdWf_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         NoDefaultULongNoFlagsEnum.NDUNFE_4: null,
+                         null: WithDefaultULongWithFlagsEnum.WDUWFE_34,
+                         NoDefaultULongNoFlagsEnum.0: WithDefaultULongWithFlagsEnum.Default 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "NDUNFE_4":null,
+                        "null":"WDUWFE_34",
+                        "0":"Default" 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          NoDefaultULongNoFlagsEnum.NDUNFE_4: null,
+                          null: WithDefaultULongWithFlagsEnum.WDUWFE_34,
+                          NoDefaultULongNoFlagsEnum.0: WithDefaultULongWithFlagsEnum.Default
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "NDUNFE_4":null,
+                          "null":"WDUWFE_34",
+                          "0":"Default"
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<WithDefaultLongNoFlagsEnum, NoDefaultLongWithFlagsEnum>
+                    (EnumLongWdNfToNdWfMap.ToList(), "", null, () => EnumLongWdNfToNdWf_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         WithDefaultLongNoFlagsEnum.WDLNFE_4: NoDefaultLongWithFlagsEnum.NDLWFE_4,
+                         WithDefaultLongNoFlagsEnum.WDLNFE_34: NoDefaultLongWithFlagsEnum.NDLWFE_34,
+                         WithDefaultLongNoFlagsEnum.Default: NoDefaultLongWithFlagsEnum.0 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "WDLNFE_4":"NDLNFE_4",
+                        "WDLNFE_34":"NDLNFE_34",
+                        "Default":0 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          WithDefaultLongNoFlagsEnum.WDLNFE_4: NoDefaultLongWithFlagsEnum.NDLWFE_4,
+                          WithDefaultLongNoFlagsEnum.WDLNFE_34: NoDefaultLongWithFlagsEnum.NDLWFE_34,
+                          WithDefaultLongNoFlagsEnum.Default: NoDefaultLongWithFlagsEnum.0
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "WDLNFE_4":"NDLNFE_4",
+                          "WDLNFE_34":"NDLNFE_34",
+                          "Default":"0"
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<WithDefaultLongNoFlagsEnum?, NoDefaultLongWithFlagsEnum?>
+                    (NullEnumLongWdNfToNdWfMap, "", null, () => NullEnumLongWdNfToNdWf_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         WithDefaultLongNoFlagsEnum.WDLNFE_4: null,
+                         null: NoDefaultLongWithFlagsEnum.NDLWFE_2 | NoDefaultLongWithFlagsEnum.NDLWFE_3 | NoDefaultLongWithFlagsEnum.NDLWFE_4 | NoDefaultLongWithFlagsEnum.NDLWFE_Second4Mask | NoDefaultLongWithFlagsEnum.NDLWFE_LastTwoMask,
+                         WithDefaultLongNoFlagsEnum.Default: NoDefaultLongWithFlagsEnum.0 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "WDLNFE_4":null,
+                        "null":"NDLWFE_2, NDLWFE_3, NDLWFE_4, NDLWFE_Second4Mask, NDLWFE_LastTwoMask",
+                        "Default":0 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          WithDefaultLongNoFlagsEnum.WDLNFE_4: null,
+                          null: NoDefaultLongWithFlagsEnum.NDLWFE_2 | NoDefaultLongWithFlagsEnum.NDLWFE_3 | NoDefaultLongWithFlagsEnum.NDLWFE_4 | NoDefaultLongWithFlagsEnum.NDLWFE_Second4Mask | NoDefaultLongWithFlagsEnum.NDLWFE_LastTwoMask,
+                          WithDefaultLongNoFlagsEnum.Default: NoDefaultLongWithFlagsEnum.0
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "WDLNFE_4": null,
+                          "null": "NDLWFE_2, NDLWFE_3, NDLWFE_4, NDLWFE_Second4Mask, NDLWFE_LastTwoMask",
+                          "Default": 0
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<WithDefaultULongNoFlagsEnum, NoDefaultULongWithFlagsEnum>
+                    (EnumULongWdNfToNdWfMap.ToList(), "", null, () => EnumULongWdNfToNdWf_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         WithDefaultULongNoFlagsEnum.WDUNFE_2: NoDefaultULongWithFlagsEnum.NDUWFE_2,
+                         WithDefaultULongNoFlagsEnum.WDUNFE_4: NoDefaultULongWithFlagsEnum.NDUWFE_4,
+                         WithDefaultULongNoFlagsEnum.WDUNFE_34: NoDefaultULongWithFlagsEnum.NDUWFE_34 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "WDUNFE_2":"NDUWFE_2",
+                        "WDUNFE_4":"NDUWFE_4",
+                        "WDUNFE_34":"NDUWFE_34" 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          WithDefaultULongNoFlagsEnum.WDUNFE_2: NoDefaultULongWithFlagsEnum.NDUWFE_2,
+                          WithDefaultULongNoFlagsEnum.WDUNFE_4: NoDefaultULongWithFlagsEnum.NDUWFE_4,
+                          WithDefaultULongNoFlagsEnum.WDUNFE_34: NoDefaultULongWithFlagsEnum.NDUWFE_34
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "WDUNFE_2":"NDUWFE_2",
+                          "WDUNFE_4":"NDUWFE_4",
+                          "WDUNFE_34":"NDUWFE_34"
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<WithDefaultULongNoFlagsEnum?, NoDefaultULongWithFlagsEnum?>
+                    (NullEnumULongWdNfToNdWfMap, "", null, () => NullEnumULongWdNfToNdWf_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         WithDefaultULongNoFlagsEnum.WDUNFE_4: null,
+                         null: NoDefaultULongWithFlagsEnum.NDUWFE_2,
+                         WithDefaultULongNoFlagsEnum.Default: NoDefaultULongWithFlagsEnum.0 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "WDUNFE_4":null,
+                        "null":"NDUWFE_2",
+                        "Default":0 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          WithDefaultULongNoFlagsEnum.WDUNFE_4: null,
+                          null: NoDefaultULongWithFlagsEnum.NDUWFE_2,
+                          WithDefaultULongNoFlagsEnum.Default: NoDefaultULongWithFlagsEnum.0
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "WDUNFE_4": null,
+                          "null": "NDUWFE_2",
+                          "Default": 0
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<NoDefaultLongWithFlagsEnum, WithDefaultLongNoFlagsEnum>
+                    (EnumLongNdWfToWdNfMap.ToList(), "", null, () => EnumLongNdWfToWdNf_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         NoDefaultLongWithFlagsEnum.NDLWFE_4: WithDefaultLongNoFlagsEnum.WDLNFE_4,
+                         NoDefaultLongWithFlagsEnum.NDLWFE_First4Mask | NoDefaultLongWithFlagsEnum.NDLWFE_5 | NoDefaultLongWithFlagsEnum.NDLWFE_7
+                         | NoDefaultLongWithFlagsEnum.NDLWFE_8: WithDefaultLongNoFlagsEnum.WDLNFE_6,
+                         NoDefaultLongWithFlagsEnum.0: WithDefaultLongNoFlagsEnum.Default 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "NDLWFE_4":"NDLNFE_4",
+                        "NDLWFE_First4Mask, NDLWFE_5, NDLWFE_7, NDLWFE_8":"WDLNFE_6",
+                        "0":"Default"
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          NoDefaultLongWithFlagsEnum.NDLWFE_4: WithDefaultLongNoFlagsEnum.NDLWFE_4,
+                          NoDefaultLongWithFlagsEnum.NDLWFE_First4Mask | NoDefaultLongWithFlagsEnum.NDLWFE_5 | NoDefaultLongWithFlagsEnum.NDLWFE_7 | NoDefaultLongWithFlagsEnum.NDLWFE_8: WithDefaultLongNoFlagsEnum.WDLNFE_6,
+                          NoDefaultLongWithFlagsEnum.0: WithDefaultLongNoFlagsEnum.Default
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "NDLWFE_4": "NDLNFE_4",
+                          "NDLWFE_First4Mask, NDLWFE_5, NDLWFE_7, NDLWFE_8": "WDLNFE_6",
+                          "0": "Default"
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<NoDefaultLongWithFlagsEnum?, WithDefaultLongNoFlagsEnum?>
+                    (NullEnumLongNdWfToWdNfMap, "", null, () => NullEnumLongNdWfToWdNf_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         null: null,
+                         NoDefaultLongWithFlagsEnum.NDLWFE_4: WithDefaultLongNoFlagsEnum.WDLNFE_4,
+                         NoDefaultLongWithFlagsEnum.NDLWFE_First4Mask | NoDefaultLongWithFlagsEnum.NDLWFE_5 | NoDefaultLongWithFlagsEnum.NDLWFE_7 | NoDefaultLongWithFlagsEnum.NDLWFE_8: null 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "null": null,
+                        "NDLWFE_4": "WDLNFE_4",
+                        "NDLWFE_First4Mask, NDLWFE_5, NDLWFE_7, NDLWFE_8": null
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          null: null,
+                          NoDefaultLongWithFlagsEnum.NDLWFE_4: WithDefaultLongNoFlagsEnum.WDLNFE_4,
+                          NoDefaultLongWithFlagsEnum.NDLWFE_First4Mask | NoDefaultLongWithFlagsEnum.NDLWFE_5 | NoDefaultLongWithFlagsEnum.NDLWFE_7 | NoDefaultLongWithFlagsEnum.NDLWFE_8: null 
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "null": null,
+                          "NDLWFE_4": "WDLNFE_4",
+                          "NDLWFE_First4Mask, NDLWFE_5, NDLWFE_7, NDLWFE_8": null
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<NoDefaultULongWithFlagsEnum, WithDefaultULongNoFlagsEnum>
+                    (EnumULongNdWfToWdNfMap.ToList(), "", null, () => EnumULongNdWfToWdNfM_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         NoDefaultULongWithFlagsEnum.NDUWFE_4: WithDefaultULongNoFlagsEnum.WDUNFE_4,
+                         NoDefaultULongWithFlagsEnum.NDUWFE_First4Mask | NoDefaultULongWithFlagsEnum.NDUWFE_5 | NoDefaultULongWithFlagsEnum.NDUWFE_7
+                         | NoDefaultULongWithFlagsEnum.NDUWFE_8: WithDefaultULongNoFlagsEnum.WDUNFE_1,
+                         NoDefaultULongWithFlagsEnum.NDUWFE_34: WithDefaultULongNoFlagsEnum.WDUNFE_34 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "NDLWFE_4":"WDUNFE_4",
+                        "NDLWFE_First4Mask, NDLWFE_5, NDLWFE_7, NDLWFE_8":"WDUNFE_1",
+                        "NDUWFE_34":"WDUNFE_34"
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          NoDefaultULongWithFlagsEnum.NDUWFE_4: WithDefaultULongNoFlagsEnum.WDUNFE_4,
+                          NoDefaultULongWithFlagsEnum.NDUWFE_First4Mask | NoDefaultULongWithFlagsEnum.NDUWFE_5 | NoDefaultULongWithFlagsEnum.NDUWFE_7 | NoDefaultULongWithFlagsEnum.NDUWFE_8: WithDefaultULongNoFlagsEnum.WDUNFE_1,
+                          NoDefaultULongWithFlagsEnum.NDUWFE_34: WithDefaultULongNoFlagsEnum.WDUNFE_34
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "NDUWFE_4": "WDUNFE_4",
+                          "NDUWFE_First4Mask, NDUWFE_5, NDUWFE_7, NDUWFE_8": "WDUNFE_1",
+                          "NDUWFE_34": "WDUNFE_34"
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<NoDefaultULongWithFlagsEnum?, WithDefaultULongNoFlagsEnum?>
+                    (NullEnumULongNdWfToWdNfMap, "", null, () => NullEnumULongNdWfToWdNf_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         null: null,
+                         NoDefaultULongWithFlagsEnum.NDUWFE_First4Mask | NoDefaultULongWithFlagsEnum.NDUWFE_5 | NoDefaultULongWithFlagsEnum.NDUWFE_7
+                         | NoDefaultULongWithFlagsEnum.NDUWFE_8: WithDefaultULongNoFlagsEnum.WDUNFE_1,
+                         NoDefaultULongWithFlagsEnum.NDUWFE_34: WithDefaultULongNoFlagsEnum.WDUNFE_34 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "null": null,
+                        "NDUWFE_First4Mask, NDUWFE_5, NDUWFE_7, NDUWFE_8": "WDUNFE_1",
+                        "NDUWFE_34": "WDUNFE_34"
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          null: null,
+                          NoDefaultULongWithFlagsEnum.NDUWFE_First4Mask | NoDefaultULongWithFlagsEnum.NDUWFE_5 | NoDefaultULongWithFlagsEnum.NDUWFE_7 | NoDefaultULongWithFlagsEnum.NDUWFE_8: WithDefaultULongNoFlagsEnum.WDUNFE_1,
+                          NoDefaultULongWithFlagsEnum.NDUWFE_34: WithDefaultULongNoFlagsEnum.WDUNFE_34 
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "null": null,
+                          "NDUWFE_First4Mask, NDUWFE_5, NDUWFE_7, NDUWFE_8": "WDUNFE_1",
+                          "NDUWFE_34": "WDUNFE_34"
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<WithDefaultLongWithFlagsEnum, NoDefaultLongNoFlagsEnum>
+                    (EnumLongWdWfToNdNfMap.ToList(), "", null, () => EnumLongWdWfToNdNf_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         WithDefaultLongWithFlagsEnum.WDLWFE_4: NoDefaultLongNoFlagsEnum.NDLNFE_4,
+                         WithDefaultLongWithFlagsEnum.WDLWFE_1 | WithDefaultLongWithFlagsEnum.WDLWFE_3 | WithDefaultLongWithFlagsEnum.WDLWFE_4 | WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask: NoDefaultLongNoFlagsEnum.NDLNFE_8,
+                         WithDefaultLongWithFlagsEnum.Default: NoDefaultLongNoFlagsEnum.0 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "WDLWFE_4":"NDLNFE_4",
+                        "WDLWFE_1, WDLWFE_3, WDLWFE_4, WDLWFE_Second4Mask":"NDLNFE_8",
+                        "Default":0
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          WithDefaultLongWithFlagsEnum.WDLWFE_4: NoDefaultLongNoFlagsEnum.NDLNFE_4,
+                          WithDefaultLongWithFlagsEnum.WDLWFE_1 | WithDefaultLongWithFlagsEnum.WDLWFE_3 | WithDefaultLongWithFlagsEnum.WDLWFE_4 | WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask: NoDefaultLongNoFlagsEnum.NDLNFE_8,
+                          WithDefaultLongWithFlagsEnum.Default: NoDefaultLongNoFlagsEnum.0
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "WDLWFE_4": "NDLNFE_4",
+                          "WDLWFE_1, WDLWFE_3, WDLWFE_4, WDLWFE_Second4Mask": "NDLNFE_8",
+                          "Default": 0
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<WithDefaultLongWithFlagsEnum?, NoDefaultLongNoFlagsEnum?>
+                    (NullEnumLongWdWfToNdNfMap, "", null, () => NullEnumLongWdWfToNdNf_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         null: null,
+                         WithDefaultLongWithFlagsEnum.WDLWFE_1 | WithDefaultLongWithFlagsEnum.WDLWFE_3 | WithDefaultLongWithFlagsEnum.WDLWFE_4
+                         | WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask: NoDefaultLongNoFlagsEnum.NDLNFE_8,
+                         WithDefaultLongWithFlagsEnum.Default: NoDefaultLongNoFlagsEnum.0 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "null": null,
+                        "WDLWFE_First4Mask, WDLWFE_5, WDLWFE_7, WDLWFE_8": "NDLNFE_8",
+                        "Default": 0
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          null: null,
+                          WithDefaultLongWithFlagsEnum.WDLWFE_First4Mask | WithDefaultLongWithFlagsEnum.WDLWFE_5 | WithDefaultLongWithFlagsEnum.WDLWFE_7 | WithDefaultLongWithFlagsEnum.WDLWFE_8: NoDefaultLongNoFlagsEnum.NDLNFE_8,
+                          WithDefaultLongWithFlagsEnum.Default: NoDefaultLongNoFlagsEnum.0 
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "null": null,
+                          "WDLWFE_First4Mask, WDLWFE_5, WDLWFE_7, WDLWFE_8": "NDLNFE_8",
+                          "Default": 0
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<WithDefaultULongWithFlagsEnum, NoDefaultULongNoFlagsEnum>
+                    (EnumULongWdWfToNdNfMap.ToList(), "", null, () => EnumULongWdWfToNdNf_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         WithDefaultULongWithFlagsEnum.WDUWFE_4: NoDefaultULongNoFlagsEnum.NDUNFE_4,
+                         WithDefaultULongWithFlagsEnum.WDUWFE_1 | WithDefaultULongWithFlagsEnum.WDUWFE_3 | WithDefaultULongWithFlagsEnum.WDUWFE_4
+                         | WithDefaultULongWithFlagsEnum.WDUWFE_Second4Mask: NoDefaultULongNoFlagsEnum.NDUNFE_8,
+                         WithDefaultULongWithFlagsEnum.Default: NoDefaultULongNoFlagsEnum.0 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "WDUWFE_4":"NDUNFE_4",
+                        "WDUWFE_1, WDUWFE_3, WDUWFE_4, WDUWFE_Second4Mask":"NDUNFE_8",
+                        "Default":0
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          WithDefaultULongWithFlagsEnum.WDUWFE_4: NoDefaultULongNoFlagsEnum.NDUNFE_4,
+                          WithDefaultULongWithFlagsEnum.WDUWFE_1 | WithDefaultULongWithFlagsEnum.WDUWFE_3 | WithDefaultULongWithFlagsEnum.WDUWFE_4 | WithDefaultULongWithFlagsEnum.WDUWFE_Second4Mask: NoDefaultULongNoFlagsEnum.NDUNFE_8,
+                          WithDefaultULongWithFlagsEnum.Default: NoDefaultULongNoFlagsEnum.0
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "WDUWFE_4": "NDUNFE_4",
+                          "WDUWFE_1, WDUWFE_3, WDUWFE_4, WDUWFE_Second4Mask": "NDUNFE_8",
+                          "Default": 0
+                        }
+                        """.Dos2Unix()
+                    }
+                }
+              , new DictionaryExpect<WithDefaultULongWithFlagsEnum?, NoDefaultULongNoFlagsEnum?>
+                    (NullEnumULongWdWfNullStringBuilderMap, "", null, () => NullEnumULongWdWfToNdNf_First_3)
+                {
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                         null: null,
+                         WithDefaultULongWithFlagsEnum.WDUWFE_1 | WithDefaultULongWithFlagsEnum.WDUWFE_3 | WithDefaultULongWithFlagsEnum.WDUWFE_4
+                         | WithDefaultULongWithFlagsEnum.WDUWFE_Second4Mask: NoDefaultULongNoFlagsEnum.NDUNFE_8,
+                         WithDefaultULongWithFlagsEnum.Default: NoDefaultULongNoFlagsEnum.0 
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                        "null": null,
+                        "WDUWFE_First4Mask, WDUWFE_5, WDUWFE_7, WDUWFE_8": "NDUNFE_8",
+                        "Default": 0
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                      , """
+                        {
+                          null: null,
+                          WithDefaultULongWithFlagsEnum.WDUWFE_First4Mask | WithDefaultULongWithFlagsEnum.WDUWFE_5 | WithDefaultULongWithFlagsEnum.WDUWFE_7 | WithDefaultULongWithFlagsEnum.WDUWFE_8: NoDefaultULongNoFlagsEnum.NDUNFE_8,
+                          WithDefaultULongWithFlagsEnum.Default: NoDefaultULongNoFlagsEnum.0 
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                      , """
+                        {
+                          "null": null,
+                          "WDUWFE_First4Mask, WDUWFE_5, WDUWFE_7, WDUWFE_8": "NDUNFE_8",
+                          "Default": 0
+                        }
+                        """.Dos2Unix()
                     }
                 }
             };

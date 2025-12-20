@@ -146,7 +146,7 @@ public partial class BothRevealersDictTestData
                               "1":"All for on",
                               "-1":"Imagine th"
                             }
-                            """.RemoveLineEndings()
+                            """.Dos2Unix()
                         }
                     }
             };

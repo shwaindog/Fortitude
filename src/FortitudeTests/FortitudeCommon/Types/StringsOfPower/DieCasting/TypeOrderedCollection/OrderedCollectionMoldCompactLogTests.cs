@@ -54,7 +54,7 @@ public partial class OrderedCollectionMoldTests
                         .IsOrderedCollectionType()
                         .NoFilterPredicate()
                         .AcceptsBoolean()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall });
 
     [TestMethod]
@@ -83,7 +83,7 @@ public partial class OrderedCollectionMoldTests
                         .IsOrderedCollectionType()
                         .HasFilterPredicate()
                         .AcceptsBoolean()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall });
 
     [TestMethod]
@@ -116,7 +116,7 @@ public partial class OrderedCollectionMoldTests
                         .NoFilterPredicate()
                         .HasSpanFormattable()
                         .NotHasSupportsValueRevealer()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall })
         .Concat( 
                 // classes
@@ -159,7 +159,7 @@ public partial class OrderedCollectionMoldTests
                         .HasFilterPredicate()
                         .HasSpanFormattable()
                         .NotHasSupportsValueRevealer()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
@@ -398,7 +398,7 @@ public partial class OrderedCollectionMoldTests
                         .IsOrderedCollectionType()
                         .NoFilterPredicate()
                         .HasSupportsValueRevealer()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall });
 
     [TestMethod]
@@ -437,7 +437,7 @@ public partial class OrderedCollectionMoldTests
                         .IsOrderedCollectionType()
                         .HasFilterPredicate()
                         .HasSupportsValueRevealer()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall });
 
     [TestMethod]
@@ -479,7 +479,7 @@ public partial class OrderedCollectionMoldTests
                         .NoFilterPredicate()
                         .HasAcceptsStringBearer()
                         .NotHasSupportsValueRevealer()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall });
 
     [TestMethod]
@@ -521,7 +521,7 @@ public partial class OrderedCollectionMoldTests
                         .HasFilterPredicate()
                         .HasAcceptsStringBearer()
                         .NotHasSupportsValueRevealer()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall });
 
     [TestMethod]

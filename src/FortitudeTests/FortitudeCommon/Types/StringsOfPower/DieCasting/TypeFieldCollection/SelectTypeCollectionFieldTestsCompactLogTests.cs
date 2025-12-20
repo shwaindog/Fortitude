@@ -56,7 +56,7 @@ public partial class SelectTypeCollectionFieldTests
                         .ProcessesCollection()
                         .NoFilterPredicate()
                         .AcceptsBoolean()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall });
 
     [TestMethod]
@@ -87,7 +87,7 @@ public partial class SelectTypeCollectionFieldTests
                         .ProcessesCollection()
                         .HasFilterPredicate()
                         .AcceptsBoolean()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall });
 
     [TestMethod]
@@ -121,7 +121,7 @@ public partial class SelectTypeCollectionFieldTests
                         .NoFilterPredicate()
                         .HasSpanFormattable()
                         .NotHasSupportsValueRevealer()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
@@ -168,7 +168,7 @@ public partial class SelectTypeCollectionFieldTests
                         .HasFilterPredicate()
                         .HasSpanFormattable()
                         .NotHasSupportsValueRevealer()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall })
         .Concat( 
                 // classes
@@ -478,7 +478,7 @@ public partial class SelectTypeCollectionFieldTests
                         .ProcessesCollection()
                         .NoFilterPredicate()
                         .HasSupportsValueRevealer()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall });
     
     [TestMethod]
@@ -520,7 +520,7 @@ public partial class SelectTypeCollectionFieldTests
                         .ProcessesCollection()
                         .HasFilterPredicate()
                         .HasSupportsValueRevealer()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall });
 
     [TestMethod]
@@ -565,7 +565,7 @@ public partial class SelectTypeCollectionFieldTests
                         .NoFilterPredicate()
                         .HasAcceptsStringBearer()
                         .NotHasSupportsValueRevealer()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall });
 
     [TestMethod]
@@ -610,7 +610,7 @@ public partial class SelectTypeCollectionFieldTests
                         .HasFilterPredicate()
                         .HasAcceptsStringBearer()
                         .NotHasSupportsValueRevealer()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall });
 
     [TestMethod]

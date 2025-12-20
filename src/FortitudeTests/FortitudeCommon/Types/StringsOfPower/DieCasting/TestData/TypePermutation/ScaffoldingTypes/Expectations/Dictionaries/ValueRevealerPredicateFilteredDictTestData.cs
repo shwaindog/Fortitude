@@ -147,7 +147,7 @@ public partial class ValueRevealerDictTestData
                               "2.7":"re number.",
                               "5.4":"re number."
                             }
-                            """.RemoveLineEndings()
+                            """.Dos2Unix()
                         }
                 }
               , new ValueRevealerDictExpect<double, ICharSequence>(TestDictionaries.DoubleCharSequenceMap.ToList()
@@ -195,7 +195,7 @@ public partial class ValueRevealerDictTestData
                           "                1":"e for all.",
                           "               -1":"if you try"
                         }
-                        """.RemoveLineEndings()
+                        """.Dos2Unix()
                     }
                 }
             };

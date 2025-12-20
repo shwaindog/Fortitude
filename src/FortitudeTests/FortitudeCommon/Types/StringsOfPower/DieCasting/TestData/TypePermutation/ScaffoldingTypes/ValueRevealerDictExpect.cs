@@ -50,6 +50,95 @@ public class ValueRevealerKeyedSubListDictExpect<TKey, TValue> : ValueRevealerDi
     }
 }
 
+public class NullStructValueRevealerDictExpect<TKey, TValue> : ValueRevealerDictExpect<TKey, TValue?, TKey, TValue?, TKey, TValue>
+ where TValue : struct
+{
+    // ReSharper disable once ConvertToPrimaryConstructor
+    // ReSharper disable twice ExplicitCallerInfoArgument
+    public NullStructValueRevealerDictExpect(List<KeyValuePair<TKey, TValue?>>? inputList
+      , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
+      , string? keyFormatString = null
+      , Expression<Func<KeyValuePredicate<TKey, TValue?>>>? elementFilterExpression = null
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueRevealerExpression, keyFormatString, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+    {
+    }
+    
+    public NullStructValueRevealerDictExpect(List<KeyValuePair<TKey, TValue?>>? inputList
+      , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
+      , Expression<Func<KeyValuePredicate<TKey, TValue?>>>? elementFilterExpression = null
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueRevealerExpression, null, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+    {
+    }
+    
+    public NullStructValueRevealerDictExpect(List<KeyValuePair<TKey, TValue?>>? inputList
+      , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueRevealerExpression, null, (Expression<Func<KeyValuePredicate<TKey, TValue?>>>?)null, contentHandling, name, srcFile, srcLine)
+    {
+    }
+
+    // public override ISinglePropertyTestStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
+    // {
+    //     
+    //     var flags = scaffoldEntry.ScaffoldingFlags;
+    //
+    //     return flags.HasSubListFilter()
+    //         ? scaffoldEntry.CreateStringBearerFunc(KeyType, typeof(TValue?), KeySubListFilterBaseType, ValueRevealerBaseType)()
+    //         : (flags.HasFilterPredicate()
+    //             ? scaffoldEntry.CreateStringBearerFunc(KeyType, typeof(TValue?), KeyFilterBaseType, typeof(TValue?), ValueRevealerBaseType)()
+    //             : scaffoldEntry.CreateStringBearerFunc(KeyType, typeof(TValue?), ValueRevealerBaseType)());
+    // }
+}
+
+public class NullClassValueRevealerDictExpect<TKey, TValue> : ValueRevealerDictExpect<TKey, TValue?, TKey, TValue?, TKey, TValue>
+{
+    // ReSharper disable once ConvertToPrimaryConstructor
+    // ReSharper disable twice ExplicitCallerInfoArgument
+    public NullClassValueRevealerDictExpect(List<KeyValuePair<TKey, TValue?>>? inputList
+      , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
+      , string? keyFormatString = null
+      , Expression<Func<KeyValuePredicate<TKey, TValue?>>>? elementFilterExpression = null
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueRevealerExpression, keyFormatString, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+    {
+    }
+    
+    public NullClassValueRevealerDictExpect(List<KeyValuePair<TKey, TValue?>>? inputList
+      , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
+      , Expression<Func<KeyValuePredicate<TKey, TValue?>>>? elementFilterExpression = null
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueRevealerExpression, null, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+    {
+    }
+    
+    public NullClassValueRevealerDictExpect(List<KeyValuePair<TKey, TValue?>>? inputList
+      , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueRevealerExpression, null, (Expression<Func<KeyValuePredicate<TKey, TValue?>>>?)null, contentHandling, name, srcFile, srcLine)
+    {
+    }
+}
+
 public class ValueRevealerDictExpect<TKey, TValue> : ValueRevealerDictExpect<TKey, TValue, TKey, TValue, TKey, TValue>
 {
     // ReSharper disable once ConvertToPrimaryConstructor
@@ -91,7 +180,7 @@ public class ValueRevealerDictExpect<TKey, TValue> : ValueRevealerDictExpect<TKe
 public class ValueRevealerDictExpect<TKey, TValue, TKFilterBase, TVFilterBase, TKSubListDerived, TVRevealBase> : 
     DictionaryExpect<TKey, TValue, TKFilterBase, TVFilterBase, TKSubListDerived>
     where TKey : TKFilterBase
-    where TValue : TVFilterBase?, TVRevealBase?
+    where TValue : TVFilterBase?
     where TKSubListDerived : TKey
 {
     // ReSharper disable once ConvertToPrimaryConstructor
@@ -140,14 +229,20 @@ public class ValueRevealerDictExpect<TKey, TValue, TKFilterBase, TVFilterBase, T
 
     public override ISinglePropertyTestStringBearer CreateNewStringBearer(ScaffoldingPartEntry scaffoldEntry)
     {
-        
         var flags = scaffoldEntry.ScaffoldingFlags;
 
         return flags.HasSubListFilter()
-            ? scaffoldEntry.CreateStringBearerFunc(KeyType, ValueType, KeySubListFilterBaseType, ValueRevealerBaseType)()
+            ? (flags.HasAcceptsNullableStruct() 
+                ? scaffoldEntry.CreateStringBearerFunc(KeyType, ValueUnderlyingType, KeySubListFilterBaseType)()
+                : scaffoldEntry.CreateStringBearerFunc(KeyType, ValueType, KeySubListFilterBaseType, ValueRevealerBaseType)())
             : (flags.HasFilterPredicate()
-                ? scaffoldEntry.CreateStringBearerFunc(KeyType, ValueType, KeyFilterBaseType, ValueFilterBaseType, ValueRevealerBaseType)()
-                : scaffoldEntry.CreateStringBearerFunc(KeyType, ValueType, ValueRevealerBaseType)());
+                ? ( flags.HasAcceptsNullableStruct()
+                    ? scaffoldEntry.CreateStringBearerFunc(KeyType, ValueUnderlyingType, KeyFilterBaseType)()
+                    : scaffoldEntry.CreateStringBearerFunc(KeyType, ValueType, KeyFilterBaseType, ValueFilterBaseType, ValueRevealerBaseType)())
+                : ( flags.HasAcceptsNullableStruct()
+                    ? scaffoldEntry.CreateStringBearerFunc(KeyType, ValueUnderlyingType)()
+                    : scaffoldEntry.CreateStringBearerFunc(KeyType, ValueType, ValueRevealerBaseType)()
+                ));
     }
 
     public override IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry, StyleOptions stringStyle)

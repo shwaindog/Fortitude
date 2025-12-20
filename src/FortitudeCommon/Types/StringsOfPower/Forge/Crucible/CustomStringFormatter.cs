@@ -940,7 +940,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 catch (FormatException) { }
                 finally
                 {
-                    if (sbPreAppendLen == sb.Length) { sb.Append(source); }
+                    if (sbPreAppendLen == sb.Length) { sb.Append(source!); }
                     else { LastFormatExceptionBuilderLength = -1; }
                 }
             }

@@ -75,7 +75,6 @@ public class FieldNullableSpanFormattableWhenNonNullStringBearer<TFmtStruct> : F
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsAnyExceptNullableStruct | SupportsValueRevealer)]
 public class FieldCloakedBearerWhenNonNullStringBearer<TTCloaked, TRevealBase> : ValueRevealerMoldScaffold<TTCloaked?, TRevealBase>
-   
     where TTCloaked : TRevealBase
     where TRevealBase : notnull
 {
@@ -92,7 +91,7 @@ public class FieldCloakedBearerWhenNonNullStringBearer<TTCloaked, TRevealBase> :
            .Field.WhenNonNullReveal
                (nameof(ComplexTypeFieldWhenNonNullRevealCloakedBearerAs)
               , ComplexTypeFieldWhenNonNullRevealCloakedBearerAs
-              , ValueRevealer, ContentHandlingFlags)
+              , ValueRevealer, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
@@ -113,12 +112,12 @@ public class FieldNullableCloakedBearerWhenNonNullStringBearer<TCloakedStruct> :
            .Field.WhenNonNullReveal
                (nameof(ComplexTypeFieldWhenNonNullRevealNullableCloakedBearerAs),
                 ComplexTypeFieldWhenNonNullRevealNullableCloakedBearerAs
-              , ValueRevealer, ContentHandlingFlags)
+              , ValueRevealer, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
-public class FieldStringBearerWhenNonNullStringBearer<TBearer> : MoldScaffoldBase<TBearer?>
+public class FieldStringBearerWhenNonNullStringBearer<TBearer> : ProxyFormattedMoldScaffold<TBearer?>
     where TBearer : IStringBearer
 {
     public TBearer? ComplexTypeFieldWhenNonNullRevealStringBearerAs
@@ -134,13 +133,12 @@ public class FieldStringBearerWhenNonNullStringBearer<TBearer> : MoldScaffoldBas
            .Field.WhenNonNullReveal
                (nameof(ComplexTypeFieldWhenNonNullRevealStringBearerAs)
               , ComplexTypeFieldWhenNonNullRevealStringBearerAs
-              , ContentHandlingFlags)
+              , ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullWrites | AcceptsNullableStruct | AcceptsStringBearer)]
-public class FieldNullableStringBearerWhenNonNullStringBearer<TBearerStruct> : MoldScaffoldBase<TBearerStruct?>
-  
+public class FieldNullableStringBearerWhenNonNullStringBearer<TBearerStruct> : ProxyFormattedMoldScaffold<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct? ComplexTypeFieldWhenNonNullRevealNullableStringBearerAs
@@ -156,7 +154,7 @@ public class FieldNullableStringBearerWhenNonNullStringBearer<TBearerStruct> : M
            .Field.WhenNonNullReveal
                (nameof(ComplexTypeFieldWhenNonNullRevealNullableStringBearerAs)
               , ComplexTypeFieldWhenNonNullRevealNullableStringBearerAs
-              , ContentHandlingFlags)
+              , ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
@@ -166,7 +164,7 @@ public class FieldCharSpanWhenNonNullStringBearer : FormattedMoldScaffold<char[]
 {
     public char[] ComplexTypeFieldWhenNonNullAddCharSpanAs
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -195,7 +193,7 @@ public class FieldCharReadOnlySpanWhenNonNullStringBearer : FormattedMoldScaffol
 {
     public string ComplexTypeFieldWhenNonNullAddReadOnlyCharSpanAs
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
