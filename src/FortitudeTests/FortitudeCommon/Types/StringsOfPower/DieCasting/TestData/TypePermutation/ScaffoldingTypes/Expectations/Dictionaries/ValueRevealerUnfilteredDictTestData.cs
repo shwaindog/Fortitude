@@ -148,6 +148,7 @@ public partial class ValueRevealerDictTestData
                             """.Dos2Unix()
                         }
                     }
+                
               , new ValueRevealerDictExpect<UInt128, BigInteger>(VeryULongBigIntegerMap.ToList()
                                                                , () => BigInteger_Reveal_Negative, "'{0}'")
                 {
@@ -1020,7 +1021,7 @@ public partial class ValueRevealerDictTestData
                     }
                 }
               , new ValueRevealerDictExpect<NoDefaultULongNoFlagsEnum, WithDefaultULongWithFlagsEnum>
-                    (EnumULongNdNfDateTimeMap.ToList(), () => WithDefaultULongWithFlags_Reveal , "")
+                    (EnumULongNdNfToWdwfMap.ToList(), () => WithDefaultULongWithFlags_Reveal , "")
                 {
                     {
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1079,7 +1080,7 @@ public partial class ValueRevealerDictTestData
                     }
                 }
               , new NullStructValueRevealerDictExpect<NoDefaultULongNoFlagsEnum?, WithDefaultULongWithFlagsEnum>
-                    (NullEnumULongNdNfNullStringMap, () => WithDefaultULongWithFlags_Reveal,  "")
+                    (NullEnumULongNdNfToWdWfMap, () => WithDefaultULongWithFlags_Reveal,  "")
                 {
                     {
                         new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1789,7 +1790,7 @@ public partial class ValueRevealerDictTestData
                     }
                 }
               , new NullStructValueRevealerDictExpect<WithDefaultULongWithFlagsEnum?, NoDefaultULongNoFlagsEnum>
-                    (NullEnumULongWdWfNullStringBuilderMap, () => NoDefaultULongNoFlags_Reveal,  null, () => NullEnumULongWdWfToNdNf_First_3)
+                    (NullEnumULongWdWfToNdNfMap, () => NoDefaultULongNoFlags_Reveal,  null, () => NullEnumULongWdWfToNdNf_First_3)
                 {
                     {
                         new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)

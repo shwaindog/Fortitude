@@ -45,7 +45,7 @@ public class KeyedSubListDictionaryExpect<TKey, TValue> : DictionaryExpect<TKey,
     // ReSharper disable once ConvertToPrimaryConstructor
     // ReSharper disable twice ExplicitCallerInfoArgument
     public KeyedSubListDictionaryExpect(List<KeyValuePair<TKey, TValue>>? inputList, string? valueFormatString = null, string? keyFormatString = null
-      , Expression<Func<List<TKey?>>>? elementFilterExpression = null
+      , Expression<Func<List<TKey>>>? elementFilterExpression = null
       , FieldContentHandling contentHandling = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
@@ -55,7 +55,7 @@ public class KeyedSubListDictionaryExpect<TKey, TValue> : DictionaryExpect<TKey,
     }
     
     public KeyedSubListDictionaryExpect(List<KeyValuePair<TKey, TValue>>? inputList
-      , Expression<Func<List<TKey?>>>? elementFilterExpression = null
+      , Expression<Func<List<TKey>>>? elementFilterExpression = null
       , FieldContentHandling contentHandling = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
@@ -69,7 +69,42 @@ public class KeyedSubListDictionaryExpect<TKey, TValue> : DictionaryExpect<TKey,
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, null, null, (Expression<Func<List<TKey?>>>?)null, contentHandling, name, srcFile, srcLine)
+        base(inputList, null, null, (Expression<Func<List<TKey>>>?)null, contentHandling, name, srcFile, srcLine)
+    {
+    }
+}
+
+public class KeyedNullStructValueSubListDictionaryExpect<TKey, TValue> : DictionaryExpect<TKey, TValue?, TKey, TValue?, TKey>
+    where TValue : struct
+{
+    // ReSharper disable once ConvertToPrimaryConstructor
+    // ReSharper disable twice ExplicitCallerInfoArgument
+    public KeyedNullStructValueSubListDictionaryExpect(List<KeyValuePair<TKey, TValue?>>? inputList, string? valueFormatString = null, string? keyFormatString = null
+      , Expression<Func<List<TKey>>>? elementFilterExpression = null
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueFormatString, keyFormatString, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+    {
+    }
+    
+    public KeyedNullStructValueSubListDictionaryExpect(List<KeyValuePair<TKey, TValue?>>? inputList
+      , Expression<Func<List<TKey>>>? elementFilterExpression = null
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, null, null, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+    {
+    }
+    
+    public KeyedNullStructValueSubListDictionaryExpect(List<KeyValuePair<TKey, TValue?>>? inputList
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, null, null, (Expression<Func<List<TKey>>>?)null, contentHandling, name, srcFile, srcLine)
     {
     }
 }
@@ -152,7 +187,7 @@ public class DictionaryExpect<TKey, TValue, TKFilterBase, TVFilterBase, TKSubLis
     // ReSharper disable once ConvertToPrimaryConstructor
     // ReSharper disable twice ExplicitCallerInfoArgument
     public DictionaryExpect(List<KeyValuePair<TKey, TValue>>? inputList, string? valueFormatString = null, string? keyFormatString = null
-      , Expression<Func<List<TKSubListDerived?>>>? elementFilterExpression = null
+      , Expression<Func<List<TKSubListDerived>>>? elementFilterExpression = null
       , FieldContentHandling contentHandling = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""

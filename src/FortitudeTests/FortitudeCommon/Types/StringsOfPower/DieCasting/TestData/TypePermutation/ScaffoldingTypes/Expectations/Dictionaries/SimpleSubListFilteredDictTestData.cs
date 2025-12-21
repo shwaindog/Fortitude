@@ -908,17 +908,15 @@ public partial class SimpleDictTestData
                         """.Dos2Unix()
                     }
                 }
-              , new KeyedSubListDictionaryExpect<NoDefaultLongNoFlagsEnum?, WithDefaultLongWithFlagsEnum?>
-                    (NullEnumLongNdNfToWdWfMap, null, "", () => NullEnumLongNdNfToWdWf_Second_3_SubList)
+              , new KeyedNullStructValueSubListDictionaryExpect<NoDefaultLongNoFlagsEnum, WithDefaultLongWithFlagsEnum>
+                    (EnumLongNdNfToNullWdWfMap, null, "", () => EnumLongNdNfToWdWf_Second_3_SubList)
                 {
                     {
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                         null: WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask,
-                         NoDefaultLongNoFlagsEnum.0: WithDefaultLongWithFlagsEnum.WDLWFE_All,
-                         NoDefaultLongNoFlagsEnum.NDLNFE_13: WithDefaultLongWithFlagsEnum.WDLWFE_13,
-                         null: null 
+                         NoDefaultLongNoFlagsEnum.NDLNFE_1: null,
+                         NoDefaultLongNoFlagsEnum.NDLNFE_13: WithDefaultLongWithFlagsEnum.WDLWFE_13 
                         }
                         """.RemoveLineEndings()
                     }
@@ -927,10 +925,8 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                        "null":"WDLWFE_Second4Mask",
-                        "0":"WDLWFE_All",
-                        "NDLNFE_13":"WDLWFE_13",
-                        "null":null
+                        "NDLNFE_1":null,
+                        "NDLNFE_13":"WDLWFE_13"
                         }
                         """.RemoveLineEndings()
                     }
@@ -939,10 +935,8 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                          null: WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask,
-                          NoDefaultLongNoFlagsEnum.0: WithDefaultLongWithFlagsEnum.WDLWFE_All,
-                          NoDefaultLongNoFlagsEnum.NDLNFE_13: WithDefaultLongWithFlagsEnum.WDLWFE_13,
-                          null: null
+                          NoDefaultLongNoFlagsEnum.NDLNFE_1: null,
+                          NoDefaultLongNoFlagsEnum.NDLNFE_13: WithDefaultLongWithFlagsEnum.WDLWFE_13
                         }
                         """.Dos2Unix()
                     }
@@ -951,16 +945,14 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                          "null": null,
-                          "0": "WDLWFE_All",
-                          "NDLNFE_13": "WDLWFE_13",
-                          "null": null
+                          "NDLNFE_1": null,
+                          "NDLNFE_13": "WDLWFE_13"
                         }
                         """.Dos2Unix()
                     }
                 }
               , new KeyedSubListDictionaryExpect<NoDefaultULongNoFlagsEnum, WithDefaultULongWithFlagsEnum>
-                    (EnumULongNdNfDateTimeMap.ToList(), "", null, () => EnumULongNdNfDateTime_First_3_SubList)
+                    (EnumULongNdNfToWdwfMap.ToList(), "", null, () => EnumULongNdNfDateTime_First_3_SubList)
                 {
                     {
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1006,16 +998,16 @@ public partial class SimpleDictTestData
                         """.Dos2Unix()
                     }
                 }
-              , new KeyedSubListDictionaryExpect<NoDefaultULongNoFlagsEnum?, WithDefaultULongWithFlagsEnum?>
-                    (NullEnumULongNdNfNullStringMap, "", null, () => NullEnumULongNdNfDateTime_First_3_SubList)
+              , new KeyedNullStructValueSubListDictionaryExpect<NoDefaultULongNoFlagsEnum, WithDefaultULongWithFlagsEnum>
+                    (EnumULongNdNfToNullWdWfMap, "", null, () => EnumULongNdNfDateTime_First_3_SubList)
                 {
                     {
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                         NoDefaultULongNoFlagsEnum.NDUNFE_4: null,
-                         null: WithDefaultULongWithFlagsEnum.WDUWFE_34,
-                         NoDefaultULongNoFlagsEnum.0: WithDefaultULongWithFlagsEnum.Default 
+                         NoDefaultULongNoFlagsEnum.NDUNFE_4: WithDefaultULongWithFlagsEnum.WDUWFE_4,
+                         NoDefaultULongNoFlagsEnum.NDUNFE_34: WithDefaultULongWithFlagsEnum.WDUWFE_34,
+                         NoDefaultULongNoFlagsEnum.0: null 
                         }
                         """.RemoveLineEndings()
                     }
@@ -1024,9 +1016,9 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                        "NDUNFE_4":null,
-                        "null":"WDUWFE_34",
-                        "0":"Default" 
+                        "NDUNFE_4":"WDUWFE_4",
+                        "NDUNFE_34":"WDUWFE_34",
+                        "0":null
                         }
                         """.RemoveLineEndings()
                     }
@@ -1035,9 +1027,9 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                          NoDefaultULongNoFlagsEnum.NDUNFE_4: null,
-                          null: WithDefaultULongWithFlagsEnum.WDUWFE_34,
-                          NoDefaultULongNoFlagsEnum.0: WithDefaultULongWithFlagsEnum.Default
+                          NoDefaultULongNoFlagsEnum.NDUNFE_4: WithDefaultULongWithFlagsEnum.WDUWFE_4,
+                          NoDefaultULongNoFlagsEnum.NDUNFE_34: WithDefaultULongWithFlagsEnum.WDUWFE_34,
+                          NoDefaultULongNoFlagsEnum.0: null
                         }
                         """.Dos2Unix()
                     }
@@ -1046,9 +1038,9 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                          "NDUNFE_4":null,
-                          "null":"WDUWFE_34",
-                          "0":"Default"
+                          "NDUNFE_4":"WDUWFE_4",
+                          "NDUNFE_34":"WDUWFE_34",
+                          "0":null
                         }
                         """.Dos2Unix()
                     }
@@ -1100,17 +1092,15 @@ public partial class SimpleDictTestData
                         """.Dos2Unix()
                     }
                 }
-              , new KeyedSubListDictionaryExpect<WithDefaultLongNoFlagsEnum?, NoDefaultLongWithFlagsEnum?>
-                    (NullEnumLongWdNfToNdWfMap, "", null, () => NullEnumLongWdNfToNdWf_Second_3_SubList)
+              , new KeyedNullStructValueSubListDictionaryExpect<WithDefaultLongNoFlagsEnum, NoDefaultLongWithFlagsEnum>
+                    (EnumLongWdNfToNullNdWfMap, "", null, () => EnumLongWdNfToNdWf_Second_3_SubList)
                 {
                     {
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
                          WithDefaultLongNoFlagsEnum.WDLNFE_1: null,
-                         WithDefaultLongNoFlagsEnum.WDLNFE_13: NoDefaultLongWithFlagsEnum.NDLWFE_13,
-                         null: NoDefaultLongWithFlagsEnum.NDLWFE_2 | NoDefaultLongWithFlagsEnum.NDLWFE_3 | NoDefaultLongWithFlagsEnum.NDLWFE_4 | NoDefaultLongWithFlagsEnum.NDLWFE_Second4Mask | NoDefaultLongWithFlagsEnum.NDLWFE_LastTwoMask,
-                         null: null 
+                         WithDefaultLongNoFlagsEnum.WDLNFE_2: NoDefaultLongWithFlagsEnum.NDLWFE_2 
                         }
                         """.RemoveLineEndings()
                     }
@@ -1120,9 +1110,7 @@ public partial class SimpleDictTestData
                       , """
                         {
                         "WDLNFE_1":null,
-                        "WDLNFE_13":"NDLWFE_13",
-                        "null":"NDLWFE_2, NDLWFE_3, NDLWFE_4, NDLWFE_Second4Mask, NDLWFE_LastTwoMask",
-                        "null":null
+                        "WDLNFE_2":"NDLWFE_2"
                         }
                         """.RemoveLineEndings()
                     }
@@ -1132,9 +1120,7 @@ public partial class SimpleDictTestData
                       , """
                         {
                           WithDefaultLongNoFlagsEnum.WDLNFE_1: null,
-                          WithDefaultLongNoFlagsEnum.WDLNFE_13: NoDefaultLongWithFlagsEnum.NDLWFE_13,
-                          null: NoDefaultLongWithFlagsEnum.NDLWFE_2 | NoDefaultLongWithFlagsEnum.NDLWFE_3 | NoDefaultLongWithFlagsEnum.NDLWFE_4 | NoDefaultLongWithFlagsEnum.NDLWFE_Second4Mask | NoDefaultLongWithFlagsEnum.NDLWFE_LastTwoMask,
-                          null: null
+                          WithDefaultLongNoFlagsEnum.WDLNFE_2: NoDefaultLongWithFlagsEnum.NDLWFE_2
                         }
                         """.Dos2Unix()
                     }
@@ -1143,10 +1129,8 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                          "WDLNFE_1":null,
-                          "WDLNFE_13":"NDLWFE_13",
-                          "null":"NDLWFE_2, NDLWFE_3, NDLWFE_4, NDLWFE_Second4Mask, NDLWFE_LastTwoMask",
-                          "null":null
+                          "WDLNFE_1": null,
+                          "WDLNFE_2": "NDLWFE_2"
                         }
                         """.Dos2Unix()
                     }
@@ -1198,16 +1182,15 @@ public partial class SimpleDictTestData
                         """.Dos2Unix()
                     }
                 }
-              , new KeyedSubListDictionaryExpect<WithDefaultULongNoFlagsEnum?, NoDefaultULongWithFlagsEnum?>
-                    (NullEnumULongWdNfToNdWfMap, "", null, () => NullEnumULongWdNfToNdWf_Second_3_SubList)
+              , new KeyedNullStructValueSubListDictionaryExpect<WithDefaultULongNoFlagsEnum, NoDefaultULongWithFlagsEnum>
+                    (EnumULongWdNfToNullNdWfMap, "", null, () => EnumULongWdNfToNdWf_Second_3_SubList)
                 {
                     {
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                         WithDefaultULongNoFlagsEnum.WDUNFE_4: null,
-                         null: NoDefaultULongWithFlagsEnum.NDUWFE_2,
-                         WithDefaultULongNoFlagsEnum.Default: NoDefaultULongWithFlagsEnum.0 
+                         WithDefaultULongNoFlagsEnum.Default: NoDefaultULongWithFlagsEnum.0,
+                         WithDefaultULongNoFlagsEnum.WDUNFE_13: NoDefaultULongWithFlagsEnum.NDUWFE_13 
                         }
                         """.RemoveLineEndings()
                     }
@@ -1216,9 +1199,8 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                        "WDUNFE_4":null,
-                        "null":"NDUWFE_2",
-                        "Default":0 
+                        "Default":0,
+                        "WDUNFE_13":"NDUWFE_13"
                         }
                         """.RemoveLineEndings()
                     }
@@ -1227,9 +1209,8 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                          WithDefaultULongNoFlagsEnum.WDUNFE_4: null,
-                          null: NoDefaultULongWithFlagsEnum.NDUWFE_2,
-                          WithDefaultULongNoFlagsEnum.Default: NoDefaultULongWithFlagsEnum.0
+                          WithDefaultULongNoFlagsEnum.Default: NoDefaultULongWithFlagsEnum.0,
+                          WithDefaultULongNoFlagsEnum.WDUNFE_13: NoDefaultULongWithFlagsEnum.NDUWFE_13 
                         }
                         """.Dos2Unix()
                     }
@@ -1238,9 +1219,8 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                          "WDUNFE_4": null,
-                          "null": "NDUWFE_2",
-                          "Default": 0
+                          "Default":0,
+                          "WDUNFE_13":"NDUWFE_13"
                         }
                         """.Dos2Unix()
                     }
@@ -1293,16 +1273,16 @@ public partial class SimpleDictTestData
                         """.Dos2Unix()
                     }
                 }
-              , new KeyedSubListDictionaryExpect<NoDefaultLongWithFlagsEnum?, WithDefaultLongNoFlagsEnum?>
-                    (NullEnumLongNdWfToWdNfMap, "", null, () => NullEnumLongNdWfToWdNf_Second_3_SubList)
+              , new KeyedNullStructValueSubListDictionaryExpect<NoDefaultLongWithFlagsEnum, WithDefaultLongNoFlagsEnum>
+                    (EnumLongNdWfToNullWdNfMap, "", null, () => EnumLongNdWfToWdNf_Second_3_SubList)
                 {
                     {
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                         NoDefaultLongWithFlagsEnum.0: WithDefaultLongNoFlagsEnum.Default,
-                         NoDefaultLongWithFlagsEnum.NDLWFE_First8Mask | NoDefaultLongWithFlagsEnum.NDLWFE_LastTwoMask: WithDefaultLongNoFlagsEnum.WDLNFE_3,
-                         NoDefaultLongWithFlagsEnum.NDLWFE_22: WithDefaultLongNoFlagsEnum.WDLNFE_22 
+                         NoDefaultLongWithFlagsEnum.NDLWFE_First8Mask | NoDefaultLongWithFlagsEnum.NDLWFE_LastTwoMask: null,
+                         NoDefaultLongWithFlagsEnum.NDLWFE_22: WithDefaultLongNoFlagsEnum.WDLNFE_22,
+                         NoDefaultLongWithFlagsEnum.NDLWFE_34: null 
                         }
                         """.RemoveLineEndings()
                     }
@@ -1311,9 +1291,9 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                        "0":"Default",
-                        "NDLWFE_First8Mask, NDLWFE_LastTwoMask": "WDLNFE_3",
-                        "NDLWFE_22": "WDLNFE_22"
+                        "NDLWFE_First8Mask, NDLWFE_LastTwoMask":"WDLNFE_3",
+                        "NDLWFE_22":"WDLNFE_22",
+                        "NDLWFE_34":null
                         }
                         """.RemoveLineEndings()
                     }
@@ -1322,9 +1302,9 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                          NoDefaultLongWithFlagsEnum.0: WithDefaultLongNoFlagsEnum.Default,
-                          NoDefaultLongWithFlagsEnum.NDLWFE_First8Mask | NoDefaultLongWithFlagsEnum.NDLWFE_LastTwoMask: WithDefaultLongNoFlagsEnum.WDLNFE_3,
-                          NoDefaultLongWithFlagsEnum.NDLWFE_22: WithDefaultLongNoFlagsEnum.WDLNFE_22
+                          NoDefaultLongWithFlagsEnum.NDLWFE_First8Mask | NoDefaultLongWithFlagsEnum.NDLWFE_LastTwoMask: null,
+                          NoDefaultLongWithFlagsEnum.NDLWFE_22: WithDefaultLongNoFlagsEnum.WDLNFE_22,
+                          NoDefaultLongWithFlagsEnum.NDLWFE_34: null
                         }
                         """.Dos2Unix()
                     }
@@ -1333,9 +1313,9 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                          "0":"Default",
                           "NDLWFE_First8Mask, NDLWFE_LastTwoMask": "WDLNFE_3",
-                          "NDLWFE_22": "WDLNFE_22"
+                          "NDLWFE_22": "WDLNFE_22",
+                          "NDLWFE_34": null
                         }
                         """.Dos2Unix()
                     }
@@ -1388,16 +1368,16 @@ public partial class SimpleDictTestData
                         """.Dos2Unix()
                     }
                 }
-              , new KeyedSubListDictionaryExpect<NoDefaultULongWithFlagsEnum?, WithDefaultULongNoFlagsEnum?>
-                    (NullEnumULongNdWfToWdNfMap, "", null, () => NullEnumULongNdWfToWdNf_First_3_SubList)
+              , new KeyedNullStructValueSubListDictionaryExpect<NoDefaultULongWithFlagsEnum, WithDefaultULongNoFlagsEnum>
+                    (EnumULongNdWfToNullWdNfMap, "", null, () => EnumULongNdWfToWdNf_First_3_SubList)
                 {
                     {
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                         null: null,
+                         NoDefaultULongWithFlagsEnum.NDUWFE_4: WithDefaultULongNoFlagsEnum.WDUNFE_4,
                          NoDefaultULongWithFlagsEnum.NDUWFE_First4Mask | NoDefaultULongWithFlagsEnum.NDUWFE_5 | NoDefaultULongWithFlagsEnum.NDUWFE_7
-                         | NoDefaultULongWithFlagsEnum.NDUWFE_8: WithDefaultULongNoFlagsEnum.WDUNFE_1,
+                         | NoDefaultULongWithFlagsEnum.NDUWFE_8: null,
                          NoDefaultULongWithFlagsEnum.NDUWFE_34: WithDefaultULongNoFlagsEnum.WDUNFE_34 
                         }
                         """.RemoveLineEndings()
@@ -1407,9 +1387,9 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                        "null": null,
-                        "NDUWFE_First4Mask, NDUWFE_5, NDUWFE_7, NDUWFE_8": "WDUNFE_1",
-                        "NDUWFE_34": "WDUNFE_34"
+                        "NDUWFE_4":"WDUNFE_4",
+                        "NDUWFE_First4Mask, NDUWFE_5, NDUWFE_7, NDUWFE_8":null,
+                        "NDUWFE_34":"WDUNFE_34"
                         }
                         """.RemoveLineEndings()
                     }
@@ -1418,9 +1398,9 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                          null: null,
-                          NoDefaultULongWithFlagsEnum.NDUWFE_First4Mask | NoDefaultULongWithFlagsEnum.NDUWFE_5 | NoDefaultULongWithFlagsEnum.NDUWFE_7 | NoDefaultULongWithFlagsEnum.NDUWFE_8: WithDefaultULongNoFlagsEnum.WDUNFE_1,
-                          NoDefaultULongWithFlagsEnum.NDUWFE_34: WithDefaultULongNoFlagsEnum.WDUNFE_34 
+                          NoDefaultULongWithFlagsEnum.NDUWFE_4: WithDefaultULongNoFlagsEnum.WDUNFE_4,
+                          NoDefaultULongWithFlagsEnum.NDUWFE_First4Mask | NoDefaultULongWithFlagsEnum.NDUWFE_5 | NoDefaultULongWithFlagsEnum.NDUWFE_7 | NoDefaultULongWithFlagsEnum.NDUWFE_8: null,
+                          NoDefaultULongWithFlagsEnum.NDUWFE_34: WithDefaultULongNoFlagsEnum.WDUNFE_34
                         }
                         """.Dos2Unix()
                     }
@@ -1429,8 +1409,8 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                          "null": null,
-                          "NDUWFE_First4Mask, NDUWFE_5, NDUWFE_7, NDUWFE_8": "WDUNFE_1",
+                          "NDUWFE_4": "WDUNFE_4",
+                          "NDUWFE_First4Mask, NDUWFE_5, NDUWFE_7, NDUWFE_8": null,
                           "NDUWFE_34": "WDUNFE_34"
                         }
                         """.Dos2Unix()
@@ -1483,17 +1463,17 @@ public partial class SimpleDictTestData
                         """.Dos2Unix()
                     }
                 }
-              , new KeyedSubListDictionaryExpect<WithDefaultLongWithFlagsEnum?, NoDefaultLongNoFlagsEnum?>
-                    (NullEnumLongWdWfToNdNfMap, "", null, () => NullEnumLongWdWfToNdNf_First_3_SubList)
+              , new KeyedNullStructValueSubListDictionaryExpect<WithDefaultLongWithFlagsEnum, NoDefaultLongNoFlagsEnum>
+                    (EnumLongWdWfToNullNdNfMap, "", null, () => EnumLongWdWfToNdNf_First_3_SubList)
                 {
                     {
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                         null: null,
+                         WithDefaultLongWithFlagsEnum.WDLWFE_4: NoDefaultLongNoFlagsEnum.NDLNFE_4,
                          WithDefaultLongWithFlagsEnum.WDLWFE_1 | WithDefaultLongWithFlagsEnum.WDLWFE_3 | WithDefaultLongWithFlagsEnum.WDLWFE_4
                          | WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask: NoDefaultLongNoFlagsEnum.NDLNFE_8,
-                         WithDefaultLongWithFlagsEnum.Default: NoDefaultLongNoFlagsEnum.0 
+                         WithDefaultLongWithFlagsEnum.Default: null 
                         }
                         """.RemoveLineEndings()
                     }
@@ -1502,9 +1482,9 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                        "null": null,
-                        "WDLWFE_First4Mask, WDLWFE_5, WDLWFE_7, WDLWFE_8": "NDLNFE_8",
-                        "Default": 0
+                        "WDLWFE_4":"NDLNFE_4",
+                        "WDLWFE_First4Mask, WDLWFE_5, WDLWFE_7, WDLWFE_8":"NDLNFE_8",
+                        "Default":null
                         }
                         """.RemoveLineEndings()
                     }
@@ -1513,9 +1493,9 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                          null: null,
-                          WithDefaultLongWithFlagsEnum.WDLWFE_First4Mask | WithDefaultLongWithFlagsEnum.WDLWFE_5 | WithDefaultLongWithFlagsEnum.WDLWFE_7 | WithDefaultLongWithFlagsEnum.WDLWFE_8: NoDefaultLongNoFlagsEnum.NDLNFE_8,
-                          WithDefaultLongWithFlagsEnum.Default: NoDefaultLongNoFlagsEnum.0 
+                          WithDefaultLongWithFlagsEnum.WDLWFE_4: NoDefaultLongNoFlagsEnum.NDLNFE_4,
+                          WithDefaultLongWithFlagsEnum.WDLWFE_1 | WithDefaultLongWithFlagsEnum.WDLWFE_3 | WithDefaultLongWithFlagsEnum.WDLWFE_4 | WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask: NoDefaultLongNoFlagsEnum.NDLNFE_8,
+                          WithDefaultLongWithFlagsEnum.Default: null
                         }
                         """.Dos2Unix()
                     }
@@ -1524,9 +1504,9 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                          "null": null,
-                          "WDLWFE_First4Mask, WDLWFE_5, WDLWFE_7, WDLWFE_8": "NDLNFE_8",
-                          "Default": 0
+                          "WDLWFE_4":"NDLNFE_4",
+                          "WDLWFE_First4Mask, WDLWFE_5, WDLWFE_7, WDLWFE_8":"NDLNFE_8",
+                          "Default":null
                         }
                         """.Dos2Unix()
                     }
@@ -1578,17 +1558,17 @@ public partial class SimpleDictTestData
                         """.Dos2Unix()
                     }
                 }
-              , new KeyedSubListDictionaryExpect<WithDefaultULongWithFlagsEnum?, NoDefaultULongNoFlagsEnum?>
-                    (NullEnumULongWdWfNullStringBuilderMap, "", null, () => NullEnumULongWdWfToNdNf_First_3_SubList)
+              , new KeyedNullStructValueSubListDictionaryExpect<WithDefaultULongWithFlagsEnum, NoDefaultULongNoFlagsEnum>
+                    (EnumULongWdWfToNullNdNfMap, "", null, () => EnumULongWdWfToNdNf_First_3_SubList)
                 {
                     {
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                         null: null,
+                         WithDefaultULongWithFlagsEnum.WDUWFE_4: null,
                          WithDefaultULongWithFlagsEnum.WDUWFE_1 | WithDefaultULongWithFlagsEnum.WDUWFE_3 | WithDefaultULongWithFlagsEnum.WDUWFE_4
                          | WithDefaultULongWithFlagsEnum.WDUWFE_Second4Mask: NoDefaultULongNoFlagsEnum.NDUNFE_8,
-                         WithDefaultULongWithFlagsEnum.Default: NoDefaultULongNoFlagsEnum.0 
+                         WithDefaultULongWithFlagsEnum.Default: null 
                         }
                         """.RemoveLineEndings()
                     }
@@ -1597,9 +1577,9 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                        "null": null,
-                        "WDUWFE_First4Mask, WDUWFE_5, WDUWFE_7, WDUWFE_8": "NDUNFE_8",
-                        "Default": 0
+                        "WDUWFE_4":null,
+                        "WDUWFE_First4Mask, WDUWFE_5, WDUWFE_7, WDUWFE_8":"NDUNFE_8",
+                        "Default":null
                         }
                         """.RemoveLineEndings()
                     }
@@ -1608,9 +1588,9 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                          null: null,
-                          WithDefaultULongWithFlagsEnum.WDUWFE_First4Mask | WithDefaultULongWithFlagsEnum.WDUWFE_5 | WithDefaultULongWithFlagsEnum.WDUWFE_7 | WithDefaultULongWithFlagsEnum.WDUWFE_8: NoDefaultULongNoFlagsEnum.NDUNFE_8,
-                          WithDefaultULongWithFlagsEnum.Default: NoDefaultULongNoFlagsEnum.0 
+                          WithDefaultULongWithFlagsEnum.WDUWFE_4: null,
+                          WithDefaultULongWithFlagsEnum.WDUWFE_1 | WithDefaultULongWithFlagsEnum.WDUWFE_3 | WithDefaultULongWithFlagsEnum.WDUWFE_4 | WithDefaultULongWithFlagsEnum.WDUWFE_Second4Mask: NoDefaultULongNoFlagsEnum.NDUNFE_8,
+                          WithDefaultULongWithFlagsEnum.Default: null
                         }
                         """.Dos2Unix()
                     }
@@ -1619,9 +1599,9 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                          "null": null,
+                          "WDUWFE_4": null,
                           "WDUWFE_First4Mask, WDUWFE_5, WDUWFE_7, WDUWFE_8": "NDUNFE_8",
-                          "Default": 0
+                          "Default": null
                         }
                         """.Dos2Unix()
                     }

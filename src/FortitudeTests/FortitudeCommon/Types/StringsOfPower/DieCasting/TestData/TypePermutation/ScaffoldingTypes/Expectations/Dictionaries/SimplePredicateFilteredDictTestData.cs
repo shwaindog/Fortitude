@@ -1040,7 +1040,7 @@ public partial class SimpleDictTestData
                     }
                 }
               , new DictionaryExpect<NoDefaultULongNoFlagsEnum, WithDefaultULongWithFlagsEnum>
-                    (EnumULongNdNfDateTimeMap.ToList(), "", null, () => EnumULongNdNfToWdWf_First_3)
+                    (EnumULongNdNfToWdwfMap.ToList(), "", null, () => EnumULongNdNfToWdWf_First_3)
                 {
                     {
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1087,7 +1087,7 @@ public partial class SimpleDictTestData
                     }
                 }
               , new DictionaryExpect<NoDefaultULongNoFlagsEnum?, WithDefaultULongWithFlagsEnum?>
-                    (NullEnumULongNdNfNullStringMap, "", null, () => NullEnumULongNdNfToWdWf_First_3)
+                    (NullEnumULongNdNfToWdWfMap, "", null, () => NullEnumULongNdNfToWdWf_First_3)
                 {
                     {
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1656,7 +1656,7 @@ public partial class SimpleDictTestData
                     }
                 }
               , new DictionaryExpect<WithDefaultULongWithFlagsEnum?, NoDefaultULongNoFlagsEnum?>
-                    (NullEnumULongWdWfNullStringBuilderMap, "", null, () => NullEnumULongWdWfToNdNf_First_3)
+                    (NullEnumULongWdWfToNdNfMap, "", null, () => NullEnumULongWdWfToNdNf_First_3)
                 {
                     {
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)

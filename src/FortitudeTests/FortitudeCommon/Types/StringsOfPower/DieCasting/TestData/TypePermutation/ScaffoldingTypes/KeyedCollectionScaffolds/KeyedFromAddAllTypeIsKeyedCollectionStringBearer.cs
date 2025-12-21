@@ -619,7 +619,7 @@ public class KeyedFromListKeyRevealerStructValueRevealerAddAllStringBearer<TKey,
 }
 
 [TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsList  | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+               | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromListStructKeyRevealerStructValueRevealerAddAllStringBearer<TKey, TValue> : 
     StructKeyRevealerStructValueRevealerMoldScaffold<TKey, TValue>
     where TKey : struct
@@ -641,8 +641,8 @@ public class KeyedFromListStructKeyRevealerStructValueRevealerAddAllStringBearer
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerable  | AcceptsNullableStruct
-              | KeyNullableStruct  | SupportsValueRevealer | SupportsKeyRevealer)]
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerable  | AcceptsAnyExceptNullableStruct
+              | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromEnumerableKeyRevealerValueRevealerAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> : 
     KeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKRevealBase, TVRevealBase>
     where TKey : TKRevealBase

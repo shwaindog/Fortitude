@@ -623,7 +623,7 @@ public class KeyedFromListKeyRevealerStructValueRevealerAddFilteredStringBearer<
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsList  | FilterPredicate | AcceptsAnyExceptNullableStruct
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsList  | FilterPredicate | AcceptsNullableStruct
                | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromListStructKeyRevealerStructValueRevealerAddFilteredStringBearer<TKey, TValue>
     : FilteredKeyRevealerStructValueRevealerMoldScaffold<TKey, TValue>
@@ -671,8 +671,8 @@ public class KeyedFromEnumerableKeyRevealerValueRevealerAddFilteredStringBearer<
            .Complete();
 }
 
-[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerable  | FilterPredicate | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+[TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerable  | FilterPredicate | AcceptsAnyExceptNullableStruct
+                | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromEnumerableStructKeyRevealerValueRevealerAddFilteredStringBearer<TKey, TValue, TVFilterBase, TVRevealBase>
     : FilteredStructKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TVFilterBase, TVRevealBase>
     where TKey : struct
@@ -696,7 +696,7 @@ public class KeyedFromEnumerableStructKeyRevealerValueRevealerAddFilteredStringB
 }
 
 [TypeGeneratePart(KeyedCollectionType | KeyValueCardinality | AcceptsEnumerable  | FilterPredicate | AcceptsNullableStruct
-               | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer)]
 public class KeyedFromEnumerableKeyRevealerStructValueRevealerAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase>
     : FilteredKeyRevealerStructValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TKRevealBase>
     where TKey : TKFilterBase, TKRevealBase

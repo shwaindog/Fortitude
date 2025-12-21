@@ -20,7 +20,7 @@ public class BothRevealersKeyedSubListDictExpect<TKey, TValue> : BothRevealersDi
     public BothRevealersKeyedSubListDictExpect(List<KeyValuePair<TKey, TValue>>? inputList
       , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
       , Expression<Func<PalantírReveal<TKey>>> keyRevealerExpression
-      , Expression<Func<List<TKey?>>>? elementFilterExpression = null
+      , Expression<Func<List<TKey>>>? elementFilterExpression
       , FieldContentHandling contentHandling = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
@@ -34,9 +34,62 @@ public class BothRevealersKeyedSubListDictExpect<TKey, TValue> : BothRevealersDi
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, keyRevealerExpression, (Expression<Func<List<TKey?>>>?)null, contentHandling, name, srcFile
+        base(inputList, valueRevealerExpression, keyRevealerExpression, (Expression<Func<List<TKey>>>?)null, contentHandling, name, srcFile
            , srcLine) { }
 }
+
+public class KeyRevealerNullStructValueRevealerKeyedSubListDictExpect<TKey, TValue> : BothRevealersDictExpect<TKey, TValue?, TKey, TValue?, TKey, TValue, TKey>
+    where TValue : struct
+{
+    // ReSharper disable once ConvertToPrimaryConstructor
+    // ReSharper disable twice ExplicitCallerInfoArgument
+    public KeyRevealerNullStructValueRevealerKeyedSubListDictExpect(List<KeyValuePair<TKey, TValue?>>? inputList
+      , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
+      , Expression<Func<PalantírReveal<TKey>>> keyRevealerExpression
+      , Expression<Func<List<TKey>>>? elementFilterExpression = null
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueRevealerExpression, keyRevealerExpression, elementFilterExpression, contentHandling, name, srcFile, srcLine) { }
+
+    public KeyRevealerNullStructValueRevealerKeyedSubListDictExpect(List<KeyValuePair<TKey, TValue?>>? inputList
+      , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
+      , Expression<Func<PalantírReveal<TKey>>> keyRevealerExpression
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueRevealerExpression, keyRevealerExpression, (Expression<Func<List<TKey>>>?)null, contentHandling, name, srcFile
+           , srcLine) { }
+}
+
+
+public class KeyRevealerNullClassValueRevealerKeyedSubListDictExpect<TKey, TValue> : BothRevealersDictExpect<TKey, TValue?, TKey, TValue?, TKey, TValue, TKey>
+{
+    // ReSharper disable once ConvertToPrimaryConstructor
+    // ReSharper disable twice ExplicitCallerInfoArgument
+    public KeyRevealerNullClassValueRevealerKeyedSubListDictExpect(List<KeyValuePair<TKey, TValue?>>? inputList
+      , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
+      , Expression<Func<PalantírReveal<TKey>>> keyRevealerExpression
+      , Expression<Func<List<TKey>>>? elementFilterExpression
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueRevealerExpression, keyRevealerExpression, elementFilterExpression, contentHandling, name, srcFile, srcLine) { }
+
+    public KeyRevealerNullClassValueRevealerKeyedSubListDictExpect(List<KeyValuePair<TKey, TValue?>>? inputList
+      , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
+      , Expression<Func<PalantírReveal<TKey>>> keyRevealerExpression
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueRevealerExpression, keyRevealerExpression, (Expression<Func<List<TKey>>>?)null, contentHandling, name, srcFile
+           , srcLine) { }
+}
+
 
 public class BothRevealersDictExpect<TKey, TValue> : BothRevealersDictExpect<TKey, TValue, TKey, TValue, TKey, TValue, TKey>
 {
@@ -45,7 +98,7 @@ public class BothRevealersDictExpect<TKey, TValue> : BothRevealersDictExpect<TKe
     public BothRevealersDictExpect(List<KeyValuePair<TKey, TValue>>? inputList
       , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
       , Expression<Func<PalantírReveal<TKey>>> keyRevealerExpression
-      , Expression<Func<KeyValuePredicate<TKey, TValue>>>? elementFilterExpression = null
+      , Expression<Func<KeyValuePredicate<TKey, TValue>>>? elementFilterExpression
       , FieldContentHandling contentHandling = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
@@ -63,10 +116,164 @@ public class BothRevealersDictExpect<TKey, TValue> : BothRevealersDictExpect<TKe
            , name, srcFile, srcLine) { }
 }
 
+public class NullStructKeyRevealersKeyedDictExpect<TKey, TValue> : BothRevealersDictExpect<TKey?, TValue, TKey?, TValue, TKey?, TValue, TKey>
+    where TKey : struct
+{
+    // ReSharper disable once ConvertToPrimaryConstructor
+    // ReSharper disable twice ExplicitCallerInfoArgument
+    public NullStructKeyRevealersKeyedDictExpect(List<KeyValuePair<TKey?, TValue>>? inputList
+      , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
+      , Expression<Func<PalantírReveal<TKey>>> keyRevealerExpression
+      , Expression<Func<KeyValuePredicate<TKey?, TValue>>>? elementFilterExpression
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueRevealerExpression, keyRevealerExpression, elementFilterExpression, contentHandling, name, srcFile, srcLine) { }
+
+    public NullStructKeyRevealersKeyedDictExpect(List<KeyValuePair<TKey?, TValue>>? inputList
+      , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
+      , Expression<Func<PalantírReveal<TKey>>> keyRevealerExpression
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueRevealerExpression, keyRevealerExpression, (Expression<Func<KeyValuePredicate<TKey?, TValue>>>?)null, contentHandling, name, srcFile
+           , srcLine) { }
+}
+
+public class KeyRevealerNullStructValueRevealerKeyedDictExpect<TKey, TValue> : BothRevealersDictExpect<TKey, TValue?, TKey, TValue?, TKey, TValue, TKey>
+    where TValue : struct
+{
+    // ReSharper disable once ConvertToPrimaryConstructor
+    // ReSharper disable twice ExplicitCallerInfoArgument
+    public KeyRevealerNullStructValueRevealerKeyedDictExpect(List<KeyValuePair<TKey, TValue?>>? inputList
+      , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
+      , Expression<Func<PalantírReveal<TKey>>> keyRevealerExpression
+      , Expression<Func<KeyValuePredicate<TKey, TValue?>>>? elementFilterExpression
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueRevealerExpression, keyRevealerExpression, elementFilterExpression, contentHandling, name, srcFile, srcLine) { }
+
+    public KeyRevealerNullStructValueRevealerKeyedDictExpect(List<KeyValuePair<TKey, TValue?>>? inputList
+      , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
+      , Expression<Func<PalantírReveal<TKey>>> keyRevealerExpression
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueRevealerExpression, keyRevealerExpression, (Expression<Func<KeyValuePredicate<TKey, TValue?>>>?)null, contentHandling, name, srcFile
+           , srcLine) { }
+}
+
+public class BothNullStructRevealersKeyedDictExpect<TKey, TValue> : BothRevealersDictExpect<TKey?, TValue?, TKey?, TValue?, TKey?, TValue, TKey>
+    where TKey : struct
+    where TValue : struct
+{
+    // ReSharper disable once ConvertToPrimaryConstructor
+    // ReSharper disable twice ExplicitCallerInfoArgument
+    public BothNullStructRevealersKeyedDictExpect(List<KeyValuePair<TKey?, TValue?>>? inputList
+      , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
+      , Expression<Func<PalantírReveal<TKey>>> keyRevealerExpression
+      , Expression<Func<KeyValuePredicate<TKey?, TValue?>>>? elementFilterExpression
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueRevealerExpression, keyRevealerExpression, elementFilterExpression, contentHandling, name, srcFile, srcLine) { }
+
+    public BothNullStructRevealersKeyedDictExpect(List<KeyValuePair<TKey?, TValue?>>? inputList
+      , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
+      , Expression<Func<PalantírReveal<TKey>>> keyRevealerExpression
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueRevealerExpression, keyRevealerExpression, (Expression<Func<KeyValuePredicate<TKey?, TValue?>>>?)null, contentHandling, name, srcFile
+           , srcLine) { }
+}
+
+public class NullClassKeyRevealersKeyedDictExpect<TKey, TValue> : BothRevealersDictExpect<TKey?, TValue, TKey?, TValue, TKey?, TValue, TKey>
+{
+    // ReSharper disable once ConvertToPrimaryConstructor
+    // ReSharper disable twice ExplicitCallerInfoArgument
+    public NullClassKeyRevealersKeyedDictExpect(List<KeyValuePair<TKey?, TValue>>? inputList
+      , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
+      , Expression<Func<PalantírReveal<TKey>>> keyRevealerExpression
+      , Expression<Func<KeyValuePredicate<TKey?, TValue>>>? elementFilterExpression
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueRevealerExpression, keyRevealerExpression, elementFilterExpression, contentHandling, name, srcFile, srcLine) { }
+
+    public NullClassKeyRevealersKeyedDictExpect(List<KeyValuePair<TKey?, TValue>>? inputList
+      , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
+      , Expression<Func<PalantírReveal<TKey>>> keyRevealerExpression
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueRevealerExpression, keyRevealerExpression, (Expression<Func<KeyValuePredicate<TKey?, TValue>>>?)null, contentHandling, name, srcFile
+           , srcLine) { }
+}
+
+public class KeyRevealerNullClassValueRevealerKeyedDictExpect<TKey, TValue> : BothRevealersDictExpect<TKey, TValue?, TKey, TValue?, TKey, TValue, TKey>
+{
+    // ReSharper disable once ConvertToPrimaryConstructor
+    // ReSharper disable twice ExplicitCallerInfoArgument
+    public KeyRevealerNullClassValueRevealerKeyedDictExpect(List<KeyValuePair<TKey, TValue?>>? inputList
+      , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
+      , Expression<Func<PalantírReveal<TKey>>> keyRevealerExpression
+      , Expression<Func<KeyValuePredicate<TKey, TValue?>>>? elementFilterExpression
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueRevealerExpression, keyRevealerExpression, elementFilterExpression, contentHandling, name, srcFile, srcLine) { }
+
+    public KeyRevealerNullClassValueRevealerKeyedDictExpect(List<KeyValuePair<TKey, TValue?>>? inputList
+      , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
+      , Expression<Func<PalantírReveal<TKey>>> keyRevealerExpression
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueRevealerExpression, keyRevealerExpression, (Expression<Func<KeyValuePredicate<TKey, TValue?>>>?)null, contentHandling, name, srcFile
+           , srcLine) { }
+}
+
+public class BothNullClassRevealersKeyedDictExpect<TKey, TValue> : BothRevealersDictExpect<TKey?, TValue?, TKey?, TValue?, TKey?, TValue, TKey>
+{
+    // ReSharper disable once ConvertToPrimaryConstructor
+    // ReSharper disable twice ExplicitCallerInfoArgument
+    public BothNullClassRevealersKeyedDictExpect(List<KeyValuePair<TKey?, TValue?>>? inputList
+      , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
+      , Expression<Func<PalantírReveal<TKey>>> keyRevealerExpression
+      , Expression<Func<KeyValuePredicate<TKey?, TValue?>>>? elementFilterExpression
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueRevealerExpression, keyRevealerExpression, elementFilterExpression, contentHandling, name, srcFile, srcLine) { }
+
+    public BothNullClassRevealersKeyedDictExpect(List<KeyValuePair<TKey?, TValue?>>? inputList
+      , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
+      , Expression<Func<PalantírReveal<TKey>>> keyRevealerExpression
+      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , string? name = null
+      , [CallerFilePath] string srcFile = ""
+      , [CallerLineNumber] int srcLine = 0) :
+        base(inputList, valueRevealerExpression, keyRevealerExpression, (Expression<Func<KeyValuePredicate<TKey?, TValue?>>>?)null, contentHandling, name, srcFile
+           , srcLine) { }
+}
+
 public class BothRevealersDictExpect<TKey, TValue, TKFilterBase, TVFilterBase, TKSubListDerived, TVRevealBase, TKRevealBase> :
     ValueRevealerDictExpect<TKey, TValue, TKFilterBase, TVFilterBase, TKSubListDerived, TVRevealBase>
-    where TKey : TKFilterBase, TKRevealBase?
-    where TValue : TVFilterBase?, TVRevealBase?
+    where TKey : TKFilterBase
+    where TValue : TVFilterBase
     where TKSubListDerived : TKey
 {
     // ReSharper disable once ConvertToPrimaryConstructor
@@ -92,7 +299,7 @@ public class BothRevealersDictExpect<TKey, TValue, TKFilterBase, TVFilterBase, T
     public BothRevealersDictExpect(List<KeyValuePair<TKey, TValue>>? inputList
       , Expression<Func<PalantírReveal<TVRevealBase>>> valueRevealerExpression
       , Expression<Func<PalantírReveal<TKRevealBase>>> keyRevealerExpression
-      , Expression<Func<List<TKSubListDerived?>>>? elementFilterExpression = null
+      , Expression<Func<List<TKSubListDerived>>>? elementFilterExpression = null
       , FieldContentHandling contentHandling = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""

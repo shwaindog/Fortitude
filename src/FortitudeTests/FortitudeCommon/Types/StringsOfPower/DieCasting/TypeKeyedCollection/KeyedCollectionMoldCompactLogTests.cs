@@ -218,6 +218,7 @@ public partial class KeyedCollectionMoldTests
                 .NoSubsetListFilter()
                 .AcceptsStructClassNullableClass()
                 .AcceptsKeyIsNotNullableStruct()
+         where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()
         select new object[] { kce, scaffoldToCall })
         .Concat(
                 from kce in BothRevealersDictTestData.AllBothRevealersUnfilteredDictExpectations
@@ -231,6 +232,7 @@ public partial class KeyedCollectionMoldTests
                         .NoSubsetListFilter()
                         .AcceptsKeyNullableStruct()
                         .AcceptsStructClassNullableClass()
+                where scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()
                 select new object[] { kce, scaffoldToCall }
                )
         .Concat(
@@ -245,6 +247,7 @@ public partial class KeyedCollectionMoldTests
                         .NoSubsetListFilter()
                         .AcceptsKeyIsNotNullableStruct()
                         .AcceptsNullableStructs()
+                where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()
                 select new object[] { kce, scaffoldToCall }
                )
         .Concat(
@@ -259,6 +262,7 @@ public partial class KeyedCollectionMoldTests
                         .NoSubsetListFilter()
                         .AcceptsKeyNullableStruct()
                         .AcceptsNullableStructs()
+                where scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()
                 select new object[] { kce, scaffoldToCall }
                );
 
@@ -282,6 +286,7 @@ public partial class KeyedCollectionMoldTests
                 .NoSubsetListFilter()
                 .AcceptsStructClassNullableClass()
                 .AcceptsKeyIsNotNullableStruct()
+         where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()   
         select new object[] { kce, scaffoldToCall })
         .Concat(
                 from kce in BothRevealersDictTestData.AllPredicateFilteredKeyedCollectionsExpectations
@@ -295,6 +300,7 @@ public partial class KeyedCollectionMoldTests
                         .NoSubsetListFilter()
                         .AcceptsKeyNullableStruct()
                         .AcceptsStructClassNullableClass()
+                where scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()   
                 select new object[] { kce, scaffoldToCall }
                )
         .Concat(
@@ -309,6 +315,7 @@ public partial class KeyedCollectionMoldTests
                         .NoSubsetListFilter()
                         .AcceptsKeyIsNotNullableStruct()
                         .AcceptsNullableStructs()
+                where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()
                 select new object[] { kce, scaffoldToCall }
                )
         .Concat(
@@ -323,6 +330,7 @@ public partial class KeyedCollectionMoldTests
                         .NoSubsetListFilter()
                         .AcceptsKeyNullableStruct()
                         .AcceptsNullableStructs()
+                where scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()   
                 select new object[] { kce, scaffoldToCall }
                );
 
@@ -347,6 +355,7 @@ public partial class KeyedCollectionMoldTests
                 .HasSubsetListFilter()
                 .AcceptsStructClassNullableClass()
                 .AcceptsKeyIsNotNullableStruct()
+         where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()    
         select new object[] { kce, scaffoldToCall })
         .Concat(
                 from kce in BothRevealersDictTestData.AllBothRevealersSubListFilteredDictExpectations
@@ -360,6 +369,7 @@ public partial class KeyedCollectionMoldTests
                         .HasSubsetListFilter()
                         .AcceptsKeyNullableStruct()
                         .AcceptsStructClassNullableClass()
+                where scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()    
                 select new object[] { kce, scaffoldToCall }
                )
         .Concat(
@@ -374,6 +384,7 @@ public partial class KeyedCollectionMoldTests
                         .HasSubsetListFilter()
                         .AcceptsKeyIsNotNullableStruct()
                         .AcceptsNullableStructs()
+                where !kce.KeyTypeIsNullable || scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()    
                 select new object[] { kce, scaffoldToCall }
                )
         .Concat(
@@ -388,6 +399,7 @@ public partial class KeyedCollectionMoldTests
                         .HasSubsetListFilter()
                         .AcceptsKeyNullableStruct()
                         .AcceptsNullableStructs()
+                where scaffoldToCall.ScaffoldingFlags.DoesNotHaveAcceptsDictionary()    
                 select new object[] { kce, scaffoldToCall }
                );
 
@@ -405,7 +417,7 @@ public partial class KeyedCollectionMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactLog(SimpleDictTestData.AllPredicateFilteredSimpleDictExpectations[2], ScaffoldingRegistry.AllScaffoldingTypes[1112]);
+        SharedCompactLog(BothRevealersDictTestData.AllBothRevealersUnfilteredDictExpectations[17], ScaffoldingRegistry.AllScaffoldingTypes[1107]);
     }
 
     private void SharedCompactLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)

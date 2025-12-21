@@ -179,9 +179,13 @@ public class TestDictionaries
       , new KeyValuePair<UInt128, BigInteger?>(UInt128.MaxValue, UInt128.MaxValue)
     };
     
+    public static PalantírReveal<UInt128> UInt128_Reveal_SglQt = (ui, tos) => tos.StartSimpleValueType(ui).AsValue(ui, "'{0}'");
+    public static PalantírReveal<UInt128> UInt128_Reveal_DblQtPadMinus45 = (ui, tos) => tos.StartSimpleValueType(ui).AsValue(ui, "\"{0,-45}\"");
+    
     public static PalantírReveal<BigInteger> BigInteger_Reveal_Negative = (bi, tos) => tos.StartSimpleValueType(bi).AsValue(-bi);
     public static PalantírReveal<BigInteger> BigInteger_Reveal_Pad45 = (bi, tos) => tos.StartSimpleValueType(bi).AsValue(bi, "{0,45}");
     public static PalantírReveal<BigInteger> BigInteger_DblQt_Pad4 = (bi, tos) => tos.StartSimpleValueType(bi).AsValue(bi, "\"{0,4}\"");
+    public static PalantírReveal<BigInteger> BigInteger_Separators = (bi, tos) => tos.StartSimpleValueType(bi).AsValue(bi, "{0:###,##0.0}");
     
 
     public static KeyValuePredicate<UInt128, BigInteger?> NullVeryULongBigInteger_First_3 = (count, _, _) =>
@@ -245,7 +249,17 @@ public class TestDictionaries
     public static KeyValuePredicate<IPAddress, Uri> IPAddressUri_Second_3 = (count, _, _) =>
         BetweenRetrieveRange(count, 4, 7);
     
+    public static PalantírReveal<IPAddress>        IPAddress_Reveal_Pad18     = (u, tos) => tos.StartSimpleValueType(u).AsValue(u, "{0,18}");
+    
     public static PalantírReveal<Uri>        Uri_Reveal_RightArrow     = (u, tos) => tos.StartSimpleValueType(u).AsValue(u, "==> {0}");
+
+    public static readonly List<KeyValuePair<IPAddress, Uri?>> IPAddressNullUriMap = new()
+    {
+        new KeyValuePair<IPAddress, Uri?>(new IPAddress([0, 0, 0, 0]), null)
+      , new KeyValuePair<IPAddress, Uri?>(new IPAddress([127, 0, 0, 1]), new Uri("tcp://localhost"))
+      , new KeyValuePair<IPAddress, Uri?>(new IPAddress([192, 168, 1, 1]), new Uri("tcp://default-gateway"))
+      , new KeyValuePair<IPAddress, Uri?>(new IPAddress([255, 255, 255, 255]), null)
+    };
 
     public static readonly List<KeyValuePair<IPAddress?, Uri?>> NullIPAddressUriMap = new()
     {
@@ -456,8 +470,39 @@ public class TestDictionaries
         new ((decimal)Math.E * 10)
     ];
     
+    public static PalantírReveal<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>> StructBearerDecimal_Reveal_N3     = 
+        (msfc, tos) => tos.StartSimpleValueType(msfc).RevealAsValue("", msfc, "N3");
+    
     public static PalantírReveal<FieldSpanFormattableAlwaysAddStructStringBearer<Uri>>        StructBearer_Reveal_Pad30     = 
         (msfc, tos) => tos.StartSimpleValueType(msfc).RevealAsValue("", msfc, "{0,30}");
+
+    public static readonly List<KeyValuePair<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>
+      , FieldSpanFormattableAlwaysAddStructStringBearer<Uri>?>> StructBearerToNullComplexStructBearerMap = new()
+    {
+        new KeyValuePair<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>,
+                FieldSpanFormattableAlwaysAddStructStringBearer<Uri>?>
+            (
+             new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>((decimal)Math.PI), 
+             new FieldSpanFormattableAlwaysAddStructStringBearer<Uri>(new Uri("http://first-value.com"))
+            )
+      , new KeyValuePair<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>,
+                FieldSpanFormattableAlwaysAddStructStringBearer<Uri>?>
+            (
+             new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>((decimal)Math.E)
+           , new FieldSpanFormattableAlwaysAddStructStringBearer<Uri>(new Uri("http://second-value.com"))
+            )
+      , new KeyValuePair<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>,
+                FieldSpanFormattableAlwaysAddStructStringBearer<Uri>?>
+            (
+             new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>((decimal)Math.PI * 10)
+           , new FieldSpanFormattableAlwaysAddStructStringBearer<Uri>(new Uri("http://third-value.com"))
+            )
+      , new KeyValuePair<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>,
+                FieldSpanFormattableAlwaysAddStructStringBearer<Uri>?>
+            (
+             new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>((decimal)Math.E * 10), null
+            )
+    };
 
     public static readonly List<KeyValuePair<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>?
       , FieldSpanFormattableAlwaysAddStructStringBearer<Uri>?>> NullStructBearerToComplexBearerMap = new()
@@ -561,6 +606,9 @@ public class TestDictionaries
     [
         new ((decimal)Math.E * 10)
     ];
+    
+    public static PalantírReveal<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>>        ClassBearerDecimal_Reveal_N3     = 
+        (msfc, tos) => tos.StartSimpleValueType(msfc).RevealAsValue("", msfc, "N3");
     
     public static PalantírReveal<FieldSpanFormattableAlwaysAddStringBearer<Uri>>        ClassBearer_Reveal_Pad30     = 
         (msfc, tos) => tos.StartSimpleValueType(msfc).RevealAsValue("", msfc, "{0,30}");
@@ -718,6 +766,16 @@ public class TestDictionaries
     
     public static PalantírReveal<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlags_Reveal  = (e, tos) => tos.StartSimpleValueType(e).AsValue(e);
 
+    public static readonly List<KeyValuePair<NoDefaultLongNoFlagsEnum, WithDefaultLongWithFlagsEnum?>> EnumLongNdNfToNullWdWfMap = new()
+    {
+        new KeyValuePair<NoDefaultLongNoFlagsEnum, WithDefaultLongWithFlagsEnum?>(NoDefaultLongNoFlagsEnum.NDLNFE_4, null)
+      , new KeyValuePair<NoDefaultLongNoFlagsEnum, WithDefaultLongWithFlagsEnum?>(NoDefaultLongNoFlagsEnum.NDLNFE_34, WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask)
+      , new KeyValuePair<NoDefaultLongNoFlagsEnum, WithDefaultLongWithFlagsEnum?>(NoDefaultLongNoFlagsEnum.NDLNFE_1.Default()
+                                                                                , WithDefaultLongWithFlagsEnum.WDLWFE_All)
+      , new KeyValuePair<NoDefaultLongNoFlagsEnum, WithDefaultLongWithFlagsEnum?>(NoDefaultLongNoFlagsEnum.NDLNFE_1, null)
+      , new KeyValuePair<NoDefaultLongNoFlagsEnum, WithDefaultLongWithFlagsEnum?>(NoDefaultLongNoFlagsEnum.NDLNFE_13, WithDefaultLongWithFlagsEnum.WDLWFE_13)
+    };
+    
     public static readonly List<KeyValuePair<NoDefaultLongNoFlagsEnum?, WithDefaultLongWithFlagsEnum?>> NullEnumLongNdNfToWdWfMap = new()
     {
         new KeyValuePair<NoDefaultLongNoFlagsEnum?, WithDefaultLongWithFlagsEnum?>(NoDefaultLongNoFlagsEnum.NDLNFE_4, null)
@@ -738,21 +796,7 @@ public class TestDictionaries
     public static KeyValuePredicate<NoDefaultLongNoFlagsEnum?, WithDefaultLongWithFlagsEnum?>
         NullEnumLongNdNfToWdWf_Second_3 = (count, _, _) => BetweenRetrieveRange(count, 4, 7);
 
-    public static readonly List<NoDefaultLongNoFlagsEnum?> NullEnumLongNdNfToWdWf_First_3_SubList = 
-    [
-        NoDefaultLongNoFlagsEnum.NDLNFE_4
-      , null
-      , NoDefaultLongNoFlagsEnum.NDLNFE_1
-    ];
-
-    public static readonly List<NoDefaultLongNoFlagsEnum?> NullEnumLongNdNfToWdWf_Second_3_SubList = 
-    [
-        NoDefaultLongNoFlagsEnum.NDLNFE_1.Default()
-      , NoDefaultLongNoFlagsEnum.NDLNFE_13
-      , null
-    ];
-
-    public static readonly Dictionary<NoDefaultULongNoFlagsEnum, WithDefaultULongWithFlagsEnum> EnumULongNdNfDateTimeMap = new()
+    public static readonly Dictionary<NoDefaultULongNoFlagsEnum, WithDefaultULongWithFlagsEnum> EnumULongNdNfToWdwfMap = new()
     {
         { NoDefaultULongNoFlagsEnum.NDUNFE_4, WithDefaultULongWithFlagsEnum.WDUWFE_4 }
       , { NoDefaultULongNoFlagsEnum.NDUNFE_34, WithDefaultULongWithFlagsEnum.WDUWFE_34 }
@@ -787,10 +831,19 @@ public class TestDictionaries
     
     public static PalantírReveal<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlags_Reveal  = (e, tos) => tos.StartSimpleValueType(e).AsValue(e);
 
-    public static readonly List<KeyValuePair<NoDefaultULongNoFlagsEnum?, WithDefaultULongWithFlagsEnum?>> NullEnumULongNdNfNullStringMap = new()
+    public static readonly List<KeyValuePair<NoDefaultULongNoFlagsEnum, WithDefaultULongWithFlagsEnum?>> EnumULongNdNfToNullWdWfMap = new()
     {
-        new KeyValuePair<NoDefaultULongNoFlagsEnum?, WithDefaultULongWithFlagsEnum?>
-            (NoDefaultULongNoFlagsEnum.NDUNFE_4, null)
+        new KeyValuePair<NoDefaultULongNoFlagsEnum, WithDefaultULongWithFlagsEnum?>( NoDefaultULongNoFlagsEnum.NDUNFE_4, WithDefaultULongWithFlagsEnum.WDUWFE_4 )
+      , new KeyValuePair<NoDefaultULongNoFlagsEnum, WithDefaultULongWithFlagsEnum?>( NoDefaultULongNoFlagsEnum.NDUNFE_34, WithDefaultULongWithFlagsEnum.WDUWFE_34 )
+      , new KeyValuePair<NoDefaultULongNoFlagsEnum, WithDefaultULongWithFlagsEnum?>( NoDefaultULongNoFlagsEnum.NDUNFE_1.Default(), null )
+      , new KeyValuePair<NoDefaultULongNoFlagsEnum, WithDefaultULongWithFlagsEnum?>( NoDefaultULongNoFlagsEnum.NDUNFE_1, WithDefaultULongWithFlagsEnum.WDUWFE_1 )
+      , new KeyValuePair<NoDefaultULongNoFlagsEnum, WithDefaultULongWithFlagsEnum?>( NoDefaultULongNoFlagsEnum.NDUNFE_13, WithDefaultULongWithFlagsEnum.WDUWFE_13 )
+      , new KeyValuePair<NoDefaultULongNoFlagsEnum, WithDefaultULongWithFlagsEnum?>( NoDefaultULongNoFlagsEnum.NDUNFE_2, null )
+    };
+
+    public static readonly List<KeyValuePair<NoDefaultULongNoFlagsEnum?, WithDefaultULongWithFlagsEnum?>> NullEnumULongNdNfToWdWfMap = new()
+    {
+        new KeyValuePair<NoDefaultULongNoFlagsEnum?, WithDefaultULongWithFlagsEnum?>(NoDefaultULongNoFlagsEnum.NDUNFE_4, null)
       , new KeyValuePair<NoDefaultULongNoFlagsEnum?, WithDefaultULongWithFlagsEnum?>(null, WithDefaultULongWithFlagsEnum.WDUWFE_34)
       , new KeyValuePair<NoDefaultULongNoFlagsEnum?, WithDefaultULongWithFlagsEnum?>(NoDefaultULongNoFlagsEnum.NDUNFE_1.Default(), WithDefaultULongWithFlagsEnum.Default)
       , new KeyValuePair<NoDefaultULongNoFlagsEnum?, WithDefaultULongWithFlagsEnum?>(NoDefaultULongNoFlagsEnum.NDUNFE_1, null)
@@ -806,20 +859,6 @@ public class TestDictionaries
 
     public static KeyValuePredicate<NoDefaultULongNoFlagsEnum?, WithDefaultULongWithFlagsEnum?>
         NullEnumULongNdNfToWdWf_Second_3 = (count, _, _) => BetweenRetrieveRange(count, 4, 7);
-
-    public static readonly List<NoDefaultULongNoFlagsEnum?> NullEnumULongNdNfDateTime_First_3_SubList = 
-    [
-        NoDefaultULongNoFlagsEnum.NDUNFE_4
-      , null
-      , NoDefaultULongNoFlagsEnum.NDUNFE_1.Default()
-    ];
-
-    public static readonly List<NoDefaultULongNoFlagsEnum?> NullEnumULongNdNfDateTime_Second_3_SubList = 
-    [
-        NoDefaultULongNoFlagsEnum.NDUNFE_1
-      , NoDefaultULongNoFlagsEnum.NDUNFE_13
-      , null
-    ];
 
     // 1. b) With Default No Flags
     public static readonly Dictionary<WithDefaultLongNoFlagsEnum, NoDefaultLongWithFlagsEnum> EnumLongWdNfToNdWfMap = new()
@@ -857,6 +896,16 @@ public class TestDictionaries
     
     public static PalantírReveal<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlags_Reveal  = (e, tos) => tos.StartSimpleValueType(e).AsValue(e);
 
+    public static readonly List<KeyValuePair<WithDefaultLongNoFlagsEnum, NoDefaultLongWithFlagsEnum?>> EnumLongWdNfToNullNdWfMap = new()
+    {
+        new KeyValuePair<WithDefaultLongNoFlagsEnum, NoDefaultLongWithFlagsEnum?>(WithDefaultLongNoFlagsEnum.WDLNFE_4, null)
+      , new KeyValuePair<WithDefaultLongNoFlagsEnum, NoDefaultLongWithFlagsEnum?>(WithDefaultLongNoFlagsEnum.WDLNFE_34, NoDefaultLongWithFlagsEnum.NDLWFE_1.First8Last2MaskMinusFlag1())
+      , new KeyValuePair<WithDefaultLongNoFlagsEnum, NoDefaultLongWithFlagsEnum?>(WithDefaultLongNoFlagsEnum.Default, null)
+      , new KeyValuePair<WithDefaultLongNoFlagsEnum, NoDefaultLongWithFlagsEnum?>(WithDefaultLongNoFlagsEnum.WDLNFE_1, null)
+      , new KeyValuePair<WithDefaultLongNoFlagsEnum, NoDefaultLongWithFlagsEnum?>(WithDefaultLongNoFlagsEnum.WDLNFE_2, NoDefaultLongWithFlagsEnum.NDLWFE_2)
+      , new KeyValuePair<WithDefaultLongNoFlagsEnum, NoDefaultLongWithFlagsEnum?>(WithDefaultLongNoFlagsEnum.WDLNFE_13, NoDefaultLongWithFlagsEnum.NDLWFE_13)
+    };
+
     public static readonly List<KeyValuePair<WithDefaultLongNoFlagsEnum?, NoDefaultLongWithFlagsEnum?>> NullEnumLongWdNfToNdWfMap = new()
     {
         new KeyValuePair<WithDefaultLongNoFlagsEnum?, NoDefaultLongWithFlagsEnum?>(WithDefaultLongNoFlagsEnum.WDLNFE_4, null)
@@ -875,20 +924,6 @@ public class TestDictionaries
 
     public static KeyValuePredicate<WithDefaultLongNoFlagsEnum?, NoDefaultLongWithFlagsEnum?>
         NullEnumLongWdNfToNdWf_Second_3 = (count, _, _) => BetweenRetrieveRange(count, 4, 7);
-
-    public static readonly List<WithDefaultLongNoFlagsEnum?> NullEnumLongWdNfToNdWf_First_3_SubList = 
-    [
-        WithDefaultLongNoFlagsEnum.WDLNFE_4
-      , null
-      , WithDefaultLongNoFlagsEnum.Default.Default()
-    ];
-
-    public static readonly List<WithDefaultLongNoFlagsEnum?> NullEnumLongWdNfToNdWf_Second_3_SubList = 
-    [
-        WithDefaultLongNoFlagsEnum.WDLNFE_1
-      , WithDefaultLongNoFlagsEnum.WDLNFE_13
-      , null
-    ];
 
     public static readonly Dictionary<WithDefaultULongNoFlagsEnum, NoDefaultULongWithFlagsEnum> EnumULongWdNfToNdWfMap = new()
     {
@@ -923,6 +958,15 @@ public class TestDictionaries
     
     public static PalantírReveal<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlags_Reveal  = (e, tos) => tos.StartSimpleValueType(e).AsValue(e);
 
+    public static readonly List<KeyValuePair<WithDefaultULongNoFlagsEnum, NoDefaultULongWithFlagsEnum?>> EnumULongWdNfToNullNdWfMap = new()
+    {
+        new KeyValuePair<WithDefaultULongNoFlagsEnum, NoDefaultULongWithFlagsEnum?>(WithDefaultULongNoFlagsEnum.WDUNFE_2, null)
+      , new KeyValuePair<WithDefaultULongNoFlagsEnum, NoDefaultULongWithFlagsEnum?>(WithDefaultULongNoFlagsEnum.WDUNFE_4, NoDefaultULongWithFlagsEnum.NDUWFE_2)
+      , new KeyValuePair<WithDefaultULongNoFlagsEnum, NoDefaultULongWithFlagsEnum?> (WithDefaultULongNoFlagsEnum.WDUNFE_34, NoDefaultULongWithFlagsEnum.NDUWFE_34)
+      , new KeyValuePair<WithDefaultULongNoFlagsEnum, NoDefaultULongWithFlagsEnum?> (WithDefaultULongNoFlagsEnum.Default, NoDefaultULongWithFlagsEnum.NDUWFE_1.Default())
+      , new KeyValuePair<WithDefaultULongNoFlagsEnum, NoDefaultULongWithFlagsEnum?>(WithDefaultULongNoFlagsEnum.WDUNFE_13, NoDefaultULongWithFlagsEnum.NDUWFE_13)
+    };
+
     public static readonly List<KeyValuePair<WithDefaultULongNoFlagsEnum?, NoDefaultULongWithFlagsEnum?>> NullEnumULongWdNfToNdWfMap = new()
     {
         new KeyValuePair<WithDefaultULongNoFlagsEnum?, NoDefaultULongWithFlagsEnum?>(WithDefaultULongNoFlagsEnum.WDUNFE_4, null)
@@ -940,20 +984,6 @@ public class TestDictionaries
 
     public static KeyValuePredicate<WithDefaultULongNoFlagsEnum?, NoDefaultULongWithFlagsEnum?>
         NullEnumULongWdNfToNdWf_Second_3 = (count, _, _) => BetweenRetrieveRange(count, 4, 7);
-
-    public static readonly List<WithDefaultULongNoFlagsEnum?> NullEnumULongWdNfToNdWf_First_3_SubList = 
-    [
-        WithDefaultULongNoFlagsEnum.WDUNFE_4
-      , null
-      , WithDefaultULongNoFlagsEnum.Default.Default()
-    ];
-
-    public static readonly List<WithDefaultULongNoFlagsEnum?> NullEnumULongWdNfToNdWf_Second_3_SubList = 
-    [
-        WithDefaultULongNoFlagsEnum.WDUNFE_1
-      , WithDefaultULongNoFlagsEnum.WDUNFE_13
-      , null
-    ];
 
 
     //  2. Start With Flags enums
@@ -993,6 +1023,16 @@ public class TestDictionaries
     
     public static PalantírReveal<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlags_Reveal  = (e, tos) => tos.StartSimpleValueType(e).AsValue(e);
 
+    public static readonly List<KeyValuePair<NoDefaultLongWithFlagsEnum, WithDefaultLongNoFlagsEnum?>> EnumLongNdWfToNullWdNfMap = new()
+    {
+      new KeyValuePair<NoDefaultLongWithFlagsEnum, WithDefaultLongNoFlagsEnum?>( NoDefaultLongWithFlagsEnum.NDLWFE_4, WithDefaultLongNoFlagsEnum.WDLNFE_4 )
+      , new KeyValuePair<NoDefaultLongWithFlagsEnum, WithDefaultLongNoFlagsEnum?>( NoDefaultLongWithFlagsEnum.NDLWFE_1.First8MinusFlag6Mask(), null )
+      , new KeyValuePair<NoDefaultLongWithFlagsEnum, WithDefaultLongNoFlagsEnum?>( NoDefaultLongWithFlagsEnum.NDLWFE_1.Default(), WithDefaultLongNoFlagsEnum.Default )
+      , new KeyValuePair<NoDefaultLongWithFlagsEnum, WithDefaultLongNoFlagsEnum?>( NoDefaultLongWithFlagsEnum.NDLWFE_1.First8AndLast2Mask(), null )
+      , new KeyValuePair<NoDefaultLongWithFlagsEnum, WithDefaultLongNoFlagsEnum?>( NoDefaultLongWithFlagsEnum.NDLWFE_22, WithDefaultLongNoFlagsEnum.WDLNFE_22 )
+      , new KeyValuePair<NoDefaultLongWithFlagsEnum, WithDefaultLongNoFlagsEnum?>( NoDefaultLongWithFlagsEnum.NDLWFE_34, null )
+    };
+
     public static readonly List<KeyValuePair<NoDefaultLongWithFlagsEnum?, WithDefaultLongNoFlagsEnum?>> NullEnumLongNdWfToWdNfMap = new()
     {
         new KeyValuePair<NoDefaultLongWithFlagsEnum?, WithDefaultLongNoFlagsEnum?>( null, null )
@@ -1012,20 +1052,6 @@ public class TestDictionaries
 
     public static KeyValuePredicate<NoDefaultLongWithFlagsEnum?, WithDefaultLongNoFlagsEnum?>
         NullEnumLongNdWfToWdNf_Second_3 = (count, _, _) => BetweenRetrieveRange(count, 4, 7);
-
-    public static readonly List<NoDefaultLongWithFlagsEnum?> NullEnumLongNdWfToWdNf_First_3_SubList = 
-    [
-        null
-      , NoDefaultLongWithFlagsEnum.NDLWFE_4
-      , NoDefaultLongWithFlagsEnum.NDLWFE_1.First8MinusFlag6Mask()
-    ];
-
-    public static readonly List<NoDefaultLongWithFlagsEnum?> NullEnumLongNdWfToWdNf_Second_3_SubList = 
-    [
-        NoDefaultLongWithFlagsEnum.NDLWFE_1.Default()
-      , NoDefaultLongWithFlagsEnum.NDLWFE_1.First8AndLast2Mask()
-      , NoDefaultLongWithFlagsEnum.NDLWFE_22
-    ];
 
     public static readonly Dictionary<NoDefaultULongWithFlagsEnum, WithDefaultULongNoFlagsEnum> EnumULongNdWfToWdNfMap = new()
     {
@@ -1062,6 +1088,16 @@ public class TestDictionaries
     
     public static PalantírReveal<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlags_Reveal  = (e, tos) => tos.StartSimpleValueType(e).AsValue(e);
 
+    public static readonly List<KeyValuePair<NoDefaultULongWithFlagsEnum, WithDefaultULongNoFlagsEnum?>> EnumULongNdWfToNullWdNfMap = new()
+    {
+        new KeyValuePair<NoDefaultULongWithFlagsEnum, WithDefaultULongNoFlagsEnum?>(NoDefaultULongWithFlagsEnum.NDUWFE_4, WithDefaultULongNoFlagsEnum.WDUNFE_4 )
+      , new KeyValuePair<NoDefaultULongWithFlagsEnum, WithDefaultULongNoFlagsEnum?>(NoDefaultULongWithFlagsEnum.NDUWFE_1.First8MinusFlag6Mask(), null )
+      , new KeyValuePair<NoDefaultULongWithFlagsEnum, WithDefaultULongNoFlagsEnum?>(NoDefaultULongWithFlagsEnum.NDUWFE_34, WithDefaultULongNoFlagsEnum.WDUNFE_34 )
+      , new KeyValuePair<NoDefaultULongWithFlagsEnum, WithDefaultULongNoFlagsEnum?>(NoDefaultULongWithFlagsEnum.NDUWFE_1.Default(), WithDefaultULongNoFlagsEnum.Default )
+      , new KeyValuePair<NoDefaultULongWithFlagsEnum, WithDefaultULongNoFlagsEnum?>(NoDefaultULongWithFlagsEnum.NDUWFE_1.First8AndLast2Mask(), WithDefaultULongNoFlagsEnum.WDUNFE_8 )
+      , new KeyValuePair<NoDefaultULongWithFlagsEnum, WithDefaultULongNoFlagsEnum?>(NoDefaultULongWithFlagsEnum.NDUWFE_22, WithDefaultULongNoFlagsEnum.WDUNFE_22 )
+    };
+
     public static readonly List<KeyValuePair<NoDefaultULongWithFlagsEnum?, WithDefaultULongNoFlagsEnum?>> NullEnumULongNdWfToWdNfMap = new()
     {
         new KeyValuePair<NoDefaultULongWithFlagsEnum?, WithDefaultULongNoFlagsEnum?>( null, null )
@@ -1080,20 +1116,6 @@ public class TestDictionaries
 
     public static KeyValuePredicate<NoDefaultULongWithFlagsEnum?, WithDefaultULongNoFlagsEnum?>
         NullEnumULongNdWfToWdNf_Second_3 = (count, _, _) => BetweenRetrieveRange(count, 4, 7);
-
-    public static readonly List<NoDefaultULongWithFlagsEnum?> NullEnumULongNdWfToWdNf_First_3_SubList = 
-    [
-        null
-      , NoDefaultULongWithFlagsEnum.NDUWFE_1.First8MinusFlag6Mask()
-      , NoDefaultULongWithFlagsEnum.NDUWFE_34
-    ];
-
-    public static readonly List<NoDefaultULongWithFlagsEnum?> NullEnumULongNdWfToWdNf_Second_3_SubList = 
-    [
-        NoDefaultULongWithFlagsEnum.NDUWFE_1.Default()
-      , NoDefaultULongWithFlagsEnum.NDUWFE_1.First8AndLast2Mask()
-      , NoDefaultULongWithFlagsEnum.NDUWFE_22
-    ];
 
     // 2. b) With Default With Flags
     public static readonly Dictionary<WithDefaultLongWithFlagsEnum, NoDefaultLongNoFlagsEnum> EnumLongWdWfToNdNfMap = new()
@@ -1131,6 +1153,16 @@ public class TestDictionaries
     
     public static PalantírReveal<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlags_Reveal  = (e, tos) => tos.StartSimpleValueType(e).AsValue(e);
 
+    public static readonly List<KeyValuePair<WithDefaultLongWithFlagsEnum, NoDefaultLongNoFlagsEnum?>> EnumLongWdWfToNullNdNfMap = new()
+    {
+        new KeyValuePair<WithDefaultLongWithFlagsEnum, NoDefaultLongNoFlagsEnum?>( WithDefaultLongWithFlagsEnum.WDLWFE_4, NoDefaultLongNoFlagsEnum.NDLNFE_4 )
+      , new KeyValuePair<WithDefaultLongWithFlagsEnum, NoDefaultLongNoFlagsEnum?>( WithDefaultLongWithFlagsEnum.WDLWFE_1.First8MinusFlag2Mask(), NoDefaultLongNoFlagsEnum.NDLNFE_8 )
+      , new KeyValuePair<WithDefaultLongWithFlagsEnum, NoDefaultLongNoFlagsEnum?>( WithDefaultLongWithFlagsEnum.Default, null )
+      , new KeyValuePair<WithDefaultLongWithFlagsEnum, NoDefaultLongNoFlagsEnum?>( WithDefaultLongWithFlagsEnum.WDLWFE_1.First8AndLast2Mask(), NoDefaultLongNoFlagsEnum.NDLNFE_6 )
+      , new KeyValuePair<WithDefaultLongWithFlagsEnum, NoDefaultLongNoFlagsEnum?>( WithDefaultLongWithFlagsEnum.WDLWFE_22, NoDefaultLongNoFlagsEnum.NDLNFE_22 )
+      , new KeyValuePair<WithDefaultLongWithFlagsEnum, NoDefaultLongNoFlagsEnum?>( WithDefaultLongWithFlagsEnum.WDLWFE_32, null )
+    };
+
     public static readonly List<KeyValuePair<WithDefaultLongWithFlagsEnum?, NoDefaultLongNoFlagsEnum?>> NullEnumLongWdWfToNdNfMap = new()
     {
         new KeyValuePair<WithDefaultLongWithFlagsEnum?, NoDefaultLongNoFlagsEnum?>( null, null )
@@ -1149,20 +1181,6 @@ public class TestDictionaries
 
     public static KeyValuePredicate<WithDefaultLongWithFlagsEnum?, NoDefaultLongNoFlagsEnum?>
         NullEnumLongWdWfToNdNf_Second_3 = (count, _, _) => BetweenRetrieveRange(count, 4, 7);
-
-    public static readonly List<WithDefaultLongWithFlagsEnum?> NullEnumLongWdWfToNdNf_First_3_SubList = 
-    [
-        null
-      , WithDefaultLongWithFlagsEnum.WDLWFE_1.First8MinusFlag2Mask()
-      , WithDefaultLongWithFlagsEnum.Default
-    ];
-
-    public static readonly List<WithDefaultLongWithFlagsEnum> NullEnumLongWdWfToNdNf_Second_3_SubList = 
-    [
-        WithDefaultLongWithFlagsEnum.WDLWFE_1.First8AndLast2Mask()
-      , WithDefaultLongWithFlagsEnum.WDLWFE_22
-      , WithDefaultLongWithFlagsEnum.WDLWFE_32
-    ];
 
     public static readonly Dictionary<WithDefaultULongWithFlagsEnum, NoDefaultULongNoFlagsEnum> EnumULongWdWfToNdNfMap = new()
     {
@@ -1199,7 +1217,17 @@ public class TestDictionaries
     
     public static PalantírReveal<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlags_Reveal  = (e, tos) => tos.StartSimpleValueType(e).AsValue(e);
 
-    public static readonly List<KeyValuePair<WithDefaultULongWithFlagsEnum?, NoDefaultULongNoFlagsEnum?>> NullEnumULongWdWfNullStringBuilderMap = new()
+    public static readonly List<KeyValuePair<WithDefaultULongWithFlagsEnum, NoDefaultULongNoFlagsEnum?>> EnumULongWdWfToNullNdNfMap = new()
+    {
+        new KeyValuePair<WithDefaultULongWithFlagsEnum, NoDefaultULongNoFlagsEnum?>( WithDefaultULongWithFlagsEnum.WDUWFE_4, null )
+      , new KeyValuePair<WithDefaultULongWithFlagsEnum, NoDefaultULongNoFlagsEnum?>( WithDefaultULongWithFlagsEnum.WDUWFE_1.First8MinusFlag2Mask(), NoDefaultULongNoFlagsEnum.NDUNFE_8 )
+      , new KeyValuePair<WithDefaultULongWithFlagsEnum, NoDefaultULongNoFlagsEnum?>( WithDefaultULongWithFlagsEnum.Default, null )
+      , new KeyValuePair<WithDefaultULongWithFlagsEnum, NoDefaultULongNoFlagsEnum?>( WithDefaultULongWithFlagsEnum.WDUWFE_1.First8AndLast2Mask(), NoDefaultULongNoFlagsEnum.NDUNFE_6 )
+      , new KeyValuePair<WithDefaultULongWithFlagsEnum, NoDefaultULongNoFlagsEnum?>( WithDefaultULongWithFlagsEnum.WDUWFE_22, NoDefaultULongNoFlagsEnum.NDUNFE_22 )
+      , new KeyValuePair<WithDefaultULongWithFlagsEnum, NoDefaultULongNoFlagsEnum?>( WithDefaultULongWithFlagsEnum.WDUWFE_32, NoDefaultULongNoFlagsEnum.NDUNFE_32 )
+    };
+
+    public static readonly List<KeyValuePair<WithDefaultULongWithFlagsEnum?, NoDefaultULongNoFlagsEnum?>> NullEnumULongWdWfToNdNfMap = new()
     {
         new KeyValuePair<WithDefaultULongWithFlagsEnum?, NoDefaultULongNoFlagsEnum?>( null, null )
       , new KeyValuePair<WithDefaultULongWithFlagsEnum?, NoDefaultULongNoFlagsEnum?>( WithDefaultULongWithFlagsEnum.WDUWFE_1.First8MinusFlag2Mask(), NoDefaultULongNoFlagsEnum.NDUNFE_8 )
@@ -1217,18 +1245,4 @@ public class TestDictionaries
 
     public static KeyValuePredicate<WithDefaultULongWithFlagsEnum?, NoDefaultULongNoFlagsEnum?>
         NullEnumULongWdWfToNdNf_Second_3 = (count, _, _) => BetweenRetrieveRange(count, 4, 7);
-
-    public static readonly List<WithDefaultULongWithFlagsEnum?> NullEnumULongWdWfToNdNf_First_3_SubList = 
-    [
-        null
-      , WithDefaultULongWithFlagsEnum.WDUWFE_1.First8MinusFlag2Mask()
-      , WithDefaultULongWithFlagsEnum.Default
-    ];
-
-    public static readonly List<WithDefaultULongWithFlagsEnum?> NullEnumULongWdWfToNdNf_Second_3_SubList = 
-    [
-        WithDefaultULongWithFlagsEnum.WDUWFE_1.First8AndLast2Mask()
-      , WithDefaultULongWithFlagsEnum.WDUWFE_22
-      , WithDefaultULongWithFlagsEnum.WDUWFE_32
-    ];
 }
