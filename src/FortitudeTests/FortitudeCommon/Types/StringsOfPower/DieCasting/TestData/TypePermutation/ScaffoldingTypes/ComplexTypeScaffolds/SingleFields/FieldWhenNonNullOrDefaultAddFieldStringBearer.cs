@@ -104,7 +104,7 @@ public class FieldCloakedBearerWhenNonNullOrDefaultStringBearer<TCloaked, TRevea
            .Field.WhenNonNullOrDefaultReveal
                (nameof(ComplexTypeFieldWhenNonNullOrDefaultCloakedBearerAs)
               , ComplexTypeFieldWhenNonNullOrDefaultCloakedBearerAs
-              , ValueRevealer, DefaultValue, ContentHandlingFlags)
+              , ValueRevealer, DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
@@ -128,12 +128,12 @@ public class FieldNullableCloakedBearerWhenNonNullOrDefaultStringBearer<TCloaked
            .Field.WhenNonNullOrDefaultReveal
                (nameof(ComplexTypeFieldWhenNonNullOrDefaultCustomBearerAs)
               , ComplexTypeFieldWhenNonNullOrDefaultCustomBearerAs
-              , ValueRevealer, DefaultValue, ContentHandlingFlags)
+              , ValueRevealer, DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullAndPopulatedWrites | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
-public class FieldStringBearerWhenNonNullOrDefaultStringBearer<TBearer> : MoldScaffoldBase<TBearer?>
+public class FieldStringBearerWhenNonNullOrDefaultStringBearer<TBearer> : ProxyFormattedMoldScaffold<TBearer?>
   , IMoldSupportedDefaultValue<TBearer?> where TBearer : IStringBearer
 {
     public TBearer? ComplexTypeFieldWhenNonNullOrDefaultStringBearerAs
@@ -151,12 +151,12 @@ public class FieldStringBearerWhenNonNullOrDefaultStringBearer<TBearer> : MoldSc
            .Field.WhenNonNullOrDefaultReveal
                (nameof(ComplexTypeFieldWhenNonNullOrDefaultStringBearerAs)
               , ComplexTypeFieldWhenNonNullOrDefaultStringBearerAs
-              , DefaultValue, ContentHandlingFlags)
+              , DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonNullAndPopulatedWrites | AcceptsNullableStruct | AcceptsStringBearer)]
-public class FieldNullableStringBearerWhenNonNullOrDefaultStringBearer<TBearerStruct> : MoldScaffoldBase<TBearerStruct?>
+public class FieldNullableStringBearerWhenNonNullOrDefaultStringBearer<TBearerStruct> : ProxyFormattedMoldScaffold<TBearerStruct?>
   , IMoldSupportedDefaultValue<TBearerStruct?> where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct? ComplexTypeFieldWhenNonNullOrDefaultNullableStringBearerAs
@@ -174,7 +174,7 @@ public class FieldNullableStringBearerWhenNonNullOrDefaultStringBearer<TBearerSt
            .Field.WhenNonNullOrDefaultReveal
                (nameof(ComplexTypeFieldWhenNonNullOrDefaultNullableStringBearerAs)
               , ComplexTypeFieldWhenNonNullOrDefaultNullableStringBearerAs
-              , DefaultValue, ContentHandlingFlags)
+              , DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
@@ -184,7 +184,7 @@ public class FieldCharSpanWhenNonNullOrDefaultStringBearer : FormattedMoldScaffo
 {
     public char[] ComplexTypeFieldAlwaysAddCharSpanAs
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -214,7 +214,7 @@ public class FieldCharReadOnlySpanWhenNonNullOrDefaultStringBearer : FormattedMo
 {
     public string ComplexTypeFieldAlwaysAddReadOnlyCharSpanAs
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -308,7 +308,7 @@ public class FieldCharArrayWhenNonNullOrDefaultStringBearer : FormattedMoldScaff
 {
     public char[] ComplexTypeFieldWhenNonNullOrDefaultCharArrayAs
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -339,7 +339,7 @@ public class FieldCharArrayRangeWhenNonNullOrDefaultStringBearer : FormattedMold
 {
     public char[] ComplexTypeFieldWhenNonNullOrDefaultCharArrayRangeAs
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -373,7 +373,7 @@ public class FieldCharSequenceWhenNonNullOrDefaultStringBearer<TCharSeq> : Forma
 {
     public TCharSeq ComplexTypeFieldWhenNonNullOrDefaultCharSequenceAs
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -412,7 +412,7 @@ public class FieldCharSequenceRangeWhenNonNullOrDefaultStringBearer<TCharSeq> : 
 {
     public TCharSeq ComplexTypeFieldWhenNonNullOrDefaultCharSequenceRangeAs
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -453,7 +453,7 @@ public class FieldStringBuilderWhenNonNullOrDefaultStringBearer : FormattedMoldS
 {
     public StringBuilder ComplexTypeFieldWhenNonNullOrDefaultAddStringBuilderAs
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -463,7 +463,7 @@ public class FieldStringBuilderWhenNonNullOrDefaultStringBearer : FormattedMoldS
 
     public string? StringValue
     {
-        get => Value!.ToString();
+        get => Value.ToString();
         set => Value = new StringBuilder(value);
     }
 
@@ -484,7 +484,7 @@ public class FieldStringBuilderRangeWhenNonNullOrDefaultStringBearer : Formatted
 {
     public StringBuilder ComplexTypeFieldWhenNonNullOrDefaultAddStringBuilderRangeAs
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -498,7 +498,7 @@ public class FieldStringBuilderRangeWhenNonNullOrDefaultStringBearer : Formatted
 
     public string? StringValue
     {
-        get => Value!.ToString();
+        get => Value.ToString();
         set => Value = new StringBuilder(value);
     }
 

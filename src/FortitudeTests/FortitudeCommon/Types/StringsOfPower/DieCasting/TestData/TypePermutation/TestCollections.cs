@@ -530,12 +530,14 @@ public static class TestCollections
       , new MySpanFormattableClass("MySpanFormattableClass")
       , ushort.MaxValue
       , 'c'
+      , NoDefaultLongWithFlagsEnum.NDLWFE_1.First8Last2MaskMinusFlag1()  
       , double.MinValue
       , "String"
       , new Uri("https://github.com/shwaindog/Fortitude/")
       , false
       , new MyOtherTypeStruct("MyOtherTypeStruct.ToString()")
       , short.MinValue
+      , WithDefaultULongWithFlagsEnum.WDUWFE_First8Mask  
       , double.MaxValue
       , new Version(1, 1, 1, 1)
       , new CharArrayStringBuilder("CharArrayStringBuilder")
@@ -544,6 +546,7 @@ public static class TestCollections
       , float.MaxValue
       , Guid.ParseExact("BEEEEEEF-BEEF-BEEF-BEEF-CAAAAAAAAA4E", "D")
       , int.MinValue
+      , NoDefaultLongNoFlagsEnum.NDLNFE_3  
       , new MutableString("MutableString")
       , uint.MaxValue
       , new MyOtherTypeClass("MyOtherTypeClass.ToString()")

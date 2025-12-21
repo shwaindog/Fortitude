@@ -91,7 +91,7 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         IpAddressSingPropield  = IPAddress.Parse("192.168.0.1");
         UriSingPropield     = new Uri("https://github.com/shwaindog/Fortitude");
 
-        SpanFormattableSingPropield = new MySpanFormattableClass("SpanFormattableSingPropield");
+        SpanFormattableSingPropield = new MySpanFormattableClass("SpanFormattableSingPropield", true);
         NdLNfEnumSingPropield       = NoDefaultLongNoFlagsEnum.NDLNFE_16;
         NdUNfEnumSingPropield       = NoDefaultULongNoFlagsEnum.NDUNFE_3;
         NdLWfEnumSingPropield =

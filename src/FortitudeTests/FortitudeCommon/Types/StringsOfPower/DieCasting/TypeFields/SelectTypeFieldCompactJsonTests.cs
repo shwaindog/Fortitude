@@ -117,7 +117,7 @@ public partial class SelectTypeFieldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactJson(EnumTestData.EnumExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[933]);
+        SharedCompactJson(StringTestData.AllStringExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[1038]);
     }
 
     private void SharedCompactJson(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -132,6 +132,11 @@ public partial class SelectTypeFieldTests
         logger.WarnAppend("FormatExpectation - ")?
               .AppendLine(formatExpectation.ToString())
               .FinalAppend("");
+            
+        logger.InfoAppend("To Debug Test past the following code into ")?
+              .Append(nameof(CompactJsonSingleTest)).Append("()\n\n")
+              .Append("SharedCompactJson(")
+              .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
 
 
         var tos          = new TheOneString().Initialize(Compact | Json);
@@ -172,11 +177,6 @@ public partial class SelectTypeFieldTests
                   .AppendLine("Expected it to match -")
                   .AppendLine(buildExpectedOutput)
                   .FinalAppend("");
-            
-            logger.InfoAppend("To Debug Test past the following code into ")?
-                  .Append(nameof(CompactJsonSingleTest)).Append("()\n\n")
-                  .Append("SharedCompactJson(")
-                  .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
             
             logger.InfoAppend("To Debug Test past the following code into ")?
                   .Append(nameof(CompactJsonSingleTest)).Append("()\n\n")

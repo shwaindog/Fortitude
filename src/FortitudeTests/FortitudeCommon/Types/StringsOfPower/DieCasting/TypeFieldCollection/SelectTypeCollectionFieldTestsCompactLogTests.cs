@@ -56,7 +56,7 @@ public partial class SelectTypeCollectionFieldTests
                         .ProcessesCollection()
                         .NoFilterPredicate()
                         .AcceptsBoolean()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall });
 
     [TestMethod]
@@ -87,7 +87,7 @@ public partial class SelectTypeCollectionFieldTests
                         .ProcessesCollection()
                         .HasFilterPredicate()
                         .AcceptsBoolean()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall });
 
     [TestMethod]
@@ -121,7 +121,7 @@ public partial class SelectTypeCollectionFieldTests
                         .NoFilterPredicate()
                         .HasSpanFormattable()
                         .NotHasSupportsValueRevealer()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
@@ -168,7 +168,7 @@ public partial class SelectTypeCollectionFieldTests
                         .HasFilterPredicate()
                         .HasSpanFormattable()
                         .NotHasSupportsValueRevealer()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall })
         .Concat( 
                 // classes
@@ -478,7 +478,7 @@ public partial class SelectTypeCollectionFieldTests
                         .ProcessesCollection()
                         .NoFilterPredicate()
                         .HasSupportsValueRevealer()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall });
     
     [TestMethod]
@@ -520,7 +520,7 @@ public partial class SelectTypeCollectionFieldTests
                         .ProcessesCollection()
                         .HasFilterPredicate()
                         .HasSupportsValueRevealer()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall });
 
     [TestMethod]
@@ -565,7 +565,7 @@ public partial class SelectTypeCollectionFieldTests
                         .NoFilterPredicate()
                         .HasAcceptsStringBearer()
                         .NotHasSupportsValueRevealer()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall });
 
     [TestMethod]
@@ -610,7 +610,7 @@ public partial class SelectTypeCollectionFieldTests
                         .HasFilterPredicate()
                         .HasAcceptsStringBearer()
                         .NotHasSupportsValueRevealer()
-                        .OnlyAcceptsNullableStructs()
+                        .AcceptsNullableStructs()
                 select new object[] { fe, scaffoldToCall });
 
     [TestMethod]
@@ -648,24 +648,26 @@ public partial class SelectTypeCollectionFieldTests
         string BuildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            const string compactLogTemplate = "{0} {{ {1}}}";
+            const string compactLogTemplate = "{0} {{{1}{2}{1}}}";
 
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
+            var maybePadding = "";
+            var expectValue  = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
+                maybePadding = expectValue.Length > 0 ? " " : "";
                 if (expectValue != "null" &&  expectation is IOrderedListExpect orderedListExpectation 
                  && orderedListExpectation.ElementCallType.IsEnumOrNullable())
                 {
                     expectValue = propertyName + ": (" + orderedListExpectation.CollectionCallType.ShortNameInCSharpFormat() + ")" + 
-                                  expectValue + (expectValue.Length > 0 ? " " : "");    
+                                  expectValue;    
                 }
                 else
                 {
-                    expectValue = propertyName + ": " + expectValue + (expectValue.Length > 0 ? " " : "");
+                    expectValue = propertyName + ": " + expectValue;
                 }
             }
             else { expectValue = ""; }
-            return string.Format(compactLogTemplate, className, expectValue);
+            return string.Format(compactLogTemplate, className, maybePadding,  expectValue);
         }
 
         string BuildChildExpectedOutput(string className, string propertyName

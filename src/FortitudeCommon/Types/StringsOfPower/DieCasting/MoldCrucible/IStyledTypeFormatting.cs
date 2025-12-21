@@ -15,6 +15,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     string Name { get; }
     
     public GraphTrackingBuilder GraphBuilder { get; }
+    
 
     FieldContentHandling ResolveContentFormattingFlags<T>(IStringBuilder sb, T input, FieldContentHandling callerFormattingFlags
     , string formatString = "", bool isFieldName = false);
@@ -30,10 +31,13 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     ContentSeparatorRanges AppendComplexTypeOpening(ITypeMolderDieCast moldInternal, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
     SeparatorPaddingRanges AppendFieldValueSeparator(ITypeMolderDieCast moldInternal, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
+    
+    SkipTypeParts GetNextValueTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType);
+    SkipTypeParts GetNextComplexTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType);
 
-    Range? AddNextFieldSeparator(ITypeMolderDieCast moldInternal, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
-    ContentSeparatorRanges AddNextFieldPadding(ITypeMolderDieCast moldInternal, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
-    ContentSeparatorRanges AddNextFieldSeparatorAndPadding(ITypeMolderDieCast moldInternal, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
+    Range? AddNextFieldSeparator(FieldContentHandling formatFlags = DefaultCallerTypeFlags);
+    ContentSeparatorRanges AddNextFieldPadding(FieldContentHandling formatFlags = DefaultCallerTypeFlags);
+    ContentSeparatorRanges AddNextFieldSeparatorAndPadding(FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
     int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel);
 
@@ -59,6 +63,13 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
         where TValue : TVRevealBase?
         where TVRevealBase : notnull;
 
+    ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
+      , TKey key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler, string? keyFormatString = null
+      , FieldContentHandling valueFlags = DefaultCallerTypeFlags)
+        where TMold : TypeMolder 
+        where TValue : struct, TVRevealBase
+        where TVRevealBase : notnull;
+
     ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
     , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler
     , PalantírReveal<TKRevealBase> keyStyler, FieldContentHandling valueFlags = DefaultCallerTypeFlags)
@@ -68,8 +79,35 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
         where TKRevealBase : notnull
         where TVRevealBase : notnull;
 
+    ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
+    , Type keyedCollectionType, TKey? key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler
+    , PalantírReveal<TKRevealBase> keyStyler, FieldContentHandling valueFlags = DefaultCallerTypeFlags)
+        where TMold : TypeMolder
+        where TKey : struct, TKRevealBase 
+        where TValue : TVRevealBase? 
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull;
+
+    ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
+    , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler
+    , PalantírReveal<TKRevealBase> keyStyler, FieldContentHandling valueFlags = DefaultCallerTypeFlags)
+        where TMold : TypeMolder
+        where TKey : TKRevealBase? 
+        where TValue : struct, TVRevealBase 
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull;
+
+    ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
+    , Type keyedCollectionType, TKey? key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler
+    , PalantírReveal<TKRevealBase> keyStyler, FieldContentHandling valueFlags = DefaultCallerTypeFlags)
+        where TMold : TypeMolder
+        where TKey : struct, TKRevealBase 
+        where TValue : struct, TVRevealBase 
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull;
+
     IStringBuilder AppendKeyedCollectionNextItem(IStringBuilder sb, Type keyedCollectionType
-      , Type keyType, Type valueType, int previousItemNumber);
+      , Type keyType, Type valueType, int previousItemNumber, FieldContentHandling valueFlags = DefaultCallerTypeFlags);
 
     IStringBuilder FormatCollectionStart(ITypeMolderDieCast moldInternal, Type itemElementType, bool? hasItems, Type collectionType
     , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
@@ -131,8 +169,8 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder FormatFieldName(IStringBuilder sb, bool? source, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
-    IStringBuilder FormatFieldName<TFmt>(IStringBuilder sb, TFmt? source, string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable;
+    IStringBuilder FormatFieldName<TFmt>(IStringBuilder sb, TFmt source, string? callerFormatString = null
+    , FieldContentHandling callerFormatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?;
 
     IStringBuilder FormatFieldName<TFmtStruct>(IStringBuilder sb, TFmtStruct? source, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
@@ -150,11 +188,13 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder FormatFieldName(IStringBuilder sb, StringBuilder source, int sourceFrom = 0
       , string? formatString = null, int maxTransferCount = int.MaxValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
-    IStringBuilder FormatFieldName<TCloaked, TRevealBase>(ITheOneString tos, TCloaked value, PalantírReveal<TRevealBase> valueRevealer)
+    IStringBuilder FormatFieldName<TCloaked, TRevealBase>(ISecretStringOfPower tos, TCloaked value, PalantírReveal<TRevealBase> valueRevealer
+    , string? callerFormatString = null, FieldContentHandling callerFormatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull;
 
-    IStringBuilder FormatFieldName<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer?;
+    IStringBuilder FormatFieldName<TBearer>(ISecretStringOfPower tos, TBearer styledObj
+    , string? callerFormatString = null, FieldContentHandling callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?;
 
     IStringBuilder FormatFieldContentsMatch<TAny>(IStringBuilder sb, TAny source, string? formatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
@@ -186,11 +226,14 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder FormatFieldContents(IStringBuilder sb, StringBuilder source, int sourceFrom = 0, string? formatString = null
       , int maxTransferCount = int.MaxValue, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
 
-    IStringBuilder FormatFieldContents<TCloaked, TRevealBase>(ITheOneString tos, TCloaked value, PalantírReveal<TRevealBase> valueRevealer)
+    IStringBuilder FormatFieldContents<TCloaked, TRevealBase>(ISecretStringOfPower tos, TCloaked value, PalantírReveal<TRevealBase> valueRevealer
+    , string? callerFormatString = null, FieldContentHandling callerFormatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull;
 
-    IStringBuilder FormatFieldContents<TBearer>(ITheOneString tos, TBearer styledObj) where TBearer : IStringBearer?;
+    IStringBuilder FormatFieldContents<TBearer>(ISecretStringOfPower tos, TBearer styledObj, string? callerFormatString = null
+    , FieldContentHandling callerFormatFlags = DefaultCallerTypeFlags) 
+      where TBearer : IStringBearer?;
 }
 
 public static class StyleTypeFormattingExtensions

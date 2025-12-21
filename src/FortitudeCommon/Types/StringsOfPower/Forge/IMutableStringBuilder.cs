@@ -49,7 +49,7 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
     T Append(string? value, int startIndex, int length, ReadOnlySpan<char> formatString
       , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent);
     
-    T Append<TFmt>(TFmt arg0, ICustomStringFormatter? customStringFormatter = null) where TFmt : ISpanFormattable;
+    T Append<TFmt>(TFmt arg0, ICustomStringFormatter? customStringFormatter = null) where TFmt : ISpanFormattable?;
     
     T Append(Span<char> value, ICustomStringFormatter? customStringFormatter = null);
     
@@ -78,16 +78,16 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
 
     unsafe T Append(char* value, int valueCount);
 
-    T AppendFormat<TFmt>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TFmt arg0) where TFmt : ISpanFormattable;
-    T AppendFormat<TFmt>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] ReadOnlySpan<char> format, TFmt arg0) where TFmt : ISpanFormattable;
+    T AppendFormat<TFmt>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TFmt arg0) where TFmt : ISpanFormattable?;
+    T AppendFormat<TFmt>([StringSyntax(StringSyntaxAttribute.CompositeFormat)] ReadOnlySpan<char> format, TFmt arg0) where TFmt : ISpanFormattable?;
     
     T AppendFormat<TFmt>(ICustomStringFormatter customStringFormatter
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TFmt arg0
-    , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable;
+    , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable?;
     
     T AppendFormat<TFmt>(ICustomStringFormatter customStringFormatter
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] ReadOnlySpan<char> format, TFmt arg0
-    , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable;
+    , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable?;
     
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, string arg0);
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] ReadOnlySpan<char> format, ReadOnlySpan<char> arg0);

@@ -13,9 +13,9 @@ public static class KeyedCollectionGenericAddAllInvoker
 {
     private static readonly ConcurrentDictionary<Type, Delegate> KeyedCollAddAllInvokers = new();
 
-    private const string AddAllMethodName = $"{nameof(KeyValueCollectionMold.AddAll)}";
+    private const string AddAllMethodName = $"{nameof(KeyedCollectionMold.AddAll)}";
 
-    private const string AddAllEnumerateMethodName = $"{nameof(KeyValueCollectionMold.AddAllEnumerate)}";
+    private const string AddAllEnumerateMethodName = $"{nameof(KeyedCollectionMold.AddAllEnumerate)}";
 
     private static readonly MethodInfo KeyValueReadOnlyDictionaryBuilderArrayAddAll;
     private static readonly MethodInfo KeyValueCollectionBuilderArrayAddAll;
@@ -23,7 +23,7 @@ public static class KeyedCollectionGenericAddAllInvoker
     private static readonly MethodInfo KeyValueCollectionEnumerableAddAllEnumerate;
     private static readonly MethodInfo KeyValueCollectionEnumeratorAddAllEnumerate;
 
-    private static readonly Type KeyValueCollectionBuilderType = typeof(KeyValueCollectionMold);
+    private static readonly Type KeyValueCollectionBuilderType = typeof(KeyedCollectionMold);
     private static readonly Type StringType                    = typeof(string);
     private static readonly Type ReadOnlyListTypeDef           = typeof(IReadOnlyList<>);
     private static readonly Type ReadOnlyDictionaryTypeDef     = typeof(IReadOnlyDictionary<,>);
@@ -42,33 +42,33 @@ public static class KeyedCollectionGenericAddAllInvoker
         KeyValueCollectionEnumeratorAddAllEnumerate  = GetEnumeratorAddAllEnumerateMethodInfo(pubMethods);
     }
 
-    public static void CallAddAll<TKeyColl, TKey, TValue>(KeyValueCollectionMold typeMolder, TKeyColl keyColl, string? valueFormatString = null)
+    public static void CallAddAll<TKeyColl, TKey, TValue>(KeyedCollectionMold typeMolder, TKeyColl keyColl, string? valueFormatString = null)
         where TKeyColl : IEnumerable<KeyValuePair<TKey, TValue>>
     {
-        var keyedCollType = keyColl!.GetType();
-        var callBaseToString = (Func<KeyValueCollectionMold, TKeyColl, string?, string?, KeyValueCollectionMold>)
+        var keyedCollType = keyColl.GetType();
+        var callBaseToString = (Func<KeyedCollectionMold, TKeyColl, string?, string?, KeyedCollectionMold>)
             KeyedCollAddAllInvokers.GetOrAdd(keyedCollType, CreateInvokeMethod);
 
         callBaseToString(typeMolder, keyColl, valueFormatString, null);
     }
 
-    public static void CallAddAllEnumerate<TKeyColl, TKey, TValue>(KeyValueCollectionMold typeMolder, TKeyColl keyColl, string? valueFormatString = null)
+    public static void CallAddAllEnumerate<TKeyColl, TKey, TValue>(KeyedCollectionMold typeMolder, TKeyColl keyColl, string? valueFormatString = null)
         where TKeyColl : IEnumerator<KeyValuePair<TKey, TValue>>
     {
-        var keyedCollType = keyColl!.GetType();
-        var callBaseToString = (Func<KeyValueCollectionMold, TKeyColl, string?, string?, KeyValueCollectionMold>)
+        var keyedCollType = keyColl.GetType();
+        var callBaseToString = (Func<KeyedCollectionMold, TKeyColl, string?, string?, KeyedCollectionMold>)
             KeyedCollAddAllInvokers.GetOrAdd(keyedCollType, CreateInvokeMethod);
 
         callBaseToString(typeMolder, keyColl, valueFormatString, null);
     }
 
-    public static void CallAddAll<TKeyColl>(KeyValueCollectionMold typeMolder, TKeyColl keyColl, string? valueFormatString = null
+    public static void CallAddAll<TKeyColl>(KeyedCollectionMold typeMolder, TKeyColl keyColl, string? valueFormatString = null
         , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags)
     {
         var keyedCollType = keyColl!.GetType();
         if (keyedCollType.IsKeyedCollection())
         {
-            var callBaseToString = (Func<KeyValueCollectionMold, TKeyColl, string?, string?, KeyValueCollectionMold>)
+            var callBaseToString = (Func<KeyedCollectionMold, TKeyColl, string?, string?, KeyedCollectionMold>)
                 KeyedCollAddAllInvokers.GetOrAdd(keyedCollType, CreateInvokeMethod);
 
             callBaseToString(typeMolder, keyColl, valueFormatString, null);
@@ -83,7 +83,7 @@ public static class KeyedCollectionGenericAddAllInvoker
 
     private static readonly ConcurrentDictionary<Type, TypeCallCount> NoOpCalls = new();
 
-    private static KeyValueCollectionMold NoOpNotASupportedKeyedCollection<T>(KeyValueCollectionMold toReturn, T _ , string? _1, string? _2)
+    private static KeyedCollectionMold NoOpNotASupportedKeyedCollection<T>(KeyedCollectionMold toReturn, T _ , string? _1, string? _2)
     {
         var callCount = NoOpCalls.GetOrAdd(typeof(T), new TypeCallCount(typeof(T)));
         callCount.CallCount++;
@@ -303,8 +303,6 @@ public static class KeyedCollectionGenericAddAllInvoker
 
     // Created with help from https://blog.adamfurmanek.pl/2020/01/11/net-inside-out-part-14-calling-virtual-method-without-dynamic-dispatch/index.html
     // Full credit and thanks for posting 
-
-
     public static Delegate GetAddAllInvoker(Type keyValueCollectionBuilder, Type collectionToAdd, MethodInfo methodToCall, Type invokerFunc)
     {
         var helperMethod =
@@ -321,13 +319,13 @@ public static class KeyedCollectionGenericAddAllInvoker
         return methodInvoker;
     }
 
-    public static Func<KeyValueCollectionMold, T, string?, string?, KeyValueCollectionMold> GetNonVirtualDispatchStyledToString<T>(
+    public static Func<KeyedCollectionMold, T, string?, string?, KeyedCollectionMold> GetNonVirtualDispatchStyledToString<T>(
         MethodInfo methodToCall)
     {
         var methodInvoker
-            = (Func<KeyValueCollectionMold, T, string?, string?, KeyValueCollectionMold>)
+            = (Func<KeyedCollectionMold, T, string?, string?, KeyedCollectionMold>)
             GetAddAllInvoker(KeyValueCollectionBuilderType, typeof(T), methodToCall
-                           , typeof(Func<KeyValueCollectionMold, T, string?, string?, KeyValueCollectionMold>));
+                           , typeof(Func<KeyedCollectionMold, T, string?, string?, KeyedCollectionMold>));
         return methodInvoker;
     }
 }

@@ -136,7 +136,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealAll<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, Span<TCloaked> value
-      , PalantírReveal<TRevealBase> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TRevealBase> palantírReveal, string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -156,7 +156,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
-                stb.RevealCloakedBearerOrNull(item, palantírReveal, formatFlags);
+                stb.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, "", formatFlags);
@@ -164,7 +164,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealAll<TCloakedStruct>(ReadOnlySpan<char> fieldName, Span<TCloakedStruct?> value
-      , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TCloakedStruct> palantírReveal, string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
         if (stb.SkipField<Memory<TCloakedStruct?>>(value.Length > 0 ? typeof(Span<TCloakedStruct?>) : null, fieldName, formatFlags))
@@ -183,7 +183,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
-                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatFlags);
+                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, "", formatFlags);
@@ -641,7 +641,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealAll<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloaked> value
       , PalantírReveal<TRevealBase> palantírReveal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -661,7 +661,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
-                stb.RevealCloakedBearerOrNull(item, palantírReveal, formatFlags);
+                stb.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, "", formatFlags);
@@ -669,7 +669,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealAll<TCloakedStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloakedStruct?> value
-      , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TCloakedStruct> palantírReveal, string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
         if (stb.SkipField<ReadOnlyMemory<TCloakedStruct?>>(value.Length > 0 ? typeof(ReadOnlySpan<TCloakedStruct?>) : null, fieldName, formatFlags))
@@ -689,7 +689,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             for (var i = 0; i < value.Length; i++)
             {
                 var item = value[i];
-                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatFlags);
+                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
                 stb.GoToNextCollectionItemStart(elementType, i);
             }
         stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, "", formatFlags);

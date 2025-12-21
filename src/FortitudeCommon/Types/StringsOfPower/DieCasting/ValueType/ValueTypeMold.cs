@@ -75,11 +75,11 @@ public class ValueTypeMold<TMold> : KnownTypeMolder<TMold> where TMold : TypeMol
 
     public TMold AsValue<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = AsValueContent) where TFmt : ISpanFormattable =>
+      , FieldContentHandling formatFlags = AsValueContent) where TFmt : ISpanFormattable? =>
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, "0", formatString ?? "", formatFlags);
 
     public TMold AsValue<TFmt>(TFmt value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = AsValueContent) where TFmt : ISpanFormattable =>
+      , FieldContentHandling formatFlags = AsValueContent) where TFmt : ISpanFormattable? =>
         Stb.FieldValueOrDefaultNext("", value, "0", formatString ?? "", formatFlags);
 
     public TMold AsValueOrNull<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value
@@ -144,90 +144,96 @@ public class ValueTypeMold<TMold> : KnownTypeMolder<TMold> where TMold : TypeMol
         Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);
 
     public TMold RevealAsValue<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked value
-      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = AsValueContent) 
+      , PalantírReveal<TCloakedBase> palantírReveal, string? formatString = null, FieldContentHandling formatFlags = AsValueContent) 
       where TCloaked : TCloakedBase
       where TCloakedBase : notnull =>
-        Stb.FieldValueOrNullNext(nonJsonfieldName, value, palantírReveal, formatFlags);
+        Stb.FieldValueOrNullNext(nonJsonfieldName, value, palantírReveal, formatString ?? "", formatFlags);
 
     public TMold RevealAsValue<TCloaked, TCloakedBase>(TCloaked value, PalantírReveal<TCloakedBase> palantírReveal
-      , FieldContentHandling formatFlags = AsValueContent) 
+    , string? formatString = null, FieldContentHandling formatFlags = AsValueContent) 
       where TCloaked : TCloakedBase
       where TCloakedBase : notnull =>
-        Stb.FieldValueOrNullNext("", value, palantírReveal, formatFlags);
+        Stb.FieldValueOrNullNext("", value, palantírReveal, formatString ?? "", formatFlags);
 
     public TMold RevealAsValueOrNull<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = AsValueContent) 
+      , PalantírReveal<TCloakedBase> palantírReveal, string? formatString = null, FieldContentHandling formatFlags = AsValueContent) 
       where TCloaked : TCloakedBase
       where TCloakedBase : notnull =>
-        Stb.FieldValueOrNullNext(nonJsonfieldName, value, palantírReveal, formatFlags);
+        Stb.FieldValueOrNullNext(nonJsonfieldName, value, palantírReveal, formatString ?? "", formatFlags);
 
     public TMold RevealAsValueOrNull<TCloaked, TCloakedBase>(TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal
-      , FieldContentHandling formatFlags = AsValueContent)
+    , string? formatString = null, FieldContentHandling formatFlags = AsValueContent)
         where TCloaked : TCloakedBase
         where TCloakedBase : notnull =>
-        Stb.FieldValueOrNullNext("", value, palantírReveal, formatFlags);
+        Stb.FieldValueOrNullNext("", value, palantírReveal, formatString ?? "", formatFlags);
 
     public TMold RevealAsValueOrDefault<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
       , PalantírReveal<TCloakedBase> palantírReveal, ReadOnlySpan<char> defaultValue
-      , FieldContentHandling formatFlags = AsValueContent) 
+    , string? formatString = null, FieldContentHandling formatFlags = AsValueContent) 
       where TCloaked : TCloakedBase
       where TCloakedBase : notnull =>
-        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue, formatFlags);
+        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue, formatString ?? "", formatFlags);
 
     public TMold RevealAsValueOrDefault<TCloaked, TCloakedBase>(TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal
-      , ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = AsValueContent) 
+      , ReadOnlySpan<char> defaultValue, string? formatString = null, FieldContentHandling formatFlags = AsValueContent) 
       where TCloaked : TCloakedBase
       where TCloakedBase : notnull =>
-        Stb.FieldValueOrDefaultNext("", value, palantírReveal, defaultValue, formatFlags);
+        Stb.FieldValueOrDefaultNext("", value, palantírReveal, defaultValue, formatString ?? "", formatFlags);
 
     public TMold RevealAsValue<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
-      , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling formatFlags = AsValueContent) where TCloakedStruct : struct =>
-        Stb.FieldValueOrNullNext(nonJsonfieldName, value, palantírReveal, formatFlags);
+      , PalantírReveal<TCloakedStruct> palantírReveal, string? formatString = null, FieldContentHandling formatFlags = AsValueContent) 
+      where TCloakedStruct : struct =>
+        Stb.FieldValueOrNullNext(nonJsonfieldName, value, palantírReveal, formatString ?? "", formatFlags);
 
     public TMold RevealAsValue<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , FieldContentHandling formatFlags = AsValueContent) where TCloakedStruct : struct =>
-        Stb.FieldValueOrNullNext("", value, palantírReveal, formatFlags);
+    , string? formatString = null, FieldContentHandling formatFlags = AsValueContent) where TCloakedStruct : struct =>
+        Stb.FieldValueOrNullNext("", value, palantírReveal, formatString ?? "", formatFlags);
 
     public TMold RevealAsValueOrNull<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
-      , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling formatFlags = AsValueContent) where TCloakedStruct : struct =>
-        Stb.FieldValueOrNullNext(nonJsonfieldName, value, palantírReveal, formatFlags);
+      , PalantírReveal<TCloakedStruct> palantírReveal, string? formatString = null, FieldContentHandling formatFlags = AsValueContent) 
+        where TCloakedStruct : struct =>
+        Stb.FieldValueOrNullNext(nonJsonfieldName, value, palantírReveal, formatString ?? "", formatFlags);
 
     public TMold RevealAsValueOrNull<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , FieldContentHandling formatFlags = AsValueContent) where TCloakedStruct : struct =>
-        Stb.FieldValueOrNullNext("", value, palantírReveal, formatFlags);
+      , string? formatString = null, FieldContentHandling formatFlags = AsValueContent) where TCloakedStruct : struct =>
+        Stb.FieldValueOrNullNext("", value, palantírReveal, formatString ?? "", formatFlags);
 
     public TMold RevealAsValueOrDefault<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
-      , PalantírReveal<TCloakedStruct> palantírReveal, ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = AsValueContent)
+      , PalantírReveal<TCloakedStruct> palantírReveal, ReadOnlySpan<char> defaultValue, string? formatString = null
+      , FieldContentHandling formatFlags = AsValueContent)
         where TCloakedStruct : struct =>
-        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue, formatFlags);
+        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue, formatFlags, formatString ?? "");
 
     public TMold RevealAsValueOrDefault<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , ReadOnlySpan<char> defaultValue, FieldContentHandling formatFlags = AsValueContent) where TCloakedStruct : struct =>
-        Stb.FieldValueOrDefaultNext("", value, palantírReveal, defaultValue, formatFlags);
+      , ReadOnlySpan<char> defaultValue, string? formatString = null, FieldContentHandling formatFlags = AsValueContent) 
+        where TCloakedStruct : struct =>
+        Stb.FieldValueOrDefaultNext("", value, palantírReveal, defaultValue, formatFlags, formatString ?? "");
 
-    public TMold RevealAsValue<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value, FieldContentHandling formatFlags = AsValueContent)
+    public TMold RevealAsValue<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value, string? formatString = null
+      , FieldContentHandling formatFlags = AsValueContent)
         where TBearer : IStringBearer =>
-        Stb.FieldValueOrNullNext(nonJsonfieldName, value, formatFlags);
+        Stb.FieldValueOrNullNext(nonJsonfieldName, value, formatFlags, formatString ?? "");
 
-    public TMold RevealAsValue<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, FieldContentHandling formatFlags = AsValueContent)
+    public TMold RevealAsValue<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, string? formatString = null
+    , FieldContentHandling formatFlags = AsValueContent)
         where TBearer : struct, IStringBearer =>
-        Stb.FieldValueOrNullNext(nonJsonfieldName, value, formatFlags);
+        Stb.FieldValueOrNullNext(nonJsonfieldName, value, formatFlags, formatString ?? "");
 
     public TMold RevealAsValueOrNull<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
-      , FieldContentHandling formatFlags = AsValueContent) where TBearer : IStringBearer =>
-        Stb.FieldValueOrNullNext(nonJsonfieldName, value, formatFlags);
+    , string? formatString = null, FieldContentHandling formatFlags = AsValueContent) where TBearer : IStringBearer =>
+        Stb.FieldValueOrNullNext(nonJsonfieldName, value, formatFlags, formatString ?? "");
 
     public TMold RevealAsValueOrNull<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
-      , FieldContentHandling formatFlags = AsValueContent) where TBearer : struct, IStringBearer =>
-        Stb.FieldValueOrNullNext(nonJsonfieldName, value, formatFlags);
+      , string? formatString = null, FieldContentHandling formatFlags = AsValueContent) where TBearer : struct, IStringBearer =>
+        Stb.FieldValueOrNullNext(nonJsonfieldName, value, formatFlags, formatString ?? "");
 
     public TMold RevealAsValueOrDefault<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, string defaultValue = ""
-      , FieldContentHandling formatFlags = AsValueContent) where TBearer : IStringBearer =>
-        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue, formatFlags);
+      , string? formatString = null, FieldContentHandling formatFlags = AsValueContent) where TBearer : IStringBearer =>
+        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue, formatFlags, formatString ?? "");
 
     public TMold RevealAsValueOrDefault<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, string defaultValue = ""
-      , FieldContentHandling formatFlags = AsValueContent) where TBearer : struct, IStringBearer =>
-        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue, formatFlags);
+      , string? formatString = null, FieldContentHandling formatFlags = AsValueContent) where TBearer : struct, IStringBearer =>
+        Stb.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue, formatFlags, formatString ?? "");
 
     public TMold AsValue(ReadOnlySpan<char> nonJsonfieldName, Span<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -512,117 +518,135 @@ public class ValueTypeMold<TMold> : KnownTypeMolder<TMold> where TMold : TypeMol
         AsStringOrDefault("", value, defaultValue, formatString, formatFlags);
 
     public TMold RevealAsString<TCloaked, TCloakedBase>(TCloaked value, PalantírReveal<TCloakedBase> palantírReveal
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = EncodeAll)
         where TCloaked : TCloakedBase
         where TCloakedBase : notnull =>
-        RevealAsString("", value, palantírReveal, formatFlags);
+        RevealAsString("", value, palantírReveal, formatString, formatFlags);
 
     public TMold RevealAsString<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked value
-      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = EncodeAll)
+      , PalantírReveal<TCloakedBase> palantírReveal, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = EncodeAll)
         where TCloaked : TCloakedBase
         where TCloakedBase : notnull =>
-        Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, "", formatFlags);
+        Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, "", formatString, formatFlags);
 
     public TMold RevealAsStringOrNull<TCloaked, TCloakedBase>(TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal
-      , FieldContentHandling formatFlags = EncodeAll)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = EncodeAll)
         where TCloaked : TCloakedBase
         where TCloakedBase : notnull =>
-        RevealAsStringOrNull("", value, palantírReveal, formatFlags);
+        RevealAsStringOrNull("", value, palantírReveal, formatString, formatFlags);
 
     public TMold RevealAsStringOrNull<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal, FieldContentHandling formatFlags = EncodeAll)
+      , PalantírReveal<TCloakedBase> palantírReveal, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = EncodeAll)
         where TCloaked : TCloakedBase
         where TCloakedBase : notnull =>
-        Stb.FieldStringRevealOrNullNext(nonJsonfieldName, value, palantírReveal, formatFlags);
+        Stb.FieldStringRevealOrNullNext(nonJsonfieldName, value, palantírReveal, formatString, formatFlags);
 
     public TMold RevealAsStringOrDefault<TCloaked, TCloakedBase>(TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal
-      , string defaultValue = "", FieldContentHandling formatFlags = EncodeAll)
+      , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FieldContentHandling formatFlags = EncodeAll)
         where TCloaked : TCloakedBase
         where TCloakedBase : notnull =>
-        RevealAsStringOrDefault("", value, palantírReveal, defaultValue, formatFlags);
+        RevealAsStringOrDefault("", value, palantírReveal, defaultValue, formatString, formatFlags);
 
     public TMold RevealAsStringOrDefault<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
-      , PalantírReveal<TCloakedBase> palantírReveal, string defaultValue = "", FieldContentHandling formatFlags = EncodeAll)
+      , PalantírReveal<TCloakedBase> palantírReveal, string defaultValue = ""
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = EncodeAll)
         where TCloaked : TCloakedBase
         where TCloakedBase : notnull =>
-        Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue, formatFlags);
+        Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue, formatString, formatFlags);
 
     public TMold RevealAsString<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , FieldContentHandling formatFlags = EncodeAll) 
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = EncodeAll) 
       where TCloakedStruct : struct =>
-        RevealAsString("", value, palantírReveal, formatFlags);
+        RevealAsString("", value, palantírReveal, formatString ?? "", formatFlags);
 
     public TMold RevealAsString<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
-      , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling formatFlags = EncodeAll)
-        where TCloakedStruct : struct =>
-        Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, "", formatFlags);
-
-    public TMold RevealAsStringOrNull<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
+      , PalantírReveal<TCloakedStruct> palantírReveal, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FieldContentHandling formatFlags = EncodeAll)
         where TCloakedStruct : struct =>
-        RevealAsStringOrNull("", value, palantírReveal, formatFlags);
+        Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, "", formatString ?? "", formatFlags);
+
+    public TMold RevealAsStringOrNull<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = EncodeAll)
+        where TCloakedStruct : struct =>
+        RevealAsStringOrNull("", value, palantírReveal, formatString, formatFlags);
 
     public TMold RevealAsStringOrNull<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
-      , PalantírReveal<TCloakedStruct> palantírReveal, FieldContentHandling formatFlags = EncodeAll) where TCloakedStruct : struct =>
-        Stb.FieldStringRevealOrNullNext(nonJsonfieldName, value, palantírReveal, formatFlags);
+      , PalantírReveal<TCloakedStruct> palantírReveal, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    , FieldContentHandling formatFlags = EncodeAll) where TCloakedStruct : struct =>
+        Stb.FieldStringRevealOrNullNext(nonJsonfieldName, value, palantírReveal, formatString, formatFlags);
 
     public TMold RevealAsStringOrDefault<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , string defaultValue = "", FieldContentHandling formatFlags = EncodeAll) where TCloakedStruct : struct =>
-        RevealAsStringOrDefault("", value, palantírReveal, defaultValue, formatFlags);
+      , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    , FieldContentHandling formatFlags = EncodeAll) where TCloakedStruct : struct =>
+        RevealAsStringOrDefault("", value, palantírReveal, defaultValue, formatString, formatFlags);
 
     public TMold RevealAsStringOrDefault<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
-      , PalantírReveal<TCloakedStruct> palantírReveal, string defaultValue = "", FieldContentHandling formatFlags = EncodeAll)
+      , PalantírReveal<TCloakedStruct> palantírReveal, string defaultValue = "", string? formatString = null
+      , FieldContentHandling formatFlags = EncodeAll)
         where TCloakedStruct : struct =>
-        Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue, formatFlags);
+        Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue, formatString ?? "", formatFlags);
 
-    public TMold RevealAsString<TBearer>(TBearer value, FieldContentHandling formatFlags = EncodeAll) where TBearer : IStringBearer =>
-        Stb.FieldStringRevealOrDefaultNext("", value, "", formatFlags);
+    public TMold RevealAsString<TBearer>(TBearer value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    , FieldContentHandling formatFlags = EncodeAll) 
+        where TBearer : IStringBearer =>
+        Stb.FieldStringRevealOrDefaultNext("", value, "", formatString ?? "", formatFlags);
 
     public TMold RevealAsString<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value
-      , FieldContentHandling formatFlags = EncodeAll) where TBearer : IStringBearer =>
-        Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, "", formatFlags);
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = EncodeAll) 
+      where TBearer : IStringBearer =>
+        Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, "", formatString ?? "", formatFlags);
 
-    public TMold RevealAsStringOrNull<TBearer>(TBearer? value, FieldContentHandling formatFlags = EncodeAll)
+    public TMold RevealAsStringOrNull<TBearer>(TBearer? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    , FieldContentHandling formatFlags = EncodeAll)
         where TBearer : IStringBearer =>
         Stb.FieldStringRevealOrNullNext("", value, formatFlags);
 
     public TMold RevealAsStringOrNull<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
-      , FieldContentHandling formatFlags = EncodeAll) where TBearer : IStringBearer =>
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = EncodeAll) 
+      where TBearer : IStringBearer =>
         Stb.FieldStringRevealOrNullNext(nonJsonfieldName, value, formatFlags);
 
     public TMold RevealAsStringOrDefault<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value, string defaultValue = ""
-      , FieldContentHandling formatFlags = EncodeAll)
-        where TBearer : IStringBearer => Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, defaultValue, formatFlags);
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = EncodeAll)
+        where TBearer : IStringBearer => Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);
 
     public TMold RevealAsStringOrDefault<TBearer>(TBearer? value, string defaultValue = ""
-      , FieldContentHandling formatFlags = EncodeAll)
-        where TBearer : IStringBearer => Stb.FieldStringRevealOrDefaultNext("", value, defaultValue, formatFlags);
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = EncodeAll)
+        where TBearer : IStringBearer => Stb.FieldStringRevealOrDefaultNext("", value, defaultValue, formatString ?? "", formatFlags);
 
-    public TMold RevealAsString<TBearerStruct>(TBearerStruct? value, FieldContentHandling formatFlags = EncodeAll)
+    public TMold RevealAsString<TBearerStruct>(TBearerStruct? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    , FieldContentHandling formatFlags = EncodeAll)
         where TBearerStruct : struct, IStringBearer =>
-        Stb.FieldStringRevealOrDefaultNext("", value, "", formatFlags);
+        Stb.FieldStringRevealOrDefaultNext("", value, "", formatFlags, formatString ?? "");
 
     public TMold RevealAsString<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
-      , FieldContentHandling formatFlags = EncodeAll) where TBearerStruct : struct, IStringBearer =>
-        Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, "", formatFlags);
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = EncodeAll) 
+      where TBearerStruct : struct, IStringBearer =>
+        Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, "", formatFlags, formatString ?? "");
 
-    public TMold RevealAsStringOrNull<TBearerStruct>(TBearerStruct? value, FieldContentHandling formatFlags = EncodeAll)
+    public TMold RevealAsStringOrNull<TBearerStruct>(TBearerStruct? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = EncodeAll)
         where TBearerStruct : struct, IStringBearer =>
-        Stb.FieldStringRevealOrNullNext("", value, formatFlags);
+        Stb.FieldStringRevealOrNullNext("", value, formatFlags, formatString ?? "");
 
     public TMold RevealAsStringOrNull<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
-      , FieldContentHandling formatFlags = EncodeAll) where TBearerStruct : struct, IStringBearer =>
-        Stb.FieldStringRevealOrNullNext(nonJsonfieldName, value, formatFlags);
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = EncodeAll) 
+        where TBearerStruct : struct, IStringBearer =>
+        Stb.FieldStringRevealOrNullNext(nonJsonfieldName, value, formatFlags, formatString ?? "");
 
     public TMold RevealAsStringOrDefault<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value, string defaultValue = ""
-      , FieldContentHandling formatFlags = EncodeAll)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = EncodeAll)
         where TBearerStruct : struct, IStringBearer =>
-        Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, defaultValue, formatFlags);
+        Stb.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, defaultValue, formatFlags, formatString ?? "");
 
     public TMold RevealAsStringOrDefault<TBearerStruct>(TBearerStruct? value, string defaultValue = ""
-      , FieldContentHandling formatFlags = EncodeAll)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FieldContentHandling formatFlags = EncodeAll)
         where TBearerStruct : struct, IStringBearer =>
-        Stb.FieldStringRevealOrDefaultNext("", value, defaultValue, formatFlags);
+        Stb.FieldStringRevealOrDefaultNext("", value, defaultValue, formatFlags, formatString ?? "");
 
     public TMold AsString(ReadOnlySpan<char> nonJsonfieldName, Span<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null

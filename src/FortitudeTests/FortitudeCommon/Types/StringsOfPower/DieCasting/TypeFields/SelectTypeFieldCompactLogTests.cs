@@ -62,7 +62,7 @@ public partial class SelectTypeFieldTests
         from fe in BoolTestData.AllBoolExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsComplexType().ProcessesSingleValue().AcceptsBoolean().OnlyAcceptsNullableStructs()
+            scafReg.IsComplexType().ProcessesSingleValue().AcceptsBoolean().AcceptsNullableStructs()
         select new object[] { fe, scaffoldToCall };
 
     [TestMethod]
@@ -111,7 +111,7 @@ public partial class SelectTypeFieldTests
         from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
         where fe is { IsNullable: true, IsStruct: true }
         from scaffoldToCall in
-            scafReg.IsComplexType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().OnlyAcceptsNullableStructs()
+            scafReg.IsComplexType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNullableStructs()
         select new object[] { fe, scaffoldToCall };
 
 
@@ -211,7 +211,7 @@ public partial class SelectTypeFieldTests
         from fe in CloakedBearerTestData.AllCloakedBearerExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsComplexType().ProcessesSingleValue().OnlyAcceptsNullableStructs().HasSupportsValueRevealer()
+            scafReg.IsComplexType().ProcessesSingleValue().AcceptsNullableStructs().HasSupportsValueRevealer()
         select new object[] { fe, scaffoldToCall };
 
 
@@ -244,7 +244,7 @@ public partial class SelectTypeFieldTests
         from fe in StringBearerTestData.AllStringBearerExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsComplexType().ProcessesSingleValue().OnlyAcceptsNullableStructs()
+            scafReg.IsComplexType().ProcessesSingleValue().AcceptsNullableStructs()
                    .NotHasSupportsValueRevealer().HasAcceptsStringBearer()
         select new object[] { fe, scaffoldToCall };
 
@@ -256,12 +256,12 @@ public partial class SelectTypeFieldTests
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
 
-    // [TestMethod]
+    [TestMethod]
     public void CompactLogSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactLog(StringTestData.AllStringExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[896]);
+        SharedCompactLog(StringTestData.AllStringExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[1038]);
     }
 
     private void SharedCompactLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -276,6 +276,11 @@ public partial class SelectTypeFieldTests
         logger.WarnAppend("FormatExpectation - ")?
               .AppendLine(formatExpectation.ToString())
               .FinalAppend("");
+            
+        logger.InfoAppend("To Debug Test past the following code into ")?
+              .Append(nameof(CompactJsonSingleTest)).Append("()\n\n")
+              .Append("SharedCompactLog(")
+              .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
 
 
         var tos = new TheOneString().Initialize(Compact | Log);
@@ -283,15 +288,17 @@ public partial class SelectTypeFieldTests
         string BuildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            const string compactLogTemplate = "{0} {{ {1}}}";
+            const string compactLogTemplate = "{0} {{{1}{2}{1}}}";
 
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
+            var maybePadding = "";
+            var expectValue  = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue != IFormatExpectation.NoResultExpectedValue)
             {
-                expectValue = propertyName + ": " + expectValue + (expectValue.Length > 0 ? " " : "");
+                maybePadding = expectValue.Length > 0 ? " " : "";
+                expectValue  = propertyName + ": " + expectValue;
             }
             else { expectValue = ""; }
-            return string.Format(compactLogTemplate, className, expectValue);
+            return string.Format(compactLogTemplate, className, maybePadding, expectValue);
         }
 
         if (formatExpectation is IComplexFieldFormatExpectation complexFieldExpectation)
@@ -315,11 +322,6 @@ public partial class SelectTypeFieldTests
                   .AppendLine("Expected it to match -")
                   .AppendLine(buildExpectedOutput)
                   .FinalAppend("");
-            
-            logger.InfoAppend("To Debug Test past the following code into ")?
-                  .Append(nameof(CompactJsonSingleTest)).Append("()\n\n")
-                  .Append("SharedCompactLog(")
-                  .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         }
         else
         {

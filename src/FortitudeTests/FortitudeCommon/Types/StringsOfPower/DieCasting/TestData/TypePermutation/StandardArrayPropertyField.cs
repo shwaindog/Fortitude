@@ -88,7 +88,7 @@ public class StandardArrayPropertyFieldClass : IStringBearer
         IpAddressArrayPropield = [new IPAddress("\0\0\0\0"u8.ToArray()), null!, IPAddress.Parse("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")];
         UriArrayPropield       = [new Uri("https://learn.microsoft.com/en-us/dotnet/api"), null!, new Uri("https://github.com/shwaindog/Fortitude")];
 
-        SpanFormattableArrayPropield = [new MySpanFormattableClass(""), null!, new MySpanFormattableClass("SpanFormattableSingPropield")];
+        SpanFormattableArrayPropield = [new MySpanFormattableClass("", true), null!, new MySpanFormattableClass("SpanFormattableSingPropield", true)];
         NdLNfEnumArrayPropield       = [NoDefaultLongNoFlagsEnum.NDLNFE_1, default, NoDefaultLongNoFlagsEnum.NDLNFE_34];
         NdUNfEnumArrayPropield       = [NoDefaultULongNoFlagsEnum.NDUNFE_1, default, NoDefaultULongNoFlagsEnum.NDUNFE_34];
         NdLWfEnumArrayPropield =

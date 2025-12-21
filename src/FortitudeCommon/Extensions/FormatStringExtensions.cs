@@ -294,6 +294,7 @@ public static class ExtendedSpanFormattableExtensions
                 {
                     expectIdentifier = false;
                     expectLayout = true;
+                    continue;
                 }
                 else { return false; }
             }
@@ -844,7 +845,7 @@ public static class ExtendedSpanFormattableExtensions
         {
             int.TryParse(layout, out padding);
         }
-        if (padding > 0)
+        if (padding != 0)
         {
             toBuild.OverWriteAt(2, ",");
             var insertPadSpan = toBuild[3..];

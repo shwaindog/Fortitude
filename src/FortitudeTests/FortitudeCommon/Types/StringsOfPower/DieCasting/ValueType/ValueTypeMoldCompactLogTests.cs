@@ -83,7 +83,7 @@ public partial class ValueTypeMoldTests
         from fe in BoolTestData.AllBoolExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsSimpleType().ProcessesSingleValue().AcceptsBoolean().OnlyAcceptsNullableStructs()
+            scafReg.IsSimpleType().ProcessesSingleValue().AcceptsBoolean().AcceptsNullableStructs()
                    .HasTreatedAsValueOut()
         select new object[] { fe, scaffoldToCall };
 
@@ -99,7 +99,7 @@ public partial class ValueTypeMoldTests
         from fe in BoolTestData.AllBoolExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsSimpleType().ProcessesSingleValue().AcceptsBoolean().OnlyAcceptsNullableStructs()
+            scafReg.IsSimpleType().ProcessesSingleValue().AcceptsBoolean().AcceptsNullableStructs()
                    .HasTreatedAsStringOut()
         select new object[] { fe, scaffoldToCall };
 
@@ -177,7 +177,7 @@ public partial class ValueTypeMoldTests
         from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
         where fe is { IsNullable: true, IsStruct: true }
         from scaffoldToCall in
-            scafReg.IsSimpleType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().OnlyAcceptsNullableStructs()
+            scafReg.IsSimpleType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNullableStructs()
                    .HasTreatedAsValueOut()
         select new object[] { fe, scaffoldToCall };
 
@@ -194,7 +194,7 @@ public partial class ValueTypeMoldTests
         from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
         where fe is { IsNullable: true, IsStruct: true }
         from scaffoldToCall in
-            scafReg.IsSimpleType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().OnlyAcceptsNullableStructs()
+            scafReg.IsSimpleType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNullableStructs()
                    .HasTreatedAsStringOut()
         select new object[] { fe, scaffoldToCall };
 
@@ -487,7 +487,7 @@ public partial class ValueTypeMoldTests
         from fe in CloakedBearerTestData.AllCloakedBearerExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsSimpleType().ProcessesSingleValue().OnlyAcceptsNullableStructs().HasSupportsValueRevealer()
+            scafReg.IsSimpleType().ProcessesSingleValue().AcceptsNullableStructs().HasSupportsValueRevealer()
                    .HasTreatedAsValueOut()
         select new object[] { fe, scaffoldToCall };
 
@@ -521,7 +521,7 @@ public partial class ValueTypeMoldTests
         from fe in StringBearerTestData.AllStringBearerExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsSimpleType().ProcessesSingleValue().OnlyAcceptsNullableStructs()
+            scafReg.IsSimpleType().ProcessesSingleValue().AcceptsNullableStructs()
                    .NotHasSupportsValueRevealer().HasAcceptsStringBearer()
                    .HasTreatedAsValueOut()
         select new object[] { fe, scaffoldToCall };
@@ -539,7 +539,7 @@ public partial class ValueTypeMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactLogAsValue(SpanFormattableClassTestData.SpanFormattableClassExpectations[7], ScaffoldingRegistry.AllScaffoldingTypes[1126]);
+        SharedCompactLogAsString(StringTestData.AllStringExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[1210]);
     }
 
     private void SharedCompactLogAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -554,6 +554,11 @@ public partial class ValueTypeMoldTests
         logger.WarnAppend("FormatExpectation - ")?
               .AppendLine(formatExpectation.ToString())
               .FinalAppend("");
+
+        logger.InfoAppend("To Debug Test past the following code into ")?
+              .Append(nameof(CompactLogSingleTest)).Append("()\n\n")
+              .Append("SharedCompactLogAsValue(")
+              .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
 
         // ReSharper disable once RedundantArgumentDefaultValue
         var tos = new TheOneString().Initialize(Compact | Log);
@@ -608,11 +613,6 @@ public partial class ValueTypeMoldTests
                   .AppendLine("Expected it to match -")
                   .AppendLine(buildExpectedOutput)
                   .FinalAppend("");
-
-            logger.InfoAppend("To Debug Test past the following code into ")?
-                  .Append(nameof(CompactLogSingleTest)).Append("()\n\n")
-                  .Append("SharedCompactLogAsValue(")
-                  .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         }
         else
         {
@@ -635,6 +635,11 @@ public partial class ValueTypeMoldTests
         logger.WarnAppend("FormatExpectation - ")?
               .AppendLine(formatExpectation.ToString())
               .FinalAppend("");
+
+        logger.InfoAppend("To Debug Test past the following code into ")?
+              .Append(nameof(CompactLogSingleTest)).Append("()\n\n")
+              .Append("SharedCompactLogAsString(")
+              .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
 
         // ReSharper disable once RedundantArgumentDefaultValue
         var tos = new TheOneString().Initialize(Compact | Log);
@@ -691,11 +696,6 @@ public partial class ValueTypeMoldTests
                   .AppendLine("Expected it to match -")
                   .AppendLine(buildExpectedOutput)
                   .FinalAppend("");
-
-            logger.InfoAppend("To Debug Test past the following code into ")?
-                  .Append(nameof(CompactLogSingleTest)).Append("()\n\n")
-                  .Append("SharedCompactLogAsString(")
-                  .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         }
         else
         {

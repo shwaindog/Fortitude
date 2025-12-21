@@ -37,34 +37,34 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
             : stb.WasSkipped<TFmtStruct?>(value?.GetType(), fieldName, formatFlags);
 
     public TMold WhenNonNullReveal<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, TCloaked? value, PalantírReveal<TRevealBase> palantírReveal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
+    , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) 
         where TCloaked : TRevealBase 
         where TRevealBase : notnull =>
         !stb.SkipField<TCloaked?>(value?.GetType(), fieldName, formatFlags)
      && !Equals(value, null) 
-            ? AlwaysReveal(fieldName, value, palantírReveal, formatFlags) 
+            ? AlwaysReveal(fieldName, value, palantírReveal, formatString, formatFlags) 
             : stb.WasSkipped<TCloaked?>(value?.GetType(), fieldName, formatFlags);
 
 
     public TMold WhenNonNullReveal<TCloakedStruct>(ReadOnlySpan<char> fieldName, TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
+    , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
         !stb.SkipField<TCloakedStruct?>(value?.GetType(), fieldName, formatFlags) 
      && !Equals(value, null) 
-            ? AlwaysReveal(fieldName, value, palantírReveal, formatFlags) 
+            ? AlwaysReveal(fieldName, value, palantírReveal, formatString, formatFlags) 
             : stb.WasSkipped<TCloakedStruct?>(value?.GetType(), fieldName, formatFlags);
 
     public TMold WhenNonNullReveal<TBearer>(ReadOnlySpan<char> fieldName, TBearer? value
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer =>
+    , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer =>
         !stb.SkipField<TBearer?>(value?.GetType(), fieldName, formatFlags)
      && !Equals(value, null) 
-            ? AlwaysReveal(fieldName, value, formatFlags) 
+            ? AlwaysReveal(fieldName, value, formatString, formatFlags) 
             : stb.WasSkipped<TBearer?>(value?.GetType(), fieldName, formatFlags);
 
     public TMold WhenNonNullReveal<TBearerStruct>(ReadOnlySpan<char> fieldName, TBearerStruct? value
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer =>
+    , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer =>
         !stb.SkipField<TBearerStruct?>(value?.GetType(), fieldName, formatFlags) 
      && !Equals(value, null) 
-            ? AlwaysReveal(fieldName, value, formatFlags) 
+            ? AlwaysReveal(fieldName, value, formatString, formatFlags) 
             : stb.WasSkipped<TBearerStruct?>(value?.GetType(), fieldName, formatFlags);
 
     public TMold WhenNonNullAdd(ReadOnlySpan<char> fieldName, Span<char> value

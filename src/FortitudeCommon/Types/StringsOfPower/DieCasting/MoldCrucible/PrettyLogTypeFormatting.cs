@@ -14,9 +14,6 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
 public class PrettyLogTypeFormatting : CompactLogTypeFormatting
 {
-    protected const char   BrcOpnChar = '{';
-    protected const string BrcCls     = "}";
-
     public override PrettyLogTypeFormatting Initialize(GraphTrackingBuilder graphTrackingBuilder, StyleOptions styleOptions)
     {
         base.Initialize(graphTrackingBuilder, styleOptions);
@@ -63,8 +60,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
             .Complete(formatFlags)
             .SeparatorPaddingRange!.Value;
     
-    public override ContentSeparatorRanges AddNextFieldPadding(ITypeMolderDieCast moldInternal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    public override ContentSeparatorRanges AddNextFieldPadding(FieldContentHandling formatFlags = DefaultCallerTypeFlags)
     {
         if (formatFlags.HasNoFieldPaddingFlag()) return GraphBuilder.Complete(formatFlags);
         if (formatFlags.UseMainFieldPadding() && formatFlags.CanAddNewLine())

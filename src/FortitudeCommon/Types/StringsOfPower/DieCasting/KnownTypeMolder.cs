@@ -32,7 +32,7 @@ public interface INextStateTransitioningKnownTypeMolder<out TMold> : IStateTrans
 public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponentSource<TMold>, IStateTransitioningTransitioningKnownTypeMolder
     where TMold : TypeMolder
 {
-    protected ITypeMolderDieCast<TMold>? MoldStateField;
+    protected ITypeMolderDieCast<TMold> MoldStateField = null!;
 
     public void Initialize(
         Type typeBeingBuilt
@@ -52,7 +52,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
 
     void IStateTransitioningTransitioningKnownTypeMolder.Free()
     {
-        MoldStateField = null;
+        MoldStateField = null!;
         ((IRecyclableObject)this).DecrementRefCount();
     }
     
@@ -75,7 +75,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
 
     public virtual void AppendClosing()
     {
-        MoldStateField?.StyleFormatter.GraphBuilder.RemoveLastSeparatorAndPadding();
+        MoldStateField.StyleFormatter.GraphBuilder.RemoveLastSeparatorAndPadding();
     }
 
     protected TMold Me => (TMold)(TypeMolder)this;
@@ -90,6 +90,11 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         {
             AppendClosing();
         }
+        else
+        {
+            MoldStateField.StyleFormatter.GraphBuilder.RemoveLastSeparatorAndPadding();
+            MoldStateField.StyleFormatter.GraphBuilder.AddHighWaterMark();
+        }
         var currentAppenderIndex = MoldStateField.Master.WriteBuffer.Length;
         var typeWriteRange       = new Range(Index.FromStart(StartIndex), Index.FromStart(currentAppenderIndex));
         var result               = new StateExtractStringRange(TypeName ?? TypeBeingBuilt.CachedCSharpNameWithConstraints(), MoldStateField.Master, typeWriteRange);
@@ -100,7 +105,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
 
     protected bool AppendGraphFields()
     {
-        if (MoldStateField!.StyleTypeBuilder.ExistingRefId != 0)
+        if (MoldStateField.StyleTypeBuilder.ExistingRefId != 0)
         {
             MoldStateField.Sb.Append("\"$ref\":\"").Append(MoldStateField.StyleTypeBuilder.ExistingRefId).Append("\" ");
             return true;
@@ -125,7 +130,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
 
     protected override void InheritedStateReset()
     {
-        MoldStateField?.DecrementIndent();
+        MoldStateField.DecrementIndent();
         MoldStateField = null!;
 
         MeRecyclable.StateReset();

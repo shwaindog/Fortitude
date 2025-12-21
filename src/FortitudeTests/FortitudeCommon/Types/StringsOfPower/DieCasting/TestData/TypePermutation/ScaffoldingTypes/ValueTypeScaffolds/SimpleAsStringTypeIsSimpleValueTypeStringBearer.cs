@@ -4,6 +4,7 @@
 using System.Text;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
@@ -91,7 +92,7 @@ public class SimpleAsStringSpanFormattableWithFieldSimpleValueTypeStringBearer<T
 {
     public TFmt SimpleTypeAsStringSpanFormattable
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -100,7 +101,7 @@ public class SimpleAsStringSpanFormattableWithFieldSimpleValueTypeStringBearer<T
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this).AsString
                (nameof(SimpleTypeAsStringSpanFormattable)
-              , SimpleTypeAsStringSpanFormattable, ValueFormatString)
+              , SimpleTypeAsStringSpanFormattable, tos.CallerContext.FormatString ?? ValueFormatString)
            .Complete();
 
 }
@@ -112,14 +113,14 @@ public class SimpleAsStringSpanFormattableNoFieldSimpleValueTypeStringBearer<TFm
 {
     public TFmt SimpleTypeAsStringSpanFormattable
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
     public override string PropertyName => "";
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsString(SimpleTypeAsStringSpanFormattable, ValueFormatString)
+        tos.StartSimpleValueType(this).AsString(SimpleTypeAsStringSpanFormattable, tos.CallerContext.FormatString ?? ValueFormatString)
            .Complete();
 
 }
@@ -140,7 +141,7 @@ public class SimpleAsStringNullableSpanFormattableClassWithFieldSimpleValueTypeS
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this).AsStringOrNull
                (nameof(SimpleTypeAsStringNullableSpanFormattableClass)
-              , SimpleTypeAsStringNullableSpanFormattableClass, ValueFormatString)
+              , SimpleTypeAsStringNullableSpanFormattableClass, tos.CallerContext.FormatString ?? ValueFormatString)
            .Complete();
 
 }
@@ -159,7 +160,8 @@ public class SimpleAsStringNullableSpanFormattableClassNoFieldSimpleValueTypeStr
     public override string PropertyName => "";
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsStringOrNull(SimpleTypeAsStringNullableSpanFormattableClass, ValueFormatString)
+        tos.StartSimpleValueType(this).AsStringOrNull(SimpleTypeAsStringNullableSpanFormattableClass, 
+                                                      tos.CallerContext.FormatString ?? ValueFormatString)
            .Complete();
 
 }
@@ -183,7 +185,7 @@ public class SimpleAsStringNullableSpanFormattableClassWithDefaultWithFieldSimpl
         tos.StartSimpleValueType(this).AsStringOrDefault
                (nameof(SimpleTypeAsStringNullableSpanFormattableClassWithDefault)
               , SimpleTypeAsStringNullableSpanFormattableClassWithDefault
-              , DefaultValue, ValueFormatString)
+              , DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString)
            .Complete();
 
 }
@@ -206,7 +208,7 @@ public class SimpleAsStringNullableSpanFormattableClassWithDefaultNoFieldSimpleV
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this).AsStringOrDefault
                (SimpleTypeAsStringNullableSpanFormattableClassWithDefault,
-                DefaultValue, ValueFormatString)
+                DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString)
            .Complete();
 
 }
@@ -230,7 +232,7 @@ public class SimpleAsStringNullableSpanFormattableClassWithStringDefaultWithFiel
         tos.StartSimpleValueType(this).AsStringOrDefault
                (nameof(SimpleTypeAsStringNullableSpanFormattableClassWithDefault)
               , SimpleTypeAsStringNullableSpanFormattableClassWithDefault
-              , DefaultValue, ValueFormatString)
+              , DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString)
            .Complete();
 
 }
@@ -253,7 +255,7 @@ public class SimpleAsStringNullableSpanFormattableClassWithStringDefaultNoFieldS
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this).AsStringOrDefault
                (SimpleTypeAsStringNullableSpanFormattableClassWithDefault,
-                DefaultValue, ValueFormatString)
+                DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString)
            .Complete();
 
 }
@@ -274,7 +276,7 @@ public class SimpleAsStringNullableSpanFormattableStructWithFieldSimpleValueType
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this).AsStringOrNull
                (nameof(SimpleTypeAsStringNullableSpanFormattableStruct)
-              , SimpleTypeAsStringNullableSpanFormattableStruct, ValueFormatString)
+              , SimpleTypeAsStringNullableSpanFormattableStruct, tos.CallerContext.FormatString ?? ValueFormatString)
            .Complete();
 
 }
@@ -293,7 +295,8 @@ public class SimpleAsStringNullableSpanFormattableStructNoFieldSimpleValueTypeSt
     public override string PropertyName => "";
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsStringOrNull(SimpleTypeAsStringNullableSpanFormattableStruct, ValueFormatString)
+        tos.StartSimpleValueType(this).AsStringOrNull(SimpleTypeAsStringNullableSpanFormattableStruct
+                                                    , tos.CallerContext.FormatString ?? ValueFormatString)
            .Complete();
 
 }
@@ -317,7 +320,7 @@ public class SimpleAsStringNullableSpanFormattableStructWithDefaultWithFieldSimp
         tos.StartSimpleValueType(this).AsStringOrDefault
                (nameof(SimpleTypeAsStringNullableSpanFormattableStructWithDefault)
               , SimpleTypeAsStringNullableSpanFormattableStructWithDefault
-              , DefaultValue, ValueFormatString)
+              , DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString)
            .Complete();
 
 }
@@ -340,7 +343,7 @@ public class SimpleAsStringNullableSpanFormattableStructWithDefaultNoFieldSimple
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this).AsStringOrDefault
                (SimpleTypeAsStringNullableSpanFormattableStructWithDefault
-              , DefaultValue, ValueFormatString)
+              , DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString)
            .Complete();
 
 }
@@ -364,7 +367,7 @@ public class SimpleAsStringNullableSpanFormattableStructWithStringDefaultWithFie
         tos.StartSimpleValueType(this).AsStringOrDefault
                (nameof(SimpleTypeAsStringNullableSpanFormattableStructWithDefault)
               , SimpleTypeAsStringNullableSpanFormattableStructWithDefault
-              , DefaultValue, ValueFormatString)
+              , DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString)
            .Complete();
 
 }
@@ -387,7 +390,7 @@ public class SimpleAsStringNullableSpanFormattableStructWithStringDefaultNoField
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this).AsStringOrDefault
                (SimpleTypeAsStringNullableSpanFormattableStructWithDefault
-              , DefaultValue, ValueFormatString)
+              , DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString)
            .Complete();
 
 }
@@ -412,7 +415,7 @@ public class SimpleAsStringCloakedBearerWithFieldSimpleValueTypeStringBearer<TCl
            .RevealAsString
                (nameof(SimpleTypeAsStringCloakedBearer)
               , SimpleTypeAsStringCloakedBearer
-              , ValueRevealer)
+              , ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
@@ -433,7 +436,7 @@ public class SimpleAsStringCloakedBearerNoFieldSimpleValueTypeStringBearer<TCloa
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
-           .RevealAsString(SimpleTypeAsStringCloakedBearer, ValueRevealer)
+           .RevealAsString(SimpleTypeAsStringCloakedBearer, ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
@@ -457,7 +460,7 @@ public class SimpleAsStringCloakedBearerOrNullWithFieldSimpleValueTypeStringBear
            .RevealAsStringOrNull
                (nameof(SimpleTypeAsStringCloakedBearer)
               , SimpleTypeAsStringCloakedBearer
-              , ValueRevealer)
+              , ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
@@ -478,7 +481,8 @@ public class SimpleAsStringCloakedBearerOrNullNoFieldSimpleValueTypeStringBearer
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
-           .RevealAsStringOrNull(SimpleTypeAsStringCloakedBearer, ValueRevealer)
+           .RevealAsStringOrNull(SimpleTypeAsStringCloakedBearer, ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString
+                               , ContentHandlingFlags)
            .Complete();
 }
 
@@ -504,7 +508,7 @@ public class SimpleAsStringCloakedBearerWithDefaultWithFieldSimpleValueTypeStrin
            .RevealAsStringOrDefault
                (nameof(SimpleTypeAsStringCloakedBearer)
               , SimpleTypeAsStringCloakedBearer
-              , ValueRevealer, DefaultValue)
+              , ValueRevealer, DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
@@ -527,7 +531,8 @@ public class SimpleAsStringCloakedBearerWithDefaultNoFieldSimpleValueTypeStringB
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
-           .RevealAsStringOrDefault(SimpleTypeAsStringCloakedBearer, ValueRevealer, DefaultValue)
+           .RevealAsStringOrDefault(SimpleTypeAsStringCloakedBearer, ValueRevealer, DefaultValue
+                                  , tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
@@ -549,7 +554,7 @@ public class SimpleAsStringNullableCloakedBearerWithFieldSimpleValueTypeStringBe
            .RevealAsString
                (nameof(SimpleTypeAsStringCloakedBearer)
               , SimpleTypeAsStringCloakedBearer
-              , ValueRevealer)
+              , ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
@@ -568,7 +573,7 @@ public class SimpleAsStringNullableCloakedBearerNoFieldSimpleValueTypeStringBear
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
-           .RevealAsString(SimpleTypeAsStringCloakedBearer, ValueRevealer)
+           .RevealAsString(SimpleTypeAsStringCloakedBearer, ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
@@ -590,7 +595,7 @@ public class SimpleAsStringNullableCloakedBearerOrNullWithFieldSimpleValueTypeSt
            .RevealAsStringOrNull
                (nameof(SimpleTypeAsStringCloakedBearer)
               , SimpleTypeAsStringCloakedBearer
-              , ValueRevealer)
+              , ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
@@ -609,7 +614,8 @@ public class SimpleAsStringNullableCloakedBearerOrNullNoFieldSimpleValueTypeStri
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
-           .RevealAsStringOrNull(SimpleTypeAsStringCloakedBearer, ValueRevealer)
+           .RevealAsStringOrNull(SimpleTypeAsStringCloakedBearer, ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString
+                               , ContentHandlingFlags)
            .Complete();
 }
 
@@ -633,7 +639,7 @@ public class SimpleAsStringNullableCloakedBearerWithDefaultWithFieldSimpleValueT
            .RevealAsStringOrDefault
                (nameof(SimpleTypeAsStringCloakedBearer)
               , SimpleTypeAsStringCloakedBearer
-              , ValueRevealer, DefaultValue)
+              , ValueRevealer, DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
@@ -655,18 +661,19 @@ public class SimpleAsStringNullableCloakedBearerWithDefaultNoFieldSimpleValueTyp
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
-           .RevealAsStringOrDefault(SimpleTypeAsStringCloakedBearer, ValueRevealer, DefaultValue)
+           .RevealAsStringOrDefault(SimpleTypeAsStringCloakedBearer, ValueRevealer, DefaultValue
+                                  , tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | DefaultTreatedAsStringOut
                 | DefaultBecomesEmpty)]
-public class SimpleAsStringStringBearerWithFieldSimpleValueTypeStringBearer<TBearer> : MoldScaffoldBase<TBearer>
+public class SimpleAsStringStringBearerWithFieldSimpleValueTypeStringBearer<TBearer> : ProxyFormattedMoldScaffold<TBearer>
     where TBearer : IStringBearer
 {
     public TBearer SimpleTypeAsStringStringBearer
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -674,18 +681,19 @@ public class SimpleAsStringStringBearerWithFieldSimpleValueTypeStringBearer<TBea
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
-           .RevealAsString(nameof(SimpleTypeAsStringStringBearer), SimpleTypeAsStringStringBearer)
+           .RevealAsString(nameof(SimpleTypeAsStringStringBearer), SimpleTypeAsStringStringBearer
+                         , tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | DefaultTreatedAsStringOut
                 | DefaultBecomesEmpty)]
-public class SimpleAsStringStringBearerNoFieldSimpleValueTypeStringBearer<TBearer> : MoldScaffoldBase<TBearer> where TBearer
+public class SimpleAsStringStringBearerNoFieldSimpleValueTypeStringBearer<TBearer> : ProxyFormattedMoldScaffold<TBearer> where TBearer
     : FormattedMoldScaffold<TBearer?>
 {
     public TBearer SimpleTypeAsStringStringBearer
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -699,7 +707,7 @@ public class SimpleAsStringStringBearerNoFieldSimpleValueTypeStringBearer<TBeare
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | DefaultTreatedAsStringOut
                 | DefaultBecomesNull)]
-public class SimpleAsStringStringBearerOrNullWithFieldSimpleValueTypeStringBearer<TBearer> : MoldScaffoldBase<TBearer?> where
+public class SimpleAsStringStringBearerOrNullWithFieldSimpleValueTypeStringBearer<TBearer> : ProxyFormattedMoldScaffold<TBearer?> where
     TBearer
     : FormattedMoldScaffold<TBearer?>
 {
@@ -719,7 +727,8 @@ public class SimpleAsStringStringBearerOrNullWithFieldSimpleValueTypeStringBeare
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | DefaultTreatedAsStringOut
                 | DefaultBecomesNull)]
-public class SimpleAsStringStringBearerOrNullNoFieldSimpleValueTypeStringBearer<TBearer> : MoldScaffoldBase<TBearer?> where
+public class 
+    SimpleAsStringStringBearerOrNullNoFieldSimpleValueTypeStringBearer<TBearer> : ProxyFormattedMoldScaffold<TBearer?> where
     TBearer : FormattedMoldScaffold<TBearer?>
 {
     public TBearer? SimpleTypeAsStringStringBearer
@@ -738,7 +747,7 @@ public class SimpleAsStringStringBearerOrNullNoFieldSimpleValueTypeStringBearer<
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | DefaultTreatedAsStringOut
                 | DefaultBecomesFallbackValue)]
-public class SimpleAsStringStringBearerWithDefaultWithFieldSimpleValueTypeStringBearer<TBearer> : MoldScaffoldBase<TBearer?>
+public class SimpleAsStringStringBearerWithDefaultWithFieldSimpleValueTypeStringBearer<TBearer> : ProxyFormattedMoldScaffold<TBearer?>
     where TBearer : IMoldSupportedDefaultValue<string>, IMoldSupportedValue<TBearer?>
 {
     public TBearer? SimpleTypeAsStringStringBearer
@@ -759,7 +768,7 @@ public class SimpleAsStringStringBearerWithDefaultWithFieldSimpleValueTypeString
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | DefaultTreatedAsStringOut
                 | DefaultBecomesFallbackValue)]
-public class SimpleAsStringStringBearerWithDefaultNoFieldSimpleValueTypeStringBearer<TBearer> : MoldScaffoldBase<TBearer?>
+public class SimpleAsStringStringBearerWithDefaultNoFieldSimpleValueTypeStringBearer<TBearer> : ProxyFormattedMoldScaffold<TBearer?>
     where TBearer
     : IMoldSupportedDefaultValue<string>, IMoldSupportedValue<TBearer?>
 {
@@ -781,7 +790,7 @@ public class SimpleAsStringStringBearerWithDefaultNoFieldSimpleValueTypeStringBe
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | DefaultTreatedAsStringOut
                 | DefaultBecomesEmpty)]
-public class SimpleAsStringNullableStringBearerWithFieldSimpleValueTypeStringBearer<TBearerStruct> : MoldScaffoldBase<TBearerStruct?>
+public class SimpleAsStringNullableStringBearerWithFieldSimpleValueTypeStringBearer<TBearerStruct> : ProxyFormattedMoldScaffold<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct? SimpleTypeAsStringStringBearer
@@ -800,7 +809,7 @@ public class SimpleAsStringNullableStringBearerWithFieldSimpleValueTypeStringBea
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | DefaultTreatedAsStringOut
                 | DefaultBecomesEmpty)]
-public class SimpleAsStringNullableStringBearerNoFieldSimpleValueTypeStringBearer<TBearerStruct> : MoldScaffoldBase<TBearerStruct>
+public class SimpleAsStringNullableStringBearerNoFieldSimpleValueTypeStringBearer<TBearerStruct> : ProxyFormattedMoldScaffold<TBearerStruct>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct SimpleTypeAsStringStringBearer
@@ -819,7 +828,7 @@ public class SimpleAsStringNullableStringBearerNoFieldSimpleValueTypeStringBeare
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | DefaultTreatedAsStringOut
                 | DefaultBecomesNull)]
-public class SimpleAsStringNullableStringBearerOrNullWithFieldSimpleValueTypeStringBearer<TBearerStruct> : MoldScaffoldBase<TBearerStruct?>
+public class SimpleAsStringNullableStringBearerOrNullWithFieldSimpleValueTypeStringBearer<TBearerStruct> : ProxyFormattedMoldScaffold<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct? SimpleTypeAsStringStringBearer
@@ -838,7 +847,7 @@ public class SimpleAsStringNullableStringBearerOrNullWithFieldSimpleValueTypeStr
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | DefaultTreatedAsStringOut
                 | DefaultBecomesNull)]
-public class SimpleAsStringNullableStringBearerOrNullNoFieldSimpleValueTypeStringBearer<TBearerStruct> : MoldScaffoldBase<TBearerStruct?> where
+public class SimpleAsStringNullableStringBearerOrNullNoFieldSimpleValueTypeStringBearer<TBearerStruct> : ProxyFormattedMoldScaffold<TBearerStruct?> where
     TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct? SimpleTypeAsStringStringBearer
@@ -857,7 +866,7 @@ public class SimpleAsStringNullableStringBearerOrNullNoFieldSimpleValueTypeStrin
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | DefaultTreatedAsStringOut
                 | DefaultBecomesFallbackValue)]
-public class SimpleAsStringNullableStringBearerWithDefaultWithFieldSimpleValueTypeStringBearer<TBearerStruct> : MoldScaffoldBase<TBearerStruct?>
+public class SimpleAsStringNullableStringBearerWithDefaultWithFieldSimpleValueTypeStringBearer<TBearerStruct> : ProxyFormattedMoldScaffold<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct? SimpleTypeAsStringStringBearer
@@ -878,7 +887,7 @@ public class SimpleAsStringNullableStringBearerWithDefaultWithFieldSimpleValueTy
 
 [TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | DefaultTreatedAsStringOut
                 | DefaultBecomesFallbackValue)]
-public class SimpleAsStringNullableStringBearerWithDefaultNoFieldSimpleValueTypeStringBearer<TBearerStruct> : MoldScaffoldBase<TBearerStruct?>
+public class SimpleAsStringNullableStringBearerWithDefaultNoFieldSimpleValueTypeStringBearer<TBearerStruct> : ProxyFormattedMoldScaffold<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct? SimpleTypeAsStringStringBearer
@@ -904,7 +913,7 @@ public class SimpleAsStringCharSpanWithDefaultWithFieldAsSpanSimpleValueTypeStri
 {
     public char[] SimpleTypeAsStringCharSpan
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -936,7 +945,7 @@ public class SimpleAsStringCharSpanWithFieldOrDefaultSimpleValueTypeStringBearer
 {
     public char[] SimpleTypeAsStringCharSpan
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -966,7 +975,7 @@ public class SimpleAsStringCharSpanWithFieldSimpleValueTypeStringBearer : Format
 {
     public char[] SimpleTypeAsStringCharSpan
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -994,7 +1003,7 @@ public class SimpleAsStringCharSpanWithNoFieldAsSpanSimpleValueTypeStringBearer 
 {
     public char[] SimpleTypeAsStringCharSpan
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1019,7 +1028,7 @@ public class SimpleAsStringCharReadOnlySpanWithFieldOrDefaultSimpleValueTypeStri
 {
     public string SimpleTypeAsStringCharReadOnlySpanWithDefault
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1048,7 +1057,7 @@ public class SimpleAsStringCharReadOnlySpanWithDefaultWithFieldSimpleValueTypeSt
 {
     public string SimpleTypeAsStringCharReadOnlySpanWithDefault
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1079,7 +1088,7 @@ public class SimpleAsStringCharReadOnlySpanWithFieldOrNullSimpleValueTypeStringB
 {
     public string SimpleTypeAsStringCharReadOnlySpan
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1107,7 +1116,7 @@ public class SimpleAsStringCharReadOnlySpanWithNoFieldOrDefaultSimpleValueTypeSt
 {
     public string SimpleTypeAsStringCharReadOnlySpan
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1131,7 +1140,7 @@ public class SimpleAsStringCharSpanWithNoFieldOrDefaultSimpleValueTypeStringBear
 {
     public char[] SimpleTypeAsStringCharSpanOrDefault
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1155,7 +1164,7 @@ public class SimpleAsStringCharReadOnlySpanWithNoFieldOrDefaultFieldSimpleValueT
 {
     public string SimpleTypeAsStringCharReadOnlySpanOrDefault
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1179,7 +1188,7 @@ public class SimpleAsStringStringWithNoFieldOrDefaultFieldSimpleValueTypeStringB
 {
     public string SimpleTypeAsStringStringOrDefaultNoFormatting
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1204,7 +1213,7 @@ public class SimpleAsStringStringWithFieldOrDefaultSimpleValueTypeStringBearer :
 {
     public string SimpleTypeAsStringStringOrDefault
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1233,7 +1242,7 @@ public class SimpleAsStringStringWithFieldSimpleValueTypeStringBearer : Formatte
 {
     public string SimpleTypeAsStringString
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1262,7 +1271,7 @@ public class SimpleAsStringStringRangeOrDefaultSimpleValueTypeStringBearer : For
 {
     public string SimpleTypeAsStringStringRangeOrDefault
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1293,7 +1302,7 @@ public class SimpleAsStringStringRangeSimpleValueTypeStringBearer : FormattedMol
 {
     public string SimpleTypeAsStringStringRange
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1324,7 +1333,7 @@ public class SimpleAsStringStringRangeWithDefaultSimpleValueTypeStringBearer : F
 {
     public string SimpleTypeAsStringStringRangeWithDefaultValue
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1357,7 +1366,7 @@ public class SimpleAsStringCharArrayWithFieldOrDefaultSimpleValueTypeStringBeare
 {
     public char[] SimpleTypeAsStringCharArrayOrDefault
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1385,7 +1394,7 @@ public class SimpleAsStringCharArrayRangeWithFieldOrDefaultSimpleValueTypeString
 {
     public char[] SimpleTypeAsStringCharArrayRangeOrDefault
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1416,7 +1425,7 @@ public class SimpleAsStringCharArrayRangeNoFieldOrDefaultSimpleValueTypeStringBe
 {
     public char[] SimpleTypeAsStringCharArrayRangeOrDefault
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1446,7 +1455,7 @@ public class SimpleAsStringCharArrayRangeWithFieldSimpleValueTypeStringBearer : 
 {
     public char[] SimpleTypeAsStringCharArrayRange
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1477,7 +1486,7 @@ public class SimpleAsStringCharArrayRangeNoFieldSimpleValueTypeStringBearer : Fo
 {
     public char[] SimpleTypeAsStringCharArrayRange
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1507,7 +1516,7 @@ public class SimpleAsStringCharArrayRangeWithFieldWithDefaultSimpleValueTypeStri
 {
     public char[] SimpleTypeAsStringCharArrayRange
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1540,7 +1549,7 @@ public class SimpleAsStringCharArrayRangeNoFieldWithDefaultSimpleValueTypeString
 {
     public char[] SimpleTypeAsStringCharArrayRange
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1572,7 +1581,7 @@ public class SimpleAsStringCharSequenceWithFieldOrDefaultSimpleValueTypeStringBe
 {
     public TCharSeq SimpleTypeAsStringCharSequenceOrDefault
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1608,7 +1617,7 @@ public class SimpleAsStringCharSequenceNoFieldOrDefaultSimpleValueTypeStringBear
 {
     public TCharSeq SimpleTypeAsStringCharSequenceOrDefault
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1643,7 +1652,7 @@ public class SimpleAsStringCharSequenceRangeWithFieldOrDefaultSimpleValueTypeStr
 {
     public TCharSeq SimpleTypeAsStringCharSequenceRangeOrDefault
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1681,7 +1690,7 @@ public class SimpleAsStringCharSequenceRangeNoFieldOrDefaultSimpleValueTypeStrin
 {
     public TCharSeq SimpleTypeAsStringCharSequenceRangeOrDefault
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1718,7 +1727,7 @@ public class SimpleAsStringCharSequenceRangeWithFieldSimpleValueTypeStringBearer
 {
     public TCharSeq SimpleTypeAsStringCharSequenceRangeOrDefault
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1756,7 +1765,7 @@ public class SimpleAsStringCharSequenceRangeNoFieldSimpleValueTypeStringBearer<T
 {
     public TCharSeq SimpleTypeAsStringCharSequenceRangeOrDefault
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1800,7 +1809,7 @@ public class SimpleAsStringCharSequenceRangeWithFieldWithDefaultSimpleValueTypeS
 {
     public TCharSeq SimpleTypeAsStringCharSequenceRangeWithDefault
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1847,7 +1856,7 @@ public class SimpleAsStringCharSequenceRangeNoFieldWithDefaultSimpleValueTypeStr
 {
     public TCharSeq SimpleTypeAsStringCharSequenceRangeWithDefault
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1891,7 +1900,7 @@ public class SimpleAsStringStringBuilderWithFieldOrDefaultSimpleValueTypeStringB
 {
     public StringBuilder SimpleTypeAsStringStringBuilderOrDefault
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1899,7 +1908,7 @@ public class SimpleAsStringStringBuilderWithFieldOrDefaultSimpleValueTypeStringB
 
     public string? StringValue
     {
-        get => Value!.ToString();
+        get => Value.ToString();
         set => Value = new StringBuilder(value);
     }
 
@@ -1920,7 +1929,7 @@ public class SimpleAsStringStringBuilderNoFieldOrDefaultSimpleValueTypeStringBea
 {
     public StringBuilder SimpleTypeAsStringStringBuilderOrDefault
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1928,7 +1937,7 @@ public class SimpleAsStringStringBuilderNoFieldOrDefaultSimpleValueTypeStringBea
 
     public string? StringValue
     {
-        get => Value!.ToString();
+        get => Value.ToString();
         set => Value = new StringBuilder(value);
     }
 
@@ -1948,7 +1957,7 @@ public class SimpleAsStringStringBuilderRangeWithFieldOrDefaultSimpleValueTypeSt
 {
     public StringBuilder SimpleTypeAsStringStringBuilderRangeOrDefault
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1959,7 +1968,7 @@ public class SimpleAsStringStringBuilderRangeWithFieldOrDefaultSimpleValueTypeSt
 
     public string? StringValue
     {
-        get => Value!.ToString();
+        get => Value.ToString();
         set => Value = new StringBuilder(value);
     }
 
@@ -1980,7 +1989,7 @@ public class SimpleAsStringStringBuilderRangeNoFieldOrDefaultSimpleValueTypeStri
 {
     public StringBuilder SimpleTypeAsStringStringBuilderRangeOrDefault
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -1991,7 +2000,7 @@ public class SimpleAsStringStringBuilderRangeNoFieldOrDefaultSimpleValueTypeStri
 
     public string? StringValue
     {
-        get => Value!.ToString();
+        get => Value.ToString();
         set => Value = new StringBuilder(value);
     }
 

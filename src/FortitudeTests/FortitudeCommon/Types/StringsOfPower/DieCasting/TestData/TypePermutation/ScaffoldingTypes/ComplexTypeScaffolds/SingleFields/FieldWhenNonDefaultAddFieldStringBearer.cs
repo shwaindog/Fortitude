@@ -40,7 +40,7 @@ public class FieldSpanFormattableWhenNonDefaultStringBearer<TFmt> : FormattedMol
 {
     public TFmt ComplexTypeFieldWhenNonDefaultSpanFormattableAs
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -83,7 +83,6 @@ public class FieldNullableSpanFormattableWhenNonDefaultStringBearer<TFmtStruct> 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonDefaultWrites | AcceptsAnyExceptNullableStruct | SupportsValueRevealer)]
 public class FieldCloakedBearerWhenNonDefaultStringBearer<TCloaked, TRevealBase>
     : ValueRevealerMoldScaffold<TCloaked, TRevealBase>, IMoldSupportedDefaultValue<TCloaked>
-       
     where TCloaked : TRevealBase
     where TRevealBase : notnull
 {
@@ -103,7 +102,7 @@ public class FieldCloakedBearerWhenNonDefaultStringBearer<TCloaked, TRevealBase>
            .WhenNonDefaultReveal
                (nameof(ComplexTypeFieldWhenNonDefaultCloakedBearerAs)
               , ComplexTypeFieldWhenNonDefaultCloakedBearerAs
-              , ValueRevealer, DefaultValue, ContentHandlingFlags)
+              , ValueRevealer, DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
@@ -126,12 +125,12 @@ public class FieldNullableCloakedBearerWhenNonDefaultStringBearer<TCloakedStruct
            .Field.WhenNonDefaultReveal
                (nameof(ComplexTypeFieldWhenNonDefaultCloakedBearerAs)
               , ComplexTypeFieldWhenNonDefaultCloakedBearerAs
-              , ValueRevealer, DefaultValue, ContentHandlingFlags)
+              , ValueRevealer, DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonDefaultWrites | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
-public class FieldStringBearerWhenNonDefaultStringBearer<TBearer> : MoldScaffoldBase<TBearer?>
+public class FieldStringBearerWhenNonDefaultStringBearer<TBearer> : ProxyFormattedMoldScaffold<TBearer?>
   , IMoldSupportedDefaultValue<TBearer?>
     where TBearer : IStringBearer
 {
@@ -150,12 +149,12 @@ public class FieldStringBearerWhenNonDefaultStringBearer<TBearer> : MoldScaffold
            .Field.WhenNonDefaultReveal
                (nameof(ComplexTypeFieldWhenNonDefaultStringBearerAs)
               , ComplexTypeFieldWhenNonDefaultStringBearerAs
-              , DefaultValue, ContentHandlingFlags)
+              , DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | SingleValueCardinality | NonDefaultWrites | AcceptsNullableStruct | AcceptsStringBearer)]
-public class FieldNullableStringBearerWhenNonDefaultStringBearer<TBearerStruct> : MoldScaffoldBase<TBearerStruct?>
+public class FieldNullableStringBearerWhenNonDefaultStringBearer<TBearerStruct> : ProxyFormattedMoldScaffold<TBearerStruct?>
   , IMoldSupportedDefaultValue<TBearerStruct?> where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct? ComplexTypeFieldWhenNonDefaultStringBearerAs
@@ -173,7 +172,7 @@ public class FieldNullableStringBearerWhenNonDefaultStringBearer<TBearerStruct> 
            .Field.WhenNonDefaultReveal
                (nameof(ComplexTypeFieldWhenNonDefaultStringBearerAs)
               , ComplexTypeFieldWhenNonDefaultStringBearerAs
-              , DefaultValue, ContentHandlingFlags)
+              , DefaultValue, ValueFormatString, ContentHandlingFlags)
            .Complete();
 }
 
@@ -183,7 +182,7 @@ public class FieldCharSpanWhenNonDefaultStringBearer : FormattedMoldScaffold<cha
 {
     public char[] ComplexTypeFieldWhenNonDefaultCharSpanAs
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -212,7 +211,7 @@ public class FieldCharReadOnlySpanWhenNonDefaultStringBearer : FormattedMoldScaf
 {
     public string ComplexTypeFieldWhenNonDefaultCharReadOnlySpanAs
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -242,7 +241,7 @@ public class FieldStringWhenNonDefaultStringBearer : FormattedMoldScaffold<strin
 {
     public string ComplexTypeFieldWhenNonDefaultStringAs
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -271,7 +270,7 @@ public class FieldStringRangeWhenNonDefaultStringBearer : FormattedMoldScaffold<
 {
     public string ComplexTypeFieldWhenNonDefaultStringRangeAs
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -304,7 +303,7 @@ public class FieldCharArrayWhenNonDefaultStringBearer : FormattedMoldScaffold<ch
 {
     public char[] ComplexTypeFieldWhenNonDefaultCharArrayAs
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -333,7 +332,7 @@ public class FieldCharArrayRangeWhenNonDefaultStringBearer : FormattedMoldScaffo
 {
     public char[] ComplexTypeFieldWhenNonDefaultCharArrayRangeAs
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -367,7 +366,7 @@ public class FieldCharSequenceWhenNonDefaultStringBearer<TCharSeq> : FormattedMo
 {
     public TCharSeq ComplexTypeFieldWhenNonDefaultCharSequenceAs
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -406,7 +405,7 @@ public class FieldCharSequenceRangeWhenNonDefaultStringBearer<TCharSeq> : Format
 {
     public TCharSeq ComplexTypeFieldWhenNonDefaultCharSequenceRangeAs
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -447,7 +446,7 @@ public class FieldStringBuilderWhenNonDefaultStringBearer : FormattedMoldScaffol
 {
     public StringBuilder ComplexTypeFieldWhenNonDefaultAddStringBuilderAs
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -457,7 +456,7 @@ public class FieldStringBuilderWhenNonDefaultStringBearer : FormattedMoldScaffol
 
     public string? StringValue
     {
-        get => Value!.ToString();
+        get => Value.ToString();
         set => Value = new StringBuilder(value);
     }
 
@@ -478,7 +477,7 @@ public class FieldStringBuilderRangeWhenNonDefaultStringBearer : FormattedMoldSc
 {
     public StringBuilder ComplexTypeFieldWhenNonDefaultAddStringBuilderRangeAs
     {
-        get => Value!;
+        get => Value;
         set => Value = value;
     }
 
@@ -492,7 +491,7 @@ public class FieldStringBuilderRangeWhenNonDefaultStringBearer : FormattedMoldSc
 
     public string? StringValue
     {
-        get => Value!.ToString();
+        get => Value.ToString();
         set => Value = new StringBuilder(value);
     }
 

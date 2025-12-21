@@ -38,9 +38,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     public const string DefaultLogInnerDblQtReplacementOpenChars  = ""; //  considered  "\u201C";  “
     public const string DefaultLogInnerDblQtReplacementCloseChars = ""; //  considered  "\u201D";  ”
 
-    public static readonly string[] DefaultLogSuppressTypeNames = [];
-    public static readonly string[] DefaultLogSuppressCollectionNames =
-    [
+    public static readonly string[] DefaultLogSuppressNames = [
         "System"
       , "FortitudeCommon.Types.StringsOfPower.Forge"
     ];
@@ -82,8 +80,6 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     private EncodingType? graphEncoderType;
     private EncodingType? stringEncoderType;
 
-    private bool explicitlySetEncodingTransfer;
-
     private Func<IJsonFormattingOptions, IEncodingTransfer>? sourceEncodingTransferResolver;
 
     private char?     indentChar;
@@ -110,6 +106,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     private Range[]?  exemptEscapingRanges;
     private string[]? logSuppressDisplayTypeNames;
     private string[]? logSuppressDisplayCollectionNames;
+    private string[]? logSuppressDisplayCollectionElementNames;
 
     private FieldContentHandling contextContentHandlingFlags;
     private StringStyle?         style;
@@ -192,12 +189,12 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     public string AlternateItemSeparator
     {
         readonly get => altItemSeparator ?? fallbackOptions?.Values.AlternateItemSeparator ?? IFormattingOptions.Spc;
-        set => mainItemSeparator = value;
+        set => altItemSeparator = value;
     }
 
     public string MainItemPadding
     {
-        readonly get => altItemSeparator ?? fallbackOptions?.Values.AlternateItemSeparator
+        readonly get => mainItemPadding ?? fallbackOptions?.Values.AlternateItemSeparator
          ?? Style switch
             {
               StringStyle.CompactJson => IFormattingOptions.Empty
@@ -206,12 +203,12 @@ public struct StyleOptionsValue : IJsonFormattingOptions
               , StringStyle.PrettyLog => IFormattingOptions.Spc
               , _                      => Style.IsCompact() & Style.IsJson() ? IFormattingOptions.Empty : IFormattingOptions.Spc
             };
-        set => mainItemSeparator = value;
+        set => mainItemPadding = value;
     }
 
     public string AlternateItemPadding
     {
-        readonly get => altItemSeparator ?? fallbackOptions?.Values.AlternateItemSeparator
+        readonly get => altItemPadding ?? fallbackOptions?.Values.AlternateItemSeparator
          ?? Style switch
             {
                 StringStyle.CompactJson => IFormattingOptions.Empty
@@ -220,7 +217,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
               , StringStyle.PrettyLog   => IFormattingOptions.Spc
               , _                       => Style.IsCompact() & Style.IsJson() ? IFormattingOptions.Empty : IFormattingOptions.Spc
             };
-        set => mainItemSeparator = value;
+        set => altItemPadding = value;
     }
 
     public string MainFieldSeparator
@@ -249,7 +246,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
 
     public string MainFieldPadding
     {
-        readonly get => altFieldSeparator ?? fallbackOptions?.Values.AlternateFieldSeparator
+        readonly get => mainFieldPadding ?? fallbackOptions?.Values.AlternateFieldSeparator
          ?? Style switch
             {
               StringStyle.CompactJson => IFormattingOptions.Empty
@@ -257,12 +254,12 @@ public struct StyleOptionsValue : IJsonFormattingOptions
               , StringStyle.PrettyLog => IFormattingOptions.Spc
               , _                      => Style.IsCompact() & Style.IsJson() ? IFormattingOptions.Empty : IFormattingOptions.Spc
             };
-        set => altFieldSeparator = value;
+        set => mainFieldPadding = value;
     }
 
     public string AlternateFieldPadding
     {
-        readonly get => altFieldSeparator ?? fallbackOptions?.Values.AlternateFieldSeparator
+        readonly get => altFieldPadding ?? fallbackOptions?.Values.AlternateFieldSeparator
          ?? Style switch
             {
                 StringStyle.CompactJson => IFormattingOptions.Empty
@@ -270,7 +267,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
               , StringStyle.PrettyLog   => IFormattingOptions.Spc
               , _                       => Style.IsCompact() & Style.IsJson() ? IFormattingOptions.Empty : IFormattingOptions.Spc
             };
-        set => altFieldSeparator = value;
+        set => altFieldPadding = value;
     }
 
     public bool NullWritesEmpty
@@ -594,14 +591,21 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     public string[] LogSuppressDisplayTypeNames
     {
         readonly get => logSuppressDisplayTypeNames ??
-                        fallbackOptions?.Values.LogSuppressDisplayTypeNames ?? DefaultLogSuppressTypeNames;
+                        fallbackOptions?.Values.LogSuppressDisplayTypeNames ?? DefaultLogSuppressNames;
         set => logSuppressDisplayTypeNames = value;
+    }
+
+    public string[] LogSuppressDisplayCollectionElementNames
+    {
+        readonly get => logSuppressDisplayCollectionElementNames ??
+                        fallbackOptions?.Values.LogSuppressDisplayCollectionElementNames ?? DefaultLogSuppressNames;
+        set => logSuppressDisplayCollectionElementNames = value;
     }
 
     public string[] LogSuppressDisplayCollectionNames
     {
         readonly get => logSuppressDisplayCollectionNames ??
-                        fallbackOptions?.Values.LogSuppressDisplayCollectionNames ?? DefaultLogSuppressCollectionNames;
+                        fallbackOptions?.Values.LogSuppressDisplayCollectionNames ?? DefaultLogSuppressNames;
         set => logSuppressDisplayCollectionNames = value;
     }
 
@@ -1054,6 +1058,12 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
     {
         get => values.LogSuppressDisplayTypeNames;
         set => values.LogSuppressDisplayTypeNames = value;
+    }
+
+    public string[] LogSuppressDisplayCollectionElementNames
+    {
+        get => values.LogSuppressDisplayCollectionElementNames;
+        set => values.LogSuppressDisplayCollectionElementNames = value;
     }
 
     public string[] LogSuppressDisplayCollectionNames

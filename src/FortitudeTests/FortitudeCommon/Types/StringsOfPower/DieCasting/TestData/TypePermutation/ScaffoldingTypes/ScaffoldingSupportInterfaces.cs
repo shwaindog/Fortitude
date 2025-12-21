@@ -24,12 +24,12 @@ public interface ISinglePropertyTestStringBearer : IStringBearer
 
 public interface IMoldSupportedValue<TValue> : ISinglePropertyTestStringBearer
 {
-    [JsonIgnore] TValue? Value { get; set; }
+    [JsonIgnore] TValue Value { get; set; }
 }
 
 public abstract class MoldScaffoldBase<TValue> : IMoldSupportedValue<TValue>
 {
-    protected TValue? Val;
+    protected TValue Val = default!;
     
     public abstract StateExtractStringRange RevealState(ITheOneString tos);
 
@@ -37,7 +37,7 @@ public abstract class MoldScaffoldBase<TValue> : IMoldSupportedValue<TValue>
 
     public FieldContentHandling ContentHandlingFlags { get; set; }
 
-    public virtual TValue? Value
+    public virtual TValue Value
     {
         get => Val;
         set => Val = value;
@@ -51,7 +51,17 @@ public interface ISupportsValueFormatString
     [JsonIgnore] string? ValueFormatString { get; set; }
 }
 
-public abstract class FormattedMoldScaffold<TValue> : MoldScaffoldBase<TValue?>, ISupportsValueFormatString
+public interface ISupportsProxiedFormatString
+{
+    [JsonIgnore] string? ValueFormatString { get; set; }
+}
+
+public abstract class FormattedMoldScaffold<TValue> : MoldScaffoldBase<TValue>, ISupportsValueFormatString
+{
+    public string? ValueFormatString { get; set; }
+}
+
+public abstract class ProxyFormattedMoldScaffold<TValue> : MoldScaffoldBase<TValue>, ISupportsProxiedFormatString
 {
     public string? ValueFormatString { get; set; }
 }
@@ -79,6 +89,8 @@ public abstract class ValueRevealerMoldScaffold<TCloaked, TRevealBase> : MoldSca
         get => (PalantírReveal<TRevealBase>)ValueRevealerDelegate;
         set => ValueRevealerDelegate = value;
     }
+    
+    public string? ValueFormatString { get; set; }
 }
 
 public interface ISupportsKeyFormatString
@@ -111,7 +123,10 @@ public interface IMoldSupportedDefaultValue<TValue>
 
 public interface ISupportsSubsetDisplayKeys<TKeyDerivedType>
 {
-    [JsonIgnore] IReadOnlyList<TKeyDerivedType> DisplayKeys { get; set; }
+    public static List<TKeyDerivedType>? GetAllKeysSubListPredicate<TKey, TValue>(List<KeyValuePair<TKey, TValue>>? kvPairs) => 
+        kvPairs?.Select(kvp => kvp.Key).OfType<TKeyDerivedType>().ToList();
+    
+    [JsonIgnore] IReadOnlyList<TKeyDerivedType>? DisplayKeys { get; set; }
 }
 
 public interface ISupportsOrderedCollectionPredicate<TElement>
@@ -125,7 +140,9 @@ public interface ISupportsOrderedCollectionPredicate<TElement>
 
 public interface ISupportsKeyedCollectionPredicate<TKey, TValue>
 {
-    public static KeyValuePredicate<TKey, TValue> GetNoFilterPredicate => (_, _, _) => CollectionItemResult.IncludedContinueToNext;
+    private static KeyValuePredicate<TKey, TValue>? cachedNoFilterPredicate;
+    public static KeyValuePredicate<TKey, TValue> GetNoFilterPredicate => 
+        cachedNoFilterPredicate ??= (_, _, _) => CollectionItemResult.IncludedContinueToNext;
     [JsonIgnore] KeyValuePredicate<TKey, TValue> KeyValuePredicate { get; set; }
 }
 
