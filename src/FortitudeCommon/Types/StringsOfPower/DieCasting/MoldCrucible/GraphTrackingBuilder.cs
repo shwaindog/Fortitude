@@ -255,7 +255,7 @@ public class GraphTrackingBuilder
                 sepPaddingLen =  lastRange.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
                 sb.Length     -= sepPaddingLen;
             }
-            return sb.Length > 0 ? sb[^1] : '\0';
+            return (sb?.Length ?? 0) > 0 ? sb![^1] : '\0';
         }
         sepPaddingLen = lastRange.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
         sb.Length -= sepPaddingLen;
@@ -264,7 +264,7 @@ public class GraphTrackingBuilder
             sepPaddingLen =  lastRange.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
             sb.Length     -= sepPaddingLen;
         }
-        return sb.Length > 0 ? sb[^1] : '\0';
+        return (sb?.Length ?? 0) > 0 ? sb![^1] : '\0';
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

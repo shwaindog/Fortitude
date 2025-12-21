@@ -95,7 +95,7 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
 
         var typeOfTExt = typeof(TExt);
         hasJsonFields = typeOfTExt == typeof(ComplexTypeMold)
-                     || typeOfTExt == typeof(KeyValueCollectionMold)
+                     || typeOfTExt == typeof(KeyedCollectionMold)
                      || typeof(MultiValueTypeMolder<TExt>).IsAssignableFrom(typeOfTExt);
 
         SkipBody   = typeBuilderState.ExistingRefId > 0;

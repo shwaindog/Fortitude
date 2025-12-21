@@ -8,13 +8,13 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeKeyValueCollection;
 
 
-public partial class KeyValueCollectionMold : MultiValueTypeMolder<KeyValueCollectionMold>
+public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionMold>
 {
-    private ITypeMolderDieCast<KeyValueCollectionMold> stb = null!;
+    private ITypeMolderDieCast<KeyedCollectionMold> stb = null!;
 
     protected int ItemCount = 0;
 
-    public KeyValueCollectionMold InitializeKeyValueCollectionBuilder 
+    public KeyedCollectionMold InitializeKeyValueCollectionBuilder 
     (
         Type typeBeingBuilt
       , ISecretStringOfPower vesselOfStringOfPower

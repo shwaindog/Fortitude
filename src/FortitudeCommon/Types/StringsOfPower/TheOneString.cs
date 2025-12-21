@@ -51,7 +51,7 @@ public interface ITheOneString : IReusableObject<ITheOneString>
 
     ITheOneString ClearVisitHistory();
 
-    KeyValueCollectionMold StartKeyedCollectionType<T>(T toStyle, CreateContext createContext = default);
+    KeyedCollectionMold StartKeyedCollectionType<T>(T toStyle, CreateContext createContext = default);
 
     ExplicitKeyedCollectionMold<TKey, TValue> StartExplicitKeyedCollectionType<TKey, TValue>(object keyValueContainerInstance
       , CreateContext createContext = default);
@@ -426,7 +426,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         return newVisit.ObjVisitIndex;
     }
 
-    KeyValueCollectionMold ITheOneString.StartKeyedCollectionType<T>(T toStyle, CreateContext createContext)
+    KeyedCollectionMold ITheOneString.StartKeyedCollectionType<T>(T toStyle, CreateContext createContext)
     {
         var visitType      = typeof(T);
         var actualType     = toStyle?.GetType() ?? visitType;
@@ -435,7 +435,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var appendSettings = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
         var keyedCollectionBuilder =
-            Recycler.Borrow<KeyValueCollectionMold>().InitializeKeyValueCollectionBuilder
+            Recycler.Borrow<KeyedCollectionMold>().InitializeKeyValueCollectionBuilder
                 (actualType, this, appendSettings, createContext.NameOverride
                , remainingDepth, typeFormatter, existingRefId, createContext.FormatFlags);
         TypeStart(toStyle, keyedCollectionBuilder, actualType);

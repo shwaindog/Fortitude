@@ -10,9 +10,9 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldCon
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeKeyValueCollection;
 
-public partial class KeyValueCollectionMold
+public partial class KeyedCollectionMold
 {
-    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase>(IReadOnlyDictionary<TKey, TValue>? value
+    public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase>(IReadOnlyDictionary<TKey, TValue>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
@@ -20,7 +20,7 @@ public partial class KeyValueCollectionMold
         where TKey : TKFilterBase where TValue : TVFilterBase? =>
         AddFilteredEnumerate(value, filterPredicate, valueFormatString, keyFormatString, formatFlags);
 
-    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase>(KeyValuePair<TKey, TValue>[]? value
+    public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
@@ -59,7 +59,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
+    public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
@@ -97,7 +97,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase>(IEnumerable<KeyValuePair<TKey, TValue>>? value
+    public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase>(IEnumerable<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
@@ -137,7 +137,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase>(IEnumerator<KeyValuePair<TKey, TValue>>? value
+    public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase>(IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
@@ -184,7 +184,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
+    public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
         (IReadOnlyDictionary<TKey, TValue>? value
           , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
           , PalantírReveal<TVRevealBase> valueStyler
@@ -195,7 +195,7 @@ public partial class KeyValueCollectionMold
         where TVRevealBase : notnull =>
         AddFilteredEnumerate(value, filterPredicate, valueStyler, keyFormatString, formatFlags);
 
-    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase>
+    public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase>
         (IReadOnlyDictionary<TKey, TValue?>? value
           , KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
           , PalantírReveal<TValue> valueStyler
@@ -205,7 +205,7 @@ public partial class KeyValueCollectionMold
         where TValue : struct =>
         AddFilteredEnumerate(value, filterPredicate, valueStyler, keyFormatString, formatFlags);
 
-    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>(KeyValuePair<TKey, TValue>[]? value
+    public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>(KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate, PalantírReveal<TVRevealBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
@@ -243,7 +243,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase>
+    public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase>
     (KeyValuePair<TKey, TValue?>[]? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
       , PalantírReveal<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
@@ -281,7 +281,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
+    public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     (IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate, PalantírReveal<TVRevealBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
@@ -320,7 +320,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase>
+    public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase>
     (IReadOnlyList<KeyValuePair<TKey, TValue?>>? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
       , PalantírReveal<TValue> valueStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
@@ -357,7 +357,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
+    public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     (IEnumerable<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
@@ -398,7 +398,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TVFilterBase, TVRevealBase>
+    public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TVFilterBase, TVRevealBase>
     (IEnumerable<KeyValuePair<TKey?, TValue>>? value, KeyValuePredicate<TKey?, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
@@ -439,7 +439,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase>
+    public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase>
     (IEnumerable<KeyValuePair<TKey, TValue?>>? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
       , PalantírReveal<TValue> valueStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
@@ -479,7 +479,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue>
+    public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue>
     (IEnumerable<KeyValuePair<TKey?, TValue?>>? value, KeyValuePredicate<TKey?, TValue?> filterPredicate
       , PalantírReveal<TValue> valueStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
@@ -519,7 +519,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>(
+    public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>(
         IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate, PalantírReveal<TVRevealBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
@@ -568,7 +568,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase>(
+    public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase>(
         IEnumerator<KeyValuePair<TKey, TValue?>>? value
       , KeyValuePredicate<TKFilterBase, TValue?> filterPredicate, PalantírReveal<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
@@ -616,7 +616,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
+    public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     (IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKRevealBase> keyStyler
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
@@ -626,7 +626,7 @@ public partial class KeyValueCollectionMold
         where TVRevealBase : notnull =>
         AddFilteredEnumerate(value, filterPredicate, valueStyler, keyStyler, formatFlags);
 
-    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>
+    public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>
     (IReadOnlyDictionary<TKey, TValue?>? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
       , PalantírReveal<TValue> valueStyler, PalantírReveal<TKRevealBase> keyStyler
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
@@ -635,7 +635,7 @@ public partial class KeyValueCollectionMold
         where TKRevealBase : notnull =>
         AddFilteredEnumerate(value, filterPredicate, valueStyler, keyStyler, formatFlags);
 
-    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
+    public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     (KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKRevealBase> keyStyler, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?, TKRevealBase?
@@ -672,7 +672,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFiltered<TKey, TValue, TVFilterBase, TVRevealBase>
+    public KeyedCollectionMold AddFiltered<TKey, TValue, TVFilterBase, TVRevealBase>
     (KeyValuePair<TKey?, TValue>[]? value, KeyValuePredicate<TKey?, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKey> keyStyler, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
@@ -708,7 +708,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>
+    public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>
     (KeyValuePair<TKey, TValue?>[]? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
       , PalantírReveal<TValue> valueStyler, PalantírReveal<TKRevealBase> keyStyler, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?, TKRevealBase?
@@ -744,7 +744,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFiltered<TKey, TValue>
+    public KeyedCollectionMold AddFiltered<TKey, TValue>
     (KeyValuePair<TKey?, TValue?>[]? value, KeyValuePredicate<TKey?, TValue?> filterPredicate
       , PalantírReveal<TValue> valueStyler, PalantírReveal<TKey> keyStyler, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
@@ -779,7 +779,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
+    public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     (IReadOnlyList<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKRevealBase> keyStyler
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
@@ -817,7 +817,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFiltered<TKey, TValue, TVFilterBase, TVRevealBase>
+    public KeyedCollectionMold AddFiltered<TKey, TValue, TVFilterBase, TVRevealBase>
     (IReadOnlyList<KeyValuePair<TKey?, TValue>>? value, KeyValuePredicate<TKey?, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKey> keyStyler
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
@@ -854,7 +854,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>
+    public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>
     (IReadOnlyList<KeyValuePair<TKey, TValue?>>? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
       , PalantírReveal<TValue> valueStyler, PalantírReveal<TKRevealBase> keyStyler
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
@@ -891,7 +891,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFiltered<TKey, TValue>
+    public KeyedCollectionMold AddFiltered<TKey, TValue>
     (IReadOnlyList<KeyValuePair<TKey?, TValue?>>? value, KeyValuePredicate<TKey?, TValue?> filterPredicate
       , PalantírReveal<TValue> valueStyler, PalantírReveal<TKey> keyStyler
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
@@ -927,7 +927,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
+    public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     (IEnumerable<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKRevealBase> keyStyler
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
@@ -968,7 +968,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TVFilterBase, TVRevealBase>
+    public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TVFilterBase, TVRevealBase>
     (IEnumerable<KeyValuePair<TKey?, TValue>>? value, KeyValuePredicate<TKey?, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKey> keyStyler
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
@@ -1008,7 +1008,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TKRevealBase>
+    public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TKRevealBase>
     (IEnumerable<KeyValuePair<TKey, TValue?>>? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
       , PalantírReveal<TValue> valueStyler, PalantírReveal<TKRevealBase> keyStyler
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
@@ -1048,7 +1048,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue>
+    public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue>
     (IEnumerable<KeyValuePair<TKey?, TValue?>>? value, KeyValuePredicate<TKey?, TValue?> filterPredicate
       , PalantírReveal<TValue> valueStyler, PalantírReveal<TKey> keyStyler
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
@@ -1087,7 +1087,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
+    public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     (IEnumerator<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKRevealBase> keyStyler
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
@@ -1135,7 +1135,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TVFilterBase, TVRevealBase>
+    public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TVFilterBase, TVRevealBase>
     (IEnumerator<KeyValuePair<TKey?, TValue>>? value, KeyValuePredicate<TKey?, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKey> keyStyler
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
@@ -1182,7 +1182,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TKRevealBase>
+    public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TKRevealBase>
     (IEnumerator<KeyValuePair<TKey, TValue?>>? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
       , PalantírReveal<TValue> valueStyler, PalantírReveal<TKRevealBase> keyStyler
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
@@ -1229,7 +1229,7 @@ public partial class KeyValueCollectionMold
         return stb.StyleTypeBuilder;
     }
 
-    public KeyValueCollectionMold AddFilteredEnumerate<TKey, TValue>
+    public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue>
     (IEnumerator<KeyValuePair<TKey?, TValue?>>? value, KeyValuePredicate<TKey?, TValue?> filterPredicate
       , PalantírReveal<TValue> valueStyler, PalantírReveal<TKey> keyStyler
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
