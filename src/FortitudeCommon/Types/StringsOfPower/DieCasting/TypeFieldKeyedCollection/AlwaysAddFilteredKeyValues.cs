@@ -5,9 +5,9 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldCon
 
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldKeyValueCollection;
+namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldKeyedCollection;
 
-public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMolder
+public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolder
 {
     public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TVFilterBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
@@ -28,14 +28,15 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<KeyValuePair<TKey, TValue>[]>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i+1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -52,7 +53,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -66,14 +68,15 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i+1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -90,7 +93,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -104,10 +108,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             var count     = 0;
             var skipCount = 0;
             foreach (var kvp in value)
@@ -130,7 +135,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -144,41 +150,46 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
-        var hasValue = value?.MoveNext() ?? false;
-        if (hasValue)
+        if (value != null)
         {
-            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value!);
-            var count     = 0;
-            var skipCount = 0;
-            while (hasValue)
+            var ekcm     = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+            var hasValue = value.MoveNext();
+            if (hasValue)
             {
-                count++;
-                if (skipCount-- > 0)
+                var count     = 0;
+                var skipCount = 0;
+                while (hasValue)
                 {
-                    hasValue = value!.MoveNext();
-                    continue;
-                }
-                var kvp          = value!.Current;
-                var filterResult = filterPredicate(count, kvp.Key!, kvp.Value!);
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
+                    count++;
+                    if (skipCount-- > 0)
                     {
-                        skipCount = filterResult.SkipNextCount;
-                        hasValue  = value.MoveNext();
+                        hasValue = value.MoveNext();
                         continue;
                     }
-                    break;
+                    var kvp          = value.Current;
+                    var filterResult = filterPredicate(count, kvp.Key!, kvp.Value!);
+                    if (filterResult is { IncludeItem: false })
+                    {
+                        if (filterResult is { KeepProcessing: true })
+                        {
+                            skipCount = filterResult.SkipNextCount;
+                            hasValue  = value.MoveNext();
+                            continue;
+                        }
+                        break;
+                    }
+                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueFormatString, keyFormatString);
+                    if (filterResult is { KeepProcessing: false }) break;
+                    skipCount = filterResult.SkipNextCount;
+                    hasValue  = value.MoveNext();
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueFormatString, keyFormatString);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-                hasValue  = value.MoveNext();
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -215,14 +226,15 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<KeyValuePair<TKey, TValue>[]>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i+1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -239,7 +251,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -254,14 +267,15 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<KeyValuePair<TKey, TValue>[]>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i+1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -278,7 +292,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -294,14 +309,15 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i+1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -318,7 +334,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -333,14 +350,15 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i+1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -357,7 +375,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -373,10 +392,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             var count     = 0;
             var skipCount = 0;
             foreach (var kvp in value)
@@ -399,7 +419,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -414,10 +435,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             var count     = 0;
             var skipCount = 0;
             foreach (var kvp in value)
@@ -440,7 +462,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -455,42 +478,47 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
-        var hasValue = value?.MoveNext() ?? false;
-        if (hasValue)
+        if (value != null)
         {
-            var count     = 0;
-            var skipCount = 0;
-            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value!);
-
-            while (hasValue)
+            var ekcm     = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+            var hasValue = value.MoveNext();
+            if (hasValue)
             {
-                count++;
-                if (skipCount-- > 0)
+                var count     = 0;
+                var skipCount = 0;
+
+                while (hasValue)
                 {
-                    hasValue = value!.MoveNext();
-                    continue;
-                }
-                var kvp          = value!.Current;
-                var filterResult = filterPredicate(count, kvp.Key!, kvp.Value!);
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
+                    count++;
+                    if (skipCount-- > 0)
                     {
-                        skipCount = filterResult.SkipNextCount;
-                        hasValue  = value.MoveNext();
+                        hasValue = value.MoveNext();
                         continue;
                     }
-                    break;
+                    var kvp          = value.Current;
+                    var filterResult = filterPredicate(count, kvp.Key!, kvp.Value!);
+                    if (filterResult is { IncludeItem: false })
+                    {
+                        if (filterResult is { KeepProcessing: true })
+                        {
+                            skipCount = filterResult.SkipNextCount;
+                            hasValue  = value.MoveNext();
+                            continue;
+                        }
+                        break;
+                    }
+                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
+                    if (filterResult is { KeepProcessing: false }) break;
+                    skipCount = filterResult.SkipNextCount;
+                    hasValue  = value.MoveNext();
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-                hasValue  = value.MoveNext();
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -504,42 +532,47 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
-        var hasValue = value?.MoveNext() ?? false;
-        if (hasValue)
+        if (value != null)
         {
-            var count     = 0;
-            var skipCount = 0;
-            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value!);
-
-            while (hasValue)
+            var ekcm     = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+            var hasValue = value.MoveNext();
+            if (hasValue)
             {
-                count++;
-                if (skipCount-- > 0)
+                var count     = 0;
+                var skipCount = 0;
+
+                while (hasValue)
                 {
-                    hasValue = value!.MoveNext();
-                    continue;
-                }
-                var kvp          = value!.Current;
-                var filterResult = filterPredicate(count, kvp.Key!, kvp.Value!);
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
+                    count++;
+                    if (skipCount-- > 0)
                     {
-                        skipCount = filterResult.SkipNextCount;
-                        hasValue  = value.MoveNext();
+                        hasValue = value.MoveNext();
                         continue;
                     }
-                    break;
+                    var kvp          = value.Current;
+                    var filterResult = filterPredicate(count, kvp.Key!, kvp.Value!);
+                    if (filterResult is { IncludeItem: false })
+                    {
+                        if (filterResult is { KeepProcessing: true })
+                        {
+                            skipCount = filterResult.SkipNextCount;
+                            hasValue  = value.MoveNext();
+                            continue;
+                        }
+                        break;
+                    }
+                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
+                    if (filterResult is { KeepProcessing: false }) break;
+                    skipCount = filterResult.SkipNextCount;
+                    hasValue  = value.MoveNext();
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-                hasValue  = value.MoveNext();
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -573,14 +606,15 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<KeyValuePair<TKey, TValue>[]>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i+1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -597,7 +631,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -611,14 +646,15 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<KeyValuePair<TKey, TValue>[]>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i+1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -635,7 +671,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -649,14 +686,15 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<KeyValuePair<TKey, TValue>[]>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i+1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -673,7 +711,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -686,14 +725,15 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<KeyValuePair<TKey, TValue>[]>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i+1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -710,7 +750,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -725,14 +766,15 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i+1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -749,7 +791,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -763,14 +806,15 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i+1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -787,7 +831,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -801,14 +846,15 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i+1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -825,7 +871,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -838,14 +885,15 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i+1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -862,7 +910,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -877,10 +926,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             var count     = 0;
             var skipCount = 0;
             foreach (var kvp in value)
@@ -903,7 +953,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -917,10 +968,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             var count     = 0;
             var skipCount = 0;
             foreach (var kvp in value)
@@ -943,7 +995,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -957,10 +1010,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             var count     = 0;
             var skipCount = 0;
             foreach (var kvp in value)
@@ -983,7 +1037,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -996,10 +1051,11 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             var count     = 0;
             var skipCount = 0;
             foreach (var kvp in value)
@@ -1022,7 +1078,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -1037,41 +1094,46 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
-        var hasValue = value?.MoveNext() ?? false;
-        if (hasValue)
+        if (value != null)
         {
-            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value!);
-            var count     = 0;
-            var skipCount = 0;
-            while (hasValue)
+            var ekcm     = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+            var hasValue = value.MoveNext();
+            if (hasValue)
             {
-                count++;
-                if (skipCount-- > 0)
+                var count     = 0;
+                var skipCount = 0;
+                while (hasValue)
                 {
-                    hasValue = value!.MoveNext();
-                    continue;
-                }
-                var kvp          = value!.Current;
-                var filterResult = filterPredicate(count, kvp.Key, kvp.Value!);
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
+                    count++;
+                    if (skipCount-- > 0)
                     {
-                        skipCount = filterResult.SkipNextCount;
-                        hasValue  = value.MoveNext();
+                        hasValue = value.MoveNext();
                         continue;
                     }
-                    break;
+                    var kvp          = value.Current;
+                    var filterResult = filterPredicate(count, kvp.Key!, kvp.Value!);
+                    if (filterResult is { IncludeItem: false })
+                    {
+                        if (filterResult is { KeepProcessing: true })
+                        {
+                            skipCount = filterResult.SkipNextCount;
+                            hasValue  = value.MoveNext();
+                            continue;
+                        }
+                        break;
+                    }
+                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
+                    if (filterResult is { KeepProcessing: false }) break;
+                    skipCount = filterResult.SkipNextCount;
+                    hasValue  = value.MoveNext();
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-                hasValue  = value.MoveNext();
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -1085,41 +1147,46 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
-        var hasValue = value?.MoveNext() ?? false;
-        if (hasValue)
+        if (value != null)
         {
-            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value!);
-            var count     = 0;
-            var skipCount = 0;
-            while (hasValue)
+            var ekcm     = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+            var hasValue = value.MoveNext();
+            if (hasValue)
             {
-                count++;
-                if (skipCount-- > 0)
+                var count     = 0;
+                var skipCount = 0;
+                while (hasValue)
                 {
-                    hasValue = value!.MoveNext();
-                    continue;
-                }
-                var kvp          = value!.Current;
-                var filterResult = filterPredicate(count, kvp.Key!, kvp.Value!);
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
+                    count++;
+                    if (skipCount-- > 0)
                     {
-                        skipCount = filterResult.SkipNextCount;
-                        hasValue  = value.MoveNext();
+                        hasValue = value.MoveNext();
                         continue;
                     }
-                    break;
+                    var kvp          = value.Current;
+                    var filterResult = filterPredicate(count, kvp.Key!, kvp.Value!);
+                    if (filterResult is { IncludeItem: false })
+                    {
+                        if (filterResult is { KeepProcessing: true })
+                        {
+                            skipCount = filterResult.SkipNextCount;
+                            hasValue  = value.MoveNext();
+                            continue;
+                        }
+                        break;
+                    }
+                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
+                    if (filterResult is { KeepProcessing: false }) break;
+                    skipCount = filterResult.SkipNextCount;
+                    hasValue  = value.MoveNext();
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-                hasValue  = value.MoveNext();
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -1133,41 +1200,46 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
-        var hasValue = value?.MoveNext() ?? false;
-        if (hasValue)
+        if (value != null)
         {
-            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value!);
-            var count     = 0;
-            var skipCount = 0;
-            while (hasValue)
+            var ekcm     = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+            var hasValue = value.MoveNext();
+            if (hasValue)
             {
-                count++;
-                if (skipCount-- > 0)
+                var count     = 0;
+                var skipCount = 0;
+                while (hasValue)
                 {
-                    hasValue = value!.MoveNext();
-                    continue;
-                }
-                var kvp          = value!.Current;
-                var filterResult = filterPredicate(count, kvp.Key!, kvp.Value);
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
+                    count++;
+                    if (skipCount-- > 0)
                     {
-                        skipCount = filterResult.SkipNextCount;
-                        hasValue  = value.MoveNext();
+                        hasValue = value.MoveNext();
                         continue;
                     }
-                    break;
+                    var kvp          = value.Current;
+                    var filterResult = filterPredicate(count, kvp.Key!, kvp.Value);
+                    if (filterResult is { IncludeItem: false })
+                    {
+                        if (filterResult is { KeepProcessing: true })
+                        {
+                            skipCount = filterResult.SkipNextCount;
+                            hasValue  = value.MoveNext();
+                            continue;
+                        }
+                        break;
+                    }
+                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
+                    if (filterResult is { KeepProcessing: false }) break;
+                    skipCount = filterResult.SkipNextCount;
+                    hasValue  = value.MoveNext();
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-                hasValue  = value.MoveNext();
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -1180,41 +1252,46 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
-        var hasValue = value?.MoveNext() ?? false;
-        if (hasValue)
+        if (value != null)
         {
-            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value!);
-            var count     = 0;
-            var skipCount = 0;
-            while (hasValue)
+            var ekcm     = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+            var hasValue = value.MoveNext();
+            if (hasValue)
             {
-                count++;
-                if (skipCount-- > 0)
+                var count     = 0;
+                var skipCount = 0;
+                while (hasValue)
                 {
-                    hasValue = value!.MoveNext();
-                    continue;
-                }
-                var kvp          = value!.Current;
-                var filterResult = filterPredicate(count, kvp.Key!, kvp.Value!);
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
+                    count++;
+                    if (skipCount-- > 0)
                     {
-                        skipCount = filterResult.SkipNextCount;
-                        hasValue  = value.MoveNext();
+                        hasValue = value.MoveNext();
                         continue;
                     }
-                    break;
+                    var kvp          = value.Current;
+                    var filterResult = filterPredicate(count, kvp.Key!, kvp.Value!);
+                    if (filterResult is { IncludeItem: false })
+                    {
+                        if (filterResult is { KeepProcessing: true })
+                        {
+                            skipCount = filterResult.SkipNextCount;
+                            hasValue  = value.MoveNext();
+                            continue;
+                        }
+                        break;
+                    }
+                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
+                    if (filterResult is { KeepProcessing: false }) break;
+                    skipCount = filterResult.SkipNextCount;
+                    hasValue  = value.MoveNext();
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-                hasValue  = value.MoveNext();
             }
             ekcm.AppendCollectionComplete();
         }
-        else { stb.Sb.Append(stb.Settings.NullString); }
+        else 
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
         return stb.AddGoToNext();
     }
 }

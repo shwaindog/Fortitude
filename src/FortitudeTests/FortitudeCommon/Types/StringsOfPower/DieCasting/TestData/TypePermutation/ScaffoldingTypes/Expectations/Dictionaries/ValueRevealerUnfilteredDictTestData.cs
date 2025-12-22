@@ -29,15 +29,13 @@ public partial class ValueRevealerDictTestData
                     ([], () => Int_NegativeString_Reveal, DefaultCallerTypeFlags, name: "Empty")
                 {
                     { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "{}" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | AlwaysWrites | NonNullWrites), "{}" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
+                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites), "{}" }
                 }
               , new ValueRevealerDictExpect<bool, int>
                     (null, () => Int_NegativeString_Reveal, DefaultCallerTypeFlags)
                 {
-                    { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | AlwaysWrites), "null" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
+                    { new EK(KeyedCollectionType | AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "{}" }
+                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "null" }
                 }
               , new ValueRevealerDictExpect<bool, int>
                     (BoolIntMap.ToList(), () => Int_Money_Reveal, DefaultCallerTypeFlags
@@ -76,14 +74,12 @@ public partial class ValueRevealerDictTestData
               , new ValueRevealerDictExpect<double, ICharSequence>([], () => CharSequenceMap_10Chars, DefaultCallerTypeFlags, name: "Empty")
                 {
                     { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "{}" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | AlwaysWrites | NonNullWrites), "{}" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
+                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites), "{}" }
                 }
               , new ValueRevealerDictExpect<double, ICharSequence>(null, () => CharSequenceMap_10Chars, DefaultCallerTypeFlags)
                 {
-                    { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | AlwaysWrites), "null" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
+                    { new EK(KeyedCollectionType | AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "{}" }
+                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "null" }
                 }
               , new ValueRevealerDictExpect<double, ICharSequence>
                     (DoubleCharSequenceMap.ToList(), () => CharSequenceMap_10Chars, DefaultCallerTypeFlags, "All_NoFilter")

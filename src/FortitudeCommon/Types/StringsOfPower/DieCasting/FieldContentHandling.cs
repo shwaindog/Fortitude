@@ -88,7 +88,7 @@ public enum FieldContentHandling : ulong
   , ViolationDebuggerBreak   = 0x04_00_00_00_00_00_00_00
   , SuppressOpening          = 0x08_00_00_00_00_00_00_00
   , SuppressClosing          = 0x10_00_00_00_00_00_00_00
-  , AsEmbeddedContent        = 0x18_00_00_00_00_00_00_00
+  , AsEmbeddedContent        = 0x18_00_01_00_00_00_00_00
   , UseAlternateSeparator    = 0x20_00_00_00_00_00_00_00
 }
 
@@ -148,11 +148,14 @@ public static class FieldContentHandlingExtensions
     public static bool HasExcludeWhenCompactFlag(this FieldContentHandling flags)           => (flags & ExcludeWhenCompact) > 0;
     public static bool HasDisableAutoDelimiting(this FieldContentHandling flags)            => (flags & DisableAutoDelimiting) > 0;
     public static bool ShouldDelimit(this FieldContentHandling flags)                       => (flags & EnsureFormattedDelimited) > 0;
-    public static bool HasEachItemOnlyOneLineFlag(this FieldContentHandling flags)                 => (flags & EachItemOnlyOneLine) > 0;
+    public static bool HasEachItemOnlyOneLineFlag(this FieldContentHandling flags)          => (flags & EachItemOnlyOneLine) > 0;
+    public static bool HasSuppressTypeNamesFlag(this FieldContentHandling flags) => (flags & LogSuppressTypeNames) > 0;
     public static bool DoesNotHaveLogSuppressTypeNamesFlag(this FieldContentHandling flags) => (flags & LogSuppressTypeNames) == 0;
     public static bool HasAsCollectionFlag(this FieldContentHandling flags)                 => (flags & AsCollection) > 0;
     public static bool DoesNotHaveAsCollectionFlag(this FieldContentHandling flags)         => (flags & AsCollection) == 0;
+    public static bool HasSuppressOpening (this FieldContentHandling flags)                 => (flags & SuppressOpening) > 0;
     public static bool DoesNotHaveSuppressOpening (this FieldContentHandling flags)         => (flags & SuppressOpening) == 0;
+    public static bool HasSuppressClosing (this FieldContentHandling flags)                 => (flags & SuppressClosing) > 0;
     public static bool DoesNotHaveSuppressClosing (this FieldContentHandling flags)         => (flags & SuppressClosing) == 0;
     public static bool HasAsEmbeddedContentFlags(this FieldContentHandling flags)           => (flags & AsEmbeddedContent) == AsEmbeddedContent;
     public static bool DoesNotHaveAsEmbeddedContentFlags(this FieldContentHandling flags)   => (flags & AsEmbeddedContent) != AsEmbeddedContent;

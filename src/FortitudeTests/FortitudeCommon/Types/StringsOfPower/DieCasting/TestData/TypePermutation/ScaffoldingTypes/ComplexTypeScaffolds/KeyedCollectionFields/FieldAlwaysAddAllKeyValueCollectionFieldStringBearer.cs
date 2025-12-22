@@ -50,7 +50,7 @@ public class FieldKeyValueArrayAlwaysAddAllStringBearer<TKey, TValue> : Formatte
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddAll
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllArray)
-              , ComplexTypeKeyedCollectionFieldAlwaysAddAllArray!.ToArray()
+              , ComplexTypeKeyedCollectionFieldAlwaysAddAllArray?.ToArray()
               , ValueFormatString, KeyFormatString)
            .Complete();
 }
@@ -848,9 +848,9 @@ public class FieldStructKeyRevealerValueRevealerEnumeratorAlwaysAddAllStringBear
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsEnumerator | AlwaysWrites | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyFormatString)]
+                | SupportsValueRevealer | SupportsKeyRevealer)]
 public class FieldKeyRevealerStructValueRevealerEnumeratorAlwaysAddAllStringBearer<TKey, TValue, TKRevealer> :
-    FormattedKeyStructValueRevealerFieldMoldScaffold<TKey, TValue>
+    KeyRevealerStructValueRevealerFieldMoldScaffold<TKey, TValue, TKRevealer>
     where TKey : TKRevealer?
     where TValue : struct
     where TKRevealer : notnull
@@ -883,12 +883,12 @@ public class FieldKeyRevealerStructValueRevealerEnumeratorAlwaysAddAllStringBear
            .KeyedCollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorBothRevealersStruct)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorBothRevealersStruct
-              , ValueRevealer, KeyFormatString)
+              , ValueRevealer, KeyRevealer)
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsEnumerator | AlwaysWrites | AcceptsClass | AcceptsNullableClass
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+[TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsEnumerator | AlwaysWrites | AcceptsNullableStruct
+                | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer)]
 public class FieldStructKeyRevealerStructValueRevealerEnumeratorAlwaysAddAllStringBearer<TKey, TValue> :
     StructKeyRevealerStructValueRevealerFieldMoldScaffold<TKey, TValue>
     where TKey : struct 

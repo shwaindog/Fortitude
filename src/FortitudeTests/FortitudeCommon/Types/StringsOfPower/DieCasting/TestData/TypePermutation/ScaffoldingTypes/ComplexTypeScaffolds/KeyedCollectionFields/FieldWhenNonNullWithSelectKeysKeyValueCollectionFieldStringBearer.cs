@@ -184,7 +184,7 @@ public class FieldKeyValueRevealerDictionaryWhenNonNullAddWithSelectKeysArrayStr
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AcceptsArray | NonNullWrites | SubsetListFilter
-                | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsKeyFormatString)]
+                | AcceptsNullableStruct | SupportsValueRevealer | SupportsKeyFormatString)]
 public class FieldKeyStructValueRevealerDictionaryWhenNonNullAddWithSelectKeysArrayStringBearer<TKey, TValue, TKSelectDerived>
     : SelectFormattedKeyStructValueRevealerFieldMoldScaffold<TKey, TValue, TKSelectDerived>
     where TKey : notnull

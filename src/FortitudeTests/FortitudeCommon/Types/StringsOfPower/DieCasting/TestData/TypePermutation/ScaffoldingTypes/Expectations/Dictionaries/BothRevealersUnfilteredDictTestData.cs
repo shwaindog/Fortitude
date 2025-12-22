@@ -28,23 +28,19 @@ public partial class BothRevealersDictTestData
             {
                 // Version Collections (non null class - json as string)
                 new BothRevealersDictExpect<bool, int>
-                    ([], () => Int_NegativeString_Reveal, () => Bool_Reveal,
-                     DefaultCallerTypeFlags, name: "Empty")
+                    ([], () => Int_NegativeString_Reveal, () => Bool_Reveal, name: "Empty")
                     {
                         { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "{}" }
-                      , { new EK(AcceptsTypeAllButNullableStruct | AlwaysWrites | NonNullWrites), "{}" }
-                      , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
+                      , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites), "{}" }
                     }
               , new BothRevealersDictExpect<bool, int>
-                    (null, () => Int_NegativeString_Reveal, () => Bool_Reveal, DefaultCallerTypeFlags)
+                    (null, () => Int_NegativeString_Reveal, () => Bool_Reveal)
                     {
-                        { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
-                      , { new EK(AcceptsTypeAllButNullableStruct | AlwaysWrites), "null" }
-                      , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
+                        { new EK(KeyedCollectionType | AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "{}" }
+                      , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "null" }
                     }
               , new BothRevealersDictExpect<bool, int>
-                    (BoolIntMap.ToList(), () => Int_Money_Reveal, () => Bool_Reveal, DefaultCallerTypeFlags
-                   , name: "All_NoFilter")
+                    (BoolIntMap.ToList(), () => Int_Money_Reveal, () => Bool_Reveal, name: "All_NoFilter")
                     {
                         {
                             new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -77,19 +73,16 @@ public partial class BothRevealersDictTestData
                         }
                     }
               , new BothRevealersDictExpect<double, ICharSequence>
-                    ([], () => CharSequenceMap_10Chars, () => Double_Reveal
-                   , DefaultCallerTypeFlags, name: "Empty")
+                    ([], () => CharSequenceMap_10Chars, () => Double_Reveal, name: "Empty")
                     {
                         { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "{}" }
-                      , { new EK(AcceptsTypeAllButNullableStruct | AlwaysWrites | NonNullWrites), "{}" }
-                      , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
+                      , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites), "{}" }
                     }
               , new BothRevealersDictExpect<double, ICharSequence>
-                    (null, () => CharSequenceMap_10Chars, () => Double_Reveal, DefaultCallerTypeFlags)
+                    (null, () => CharSequenceMap_10Chars, () => Double_Reveal)
                     {
-                        { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
-                      , { new EK(AcceptsTypeAllButNullableStruct | AlwaysWrites), "null" }
-                      , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
+                        { new EK(KeyedCollectionType | AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "{}" }
+                      , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "null" }
                     }
               , new BothRevealersDictExpect<double, ICharSequence>
                     (DoubleCharSequenceMap.ToList(), () => CharSequenceMap_10Chars, () => Double_Reveal

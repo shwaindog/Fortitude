@@ -6,9 +6,9 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldCon
 
 #endregion
 
-namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldKeyValueCollection;
+namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldKeyedCollection;
 
-public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMolder
+public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolder
 {
     public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKSelectDerived[] selectKeys

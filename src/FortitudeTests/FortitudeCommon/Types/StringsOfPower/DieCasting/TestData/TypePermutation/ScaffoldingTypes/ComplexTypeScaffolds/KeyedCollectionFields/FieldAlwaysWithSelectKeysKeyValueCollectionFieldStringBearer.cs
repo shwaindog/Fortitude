@@ -445,21 +445,20 @@ public class FieldKeyValueRevealerDictionaryAlwaysWithSelectKeysEnumeratorString
            .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings)
               , AlwaysWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings
-              , DisplayKeys?.GetEnumerator()!
+              , DisplayKeys?.GetEnumerator()
               , ValueRevealer, KeyFormatString)
            .Complete();
 }
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AcceptsEnumerator | AlwaysWrites
                 | SubsetListFilter | AcceptsNullableStruct | SupportsValueRevealer | SupportsKeyFormatString)]
-public class FieldKeyStructValueRevealerDictionaryAlwaysWithSelectKeysEnumeratorStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
-    : SelectFormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, TKSelectDerived, TVRevealBase> 
+public class FieldKeyStructValueRevealerDictionaryAlwaysWithSelectKeysEnumeratorStringBearer<TKey, TValue, TKSelectDerived>
+    : SelectFormattedKeyStructValueRevealerFieldMoldScaffold<TKey, TValue, TKSelectDerived> 
     where TKey : notnull
-    where TValue : TVRevealBase?
+    where TValue : struct
     where TKSelectDerived : TKey
-    where TVRevealBase : notnull
 {
-    public IReadOnlyDictionary<TKey, TValue>? AlwaysWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings 
+    public IReadOnlyDictionary<TKey, TValue?>? AlwaysWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings 
     {
         get => Value?.ToDictionary();
         set => Value = value?.ToList();

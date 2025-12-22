@@ -450,7 +450,7 @@ public class FieldKeyValueRevealerDictionaryWhenPopulatedWithSelectKeysEnumerato
            .KeyedCollectionField.WhenPopulatedWithSelectKeysEnumerate
                (nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings)
               , WhenPopulatedWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings
-              , DisplayKeys?.GetEnumerator()!
+              , DisplayKeys?.GetEnumerator()
               , ValueRevealer, KeyFormatString)
            .Complete();
 }

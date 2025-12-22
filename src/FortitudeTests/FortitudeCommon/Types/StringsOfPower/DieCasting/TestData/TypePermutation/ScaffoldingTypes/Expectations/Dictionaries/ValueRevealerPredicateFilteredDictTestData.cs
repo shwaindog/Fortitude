@@ -29,15 +29,13 @@ public partial class ValueRevealerDictTestData
                                                      , () => BoolIntMap_First_1, name: "Empty_Filtered")
                 {
                     { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "{}" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | AlwaysWrites | NonNullWrites), "{}" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
+                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites), "{}" }
                 }
               , new ValueRevealerDictExpect<bool, int>(null, () => Int_NegativeString_Reveal,
                                                        () => BoolIntMap_First_1)
                 {
-                    { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | AlwaysWrites), "null" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
+                    { new EK(KeyedCollectionType | AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "{}" }
+                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "null" }
                 }
               , new ValueRevealerDictExpect<bool, int>(BoolIntMap.ToList(), () => Int_Money_Reveal
                                                      , "{0[..1]}", () => BoolIntMap_First_1)

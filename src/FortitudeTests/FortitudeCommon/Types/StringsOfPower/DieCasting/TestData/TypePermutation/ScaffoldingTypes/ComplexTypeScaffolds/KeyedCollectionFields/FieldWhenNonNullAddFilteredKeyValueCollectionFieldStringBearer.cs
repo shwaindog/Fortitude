@@ -577,7 +577,7 @@ public class FieldStructKeyRevealerStructValueRevealerArrayWhenNonNullAddFiltere
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsList | NonNullWrites | FilterPredicate | AcceptsAnyExceptNullableStruct
                 | SupportsValueRevealer | SupportsKeyRevealer)]
-public class FieldKeyRevealerValueRevealerListWhenNonNullAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
+public class FieldKeyRevealerValueRevealerListWhenNonNullAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     : FilteredKeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     where TKey : TKFilterBase, TKRevealBase
     where TValue : TVFilterBase?, TVRevealBase?
@@ -677,7 +677,7 @@ public class FieldStructKeyRevealerStructValueRevealerListWhenNonNullAddFiltered
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsEnumerable | NonNullWrites | FilterPredicate | AcceptsAnyExceptNullableStruct
                 | SupportsValueRevealer | SupportsKeyRevealer)]
-public class FieldKeyRevealerValueRevealerEnumerableWhenNonNullAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
+public class FieldKeyRevealerValueRevealerEnumerableWhenNonNullAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     : FilteredKeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     where TKey : TKFilterBase, TKRevealBase
     where TValue : TVFilterBase?, TVRevealBase?
@@ -777,7 +777,7 @@ public class FieldStructKeyRevealerStructValueRevealerEnumerableWhenNonNullAddFi
 
 [TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsEnumerator | NonNullWrites | FilterPredicate | AcceptsAnyExceptNullableStruct
                 | SupportsValueRevealer | SupportsKeyRevealer)]
-public class FieldKeyRevealerValueRevealerEnumeratorWhenNonNullAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
+public class FieldKeyRevealerValueRevealerEnumeratorWhenNonNullAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     : FilteredKeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     where TKey : TKFilterBase, TKRevealBase
     where TValue : TVFilterBase?, TVRevealBase?

@@ -1,13 +1,13 @@
 ﻿using FortitudeCommon.DataStructures.MemoryPools;
 
-namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldKeyValueCollection;
+namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldKeyedCollection;
 
-public partial class SelectTypeKeyValueCollectionField<TExt> : RecyclableObject
+public partial class SelectTypeKeyedCollectionField<TExt> : RecyclableObject
     where TExt : TypeMolder
 {
     private ITypeMolderDieCast<TExt> stb = null!;
     
-    public SelectTypeKeyValueCollectionField<TExt> Initialize(ITypeMolderDieCast<TExt> molderDieCast)
+    public SelectTypeKeyedCollectionField<TExt> Initialize(ITypeMolderDieCast<TExt> molderDieCast)
     {
         stb = molderDieCast;
 

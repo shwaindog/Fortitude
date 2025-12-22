@@ -27,14 +27,12 @@ public partial class SimpleDictTestData
                 new DictionaryExpect<bool, int>([], () => BoolIntMap_First_1, name: "Empty_Filtered")
                 {
                     { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "{}" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | AlwaysWrites | NonNullWrites), "{}" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
+                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites), "{}" }
                 }
               , new DictionaryExpect<bool, int>(null, () => BoolIntMap_First_1)
                 {
-                    { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | AlwaysWrites), "null" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
+                    { new EK(KeyedCollectionType | AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "{}" }
+                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "null" }
                 }
               , new DictionaryExpect<bool, int>(BoolIntMap.ToList(), "0x{0}", "{0[..1]}"
                                                    , () => BoolIntMap_First_1)

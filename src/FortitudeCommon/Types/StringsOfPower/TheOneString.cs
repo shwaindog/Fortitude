@@ -432,7 +432,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var actualType     = toStyle?.GetType() ?? visitType;
         var existingRefId  = SourceGraphVisitRefId(toStyle, visitType);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(visitType, CurrentStyledTypeFormatter);
-        var appendSettings = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter);
+        var appendSettings = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, createContext.FormatFlags);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
         var keyedCollectionBuilder =
             Recycler.Borrow<KeyedCollectionMold>().InitializeKeyValueCollectionBuilder
@@ -450,7 +450,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
         var existingRefId  = SourceGraphVisitRefId(keyValueContainerInstance, actualType);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
-        var appendSettings = GetComplexTypeAppendSettings(keyValueContainerInstance, actualType, typeFormatter);
+        var appendSettings = GetComplexTypeAppendSettings(keyValueContainerInstance, actualType, typeFormatter, createContext.FormatFlags);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
         var keyedCollectionBuilder =
             Recycler.Borrow<ExplicitKeyedCollectionMold<TKey, TValue>>().InitializeExplicitKeyValueCollectionBuilder
@@ -466,7 +466,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var actualType     = toStyle?.GetType() ?? visitType;
         var existingRefId  = SourceGraphVisitRefId(toStyle, visitType);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(visitType, CurrentStyledTypeFormatter);
-        var appendSettings = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter);
+        var appendSettings = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, createContext.FormatFlags);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
         var simpleOrderedCollectionBuilder =
             Recycler.Borrow<SimpleOrderedCollectionMold>().InitializeSimpleOrderedCollectionBuilder
@@ -482,7 +482,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var actualType     = toStyle?.GetType() ?? visitType;
         var existingRefId  = SourceGraphVisitRefId(toStyle, visitType);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(visitType, CurrentStyledTypeFormatter);
-        var appendSettings = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter);
+        var appendSettings = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, createContext.FormatFlags);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
         var complexOrderedCollectionBuilder =
             Recycler.Borrow<ComplexOrderedCollectionMold>().InitializeComplexOrderedCollectionBuilder
@@ -498,7 +498,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var actualType     = toStyle?.GetType() ?? visitType;
         var existingRefId  = SourceGraphVisitRefId(toStyle, visitType);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
-        var appendSettings = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter);
+        var appendSettings = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, createContext.FormatFlags);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
         var explicitOrderedCollectionBuilder =
             Recycler.Borrow<ExplicitOrderedCollectionMold<TElement>>().InitializeExplicitOrderedCollectionBuilder
@@ -514,7 +514,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var actualType     = collectionInstance.GetType();
         var existingRefId  = SourceGraphVisitRefId(collectionInstance, actualType);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
-        var appendSettings = GetComplexTypeAppendSettings(collectionInstance, actualType, typeFormatter);
+        var appendSettings = GetComplexTypeAppendSettings(collectionInstance, actualType, typeFormatter, createContext.FormatFlags);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
         var explicitOrderedCollectionBuilder =
             Recycler.Borrow<ExplicitOrderedCollectionMold<TElement>>().InitializeExplicitOrderedCollectionBuilder
@@ -530,7 +530,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var actualType     = toStyle?.GetType() ?? visitType;
         var existingRefId  = SourceGraphVisitRefId(toStyle, visitType);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
-        var appendSettings = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter);
+        var appendSettings = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, createContext.FormatFlags);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
         var complexTypeBuilder =
             Recycler.Borrow<ComplexTypeMold>().InitializeComplexTypeBuilder
@@ -546,7 +546,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var actualType     = toStyle?.GetType() ?? visitType;
         var existingRefId  = SourceGraphVisitRefId(toStyle, visitType);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(visitType, CurrentStyledTypeFormatter);
-        var appendSettings = GetValueTypeAppendSettings(toStyle, actualType, typeFormatter);
+        var appendSettings = GetValueTypeAppendSettings(toStyle, actualType, typeFormatter, createContext.FormatFlags);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
         var simpleValueBuilder =
             Recycler.Borrow<SimpleValueTypeMold>().InitializeSimpleValueTypeBuilder
@@ -562,7 +562,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var actualType     = toStyle?.GetType() ?? visitType;
         var existingRefId  = SourceGraphVisitRefId(toStyle, visitType);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
-        var appendSettings = GetValueTypeAppendSettings(toStyle, actualType, typeFormatter);
+        var appendSettings = GetValueTypeAppendSettings(toStyle, actualType, typeFormatter, createContext.FormatFlags);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
         var keyedCollectionBuilder =
             Recycler.Borrow<ComplexValueTypeMold>().InitializeComplexValueTypeBuilder
@@ -589,17 +589,17 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         return this;
     }
 
-    public MoldDieCastSettings GetComplexTypeAppendSettings<T>(T forValue, Type actualType, IStyledTypeFormatting formatter)
+    public MoldDieCastSettings GetComplexTypeAppendSettings<T>(T forValue, Type actualType, IStyledTypeFormatting formatter, FieldContentHandling formatFlags)
     {
         var nextDieSettings = AppendSettings;
-        nextDieSettings.SkipTypeParts |= formatter.GetNextComplexTypePartFlags(this, forValue, actualType);
+        nextDieSettings.SkipTypeParts |= formatter.GetNextComplexTypePartFlags(this, forValue, actualType, formatFlags);
         return nextDieSettings;
     }
 
-    public MoldDieCastSettings GetValueTypeAppendSettings<T>(T forValue, Type actualType, IStyledTypeFormatting formatter)
+    public MoldDieCastSettings GetValueTypeAppendSettings<T>(T forValue, Type actualType, IStyledTypeFormatting formatter, FieldContentHandling formatFlags)
     {
         var nextDieSettings = AppendSettings;
-        nextDieSettings.SkipTypeParts |= formatter.GetNextValueTypePartFlags(this, forValue, actualType);
+        nextDieSettings.SkipTypeParts |= formatter.GetNextValueTypePartFlags(this, forValue, actualType, formatFlags);
         return nextDieSettings;
     }
 

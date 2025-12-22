@@ -5,9 +5,9 @@ using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 
-namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldKeyValueCollection;
+namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldKeyedCollection;
 
-public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMolder
+public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolder
 {
     public TExt WhenPopulatedAddAll<TKey, TValue>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value
@@ -52,23 +52,27 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
-        stb.FieldNameJoin(fieldName);
-        var hasValue = value?.MoveNext() ?? false;
-        if (hasValue)
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags, keyFormatString ?? "");
+        if (value != null)
         {
-            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-            var itemCount = 0;
-            stb.StartDictionary(value!);
-            while (hasValue)
+            var hasValue  = value.MoveNext();
+            if (hasValue)
             {
-                var kvp = value!.Current;
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString ?? "", DefaultCallerTypeFlags, true).FieldEnd();
-                stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString ?? "");
-                hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                stb.FieldNameJoin(fieldName);
+                var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+                var itemCount = 0;
+                stb.StartDictionary(value.GetType(), typeof(TKey), typeof(TValue), formatFlags);
+                while (hasValue)
+                {
+                    var kvp = value.Current;
+                    stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString ?? "", DefaultCallerTypeFlags, true).FieldEnd();
+                    stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString ?? "");
+                    hasValue = value.MoveNext();
+                    stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                }
+                stb.EndDictionary();
+                return stb.AddGoToNext();
             }
-            stb.EndDictionary();
-            return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
     }
@@ -167,23 +171,27 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
-        stb.FieldNameJoin(fieldName);
-        var hasValue = value?.MoveNext() ?? false;
-        if (hasValue)
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags, keyFormatString ?? "");
+        if (value != null)
         {
-            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-            var itemCount = 0;
-            stb.StartDictionary(value!);
-            while (hasValue)
+            var hasValue = value.MoveNext();
+            if (hasValue)
             {
-                var kvp = value!.Current;
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString ?? "", DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer);
-                hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                stb.FieldNameJoin(fieldName);
+                var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+                var itemCount = 0;
+                stb.StartDictionary(value.GetType(), typeof(TKey), typeof(TValue), formatFlags);
+                while (hasValue)
+                {
+                    var kvp = value.Current;
+                    stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString ?? "", DefaultCallerTypeFlags, true).FieldEnd();
+                    stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer);
+                    hasValue = value.MoveNext();
+                    stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                }
+                stb.EndDictionary();
+                return stb.AddGoToNext();
             }
-            stb.EndDictionary();
-            return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
     }
@@ -197,23 +205,27 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue?>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue?>>>(value?.GetType(), fieldName, formatFlags);
-        stb.FieldNameJoin(fieldName);
-        var hasValue = value?.MoveNext() ?? false;
-        if (hasValue)
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags, keyFormatString ?? "");
+        if (value != null)
         {
-            var kvpType   = typeof(KeyValuePair<TKey, TValue?>);
-            var itemCount = 0;
-            stb.StartDictionary(value!);
-            while (hasValue)
+            var hasValue = value.MoveNext();
+            if (hasValue)
             {
-                var kvp = value!.Current;
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString ?? "", DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer);
-                hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                stb.FieldNameJoin(fieldName);
+                var kvpType   = typeof(KeyValuePair<TKey, TValue?>);
+                var itemCount = 0;
+                stb.StartDictionary(value.GetType(), typeof(TKey), typeof(TValue?), formatFlags);
+                while (hasValue)
+                {
+                    var kvp = value.Current;
+                    stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString ?? "", DefaultCallerTypeFlags, true).FieldEnd();
+                    stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer);
+                    hasValue = value.MoveNext();
+                    stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                }
+                stb.EndDictionary();
+                return stb.AddGoToNext();
             }
-            stb.EndDictionary();
-            return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
     }
@@ -384,23 +396,27 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
-        stb.FieldNameJoin(fieldName);
-        var hasValue = value?.MoveNext() ?? false;
-        if (hasValue)
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        if (value != null)
         {
-            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-            var itemCount = 0;
-            stb.StartDictionary(value!);
-            while (hasValue)
+            var hasValue = value.MoveNext();
+            if (hasValue)
             {
-                var kvp = value!.Current;
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyRevealer, formatString, DefaultCallerTypeFlags, true);
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer);
-                hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                stb.FieldNameJoin(fieldName);
+                var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+                var itemCount = 0;
+                stb.StartDictionary(value.GetType(), typeof(TKey), typeof(TValue), formatFlags);
+                while (hasValue)
+                {
+                    var kvp = value.Current;
+                    stb.RevealCloakedBearerOrNull(kvp.Key, keyRevealer, formatString, DefaultCallerTypeFlags, true).FieldEnd();
+                    stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer);
+                    hasValue = value.MoveNext();
+                    stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                }
+                stb.EndDictionary();
+                return stb.AddGoToNext();
             }
-            stb.EndDictionary();
-            return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
     }
@@ -415,23 +431,27 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
-        stb.FieldNameJoin(fieldName);
-        var hasValue = value?.MoveNext() ?? false;
-        if (hasValue)
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        if (value != null)
         {
-            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-            var itemCount = 0;
-            stb.StartDictionary(value!);
-            while (hasValue)
+            var hasValue = value.MoveNext();
+            if (hasValue)
             {
-                var kvp = value!.Current;
-                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyRevealer, formatString, DefaultCallerTypeFlags, true);
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer);
-                hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                stb.FieldNameJoin(fieldName);
+                var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+                var itemCount = 0;
+                stb.StartDictionary(value.GetType(), typeof(TKey?), typeof(TValue), formatFlags);
+                while (hasValue)
+                {
+                    var kvp = value.Current;
+                    stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyRevealer, formatString, DefaultCallerTypeFlags, true).FieldEnd();
+                    stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer);
+                    hasValue = value.MoveNext();
+                    stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                }
+                stb.EndDictionary();
+                return stb.AddGoToNext();
             }
-            stb.EndDictionary();
-            return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
     }
@@ -446,23 +466,27 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
-        stb.FieldNameJoin(fieldName);
-        var hasValue = value?.MoveNext() ?? false;
-        if (hasValue)
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        if (value != null)
         {
-            var kvpType   = typeof(KeyValuePair<TKey, TValue>);
-            var itemCount = 0;
-            stb.StartDictionary(value!);
-            while (hasValue)
+            var hasValue = value.MoveNext();
+            if (hasValue)
             {
-                var kvp = value!.Current;
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyRevealer, formatString, DefaultCallerTypeFlags, true);
-                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer);
-                hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                stb.FieldNameJoin(fieldName);
+                var kvpType   = typeof(KeyValuePair<TKey, TValue>);
+                var itemCount = 0;
+                stb.StartDictionary(value.GetType(), typeof(TKey), typeof(TValue?), formatFlags);
+                while (hasValue)
+                {
+                    var kvp = value.Current;
+                    stb.RevealCloakedBearerOrNull(kvp.Key, keyRevealer, formatString, DefaultCallerTypeFlags, true).FieldEnd();
+                    stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer);
+                    hasValue = value.MoveNext();
+                    stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                }
+                stb.EndDictionary();
+                return stb.AddGoToNext();
             }
-            stb.EndDictionary();
-            return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
     }
@@ -476,23 +500,27 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey?, TValue?>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey?, TValue?>>>(value?.GetType(), fieldName, formatFlags);
-        stb.FieldNameJoin(fieldName);
-        var hasValue = value?.MoveNext() ?? false;
-        if (hasValue)
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        if (value != null)
         {
-            var kvpType   = typeof(KeyValuePair<TKey?, TValue?>);
-            var itemCount = 0;
-            stb.StartDictionary(value!);
-            while (hasValue)
+            var hasValue = value.MoveNext();
+            if (hasValue)
             {
-                var kvp = value!.Current;
-                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyRevealer, formatString, DefaultCallerTypeFlags, true);
-                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer);
-                hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                stb.FieldNameJoin(fieldName);
+                var kvpType   = typeof(KeyValuePair<TKey?, TValue?>);
+                var itemCount = 0;
+                stb.StartDictionary(value.GetType(), typeof(TKey?), typeof(TValue?) , formatFlags);
+                while (hasValue)
+                {
+                    var kvp = value.Current;
+                    stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyRevealer, formatString, DefaultCallerTypeFlags, true).FieldEnd();
+                    stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer);
+                    hasValue = value.MoveNext();
+                    stb.GoToNextCollectionItemStart(kvpType, itemCount++);
+                }
+                stb.EndDictionary();
+                return stb.AddGoToNext();
             }
-            stb.EndDictionary();
-            return stb.AddGoToNext();
         }
         return stb.StyleTypeBuilder;
     }

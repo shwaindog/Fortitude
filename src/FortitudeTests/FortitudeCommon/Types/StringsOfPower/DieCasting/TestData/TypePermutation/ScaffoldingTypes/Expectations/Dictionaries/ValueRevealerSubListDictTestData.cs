@@ -28,16 +28,13 @@ public partial class ValueRevealerDictTestData
                     ([],() => Int_NegativeString_Reveal
                    , () => Bool_True_SubList, name: "Empty_Filtered")
                 {
-                    { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "{}" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | AlwaysWrites | NonNullWrites), "{}" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
+                    { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites), "{}" }
                 }
               , new ValueRevealerKeyedSubListDictExpect<bool, int>(null,() => Int_NegativeString_Reveal
                                                                        , () => Bool_False_SubList)
                 {
-                    { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | AlwaysWrites), "null" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
+                    { new EK(KeyedCollectionType | AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "{}" }
+                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "null" }
                 }
               , new ValueRevealerKeyedSubListDictExpect<bool, int>
                     (BoolIntMap.ToList(), () => Int_NegativeString_Reveal, "{0[..1]}"
@@ -76,16 +73,13 @@ public partial class ValueRevealerDictTestData
               , new ValueRevealerKeyedSubListDictExpect<double, ICharSequence>
                     ([], () => CharSequenceMap_Pad50, "", name: "Empty_DoubleSubList")
                 {
-                    { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "{}" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | AlwaysWrites | NonNullWrites), "{}" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
+                    { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites), "{}" }
                 }
               , new ValueRevealerKeyedSubListDictExpect<double, ICharSequence>
                     (null, () => CharSequenceMap_Pad50, "")
                 {
-                    { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | AlwaysWrites), "null" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
+                    { new EK(KeyedCollectionType | AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "{}" }
+                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "null" }
                 }
               , new ValueRevealerKeyedSubListDictExpect<double, ICharSequence>
                     (DoubleCharSequenceMap.ToList(), () => CharSequenceMap_Pad50
@@ -336,19 +330,18 @@ public partial class ValueRevealerDictTestData
                         """.Dos2Unix()
                     }
                 }
-              , new  NullClassValueRevealerKeyedSubListDictExpect<IPAddress?, Uri>
-                    (NullIPAddressUriMap,
+              , new  NullClassValueRevealerKeyedSubListDictExpect<IPAddress, Uri>
+                    (IPAddressNullUriMap,
                      () => Uri_Reveal_RightArrow, "{0,18}")
                 {
                     {
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                                    0.0.0.0: ==> http://first-null.com/,
+                                    0.0.0.0: null,
                                   127.0.0.1: ==> tcp://localhost/,
                                 192.168.1.1: ==> tcp://default-gateway/,
-                            255.255.255.255: ==> null,
-                                       null: ==> null 
+                            255.255.255.255: null 
                         }
                         """.RemoveLineEndings()
                     }
@@ -357,11 +350,10 @@ public partial class ValueRevealerDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                        "        0.0.0.0":"==> http://first-null.com/",
+                        "        0.0.0.0":null,
                         "      127.0.0.1":"==> tcp://localhost/",
                         "    192.168.1.1":"==> tcp://default-gateway/",
-                        "255.255.255.255":==> null,
-                        "           null":==> null
+                        "255.255.255.255":null
                         }
                         """.RemoveLineEndings()
                     }
@@ -370,11 +362,10 @@ public partial class ValueRevealerDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                                  0.0.0.0: ==> http://first-null.com/,
+                                  0.0.0.0: null,
                                 127.0.0.1: ==> tcp://localhost/,
                               192.168.1.1: ==> tcp://default-gateway/,
-                          255.255.255.255: ==> null,
-                                     null: ==> null
+                          255.255.255.255: null
                         }
                         """.Dos2Unix()
                     }
@@ -383,11 +374,10 @@ public partial class ValueRevealerDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                          "        0.0.0.0": "==> http://first-null.com/",
+                          "        0.0.0.0": null,
                           "      127.0.0.1": "==> tcp://localhost/",
                           "    192.168.1.1": "==> tcp://default-gateway/",
-                          "255.255.255.255": ==> null,
-                          "           null": ==> null 
+                          "255.255.255.255": null
                         }
                         """.Dos2Unix()
                     }
@@ -440,16 +430,16 @@ public partial class ValueRevealerDictTestData
                         """.Dos2Unix()
                     }
                 }
-              , new NullClassValueRevealerKeyedSubListDictExpect<MySpanFormattableStruct?, MySpanFormattableClass>
-                    (NullMySpanFormattableStructClassMap
-                   , () => MySpanFormattableClass_Reveal_Pad20, "{0,-20}", () => NullMySpanFormattableStruct_Second_3_SubList)
+              , new NullClassValueRevealerKeyedSubListDictExpect<MySpanFormattableStruct, MySpanFormattableClass>
+                    (MySpanFormattableStructNullClassMap
+                   , () => MySpanFormattableClass_Reveal_Pad20, "{0,-20}", () => MySpanFormattableStruct_Second_3_SubList)
                 {
                     {
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                         Fourth_SpanStruct   :                 null,
-                         null                :                 null 
+                         Fourth_SpanStruct   : null,
+                         Fifth_SpanStruct    : null 
                         }
                         """.RemoveLineEndings()
                     }
@@ -458,8 +448,8 @@ public partial class ValueRevealerDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                        "Fourth_SpanStruct   ":"                 null",
-                        "null                ":"                 null"
+                        "Fourth_SpanStruct   ":null,
+                        "Fifth_SpanStruct    ":null
                         }
                         """.RemoveLineEndings()
                     }
@@ -468,8 +458,8 @@ public partial class ValueRevealerDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                          Fourth_SpanStruct   :                 null,
-                          null                :                 null
+                          Fourth_SpanStruct   : null,
+                          Fifth_SpanStruct    : null
                         }
                         """.Dos2Unix()
                     }
@@ -478,8 +468,8 @@ public partial class ValueRevealerDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                          "Fourth_SpanStruct   ":"                 null",
-                          "null                ":"                 null"
+                          "Fourth_SpanStruct   ": null,
+                          "Fifth_SpanStruct    ": null
                         }
                         """.Dos2Unix()
                     }
@@ -528,50 +518,50 @@ public partial class ValueRevealerDictTestData
                         """.Dos2Unix()
                     }
                 }
-              , new NullStructValueRevealerKeyedSubListDictExpect<MySpanFormattableClass?, MySpanFormattableStruct>
-                    (NullMySpanFormattableClassStructMap.ToList(), 
-                     () => MySpanFormattableStruct_Reveal_Pad20, "{0,-20}", () => NullMySpanFormattableClass_Second_3_SubList)
+              , new NullStructValueRevealerKeyedSubListDictExpect<MySpanFormattableClass, MySpanFormattableStruct>
+                    (MySpanFormattableNullClassStructMap.ToList(), 
+                     () => MySpanFormattableStruct_Reveal_Pad20, "{0,-20}", () => MySpanFormattableClass_First_3_SubList)
                 {
                     {
-                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                        new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                         null                :    Second_SpanStruct,
-                         Fourth_SpanClass    :                 null,
-                         null                :                 null 
+                         First_SpanClass     :     First_SpanStruct,
+                         Second_SpanClass    : null,
+                         Third_SpanClass     : null 
                         }
                         """.RemoveLineEndings()
                     }
                    ,
                     {
-                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                        new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                        "null                ":"   Second_SpanStruct",
-                        "Fourth_SpanClass    ":"                null",
-                        "null                ":"                null"
+                        "First_SpanClass     ":"    First_SpanStruct",
+                        "Second_SpanClass    ":null,
+                        "Third_SpanClass     ":null
                         }
                         """.RemoveLineEndings()
                     }
                    ,
                     {
-                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                        new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                          null                :    Second_SpanStruct,
-                          Fourth_SpanClass    :                 null,
-                          null                :                 null
+                          First_SpanClass     :     First_SpanStruct,
+                          Second_SpanClass    : null,
+                          Third_SpanClass     : null
                         }
                         """.Dos2Unix()
                     }
                    ,
                     {
-                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                        new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                          "null                ":"   Second_SpanStruct",
-                          "Fourth_SpanClass    ":"                null",
-                          "null                ":"                null"
+                          "First_SpanClass     ":"    First_SpanStruct",
+                          "Second_SpanClass    ": null,
+                          "Third_SpanClass     ": null
                         }
                         """.Dos2Unix()
                     }
@@ -617,32 +607,33 @@ public partial class ValueRevealerDictTestData
                         """.Dos2Unix()
                     }
                 }
-              , new NullStructValueRevealerKeyedSubListDictExpect<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>?
+              , new NullStructValueRevealerKeyedSubListDictExpect<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>
                       , FieldSpanFormattableAlwaysAddStructStringBearer<Uri>>
-                    (NullStructBearerToComplexBearerMap
-                   , () => StructBearer_Reveal_Pad30, "N3", () => NullStructBearer_First_3_SubList)
+                    (StructBearerToNullComplexStructBearerMap
+                   , () => StructBearer_Reveal_Pad30, "N3", () => StructBearer_First_3_SubList)
                 {
                     {
-                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                        new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                         null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
-                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/ },
                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>=
-                         SimpleTypeAsValueSpanFormattableStruct: 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
-                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/ },
+                         SimpleTypeAsValueSpanFormattableStruct: 3.142: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=
+                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/,
                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>=
-                         SimpleTypeAsValueSpanFormattableStruct: 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
-                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/ } 
+                         SimpleTypeAsValueSpanFormattableStruct: 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=
+                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/,
+                         SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>=
+                         SimpleTypeAsValueSpanFormattableStruct: 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=
+                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/ 
                         }
                         """.RemoveLineEndings()
                     }
                    ,
                     {
-                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                        new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                        "null":"http://first-value.com/",
+                        "3.142":"http://first-value.com/",
                         "2.718":"http://second-value.com/",
                         "31.416":"http://third-value.com/"
                         }
@@ -650,27 +641,21 @@ public partial class ValueRevealerDictTestData
                     }
                    ,
                     {
-                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                        new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                          null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> { 
-                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/ 
-                          },
-                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> { 
-                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/ 
-                          },
-                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
-                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/ 
-                          }
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 3.142: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/,
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/,
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/
                         }
                         """.Dos2Unix()
                     }
                    ,
                     {
-                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                        new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                          "null":"http://first-value.com/",
+                          "3.142":"http://first-value.com/",
                           "2.718":"http://second-value.com/",
                           "31.416":"http://third-value.com/"
                         }
@@ -731,32 +716,32 @@ public partial class ValueRevealerDictTestData
                         """.Dos2Unix()
                     }
                 }
-              , new NullStructValueRevealerKeyedSubListDictExpect<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>?
+              , new NullStructValueRevealerKeyedSubListDictExpect<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>
                       , FieldSpanFormattableAlwaysAddStructStringBearer<Uri>>
-                    (NullClassBearerToComplexBearerMap, 
-                     () => StructBearer_Reveal_Pad30, "N3", () => NullClassBearer_First_3_SubList)
+                    (ClassBearerToNullStructComplexBearerMap, 
+                     () => StructBearer_Reveal_Pad30, "N3", () => ClassBearer_First_3_SubList)
                 {
                     {
-                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                        new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                         null: SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<Uri> {
-                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/ },
                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>=
-                         SimpleTypeAsValueSpanFormattable: 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
-                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/ },
+                         SimpleTypeAsValueSpanFormattable: 3.142: null,
                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>=
-                         SimpleTypeAsValueSpanFormattable: 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
-                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/ } 
+                         SimpleTypeAsValueSpanFormattable: 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=
+                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/,
+                         SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>=
+                         SimpleTypeAsValueSpanFormattable: 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=
+                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/ 
                         }
                         """.RemoveLineEndings()
                     }
                    ,
                     {
-                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                        new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                        "null":"http://first-value.com/",
+                        "3.142":"http://first-value.com/",
                         "2.718":"http://second-value.com/",
                         "31.416":"http://third-value.com/"
                         }
@@ -764,27 +749,21 @@ public partial class ValueRevealerDictTestData
                     }
                    ,
                     {
-                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                        new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                          null: SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<Uri> { 
-                            ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/ 
-                          },
-                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>= SimpleTypeAsValueSpanFormattable: 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> { 
-                            ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/ 
-                          },
-                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>= SimpleTypeAsValueSpanFormattable: 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
-                            ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/ 
-                          }
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>= SimpleTypeAsValueSpanFormattable: 3.142: FieldSpanFormattablelwAaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/,
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>= SimpleTypeAsValueSpanFormattable: 2.718: FieldSpanFormattablelwAaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/,
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>= SimpleTypeAsValueSpanFormattable: 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/
                         }
                         """.Dos2Unix()
                     }
                    ,
                     {
-                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                        new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                          "null":"http://first-value.com/",
+                          "3.142":"http://first-value.com/",
                           "2.718":"http://second-value.com/",
                           "31.416":"http://third-value.com/"
                         }

@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
-using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using static System.Reflection.GenericParameterAttributes;
 
@@ -15,52 +10,53 @@ namespace FortitudeCommon.Extensions;
 
 public static class TypeExtensions
 {
-    public static readonly Type ArrayType                 = typeof(Array);
-    public static readonly Type ReadOnlyListTypeDef       = typeof(IReadOnlyList<>);
-    public static readonly Type SpanTypeDef               = typeof(Span<>);
-    public static readonly Type ReadOnlySpanTypeDef       = typeof(ReadOnlySpan<>);
-    public static readonly Type EnumerableType            = typeof(IEnumerable);
-    public static readonly Type EnumerableTypeDef         = typeof(IEnumerable<>);
-    public static readonly Type EnumeratorType            = typeof(IEnumerator);
-    public static readonly Type EnumeratorTypeDef         = typeof(IEnumerator<>);
-    public static readonly Type KeyValuePairTypeDef       = typeof(KeyValuePair<,>);
-    public static readonly Type ReadOnlyDictionaryTypeDef = typeof(IReadOnlyDictionary<,>);
-    public static readonly Type CollectionTypeDef         = typeof(ICollection<>);
-    public static readonly Type CollectionType            = typeof(ICollection);
-    public static readonly Type SpanFormattableType       = typeof(ISpanFormattable);
-    public static readonly Type NullableTypeDef           = typeof(Nullable<>);
-    public static readonly Type EnumType           = typeof(Enum);
+    public static readonly Type ArrayType                   = typeof(Array);
+    public static readonly Type ReadOnlyListTypeDef         = typeof(IReadOnlyList<>);
+    public static readonly Type ListTypeDef                 = typeof(List<>);
+    public static readonly Type SpanTypeDef                 = typeof(Span<>);
+    public static readonly Type ReadOnlySpanTypeDef         = typeof(ReadOnlySpan<>);
+    public static readonly Type DictionaryTypeDef           = typeof(Dictionary<,>);
+    public static readonly Type ConcurrentDictionaryTypeDef = typeof(ConcurrentDictionary<,>);
+    public static readonly Type EnumerableType              = typeof(IEnumerable);
+    public static readonly Type EnumerableTypeDef           = typeof(IEnumerable<>);
+    public static readonly Type EnumeratorType              = typeof(IEnumerator);
+    public static readonly Type EnumeratorTypeDef           = typeof(IEnumerator<>);
+    public static readonly Type KeyValuePairTypeDef         = typeof(KeyValuePair<,>);
+    public static readonly Type ReadOnlyDictionaryTypeDef   = typeof(IReadOnlyDictionary<,>);
+    public static readonly Type CollectionTypeDef           = typeof(ICollection<>);
+    public static readonly Type CollectionType              = typeof(ICollection);
+    public static readonly Type SpanFormattableType         = typeof(ISpanFormattable);
+    public static readonly Type NullableTypeDef             = typeof(Nullable<>);
+    public static readonly Type EnumType                    = typeof(Enum);
 
+    private static readonly ConcurrentDictionary<Type, bool> TypeIsFlagsEnumCache = new();
 
+    private static readonly ConcurrentDictionary<Type, bool> TypeIsSpanFormattbleCache = new();
 
-    private static ConcurrentDictionary<Type, bool> TypeIsFlagsEnumCache = new();
-    
-    private static ConcurrentDictionary<Type, bool> TypeIsSpanFormattbleCache = new();
-    
-    private static ConcurrentDictionary<Type, bool> TypeIsNullableSpanFormattbleCache = new();
-    
-    private static ConcurrentDictionary<Type, bool> TypeIsNullableCache = new();
-    
-    private static ConcurrentDictionary<Type, Type> TypeIsNullableGetUnderlyingCache = new();
-    
-    private static ConcurrentDictionary<Type, bool> IsAnyTypeHoldingCache = new();
-    
-    private static ConcurrentDictionary<(Type,Type), bool> TypeImplementsOrIsInterface = new();
+    private static readonly ConcurrentDictionary<Type, bool> TypeIsNullableSpanFormattbleCache = new();
+
+    private static readonly ConcurrentDictionary<Type, bool> TypeIsNullableCache = new();
+
+    private static readonly ConcurrentDictionary<Type, Type> TypeIsNullableGetUnderlyingCache = new();
+
+    private static readonly ConcurrentDictionary<Type, bool> IsAnyTypeHoldingCache = new();
+
+    private static readonly ConcurrentDictionary<(Type, Type), bool> TypeImplementsOrIsInterface = new();
 
     public static bool IsFlagsEnum<TEnum>() where TEnum : Enum =>
         TypeIsFlagsEnumCache.GetOrAdd(typeof(TEnum), type => type.GetCustomAttributes<FlagsAttribute>().Any());
-    
+
     public static bool IsFlagsEnum(this Type type) =>
         TypeIsFlagsEnumCache.GetOrAdd(type, t => t.GetCustomAttributes<FlagsAttribute>().Any());
 
     public static bool ImplementsInterface<TInterface>(this Type type)               => type.GetInterfaces().Contains(typeof(TInterface));
     public static bool ImplementsInterface(this Type type, Type checkImplementsThis) => type.GetInterfaces().Contains(checkImplementsThis);
 
-    public static bool ImplementsInterfaceOrIs<TInterface>(this Type type)               => 
+    public static bool ImplementsInterfaceOrIs<TInterface>(this Type type) =>
         TypeImplementsOrIsInterface.GetOrAdd
             ((type, typeof(TInterface)), types => types.Item1 == types.Item2 || types.Item1.GetInterfaces().Contains(types.Item2));
-    
-    public static bool ImplementsInterfaceOrIs(this Type type, Type checkImplementsThis) => 
+
+    public static bool ImplementsInterfaceOrIs(this Type type, Type checkImplementsThis) =>
         TypeImplementsOrIsInterface.GetOrAdd
             ((type, checkImplementsThis), types => types.Item1 == types.Item2 || types.Item1.GetInterfaces().Contains(types.Item2));
 
@@ -83,10 +79,18 @@ public static class TypeExtensions
     public static bool IsOrImplements(this Type toCheck, Type checkImplements) =>
         toCheck == checkImplements || toCheck.GetInterfaces().Any(i => i == checkImplements);
 
-    public static bool IsKeyValuePair(this Type type)    => type.GetGenericTypeDefinition() == KeyValuePairTypeDef;
+    public static bool IsKeyValuePair(this Type type)    => type.IsGenericType && type.GetGenericTypeDefinition() == KeyValuePairTypeDef;
     public static bool IsNotKeyValuePair(this Type type) => !type.IsKeyValuePair();
 
     public static bool IsArrayOf(this Type type, Type itemType) => type.IsArray() && type.GetElementType() == itemType;
+
+    public static bool IsArrayOfGeneric(this Type type, Type generic)
+    {
+        if (!type.IsArray) return false;
+        var arrayElementType = type.GetElementType();
+        if (arrayElementType == null) return false;
+        return arrayElementType.IsGenericType && arrayElementType.GetGenericTypeDefinition() == generic;
+    }
 
     public static bool IsArraySupporting(this Type type, Type itemType) => type.IsArray() && type.GetElementType()!.Supports(itemType);
 
@@ -109,19 +113,45 @@ public static class TypeExtensions
         return null;
     }
 
+    public static bool IsSpanOfGeneric(this Type type, Type genericType) =>
+        type.IsGenericType && type.GetGenericTypeDefinition() == SpanTypeDef && type.GetGenericArguments()[0].IsGenericType
+     && type.GetGenericArguments()[0].GetGenericTypeDefinition() == genericType;
+
     public static Type? IfReadOnlySpanGetElementType(this Type type)
     {
         if (type.IsGenericType && type.GetGenericTypeDefinition() == ReadOnlySpanTypeDef) { return type.GenericTypeArguments.FirstOrDefault(); }
         return null;
     }
 
+    public static bool IsReadOnlySpanOfGeneric(this Type type, Type genericType) =>
+        type.IsGenericType && type.GetGenericTypeDefinition() == ReadOnlySpanTypeDef && type.GetGenericArguments()[0].IsGenericType
+     && type.GetGenericArguments()[0].GetGenericTypeDefinition() == genericType;
+
     public static bool IsReadOnlyListAndNotArray(this Type type) =>
         !type.IsArray() && type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyListTypeDef);
 
+    public static bool IsListOf(this Type type, Type itemType) =>
+        type.IsGenericType && type.GetGenericTypeDefinition() == ListTypeDef && type.GetGenericArguments()[0] == itemType;
+
+    public static bool IsListOfGeneric(this Type type, Type genericType) =>
+        type.IsGenericType && type.GetGenericTypeDefinition() == ListTypeDef && type.GetGenericArguments()[0].IsGenericType
+     && type.GetGenericArguments()[0].GetGenericTypeDefinition() == genericType;
+
+    public static bool IsJustReadOnlyListOfGeneric(this Type type, Type genericType) =>
+        type.IsGenericType && type.GetGenericTypeDefinition() == ReadOnlyListTypeDef && type.GetGenericArguments()[0].IsGenericType
+     && type.GetGenericArguments()[0].GetGenericTypeDefinition() == genericType;
+
+    public static bool IsReadOnlyListOfGeneric(this Type type, Type genericType) =>
+        type.IsJustReadOnlyListOfGeneric(genericType)
+     || type.GetInterfaces()
+            .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyListTypeDef
+                                      && i.GenericTypeArguments[0] == genericType);
+
     public static bool IsReadOnlyListOf(this Type type, Type itemType) =>
         type.IsGenericType && type.GetGenericTypeDefinition() == ReadOnlyListTypeDef && type.GetGenericArguments()[0] == itemType
-     || type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyListTypeDef
-                                                      && i.GenericTypeArguments[0] == itemType);
+     || type.GetInterfaces()
+            .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyListTypeDef
+                                      && i.GenericTypeArguments[0] == itemType);
 
     public static bool IsReadOnlyListSupporting(this Type type, Type itemType) =>
         type.IsGenericType && type.GetGenericTypeDefinition() == ReadOnlyListTypeDef && type.GetGenericArguments()[0].Derives(itemType)
@@ -147,23 +177,36 @@ public static class TypeExtensions
     public static Type? GetListElementType(this Type type) => type.IsReadOnlyList() ? type.GenericTypeArguments.FirstOrDefault() : null;
 
     public static Type? GetIndexedCollectionElementType(this Type type) =>
-        type.IfArrayGetElementType() ?? type.IfReadOnlyListGetElementType() ?? 
+        type.IfArrayGetElementType() ?? type.IfReadOnlyListGetElementType() ??
         type.IfSpanGetElementType() ?? type.IfReadOnlySpanGetElementType();
 
+    public static bool IsJustReadOnlyDictionaryType(this Type type) =>
+        type.IsGenericType && type.GetGenericTypeDefinition() == ReadOnlyDictionaryTypeDef;
+    
     public static bool IsReadOnlyDictionaryType(this Type type) =>
-        (type.IsGenericType && type.GetGenericTypeDefinition() == ReadOnlyDictionaryTypeDef)
+        type.IsJustReadOnlyDictionaryType()
      || type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyDictionaryTypeDef);
 
     public static bool IsNotReadOnlyDictionaryType(this Type type) => !type.IsReadOnlyDictionaryType();
 
-    public static bool IsKeyValueOrderedCollection(this Type type) =>
+
+    public static bool IsFrameworkDictionary(this Type type) =>
+        (type.IsGenericType &&
+         (type.GetGenericTypeDefinition() == DictionaryTypeDef || type.GetGenericTypeDefinition() == ConcurrentDictionaryTypeDef));
+
+
+    public static bool IsIndexedKeyValueOrderedCollection(this Type type) =>
         type.IsIndexableOrderedCollection() && (type.GetIndexedCollectionElementType()?.IsKeyValuePair() ?? false);
+
+    public static bool IsKeyValueOrderedCollection(this Type type) =>
+        type.IsIndexedKeyValueOrderedCollection() || type.IsIterable() && (type.GetIterableElementType()?.IsKeyValuePair() ?? false);
 
     public static bool IsNotKeyValueOrderedCollection(this Type type) => !type.IsKeyValueOrderedCollection();
 
     public static bool IsKeyedCollection(this Type type) => type.IsReadOnlyDictionaryType() || type.IsKeyValueOrderedCollection();
 
     public static bool IsNotKeyedCollection(this Type type) => !type.IsKeyedCollection();
+
 
     public static KeyValuePair<Type, Type>? GetKeyedCollectionTypes(this Type type)
     {
@@ -174,7 +217,7 @@ public static class TypeExtensions
                     .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyDictionaryTypeDef)!;
             return new KeyValuePair<Type, Type>(dictionaryInterface.GenericTypeArguments[0], dictionaryInterface.GenericTypeArguments[1]);
         }
-        if (type.IsKeyValueOrderedCollection())
+        if (type.IsIndexedKeyValueOrderedCollection())
         {
             var keyValueType = type.GetIndexedCollectionElementType()!;
             return new KeyValuePair<Type, Type>(keyValueType.GenericTypeArguments[0], keyValueType.GenericTypeArguments[1]);
@@ -212,6 +255,17 @@ public static class TypeExtensions
                                                       && i.GenericTypeArguments[0] == itemType);
 
 
+    public static bool IsJustEnumerableOfGeneric(this Type type, Type itemType) =>
+        (type.IsGenericType && type.GetGenericTypeDefinition() == EnumerableTypeDef
+                            && type.GenericTypeArguments[0].IsGenericType && type.GenericTypeArguments[0].GetGenericTypeDefinition() == itemType);
+
+    public static bool IsEnumerableOfGeneric(this Type type, Type itemType) =>
+        type.IsJustEnumerableOfGeneric(itemType) || type.GetInterfaces()
+                                                        .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == EnumerableTypeDef &&
+                                                                  i.GenericTypeArguments[0].IsGenericType
+                                                               && i.GenericTypeArguments[0].GetGenericTypeDefinition() == itemType);
+
+
     public static bool IsEnumerableOfNullable(this Type type, Type itemType) =>
         (type.IsGenericType && type.GetGenericTypeDefinition() == EnumerableTypeDef && type.GenericTypeArguments[0].IsNullableOf(itemType))
      || type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == EnumerableTypeDef
@@ -222,6 +276,7 @@ public static class TypeExtensions
         (type.IsGenericType && type.GetGenericTypeDefinition() == EnumerableTypeDef && type.GenericTypeArguments[0].Supports(itemType))
      || type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == EnumerableTypeDef
                                                       && i.GenericTypeArguments[0].Supports(itemType));
+
 
     public static bool IsNotEnumerable(this Type type) => !type.IsEnumerable();
 
@@ -247,6 +302,15 @@ public static class TypeExtensions
      || type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == EnumeratorTypeDef
                                                       && i.GenericTypeArguments[0].IsNullableOf(itemType));
 
+    public static bool IsJustEnumeratorOfGeneric(this Type type, Type itemType) =>
+        (type.IsGenericType && type.GetGenericTypeDefinition() == EnumeratorTypeDef
+                            && type.GenericTypeArguments[0].IsGenericType && type.GenericTypeArguments[0].GetGenericTypeDefinition() == itemType);
+
+    public static bool IsEnumeratorOfGeneric(this Type type, Type itemType) =>
+        type.IsJustEnumeratorOfGeneric(itemType)
+     || type.GetInterfaces()
+            .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == EnumeratorTypeDef && i.GenericTypeArguments[0].IsGenericType
+                   && i.GenericTypeArguments[0].GetGenericTypeDefinition() == itemType);
 
     public static bool IsEnumeratorSupporting(this Type type, Type itemType) =>
         (type.IsGenericType && type.GetGenericTypeDefinition() == EnumeratorTypeDef && type.GenericTypeArguments[0].Supports(itemType))
@@ -359,13 +423,13 @@ public static class TypeExtensions
         return type.Name;
     }
 
-    private static readonly ConcurrentDictionary<Type, string> CachedTypeNamesNoConstraints = new ();
-    
-    private static readonly ConcurrentDictionary<Type, string> CachedTypeNamesWithConstraints = new ();
+    private static readonly ConcurrentDictionary<Type, string> CachedTypeNamesNoConstraints = new();
+
+    private static readonly ConcurrentDictionary<Type, string> CachedTypeNamesWithConstraints = new();
 
     public static string CachedCSharpNameNoConstraints(this Type typeNameToFriendlify) =>
         CachedTypeNamesNoConstraints.GetOrAdd(typeNameToFriendlify, type => type.ShortNameInCSharpFormat(false));
-    
+
     public static string CachedCSharpNameWithConstraints(this Type typeNameToFriendlify) =>
         CachedTypeNamesWithConstraints.GetOrAdd(typeNameToFriendlify, type => type.ShortNameInCSharpFormat());
 
