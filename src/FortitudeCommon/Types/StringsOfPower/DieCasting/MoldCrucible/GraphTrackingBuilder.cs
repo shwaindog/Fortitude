@@ -59,6 +59,8 @@ public class GraphTrackingBuilder
     private IEncodingTransfer     graphEncoder     = new PassThroughEncodingTransfer();
     private IEncodingTransfer?    parentGraphEncoder;
 
+    public bool HasCommitContent => CurrentSectionRanges.HasContent;
+    
     private bool AllowEmptyContent
     {
         get => currentSectionRanges.AllowEmptyContent;
@@ -74,6 +76,10 @@ public class GraphTrackingBuilder
 
     public void AddHighWaterMark()
     {
+        if (CurrentSectionRanges.HasContent || CurrentSectionRanges.HasSeparator || CurrentSectionRanges.HasPadding)
+        {
+            Complete(CurrentSectionRanges.StartedWithFormatFlags);
+        }
         var highWaterMark = new ContentSeparatorRanges
             (FieldContentHandling.DefaultCallerTypeFlags
            , new Range(Index.End, Index.End)); // Empty content Range stops penultimate seperator/padding removal.
@@ -252,18 +258,20 @@ public class GraphTrackingBuilder
         {
             if (lastRange.ContentRange == null && penUltimateRange != null)
             {
-                sepPaddingLen =  lastRange.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
+                sepPaddingLen =  penUltimateRange?.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
                 sb.Length     -= sepPaddingLen;
             }
+            AddHighWaterMark();
             return (sb?.Length ?? 0) > 0 ? sb![^1] : '\0';
         }
         sepPaddingLen = lastRange.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
         sb.Length -= sepPaddingLen;
         if (lastRange.ContentRange == null && penUltimateRange != null)
         {
-            sepPaddingLen =  lastRange.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
+            sepPaddingLen =  penUltimateRange?.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
             sb.Length     -= sepPaddingLen;
         }
+        AddHighWaterMark();
         return (sb?.Length ?? 0) > 0 ? sb![^1] : '\0';
     }
 

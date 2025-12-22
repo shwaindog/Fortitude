@@ -32,8 +32,7 @@ public partial class BothRevealersDictTestData
                    , name: "Empty_Filtered")
                     {
                         { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "{}" }
-                      , { new EK(AcceptsTypeAllButNullableStruct | AlwaysWrites | NonNullWrites), "{}" }
-                      , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
+                      , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites), "{}" }
                     }
               , new BothRevealersDictExpect<bool, int>
                     (null
@@ -41,9 +40,8 @@ public partial class BothRevealersDictTestData
                    , () => Bool_Reveal
                    , () => BoolIntMap_First_1)
                     {
-                        { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
-                      , { new EK(AcceptsTypeAllButNullableStruct | AlwaysWrites), "null" }
-                      , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
+                        { new EK(KeyedCollectionType | AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "{}" }
+                      , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "null" }
                     }
               , new BothRevealersDictExpect<bool, int>
                     (BoolIntMap.ToList()

@@ -16,6 +16,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     
     public GraphTrackingBuilder GraphBuilder { get; }
     
+    
 
     FieldContentHandling ResolveContentFormattingFlags<T>(IStringBuilder sb, T input, FieldContentHandling callerFormattingFlags
     , string formatString = "", bool isFieldName = false);
@@ -32,8 +33,8 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     SeparatorPaddingRanges AppendFieldValueSeparator(ITypeMolderDieCast moldInternal, FieldContentHandling formatFlags = DefaultCallerTypeFlags);
     
-    SkipTypeParts GetNextValueTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType);
-    SkipTypeParts GetNextComplexTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType);
+    SkipTypeParts GetNextValueTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FieldContentHandling formatFlags);
+    SkipTypeParts GetNextComplexTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FieldContentHandling formatFlags);
 
     Range? AddNextFieldSeparator(FieldContentHandling formatFlags = DefaultCallerTypeFlags);
     ContentSeparatorRanges AddNextFieldPadding(FieldContentHandling formatFlags = DefaultCallerTypeFlags);

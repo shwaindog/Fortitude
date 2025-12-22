@@ -3,9 +3,9 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 
-namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldKeyValueCollection;
+namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldKeyedCollection;
 
-public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMolder
+public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolder
 {
     public TExt WhenNonNullAddFiltered<TKey, TValue, TKFilterBase, TVFilterBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value

@@ -87,9 +87,9 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return AsStringContent;
     }
     
-    public SkipTypeParts GetNextValueTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType) => SkipTypeParts.None;
+    public SkipTypeParts GetNextValueTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FieldContentHandling formatFlags) => SkipTypeParts.None;
 
-    public SkipTypeParts GetNextComplexTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType) => SkipTypeParts.None;
+    public SkipTypeParts GetNextComplexTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FieldContentHandling formatFlags) => SkipTypeParts.None;
 
     public virtual ContentSeparatorRanges AppendValueTypeOpening(ITypeMolderDieCast moldInternal
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags)

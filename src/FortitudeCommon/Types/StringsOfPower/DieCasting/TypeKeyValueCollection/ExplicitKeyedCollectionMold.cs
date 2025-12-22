@@ -36,8 +36,9 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
     public override void AppendOpening()
     {
         var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!;
+        var typeFormattingFlags = stb.AppendSettings.SkipTypeParts.ToFormattingFlags();
         MoldStateField.StyleFormatter.AppendKeyedCollectionStart(MoldStateField.Sb, MoldStateField.TypeBeingBuilt, keyValueTypes.Value.Key
-                                                           , keyValueTypes.Value.Value);
+                                                           , keyValueTypes.Value.Value, typeFormattingFlags);
     }
 
     public override void AppendClosing()
@@ -234,7 +235,7 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
     public ExplicitKeyedCollectionMold<TKey, TValue> AppendNextKeyedCollectionEntrySeparator()
     {
         if (stb.SkipBody) return this;
-        stb.StyleFormatter.AddNextFieldSeparator();
+        stb.StyleFormatter.AddNextFieldSeparatorAndPadding();
         return this;
     }
     

@@ -1,6 +1,6 @@
 ﻿using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldCollection;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldKeyValueCollection;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldKeyedCollection;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType;
@@ -8,7 +8,7 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType;
 
 public class ComplexTypeMold : MultiValueTypeMolder<ComplexTypeMold>
 {
-    private SelectTypeKeyValueCollectionField<ComplexTypeMold>? addKeyCollectionField;
+    private SelectTypeKeyedCollectionField<ComplexTypeMold>? addKeyCollectionField;
 
     private SelectTypeCollectionField<ComplexTypeMold>? addCollectionField;
 
@@ -47,9 +47,9 @@ public class ComplexTypeMold : MultiValueTypeMolder<ComplexTypeMold>
     {
     }
 
-    public SelectTypeKeyValueCollectionField<ComplexTypeMold> KeyedCollectionField
+    public SelectTypeKeyedCollectionField<ComplexTypeMold> KeyedCollectionField
     {
-        get => addKeyCollectionField ??= State.Recycler.Borrow<SelectTypeKeyValueCollectionField<ComplexTypeMold>>().Initialize(State);
+        get => addKeyCollectionField ??= State.Recycler.Borrow<SelectTypeKeyedCollectionField<ComplexTypeMold>>().Initialize(State);
         protected set => addKeyCollectionField = value;
     }
 

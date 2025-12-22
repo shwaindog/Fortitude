@@ -61,8 +61,14 @@ public struct ContentSeparatorPaddingRangeTracking
             }
             return null;
         }  
-    } 
-    
+    }
+
+    public bool HasContent => this is { FromStartContentStart: not null, FromStartContentEnd: not null };
+    public bool HasSeparator => this is { FromStartContentEnd: not null, FromStartSeparatorEnd: not null };
+    public bool HasPadding => this is  { FromStartPaddingEnd: not null } 
+                                   and ({ FromStartSeparatorEnd: not null } 
+                                     or { FromStartContentEnd : not null });
+
     public void Reset()
     {
         StartedWithFormatFlags = FieldContentHandling.DefaultCallerTypeFlags;
@@ -83,7 +89,7 @@ public static class ContentSeparatorPaddingRangeTrackingExtensions
         var sbLength = sb.Length;
 
         Range? contentRange = null;
-        if (tracking is { FromStartContentStart: not null, FromStartContentEnd: not null })
+        if (tracking.HasContent)
         {
             var contentStartIndexFromEnd = new Index(Math.Abs(sbLength - tracking.FromStartContentStart.Value), true);
             var contentEndIndexFromEnd   = new Index(Math.Abs(sbLength - tracking.FromStartContentEnd.Value), true);
@@ -92,7 +98,7 @@ public static class ContentSeparatorPaddingRangeTrackingExtensions
                 contentRange = new Range(contentStartIndexFromEnd, contentEndIndexFromEnd);
         }
         Range? separatorRange = null;
-        if (tracking is { FromStartContentEnd: not null, FromStartSeparatorEnd: not null })
+        if (tracking.HasSeparator)
         {
             var separatorStartIndexFromEnd = new Index(Math.Abs(sbLength - tracking.FromStartContentEnd.Value), true);
             var separatorEndIndexFromEnd   = new Index(Math.Abs(sbLength - tracking.FromStartSeparatorEnd.Value), true);
@@ -100,7 +106,7 @@ public static class ContentSeparatorPaddingRangeTrackingExtensions
                 separatorRange = new Range(separatorStartIndexFromEnd, separatorEndIndexFromEnd);
         }
         Range? paddingRange = null;
-        if (tracking is { FromStartPaddingEnd: not null } and ({ FromStartSeparatorEnd: not null } or { FromStartContentEnd : not null }))
+        if (tracking.HasPadding)
         {
             var sepEndOrContentEnd       = tracking.FromStartSeparatorEnd ?? tracking.FromStartContentEnd;
             var paddingStartIndexFromEnd = new Index(Math.Abs(sbLength - sepEndOrContentEnd!.Value), true);

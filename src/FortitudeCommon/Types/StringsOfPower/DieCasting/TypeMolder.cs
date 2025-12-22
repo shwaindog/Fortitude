@@ -132,7 +132,11 @@ public static class StyledTypeBuilderExtensions
     public static TExt AddGoToNext<TExt>(this ITypeMolderDieCast<TExt> stb)
         where TExt : TypeMolder
     {
-        return stb.StyleFormatter.AddNextFieldSeparatorAndPadding().ToTypeBuilder(stb);
+        if (stb.StyleFormatter.GraphBuilder.HasCommitContent)
+        {
+            stb.StyleFormatter.AddNextFieldSeparatorAndPadding().ToTypeBuilder(stb);
+        }
+        return stb.StyleTypeBuilder;
     }
 
     public static TExt ToTypeBuilder<TExt, T>(this T _, ITypeMolderDieCast<TExt> typeBuilder)
@@ -936,16 +940,16 @@ public static class StyledTypeBuilderExtensions
         where TExt : TypeMolder =>
         stb.StyleFormatter.CollectionNextItemFormat(stb.Sb, value, retrieveCount, formatString, formatFlags).AnyToCompAccess(stb);
 
-    public static void StartDictionary<TExt, TDict>(this ITypeMolderDieCast<TExt> stb, TDict keyValueInstances)
-        where TExt : TypeMolder where TDict : notnull
+    public static void StartDictionary<TExt>(this ITypeMolderDieCast<TExt> stb
+      , Type dictionaryType, Type keyType, Type valueType, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        where TExt : TypeMolder
     {
-        stb.StyleFormatter.AppendComplexTypeOpening(stb);
+        stb.StyleFormatter.AppendKeyedCollectionStart(stb.Sb, dictionaryType, keyType, valueType,  formatFlags);
     }
 
     public static void EndDictionary<TExt>(this ITypeMolderDieCast<TExt> stb)
         where TExt : TypeMolder
     {
-        stb.Sb.RemoveLastWhiteSpacedCommaIfFound();
         stb.StyleFormatter.AppendTypeClosing(stb);
     }
 

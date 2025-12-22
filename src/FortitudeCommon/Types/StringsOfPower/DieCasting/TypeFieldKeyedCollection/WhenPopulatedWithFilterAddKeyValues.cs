@@ -4,9 +4,9 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeKeyValueCollection;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
 
-namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldKeyValueCollection;
+namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldKeyedCollection;
 
-public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMolder
+public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolder
 {
     public TExt WhenPopulatedWithFilter<TKey, TValue, TKFilterBase, TVFilterBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
@@ -19,6 +19,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
@@ -41,7 +42,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm ??= stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm ??= stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueFormatString, keyFormatString);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -67,13 +68,14 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<KeyValuePair<TKey, TValue>[]>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i + 1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -86,7 +88,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm ??= stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm ??= stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueFormatString, keyFormatString);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -112,7 +114,8 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
     {
         if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
-
+        
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
@@ -120,7 +123,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             {
                 var kvp = value[i];
 
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i + 1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -133,7 +136,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm ??= stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm ??= stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueFormatString, keyFormatString);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -160,6 +163,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
@@ -182,7 +186,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm ??= stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm ??= stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueFormatString, keyFormatString);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -209,6 +213,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
 
         var hasValue  = value?.MoveNext() ?? false;
@@ -237,7 +242,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             if (ekcm == null)
             {
                 stb.FieldNameJoin(fieldName);
-                ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             }
             ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueFormatString, keyFormatString);
             if (filterResult is { KeepProcessing: false }) break;
@@ -265,6 +270,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
@@ -287,7 +293,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -314,6 +320,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
@@ -336,7 +343,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -362,13 +369,14 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<KeyValuePair<TKey, TValue>[]>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i + 1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -381,7 +389,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm ??= stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm ??= stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -406,13 +414,14 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<KeyValuePair<TKey, TValue?>[]>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<KeyValuePair<TKey, TValue?>[]>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i + 1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -425,7 +434,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm ??= stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm ??= stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -453,13 +462,14 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i + 1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -472,7 +482,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm ??= stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm ??= stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -499,13 +509,14 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue?>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue?>>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i + 1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -518,7 +529,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm ??= stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm ??= stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -546,6 +557,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
@@ -568,7 +580,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm ??= stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm ??= stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -595,6 +607,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
@@ -617,7 +630,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm ??= stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm ??= stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -645,6 +658,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
 
         var hasValue  = value?.MoveNext() ?? false;
@@ -673,7 +687,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             if (ekcm == null)
             {
                 stb.FieldNameJoin(fieldName);
-                ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             }
             ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
             if (filterResult is { KeepProcessing: false }) break;
@@ -700,6 +714,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue?>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue?>>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
 
         var hasValue  = value?.MoveNext() ?? false;
@@ -728,7 +743,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             if (ekcm == null)
             {
                 stb.FieldNameJoin(fieldName);
-                ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             }
             ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
             if (filterResult is { KeepProcessing: false }) break;
@@ -755,6 +770,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
@@ -777,7 +793,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -803,6 +819,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IReadOnlyDictionary<TKey, TValue?>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue?>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
@@ -825,7 +842,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -852,13 +869,14 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<KeyValuePair<TKey, TValue>[]>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i + 1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -871,7 +889,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -897,13 +915,14 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<KeyValuePair<TKey?, TValue>[]>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<KeyValuePair<TKey?, TValue>[]>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i + 1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -916,7 +935,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -942,13 +961,14 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<KeyValuePair<TKey, TValue?>[]>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<KeyValuePair<TKey, TValue?>[]>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i + 1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -961,7 +981,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -986,13 +1006,14 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<KeyValuePair<TKey?, TValue?>[]>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<KeyValuePair<TKey?, TValue?>[]>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i + 1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1005,7 +1026,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1032,13 +1053,14 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i + 1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1051,7 +1073,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1077,13 +1099,14 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey?, TValue>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey?, TValue>>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i + 1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1096,7 +1119,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1122,13 +1145,14 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue?>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue?>>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i + 1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1141,7 +1165,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1166,13 +1190,14 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey?, TValue?>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey?, TValue?>>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp          = value[i];
-                var filterResult = filterPredicate(i, kvp.Key!, kvp.Value!);
+                var filterResult = filterPredicate(i + 1, kvp.Key!, kvp.Value!);
                 if (filterResult is { IncludeItem: false })
                 {
                     if (filterResult is { KeepProcessing: true })
@@ -1185,7 +1210,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1213,6 +1238,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
@@ -1235,7 +1261,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1262,6 +1288,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IEnumerable<KeyValuePair<TKey?, TValue>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IEnumerable<KeyValuePair<TKey?, TValue>>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
@@ -1284,7 +1311,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1311,6 +1338,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
@@ -1333,7 +1361,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1359,6 +1387,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IEnumerable<KeyValuePair<TKey?, TValue?>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IEnumerable<KeyValuePair<TKey?, TValue?>>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
         if (value != null)
         {
@@ -1381,7 +1410,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
                 if (ekcm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                    ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
                 }
                 ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1409,6 +1438,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
 
         var hasValue  = value?.MoveNext() ?? false;
@@ -1437,7 +1467,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             if (ekcm == null)
             {
                 stb.FieldNameJoin(fieldName);
-                ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             }
             ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
             if (filterResult is { KeepProcessing: false }) break;
@@ -1464,6 +1494,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey?, TValue>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey?, TValue>>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
 
         var hasValue  = value?.MoveNext() ?? false;
@@ -1492,7 +1523,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             if (ekcm == null)
             {
                 stb.FieldNameJoin(fieldName);
-                ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             }
             ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
             if (filterResult is { KeepProcessing: false }) break;
@@ -1519,6 +1550,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue?>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue?>>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
 
         var hasValue  = value?.MoveNext() ?? false;
@@ -1547,7 +1579,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             if (ekcm == null)
             {
                 stb.FieldNameJoin(fieldName);
-                ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             }
             ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
             if (filterResult is { KeepProcessing: false }) break;
@@ -1573,6 +1605,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey?, TValue?>>>(value?.GetType(), fieldName, formatFlags)) 
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey?, TValue?>>>(value?.GetType(), fieldName, formatFlags);
 
+        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcm = null;
 
         var hasValue  = value?.MoveNext() ?? false;
@@ -1601,7 +1634,7 @@ public partial class SelectTypeKeyValueCollectionField<TExt> where TExt : TypeMo
             if (ekcm == null)
             {
                 stb.FieldNameJoin(fieldName);
-                ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value);
+                ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
             }
             ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
             if (filterResult is { KeepProcessing: false }) break;

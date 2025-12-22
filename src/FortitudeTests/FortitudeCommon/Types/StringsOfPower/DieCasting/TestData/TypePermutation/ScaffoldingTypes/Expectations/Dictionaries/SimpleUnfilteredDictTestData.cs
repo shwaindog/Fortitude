@@ -33,9 +33,8 @@ public partial class SimpleDictTestData
                 }
               , new DictionaryExpect<bool, int>(null, DefaultCallerTypeFlags)
                 {
-                    { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | AlwaysWrites), "null" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
+                    { new EK(KeyedCollectionType | AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan), "{}" }
+                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "null" }
                 }
               , new DictionaryExpect<bool, int>(BoolIntMap.ToList(), DefaultCallerTypeFlags, name: "All_NoFilter")
                 {
@@ -111,9 +110,8 @@ public partial class SimpleDictTestData
                 }
               , new DictionaryExpect<double, ICharSequence>(null, DefaultCallerTypeFlags)
                 {
-                    { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | AlwaysWrites), "null" }
-                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
+                    { new EK(KeyedCollectionType | AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "{}" }
+                  , { new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "null" }
                 }
               , new DictionaryExpect<double, ICharSequence>(DoubleCharSequenceMap.ToList(), DefaultCallerTypeFlags
                                                                , "All_NoFilter")

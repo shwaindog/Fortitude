@@ -846,7 +846,7 @@ public class FieldStructKeyRevealerValueRevealerEnumeratorWhenPopulatedAddAllStr
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsEnumerator | NonDefaultWrites | AcceptsAnyExceptNullableStruct
+[TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsEnumerator | NonDefaultWrites | AcceptsNullableStruct
                 | SupportsValueRevealer | SupportsKeyRevealer)]
 public class FieldKeyRevealerStructValueRevealerEnumeratorWhenPopulatedAddAllStringBearer<TKey, TValue, TKRevealBase> : 
     KeyRevealerStructValueRevealerFieldMoldScaffold<TKey, TValue, TKRevealBase>
@@ -886,7 +886,7 @@ public class FieldKeyRevealerStructValueRevealerEnumeratorWhenPopulatedAddAllStr
            .Complete();
 }
 
-[TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsEnumerator | NonDefaultWrites | AcceptsAnyExceptNullableStruct
+[TypeGeneratePart(ComplexType | KeyValueCardinality | AcceptsEnumerator | NonDefaultWrites | AcceptsNullableStruct
                 | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer)]
 public class FieldStructKeyRevealerStructValueRevealerEnumeratorWhenPopulatedAddAllStringBearer<TKey, TValue> : 
     StructKeyRevealerStructValueRevealerFieldMoldScaffold<TKey, TValue>

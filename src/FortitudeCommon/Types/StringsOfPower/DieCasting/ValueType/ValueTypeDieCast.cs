@@ -110,8 +110,8 @@ public class ValueTypeDieCast<TVMold> : TypeMolderDieCast<TVMold> where TVMold :
       , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
         var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || SkipField<TFmt?>(value?.GetType(), "", formatFlags)) 
-            return WasSkipped<TFmt?>(value?.GetType(), "", formatFlags);
+        if (callContext.ShouldSkip || SkipField<TFmt?>(value?.GetType(), formatString, formatFlags)) 
+            return WasSkipped<TFmt?>(value?.GetType(), formatString, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, value, formatFlags | StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString));
         if (!callContext.HasFormatChange)

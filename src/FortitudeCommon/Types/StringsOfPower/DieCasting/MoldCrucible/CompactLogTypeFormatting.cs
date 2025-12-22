@@ -16,15 +16,15 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
 public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeFormatting
 {
-    protected const string Dot       = ".";
-    protected const string Cma       = ",";
-    protected const string CmaSpc    = ", ";
-    protected const string Spc       = " ";
-    protected const string Cln       = ":";
-    protected const char BrcOpnChar = '{';
-    protected const string BrcOpn = "{";
-    protected const string BrcCls = "}";
-    protected const string EqlsSpc   = "= ";
+    protected const string Dot        = ".";
+    protected const string Cma        = ",";
+    protected const string CmaSpc     = ", ";
+    protected const string Spc        = " ";
+    protected const string Cln        = ":";
+    protected const char   BrcOpnChar = '{';
+    protected const string BrcOpn     = "{";
+    protected const string BrcCls     = "}";
+    protected const string EqlsSpc    = "= ";
 
     protected const string SqBrktOpnSpc = "[ ";
     protected const string RndBrktOpn   = "(";
@@ -52,7 +52,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         setFlags |= (FieldContentHandling)base.ResolveStringFormattingFlags
             (sb.LastNonWhiteChar(), input, (FormattingHandlingFlags)setFlags, formatString ?? "");
 
-        var typeofT = typeof(T);
+        var callerInputType = typeof(T);
+        var typeofT         = input?.GetType() ?? callerInputType;
         if (typeofT.IsAnyTypeHoldingChars())
         {
             var notAsStringOrValue = !(callerFormattingFlags.HasAsStringContentFlag()
@@ -64,16 +65,26 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                 ? EncodeAll
                 : EncodeInnerContent;
         }
+        if (typeofT.IsKeyedCollection())
+        {
+            var kvpType = typeof(KeyValuePair<,>);
+            if (typeofT.IsFrameworkDictionary() || typeofT.IsArrayOfGeneric(kvpType) || typeofT.IsListOfGeneric(kvpType)
+             // || typeofT.IsJustReadOnlyListOfGeneric(kvpType) 
+             || typeofT.IsSpanOfGeneric(kvpType) || typeofT.IsReadOnlySpanOfGeneric(kvpType)
+             || callerInputType.IsJustEnumerableOfGeneric(kvpType) || callerInputType.IsJustEnumeratorOfGeneric(kvpType))
+            {
+                setFlags |= LogSuppressTypeNames;
+            }
+        }
         return setFlags;
     }
 
     public virtual FieldContentHandling ResolveContentAsValueFormattingFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = "")
     {
-        var typeOfT                     = typeof(T);
-        var isAnyTypeHoldingChars       = typeOfT.IsAnyTypeHoldingChars() || typeOfT.IsChar() || typeOfT.IsNullableChar();
+        var typeOfT               = typeof(T);
+        var isAnyTypeHoldingChars = typeOfT.IsAnyTypeHoldingChars() || typeOfT.IsChar() || typeOfT.IsNullableChar();
         if (input == null && (fallbackValue.Length == 0 && !isAnyTypeHoldingChars)) return AsValueContent;
-        if (isAnyTypeHoldingChars)
-            return DisableAutoDelimiting | AsValueContent;
+        if (isAnyTypeHoldingChars) return DisableAutoDelimiting | AsValueContent;
         return AsValueContent;
     }
 
@@ -82,32 +93,28 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var typeOfT                     = typeof(T);
         var isSpanFormattableOrNullable = typeOfT.IsSpanFormattableOrNullable();
         var isAnyTypeHoldingChars       = typeOfT.IsAnyTypeHoldingChars() || typeOfT.IsChar() || typeOfT.IsNullableChar();
-        if (isAnyTypeHoldingChars)
-            return DisableAutoDelimiting | AsStringContent;
+        if (isAnyTypeHoldingChars) return DisableAutoDelimiting | AsStringContent;
         var isDoubleQuoteDelimitedSpanFormattable = input.IsDoubleQuoteDelimitedSpanFormattable(fallbackValue, formatString);
-        if (isSpanFormattableOrNullable && isDoubleQuoteDelimitedSpanFormattable)
-            return DisableAutoDelimiting | AsStringContent;
+        if (isSpanFormattableOrNullable && isDoubleQuoteDelimitedSpanFormattable) return DisableAutoDelimiting | AsStringContent;
         return AsStringContent;
     }
 
-    public SkipTypeParts GetNextValueTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType)
+    public SkipTypeParts GetNextValueTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FieldContentHandling formatFlags)
     {
-        var isLastType      = tos.IsLastVisitedObject(forValue);
-        if (forValue is ISpanFormattable || isLastType)
-        {
-            return SkipTypeParts.TypeStart | SkipTypeParts.TypeName | SkipTypeParts.TypeEnd;
-        }
+        var isLastType = tos.IsLastVisitedObject(forValue);
+        if (forValue is ISpanFormattable || isLastType) { return SkipTypeParts.TypeStart | SkipTypeParts.TypeName | SkipTypeParts.TypeEnd; }
         return SkipTypeParts.None;
     }
 
-    public SkipTypeParts GetNextComplexTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType)
+    public SkipTypeParts GetNextComplexTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FieldContentHandling formatFlags)
     {
-        var isLastType      = tos.IsLastVisitedObject(forValue);
-        if (isLastType)
-        {
-            return SkipTypeParts.TypeStart | SkipTypeParts.TypeName | SkipTypeParts.TypeEnd;
-        }
-        return SkipTypeParts.None;
+        var isLastType = tos.IsLastVisitedObject(forValue);
+        var skipParts  = SkipTypeParts.None;
+        if (isLastType) { skipParts = SkipTypeParts.TypeStart | SkipTypeParts.TypeName | SkipTypeParts.TypeEnd; }
+        skipParts |= formatFlags.HasSuppressOpening() ? SkipTypeParts.TypeStart : SkipTypeParts.None;
+        skipParts |= formatFlags.HasSuppressClosing() ? SkipTypeParts.TypeEnd : SkipTypeParts.None;
+        skipParts |= formatFlags.HasSuppressTypeNamesFlag() ? SkipTypeParts.TypeName : SkipTypeParts.None;
+        return skipParts;
     }
 
     public virtual ContentSeparatorRanges AppendValueTypeOpening(ITypeMolderDieCast moldInternal
@@ -119,8 +126,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var buildingType    = moldInternal.TypeBeingBuilt;
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
         if (formatFlags.DoesNotHaveLogSuppressTypeNamesFlag()
-            && !(StyleOptions.LogSuppressDisplayTypeNames.Any(s => buildingType.FullName?.StartsWith(s) ?? false))
-            )
+         && !(StyleOptions.LogSuppressDisplayTypeNames.Any(s => buildingType.FullName?.StartsWith(s) ?? false))
+           )
         {
             if (alternativeName.IsNotNullOrEmpty())
                 sb.Append(alternativeName);
@@ -207,10 +214,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         }
         else
         {
-            if (lastContentChar != BrcOpnChar)
-            {
-                GraphBuilder.StartAppendContent(Spc, sb, this, DefaultCallerTypeFlags).AppendContent(BrcCls);
-            }
+            if (lastContentChar != BrcOpnChar) { GraphBuilder.StartAppendContent(Spc, sb, this, DefaultCallerTypeFlags).AppendContent(BrcCls); }
             else { GraphBuilder.StartAppendContent(BrcCls, sb, this, DefaultCallerTypeFlags); }
         }
         return GraphBuilder.Complete(previousContentPadSpacing.PreviousFormatFlags);
@@ -243,8 +247,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
            && StyleOptions.LogSuppressDisplayCollectionElementNames.Any(s => kvpTypes?.Value.FullName?.StartsWith(s) ?? false)))
         {
             keyedCollectionType.AppendShortNameInCSharpFormat(sb);
+            GraphBuilder.AppendContent(Spc);
         }
-        GraphBuilder.AppendContent(Spc).AppendContent(BrcOpn).AppendPadding(Spc);
+        GraphBuilder.AppendContent(BrcOpn).AppendPadding(Spc);
         GraphBuilder.Complete(formatFlags);
         return sb;
     }
@@ -254,12 +259,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     {
         var lastContentChar = GraphBuilder.RemoveLastSeparatorAndPadding();
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
-        if(lastContentChar != BrcOpnChar)
+        if (lastContentChar != BrcOpnChar)
             GraphBuilder.AppendContent(Spc).AppendContent(BrcCls);
-        else
-        {
-            GraphBuilder.AppendContent(BrcCls);
-        }
+        else { GraphBuilder.AppendContent(BrcCls); }
         GraphBuilder.MarkContentEnd();
         return sb;
     }
@@ -650,7 +652,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     {
         formatString ??= "";
 
-        formatFlags = ResolveContentFormattingFlags<TAny>(sb, default! , formatFlags, formatString);
+        formatFlags = ResolveContentFormattingFlags<TAny>(sb, default!, formatFlags, formatString);
 
         return FormatFieldContents(sb, source, sourceFrom, formatString, maxTransferCount, formatFlags);
     }
@@ -760,7 +762,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb;
     }
 
-    public virtual IStringBuilder FormatFieldContents<TBearer>(ISecretStringOfPower tos, TBearer styledObj, 
+    public virtual IStringBuilder FormatFieldContents<TBearer>(ISecretStringOfPower tos, TBearer styledObj,
         string? callerFormatString = null, FieldContentHandling callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?
     {
         var sb = tos.WriteBuffer;

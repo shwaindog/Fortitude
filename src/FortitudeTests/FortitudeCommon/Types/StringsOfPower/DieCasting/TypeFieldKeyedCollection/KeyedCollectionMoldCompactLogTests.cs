@@ -12,10 +12,10 @@ using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.Ty
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.Dictionaries;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TypeKeyedCollection;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFieldKeyedCollection;
 
 [TestClass]
-public partial class KeyedCollectionMoldTests
+public partial class SelectTypeKeyedCollectionFieldTests
 {
     private static IReadOnlyList<ScaffoldingPartEntry> scafReg = ScaffoldingRegistry.AllScaffoldingTypes;
     
@@ -40,7 +40,8 @@ public partial class KeyedCollectionMoldTests
         where !kce.HasRestrictingPredicateFilter
         from scaffoldToCall in 
             scafReg
-                .IsKeyedCollectionType()
+                .IsComplexType()
+                .ProcessesKeyedCollection()
                 .NotHasSupportsKeyRevealer()
                 .NotHasSupportsValueRevealer()
                 .NoFilterPredicate()
@@ -60,7 +61,8 @@ public partial class KeyedCollectionMoldTests
         from kce in SimpleDictTestData.AllPredicateFilteredSimpleDictExpectations
         from scaffoldToCall in
             scafReg
-                .IsKeyedCollectionType()
+                .IsComplexType()
+                .ProcessesKeyedCollection()
                 .NotHasSupportsKeyRevealer()
                 .NotHasSupportsValueRevealer()
                 .HasFilterPredicate()
@@ -80,17 +82,20 @@ public partial class KeyedCollectionMoldTests
         from kce in SimpleDictTestData.AllSubListFilteredDictExpectations
         from scaffoldToCall in
             scafReg
-                .IsKeyedCollectionType()
+                .IsComplexType()
+                .ProcessesKeyedCollection()
                 .NotHasSupportsKeyRevealer()
                 .NotHasSupportsValueRevealer()
                 .HasSubsetListFilter()
                 .NoFilterPredicate()
         select new object[] { kce, scaffoldToCall };
 
+
     [TestMethod]
     [DynamicData(nameof(SimpleSubListFilteredDictExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void SimpleSubListFilteredCompactLogDict(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
+        Console.Out.WriteLine($"FormatExpectation {formatExpectation}, ScaffoldingToCall.Name: {scaffoldingToCall.Name}");
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
@@ -100,7 +105,8 @@ public partial class KeyedCollectionMoldTests
             where kce.ValueTypeIsNotNullableStruct
             from scaffoldToCall in
                 scafReg
-                    .IsKeyedCollectionType()
+                    .IsComplexType()
+                    .ProcessesKeyedCollection()
                     .NotHasSupportsKeyRevealer()
                     .HasSupportsValueRevealer()
                     .NoFilterPredicate()
@@ -113,7 +119,8 @@ public partial class KeyedCollectionMoldTests
                 where kce.ValueTypeIsNullableStruct
                 from scaffoldToCall in
                     scafReg
-                        .IsKeyedCollectionType()
+                        .IsComplexType()
+                        .ProcessesKeyedCollection()
                         .NotHasSupportsKeyRevealer()
                         .HasSupportsValueRevealer()
                         .NoFilterPredicate()
@@ -136,7 +143,8 @@ public partial class KeyedCollectionMoldTests
          where kce.ValueTypeIsNotNullableStruct
          from scaffoldToCall in
             scafReg
-                .IsKeyedCollectionType()
+                .IsComplexType()
+                .ProcessesKeyedCollection()
                 .NotHasSupportsKeyRevealer()
                 .HasSupportsValueRevealer()
                 .HasFilterPredicate()
@@ -149,7 +157,8 @@ public partial class KeyedCollectionMoldTests
                 where kce.ValueTypeIsNullableStruct
                 from scaffoldToCall in
                     scafReg
-                        .IsKeyedCollectionType()
+                        .IsComplexType()
+                        .ProcessesKeyedCollection()
                         .NotHasSupportsKeyRevealer()
                         .HasSupportsValueRevealer()
                         .HasFilterPredicate()
@@ -173,7 +182,8 @@ public partial class KeyedCollectionMoldTests
             where kce.ValueTypeIsNotNullableStruct
         from scaffoldToCall in
             scafReg
-                .IsKeyedCollectionType()
+                .IsComplexType()
+                .ProcessesKeyedCollection()
                 .NotHasSupportsKeyRevealer()
                 .HasSupportsValueRevealer()
                 .HasSubsetListFilter()
@@ -185,7 +195,8 @@ public partial class KeyedCollectionMoldTests
                 where kce.ValueTypeIsNullableStruct
                 from scaffoldToCall in
                     scafReg
-                        .IsKeyedCollectionType()
+                        .IsComplexType()
+                        .ProcessesKeyedCollection()
                         .NotHasSupportsKeyRevealer()
                         .HasSupportsValueRevealer()
                         .HasSubsetListFilter()
@@ -208,7 +219,8 @@ public partial class KeyedCollectionMoldTests
          where kce.KeyTypeIsNotNullableStruct && kce.ValueTypeIsNotNullableStruct
          from scaffoldToCall in
             scafReg
-                .IsKeyedCollectionType()
+                .IsComplexType()
+                .ProcessesKeyedCollection()
                 .HasSupportsKeyRevealer()
                 .HasSupportsValueRevealer()
                 .NoFilterPredicate()
@@ -222,7 +234,8 @@ public partial class KeyedCollectionMoldTests
                 where kce.KeyTypeIsNullableStruct  && kce.ValueTypeIsNotNullableStruct
                 from scaffoldToCall in
                     scafReg
-                        .IsKeyedCollectionType()
+                        .IsComplexType()
+                        .ProcessesKeyedCollection()
                         .HasSupportsKeyRevealer()
                         .HasSupportsValueRevealer()
                         .NoFilterPredicate()
@@ -237,7 +250,8 @@ public partial class KeyedCollectionMoldTests
                 where kce.KeyTypeIsNotNullableStruct  && kce.ValueTypeIsNullableStruct
                 from scaffoldToCall in
                     scafReg
-                        .IsKeyedCollectionType()
+                        .IsComplexType()
+                        .ProcessesKeyedCollection()
                         .HasSupportsKeyRevealer()
                         .HasSupportsValueRevealer()
                         .NoFilterPredicate()
@@ -252,7 +266,8 @@ public partial class KeyedCollectionMoldTests
                 where kce.KeyTypeIsNullableStruct  && kce.ValueTypeIsNullableStruct
                 from scaffoldToCall in
                     scafReg
-                        .IsKeyedCollectionType()
+                        .IsComplexType()
+                        .ProcessesKeyedCollection()
                         .HasSupportsKeyRevealer()
                         .HasSupportsValueRevealer()
                         .NoFilterPredicate()
@@ -276,7 +291,8 @@ public partial class KeyedCollectionMoldTests
          where kce.KeyTypeIsNotNullableStruct && kce.ValueTypeIsNotNullableStruct
          from scaffoldToCall in
             scafReg
-                .IsKeyedCollectionType()
+                .IsComplexType()
+                .ProcessesKeyedCollection()
                 .HasSupportsKeyRevealer()
                 .HasSupportsValueRevealer()
                 .HasFilterPredicate()
@@ -290,7 +306,8 @@ public partial class KeyedCollectionMoldTests
                 where kce.KeyTypeIsNullableStruct  && kce.ValueTypeIsNotNullableStruct
                 from scaffoldToCall in
                     scafReg
-                        .IsKeyedCollectionType()
+                        .IsComplexType()
+                        .ProcessesKeyedCollection()
                         .HasSupportsKeyRevealer()
                         .HasSupportsValueRevealer()
                         .HasFilterPredicate()
@@ -305,7 +322,8 @@ public partial class KeyedCollectionMoldTests
                 where kce.KeyTypeIsNotNullableStruct  && kce.ValueTypeIsNullableStruct
                 from scaffoldToCall in
                     scafReg
-                        .IsKeyedCollectionType()
+                        .IsComplexType()
+                        .ProcessesKeyedCollection()
                         .HasSupportsKeyRevealer()
                         .HasSupportsValueRevealer()
                         .HasFilterPredicate()
@@ -320,7 +338,8 @@ public partial class KeyedCollectionMoldTests
                 where kce.KeyTypeIsNullableStruct  && kce.ValueTypeIsNullableStruct
                 from scaffoldToCall in
                     scafReg
-                        .IsKeyedCollectionType()
+                        .IsComplexType()
+                        .ProcessesKeyedCollection()
                         .HasSupportsKeyRevealer()
                         .HasSupportsValueRevealer()
                         .HasFilterPredicate()
@@ -342,28 +361,60 @@ public partial class KeyedCollectionMoldTests
 
     private static IEnumerable<object[]> BothRevealersSubListFilteredDictExpect =>
         (from kce in BothRevealersDictTestData.AllBothRevealersSubListFilteredDictExpectations
-            where kce.KeyTypeIsNotNullableStruct && kce.ValueTypeIsNotNullableStruct
-            from scaffoldToCall in
-                scafReg
-                    .IsKeyedCollectionType()
-                    .HasSupportsKeyRevealer()
-                    .HasSupportsValueRevealer()
-                    .NoFilterPredicate()
-                    .HasSubsetListFilter()
-                    .AcceptsStructClassNullableClass()
-                    .AcceptsKeyIsNotNullableStruct()
-            select new object[] { kce, scaffoldToCall })
+         where kce.KeyTypeIsNotNullableStruct && kce.ValueTypeIsNotNullableStruct
+         from scaffoldToCall in
+            scafReg
+                .IsComplexType()
+                .ProcessesKeyedCollection()
+                .HasSupportsKeyRevealer()
+                .HasSupportsValueRevealer()
+                .NoFilterPredicate()
+                .HasSubsetListFilter()
+                .AcceptsStructClassNullableClass()
+                .AcceptsKeyIsNotNullableStruct()
+        select new object[] { kce, scaffoldToCall })
         .Concat(
                 from kce in BothRevealersDictTestData.AllBothRevealersSubListFilteredDictExpectations
-                where kce.KeyTypeIsNotNullableStruct && kce.ValueTypeIsNullableStruct
+                where kce.KeyTypeIsNullableStruct  && kce.ValueTypeIsNotNullableStruct
                 from scaffoldToCall in
                     scafReg
-                        .IsKeyedCollectionType()
+                        .IsComplexType()
+                        .ProcessesKeyedCollection()
+                        .HasSupportsKeyRevealer()
+                        .HasSupportsValueRevealer()
+                        .NoFilterPredicate()
+                        .HasSubsetListFilter()
+                        .AcceptsKeyNullableStruct()
+                        .AcceptsStructClassNullableClass()
+                select new object[] { kce, scaffoldToCall }
+               )
+        .Concat(
+                from kce in BothRevealersDictTestData.AllBothRevealersSubListFilteredDictExpectations
+                where kce.KeyTypeIsNotNullableStruct  && kce.ValueTypeIsNullableStruct
+                from scaffoldToCall in
+                    scafReg
+                        .IsComplexType()
+                        .ProcessesKeyedCollection()
                         .HasSupportsKeyRevealer()
                         .HasSupportsValueRevealer()
                         .NoFilterPredicate()
                         .HasSubsetListFilter()
                         .AcceptsKeyIsNotNullableStruct()
+                        .AcceptsNullableStructs()
+                select new object[] { kce, scaffoldToCall }
+               )
+        .Concat(
+                from kce in BothRevealersDictTestData.AllBothRevealersSubListFilteredDictExpectations
+                where kce.KeyTypeIsNullableStruct  && kce.ValueTypeIsNullableStruct
+                from scaffoldToCall in
+                    scafReg
+                        .IsComplexType()
+                        .ProcessesKeyedCollection()
+                        .HasSupportsKeyRevealer()
+                        .HasSupportsValueRevealer()
+                        .NoFilterPredicate()
+                        .HasSubsetListFilter()
+                        .AcceptsKeyNullableStruct()
                         .AcceptsNullableStructs()
                 select new object[] { kce, scaffoldToCall }
                );
@@ -382,7 +433,7 @@ public partial class KeyedCollectionMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactLog(BothRevealersDictTestData.AllBothRevealersUnfilteredDictExpectations[17], ScaffoldingRegistry.AllScaffoldingTypes[1107]);
+        SharedCompactLog(BothRevealersDictTestData.AllBothRevealersUnfilteredDictExpectations[14], ScaffoldingRegistry.AllScaffoldingTypes[224]);
     }
 
     private void SharedCompactLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -409,7 +460,32 @@ public partial class KeyedCollectionMoldTests
         string BuildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            const string compactLogTemplate = "{0} {1}";
+            const string compactLogTemplate = "{0} {{{1}{2}{1}}}";
+
+            var maybePadding = "";
+            var expectValue  = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
+            if (expectValue != IFormatExpectation.NoResultExpectedValue)
+            {
+                maybePadding = expectValue.Length > 0 ? " " : "";
+                if (expectValue != "null" &&  expectation is IOrderedListExpect orderedListExpectation 
+                                           && orderedListExpectation.ElementCallType.IsEnumOrNullable())
+                {
+                    expectValue = propertyName + ": (" + orderedListExpectation.CollectionCallType.ShortNameInCSharpFormat() + ")" + 
+                                  expectValue;    
+                }
+                else
+                {
+                    expectValue = propertyName + ": " + expectValue;
+                }
+            }
+            else { expectValue = ""; }
+            return string.Format(compactLogTemplate, className, maybePadding,  expectValue);
+        }
+
+        string BuildChildExpectedOutput(string className, string propertyName
+          , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
+        {
+            var compactLogTemplate = className.IsNotEmpty() ? "({0}){1}" : "{1}";
 
             var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue == IFormatExpectation.NoResultExpectedValue)
@@ -417,15 +493,6 @@ public partial class KeyedCollectionMoldTests
                 expectValue = "";
             }
             return string.Format(compactLogTemplate, className, expectValue);
-        }
-
-        string BuildChildExpectedOutput(string className, string propertyName
-          , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
-        {
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
-            if (expectValue == IFormatExpectation.NoResultExpectedValue)
-            { expectValue = ""; }
-            return expectValue;
         }
 
         if (formatExpectation is IComplexFieldFormatExpectation complexFieldExpectation)
