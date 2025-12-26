@@ -6,7 +6,7 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
-using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -24,7 +24,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     public override string Name => nameof(CompactJsonTypeFormatting);
 
     public override ContentSeparatorRanges AppendComplexTypeOpening(ITypeMolderDieCast moldInternal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var sb              = moldInternal.Sb;
         var alternativeName = moldInternal.TypeName;
@@ -53,14 +53,14 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     }
 
     public override SeparatorPaddingRanges AppendFieldValueSeparator(ITypeMolderDieCast moldInternal
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         GraphBuilder
             .AppendSeparator(Cln)
             .AppendPadding(Spc)
             .Complete(formatFlags)
             .SeparatorPaddingRange!.Value;
     
-    public override ContentSeparatorRanges AddNextFieldPadding(FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    public override ContentSeparatorRanges AddNextFieldPadding(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (formatFlags.HasNoFieldPaddingFlag()) return GraphBuilder.Complete(formatFlags);
         if (formatFlags.UseMainFieldPadding() && formatFlags.CanAddNewLine())
@@ -110,7 +110,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     }
 
     public override IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType
-      , Type keyType, Type valueType, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , Type keyType, Type valueType, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         base.AppendKeyedCollectionStart(sb, keyedCollectionType, keyType, valueType, formatFlags);
 
@@ -122,7 +122,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     }
 
     public override IStringBuilder AppendKeyedCollectionEnd(IStringBuilder sb, Type keyedCollectionType
-      , Type keyType, Type valueType, int totalItemCount, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , Type keyType, Type valueType, int totalItemCount, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         sb.RemoveLastWhiteSpacedCommaIfFound();
         StyleOptions.IndentLevel--;
@@ -134,7 +134,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     }
     
     public override IStringBuilder FormatCollectionStart(ITypeMolderDieCast moldInternal, Type itemElementType
-      , bool? hasItems, Type collectionType, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , bool? hasItems, Type collectionType, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var sb = moldInternal.Sb;
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
@@ -147,7 +147,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         // Log always shows each collection and field name
         // if (formatFlags.DoesNotHaveSuppressOpening())
         // {
-        if ((itemElementType == typeof(char) && StyleOptions.CharArrayWritesString)
+        if ((itemElementType == typeof(char) && StyleOptions.CharBufferWritesAsCharCollection)
             || (itemElementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String))
         {
             GraphBuilder.AppendContent(DblQt);
@@ -160,7 +160,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     }
 
     public override ContentSeparatorRanges AddCollectionElementPadding(ITypeMolderDieCast moldInternal, Type elementType, int nextItemNumber
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (formatFlags.HasNoItemPaddingFlag()) return GraphBuilder.Complete(formatFlags);
         if (formatFlags.UseMainItemPadding())
@@ -176,7 +176,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     }
 
     public override int AddCollectionElementPadding(Type collectionElementType, IStringBuilder sb, int nextItemNumber
-      , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent) 
+      , FormatSwitches formatFlags = FormatSwitches.EncodeInnerContent) 
     {
         var fmtFlgs = GraphBuilder.CurrentSectionRanges.StartedWithFormatFlags;
         if (fmtFlgs.HasNoFieldPaddingFlag()) return GraphBuilder.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
@@ -193,7 +193,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     }
 
     public override int AddCollectionElementPadding(Type collectionElementType, Span<char> destSpan, int atIndex, int nextItemNumber
-      , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent) 
+      , FormatSwitches formatFlags = FormatSwitches.EncodeInnerContent) 
     {
         var fmtFlgs = GraphBuilder.CurrentSectionRanges.StartedWithFormatFlags;
         if (fmtFlgs.HasNoFieldPaddingFlag()) return GraphBuilder.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
@@ -214,7 +214,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
 
     public override IStringBuilder FormatCollectionEnd(ITypeMolderDieCast moldInternal, int? resultsFoundCount, Type itemElementType
       , int? totalItemCount
-      , string? formatString, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , string? formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var sb = moldInternal.Sb;
         if (!totalItemCount.HasValue)
@@ -222,8 +222,8 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
             if (StyleOptions.NullWritesEmpty)
             {
                 GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
-                CollectionStart(itemElementType, sb, false, (FormattingHandlingFlags)formatFlags);
-                CollectionEnd(itemElementType, sb, 0, (FormattingHandlingFlags)formatFlags);
+                CollectionStart(itemElementType, sb, false, (FormatSwitches)formatFlags);
+                CollectionEnd(itemElementType, sb, 0, (FormatSwitches)formatFlags);
                 GraphBuilder.Complete(formatFlags);
             }
             else { AppendFormattedNull(sb, formatString, formatFlags); }
@@ -263,20 +263,20 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         return sb;
     }
 
-    public override int CollectionEnd(Type collectionType, Span<char> destSpan, int destIndex, int itemsCount
-      , FormattingHandlingFlags formatFlags = FormattingHandlingFlags.EncodeInnerContent)
+    public override int CollectionEnd(Type elementType, Span<char> destSpan, int destIndex, int itemsCount
+      , FormatSwitches formatSwitches = FormatSwitches.EncodeInnerContent)
     {
         var charsAdded        = 0;
         var originalDestIndex = destIndex;
         CharSpanCollectionScratchBuffer?.DecrementRefCount();
         CharSpanCollectionScratchBuffer = null;
-        GraphBuilder.ResetCurrent((FieldContentHandling)formatFlags, true);
+        GraphBuilder.ResetCurrent((FormatFlags)formatSwitches, true);
         var prevFmtFlags = GraphBuilder.LastContentSeparatorPaddingRanges.PreviousFormatFlags;
         
         // Log always shows each collection and field name
         //if (prevFmtFlags.DoesNotHaveSuppressClosing())
         //{
-        if (prevFmtFlags.HasAsStringContentFlag() && collectionType.IsCharArray())
+        if (prevFmtFlags.HasAsStringContentFlag() && elementType.IsCharArray())
         {
             if (prevFmtFlags.DoesNotHaveAsValueContentFlag() || prevFmtFlags.HasAsStringContentFlag())
             {
@@ -292,9 +292,9 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         GraphBuilder.MarkContentStart();
         if (itemsCount > 0)
         {
-            charsAdded += AddCollectionElementPadding(collectionType, destSpan, destIndex, itemsCount,  formatFlags);
+            charsAdded += AddCollectionElementPadding(elementType, destSpan, destIndex, itemsCount,  formatSwitches);
         }
-        if (collectionType == typeof(KeyValuePair<string, JsonNode>))
+        if (elementType == typeof(KeyValuePair<string, JsonNode>))
         {
             GraphBuilder.AppendContent(BrcCls);
         }

@@ -20,7 +20,7 @@ public class ComplexValueTypeMold : ValueTypeMold<ComplexValueTypeMold>
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
-      , FieldContentHandling createFormatFlags )
+      , FormatFlags createFormatFlags )
     {
         InitializeValueTypeBuilder(typeBeingBuilt, master, typeSettings, typeName
                                  , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);

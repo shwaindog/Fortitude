@@ -34,7 +34,7 @@ public readonly record struct SeparatorPaddingRanges(Range? SeparatorRange = nul
     public int Length(int entireLength) => EntireRange?.Length(entireLength) ?? 0;
 };
 
-public readonly record struct ContentSeparatorRanges(FieldContentHandling PreviousFormatFlags, Range? ContentRange
+public readonly record struct ContentSeparatorRanges(FormatFlags PreviousFormatFlags, Range? ContentRange
   , SeparatorPaddingRanges? SeparatorPaddingRange = null)
 {
     public static ContentSeparatorRanges None => new ();
@@ -44,7 +44,7 @@ public static class ContentSeparatorRangesExtensions
 {
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ContentSeparatorRanges ToContentSeparatorRanges(this Range contentRange, FieldContentHandling formatFlags) => 
+    public static ContentSeparatorRanges ToContentSeparatorRanges(this Range contentRange, FormatFlags formatFlags) => 
         new (formatFlags, contentRange);
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

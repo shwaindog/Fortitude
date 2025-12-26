@@ -75,12 +75,12 @@ public static class JsonFormatterExtensions
         var typeOfT = typeof(T) == typeof(Type) ? (Type)(object)check! : typeof(T);
 
         var formatStringDelmited = formatString.IsDblQtBounded() || formatString.IsSqBrktBounded() || formatString.IsBrcBounded();
-        var nullableSpanFormattable = (typeOfT.IsSpanFormattableOrNullableCached());
+        var isSpanFormattableOrNullable = (typeOfT.IsSpanFormattableOrNullableCached());
 
         var doubleQtDelimited = 
             !formatStringDelmited 
          && typeIsDoubleQtDelimited.GetOrAdd(typeOfT, t => 
-                                                 !t.IsEnumOrNullable() &&  nullableSpanFormattable && !t.IsJsonStringExemptType());
+                                                 !t.IsEnumOrNullable() &&  isSpanFormattableOrNullable && !t.IsJsonStringExemptType());
 
         if (!doubleQtDelimited)
         {

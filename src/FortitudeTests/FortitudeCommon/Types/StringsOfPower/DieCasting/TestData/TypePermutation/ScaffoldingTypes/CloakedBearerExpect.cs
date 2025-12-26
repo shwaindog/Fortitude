@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
@@ -24,15 +25,15 @@ public class CloakedBearerExpect<TChildScaffoldType, TChildScaffold> : FieldExpe
     // ReSharper disable twice ExplicitCallerInfoArgument
     public CloakedBearerExpect(TChildScaffoldType? input, string? valueFormatString = null
       , bool hasDefault = false, TChildScaffoldType? defaultValue = default
-      , FieldContentHandling contentHandling = FieldContentHandling.DefaultCallerTypeFlags
+      , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) : 
-        base(input, valueFormatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
+        base(input, valueFormatString, hasDefault, defaultValue, formatFlags, name, srcFile, srcLine)
     {
         FieldValueExpectation = 
             new FieldExpect<TChildScaffoldType>
-                (Input, ValueFormatString, HasDefault, DefaultValue, contentHandling, name, srcFile, srcLine);
+                (Input, ValueFormatString, HasDefault, DefaultValue, formatFlags, name, srcFile, srcLine);
     }
 
     public ITypedFormatExpectation<TChildScaffoldType?> FieldValueExpectation { get; }

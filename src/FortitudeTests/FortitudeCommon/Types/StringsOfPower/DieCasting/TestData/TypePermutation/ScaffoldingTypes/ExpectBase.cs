@@ -8,10 +8,11 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
-using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 
@@ -27,7 +28,7 @@ public interface IFormatExpectation : ICodeLocationAwareListItem
     string? ValueFormatString { get; }
     bool IsStringLike { get; }
 
-    FieldContentHandling ContentHandling { get; }
+    FormatFlags FormatFlags { get; }
 
     string ShortTestName { get; }
 
@@ -58,14 +59,14 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
 
     // ReSharper disable once ConvertToPrimaryConstructor
     protected ExpectBase(TInput? input, string? valueFormatString = null
-      , FieldContentHandling valueContentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = "", [CallerLineNumber] int srcLine = 0)
     {
         this.srcFile         = srcFile;
         this.srcLine         = srcLine;
         this.name = name;
-        ContentHandling      = valueContentHandling;
+        FormatFlags      = formatFlags;
         Input                = input;
         ValueFormatString         = valueFormatString;
     }
@@ -82,7 +83,7 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
 
     public string? ValueFormatString { get; init; }
 
-    public FieldContentHandling ContentHandling { get; init; }
+    public FormatFlags FormatFlags { get; init; }
 
     public bool InputIsNull => Input == null;
     public abstract bool InputIsEmpty { get; }
@@ -109,6 +110,10 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
                         result.Append(Input);
                     }
                     result.Append(AsStringDelimiterClose).Append("_").Append(ValueFormatString);
+                    if (FormatFlags != DefaultCallerTypeFlags)
+                    {
+                        result.Append(AsStringDelimiterClose).Append("_").Append(FormatFlags);
+                    }
                 }
 
                 return result.ToString();
@@ -222,6 +227,7 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
         if (InputIsNull) { sb.Append("null"); }
         else { sb.Append(AsStringDelimiterOpen).Append(new MutableString().Append(Input).ToString()).Append(AsStringDelimiterClose); }
         sb.Append(", ").Append(nameof(ValueFormatString)).Append(": ").Append(ValueFormatString != null ? $"\"{ValueFormatString}\"" : "null");
+        sb.Append(", ").Append(nameof(FormatFlags)).Append(": ").Append(FormatFlags);
         AdditionalToStringExpectFields(sb, forThisScaffold);
         return sb.ToString();
     }

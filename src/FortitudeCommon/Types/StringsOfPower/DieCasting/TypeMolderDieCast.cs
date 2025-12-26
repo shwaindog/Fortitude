@@ -20,8 +20,8 @@ public interface ITypeMolderDieCast
     MoldDieCastSettings AppendSettings { get; set; }
 
 
-    FieldContentHandling CallerContentHandling { get; }
-    FieldContentHandling CreateContentHandling { get; }
+    FormatFlags CallerContentHandling { get; }
+    FormatFlags CreateContentHandling { get; }
 
     char IndentChar { get; }
 
@@ -44,7 +44,7 @@ public interface ITypeMolderDieCast
     bool SkipFields { get; set; }
 
     bool SkipField<TCallerType>(Type? actualType, ReadOnlySpan<char> fieldName
-      , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags);
+      , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags);
 
     IStyledTypeFormatting StyleFormatter { get; }
 
@@ -69,7 +69,7 @@ public interface ITypeMolderDieCast<out T> : ITypeMolderDieCast where T : TypeMo
     T StyleTypeBuilder { get; }
 
     T WasSkipped<TCallerType>(Type? actualType, ReadOnlySpan<char> fieldName
-      , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags);
+      , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags);
 }
 
 public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt>
@@ -110,8 +110,8 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
 
     public Type TypeBeingBuilt => typeBuilderState.TypeBeingBuilt;
 
-    public FieldContentHandling CallerContentHandling => Master.CallerContext.FormatFlags;
-    public FieldContentHandling CreateContentHandling => typeBuilderState.CreateFormatFlags;
+    public FormatFlags CallerContentHandling => Master.CallerContext.FormatFlags;
+    public FormatFlags CreateContentHandling => typeBuilderState.CreateFormatFlags;
 
     public ContentSeparatorRanges LastContentSeparatorPaddingRanges { get; set; }
 
@@ -144,11 +144,11 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
     public int LastStartNewLineContentPos { get; private set; } = -1;
 
     public bool SkipField<TCallerType>(Type? actualType, ReadOnlySpan<char> fieldName
-      , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags) =>
+      , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags) =>
         SkipBody;
 
     public TExt WasSkipped<TCallerType>(Type? actualType, ReadOnlySpan<char> fieldName
-      , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags)
 
     {
         return StyleTypeBuilder;

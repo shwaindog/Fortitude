@@ -29,7 +29,7 @@ public class FieldNullableBoolWhenNonNullOrDefaultStringBearer : FormattedMoldSc
            .Field.WhenNonNullOrDefaultAdd
                (nameof(ComplexTypeFieldWhenNonNullOrDefaultBool)
               , ComplexTypeFieldWhenNonNullOrDefaultBool
-              , DefaultValue.IfNullableGetNonNullableUnderlyingDefault(), ValueFormatString, ContentHandlingFlags)
+              , DefaultValue.IfNullableGetNonNullableUnderlyingDefault(), ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -53,7 +53,7 @@ public class FieldSpanFormattableWhenNonNullOrDefaultStringBearer<TFmt> : Format
            .Field.WhenNonNullOrDefaultAdd
                (nameof(ComplexTypeFieldWhenNonNullOrDefaultSpanFormattableAs)
               , ComplexTypeFieldWhenNonNullOrDefaultSpanFormattableAs
-              , DefaultValue, ValueFormatString, ContentHandlingFlags)
+              , DefaultValue, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -78,7 +78,7 @@ public class FieldNullableSpanFormattableWhenNonNullOrDefaultStringBearer<TFmtSt
            .Field.WhenNonNullOrDefaultAdd
                (nameof(ComplexTypeFieldWhenNonNullOrDefaultNullableSpanFormattableAs)
               , ComplexTypeFieldWhenNonNullOrDefaultNullableSpanFormattableAs
-              , DefaultValue.IfNullableGetNonNullableUnderlyingDefault(), ValueFormatString, ContentHandlingFlags)
+              , DefaultValue.IfNullableGetNonNullableUnderlyingDefault(), ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -104,7 +104,7 @@ public class FieldCloakedBearerWhenNonNullOrDefaultStringBearer<TCloaked, TRevea
            .Field.WhenNonNullOrDefaultReveal
                (nameof(ComplexTypeFieldWhenNonNullOrDefaultCloakedBearerAs)
               , ComplexTypeFieldWhenNonNullOrDefaultCloakedBearerAs
-              , ValueRevealer, DefaultValue, ValueFormatString, ContentHandlingFlags)
+              , ValueRevealer, DefaultValue, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -128,7 +128,7 @@ public class FieldNullableCloakedBearerWhenNonNullOrDefaultStringBearer<TCloaked
            .Field.WhenNonNullOrDefaultReveal
                (nameof(ComplexTypeFieldWhenNonNullOrDefaultCustomBearerAs)
               , ComplexTypeFieldWhenNonNullOrDefaultCustomBearerAs
-              , ValueRevealer, DefaultValue, ValueFormatString, ContentHandlingFlags)
+              , ValueRevealer, DefaultValue, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -151,7 +151,7 @@ public class FieldStringBearerWhenNonNullOrDefaultStringBearer<TBearer> : ProxyF
            .Field.WhenNonNullOrDefaultReveal
                (nameof(ComplexTypeFieldWhenNonNullOrDefaultStringBearerAs)
               , ComplexTypeFieldWhenNonNullOrDefaultStringBearerAs
-              , DefaultValue, ValueFormatString, ContentHandlingFlags)
+              , DefaultValue, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -174,7 +174,7 @@ public class FieldNullableStringBearerWhenNonNullOrDefaultStringBearer<TBearerSt
            .Field.WhenNonNullOrDefaultReveal
                (nameof(ComplexTypeFieldWhenNonNullOrDefaultNullableStringBearerAs)
               , ComplexTypeFieldWhenNonNullOrDefaultNullableStringBearerAs
-              , DefaultValue, ValueFormatString, ContentHandlingFlags)
+              , DefaultValue, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -203,7 +203,7 @@ public class FieldCharSpanWhenNonNullOrDefaultStringBearer : FormattedMoldScaffo
            .Field.WhenNonNullOrDefaultAdd
                (nameof(ComplexTypeFieldAlwaysAddCharSpanAs)
               , ComplexTypeFieldAlwaysAddCharSpanAs.AsSpan()
-              , DefaultValue, ValueFormatString, ContentHandlingFlags)
+              , DefaultValue, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -233,7 +233,7 @@ public class FieldCharReadOnlySpanWhenNonNullOrDefaultStringBearer : FormattedMo
            .Field.WhenNonNullOrDefaultAdd
                (nameof(ComplexTypeFieldAlwaysAddReadOnlyCharSpanAs)
               , ComplexTypeFieldAlwaysAddReadOnlyCharSpanAs.AsSpan()
-              , DefaultValue, ValueFormatString, ContentHandlingFlags)
+              , DefaultValue, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -262,7 +262,7 @@ public class FieldStringWhenNonNullOrDefaultStringBearer : FormattedMoldScaffold
            .Field.WhenNonNullOrDefaultAdd
                (nameof(ComplexTypeFieldWhenNonNullOrDefaultStringAs)
               , ComplexTypeFieldWhenNonNullOrDefaultStringAs
-              , DefaultValue, ValueFormatString, ContentHandlingFlags)
+              , DefaultValue, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -297,7 +297,7 @@ public class FieldStringRangeWhenNonNullOrDefaultStringBearer : FormattedMoldSca
            .Field.WhenNonNullOrDefaultAdd
                (nameof(ComplexTypeFieldWhenNonNullOrDefaultStringRangeAs)
               , ComplexTypeFieldWhenNonNullOrDefaultStringRangeAs
-              , FromIndex, Length, DefaultValue, ValueFormatString, ContentHandlingFlags)
+              , FromIndex, Length, DefaultValue, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -327,7 +327,7 @@ public class FieldCharArrayWhenNonNullOrDefaultStringBearer : FormattedMoldScaff
            .Field.WhenNonNullOrDefaultAdd
                (nameof(ComplexTypeFieldWhenNonNullOrDefaultCharArrayAs)
               , ComplexTypeFieldWhenNonNullOrDefaultCharArrayAs
-              , DefaultValue, ValueFormatString, ContentHandlingFlags)
+              , DefaultValue, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -362,7 +362,7 @@ public class FieldCharArrayRangeWhenNonNullOrDefaultStringBearer : FormattedMold
            .Field.WhenNonNullOrDefaultAdd
                (nameof(ComplexTypeFieldWhenNonNullOrDefaultCharArrayRangeAs)
               , ComplexTypeFieldWhenNonNullOrDefaultCharArrayRangeAs
-              , FromIndex, Length, DefaultValue, ValueFormatString, ContentHandlingFlags)
+              , FromIndex, Length, DefaultValue, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -400,7 +400,7 @@ public class FieldCharSequenceWhenNonNullOrDefaultStringBearer<TCharSeq> : Forma
            .Field.WhenNonNullOrDefaultAddCharSeq
                (nameof(ComplexTypeFieldWhenNonNullOrDefaultCharSequenceAs)
               , ComplexTypeFieldWhenNonNullOrDefaultCharSequenceAs
-              , DefaultValue, ValueFormatString, ContentHandlingFlags)
+              , DefaultValue, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -443,7 +443,7 @@ public class FieldCharSequenceRangeWhenNonNullOrDefaultStringBearer<TCharSeq> : 
            .Field.WhenNonNullOrDefaultAddCharSeq
                (nameof(ComplexTypeFieldWhenNonNullOrDefaultCharSequenceRangeAs)
               , ComplexTypeFieldWhenNonNullOrDefaultCharSequenceRangeAs
-              , FromIndex, Length, DefaultValue, ValueFormatString, ContentHandlingFlags)
+              , FromIndex, Length, DefaultValue, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -472,7 +472,7 @@ public class FieldStringBuilderWhenNonNullOrDefaultStringBearer : FormattedMoldS
            .Field.WhenNonNullOrDefaultAdd
                (nameof(ComplexTypeFieldWhenNonNullOrDefaultAddStringBuilderAs)
               , ComplexTypeFieldWhenNonNullOrDefaultAddStringBuilderAs
-              , DefaultValue, ValueFormatString, ContentHandlingFlags)
+              , DefaultValue, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -507,7 +507,7 @@ public class FieldStringBuilderRangeWhenNonNullOrDefaultStringBearer : Formatted
            .Field.WhenNonNullOrDefaultAdd
                (nameof(ComplexTypeFieldWhenNonNullOrDefaultAddStringBuilderRangeAs)
               , ComplexTypeFieldWhenNonNullOrDefaultAddStringBuilderRangeAs
-              , FromIndex, Length, DefaultValue, ValueFormatString, ContentHandlingFlags)
+              , FromIndex, Length, DefaultValue, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -531,7 +531,7 @@ public class FieldMatchWhenNonNullOrDefaultStringBearer<TAny> : FormattedMoldSca
            .Field.WhenNonNullOrDefaultAddMatch
                (nameof(ComplexTypeFieldWhenNonNullOrDefaultMatch)
               , ComplexTypeFieldWhenNonNullOrDefaultMatch
-              , DefaultValue, ValueFormatString, ContentHandlingFlags)
+              , DefaultValue, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -555,6 +555,6 @@ public class FieldObjectWhenNonNullOrDefaultStringBearer : FormattedMoldScaffold
            .Field.WhenNonNullOrDefaultAddObject
                (nameof(ComplexTypeFieldWhenNonNullOrDefaultObject)
               , ComplexTypeFieldWhenNonNullOrDefaultObject
-              , DefaultValue, ValueFormatString, ContentHandlingFlags)
+              , DefaultValue, ValueFormatString, FormattingFlags)
            .Complete();
 }

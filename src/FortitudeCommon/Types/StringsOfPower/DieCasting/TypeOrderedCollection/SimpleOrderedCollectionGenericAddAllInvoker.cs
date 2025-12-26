@@ -77,7 +77,7 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
     private static readonly Type StyledToStringObjectType = typeof(IStringBearer);
     private static readonly Type StringBuilderType        = typeof(StringBuilder);
     private static readonly Type Func5TypesType           = typeof(Func<,,,,>);
-    private static readonly Type FieldContentHandlingType = typeof(FieldContentHandling);
+    private static readonly Type FieldContentHandlingType = typeof(FormatFlags);
 
     static SimpleOrderedCollectionGenericAddAllInvoker()
     {
@@ -128,7 +128,7 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
     }
 
     public static void CallAddAll<TOrdColl, TItem>(SimpleOrderedCollectionMold typeMolder, TOrdColl keyColl
-      , string? valueFormatString = null, FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags)
+      , string? valueFormatString = null, FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags)
         where TOrdColl : IEnumerable<TItem>
     {
         var keyedCollType = keyColl.GetType();
@@ -140,24 +140,24 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
 
     public static void CallAddAllEnumerator<TKeyColl, TItem>(
         SimpleOrderedCollectionMold typeMolder, TKeyColl keyColl, string? valueFormatString = null
-      , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags)
         where TKeyColl : IEnumerator<TItem>
     {
         var keyedCollType = keyColl.GetType();
-        var callAddAllEnumerator = (Func<SimpleOrderedCollectionMold, TKeyColl, string?, FieldContentHandling, SimpleOrderedCollectionMold>)
+        var callAddAllEnumerator = (Func<SimpleOrderedCollectionMold, TKeyColl, string?, FormatFlags, SimpleOrderedCollectionMold>)
             OrderedCollAddAllInvokers.GetOrAdd(keyedCollType, CreateInvokeMethod);
 
         callAddAllEnumerator(typeMolder, keyColl, valueFormatString, formatFlags);
     }
 
     public static void CallAddAll<TOrdColl>(SimpleOrderedCollectionMold typeMolder, TOrdColl keyColl, string? valueFormatString = null
-      , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags)
     {
         var tOrdType        = typeof(TOrdColl);
         var orderedCollType = keyColl!.GetType();
         if (tOrdType.IsEnumerable() || tOrdType.IsEnumerator())
         {
-            var callAddAllDelegate = (Func<SimpleOrderedCollectionMold, TOrdColl, string?, FieldContentHandling, SimpleOrderedCollectionMold>)
+            var callAddAllDelegate = (Func<SimpleOrderedCollectionMold, TOrdColl, string?, FormatFlags, SimpleOrderedCollectionMold>)
                 OrderedCollAddAllInvokers.GetOrAdd(orderedCollType, CreateInvokeMethod);
 
             callAddAllDelegate(typeMolder, keyColl, valueFormatString, formatFlags);

@@ -5,11 +5,12 @@ using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
-using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 #pragma warning disable CS8714 // The type cannot be used as type parameter in the generic type or method. Nullability of type argument doesn't match 'notnull' constraint.
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
@@ -46,30 +47,30 @@ public class KeyedSubListDictionaryExpect<TKey, TValue> : DictionaryExpect<TKey,
     // ReSharper disable twice ExplicitCallerInfoArgument
     public KeyedSubListDictionaryExpect(List<KeyValuePair<TKey, TValue>>? inputList, string? valueFormatString = null, string? keyFormatString = null
       , Expression<Func<List<TKey>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueFormatString, keyFormatString, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+        base(inputList, valueFormatString, keyFormatString, elementFilterExpression, formatFlags, name, srcFile, srcLine)
     {
     }
     
     public KeyedSubListDictionaryExpect(List<KeyValuePair<TKey, TValue>>? inputList
       , Expression<Func<List<TKey>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, null, null, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+        base(inputList, null, null, elementFilterExpression, formatFlags, name, srcFile, srcLine)
     {
     }
     
     public KeyedSubListDictionaryExpect(List<KeyValuePair<TKey, TValue>>? inputList
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, null, null, (Expression<Func<List<TKey>>>?)null, contentHandling, name, srcFile, srcLine)
+        base(inputList, null, null, (Expression<Func<List<TKey>>>?)null, formatFlags, name, srcFile, srcLine)
     {
     }
 }
@@ -81,30 +82,30 @@ public class KeyedNullStructValueSubListDictionaryExpect<TKey, TValue> : Diction
     // ReSharper disable twice ExplicitCallerInfoArgument
     public KeyedNullStructValueSubListDictionaryExpect(List<KeyValuePair<TKey, TValue?>>? inputList, string? valueFormatString = null, string? keyFormatString = null
       , Expression<Func<List<TKey>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueFormatString, keyFormatString, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+        base(inputList, valueFormatString, keyFormatString, elementFilterExpression, formatFlags, name, srcFile, srcLine)
     {
     }
     
     public KeyedNullStructValueSubListDictionaryExpect(List<KeyValuePair<TKey, TValue?>>? inputList
       , Expression<Func<List<TKey>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, null, null, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+        base(inputList, null, null, elementFilterExpression, formatFlags, name, srcFile, srcLine)
     {
     }
     
     public KeyedNullStructValueSubListDictionaryExpect(List<KeyValuePair<TKey, TValue?>>? inputList
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, null, null, (Expression<Func<List<TKey>>>?)null, contentHandling, name, srcFile, srcLine)
+        base(inputList, null, null, (Expression<Func<List<TKey>>>?)null, formatFlags, name, srcFile, srcLine)
     {
     }
 }
@@ -115,30 +116,30 @@ public class DictionaryExpect<TKey, TValue> : DictionaryExpect<TKey, TValue, TKe
     // ReSharper disable twice ExplicitCallerInfoArgument
     public DictionaryExpect(List<KeyValuePair<TKey, TValue>>? inputList, string? valueFormatString = null, string? keyFormatString = null
       , Expression<Func<KeyValuePredicate<TKey, TValue>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueFormatString, keyFormatString, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+        base(inputList, valueFormatString, keyFormatString, elementFilterExpression, formatFlags, name, srcFile, srcLine)
     {
     }
     
     public DictionaryExpect(List<KeyValuePair<TKey, TValue>>? inputList
       , Expression<Func<KeyValuePredicate<TKey, TValue>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, null, null, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+        base(inputList, null, null, elementFilterExpression, formatFlags, name, srcFile, srcLine)
     {
     }
     
     public DictionaryExpect(List<KeyValuePair<TKey, TValue>>? inputList
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, null, null, (Expression<Func<KeyValuePredicate<TKey, TValue>>>?)null, contentHandling, name, srcFile, srcLine)
+        base(inputList, null, null, (Expression<Func<KeyValuePredicate<TKey, TValue>>>?)null, formatFlags, name, srcFile, srcLine)
     {
     }
 }
@@ -162,11 +163,11 @@ public class DictionaryExpect<TKey, TValue, TKFilterBase, TVFilterBase, TKSubLis
     // ReSharper disable twice ExplicitCallerInfoArgument
     public DictionaryExpect(List<KeyValuePair<TKey, TValue>>? inputList, string? valueFormatString = null, string? keyFormatString = null
       , Expression<Func<KeyValuePredicate<TKFilterBase, TVFilterBase>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
-        : base(inputList, valueFormatString, contentHandling,
+        : base(inputList, valueFormatString, formatFlags,
                name
             ?? ((elementFilterExpression?.Body as MemberExpression)?.Member.Name)
             ?? (inputList != null
@@ -188,11 +189,11 @@ public class DictionaryExpect<TKey, TValue, TKFilterBase, TVFilterBase, TKSubLis
     // ReSharper disable twice ExplicitCallerInfoArgument
     public DictionaryExpect(List<KeyValuePair<TKey, TValue>>? inputList, string? valueFormatString = null, string? keyFormatString = null
       , Expression<Func<List<TKSubListDerived>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
-        : base(inputList, valueFormatString, contentHandling,
+        : base(inputList, valueFormatString, formatFlags,
                name
             ?? ((elementFilterExpression?.Body as MemberExpression)?.Member.Name)
             ?? (inputList != null

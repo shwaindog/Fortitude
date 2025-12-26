@@ -4,10 +4,11 @@
 using System.Runtime.CompilerServices;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
-using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
@@ -20,11 +21,11 @@ public class StringBearerExpect<TInput>
   , string? valueFormatString = null
   , bool hasDefault = false
   , TInput? defaultValue = default
-  , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+  , FormatFlags formatFlags = DefaultCallerTypeFlags
   , string? name = null
   , [CallerFilePath] string srcFile = ""
   , [CallerLineNumber] int srcLine = 0)
-    : StringBearerExpect<TInput, TInput>(input, valueFormatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
+    : StringBearerExpect<TInput, TInput>(input, valueFormatString, hasDefault, defaultValue, formatFlags, name, srcFile, srcLine)
     where TInput : IStringBearer;
 
 
@@ -34,14 +35,14 @@ public class StringBearerExpect<TInput, TDefault> : FieldExpect<TInput, TDefault
     // ReSharper disable twice ExplicitCallerInfoArgument
     public StringBearerExpect(TInput? input, string? valueFormatString = null
       , bool hasDefault = false, TDefault? defaultValue = default
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
-      , [CallerLineNumber] int srcLine = 0) : base(input, valueFormatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
+      , [CallerLineNumber] int srcLine = 0) : base(input, valueFormatString, hasDefault, defaultValue, formatFlags, name, srcFile, srcLine)
     {
         FieldValueExpectation = 
             new FieldExpect<TInput?, TDefault?>
-                (Input, ValueFormatString, HasDefault, DefaultValue, contentHandling , name, srcFile, srcLine);
+                (Input, ValueFormatString, HasDefault, DefaultValue, formatFlags , name, srcFile, srcLine);
     }
 
     public ITypedFormatExpectation<TInput?> FieldValueExpectation { get; }

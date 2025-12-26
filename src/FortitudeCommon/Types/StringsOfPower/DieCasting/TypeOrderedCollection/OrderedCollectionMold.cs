@@ -1,6 +1,7 @@
 ﻿using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
 
@@ -17,50 +18,47 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
-      , FieldContentHandling createFormatFlags )
+      , FormatFlags createFormatFlags)
     {
         Initialize(typeBeingBuilt, master, typeSettings, typeName
-                                       , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
+                 , remainingGraphDepth, typeFormatting, existingRefId
+                 , createFormatFlags | AsCollection);
 
         stb = CompAsOrderedCollection;
 
         return this;
     }
-    
+
 
     public override bool IsComplexType => false;
-    
+
     public int ResultCount { get; set; }
-    
+
     public int TotalCount { get; private set; }
-    
+
     public override void AppendOpening()
     {
-        if (CompAsOrderedCollection.CollectionInComplexType)
-        {
-            MoldStateField.StyleFormatter.AppendComplexTypeOpening(MoldStateField);
-        }
+        if (CompAsOrderedCollection.CollectionInComplexType) { MoldStateField.StyleFormatter.AppendComplexTypeOpening(MoldStateField); }
         else
         {
             var elementType = MoldStateField.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
-            MoldStateField.StyleFormatter.FormatCollectionStart(MoldStateField, elementType!, true, MoldStateField.TypeBeingBuilt);
-        }
-    }
-    
-    public override void AppendClosing()
-    {
-        if (CompAsOrderedCollection.CollectionInComplexType)
-        {
-            MoldStateField.StyleFormatter.AppendTypeClosing(MoldStateField);
-        }
-        else
-        {
-            var elementType = MoldStateField.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
-            MoldStateField.StyleFormatter.FormatCollectionEnd(MoldStateField, ResultCount, elementType!, ResultCount, "");
+            MoldStateField.StyleFormatter.FormatCollectionStart
+                (MoldStateField, elementType!, true
+               , MoldStateField.TypeBeingBuilt, MoldStateField.CreateContentHandling);
         }
     }
 
-    protected virtual CollectionBuilderCompAccess<TOCMold> CompAsOrderedCollection =>  (CollectionBuilderCompAccess<TOCMold>)MoldStateField;
+    public override void AppendClosing()
+    {
+        if (CompAsOrderedCollection.CollectionInComplexType) { MoldStateField.StyleFormatter.AppendTypeClosing(MoldStateField); }
+        else
+        {
+            var elementType = MoldStateField.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
+            MoldStateField.StyleFormatter.FormatCollectionEnd(MoldStateField, ResultCount, elementType!, ResultCount, "", MoldStateField.CreateContentHandling);
+        }
+    }
+
+    protected virtual CollectionBuilderCompAccess<TOCMold> CompAsOrderedCollection => (CollectionBuilderCompAccess<TOCMold>)MoldStateField;
 }
 
 public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCollectionMold>
@@ -73,10 +71,12 @@ public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCo
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
-      , FieldContentHandling createFormatFlags )
+      , FormatFlags createFormatFlags)
     {
-        InitializeOrderedCollectionBuilder(typeBeingBuilt, master, typeSettings, typeName
-                                         , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
+        InitializeOrderedCollectionBuilder
+            (typeBeingBuilt, master, typeSettings, typeName
+           , remainingGraphDepth, typeFormatting, existingRefId
+           , createFormatFlags | AsCollection);
 
         return this;
     }
@@ -85,14 +85,14 @@ public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCo
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
         MoldStateField = recycler.Borrow<CollectionBuilderCompAccess<SimpleOrderedCollectionMold>>()
-                             .InitializeOrderCollectionComponentAccess(this, PortableState, false);
+                                 .InitializeOrderCollectionComponentAccess(this, PortableState, false);
     }
 }
 
 public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrderedCollectionMold>
 {
     private TypeFieldCollection.SelectTypeCollectionField<ComplexOrderedCollectionMold>? logOnlyInternalCollectionField;
-    private TypeFields.SelectTypeField<ComplexOrderedCollectionMold>?  logOnlyInternalField;
+    private TypeFields.SelectTypeField<ComplexOrderedCollectionMold>?                    logOnlyInternalField;
 
     public ComplexOrderedCollectionMold InitializeComplexOrderedCollectionBuilder
     (
@@ -103,10 +103,12 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
-      , FieldContentHandling createFormatFlags )
+      , FormatFlags createFormatFlags)
     {
-        InitializeOrderedCollectionBuilder(typeBeingBuilt, master, typeSettings, typeName
-                                         , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
+        InitializeOrderedCollectionBuilder
+            (typeBeingBuilt, master, typeSettings, typeName
+           , remainingGraphDepth, typeFormatting, existingRefId
+           , createFormatFlags | AsCollection);
 
         return this;
     }
@@ -117,7 +119,7 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
         MoldStateField = recycler.Borrow<CollectionBuilderCompAccess<ComplexOrderedCollectionMold>>()
-                             .InitializeOrderCollectionComponentAccess(this, PortableState, true);
+                                 .InitializeOrderCollectionComponentAccess(this, PortableState, true);
     }
 
     public TypeFields.SelectTypeField<ComplexOrderedCollectionMold> LogOnlyField =>

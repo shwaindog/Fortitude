@@ -2,7 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.DataStructures.Lists.PositionAware;
-using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
@@ -887,7 +887,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<NoDefaultLongWithFlagsEnum>(NoDefaultLongWithFlagsEnum.NDLWFE_1.First8AndLast2Mask(), "[\"{0,/, /\", \"/}\"]"
-                                                      , contentHandling: ReformatMultiLine)
+                                                      , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -920,7 +920,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<NoDefaultLongWithFlagsEnum>(NoDefaultLongWithFlagsEnum.NDLWFE_1.First8MinusFlag2Mask(), "'{0}'"
-                                                      , contentHandling: ReformatMultiLine)
+                                                      , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -951,7 +951,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<NoDefaultLongWithFlagsEnum>(NoDefaultLongWithFlagsEnum.NDLWFE_1.First8Last2MaskMinusFlag1(), "{0,/, /, /[^3..]}"
-                                                      , contentHandling: ReformatMultiLine)
+                                                      , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -1156,7 +1156,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<NoDefaultLongWithFlagsEnum?>(NoDefaultLongWithFlagsEnum.NDLWFE_1.First8AndLast2Mask(), "[\"{0,/, /\", \"/}\"]"
-                                                       , contentHandling: ReformatMultiLine)
+                                                       , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -1189,7 +1189,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<NoDefaultLongWithFlagsEnum?>(NoDefaultLongWithFlagsEnum.NDLWFE_1.First8MinusFlag2Mask(), "'{0}'"
-                                                       , contentHandling: ReformatMultiLine)
+                                                       , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -1220,7 +1220,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<NoDefaultLongWithFlagsEnum?>(NoDefaultLongWithFlagsEnum.NDLWFE_1.First8Last2MaskMinusFlag1(), "{0,/, /, /[^3..]}"
-                                                       , contentHandling: ReformatMultiLine)
+                                                       , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -1379,7 +1379,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<NoDefaultULongWithFlagsEnum>(NoDefaultULongWithFlagsEnum.NDUWFE_1.First8AndLast2Mask(), "[\"{0,/, /\", \"/}\"]"
-                                                       , contentHandling: ReformatMultiLine)
+                                                       , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -1412,7 +1412,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<NoDefaultULongWithFlagsEnum>(NoDefaultULongWithFlagsEnum.NDUWFE_1.First8MinusFlag2Mask(), "'{0}'"
-                                                       , contentHandling: ReformatMultiLine)
+                                                       , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -1443,7 +1443,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<NoDefaultULongWithFlagsEnum>(NoDefaultULongWithFlagsEnum.NDUWFE_1.First8Last2MaskMinusFlag1(), "{0,/, /, /[^3..]}"
-                                                       , contentHandling: ReformatMultiLine)
+                                                       , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -1649,7 +1649,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<NoDefaultULongWithFlagsEnum?>(NoDefaultULongWithFlagsEnum.NDUWFE_1.First8AndLast2Mask(), "[\"{0,/, /\", \"/}\"]"
-                                                        , contentHandling: ReformatMultiLine)
+                                                        , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -1682,7 +1682,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<NoDefaultULongWithFlagsEnum?>(NoDefaultULongWithFlagsEnum.NDUWFE_1.First8MinusFlag2Mask(), "'{0}'"
-                                                        , contentHandling: ReformatMultiLine)
+                                                        , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -1713,7 +1713,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<NoDefaultULongWithFlagsEnum?>(NoDefaultULongWithFlagsEnum.NDUWFE_1.First8Last2MaskMinusFlag1(), "{0,/, /, /[^3..]}"
-                                                        , contentHandling: ReformatMultiLine)
+                                                        , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -1871,7 +1871,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<WithDefaultLongWithFlagsEnum>(WithDefaultLongWithFlagsEnum.WDLWFE_1.First8AndLast2Mask(), "[\"{0,/, /\", \"/}\"]"
-                                                        , contentHandling: ReformatMultiLine)
+                                                        , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -1904,7 +1904,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<WithDefaultLongWithFlagsEnum>(WithDefaultLongWithFlagsEnum.WDLWFE_1.First8MinusFlag2Mask(), "'{0}'"
-                                                        , contentHandling: ReformatMultiLine)
+                                                        , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -1935,7 +1935,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<WithDefaultLongWithFlagsEnum>(WithDefaultLongWithFlagsEnum.WDLWFE_1.First8Last2MaskMinusFlag1(), "{0,/, /, /[^3..]}"
-                                                        , contentHandling: ReformatMultiLine)
+                                                        , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -2130,7 +2130,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<WithDefaultLongWithFlagsEnum?>(WithDefaultLongWithFlagsEnum.WDLWFE_1.First8AndLast2Mask(), "[\"{0,/, /\", \"/}\"]"
-                                                         , contentHandling: ReformatMultiLine)
+                                                         , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -2163,7 +2163,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<WithDefaultLongWithFlagsEnum?>(WithDefaultLongWithFlagsEnum.WDLWFE_1.First8MinusFlag2Mask(), "'{0}'"
-                                                         , contentHandling: ReformatMultiLine)
+                                                         , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -2194,7 +2194,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<WithDefaultLongWithFlagsEnum?>(WithDefaultLongWithFlagsEnum.WDLWFE_1.First8Last2MaskMinusFlag1(), "{0,/, /, /[^3..]}"
-                                                         , contentHandling: ReformatMultiLine)
+                                                         , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -2351,7 +2351,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<WithDefaultULongWithFlagsEnum>(WithDefaultULongWithFlagsEnum.WDUWFE_1.First8AndLast2Mask(), "[\"{0,/, /\", \"/}\"]"
-                                                         , contentHandling: ReformatMultiLine)
+                                                         , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -2384,7 +2384,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<WithDefaultULongWithFlagsEnum>(WithDefaultULongWithFlagsEnum.WDUWFE_1.First8MinusFlag2Mask(), "'{0}'"
-                                                         , contentHandling: ReformatMultiLine)
+                                                         , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -2415,7 +2415,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<WithDefaultULongWithFlagsEnum>(WithDefaultULongWithFlagsEnum.WDUWFE_1.First8Last2MaskMinusFlag1(), "{0,/, /, /[^3..]}"
-                                                         , contentHandling: ReformatMultiLine)
+                                                         , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -2611,7 +2611,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<WithDefaultULongWithFlagsEnum?>(WithDefaultULongWithFlagsEnum.WDUWFE_1.First8AndLast2Mask(), "[\"{0,/, /\", \"/}\"]"
-                                                          , contentHandling: ReformatMultiLine)
+                                                          , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -2644,7 +2644,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<WithDefaultULongWithFlagsEnum?>(WithDefaultULongWithFlagsEnum.WDUWFE_1.First8MinusFlag2Mask(), "'{0}'"
-                                                          , contentHandling: ReformatMultiLine)
+                                                          , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
@@ -2675,7 +2675,7 @@ public static class EnumTestData
                 }
             }
           , new FieldExpect<WithDefaultULongWithFlagsEnum?>(WithDefaultULongWithFlagsEnum.WDUWFE_1.First8Last2MaskMinusFlag1(), "{0,/, /, /[^3..]}"
-                                                          , contentHandling: ReformatMultiLine)
+                                                          , formatFlags: ReformatMultiLine)
             {
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)

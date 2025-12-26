@@ -28,6 +28,10 @@ public static class TypeExtensions
     public static readonly Type SpanFormattableType         = typeof(ISpanFormattable);
     public static readonly Type NullableTypeDef             = typeof(Nullable<>);
     public static readonly Type EnumType                    = typeof(Enum);
+    public static readonly Type CharType                    = typeof(char);
+    public static readonly Type NullableCharType            = typeof(char?);
+    public static readonly Type RuneType                    = typeof(Rune);
+    public static readonly Type NullableRuneType            = typeof(Rune?);
 
     private static readonly ConcurrentDictionary<Type, bool> TypeIsFlagsEnumCache = new();
 
@@ -182,7 +186,7 @@ public static class TypeExtensions
 
     public static bool IsJustReadOnlyDictionaryType(this Type type) =>
         type.IsGenericType && type.GetGenericTypeDefinition() == ReadOnlyDictionaryTypeDef;
-    
+
     public static bool IsReadOnlyDictionaryType(this Type type) =>
         type.IsJustReadOnlyDictionaryType()
      || type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyDictionaryTypeDef);
@@ -589,14 +593,23 @@ public static class TypeExtensions
      || check == typeof(IList<byte?>)
      || check == typeof(IReadOnlyList<byte?>);
 
-    public static bool IsChar(this Type check)                 => check == typeof(char);
+    public static bool IsChar(this Type check)                 => check == CharType;
     public static bool IsNotChar(this Type check)              => !check.IsChar();
-    public static bool IsNullableChar(this Type check)         => check == typeof(char?);
+    public static bool IsNullableChar(this Type check)         => check == NullableCharType;
     public static bool IsNotNullableChar(this Type check)      => !check.IsNullableChar();
     public static bool IsCharArray(this Type check)            => check == typeof(char[]);
     public static bool IsNotCharArray(this Type check)         => !check.IsCharArray();
     public static bool IsNullableCharArray(this Type check)    => check == typeof(char?[]);
     public static bool IsNotNullableCharArray(this Type check) => !check.IsNullableCharArray();
+
+    public static bool IsRune(this Type check)                 => check == RuneType;
+    public static bool IsNotRune(this Type check)              => !check.IsRune();
+    public static bool IsNullableRune(this Type check)         => check == NullableRuneType;
+    public static bool IsNotNullableRune(this Type check)      => !check.IsNullableRune();
+    public static bool IsRuneArray(this Type check)            => check == typeof(Rune[]);
+    public static bool IsNotRuneArray(this Type check)         => !check.IsRuneArray();
+    public static bool IsNullableRuneArray(this Type check)    => check == typeof(Rune?[]);
+    public static bool IsNotNullableRuneArray(this Type check) => !check.IsNullableRuneArray();
 
     public static bool IsShort(this Type check)              => check == typeof(short) || check.IsShortEnum();
     public static bool IsNullableShort(this Type check)      => check == typeof(short?);
@@ -765,9 +778,10 @@ public static class TypeExtensions
     public static bool IsNotStringBuilderList(this Type check) => !check.IsStringBuilderList();
 
     public static bool IsAnyTypeHoldingChars(this Type check) =>
-        check.IsString() || check.IsStringArray() || check.IsStringList() || check.IsCharArray()
-     || check.IsCharSequence() || check.IsCharSequenceSupportArray() || check.IsCharSequenceSupportingList()
-     || check.IsStringBuilder() || check.IsStringBuilderArray() || check.IsStringBuilderList();
+        check.IsChar() || check.IsNullableChar() || check.IsRune() || check.IsNullableRune() || check.IsString() || check.IsStringArray()
+     || check.IsStringList() || check.IsCharArray() || check.IsNullableCharArray() || check.IsRuneArray() || check.IsNullableRuneArray()
+     || check.IsCharSequence() || check.IsCharSequenceSupportArray() || check.IsCharSequenceSupportingList() || check.IsStringBuilder()
+     || check.IsStringBuilderArray() || check.IsStringBuilderList();
 
     public static bool IsAnyTypeHoldingCharsCached(this Type check) =>
         IsAnyTypeHoldingCache.GetOrAdd(check, t => t.IsAnyTypeHoldingChars());

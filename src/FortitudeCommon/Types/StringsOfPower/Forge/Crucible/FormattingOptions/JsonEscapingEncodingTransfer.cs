@@ -464,7 +464,7 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
         int destStartIndex = int.MaxValue, int maxTransferCount = int.MaxValue)
     {
         var preTransferLen = destSb.Length;
-        if (!parentJsonOptions.CharArrayWritesString)
+        if (!parentJsonOptions.CharBufferWritesAsCharCollection)
         {
             int  j;
             var  capLen       = Math.Clamp(maxTransferCount, 0, source.Length);
@@ -489,7 +489,7 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
     public virtual int Transfer(ICustomStringFormatter stringFormatter, char[] source, int sourceFrom, Span<char> destSpan, int destStartIndex = 0
       , int maxTransferCount = int.MaxValue)
     {
-        if (!parentJsonOptions.CharArrayWritesString)
+        if (!parentJsonOptions.CharBufferWritesAsCharCollection)
         {
             var  charsAdded   = 0;
             var  capLen       = Math.Clamp(maxTransferCount, 0, source.Length);

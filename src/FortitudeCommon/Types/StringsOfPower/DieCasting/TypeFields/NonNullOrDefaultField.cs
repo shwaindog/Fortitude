@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.Forge;
-using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 #pragma warning disable CS0618 // Type or member is obsolete
 
@@ -16,14 +16,14 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
     public TMold WhenNonNullOrDefaultAdd
     (ReadOnlySpan<char> fieldName, bool? value, bool defaultValue = false
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags) =>
+      , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags) =>
         !stb.SkipField<bool>(typeof(bool), fieldName, formatFlags) && value != null && value != defaultValue
             ? AlwaysAdd(fieldName, value, formatString)
             : stb.WasSkipped<bool>(typeof(bool), fieldName, formatFlags);
 
     public TMold WhenNonNullOrDefaultAdd<TFmt>(ReadOnlySpan<char> fieldName, TFmt? value, TFmt? defaultValue = default(TFmt)
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable =>
         !stb.SkipField<bool?>(value?.GetType(), fieldName, formatFlags) 
      && value != null && !Equals(value, defaultValue)
             ? AlwaysAdd(fieldName, value, formatString, formatFlags)
@@ -31,7 +31,7 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
 
     public TMold WhenNonNullOrDefaultAdd<TFmtStruct>(ReadOnlySpan<char> fieldName, TFmtStruct? value, TFmtStruct? defaultValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable =>
         !stb.SkipField<TFmtStruct?>(value?.GetType(), fieldName, formatFlags) 
      && value != null && !Equals(value, defaultValue ?? default(TFmtStruct))
@@ -40,7 +40,7 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
 
     public TMold WhenNonNullOrDefaultReveal<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, TCloaked? value
       , PalantírReveal<TRevealBase> palantírReveal, TCloaked? defaultValue = default(TCloaked)
-    , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase
         where TRevealBase : notnull
         =>
@@ -51,14 +51,14 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
 
     public TMold WhenNonNullOrDefaultReveal<TCloakedStruct>(ReadOnlySpan<char> fieldName, TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal, TCloakedStruct? defaultValue = null
-    , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
+    , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
         !stb.SkipField<TCloakedStruct?>(value?.GetType(), fieldName, formatFlags)
      && value != null && !Equals(value, defaultValue ?? default(TCloakedStruct))
             ? AlwaysReveal(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped<TCloakedStruct?>(value?.GetType(), fieldName, formatFlags);
 
     public TMold WhenNonNullOrDefaultReveal<TBearer>(ReadOnlySpan<char> fieldName, TBearer? value, TBearer? defaultValue = default(TBearer?)
-    , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer =>
         !stb.SkipField<TBearer?>(value?.GetType(), fieldName, formatFlags)
      && value != null && !Equals(value, defaultValue)
@@ -66,7 +66,7 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
             : stb.WasSkipped<TBearer?>(value?.GetType(), fieldName, formatFlags);
 
     public TMold WhenNonNullOrDefaultReveal<TBearerStruct>(ReadOnlySpan<char> fieldName, TBearerStruct? value, TBearerStruct? defaultValue = null
-    , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer =>
         !stb.SkipField<TBearerStruct?>(value?.GetType(), fieldName, formatFlags)
      && value != null && !Equals(value, defaultValue)
@@ -75,7 +75,7 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
 
     public TMold WhenNonNullOrDefaultAdd(ReadOnlySpan<char> fieldName, Span<char> value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         stb.SkipField<Memory<char>>(value.Length > 0 ? typeof(Span<char>) : null, fieldName, formatFlags)
      || value is { Length: 0 } || value.SequenceMatches(defaultValue)
             ? stb.WasSkipped<Memory<char>>(value.Length > 0 ? typeof(Span<char>) : null, fieldName, formatFlags)
@@ -83,7 +83,7 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
 
     public TMold WhenNonNullOrDefaultAdd(ReadOnlySpan<char> fieldName, ReadOnlySpan<char> value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         stb.SkipField<ReadOnlyMemory<char>>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, fieldName, formatFlags) 
      || value is { Length: 0 } ||
         value.SequenceMatches(defaultValue)
@@ -92,7 +92,7 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
 
     public TMold WhenNonNullOrDefaultAdd(ReadOnlySpan<char> fieldName, string? value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipField<string>(value?.GetType(), fieldName, formatFlags)
      && value != null && value != defaultValue
             ? AlwaysAdd(fieldName, value, formatString, formatFlags)
@@ -100,7 +100,7 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
 
     public TMold WhenNonNullOrDefaultAdd(ReadOnlySpan<char> fieldName, string? value, int startIndex, int count = int.MaxValue
       , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var cappedStart  = Math.Clamp(startIndex, 0, value?.Length ?? 0);
         var cappedLength = Math.Clamp(count, 0, (value?.Length ?? 0) - cappedStart);
@@ -116,7 +116,7 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
 
     public TMold WhenNonNullOrDefaultAdd(ReadOnlySpan<char> fieldName, char[]? value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipField<char[]>(value?.GetType(), fieldName, formatFlags)
      && (value != null && !value.SequenceMatches(defaultValue))
             ? AlwaysAdd(fieldName, value, formatString, formatFlags)
@@ -124,7 +124,7 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
 
     public TMold WhenNonNullOrDefaultAdd(ReadOnlySpan<char> fieldName, char[]? value, int startIndex, int count = int.MaxValue
       , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var cappedStart  = Math.Clamp(startIndex, 0, value?.Length ?? 0);
         var cappedLength = Math.Clamp(count, 0, (value?.Length ?? 0) - cappedStart);
@@ -140,7 +140,7 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
 
     public TMold WhenNonNullOrDefaultAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq? value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence =>
         !stb.SkipField<TCharSeq>(value?.GetType(), fieldName, formatFlags)
      && value != null && !value.SequenceMatches(defaultValue)
             ? AlwaysAddCharSeq(fieldName, value, formatString, formatFlags)
@@ -148,7 +148,7 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
 
     public TMold WhenNonNullOrDefaultAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq? value, int startIndex, int count = int.MaxValue
       , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence
     {
         var cappedStart  = Math.Clamp(startIndex, 0, value?.Length ?? 0);
         var cappedLength = Math.Clamp(count, 0, (value?.Length ?? 0) - cappedStart);
@@ -163,7 +163,7 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
 
     public TMold WhenNonNullOrDefaultAdd(ReadOnlySpan<char> fieldName, StringBuilder? value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipField<StringBuilder?>(value?.GetType(), fieldName, formatFlags)
      && value != null && !value.SequenceMatches(defaultValue)
             ? AlwaysAdd(fieldName, value, formatString, formatFlags)
@@ -171,7 +171,7 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
 
     public TMold WhenNonNullOrDefaultAdd(ReadOnlySpan<char> fieldName, StringBuilder? value, int startIndex, int count = int.MaxValue
       , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var cappedStart  = Math.Clamp(startIndex, 0, value?.Length ?? 0);
         var cappedLength = Math.Clamp(count, 0, (value?.Length ?? 0) - cappedStart);
@@ -186,7 +186,7 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
 
     public TMold WhenNonNullOrDefaultAddMatch<TAny>(ReadOnlySpan<char> fieldName, TAny? value, TAny? defaultValue = default
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipField<TAny?>(value?.GetType(), fieldName, formatFlags)
      && value != null
      && (typeof(TAny).IsNullable() && !Equals(value, defaultValue ?? typeof(TAny).GetDefaultForUnderlyingNullableOrThis())
@@ -200,7 +200,7 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
     [CallsObjectToString]
     public TMold WhenNonNullOrDefaultAddObject(ReadOnlySpan<char> fieldName, object? value, object? defaultValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         !stb.SkipField<object?>(value?.GetType(), fieldName, formatFlags)
      && value != null
      && ((value.GetType().IsValueType

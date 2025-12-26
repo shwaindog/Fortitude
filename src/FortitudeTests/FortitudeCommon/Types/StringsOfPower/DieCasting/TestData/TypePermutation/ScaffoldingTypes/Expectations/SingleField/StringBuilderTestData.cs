@@ -142,12 +142,7 @@ public static class StringBuilderTestData
               , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence, Log | Compact | Pretty), "\"\"" }
               , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut), "\"\"" }
               , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence), "\"\\u0022\\u0022\"" }
-              , { new EK(AcceptsChars | AlwaysWrites | NonNullWrites | DefaultTreatedAsStringOut, Log | Compact | Pretty), "\"\"" }
-               ,
-                {
-                    new EK(AcceptsChars | AlwaysWrites | NonNullWrites | DefaultTreatedAsStringOut, Json | Compact | Pretty)
-                  , "\"\\u0022\\u0022\""
-                }
+              , { new EK(AcceptsChars | AlwaysWrites | NonNullWrites), "\"\"" }
             }
           , new StringLikeExpect<StringBuilder, StringBuilder>
                 (new StringBuilder("began"), "'{0[8..10]}'", false, new StringBuilder("0"), 10, 5)
@@ -172,18 +167,7 @@ public static class StringBuilderTestData
                     new EK(SimpleType | AcceptsChars | AcceptsStringBuilder)
                   , "\"\\u0022\\u0022\""
                 }
-               ,
-                {
-                    new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         | DefaultTreatedAsStringOut, Log | Compact | Pretty)
-                  , "\"\""
-                }
-               ,
-                {
-                    new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         | DefaultTreatedAsStringOut, Json | Compact | Pretty)
-                  , "\"\\u0022\\u0022\""
-                }
+               , { new EK(AcceptsChars | AcceptsStringBuilder | AllOutputConditionsMask ) , "\"\"" }
             }
           , new StringLikeExpect<StringBuilder, StringBuilder>
                 (new StringBuilder("the"), "{0}", true, new StringBuilder(""), -1, -10)

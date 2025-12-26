@@ -63,7 +63,7 @@ public static class KeyedCollectionGenericAddAllInvoker
     }
 
     public static void CallAddAll<TKeyColl>(KeyedCollectionMold typeMolder, TKeyColl keyColl, string? valueFormatString = null
-        , FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags)
+        , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags)
     {
         var keyedCollType = keyColl!.GetType();
         if (keyedCollType.IsKeyedCollection())

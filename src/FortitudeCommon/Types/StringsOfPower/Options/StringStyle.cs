@@ -15,10 +15,12 @@ public enum StringStyle : ushort
   , Log             = 0x08
   , CompactLog      = 0x0A
   , PrettyLog       = 0x0C
+  , AnyLog          = 0x0E
   , Json            = 0x10
   , CompactJson     = 0x12
   , PrettyJson      = 0x14
-  , AllLogOrJson    = 0x1E  
+  , AnyJson         = 0x16
+  , AnyLogOrJson    = 0x1E  
   , Yaml            = 0x20 // not implemented just reserving
   , CompactYaml     = 0x22 // "
   , PrettyYaml      = 0x24 // "

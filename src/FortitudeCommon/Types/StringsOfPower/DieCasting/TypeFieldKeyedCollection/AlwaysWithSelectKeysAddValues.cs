@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
-using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -12,7 +12,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKSelectDerived[] selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
     {
         if (stb.SkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
@@ -39,7 +39,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKSelectDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
     {
         if (stb.SkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
@@ -66,7 +66,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, Span<TKSelectDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
     {
         if (stb.SkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
@@ -93,7 +93,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKSelectDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
     {
         if (stb.SkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
@@ -120,7 +120,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKSelectDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
     {
         if (stb.SkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
@@ -146,7 +146,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKSelectDerived> selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
     {
         if (stb.SkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
@@ -178,7 +178,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKSelectDerived[] selectKeys
       , PalantírReveal<TVRevealBase> valueRevealer, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
@@ -206,7 +206,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysWithSelectKeys<TKey, TValue, TKSelectDerived>
     (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, TKSelectDerived[] selectKeys
       , PalantírReveal<TValue> valueRevealer, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TValue : struct
     {
@@ -234,7 +234,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, Span<TKSelectDerived> selectKeys
       , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
@@ -263,7 +263,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, Span<TKSelectDerived> selectKeys
       , PalantírReveal<TValue> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TValue : struct
     {
@@ -291,7 +291,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, ReadOnlySpan<TKSelectDerived> selectKeys
       , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
@@ -320,7 +320,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, ReadOnlySpan<TKSelectDerived> selectKeys
       , PalantírReveal<TValue> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TValue : struct
     {
@@ -348,7 +348,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKSelectDerived> selectKeys
       , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
@@ -377,7 +377,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, IReadOnlyList<TKSelectDerived> selectKeys
       , PalantírReveal<TValue> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TValue : struct
     {
@@ -404,7 +404,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TVRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKSelectDerived> selectKeys, PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
@@ -431,7 +431,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived>
     (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, IEnumerable<TKSelectDerived> selectKeys, PalantírReveal<TValue> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TValue : struct
     {
@@ -458,7 +458,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , IReadOnlyDictionary<TKey, TValue>? value
       , IEnumerator<TKSelectDerived>? selectKeys, PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
@@ -493,7 +493,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , IReadOnlyDictionary<TKey, TValue?>? value
       , IEnumerator<TKSelectDerived> selectKeys, PalantírReveal<TValue> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TValue : struct
     {
@@ -526,7 +526,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, TKSelectDerived[] selectKeys
       , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TKey : TKRevealBase
         where TValue : TVRevealBase?
@@ -556,7 +556,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, TKSelectDerived[] selectKeys
       , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TKey : TKRevealBase
         where TValue : struct
@@ -585,7 +585,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , Span<TKSelectDerived> selectKeys, PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TKey : TKRevealBase
         where TValue : TVRevealBase?
@@ -615,7 +615,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>(string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , Span<TKSelectDerived> selectKeys, PalantírReveal<TValue> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TKey : TKRevealBase
         where TValue : struct
@@ -644,7 +644,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , ReadOnlySpan<TKSelectDerived> selectKeys, PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TKey : TKRevealBase
         where TValue : TVRevealBase?
@@ -674,7 +674,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>(string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , ReadOnlySpan<TKSelectDerived> selectKeys, PalantírReveal<TValue> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TKey : TKRevealBase
         where TValue : struct
@@ -703,7 +703,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IReadOnlyList<TKSelectDerived> selectKeys
       , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TKey : TKRevealBase
         where TValue : TVRevealBase?
@@ -733,7 +733,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, IReadOnlyList<TKSelectDerived> selectKeys
       , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TKey : TKRevealBase
         where TValue : struct
@@ -762,7 +762,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerable<TKSelectDerived> selectKeys
       , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TKey : TKRevealBase
         where TValue : TVRevealBase?
@@ -791,7 +791,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TKRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, IEnumerable<TKSelectDerived> selectKeys
       , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TKey : TKRevealBase
         where TValue : struct
@@ -819,7 +819,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, IEnumerator<TKSelectDerived>? selectKeys
       , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TKey : TKRevealBase
         where TValue : TVRevealBase?
@@ -856,7 +856,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TKRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, IEnumerator<TKSelectDerived> selectKeys
       , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
         where TKey : TKRevealBase
         where TValue : struct

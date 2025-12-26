@@ -29,7 +29,7 @@ public enum JsonEscapeType
 
 public interface IJsonFormattingOptions : IFormattingOptions
 {
-    public bool CharArrayWritesString { get; set; }
+    public bool CharBufferWritesAsCharCollection { get; set; }
 
     public bool ByteArrayWritesBase64String { get; set; }
 
@@ -180,13 +180,13 @@ public class JsonFormattingOptions : FormattingOptions, IJsonFormattingOptions
     private (Range, JsonEscapeType, Func<Rune, string>)[]?   cachedMappingFactoryRanges;
     private Func<IJsonFormattingOptions, IEncodingTransfer>? buildEncodingTransfer;
 
-    public bool CharArrayWritesString { get; set; }
+    public bool CharBufferWritesAsCharCollection { get; set; }
 
     public bool ByteArrayWritesBase64String { get; set; } = true;
 
     public JsonFormattingOptions(IJsonFormattingOptions toClone) : base(toClone)
     {
-        CharArrayWritesString            = toClone.CharArrayWritesString;
+        CharBufferWritesAsCharCollection            = toClone.CharBufferWritesAsCharCollection;
         ByteArrayWritesBase64String      = toClone.ByteArrayWritesBase64String;
         DateTimeIsNumber                 = toClone.DateTimeIsNumber;
         DateTimeIsString                 = toClone.DateTimeIsString;

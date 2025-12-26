@@ -5,10 +5,11 @@ using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Options;
-using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 #pragma warning disable CS8714 // The type cannot be used as type parameter in the generic type or method. Nullability of type argument doesn't match 'notnull' constraint.
 
@@ -29,15 +30,15 @@ public class NullStructStringBearerOrderedListExpect<TChildScaffoldListElement>
     public NullStructStringBearerOrderedListExpect(List<TChildScaffoldListElement?>? inputList
       , Expression<Func<OrderedCollectionPredicate<TChildScaffoldListElement?>>>? elementFilter = null
       , string? valueFormatString = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
-        : base(inputList, valueFormatString, elementFilter, contentHandling, name, srcFile, srcLine)
+        : base(inputList, valueFormatString, elementFilter, formatFlags, name, srcFile, srcLine)
     {
         FieldValueExpectation =
             new FieldExpect<TChildScaffoldListElement?>
-                (null, ValueFormatString, false, null, contentHandling, name, srcFile, srcLine);
+                (null, ValueFormatString, false, null, formatFlags, name, srcFile, srcLine);
     }
 
     public ITypedFormatExpectation<TChildScaffoldListElement?> FieldValueExpectation { get; }
@@ -157,13 +158,13 @@ public class NullStringBearerOrderedListExpect<TChildScaffoldListElement>
     List<TChildScaffoldListElement?>? inputList
   , Expression<Func<OrderedCollectionPredicate<TChildScaffoldListElement?>>>? elementFilter = null
   , string? valueFormatString = null
-  , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+  , FormatFlags formatFlags = DefaultCallerTypeFlags
   , string? name = null
   , [CallerFilePath] string srcFile = ""
   , [CallerLineNumber] int srcLine = 0)
     :
         StringBearerOrderedListExpect<TChildScaffoldListElement?, TChildScaffoldListElement?, TChildScaffoldListElement>
-        (inputList, elementFilter, valueFormatString, contentHandling, name, srcFile, srcLine)
+        (inputList, elementFilter, valueFormatString, formatFlags, name, srcFile, srcLine)
     where TChildScaffoldListElement : ISinglePropertyTestStringBearer, IUnknownPalantirRevealerFactory { }
 
 public class StringBearerOrderedListExpect<TChildScaffoldListElement>
@@ -171,13 +172,13 @@ public class StringBearerOrderedListExpect<TChildScaffoldListElement>
     List<TChildScaffoldListElement>? inputList
   , Expression<Func<OrderedCollectionPredicate<TChildScaffoldListElement>>>? elementFilter = null
   , string? valueFormatString = null
-  , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+  , FormatFlags formatFlags = DefaultCallerTypeFlags
   , string? name = null
   , [CallerFilePath] string srcFile = ""
   , [CallerLineNumber] int srcLine = 0)
     :
         StringBearerOrderedListExpect<TChildScaffoldListElement, TChildScaffoldListElement, TChildScaffoldListElement>
-        (inputList, elementFilter, valueFormatString, contentHandling, name, srcFile, srcLine)
+        (inputList, elementFilter, valueFormatString, formatFlags, name, srcFile, srcLine)
     where TChildScaffoldListElement : ISinglePropertyTestStringBearer?, IUnknownPalantirRevealerFactory? { }
 
 public class StringBearerOrderedListExpect<TChildScaffoldListElement, TFilterBase, TRevealBase> :
@@ -194,15 +195,15 @@ public class StringBearerOrderedListExpect<TChildScaffoldListElement, TFilterBas
     public StringBearerOrderedListExpect(List<TChildScaffoldListElement>? inputList
       , Expression<Func<OrderedCollectionPredicate<TFilterBase>>>? elementFilter = null
       , string? valueFormatString = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
-        : base(inputList, valueFormatString, elementFilter, contentHandling, name, srcFile, srcLine)
+        : base(inputList, valueFormatString, elementFilter, formatFlags, name, srcFile, srcLine)
     {
         FieldValueExpectation =
             new FieldExpect<TChildScaffoldListElement?>
-                (default, ValueFormatString, false, default, contentHandling, name, srcFile, srcLine);
+                (default, ValueFormatString, false, default, formatFlags, name, srcFile, srcLine);
     }
 
     public ITypedFormatExpectation<TChildScaffoldListElement?> FieldValueExpectation { get; }

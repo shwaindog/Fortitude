@@ -5,12 +5,13 @@ using System.Text;
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
-using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 using static FortitudeCommon.Types.StringsOfPower.Options.DateTimeStyleFormat;
 using static FortitudeCommon.Types.StringsOfPower.Options.TimeStyleFormat;
 
@@ -59,7 +60,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
 
     private bool?   wrapValuesInQuotes;
     private bool?   byteArrayWritesBase64String;
-    private bool?   charArrayWritesString;
+    private bool?   charArrayWritesCharCollection;
     private string? falseString;
     private string? trueString;
     private string? nullString;
@@ -108,7 +109,7 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     private string[]? logSuppressDisplayCollectionNames;
     private string[]? logSuppressDisplayCollectionElementNames;
 
-    private FieldContentHandling contextContentHandlingFlags;
+    private FormatFlags contextContentHandlingFlags;
     private StringStyle?         style;
     private DateTimeStyleFormat? dateTimeFormat;
     private TimeStyleFormat?     timeFormat;
@@ -136,17 +137,17 @@ public struct StyleOptionsValue : IJsonFormattingOptions
         set => style = value;
     }
 
-    public FieldContentHandling CurrentContextContentHandling
+    public FormatFlags CurrentContextContentHandling
     {
         get => contextContentHandlingFlags;
         set => contextContentHandlingFlags = value;
     }
 
-    public bool IsSame(FieldContentHandling callerRequestedHandling) =>
+    public bool IsSame(FormatFlags callerRequestedHandling) =>
         ((callerRequestedHandling & EncodingMask) == 0
       || (contextContentHandlingFlags & EncodingMask) == (callerRequestedHandling & EncodingMask))
-     && ((callerRequestedHandling & FormattingMask) == 0
-      || (contextContentHandlingFlags & FormattingMask) == (callerRequestedHandling & FormattingMask));
+     && ((callerRequestedHandling & LayoutMask) == 0
+      || (contextContentHandlingFlags & LayoutMask) == (callerRequestedHandling & LayoutMask));
 
     public char IndentChar
     {
@@ -312,10 +313,10 @@ public struct StyleOptionsValue : IJsonFormattingOptions
         set => enumDefaultAsNumber = value;
     }
 
-    public bool CharArrayWritesString
+    public bool CharBufferWritesAsCharCollection
     {
-        readonly get => charArrayWritesString ?? fallbackOptions?.Values.CharArrayWritesString ?? Style.IsNotJson();
-        set => charArrayWritesString = value;
+        readonly get => charArrayWritesCharCollection ?? !fallbackOptions?.Values.CharBufferWritesAsCharCollection ?? false;
+        set => charArrayWritesCharCollection = value;
     }
 
     public bool ByteArrayWritesBase64String
@@ -693,13 +694,13 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
         set => values.Style = value;
     }
 
-    public FieldContentHandling CurrentContextContentHandling
+    public FormatFlags CurrentContextContentHandling
     {
         get => values.CurrentContextContentHandling;
         set => values.CurrentContextContentHandling = value;
     }
 
-    public bool IsSame(FieldContentHandling callerRequestedHandling) => values.IsSame(callerRequestedHandling);
+    public bool IsSame(FormatFlags callerRequestedHandling) => values.IsSame(callerRequestedHandling);
 
     public char IndentChar
     {
@@ -841,10 +842,10 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
         set => values.False = value;
     }
 
-    public bool CharArrayWritesString
+    public bool CharBufferWritesAsCharCollection
     {
-        get => values.CharArrayWritesString;
-        set => values.CharArrayWritesString = value;
+        get => values.CharBufferWritesAsCharCollection;
+        set => values.CharBufferWritesAsCharCollection = value;
     }
 
     public bool ByteArrayWritesBase64String
