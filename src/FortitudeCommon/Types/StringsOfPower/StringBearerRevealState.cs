@@ -16,7 +16,7 @@ public interface IStringBearerRevelStateProvider<in TToStyle> : IStringBearerFor
 
 public delegate int StringBearerSpanFormattable<in TToFormat>(TToFormat toFormat, Span<char> destination
   , ReadOnlySpan<char> format, IEncodingTransfer enumEncoder, IEncodingTransfer joinEncoder, IFormatProvider? provider
-  , FormattingHandlingFlags formattingFlags);
+  , FormatSwitches formattingFlags);
 
 public interface IStringBearerFormattableProvider
 {

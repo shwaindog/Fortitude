@@ -1,12 +1,15 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Runtime.InteropServices.JavaScript;
 using FortitudeCommon.DataStructures.Lists.PositionAware;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Options;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
-using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
+    ScaffoldingStringBuilderInvokeFlags;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.Expectations.SingleField;
 
@@ -18,7 +21,51 @@ public class CharArrayTestData
         new PositionUpdatingList<IStringLikeExpectation>(typeof(CharArrayTestData))
         {
             // char[]
-            new StringLikeExpect<char[], char[]>("".ToCharArray(), "", true, ['0'])
+
+            new StringLikeExpect<string>("", "", true, "0")
+            {
+                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut), "" }
+              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut), "\"\"" }
+               ,
+                {
+                    new EK(SimpleType | AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsValueOut | DefaultBecomesZero
+                         | DefaultBecomesFallbackValue)
+                  , "0"
+                }
+               ,
+                {
+                    new EK(SimpleType | AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut
+                         | EmptyBecomesNull | DefaultBecomesNull)
+                  , "null"
+                }
+               ,
+                {
+                    new EK(SimpleType | AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsStringOut | DefaultBecomesZero
+                         | DefaultBecomesFallbackValue)
+                  , "\"0\""
+                }
+               ,
+                {
+                    new EK(SimpleType | AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsStringOut | DefaultBecomesEmpty)
+                  , "\"\""
+                }
+              , { new EK(SimpleType | AcceptsChars | DefaultTreatedAsValueOut), "" }
+               ,
+                {
+                    new EK(SimpleType | AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsStringOut)
+                  , "\"\""
+                }
+
+               ,
+                {
+                    new EK(ComplexType | AcceptsChars | AlwaysWrites | NonDefaultWrites | NonDefaultWrites | NonNullWrites
+                         | NonNullAndPopulatedWrites)
+                  , "\"\""
+                }
+              , { new EK(ComplexType | AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonDefaultWrites), "null" }
+            }
+          , new StringLikeExpect<char[], char[]>("".ToCharArray(), "", true, ['0']
+                                               , formatFlags: AsCollection)
             {
                 { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut), "" }
               , { new EK(SimpleType | CallsViaMatch), "\"\"" }
@@ -44,9 +91,9 @@ public class CharArrayTestData
               , { new EK(SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsStringOut), "\"\"" }
                ,
                 {
-                    new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
+                    new EK(AcceptsChars | AcceptsCharArray | AllOutputConditionsMask
                          | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesZero | DefaultBecomesNull,
-                            StringStyle.Log | Compact | Pretty)
+                           AnyLog)
                   , "[]"
                 }
                ,
@@ -57,14 +104,14 @@ public class CharArrayTestData
                 }
                ,
                 {
-                    new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesZero | DefaultBecomesNull, Json | Compact | Pretty)
+                    new EK(AcceptsChars | AcceptsCharArray | AllOutputConditionsMask
+                         | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesZero | DefaultBecomesNull, AnyJson)
                   , "[]"
                 }
                ,
                 {
                     new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonDefaultWrites | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut
-                         | DefaultBecomesZero | DefaultBecomesNull, Json | Compact | Pretty)
+                         | DefaultBecomesZero | DefaultBecomesNull, AnyJson)
                   , "null"
                 }
             }
@@ -74,7 +121,11 @@ public class CharArrayTestData
               , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString), "" }
               , { new EK(SimpleType | CallsViaMatch), "\"\"" }
               , { new EK(SimpleType | AcceptsChars | CallsAsSpan | AcceptsCharArray | DefaultBecomesNull), "null" }
-              , { new EK(SimpleType | AcceptsChars | CallsAsSpan | AcceptsCharArray | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue), "\"\"" }
+               ,
+                {
+                    new EK(SimpleType | AcceptsChars | CallsAsSpan | AcceptsCharArray | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue)
+                  , "\"\""
+                }
                ,
                 {
                     new EK(AcceptsChars | AlwaysWrites | NonDefaultWrites | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut
@@ -109,7 +160,11 @@ public class CharArrayTestData
           , new StringLikeExpect<char[], char[]>(null, "", true, ['0'], -1, -10)
             {
                 { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString), "0" }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString), "\"0\"" }
+               ,
+                {
+                    new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString)
+                  , "\"0\""
+                }
               , { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull), "null" }
                ,
                 {
@@ -123,7 +178,23 @@ public class CharArrayTestData
               , { new EK(AcceptsChars | CallsAsSpan | DefaultTreatedAsStringOut), "\"\"" }
               , { new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonDefaultWrites), "null" },
             }
-          , new StringLikeExpect<char[], char[]>("It".ToCharArray(), "\"{0}\"", false, ['0'], 3, 2)
+          , new StringLikeExpect<char[], char[]>("It".ToCharArray(), "[{0}]", false, ['0'], 3, 2)
+            {
+                { new EK(SimpleType | AcceptsChars | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallbackValue), "[0]" }
+              , { new EK(SimpleType | AcceptsChars | DefaultTreatedAsValueOut), "[]" }
+              , { new EK(SimpleType | AcceptsChars | DefaultTreatedAsStringOut | DefaultBecomesZero | DefaultBecomesFallbackValue), "\"[0]\"" }
+              , { new EK(SimpleType | AcceptsChars | DefaultTreatedAsStringOut), "\"[]\"" }
+              , { new EK(AcceptsChars | CallsAsSpan | AllOutputConditionsMask, AnyLog) , "[]" }
+               ,
+                {
+                    new EK(AcceptsChars | AllOutputConditionsMask)
+                  , """
+                    "[]"
+                    """
+                }
+            }
+          , new StringLikeExpect<char[], char[]>("It".ToCharArray(), "\"{0}\"", false, ['0'], 3, 2
+                                               , formatFlags: AsCollection)
             {
                 {
                     new EK(SimpleType | CallsViaMatch | DefaultBecomesFallbackValue, Log | Compact | Pretty)
@@ -197,7 +268,26 @@ public class CharArrayTestData
                   , "\"\\u0022\\u0022\""
                 }
             }
-          , new StringLikeExpect<char[], char[]>("began".ToCharArray(), "'{0[8..10]}'", false, [], 10, 5)
+          , new StringLikeExpect<char[], char[]>("began".ToCharArray(), "[{0[8..10]}]", false, ['0'], 10, 5)
+            {
+                { new EK(SimpleType | AcceptsChars | AllOutputConditionsMask | DefaultTreatedAsValueOut), "[]" }
+              , { new EK(SimpleType | AcceptsChars), "\"[]\"" }
+               ,
+                {
+                    new EK(AcceptsChars | CallsAsSpan | AllOutputConditionsMask, AnyLog)
+                  , """
+                    []
+                    """
+                }
+              , {
+                    new EK(AcceptsChars | CallsAsSpan | AllOutputConditionsMask)
+                  , """
+                    "[]"
+                    """
+                }
+            }
+          , new StringLikeExpect<char[], char[]>("began".ToCharArray(), "'{0[8..10]}'", false, [], 10, 5
+                                               , AsCollection)
             {
                 { new EK(SimpleType | AcceptsChars | AcceptsCharArray | DefaultTreatedAsValueOut), "''" }
               , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | DefaultTreatedAsStringOut), "\"''\"" }
@@ -231,18 +321,37 @@ public class CharArrayTestData
                     """
                 }
             }
+
           , new StringLikeExpect<char[]>("with".ToCharArray(), "\"{0[8..10]}\"")
             {
-                { new EK(SimpleType | CallsViaMatch | AcceptsCharArray | CallsAsSpan, Log | Compact | Pretty), "\"\"" }
-              , { new EK(SimpleType | CallsViaMatch | AcceptsCharArray | DefaultBecomesFallbackValue | DefaultTreatedAsValueOut), "\"\"" }
-              , { new EK(SimpleType | CallsViaMatch | AcceptsCharArray | DefaultBecomesFallbackValue), "\"\\u0022\\u0022\"" }
-              , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan, Log | Compact | Pretty), "\"\"" }
-              , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut), "\"\"" }
+                { new EK(SimpleType | CallsViaMatch | AcceptsString, Log | Compact | Pretty), "\"\"" }
+              , { new EK(SimpleType | CallsViaMatch | AcceptsString | DefaultBecomesFallbackValue | DefaultTreatedAsValueOut), "\"\"" }
+              , { new EK(SimpleType | CallsViaMatch | AcceptsString | DefaultBecomesFallbackValue), "\"\\u0022\\u0022\"" }
+              , { new EK(SimpleType | AcceptsChars | AcceptsString | CallsAsSpan, Log | Compact | Pretty), "\"\"" }
+
+              , { new EK(AcceptsChars | AcceptsString | CallsAsSpan | DefaultTreatedAsValueOut), "\"\"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan), """""
-                                                                                        "\u0022\u0022"
-                                                                                        """""
+                    new EK(SimpleType | AcceptsChars | AcceptsString | CallsAsSpan)
+                  , "\"\\u0022\\u0022\""
+                }
+               ,
+                {
+                    new EK(AcceptsChars | CallsAsSpan | AllOutputConditionsMask)
+                  , "\"\""
+                }
+            }
+          , new StringLikeExpect<char[]>("with".ToCharArray(), "\"{0[8..10]}\"", formatFlags: AsCollection)
+            {
+                { new EK(SimpleType | CallsViaMatch | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut), "\"\"" }
+              , { new EK(SimpleType | CallsViaMatch | AcceptsCharArray | DefaultTreatedAsStringOut, AnyJson), "\"\\u0022\\u0022\"" }
+              , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan, AnyLog), "\"\"" }
+              , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut), "\"\"" }
+              , {
+                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsStringOut, AnyJson)
+                  , """""
+                    "\u0022\u0022"
+                    """""
                 }
               , { new EK(SimpleType | AcceptsChars | AcceptsCharArray | DefaultTreatedAsValueOut, Log | Compact | Pretty), "[]" }
                ,
@@ -270,18 +379,33 @@ public class CharArrayTestData
                 }
                ,
                 {
-                    new EK(AcceptsChars | AcceptsCharArray | CallsAsSpan | AlwaysWrites | NonDefaultWrites | NonNullWrites
-                         | NonNullAndPopulatedWrites | DefaultTreatedAsStringOut, Log | Compact | Pretty)
+                    new EK(AcceptsChars | AcceptsCharArray | CallsAsSpan | AllOutputConditionsMask)
+                  , "\"\""
+                }
+            }
+          , new StringLikeExpect<char[], char[]>("the".ToCharArray(), "\"{0}\"", true, [], -1, -10)
+            {
+                { new EK(SimpleType | AcceptsChars | DefaultTreatedAsValueOut | DefaultBecomesZero), "\"0\"" }
+              , { new EK(SimpleType | AcceptsChars | DefaultTreatedAsValueOut), "\"\"" }
+              , { new EK(SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsStringOut, AnyLog), "\"\"" }
+              , { new EK(SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsStringOut, AnyJson)
+                  , """
+                    "\u0022\u0022"
+                    """
+                }
+              ,
+                {
+                    new EK(AcceptsChars | AlwaysWrites | NonNullWrites | DefaultTreatedAsStringOut)
                   , "\"\""
                 }
                ,
                 {
-                    new EK(AcceptsChars | AcceptsCharArray | CallsAsSpan | AlwaysWrites | NonDefaultWrites | NonNullWrites
-                         | NonNullAndPopulatedWrites | DefaultTreatedAsStringOut, Json | Compact | Pretty)
-                  , "\"\\u0022\\u0022\""
+                    new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | DefaultTreatedAsStringOut)
+                  , "\"\""
                 }
             }
-          , new StringLikeExpect<char[], char[]>("the".ToCharArray(), "{0}", true, [], -1, -10)
+          , new StringLikeExpect<char[], char[]>("the".ToCharArray(), "{0}", true, [], -1, -10
+                                                     , AsCollection)
             {
                 { new EK(SimpleType | AcceptsChars | DefaultTreatedAsValueOut | DefaultBecomesZero), "0" }
               , { new EK(SimpleType | AcceptsChars | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
@@ -308,38 +432,39 @@ public class CharArrayTestData
                   , "\"\""
                 }
             }
-          , new StringLikeExpect<char[], char[]>("forging".ToCharArray(), "[{0,10}]"
-                                               , true, "orging".ToCharArray(), 1)
+          , new StringLikeExpect<char[], char[]>("forging".ToCharArray(), "{0,10}", true, "orging".ToCharArray()
+                                               , 1)
+            {
+                { new EK(SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsValueOut), "    orging" }
+              , { new EK(SimpleType | AcceptsChars | CallsAsSpan), "\"    orging\"" }
+              , { new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonNullWrites, AnyLog), "    orging" }
+              , { new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonNullWrites | DefaultTreatedAsStringOut), "\"    orging\"" }
+            }
+          , new StringLikeExpect<char[], char[]>("forging".ToCharArray(), "[{0,10}]", true, "orging".ToCharArray()
+                                               , 1, formatFlags: AsCollection)
             {
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut)
+                    new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut)
                   , "[    orging]"
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsStringOut)
+                    new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut)
                   , "\"[    orging]\""
                 }
                ,
                 {
-                    new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonNullWrites, Log | Compact | Pretty)
+                    new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites, AnyLog)
                   , "[[    orging]]"
                 }
                ,
                 {
-                    new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonNullWrites, Log | Compact | Pretty)
-                  , """
-                    "[    orging]"
-                    """
-                }
-               ,
-                {
-                    new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonNullWrites, Json | Compact)
+                    new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites, Json | Compact)
                   , """["["," "," "," "," ","o","r","g","i","n","g","]"]"""
                 }
                ,
                 {
-                    new EK(AcceptsChars | AcceptsCharArray | AlwaysWrites | NonNullWrites, Json | Pretty)
+                    new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites, Json | Pretty)
                   , """
                     [
                         "[",
@@ -357,15 +482,29 @@ public class CharArrayTestData
                       ]
                     """.Dos2Unix()
                 }
-               ,
-                {
-                    new EK(AcceptsChars | CallsAsSpan | AlwaysWrites, Json | Compact | Pretty)
-                  , """
-                    "[    orging]"
-                    """
-                }
             }
           , new StringLikeExpect<char[]>("It began with the forging of the Great Strings.".ToCharArray(), "[{0}]")
+            {
+                {
+                    new EK( SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsValueOut)
+                  , "[It began with the forging of the Great Strings.]"
+                }
+               ,{
+                    new EK( SimpleType | AcceptsChars | CallsAsSpan)
+                  , "\"[It began with the forging of the Great Strings.]\""
+                }
+               ,
+                {
+                    new EK( AcceptsChars | AllOutputConditionsMask, AnyLog)
+                  , "[It began with the forging of the Great Strings.]"
+                }
+               ,
+                {
+                    new EK(AcceptsChars | CallsAsSpan | AllOutputConditionsMask | DefaultTreatedAsStringOut)
+                  , "\"[It began with the forging of the Great Strings.]\""
+                }
+            }
+          , new StringLikeExpect<char[]>("It began with the forging of the Great Strings.".ToCharArray(), "[{0}]", formatFlags: AsCollection)
             {
                 {
                     new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut)
@@ -455,9 +594,31 @@ public class CharArrayTestData
                   , "\"[It began with the forging of the Great Strings.]\""
                 }
             }
+          , new StringLikeExpect<char[]>("Three were given to the Assembly Programmers, impractical, wackiest and hairiest of all beings.".ToCharArray() 
+                                       , "3{0[5..]}")
+            {
+                {
+                    new EK( SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsValueOut)
+                  , "3 were given to the Assembly Programmers, impractical, wackiest and hairiest of all beings."
+                }
+               ,{
+                    new EK( SimpleType | AcceptsChars | CallsAsSpan)
+                  , "\"3 were given to the Assembly Programmers, impractical, wackiest and hairiest of all beings.\""
+                }
+               ,
+                {
+                    new EK(AcceptsChars | AllOutputConditionsMask, AnyLog)
+                  , "3 were given to the Assembly Programmers, impractical, wackiest and hairiest of all beings."
+                }
+               ,
+                {
+                    new EK(AcceptsChars | CallsAsSpan | AllOutputConditionsMask | DefaultTreatedAsStringOut)
+                  , "\"3 were given to the Assembly Programmers, impractical, wackiest and hairiest of all beings.\""
+                }
+            }
           , new StringLikeExpect<char[]>("Three were given to the Assembly Programmers, impractical, wackiest and hairiest of all beings."
                                              .ToCharArray()
-                                       , "3{0[5..]}")
+                                       , "3{0[5..]}", formatFlags: AsCollection)
             {
                 {
                     new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut)
@@ -590,9 +751,21 @@ public class CharArrayTestData
                   , "\"3 were given to the Assembly Programmers, impractical, wackiest and hairiest of all beings.\""
                 }
             }
+          , new StringLikeExpect<char[]>
+                ("Seven to the Cobol-Lords, eventually great Bitcoin miners and great cardigan wearers of the mainframe halls.".ToCharArray()
+               , "'{0,30}'", fromIndex: -1, length: 24)
+                {
+                    { new EK( SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsValueOut), "'      Seven to the Cobol-Lords'" }
+                   ,{ new EK( SimpleType | AcceptsChars | CallsAsSpan), "\"'      Seven to the Cobol-Lords'\"" }
+                   , { new EK(AcceptsChars | AllOutputConditionsMask, AnyLog) , "'      Seven to the Cobol-Lords'" }
+                   , {
+                        new EK(AcceptsChars | CallsAsSpan | AllOutputConditionsMask | DefaultTreatedAsStringOut)
+                      , "\"'      Seven to the Cobol-Lords'\""
+                    }
+                }
           , new
                 StringLikeExpect<char[]>("Seven to the Cobol-Lords, eventually great Bitcoin miners and great cardigan wearers of the mainframe halls."
-                                             .ToCharArray(), "'{0,30}'", fromIndex: -1, length: 24)
+                                             .ToCharArray(), "'{0,30}'", fromIndex: -1, length: 24, formatFlags: AsCollection)
                 {
                     {
                         new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut)
@@ -667,6 +840,40 @@ public class CharArrayTestData
                 (("And nine, nine strings were gifted to the race of C++ coders, " +
                   "who above all else desired unchecked memory access power. ").ToCharArray(), "***\"{0[1..^1]}\"###"
                , fromIndex: 9, length: 41)
+                {
+                    {
+                        new EK( SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsValueOut, AnyLog)
+                      , "***\"nine strings were gifted to the race of\"###"
+                    }
+                   ,{
+                        new EK( SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsStringOut, AnyLog)
+                      , "\"***\"nine strings were gifted to the race of\"###\""
+                    }
+                   ,
+                    {
+                        new EK( SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsValueOut, AnyJson)
+                      , "***\\u0022nine strings were gifted to the race of\\u0022###"
+                    }
+                  , {
+                        new EK(SimpleType | AcceptsChars | CallsAsSpan, AnyJson)
+                      , "\"***\\u0022nine strings were gifted to the race of\\u0022###\""
+                    }
+                   ,
+                    {
+                        new EK(AcceptsChars | CallsAsSpan | AllOutputConditionsMask, AnyLog)
+                      , "***\"nine strings were gifted to the race of\"###"
+                    }
+                   ,
+                    {
+                        new EK(AcceptsChars | CallsAsSpan | AllOutputConditionsMask | DefaultTreatedAsStringOut, AnyJson)
+                      , "\"***\\u0022nine strings were gifted to the race of\\u0022###\""
+                    }
+                }
+          , new
+                StringLikeExpect<char[]>
+                (("And nine, nine strings were gifted to the race of C++ coders, " +
+                  "who above all else desired unchecked memory access power. ").ToCharArray(), "***\"{0[1..^1]}\"###"
+               , fromIndex: 9, length: 41, formatFlags: AsCollection)
                 {
                     {
                         new EK(SimpleType | AcceptsChars | AcceptsCharArray | DefaultTreatedAsValueOut, Log | Compact | Pretty)
@@ -767,8 +974,61 @@ public class CharArrayTestData
                    ,
                 }
           , new StringLikeExpect<char[]>
-                ("For within these strings was bound the flexibility, mutability and the operators to govern each language"
-                     .ToCharArray(), "{0,0/ /\n/[1..^1]}")
+                ("For within these strings was bound the flexibility, mutability and the operators to govern each language".ToCharArray()
+               , "{0,0/ /\n/[1..^1]}")
+                {
+                {
+                    new EK(SimpleType | AcceptsChars | CallsAsSpan | AcceptsString | DefaultTreatedAsValueOut, AnyLog)
+                  , "within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach"
+                }
+               ,
+                {
+                    new EK(SimpleType | AcceptsChars | CallsAsSpan | AcceptsString | DefaultTreatedAsStringOut , AnyLog)
+                  , "\"within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach\""
+                }
+               ,
+                {
+                    new EK(SimpleType | AcceptsChars | CallsAsSpan | AcceptsString | DefaultTreatedAsValueOut)
+                  , """
+                    within\u000athese\u000astrings\u000awas\u000abound\u000athe\u000aflexibility,\u000amutability\u000aand\u000athe
+                    \u000aoperators\u000ato\u000agovern\u000aeach
+                    """.RemoveLineEndings()
+                }
+               ,
+                {
+                    new EK(SimpleType | AcceptsChars | CallsAsSpan | AcceptsString, AnyJson)
+                  , """
+                    "within\u000athese\u000astrings\u000awas\u000abound\u000athe\u000aflexibility,\u000amutability\u000aand\u000athe
+                    \u000aoperators\u000ato\u000agovern\u000aeach"
+                    """.RemoveLineEndings()
+                }
+               ,
+                {
+                    new EK(SimpleType | AcceptsChars | CallsAsSpan | AcceptsString | DefaultTreatedAsStringOut , AnyLog)
+                  , "\"within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach\""
+                }
+               ,
+                {
+                    new EK(AcceptsChars | AllOutputConditionsMask | DefaultTreatedAsValueOut, AnyLog)
+                  , "within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach"
+                }
+               ,
+                {
+                    new EK(AcceptsChars | CallsAsSpan | AllOutputConditionsMask, AnyLog)
+                  , "\"within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach\""
+                }
+               ,
+                {
+                    new EK(AcceptsChars | CallsAsSpan | AllOutputConditionsMask , AnyJson)
+                  , """
+                    "within\u000athese\u000astrings\u000awas\u000abound\u000athe\u000aflexibility,\u000amutability\u000aand\u000athe\u000a
+                    operators\u000ato\u000agovern\u000aeach"
+                    """.RemoveLineEndings()
+                }
+          }
+          , new StringLikeExpect<char[]>
+                ("For within these strings was bound the flexibility, mutability and the operators to govern each language".ToCharArray()
+               , "{0,0/ /\n/[1..^1]}", formatFlags: AsCollection)
                 {
                     {
                         new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut
@@ -938,6 +1198,29 @@ public class CharArrayTestData
                 }
           , new StringLikeExpect<char[]>("But they were all of them deceived, for another string was made.".ToCharArray()
                                        , "{0,0/,//[1..]}")
+                {
+                    {
+                        new EK(SimpleType | AcceptsChars | CallsAsSpan  | DefaultTreatedAsValueOut)
+                      , " for another string was made."
+                    }
+                   ,
+                    {
+                        new EK( SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsStringOut, AnyLog)
+                      , "\" for another string was made.\""
+                    }
+                   ,
+                    {
+                        new EK(AcceptsChars | AllOutputConditionsMask, AnyLog)
+                      , " for another string was made."
+                    }
+                   ,
+                    {
+                        new EK(AcceptsChars | CallsAsSpan | AllOutputConditionsMask | DefaultTreatedAsStringOut)
+                      , "\" for another string was made.\""
+                    }
+                }
+          , new StringLikeExpect<char[]>("But they were all of them deceived, for another string was made.".ToCharArray()
+                                       , "{0,0/,//[1..]}", formatFlags: AsCollection)
             {
                 {
                     new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut)
@@ -1007,8 +1290,31 @@ public class CharArrayTestData
             }
           , new StringLikeExpect<char[]>
                 (("Deep in the land of Redmond, after many Moons of playing Doom, the Dotnet Lord Hejlsberg forged a master " +
+                 "String, and into this string he poured his unambiguity, his immutability desires and his will to replace all " +
+                 "languages with.").ToCharArray(), "{0,/,/!/[1..3]}", fromIndex: 16, length: 100)
+                {
+                    {
+                        new EK( SimpleType | AcceptsChars | DefaultTreatedAsValueOut)
+                      , " after many Moons of playing Doom! the Dotnet Lord Hejlsberg forged a master String"
+                    }
+                   ,{
+                        new EK( SimpleType | AcceptsChars)
+                      , "\" after many Moons of playing Doom! the Dotnet Lord Hejlsberg forged a master String\""
+                    }
+                   ,{
+                        new EK(AcceptsChars | AllOutputConditionsMask, AnyLog)
+                      , " after many Moons of playing Doom! the Dotnet Lord Hejlsberg forged a master String"
+                    }
+                   ,
+                    {
+                        new EK(AcceptsChars | CallsAsSpan | AllOutputConditionsMask)
+                      , "\" after many Moons of playing Doom! the Dotnet Lord Hejlsberg forged a master String\""
+                    }
+                }
+          , new StringLikeExpect<char[]>
+                (("Deep in the land of Redmond, after many Moons of playing Doom, the Dotnet Lord Hejlsberg forged a master " +
                   "String, and into this string he poured his unambiguity, his immutability desires and his will to replace all " +
-                  "languages with.").ToCharArray(), "{0,/,/!/[1..3]}", fromIndex: 16, length: 100)
+                  "languages with.").ToCharArray(), "{0,/,/!/[1..3]}", fromIndex: 16, length: 100, formatFlags: AsCollection)
                 {
                     {
                         new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut)
@@ -1136,7 +1442,32 @@ public class CharArrayTestData
                 }
           , new StringLikeExpect<char[]>
                 (("One string to use in all, one string to find text in, One string to replace them all and in the dustbins of " +
-                  "time confine them").ToCharArray(), "{0[^40..^0]}")
+                 "time confine them").ToCharArray(), "{0[^40..^0]}")
+                {
+                    {
+                        new EK( SimpleType | AcceptsChars | CallsAsSpan | DefaultTreatedAsValueOut)
+                      , "and in the dustbins of time confine them"
+                    }
+                   ,
+                    {
+                        new EK(SimpleType | AcceptsChars | CallsAsSpan)
+                      , "\"and in the dustbins of time confine them\""
+                    }
+                   ,
+                    {
+                        new EK(AcceptsChars |  AllOutputConditionsMask, AnyLog)
+                      , "and in the dustbins of time confine them"
+                    }
+                   ,
+                    {
+                        new EK(AcceptsChars | CallsAsSpan | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
+                             | DefaultTreatedAsStringOut)
+                      , "\"and in the dustbins of time confine them\""
+                    }
+                }
+          , new StringLikeExpect<char[]>
+                (("One string to use in all, one string to find text in, One string to replace them all and in the dustbins of " +
+                  "time confine them").ToCharArray(), "{0[^40..^0]}", formatFlags: AsCollection)
                 {
                     {
                         new EK(SimpleType | AcceptsChars | AcceptsCharArray | CallsAsSpan | DefaultTreatedAsValueOut)
@@ -1217,5 +1548,5 @@ public class CharArrayTestData
                       , "\"and in the dustbins of time confine them\""
                     }
                 }
-       };
+        };
 }

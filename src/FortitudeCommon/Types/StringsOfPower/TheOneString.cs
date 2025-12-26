@@ -20,7 +20,7 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.ValueType;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
-using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 #endregion
 
@@ -70,7 +70,7 @@ public interface ITheOneString : IReusableObject<ITheOneString>
 
     ComplexValueTypeMold StartComplexValueType<T>(T toStyle, CreateContext createContext = default);
 
-    CallContextDisposable ResolveContextForCallerFlags(FieldContentHandling contentFlags);
+    CallContextDisposable ResolveContextForCallerFlags(FormatFlags contentFlags);
 
     bool IsLastVisitedObject<TVisited>(TVisited checkIsLastVisited);
 
@@ -95,11 +95,11 @@ public interface ISecretStringOfPower : ITheOneString
 
     GraphTrackingBuilder GraphBuilder { get; set; }
 
-    void SetCallerFormatFlags(FieldContentHandling callerContentHandler);
+    void SetCallerFormatFlags(FormatFlags callerContentHandler);
     void SetCallerFormatString(string? formatString);
 
     StateExtractStringRange RegisterVisitedInstanceAndConvert(object obj, bool isKeyName, string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags);
+      , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     bool RegisterVisitedCheckCanContinue<T>(T guest);
     int  EnsureRegisteredVisited<T>(T guest);
@@ -277,7 +277,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     public IStyledTypeFormatting CurrentStyledTypeFormatter => (IStyledTypeFormatting)Formatter;
 
-    public void SetCallerFormatFlags(FieldContentHandling callerContentHandler)
+    public void SetCallerFormatFlags(FormatFlags callerContentHandler)
     {
         callerContext.FormatFlags = callerContentHandler;
     }
@@ -343,7 +343,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     }
 
     public StateExtractStringRange RegisterVisitedInstanceAndConvert(object obj, bool isKeyName, string? formatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var type           = obj.GetType();
         var existingRefId  = SourceGraphVisitRefId(obj, type);
@@ -589,30 +589,30 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         return this;
     }
 
-    public MoldDieCastSettings GetComplexTypeAppendSettings<T>(T forValue, Type actualType, IStyledTypeFormatting formatter, FieldContentHandling formatFlags)
+    public MoldDieCastSettings GetComplexTypeAppendSettings<T>(T forValue, Type actualType, IStyledTypeFormatting formatter, FormatFlags formatFlags)
     {
         var nextDieSettings = AppendSettings;
         nextDieSettings.SkipTypeParts |= formatter.GetNextComplexTypePartFlags(this, forValue, actualType, formatFlags);
         return nextDieSettings;
     }
 
-    public MoldDieCastSettings GetValueTypeAppendSettings<T>(T forValue, Type actualType, IStyledTypeFormatting formatter, FieldContentHandling formatFlags)
+    public MoldDieCastSettings GetValueTypeAppendSettings<T>(T forValue, Type actualType, IStyledTypeFormatting formatter, FormatFlags formatFlags)
     {
         var nextDieSettings = AppendSettings;
         nextDieSettings.SkipTypeParts |= formatter.GetNextValueTypePartFlags(this, forValue, actualType, formatFlags);
         return nextDieSettings;
     }
 
-    public CallContextDisposable ResolveContextForCallerFlags(FieldContentHandling contentFlags)
+    public CallContextDisposable ResolveContextForCallerFlags(FormatFlags contentFlags)
     {
         var previousStyle = Settings.Style;
-        if ((contentFlags & ExcludeMask) > 0)
+        if ((contentFlags & StyleMask) > 0)
         {
             var shouldSkip = false;
-            shouldSkip |= Settings.Style.IsLog() && contentFlags.HasExcludeWhenLogStyleFlag();
-            shouldSkip |= Settings.Style.IsJson() && contentFlags.HasExcludeWhenJsonStyleFlag();
-            shouldSkip |= Settings.Style.IsCompact() && contentFlags.HasExcludeWhenCompactFlag();
-            shouldSkip |= Settings.Style.IsPretty() && contentFlags.HasExcludeWhenPrettyFlag();
+            shouldSkip |= Settings.Style.IsLog() && contentFlags.HasExcludeWhenLogStyle();
+            shouldSkip |= Settings.Style.IsJson() && contentFlags.HasExcludeWhenJsonStyle();
+            shouldSkip |= Settings.Style.IsCompact() && contentFlags.HasExcludeWhenCompactLayout();
+            shouldSkip |= Settings.Style.IsPretty() && contentFlags.HasExcludeWhenPrettyLayout();
             if (shouldSkip) return new CallContextDisposable(true);
         }
         if (Settings.IsSame(contentFlags)

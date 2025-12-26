@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
-using static FortitudeCommon.Types.StringsOfPower.Forge.FormattingHandlingFlags;
+using static FortitudeCommon.Types.StringsOfPower.Forge.FormatSwitches;
 
 namespace FortitudeCommon.Types.StringsOfPower.Forge;
 
@@ -17,16 +17,16 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
     T Append(StringBuilder? value, ICustomStringFormatter? customStringFormatter = null);
     
     T Append(ICharSequence? value, int startIndex, int length = int.MaxValue, string? formatString = null
-      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent);
+      , ICustomStringFormatter? customStringFormatter = null, FormatSwitches formatFlags = EncodeInnerContent);
     
     T Append(ICharSequence? value, int startIndex, int length , ReadOnlySpan<char> formatString
-      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent);
+      , ICustomStringFormatter? customStringFormatter = null, FormatSwitches formatFlags = EncodeInnerContent);
     
     T Append(StringBuilder? value, int startIndex, int length = int.MaxValue, string? formatString = null
-      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent);
+      , ICustomStringFormatter? customStringFormatter = null, FormatSwitches formatFlags = EncodeInnerContent);
     
     T Append(StringBuilder? value, int startIndex, int length, ReadOnlySpan<char> formatString
-      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent);
+      , ICustomStringFormatter? customStringFormatter = null, FormatSwitches formatFlags = EncodeInnerContent);
     
     T Append(bool value, ICustomStringFormatter? customStringFormatter = null);
     T Append(byte value);
@@ -44,33 +44,33 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
     T Append(string? value);
     
     T Append(string? value, int startIndex, int length = int.MaxValue, string? formatString = null
-      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent);
+      , ICustomStringFormatter? customStringFormatter = null, FormatSwitches formatFlags = EncodeInnerContent);
     
     T Append(string? value, int startIndex, int length, ReadOnlySpan<char> formatString
-      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent);
+      , ICustomStringFormatter? customStringFormatter = null, FormatSwitches formatFlags = EncodeInnerContent);
     
     T Append<TFmt>(TFmt arg0, ICustomStringFormatter? customStringFormatter = null) where TFmt : ISpanFormattable?;
     
     T Append(Span<char> value, ICustomStringFormatter? customStringFormatter = null);
     
     T Append(Span<char> value, int startIndex, int length = int.MaxValue, string? formatString = null
-      , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent);
+      , ICustomStringFormatter? customStringFormatter = null, FormatSwitches formatFlags = EncodeInnerContent);
     
     T Append(ReadOnlySpan<char> value, ICustomStringFormatter? customStringFormatter = null);
     
     T Append(ReadOnlySpan<char> value, int startIndex, int length = int.MaxValue, string? formatString = null
-    , ICustomStringFormatter? customStringFormatter = null, FormattingHandlingFlags formatFlags = EncodeInnerContent);
+    , ICustomStringFormatter? customStringFormatter = null, FormatSwitches formatFlags = EncodeInnerContent);
     
     T Append(ReadOnlyMemory<char> value, ICustomStringFormatter? customStringFormatter = null);
     
     T Append(ReadOnlyMemory<char> value, int startIndex, int length = int.MaxValue, string? formatString = null
-    , ICustomStringFormatter? customStringFormatter = null , FormattingHandlingFlags formatFlags = EncodeInnerContent);
+    , ICustomStringFormatter? customStringFormatter = null , FormatSwitches formatFlags = EncodeInnerContent);
     
     T Append(char[]? value, int startIndex, int length, string? formatString = null, ICustomStringFormatter? customStringFormatter = null
-      , FormattingHandlingFlags formatFlags = EncodeInnerContent);
+      , FormatSwitches formatFlags = EncodeInnerContent);
     
     T Append(char[]? value, int startIndex, int length, ReadOnlySpan<char> formatString, ICustomStringFormatter? customStringFormatter = null
-      , FormattingHandlingFlags formatFlags = EncodeInnerContent);
+      , FormatSwitches formatFlags = EncodeInnerContent);
     
     T Append(ushort value);
     T Append(uint value);
@@ -83,11 +83,11 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
     
     T AppendFormat<TFmt>(ICustomStringFormatter customStringFormatter
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, TFmt arg0
-    , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable?;
+    , FormatSwitches formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable?;
     
     T AppendFormat<TFmt>(ICustomStringFormatter customStringFormatter
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] ReadOnlySpan<char> format, TFmt arg0
-    , FormattingHandlingFlags formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable?;
+    , FormatSwitches formatFlags = EncodeInnerContent) where TFmt : ISpanFormattable?;
     
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, string arg0);
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] ReadOnlySpan<char> format, ReadOnlySpan<char> arg0);
@@ -96,7 +96,7 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0);
     
     T AppendFormat(ICustomStringFormatter customStringFormatter,[StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0
-    , FormattingHandlingFlags formatFlags = EncodeInnerContent);
+    , FormatSwitches formatFlags = EncodeInnerContent);
     
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1);
     T AppendFormat([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2);

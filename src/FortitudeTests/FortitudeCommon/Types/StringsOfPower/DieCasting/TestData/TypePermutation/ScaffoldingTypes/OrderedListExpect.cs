@@ -5,11 +5,12 @@ using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
-using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 
@@ -38,12 +39,12 @@ public class OrderedListExpect<TInputElement>
     List<TInputElement>? inputList
   , string? valueFormatString = null
   , Expression<Func<OrderedCollectionPredicate<TInputElement>>>? elementFilterExpression = null
-  , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+  , FormatFlags formatFlags = DefaultCallerTypeFlags
   , string? name = null
   , [CallerFilePath] string srcFile = ""
   , [CallerLineNumber] int srcLine = 0)
     : OrderedListExpect<TInputElement, TInputElement>
-        (inputList, valueFormatString, elementFilterExpression, contentHandling
+        (inputList, valueFormatString, elementFilterExpression, formatFlags
        , name, srcFile, srcLine);
 
 public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TInputElement>?>, IOrderedListExpect
@@ -56,11 +57,11 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
     // ReSharper disable twice ExplicitCallerInfoArgument
     public OrderedListExpect(List<TInputElement>? inputList, string? valueFormatString = null
       , Expression<Func<OrderedCollectionPredicate<TFilterBase>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
-        : base(inputList, valueFormatString, contentHandling,
+        : base(inputList, valueFormatString, formatFlags,
                name
             ?? ((elementFilterExpression?.Body as MemberExpression)?.Member.Name)
             ?? (inputList != null

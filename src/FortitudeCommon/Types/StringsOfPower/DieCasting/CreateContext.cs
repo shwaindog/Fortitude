@@ -10,7 +10,7 @@ public struct CreateContext
 {
     public CreateContext() { }
 
-    public CreateContext(string? nameOverride = null, FieldContentHandling formatFlags = FieldContentHandling.DefaultCallerTypeFlags
+    public CreateContext(string? nameOverride = null, FormatFlags formatFlags = DieCasting.FormatFlags.DefaultCallerTypeFlags
       , string? formatString = null, ushort initiatorDefaultDepth = ushort.MaxValue, byte cappedMinRemainingDepth = 0)
     {
         NameOverride = nameOverride;
@@ -22,7 +22,7 @@ public struct CreateContext
 
     public string? NameOverride { get; set; }
 
-    public FieldContentHandling FormatFlags { get; set; }
+    public FormatFlags FormatFlags { get; set; }
 
     public string? FormatString { get; set; }
 
@@ -33,9 +33,9 @@ public struct CreateContext
 
     public static implicit operator CreateContext(string? formatString) => new() { FormatString = formatString };
 
-    public static implicit operator CreateContext(FieldContentHandling formatFlags) => new() { FormatFlags = formatFlags };
+    public static implicit operator CreateContext(FormatFlags formatFlags) => new() { FormatFlags = formatFlags };
 
-    public static implicit operator CreateContext((string?, FieldContentHandling) formatStringAndFlags) =>
+    public static implicit operator CreateContext((string?, FormatFlags) formatStringAndFlags) =>
         new()
         {
             FormatString = formatStringAndFlags.Item1

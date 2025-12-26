@@ -19,7 +19,7 @@ public interface ISinglePropertyTestStringBearer : IStringBearer
 {
     [JsonIgnore] string PropertyName { get; }
     
-    [JsonIgnore] FieldContentHandling ContentHandlingFlags { get; set; }
+    [JsonIgnore] FormatFlags FormattingFlags { get; set; }
 }
 
 public interface IMoldSupportedValue<TValue> : ISinglePropertyTestStringBearer
@@ -35,7 +35,7 @@ public abstract class MoldScaffoldBase<TValue> : IMoldSupportedValue<TValue>
 
     public abstract string PropertyName { get; }
 
-    public FieldContentHandling ContentHandlingFlags { get; set; }
+    public FormatFlags FormattingFlags { get; set; }
 
     public virtual TValue Value
     {

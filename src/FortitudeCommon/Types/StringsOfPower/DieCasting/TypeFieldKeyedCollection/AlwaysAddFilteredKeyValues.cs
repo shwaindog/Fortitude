@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
-using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 // ReSharper disable MemberCanBePrivate.Global
 
@@ -14,7 +14,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase? where TValue : TVFilterBase? =>
         AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueFormatString, keyFormatString, formatFlags);
 
@@ -23,7 +23,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , KeyValuePredicate<TKeyFilterBase, TValueFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKeyFilterBase? where TValue : TValueFilterBase?
     {
         if (stb.SkipField<KeyValuePair<TKey, TValue>[]>(value?.GetType(), fieldName, formatFlags))
@@ -63,7 +63,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase? where TValue : TVFilterBase?
     {
         if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
@@ -103,7 +103,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase? where TValue : TVFilterBase?
     {
         if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
@@ -145,7 +145,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase? where TValue : TVFilterBase?
     {
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), fieldName, formatFlags))
@@ -198,7 +198,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase
         where TValue : TVFilterBase?, TVRevealBase?
         where TVRevealBase : notnull =>
@@ -209,7 +209,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
       , PalantírReveal<TValue> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase
         where TValue : struct =>
         AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyFormatString, formatFlags);
@@ -219,7 +219,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?
         where TValue : TVFilterBase?, TVRevealBase?
         where TVRevealBase : notnull
@@ -261,7 +261,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
       , PalantírReveal<TValue> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?
         where TValue : struct
     {
@@ -302,7 +302,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?
         where TValue : TVFilterBase?, TVRevealBase?
         where TVRevealBase : notnull
@@ -344,7 +344,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
       , PalantírReveal<TValue> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?
         where TValue : struct
     {
@@ -385,7 +385,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?
         where TValue : TVFilterBase?, TVRevealBase?
         where TVRevealBase : notnull
@@ -429,7 +429,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
       , PalantírReveal<TValue> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?
         where TValue : struct
     {
@@ -471,7 +471,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate, PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?
         where TValue : TVFilterBase?, TVRevealBase?
         where TVRevealBase : notnull
@@ -526,7 +526,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue?>>? value
       , KeyValuePredicate<TKFilterBase, TValue?> filterPredicate, PalantírReveal<TValue> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?
         where TValue : struct
     {
@@ -579,7 +579,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase, TKRevealBase
         where TValue : TVFilterBase?, TVRevealBase?
         where TKRevealBase : notnull
@@ -589,7 +589,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
       , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase, TKRevealBase
         where TValue : struct
         where TKRevealBase : notnull =>
@@ -598,7 +598,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?, TKRevealBase?
         where TValue : TVFilterBase?, TVRevealBase?
         where TKRevealBase : notnull
@@ -639,7 +639,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysAddFiltered<TKey, TValue, TVFilterBase, TVRevealBase>
     (string fieldName, KeyValuePair<TKey?, TValue>[]? value, KeyValuePredicate<TKey?, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKey> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : TVFilterBase?, TVRevealBase?
         where TVRevealBase : notnull
@@ -679,7 +679,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>
     (string fieldName, KeyValuePair<TKey, TValue?>[]? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
       , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?, TKRevealBase?
         where TValue : struct
         where TKRevealBase : notnull
@@ -719,7 +719,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, KeyValuePair<TKey?, TValue?>[]? value, KeyValuePredicate<TKey?, TValue?> filterPredicate
       , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKey> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : struct
     {
@@ -758,7 +758,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?, TKRevealBase?
         where TValue : TVFilterBase?, TVRevealBase?
         where TKRevealBase : notnull
@@ -799,7 +799,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysAddFiltered<TKey, TValue, TVFilterBase, TVRevealBase>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey?, TValue>>? value, KeyValuePredicate<TKey?, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKey> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : TVFilterBase?, TVRevealBase?
         where TVRevealBase : notnull
@@ -839,7 +839,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue?>>? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
       , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?, TKRevealBase?
         where TValue : struct
         where TKRevealBase : notnull
@@ -879,7 +879,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysAddFiltered<TKey, TValue>
     (string fieldName, IReadOnlyList<KeyValuePair<TKey?, TValue?>>? value, KeyValuePredicate<TKey?, TValue?> filterPredicate
       , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKey> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : struct
     {
@@ -918,7 +918,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?, TKRevealBase?
         where TValue : TVFilterBase?, TVRevealBase?
         where TKRevealBase : notnull
@@ -961,7 +961,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TVFilterBase, TVRevealBase>
     (string fieldName, IEnumerable<KeyValuePair<TKey?, TValue>>? value, KeyValuePredicate<TKey?, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKey> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : TVFilterBase?, TVRevealBase?
         where TVRevealBase : notnull
@@ -1003,7 +1003,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TKRevealBase>
     (string fieldName, IEnumerable<KeyValuePair<TKey, TValue?>>? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
       , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?, TKRevealBase?
         where TValue : struct
         where TKRevealBase : notnull
@@ -1045,7 +1045,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysAddFilteredEnumerate<TKey, TValue>
     (string fieldName, IEnumerable<KeyValuePair<TKey?, TValue?>>? value, KeyValuePredicate<TKey?, TValue?> filterPredicate
       , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKey> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : struct
     {
@@ -1086,7 +1086,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?, TKRevealBase?
         where TValue : TVFilterBase?, TVRevealBase?
         where TKRevealBase : notnull
@@ -1140,7 +1140,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TVFilterBase, TVRevealBase>
     (string fieldName, IEnumerator<KeyValuePair<TKey?, TValue>>? value, KeyValuePredicate<TKey?, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKey> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : TVFilterBase?, TVRevealBase?
         where TVRevealBase : notnull
@@ -1193,7 +1193,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TKRevealBase>
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue?>>? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
       , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?, TKRevealBase?
         where TValue : struct
         where TKRevealBase : notnull
@@ -1246,7 +1246,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     public TExt AlwaysAddFilteredEnumerate<TKey, TValue>
     (string fieldName, IEnumerator<KeyValuePair<TKey?, TValue?>>? value, KeyValuePredicate<TKey?, TValue?> filterPredicate
       , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKey> keyRevealer
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : struct
     {

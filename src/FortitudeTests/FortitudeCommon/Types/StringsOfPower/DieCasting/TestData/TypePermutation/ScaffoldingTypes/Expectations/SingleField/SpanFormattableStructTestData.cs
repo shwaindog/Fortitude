@@ -1086,45 +1086,25 @@ public static class SpanFormattableStructTestData
             // Rune
           , new FieldExpect<Rune>(Rune.GetRuneAt("\0", 0))
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "\0" }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, Log | Compact | Pretty), "\"\0\"" }
-               ,
-                {
-                    new EK(SimpleType | AcceptsSpanFormattable)
-                  , """
-                    "\u0000"
-                    """
-                }
-              , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "\0" }
-               ,
-                {
-                    new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, Json | Compact | Pretty)
-                  , """
-                    "\u0000"
-                    """
-                }
+                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyLog), "\0" }
+              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, AnyLog), "\"\0\"" }
+              , { new EK(SimpleType | AcceptsSpanFormattable), "\"\\u0000\"" }
+              , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, AnyLog), "\0" }
+              , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, AnyJson), "\"\\u0000\"" }
             }
           , new FieldExpect<Rune>(Rune.GetRuneAt("𝄞", 0))
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "𝄞" }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, Log | Compact | Pretty), "\"𝄞\"" }
-               ,
-                {
-                    new EK(SimpleType | AcceptsSpanFormattable)
+                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyLog), "𝄞" }
+              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, AnyLog), "\"𝄞\"" }
+              , { new EK(SimpleType | AcceptsSpanFormattable) 
                   , """
                     "\ud834\udd1e"
                     """
                 }
+               , { new EK(AcceptsSpanFormattable | AllOutputConditionsMask, AnyLog) , "𝄞" }
                ,
                 {
-                    new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         , Log | Compact | Pretty)
-                  , "𝄞"
-                }
-               ,
-                {
-                    new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         , Json | Compact | Pretty)
+                    new EK(AcceptsSpanFormattable | AllOutputConditionsMask, AnyJson)
                   , """
                     "\ud834\udd1e"
                     """
@@ -1132,8 +1112,8 @@ public static class SpanFormattableStructTestData
             }
           , new FieldExpect<Rune>(Rune.GetRuneAt("𝄢", 0), "'{0}'")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "'𝄢'" }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, Log | Compact | Pretty), "\"'𝄢'\"" }
+                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyLog), "'𝄢'" }
+              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, AnyLog), "\"'𝄢'\"" }
                ,
                 {
                     new EK(SimpleType | AcceptsSpanFormattable)
@@ -1141,16 +1121,10 @@ public static class SpanFormattableStructTestData
                     "'\ud834\udd22'"
                     """
                 }
+               , { new EK(AcceptsSpanFormattable | AllOutputConditionsMask, AnyLog) , "'𝄢'" }
                ,
                 {
-                    new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         , Log | Compact | Pretty)
-                  , "'𝄢'"
-                }
-               ,
-                {
-                    new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         , Json | Compact | Pretty)
+                    new EK(AcceptsSpanFormattable | AllOutputConditionsMask, AnyJson)
                   , """
                     "'\ud834\udd22'"
                     """
@@ -1158,31 +1132,25 @@ public static class SpanFormattableStructTestData
             }
           , new FieldExpect<Rune>(Rune.GetRuneAt("𝅘𝅥𝅮", 0), "\"{0,-20}\"")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable, Log | Compact | Pretty), "\"𝅘𝅥𝅮                  \"" }
+                { new EK(SimpleType | AcceptsSpanFormattable, AnyLog), "\"𝅘𝅥𝅮                  \"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut)
+                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyJson)
                   , """
                     "\ud834\udd60                  "
                     """
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable)
+                    new EK(SimpleType | AcceptsSpanFormattable, AnyJson)
                   , """
                     "\u0022\ud834\udd60                  \u0022"
                     """
                 }
+               , { new EK(AcceptsSpanFormattable | AllOutputConditionsMask, AnyLog) , "\"𝅘𝅥𝅮                  \"" }
                ,
                 {
-                    new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         , Log | Compact | Pretty)
-                  , "\"𝅘𝅥𝅮                  \""
-                }
-               ,
-                {
-                    new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         , Json | Compact | Pretty)
+                    new EK(AcceptsSpanFormattable | AllOutputConditionsMask, AnyJson)
                   , """
                     "\ud834\udd60                  "
                     """
@@ -1192,19 +1160,19 @@ public static class SpanFormattableStructTestData
             // Rune?
           , new FieldExpect<Rune?>(Rune.GetRuneAt("\0", 0))
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "\0" }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, Log | Compact | Pretty), "\"\0\"" }
+                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyLog), "\0" }
+              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, AnyLog), "\"\0\"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable)
+                    new EK(SimpleType | AcceptsSpanFormattable, AnyJson)
                   , """
                     "\u0000"
                     """
                 }
-              , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "\0" }
+              , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, AnyLog), "\0" }
                ,
                 {
-                    new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, Json | Compact | Pretty)
+                    new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, AnyJson)
                   , """
                     "\u0000"
                     """
@@ -1213,27 +1181,29 @@ public static class SpanFormattableStructTestData
           , new FieldExpect<Rune?>(null, "", true)
             {
                 { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull), "null" }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue, Log | Compact | Pretty), "\0" }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue, Log | Compact | Pretty), "\"\0\"" }
+              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue
+                       , AnyLog), "\0" }
+              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue
+                       , AnyLog), "\"\0\"" }
               , { new EK(SimpleType | CallsViaMatch), "\"\\u0000\"" }
               , {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut 
-                         | DefaultBecomesNull | DefaultBecomesFallbackValue, Log | Compact | Pretty) , "\"\0\""
+                         | DefaultBecomesNull | DefaultBecomesFallbackValue, AnyLog) , "\"\0\""
                 }
                ,
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallbackValue
-                         | DefaultBecomesNull , Json | Compact | Pretty) , "\"\\u0000\""
+                         | DefaultBecomesNull , AnyJson) , "\"\\u0000\""
                 }
               , {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesFallbackString
-                         | DefaultBecomesFallbackValue | DefaultBecomesZero, Log | Compact | Pretty)
+                         | DefaultBecomesFallbackValue | DefaultBecomesZero, AnyLog)
                   , "\0"
                 }
                ,
                 {
                     new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallbackString
-                         | DefaultBecomesFallbackValue | DefaultBecomesZero, Log | Compact | Pretty)
+                         | DefaultBecomesFallbackValue | DefaultBecomesZero, AnyLog)
                   , "\"\0\""
                 }
               , { new EK(SimpleType | AcceptsSpanFormattable 
@@ -1243,25 +1213,19 @@ public static class SpanFormattableStructTestData
             }
           , new FieldExpect<Rune?>(Rune.GetRuneAt("𝄞", 0))
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "𝄞" }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, Log | Compact | Pretty), "\"𝄞\"" }
+                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyLog), "𝄞" }
+              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, AnyLog), "\"𝄞\"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable)
+                    new EK(SimpleType | AcceptsSpanFormattable, AnyJson)
                   , """
                     "\ud834\udd1e"
                     """
                 }
+               , { new EK(AcceptsSpanFormattable | AllOutputConditionsMask, AnyLog) , "𝄞" }
                ,
                 {
-                    new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         , Log | Compact | Pretty)
-                  , "𝄞"
-                }
-               ,
-                {
-                    new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         , Json | Compact | Pretty)
+                    new EK(AcceptsSpanFormattable | AllOutputConditionsMask, AnyJson)
                   , """
                     "\ud834\udd1e"
                     """
@@ -1269,25 +1233,18 @@ public static class SpanFormattableStructTestData
             }
           , new FieldExpect<Rune?>(Rune.GetRuneAt("𝄢", 0), "'{0}'")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "'𝄢'" }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, Log | Compact | Pretty), "\"'𝄢'\"" }
-               ,
-                {
-                    new EK(SimpleType | AcceptsSpanFormattable)
+                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyLog), "'𝄢'" }
+              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, AnyLog), "\"'𝄢'\"" }
+              , {
+                    new EK(SimpleType | AcceptsSpanFormattable, AnyJson)
                   , """
                     "'\ud834\udd22'"
                     """
                 }
+               , { new EK(AcceptsSpanFormattable | AllOutputConditionsMask, AnyLog) , "'𝄢'" }
                ,
                 {
-                    new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         , Log | Compact | Pretty)
-                  , "'𝄢'"
-                }
-               ,
-                {
-                    new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         , Json | Compact | Pretty)
+                    new EK(AcceptsSpanFormattable | AllOutputConditionsMask, AnyJson)
                   , """
                     "'\ud834\udd22'"
                     """
@@ -1310,16 +1267,10 @@ public static class SpanFormattableStructTestData
                     "\u0022\ud834\udd60                  \u0022"
                     """
                 }
+               , { new EK(AcceptsSpanFormattable | AllOutputConditionsMask, AnyLog) , "\"𝅘𝅥𝅮                  \"" }
                ,
                 {
-                    new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         , Log | Compact | Pretty)
-                  , "\"𝅘𝅥𝅮                  \""
-                }
-               ,
-                {
-                    new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         , Json | Compact | Pretty)
+                    new EK(AcceptsSpanFormattable | AllOutputConditionsMask, AnyJson)
                   , """
                     "\ud834\udd60                  "
                     """

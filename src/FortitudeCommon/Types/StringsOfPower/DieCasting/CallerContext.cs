@@ -9,7 +9,7 @@ public struct CallerContext
 {
     private uint packedDepthDelta;
     
-    public FieldContentHandling FormatFlags { get; set; }
+    public FormatFlags FormatFlags { get; set; }
 
     public string? FormatString { get; set; }
     
@@ -38,9 +38,9 @@ public struct CallerContext
     }
 
     public static implicit operator CallerContext(string? formatString)             => new() { FormatString = formatString };
-    public static implicit operator CallerContext(FieldContentHandling formatFlags) => new() { FormatFlags  = formatFlags };
+    public static implicit operator CallerContext(FormatFlags formatFlags) => new() { FormatFlags  = formatFlags };
     
-    public static implicit operator CallerContext((string?, FieldContentHandling) formatStringAndFlags) => 
+    public static implicit operator CallerContext((string?, FormatFlags) formatStringAndFlags) => 
         new()
         {
             FormatString = formatStringAndFlags.Item1

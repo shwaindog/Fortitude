@@ -415,7 +415,7 @@ public class SimpleAsStringCloakedBearerWithFieldSimpleValueTypeStringBearer<TCl
            .RevealAsString
                (nameof(SimpleTypeAsStringCloakedBearer)
               , SimpleTypeAsStringCloakedBearer
-              , ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
+              , ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -436,7 +436,7 @@ public class SimpleAsStringCloakedBearerNoFieldSimpleValueTypeStringBearer<TCloa
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
-           .RevealAsString(SimpleTypeAsStringCloakedBearer, ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
+           .RevealAsString(SimpleTypeAsStringCloakedBearer, ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -460,7 +460,7 @@ public class SimpleAsStringCloakedBearerOrNullWithFieldSimpleValueTypeStringBear
            .RevealAsStringOrNull
                (nameof(SimpleTypeAsStringCloakedBearer)
               , SimpleTypeAsStringCloakedBearer
-              , ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
+              , ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -482,7 +482,7 @@ public class SimpleAsStringCloakedBearerOrNullNoFieldSimpleValueTypeStringBearer
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .RevealAsStringOrNull(SimpleTypeAsStringCloakedBearer, ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString
-                               , ContentHandlingFlags)
+                               , FormattingFlags)
            .Complete();
 }
 
@@ -508,7 +508,7 @@ public class SimpleAsStringCloakedBearerWithDefaultWithFieldSimpleValueTypeStrin
            .RevealAsStringOrDefault
                (nameof(SimpleTypeAsStringCloakedBearer)
               , SimpleTypeAsStringCloakedBearer
-              , ValueRevealer, DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
+              , ValueRevealer, DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -532,7 +532,7 @@ public class SimpleAsStringCloakedBearerWithDefaultNoFieldSimpleValueTypeStringB
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .RevealAsStringOrDefault(SimpleTypeAsStringCloakedBearer, ValueRevealer, DefaultValue
-                                  , tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
+                                  , tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -554,7 +554,7 @@ public class SimpleAsStringNullableCloakedBearerWithFieldSimpleValueTypeStringBe
            .RevealAsString
                (nameof(SimpleTypeAsStringCloakedBearer)
               , SimpleTypeAsStringCloakedBearer
-              , ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
+              , ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -573,7 +573,7 @@ public class SimpleAsStringNullableCloakedBearerNoFieldSimpleValueTypeStringBear
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
-           .RevealAsString(SimpleTypeAsStringCloakedBearer, ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
+           .RevealAsString(SimpleTypeAsStringCloakedBearer, ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -595,7 +595,7 @@ public class SimpleAsStringNullableCloakedBearerOrNullWithFieldSimpleValueTypeSt
            .RevealAsStringOrNull
                (nameof(SimpleTypeAsStringCloakedBearer)
               , SimpleTypeAsStringCloakedBearer
-              , ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
+              , ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -615,7 +615,7 @@ public class SimpleAsStringNullableCloakedBearerOrNullNoFieldSimpleValueTypeStri
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .RevealAsStringOrNull(SimpleTypeAsStringCloakedBearer, ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString
-                               , ContentHandlingFlags)
+                               , FormattingFlags)
            .Complete();
 }
 
@@ -639,7 +639,7 @@ public class SimpleAsStringNullableCloakedBearerWithDefaultWithFieldSimpleValueT
            .RevealAsStringOrDefault
                (nameof(SimpleTypeAsStringCloakedBearer)
               , SimpleTypeAsStringCloakedBearer
-              , ValueRevealer, DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
+              , ValueRevealer, DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -662,7 +662,7 @@ public class SimpleAsStringNullableCloakedBearerWithDefaultNoFieldSimpleValueTyp
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .RevealAsStringOrDefault(SimpleTypeAsStringCloakedBearer, ValueRevealer, DefaultValue
-                                  , tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
+                                  , tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -682,7 +682,7 @@ public class SimpleAsStringStringBearerWithFieldSimpleValueTypeStringBearer<TBea
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleValueType(this)
            .RevealAsString(nameof(SimpleTypeAsStringStringBearer), SimpleTypeAsStringStringBearer
-                         , tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
+                         , tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
            .Complete();
 }
 

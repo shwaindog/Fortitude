@@ -4,6 +4,7 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
@@ -27,11 +28,11 @@ public class StringLikeExpect<TInput> : StringLikeExpect<TInput, string>
       , string? defaultValue = null
       , int fromIndex = 0
       , int length = Int32.MaxValue
-      , FieldContentHandling contentHandling = FieldContentHandling.DefaultCallerTypeFlags
+      , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
-        : base(input, valueFormatString, hasDefault, defaultValue, fromIndex, length, contentHandling, name, srcFile, srcLine) { }
+        : base(input, valueFormatString, hasDefault, defaultValue, fromIndex, length, formatFlags, name, srcFile, srcLine) { }
 }
 
 public class StringLikeExpect<TInput, TDefault>: FieldExpect<TInput, TDefault>, IStringLikeExpectation
@@ -45,11 +46,11 @@ public class StringLikeExpect<TInput, TDefault>: FieldExpect<TInput, TDefault>, 
       , TDefault? defaultValue = default
       , int fromIndex = 0
       , int length = Int32.MaxValue
-      , FieldContentHandling contentHandling = FieldContentHandling.DefaultCallerTypeFlags
+      , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
-        : base(input, valueFormatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
+        : base(input, valueFormatString, hasDefault, defaultValue, formatFlags, name, srcFile, srcLine)
     {
         FromIndex = fromIndex;
         Length    = length;
@@ -96,6 +97,7 @@ public class StringLikeExpect<TInput, TDefault>: FieldExpect<TInput, TDefault>, 
 
     protected override void AdditionalToStringExpectFields(IStringBuilder sb, ScaffoldingStringBuilderInvokeFlags forThisScaffold)
     {
+        base.AdditionalToStringExpectFields(sb, forThisScaffold);
         if (FromIndex != 0 || Length != int.MaxValue)
         {
             sb.Append(", ").Append(nameof(FromIndex)).Append(": ").Append(FromIndex).Append(", ");

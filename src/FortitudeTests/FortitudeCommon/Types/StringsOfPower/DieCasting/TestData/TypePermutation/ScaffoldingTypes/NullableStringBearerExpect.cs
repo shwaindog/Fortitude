@@ -4,10 +4,11 @@
 using System.Runtime.CompilerServices;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
-using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ScaffoldingStringBuilderInvokeFlags;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
@@ -18,11 +19,11 @@ public class NullableStringBearerExpect<TInput> : NullableStringBearerExpect<TIn
     // ReSharper disable twice ExplicitCallerInfoArgument
     public NullableStringBearerExpect(TInput? input, string? valueFormatString = null
       , bool hasDefault = false, TInput? defaultValue = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
-        : base(input, valueFormatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
+        : base(input, valueFormatString, hasDefault, defaultValue, formatFlags, name, srcFile, srcLine)
     {
         FieldValueExpectation = new FieldExpect<TInput?>(Input, ValueFormatString, HasDefault, DefaultValue);
     }
@@ -40,12 +41,12 @@ public class NullableStringBearerExpect<TInput, TDefault> : FieldExpect<TInput?,
 
     // ReSharper disable twice ExplicitCallerInfoArgument
     public NullableStringBearerExpect(TInput? input, string? valueFormatString = null
-      , bool hasDefault = false, TDefault? defaultValue = null, FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , bool hasDefault = false, TDefault? defaultValue = null, FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null, [CallerFilePath] string srcFile = "", [CallerLineNumber] int srcLine = 0)
-        : base(input, valueFormatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine)
+        : base(input, valueFormatString, hasDefault, defaultValue, formatFlags, name, srcFile, srcLine)
     {
         // ReSharper disable twice ExplicitCallerInfoArgument
-        FieldValueExpectation = new FieldExpect<TInput?, TDefault?>(Input, ValueFormatString, HasDefault, DefaultValue, contentHandling
+        FieldValueExpectation = new FieldExpect<TInput?, TDefault?>(Input, ValueFormatString, HasDefault, DefaultValue, formatFlags
                                                                   , name, srcFile, srcLine);
     }
 

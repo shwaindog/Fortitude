@@ -23,7 +23,7 @@ public class ComplexTypeMold : MultiValueTypeMolder<ComplexTypeMold>
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
-      , FieldContentHandling createFormatFlags )
+      , FormatFlags createFormatFlags )
     {
         InitializeMultiValueTypeBuilder(typeBeingBuilt, owning, appendSettings, typeName, remainingGraphDepth
                                       , typeFormatting, existingRefId, createFormatFlags);

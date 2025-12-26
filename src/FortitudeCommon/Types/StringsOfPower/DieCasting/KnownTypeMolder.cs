@@ -18,7 +18,7 @@ public interface IStateTransitioningTransitioningKnownTypeMolder : IDisposable
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
-      , FieldContentHandling createFormatFlags);
+      , FormatFlags createFormatFlags);
     
     void Free();
 }
@@ -42,7 +42,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
-      , FieldContentHandling createFormatFlags )
+      , FormatFlags createFormatFlags )
     {
         InitializeStyledTypeBuilder(typeBeingBuilt, master, typeSettings, typeName, remainingGraphDepth
                                  ,  typeFormatting,  existingRefId, createFormatFlags);

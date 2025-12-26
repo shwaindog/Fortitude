@@ -21,7 +21,7 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
-      , FieldContentHandling createFormatFlags )
+      , FormatFlags createFormatFlags )
     {
         InitializeMultiValueTypeBuilder(typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName, remainingGraphDepth
                                       , typeFormatting, existingRefId, createFormatFlags);

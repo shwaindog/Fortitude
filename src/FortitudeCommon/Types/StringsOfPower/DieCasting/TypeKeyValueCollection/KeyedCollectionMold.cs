@@ -23,7 +23,7 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting  
       , int existingRefId
-      , FieldContentHandling createFormatFlags )
+      , FormatFlags createFormatFlags )
     {
         InitializeMultiValueTypeBuilder(typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName
                                       , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);

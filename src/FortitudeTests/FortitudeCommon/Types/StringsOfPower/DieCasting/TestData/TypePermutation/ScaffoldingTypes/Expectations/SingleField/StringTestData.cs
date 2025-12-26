@@ -170,18 +170,7 @@ public static class StringTestData
                     new EK(SimpleType | AcceptsChars | AcceptsString | CallsAsReadOnlySpan)
                   , "\"\\u0022\\u0022\""
                 }
-               ,
-                {
-                    new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         | DefaultTreatedAsStringOut, Log | Compact | Pretty)
-                  , "\"\""
-                }
-               ,
-                {
-                    new EK(AcceptsChars | CallsAsReadOnlySpan | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         | DefaultTreatedAsStringOut, Json | Compact | Pretty)
-                  , "\"\\u0022\\u0022\""
-                }
+               , { new EK(AcceptsChars | CallsAsReadOnlySpan | AllOutputConditionsMask) , "\"\"" }
             }
           , new StringLikeExpect<string>("the", "{0}", true, "", -1, -10)
             {

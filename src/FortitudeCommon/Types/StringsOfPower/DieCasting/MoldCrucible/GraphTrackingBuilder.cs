@@ -20,7 +20,7 @@ public class GraphTrackingBuilder
         set => currentSectionRanges = value;
     }
 
-    public ContentSeparatorRanges SnapshotLastAppendSequence(FieldContentHandling formatFlags)
+    public ContentSeparatorRanges SnapshotLastAppendSequence(FormatFlags formatFlags)
     {
         var checkAnyRanges        = CurrentSectionRanges.ToContentSeparatorFromEndRanges(sb, formatFlags);
         if (checkAnyRanges.ContentRange != null || checkAnyRanges.SeparatorPaddingRange != null)
@@ -29,7 +29,7 @@ public class GraphTrackingBuilder
             LastContentSeparatorPaddingRanges        = checkAnyRanges;
         }
         AllowEmptyContent                        = false;
-        ResetCurrent(FieldContentHandling.DefaultCallerTypeFlags);
+        ResetCurrent(FormatFlags.DefaultCallerTypeFlags);
         return LastContentSeparatorPaddingRanges;
     }
 
@@ -67,7 +67,7 @@ public class GraphTrackingBuilder
         set => currentSectionRanges.AllowEmptyContent = value;
     }
 
-    public void ResetCurrent(FieldContentHandling formatFlags, bool allowEmptyContent = false)
+    public void ResetCurrent(FormatFlags formatFlags, bool allowEmptyContent = false)
     {
         currentSectionRanges.Reset();
         currentSectionRanges.StartedWithFormatFlags       = formatFlags;
@@ -81,14 +81,14 @@ public class GraphTrackingBuilder
             Complete(CurrentSectionRanges.StartedWithFormatFlags);
         }
         var highWaterMark = new ContentSeparatorRanges
-            (FieldContentHandling.DefaultCallerTypeFlags
+            (FormatFlags.DefaultCallerTypeFlags
            , new Range(Index.End, Index.End)); // Empty content Range stops penultimate seperator/padding removal.
         PenUltimateContentSeparatorPaddingRanges = LastContentSeparatorPaddingRanges;
         LastContentSeparatorPaddingRanges        = highWaterMark;
     }
 
     public GraphTrackingBuilder StartNextContentSeparatorPaddingSequence(IStringBuilder writeBuffer
-      , IStyledTypeFormatting styledTypeFormatting, FieldContentHandling formatFlags,  bool allowEmptyContent = false)
+      , IStyledTypeFormatting styledTypeFormatting, FormatFlags formatFlags,  bool allowEmptyContent = false)
     {
         sb               = writeBuffer;
         styledFormatting = styledTypeFormatting;
@@ -110,7 +110,7 @@ public class GraphTrackingBuilder
     }
 
     public GraphTrackingBuilder StartAppendParentContent(string content, IStringBuilder writeBuffer, IStyledTypeFormatting styledTypeFormatting
-      , FieldContentHandling formatFlags,  bool allowEmptyContent = false)
+      , FormatFlags formatFlags,  bool allowEmptyContent = false)
     {
         sb               = writeBuffer;
         styledFormatting = styledTypeFormatting;
@@ -121,7 +121,7 @@ public class GraphTrackingBuilder
     }
 
     public GraphTrackingBuilder StartAppendContent(string content, IStringBuilder writeBuffer, IStyledTypeFormatting styledTypeFormatting
-      , FieldContentHandling formatFlags,  bool allowEmptyContent = false)
+      , FormatFlags formatFlags,  bool allowEmptyContent = false)
     {
         sb               = writeBuffer;
         styledFormatting = styledTypeFormatting;
@@ -131,8 +131,12 @@ public class GraphTrackingBuilder
         return MarkContentEnd();
     }
 
+    public GraphTrackingBuilder StartAppendDelimiter(string content, IStringBuilder writeBuffer, IStyledTypeFormatting styledTypeFormatting
+      , FormatFlags formatFlags, bool allowEmptyContent = false) =>
+        StartAppendParentContent(content, writeBuffer, styledTypeFormatting, formatFlags, allowEmptyContent);
+
     public GraphTrackingBuilder StartAppendContent(ReadOnlySpan<char> content, IStringBuilder writeBuffer
-      , IStyledTypeFormatting styledTypeFormatting, FieldContentHandling formatFlags,  bool allowEmptyContent = false)
+      , IStyledTypeFormatting styledTypeFormatting, FormatFlags formatFlags,  bool allowEmptyContent = false)
     {
         sb               = writeBuffer;
         styledFormatting = styledTypeFormatting;
@@ -145,6 +149,12 @@ public class GraphTrackingBuilder
     public GraphTrackingBuilder AppendContent(ReadOnlySpan<char> content)
     {
         GraphEncoder.Transfer(content, sb);
+        return MarkContentEnd();
+    }
+    
+    public GraphTrackingBuilder AppendDelimiter(ReadOnlySpan<char> content)
+    {
+        ParentGraphEncoder.Transfer(content, sb);
         return MarkContentEnd();
     }
     
@@ -170,7 +180,7 @@ public class GraphTrackingBuilder
     }
 
     public ContentSeparatorRanges StartAppendContentAndComplete(string content, IStringBuilder writeBuffer
-      , IStyledTypeFormatting styledTypeFormatting, FieldContentHandling formatFlags,  bool allowEmptyContent = false)
+      , IStyledTypeFormatting styledTypeFormatting, FormatFlags formatFlags,  bool allowEmptyContent = false)
     {
         sb               = writeBuffer;
         styledFormatting = styledTypeFormatting;
@@ -211,7 +221,7 @@ public class GraphTrackingBuilder
         return MarkSeparatorEnd();
     }
 
-    public ContentSeparatorRanges AppendPaddingAndComplete(string content, FieldContentHandling formatFlags)
+    public ContentSeparatorRanges AppendPaddingAndComplete(string content, FormatFlags formatFlags)
     {
         GraphEncoder.Transfer(content, sb);
         return Complete(formatFlags);
@@ -229,7 +239,7 @@ public class GraphTrackingBuilder
         return this;
     }
 
-    public ContentSeparatorRanges ContentEndToRanges(FieldContentHandling formatFlags)
+    public ContentSeparatorRanges ContentEndToRanges(FormatFlags formatFlags)
     {
         currentSectionRanges.FromStartSeparatorEnd = sb.Length;
         return currentSectionRanges.ToContentSeparatorFromEndRanges(sb, formatFlags);
@@ -241,7 +251,7 @@ public class GraphTrackingBuilder
         return this;
     }
 
-    public ContentSeparatorRanges Complete(FieldContentHandling formatFlags)
+    public ContentSeparatorRanges Complete(FormatFlags formatFlags)
     {
         currentSectionRanges.FromStartPaddingEnd = sb.Length;
 

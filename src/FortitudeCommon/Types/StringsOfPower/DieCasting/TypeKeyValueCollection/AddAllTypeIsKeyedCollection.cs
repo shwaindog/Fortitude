@@ -3,7 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
-using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeKeyValueCollection;
 
@@ -12,13 +12,13 @@ public partial class KeyedCollectionMold
     public KeyedCollectionMold AddAll<TKey, TValue>(IReadOnlyDictionary<TKey, TValue>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags) =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         AddAllEnumerate(value, valueFormatString, keyFormatString, formatFlags);
 
     public KeyedCollectionMold AddAll<TKey, TValue>(KeyValuePair<TKey, TValue>[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipField<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags);
@@ -42,7 +42,7 @@ public partial class KeyedCollectionMold
     public KeyedCollectionMold AddAll<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
@@ -66,7 +66,7 @@ public partial class KeyedCollectionMold
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue>>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
@@ -89,7 +89,7 @@ public partial class KeyedCollectionMold
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue>(IEnumerator<KeyValuePair<TKey, TValue>>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
@@ -113,22 +113,22 @@ public partial class KeyedCollectionMold
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TVRevealBase>(IReadOnlyDictionary<TKey, TValue>? value
-      , PalantírReveal<TVRevealBase> valueStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TVRevealBase> valueRevealer, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TValue : TVRevealBase?
         where TVRevealBase : notnull =>
-        AddAllEnumerate(value, valueStyler, keyFormatString, formatString, formatFlags);
+        AddAllEnumerate(value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
     public KeyedCollectionMold AddAll<TKey, TValue>(IReadOnlyDictionary<TKey, TValue?>? value
-      , PalantírReveal<TValue> valueStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TValue> valueRevealer, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TValue : struct =>
-        AddAllEnumerate(value, valueStyler, keyFormatString, formatString, formatFlags);
+        AddAllEnumerate(value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
     public KeyedCollectionMold AddAll<TKey, TValue, TVRevealBase>(KeyValuePair<TKey, TValue>[]? value
-      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
@@ -142,7 +142,7 @@ public partial class KeyedCollectionMold
             {
                 var kvp = value[i];
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Length;
@@ -151,9 +151,9 @@ public partial class KeyedCollectionMold
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue>(KeyValuePair<TKey, TValue?>[]? value
-      , PalantírReveal<TValue> valueStyler
+      , PalantírReveal<TValue> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TValue : struct
     {
         if (stb.SkipField<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags))
@@ -166,7 +166,7 @@ public partial class KeyedCollectionMold
             {
                 var kvp = value[i];
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Length;
@@ -176,9 +176,9 @@ public partial class KeyedCollectionMold
 
     public KeyedCollectionMold AddAll<TKey, TValue, TVRevealBase>
     (IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
@@ -192,7 +192,7 @@ public partial class KeyedCollectionMold
             {
                 var kvp = value[i];
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Count;
@@ -202,8 +202,8 @@ public partial class KeyedCollectionMold
 
     public KeyedCollectionMold AddAll<TKey, TValue>
     (IReadOnlyList<KeyValuePair<TKey, TValue?>>? value
-      , PalantírReveal<TValue> valueStyler, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TValue> valueRevealer, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TValue : struct
     {
         if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
@@ -216,7 +216,7 @@ public partial class KeyedCollectionMold
             {
                 var kvp = value[i];
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Count;
@@ -225,9 +225,9 @@ public partial class KeyedCollectionMold
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue, TVRevealBase>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
@@ -241,7 +241,7 @@ public partial class KeyedCollectionMold
             foreach (var kvp in value)
             {
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -249,9 +249,9 @@ public partial class KeyedCollectionMold
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey, TValue?>>? value
-      , PalantírReveal<TValue> valueStyler
+      , PalantírReveal<TValue> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TValue : struct
     {
         if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
@@ -264,7 +264,7 @@ public partial class KeyedCollectionMold
             foreach (var kvp in value)
             {
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -273,9 +273,9 @@ public partial class KeyedCollectionMold
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue, TVRevealBase>
     (IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
@@ -291,7 +291,7 @@ public partial class KeyedCollectionMold
             {
                 var kvp = value!.Current;
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
@@ -301,9 +301,9 @@ public partial class KeyedCollectionMold
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue>
     (IEnumerator<KeyValuePair<TKey, TValue?>>? value
-      , PalantírReveal<TValue> valueStyler
+      , PalantírReveal<TValue> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TValue : struct
     {
         if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
@@ -318,7 +318,7 @@ public partial class KeyedCollectionMold
             {
                 var kvp = value!.Current;
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
@@ -327,40 +327,40 @@ public partial class KeyedCollectionMold
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TKRevealBase, TVRevealBase>(IReadOnlyDictionary<TKey, TValue>? value
-      , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKRevealBase> keyStyler
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyStyler
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKRevealBase
         where TValue : TVRevealBase?
         where TKRevealBase : notnull
         where TVRevealBase : notnull =>
-        AddAllEnumerate(value, valueStyler, keyStyler, formatString, formatFlags);
+        AddAllEnumerate(value, valueRevealer, keyStyler, valueFormatString, formatFlags);
 
     public KeyedCollectionMold AddAll<TKey, TValue, TVRevealBase>(IReadOnlyDictionary<TKey?, TValue>? value
-      , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKey> keyStyler
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKey> keyStyler
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : TVRevealBase?
         where TVRevealBase : notnull =>
-        AddAllEnumerate(value, valueStyler, keyStyler, formatString, formatFlags);
+        AddAllEnumerate(value, valueRevealer, keyStyler, valueFormatString, formatFlags);
 
     public KeyedCollectionMold AddAll<TKey, TValue, TKRevealBase>(IReadOnlyDictionary<TKey, TValue?>? value
-      , PalantírReveal<TValue> valueStyler, PalantírReveal<TKRevealBase> keyStyler
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKRevealBase> keyStyler
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKRevealBase
         where TValue : struct
         where TKRevealBase : notnull =>
-        AddAllEnumerate(value, valueStyler, keyStyler, formatString, formatFlags);
+        AddAllEnumerate(value, valueRevealer, keyStyler, valueFormatString, formatFlags);
 
     public KeyedCollectionMold AddAll<TKey, TValue>(IReadOnlyDictionary<TKey?, TValue?>? value
-      , PalantírReveal<TValue> valueStyler, PalantírReveal<TKey> keyStyler
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKey> keyStyler
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : struct =>
-        AddAllEnumerate(value, valueStyler, keyStyler, formatString, formatFlags);
+        AddAllEnumerate(value, valueRevealer, keyStyler, valueFormatString, formatFlags);
 
     public KeyedCollectionMold AddAll<TKey, TValue, TKRevealBase, TVRevealBase>(KeyValuePair<TKey, TValue>[]? value
-      , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKRevealBase> keyStyler
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyStyler
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKRevealBase?
         where TValue : TVRevealBase?
         where TKRevealBase : notnull
@@ -374,8 +374,8 @@ public partial class KeyedCollectionMold
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp = value[i];
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, formatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Length;
@@ -384,8 +384,8 @@ public partial class KeyedCollectionMold
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TVRevealBase>(KeyValuePair<TKey?, TValue>[]? value
-      , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKey> keyStyler
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKey> keyStyler
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
@@ -398,8 +398,8 @@ public partial class KeyedCollectionMold
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp = value[i];
-                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, formatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Length;
@@ -408,8 +408,8 @@ public partial class KeyedCollectionMold
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TKRevealBase>(KeyValuePair<TKey, TValue?>[]? value
-      , PalantírReveal<TValue> valueStyler, PalantírReveal<TKRevealBase> keyStyler
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKRevealBase> keyStyler
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKRevealBase?
         where TValue : struct
         where TKRevealBase : notnull
@@ -422,8 +422,8 @@ public partial class KeyedCollectionMold
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp = value[i];
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, formatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Length;
@@ -432,8 +432,8 @@ public partial class KeyedCollectionMold
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue>(KeyValuePair<TKey?, TValue?>[]? value
-      , PalantírReveal<TValue> valueStyler, PalantírReveal<TKey> keyStyler
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKey> keyStyler
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : struct
     {
@@ -445,8 +445,8 @@ public partial class KeyedCollectionMold
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp = value[i];
-                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, formatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Length;
@@ -455,8 +455,8 @@ public partial class KeyedCollectionMold
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TKRevealBase, TVRevealBase>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
-      , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKRevealBase> keyStyler
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyStyler
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKRevealBase?
         where TValue : TVRevealBase?
         where TKRevealBase : notnull
@@ -470,8 +470,8 @@ public partial class KeyedCollectionMold
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp = value[i];
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, formatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Count;
@@ -480,8 +480,8 @@ public partial class KeyedCollectionMold
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TVRevealBase>(IReadOnlyList<KeyValuePair<TKey?, TValue>>? value
-      , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKey> keyStyler
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKey> keyStyler
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
@@ -494,8 +494,8 @@ public partial class KeyedCollectionMold
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp = value[i];
-                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, formatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Count;
@@ -504,8 +504,8 @@ public partial class KeyedCollectionMold
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TKRevealBase>(IReadOnlyList<KeyValuePair<TKey, TValue?>>? value
-      , PalantírReveal<TValue> valueStyler, PalantírReveal<TKRevealBase> keyStyler
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKRevealBase> keyStyler
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKRevealBase?
         where TValue : struct
         where TKRevealBase : notnull
@@ -518,8 +518,8 @@ public partial class KeyedCollectionMold
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp = value[i];
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, formatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Count;
@@ -528,8 +528,8 @@ public partial class KeyedCollectionMold
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue>(IReadOnlyList<KeyValuePair<TKey?, TValue?>>? value
-      , PalantírReveal<TValue> valueStyler, PalantírReveal<TKey> keyStyler
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKey> keyStyler
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : struct
     {
@@ -541,8 +541,8 @@ public partial class KeyedCollectionMold
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp = value[i];
-                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, formatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Count;
@@ -551,8 +551,8 @@ public partial class KeyedCollectionMold
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue, TKRevealBase, TVRevealBase>(IEnumerable<KeyValuePair<TKey, TValue>>? value
-      , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKRevealBase> keyStyler
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyStyler
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKRevealBase?
         where TValue : TVRevealBase?
         where TKRevealBase : notnull
@@ -566,8 +566,8 @@ public partial class KeyedCollectionMold
             ItemCount = 0;
             foreach (var kvp in value)
             {
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, formatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -575,8 +575,8 @@ public partial class KeyedCollectionMold
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue, TVRevealBase>(IEnumerable<KeyValuePair<TKey?, TValue>>? value
-      , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKey> keyStyler
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKey> keyStyler
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
@@ -589,8 +589,8 @@ public partial class KeyedCollectionMold
             ItemCount = 0;
             foreach (var kvp in value)
             {
-                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, formatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -598,8 +598,8 @@ public partial class KeyedCollectionMold
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue, TKRevealBase>(IEnumerable<KeyValuePair<TKey, TValue?>>? value
-      , PalantírReveal<TValue> valueStyler, PalantírReveal<TKRevealBase> keyStyler
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKRevealBase> keyStyler
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKRevealBase?
         where TValue : struct
         where TKRevealBase : notnull
@@ -612,8 +612,8 @@ public partial class KeyedCollectionMold
             ItemCount = 0;
             foreach (var kvp in value)
             {
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, formatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -621,8 +621,8 @@ public partial class KeyedCollectionMold
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey?, TValue?>>? value
-      , PalantírReveal<TValue> valueStyler, PalantírReveal<TKey> keyStyler
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKey> keyStyler
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : struct
     {
@@ -634,8 +634,8 @@ public partial class KeyedCollectionMold
             ItemCount = 0;
             foreach (var kvp in value)
             {
-                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, formatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -644,8 +644,8 @@ public partial class KeyedCollectionMold
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue, TKRevealBase, TVRevealBase>
         (IEnumerator<KeyValuePair<TKey, TValue>>? value
-      , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKRevealBase> keyStyler
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyStyler
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKRevealBase?
         where TValue : TVRevealBase?
         where TKRevealBase : notnull
@@ -661,8 +661,8 @@ public partial class KeyedCollectionMold
             while (hasValue)
             {
                 var kvp = value!.Current;
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, formatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
@@ -671,8 +671,8 @@ public partial class KeyedCollectionMold
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue, TVRevealBase>
-        (IEnumerator<KeyValuePair<TKey?, TValue>>? value, PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKey> keyStyler
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        (IEnumerator<KeyValuePair<TKey?, TValue>>? value, PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKey> keyStyler
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
@@ -687,8 +687,8 @@ public partial class KeyedCollectionMold
             while (hasValue)
             {
                 var kvp = value!.Current;
-                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, formatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
@@ -697,8 +697,8 @@ public partial class KeyedCollectionMold
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue, TKRevealBase>
-    (IEnumerator<KeyValuePair<TKey, TValue?>>? value, PalantírReveal<TValue> valueStyler, PalantírReveal<TKRevealBase> keyStyler
-      , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+    (IEnumerator<KeyValuePair<TKey, TValue?>>? value, PalantírReveal<TValue> valueRevealer, PalantírReveal<TKRevealBase> keyStyler
+      , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKRevealBase?
         where TValue : struct
         where TKRevealBase : notnull
@@ -713,8 +713,8 @@ public partial class KeyedCollectionMold
             while (hasValue)
             {
                 var kvp = value!.Current;
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, formatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
@@ -723,8 +723,8 @@ public partial class KeyedCollectionMold
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue>
-        (IEnumerator<KeyValuePair<TKey?, TValue?>>? value, PalantírReveal<TValue> valueStyler, PalantírReveal<TKey> keyStyler
-          , string? formatString = null, FieldContentHandling formatFlags = DefaultCallerTypeFlags)
+        (IEnumerator<KeyValuePair<TKey?, TValue?>>? value, PalantírReveal<TValue> valueRevealer, PalantírReveal<TKey> keyStyler
+          , string? valueFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
             where TKey : struct
             where TValue : struct
     {
@@ -738,8 +738,8 @@ public partial class KeyedCollectionMold
             while (hasValue)
             {
                 var kvp = value!.Current;
-                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, formatString, DefaultCallerTypeFlags, true).FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, formatString, formatFlags);
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }

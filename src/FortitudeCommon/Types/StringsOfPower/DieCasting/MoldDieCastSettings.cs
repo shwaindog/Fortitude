@@ -28,13 +28,13 @@ public static class IgnoreWriteFlagsExtensions
 
     public static bool HasTypeEndFlag(this SkipTypeParts flags) => (flags & SkipTypeParts.TypeEnd) > 0;
 
-    public static FieldContentHandling ToFormattingFlags(this SkipTypeParts toConvert)
+    public static FormatFlags ToFormattingFlags(this SkipTypeParts toConvert)
     {
-        var flags = FieldContentHandling.DefaultCallerTypeFlags;
+        var flags = FormatFlags.DefaultCallerTypeFlags;
 
-        flags |= toConvert.HasTypeStartFlag() ? FieldContentHandling.SuppressOpening : FieldContentHandling.DefaultCallerTypeFlags;
-        flags |= toConvert.HasTypeNameFlag() ? FieldContentHandling.LogSuppressTypeNames : FieldContentHandling.DefaultCallerTypeFlags;
-        flags |= toConvert.HasTypeEndFlag() ? FieldContentHandling.SuppressOpening : FieldContentHandling.DefaultCallerTypeFlags;
+        flags |= toConvert.HasTypeStartFlag() ? FormatFlags.SuppressOpening : FormatFlags.DefaultCallerTypeFlags;
+        flags |= toConvert.HasTypeNameFlag() ? FormatFlags.LogSuppressTypeNames : FormatFlags.DefaultCallerTypeFlags;
+        flags |= toConvert.HasTypeEndFlag() ? FormatFlags.SuppressOpening : FormatFlags.DefaultCallerTypeFlags;
 
         return flags;
     }

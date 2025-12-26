@@ -4,10 +4,11 @@
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Options;
-using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 #pragma warning disable CS8714 // The type cannot be used as type parameter in the generic type or method. Nullability of type argument doesn't match 'notnull' constraint.
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
@@ -20,32 +21,32 @@ public class NullClassValueRevealerKeyedSubListDictExpect<TKey, TValue> : ValueR
       , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
       , string? keyFormatString = null
       , Expression<Func<List<TKey>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, keyFormatString, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+        base(inputList, valueRevealerExpression, keyFormatString, elementFilterExpression, formatFlags, name, srcFile, srcLine)
     {
     }
     
     public NullClassValueRevealerKeyedSubListDictExpect(List<KeyValuePair<TKey, TValue?>>? inputList
       , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
       , Expression<Func<List<TKey>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, null, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+        base(inputList, valueRevealerExpression, null, elementFilterExpression, formatFlags, name, srcFile, srcLine)
     {
     }
     
     public NullClassValueRevealerKeyedSubListDictExpect(List<KeyValuePair<TKey, TValue?>>? inputList
       , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, null, (Expression<Func<List<TKey>>>?)null, contentHandling, name, srcFile, srcLine)
+        base(inputList, valueRevealerExpression, null, (Expression<Func<List<TKey>>>?)null, formatFlags, name, srcFile, srcLine)
     {
     }
 }
@@ -59,32 +60,32 @@ public class NullStructValueRevealerKeyedSubListDictExpect<TKey, TValue> : Value
       , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
       , string? keyFormatString = null
       , Expression<Func<List<TKey>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, keyFormatString, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+        base(inputList, valueRevealerExpression, keyFormatString, elementFilterExpression, formatFlags, name, srcFile, srcLine)
     {
     }
     
     public NullStructValueRevealerKeyedSubListDictExpect(List<KeyValuePair<TKey, TValue?>>? inputList
       , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
       , Expression<Func<List<TKey>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, null, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+        base(inputList, valueRevealerExpression, null, elementFilterExpression, formatFlags, name, srcFile, srcLine)
     {
     }
     
     public NullStructValueRevealerKeyedSubListDictExpect(List<KeyValuePair<TKey, TValue?>>? inputList
       , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, null, (Expression<Func<List<TKey>>>?)null, contentHandling, name, srcFile, srcLine)
+        base(inputList, valueRevealerExpression, null, (Expression<Func<List<TKey>>>?)null, formatFlags, name, srcFile, srcLine)
     {
     }
 }
@@ -97,32 +98,32 @@ public class ValueRevealerKeyedSubListDictExpect<TKey, TValue> : ValueRevealerDi
       , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
       , string? keyFormatString = null
       , Expression<Func<List<TKey>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, keyFormatString, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+        base(inputList, valueRevealerExpression, keyFormatString, elementFilterExpression, formatFlags, name, srcFile, srcLine)
     {
     }
     
     public ValueRevealerKeyedSubListDictExpect(List<KeyValuePair<TKey, TValue>>? inputList
       , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
       , Expression<Func<List<TKey>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, null, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+        base(inputList, valueRevealerExpression, null, elementFilterExpression, formatFlags, name, srcFile, srcLine)
     {
     }
     
     public ValueRevealerKeyedSubListDictExpect(List<KeyValuePair<TKey, TValue>>? inputList
       , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, null, (Expression<Func<List<TKey>>>?)null, contentHandling, name, srcFile, srcLine)
+        base(inputList, valueRevealerExpression, null, (Expression<Func<List<TKey>>>?)null, formatFlags, name, srcFile, srcLine)
     {
     }
 }
@@ -136,32 +137,32 @@ public class NullStructValueRevealerDictExpect<TKey, TValue> : ValueRevealerDict
       , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
       , string? keyFormatString = null
       , Expression<Func<KeyValuePredicate<TKey, TValue?>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, keyFormatString, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+        base(inputList, valueRevealerExpression, keyFormatString, elementFilterExpression, formatFlags, name, srcFile, srcLine)
     {
     }
     
     public NullStructValueRevealerDictExpect(List<KeyValuePair<TKey, TValue?>>? inputList
       , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
       , Expression<Func<KeyValuePredicate<TKey, TValue?>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, null, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+        base(inputList, valueRevealerExpression, null, elementFilterExpression, formatFlags, name, srcFile, srcLine)
     {
     }
     
     public NullStructValueRevealerDictExpect(List<KeyValuePair<TKey, TValue?>>? inputList
       , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, null, (Expression<Func<KeyValuePredicate<TKey, TValue?>>>?)null, contentHandling, name, srcFile, srcLine)
+        base(inputList, valueRevealerExpression, null, (Expression<Func<KeyValuePredicate<TKey, TValue?>>>?)null, formatFlags, name, srcFile, srcLine)
     {
     }
 
@@ -186,32 +187,32 @@ public class NullClassValueRevealerDictExpect<TKey, TValue> : ValueRevealerDictE
       , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
       , string? keyFormatString = null
       , Expression<Func<KeyValuePredicate<TKey, TValue?>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, keyFormatString, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+        base(inputList, valueRevealerExpression, keyFormatString, elementFilterExpression, formatFlags, name, srcFile, srcLine)
     {
     }
     
     public NullClassValueRevealerDictExpect(List<KeyValuePair<TKey, TValue?>>? inputList
       , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
       , Expression<Func<KeyValuePredicate<TKey, TValue?>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, null, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+        base(inputList, valueRevealerExpression, null, elementFilterExpression, formatFlags, name, srcFile, srcLine)
     {
     }
     
     public NullClassValueRevealerDictExpect(List<KeyValuePair<TKey, TValue?>>? inputList
       , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, null, (Expression<Func<KeyValuePredicate<TKey, TValue?>>>?)null, contentHandling, name, srcFile, srcLine)
+        base(inputList, valueRevealerExpression, null, (Expression<Func<KeyValuePredicate<TKey, TValue?>>>?)null, formatFlags, name, srcFile, srcLine)
     {
     }
 }
@@ -224,32 +225,32 @@ public class ValueRevealerDictExpect<TKey, TValue> : ValueRevealerDictExpect<TKe
       , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
       , string? keyFormatString = null
       , Expression<Func<KeyValuePredicate<TKey, TValue>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, keyFormatString, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+        base(inputList, valueRevealerExpression, keyFormatString, elementFilterExpression, formatFlags, name, srcFile, srcLine)
     {
     }
     
     public ValueRevealerDictExpect(List<KeyValuePair<TKey, TValue>>? inputList
       , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
       , Expression<Func<KeyValuePredicate<TKey, TValue>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, null, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+        base(inputList, valueRevealerExpression, null, elementFilterExpression, formatFlags, name, srcFile, srcLine)
     {
     }
     
     public ValueRevealerDictExpect(List<KeyValuePair<TKey, TValue>>? inputList
       , Expression<Func<PalantírReveal<TValue>>> valueRevealerExpression
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0) :
-        base(inputList, valueRevealerExpression, null, (Expression<Func<KeyValuePredicate<TKey, TValue>>>?)null, contentHandling, name, srcFile, srcLine)
+        base(inputList, valueRevealerExpression, null, (Expression<Func<KeyValuePredicate<TKey, TValue>>>?)null, formatFlags, name, srcFile, srcLine)
     {
     }
 }
@@ -266,11 +267,11 @@ public class ValueRevealerDictExpect<TKey, TValue, TKFilterBase, TVFilterBase, T
       , Expression<Func<PalantírReveal<TVRevealBase>>> valueRevealerExpression
       , string? keyFormatString = null
       , Expression<Func<KeyValuePredicate<TKFilterBase, TVFilterBase>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
-        : base(inputList, null, keyFormatString, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+        : base(inputList, null, keyFormatString, elementFilterExpression, formatFlags, name, srcFile, srcLine)
     {
         var valueRevealer = valueRevealerExpression.Compile();
         ValueRevealer = valueRevealer.Invoke();
@@ -284,11 +285,11 @@ public class ValueRevealerDictExpect<TKey, TValue, TKFilterBase, TVFilterBase, T
       , Expression<Func<PalantírReveal<TVRevealBase>>> valueRevealerExpression
       , string? keyFormatString = null
       , Expression<Func<List<TKSubListDerived>>>? elementFilterExpression = null
-      , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? name = null
       , [CallerFilePath] string srcFile = ""
       , [CallerLineNumber] int srcLine = 0)
-        : base(inputList, null, keyFormatString, elementFilterExpression, contentHandling, name, srcFile, srcLine)
+        : base(inputList, null, keyFormatString, elementFilterExpression, formatFlags, name, srcFile, srcLine)
     {
         var valueRevealer = valueRevealerExpression.Compile();
         ValueRevealer = valueRevealer.Invoke();

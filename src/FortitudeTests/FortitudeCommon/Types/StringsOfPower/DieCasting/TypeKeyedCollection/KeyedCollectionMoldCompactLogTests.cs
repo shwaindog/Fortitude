@@ -387,7 +387,7 @@ public partial class KeyedCollectionMoldTests
 
     private void SharedCompactLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
     {
-        logger.InfoAppend("Keyed Collection Type Field  Scaffolding Class - ")?
+        logger.InfoAppend("Keyed Collection Type  Scaffolding Class - ")?
               .AppendLine(scaffoldingToCall.Name)
               .AppendLine()
               .AppendLine("Scaffolding Flags -")

@@ -204,7 +204,7 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
 
     private int SourceEnumNamesFromEnum(TEnumValue enumValue, Span<char> buildNames, ReadOnlySpan<char> format
       , IEncodingTransfer enumEncoder, IEncodingTransfer joinEncoder, IFormatProvider? provider = null
-      , FormattingHandlingFlags formattingFlags = FormattingHandlingFlags.DefaultCallerTypeFlags)
+      , FormatSwitches formattingFlags = FormatSwitches.DefaultCallerTypeFlags)
     {
         if (!isFlagsEnum) { return SourceSingleNameFromEnum(enumValue, buildNames, format, enumEncoder, joinEncoder, provider, formattingFlags); }
         var countChars = 0;
@@ -260,7 +260,7 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
 
     private int SourceSingleNameFromEnum(TEnumValue singleEnumValue, Span<char> buildNames, ReadOnlySpan<char> format
       , IEncodingTransfer enumEncoder, IEncodingTransfer joinEncoder, IFormatProvider? provider = null
-      , FormattingHandlingFlags formattingFlags = FormattingHandlingFlags.DefaultCallerTypeFlags)
+      , FormatSwitches formattingFlags = FormatSwitches.DefaultCallerTypeFlags)
     {
         if (format.Length == 0)
         {
@@ -311,13 +311,13 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
 
     private int EnumExtendedSpanFormattable(Enum toFormat, Span<char> destination
       , ReadOnlySpan<char> formatString, IEncodingTransfer enumEncoder, IEncodingTransfer joinEncoder, IFormatProvider? provider
-      , FormattingHandlingFlags formattingFlags)
+      , FormatSwitches formattingFlags)
     {
         return EnumExtendedSpanFormattable((TEnumValue)toFormat, destination, formatString, enumEncoder, joinEncoder, provider, formattingFlags);
     }
 
     private int EnumExtendedSpanFormattable(TEnumValue toFormat, Span<char> destination, ReadOnlySpan<char> formatString
-      , IEncodingTransfer enumEncoder, IEncodingTransfer joinEncoder, IFormatProvider? provider, FormattingHandlingFlags formattingFlags)
+      , IEncodingTransfer enumEncoder, IEncodingTransfer joinEncoder, IFormatProvider? provider, FormatSwitches formattingFlags)
     {
         var cachedResult = CachedResult(toFormat, formatString, provider);
         if (cachedResult != null)

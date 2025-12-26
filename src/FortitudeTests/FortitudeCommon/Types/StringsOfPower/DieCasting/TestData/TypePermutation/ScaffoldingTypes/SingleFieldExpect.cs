@@ -5,11 +5,12 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
-using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields.FieldContentHandling;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
 
@@ -40,20 +41,20 @@ public class FieldExpect<TInput>
   , string? valueFormatString = null
   , bool hasDefault = false
   , TInput? defaultValue = default
-  , FieldContentHandling contentHandling = DefaultCallerTypeFlags
+  , FormatFlags formatFlags = DefaultCallerTypeFlags
   , string? name = null
   , [CallerFilePath] string srcFile = ""
   , [CallerLineNumber] int srcLine = 0)
-    : FieldExpect<TInput, TInput>(input, valueFormatString, hasDefault, defaultValue, contentHandling, name, srcFile, srcLine);
+    : FieldExpect<TInput, TInput>(input, valueFormatString, hasDefault, defaultValue, formatFlags, name, srcFile, srcLine);
 
 public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldExpectation
 {
 
     // ReSharper disable twice ExplicitCallerInfoArgument
     public FieldExpect(TInput? input, string? valueFormatString = null, bool hasDefault = false, TDefault? defaultValue = default
-     , FieldContentHandling contentHandling = DefaultCallerTypeFlags, string? name = null
+     , FormatFlags formatFlags = DefaultCallerTypeFlags, string? name = null
       , [CallerFilePath] string srcFile = "", [CallerLineNumber] int srcLine = 0) :
-        base(input, valueFormatString, contentHandling, name, srcFile, srcLine)
+        base(input, valueFormatString, formatFlags, name, srcFile, srcLine)
     {
         HasDefault   = hasDefault;
         DefaultValue = !InputType.IfNullableGetUnderlyingTypeOrThis().ImplementsInterface<IStringBearer>()
@@ -147,9 +148,16 @@ public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldEx
         if (InputType == typeof(string) && createdStringBearer is ISupportsSettingValueFromString supportsSettingValueFromString)
             supportsSettingValueFromString.StringValue = (string?)(object?)Input;
         else if (createdStringBearer is IMoldSupportedValue<object?> isObjectMold)
-            isObjectMold.Value = Input;
+        {
+            isObjectMold.Value           = Input;
+            isObjectMold.FormattingFlags = FormatFlags;
+        }
         else
-            ((IMoldSupportedValue<TInput?>)createdStringBearer).Value = Input;
+        {
+            var moldSupportedValue = (IMoldSupportedValue<TInput?>)createdStringBearer;
+            moldSupportedValue.Value           = Input;
+            moldSupportedValue.FormattingFlags = FormatFlags;
+        }
         if (ValueFormatString != null && createdStringBearer is ISupportsValueFormatString supportsValueFormatString)
             supportsValueFormatString.ValueFormatString = ValueFormatString;
         if (HasDefault && createdStringBearer is IMoldSupportedDefaultValue<object?> supportsObjectDefaultValue)
@@ -172,17 +180,17 @@ public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldEx
                 supportsStringDefaultValue.DefaultValue = expectedDefaultString.Replace("\"", "").Replace("\'", "").Trim();
             }
         }
-        if (!ContentHandling.HasDisableAddingAutoCallerTypeFlags() && scaffFlags.HasOutputTreatedAsValue())
+        if (!FormatFlags.HasDisableAddingAutoCallerTypeFlags() && scaffFlags.HasOutputTreatedAsValue())
         {
-            createdStringBearer.ContentHandlingFlags = ContentHandling | AsValueContent;
+            createdStringBearer.FormattingFlags = FormatFlags | AsValueContent;
         } 
-        else if (!ContentHandling.HasDisableAddingAutoCallerTypeFlags() && scaffFlags.HasOutputTreatedAsString())
+        else if (!FormatFlags.HasDisableAddingAutoCallerTypeFlags() && scaffFlags.HasOutputTreatedAsString())
         {
-            createdStringBearer.ContentHandlingFlags = ContentHandling | AsStringContent;
+            createdStringBearer.FormattingFlags = FormatFlags | AsStringContent;
         }
         else 
         {
-            createdStringBearer.ContentHandlingFlags = ContentHandling;
+            createdStringBearer.FormattingFlags = FormatFlags;
         }
         return createdStringBearer;
     }

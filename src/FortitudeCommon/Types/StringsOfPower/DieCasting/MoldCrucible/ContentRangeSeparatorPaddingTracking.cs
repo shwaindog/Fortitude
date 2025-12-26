@@ -8,7 +8,7 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
 public struct ContentSeparatorPaddingRangeTracking
 {
-    public FieldContentHandling StartedWithFormatFlags;
+    public FormatFlags StartedWithFormatFlags;
 
     public bool AllowEmptyContent;
     public int? FromStartContentStart;
@@ -71,7 +71,7 @@ public struct ContentSeparatorPaddingRangeTracking
 
     public void Reset()
     {
-        StartedWithFormatFlags = FieldContentHandling.DefaultCallerTypeFlags;
+        StartedWithFormatFlags = FormatFlags.DefaultCallerTypeFlags;
 
         AllowEmptyContent     = false;
         FromStartContentStart = null;
@@ -84,7 +84,7 @@ public struct ContentSeparatorPaddingRangeTracking
 public static class ContentSeparatorPaddingRangeTrackingExtensions
 {
     public static ContentSeparatorRanges ToContentSeparatorFromEndRanges
-        (this ContentSeparatorPaddingRangeTracking tracking, IStringBuilder sb, FieldContentHandling formatFlags)
+        (this ContentSeparatorPaddingRangeTracking tracking, IStringBuilder sb, FormatFlags formatFlags)
     {
         var sbLength = sb.Length;
 
