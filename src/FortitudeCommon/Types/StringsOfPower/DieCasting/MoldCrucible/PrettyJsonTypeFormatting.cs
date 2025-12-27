@@ -87,8 +87,12 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
     public override ContentSeparatorRanges AppendTypeClosing(ITypeMolderDieCast moldInternal)
     {
         var previousContentPadSpacing = GraphBuilder.LastContentSeparatorPaddingRanges;
+        if(moldInternal.Master.CallerContext.FormatFlags.HasSuppressClosing())
+        {
+            return GraphBuilder.LastContentSeparatorPaddingRanges;
+        }
         var lastNonWhiteSpace         = GraphBuilder.RemoveLastSeparatorAndPadding();
-        if (previousContentPadSpacing.PreviousFormatFlags.DoesNotHaveAsEmbeddedContentFlags()) { StyleOptions.IndentLevel--; }
+        StyleOptions.IndentLevel--; 
 
         GraphBuilder.StartNextContentSeparatorPaddingSequence(moldInternal.Sb, this, DefaultCallerTypeFlags);
         if (lastNonWhiteSpace != BrcOpnChar && previousContentPadSpacing.PreviousFormatFlags.CanAddNewLine())
@@ -96,8 +100,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             GraphBuilder.AppendContent(StyleOptions.NewLineStyle);
             if (!previousContentPadSpacing.PreviousFormatFlags.HasNoWhitespacesToNextFlag())
             {
-                GraphBuilder.AppendContent(StyleOptions.IndentChar
-                                                    , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+                GraphBuilder.AppendContent(StyleOptions.IndentChar, StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
             }
         }
         if (previousContentPadSpacing.PreviousFormatFlags.DoesNotHaveAsEmbeddedContentFlags())
@@ -111,25 +114,50 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
     public override IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType
       , Type keyType, Type valueType, FormatFlags callerFormattingFlags = DefaultCallerTypeFlags)
     {
+        if(callerFormattingFlags.HasSuppressOpening())
+        {
+            return sb;
+        }
         base.AppendKeyedCollectionStart(sb, keyedCollectionType, keyType, valueType);
 
         StyleOptions.IndentLevel++;
 
-        return sb.Append(StyleOptions.NewLineStyle)
-                 .Append(StyleOptions.IndentChar
-                       , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+        if (callerFormattingFlags.CanAddNewLine())
+        {
+            GraphBuilder.AppendPadding(StyleOptions.NewLineStyle);
+                
+            if (!callerFormattingFlags.HasNoWhitespacesToNextFlag())
+            {
+                GraphBuilder.AppendPadding(StyleOptions.IndentChar
+                                         , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+            }
+        }
+        GraphBuilder.Complete(callerFormattingFlags);
+        return sb;
     }
 
     public override IStringBuilder AppendKeyedCollectionEnd(IStringBuilder sb, Type keyedCollectionType
       , Type keyType, Type valueType, int totalItemCount, FormatFlags callerFormattingFlags = DefaultCallerTypeFlags)
     {
-        sb.RemoveLastWhiteSpacedCommaIfFound();
+        if(callerFormattingFlags.HasSuppressClosing())
+        {
+            return sb;
+        }
+        var lastNonWhiteSpace         = GraphBuilder.RemoveLastSeparatorAndPadding();
         StyleOptions.IndentLevel--;
-        if (totalItemCount > 0)
-            sb.Append(StyleOptions.NewLineStyle)
-              .Append(StyleOptions.IndentChar
-                    , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
-        return base.AppendKeyedCollectionEnd(sb, keyedCollectionType, keyType, valueType, totalItemCount);
+
+        if (totalItemCount > 0 && lastNonWhiteSpace != BrcOpnChar && callerFormattingFlags.CanAddNewLine())
+        {
+            GraphBuilder.AppendContent(StyleOptions.NewLineStyle);
+
+            if (!callerFormattingFlags.HasNoWhitespacesToNextFlag())
+            {
+                GraphBuilder.AppendContent(StyleOptions.IndentChar
+                                         , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+            }
+        }
+        GraphBuilder.AppendContent(BrcCls);
+        return sb;
     }
 
     public override IStringBuilder FormatCollectionStart(ITypeMolderDieCast moldInternal, Type itemElementType

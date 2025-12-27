@@ -119,7 +119,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               3.141592653589793: "Eating the",
@@ -134,7 +134,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "3.141592653589793": "Eating the",
@@ -183,7 +183,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               '0': 0,
@@ -197,7 +197,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "'0'": "0",
@@ -244,7 +244,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               "0                                            ":                                             0,
@@ -258,7 +258,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "0                                            ": "                                            0",
@@ -305,7 +305,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               "0                                            ": "   0",
@@ -319,12 +319,12 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
-                              "0                                            ":"   0",
+                              "0                                            ": "   0",
                               "170141183460469231731687303715884105727      ": null,
-                              "1                                            ":"   1",
+                              "1                                            ": "   1",
                               "113427455640312821154458202477256070485      ": "113427455640312821154458202477256070485",
                               "85070591730234615865843651857942052863       ": null,
                               "340282366920938463463374607431768211455      ": "340282366920938463463374607431768211455"
@@ -362,7 +362,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                                       0.0.0.0: ==> http://first-null.com/,
@@ -374,7 +374,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "           0.0.0.0": "==\u003e http://first-null.com/",
@@ -417,7 +417,7 @@ public partial class BothRevealersDictTestData
                     }
                    ,
                     {
-                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                       , """
                         {
                                   0.0.0.0: ==> http://first-null.com/,
@@ -430,14 +430,14 @@ public partial class BothRevealersDictTestData
                     }
                    ,
                     {
-                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                       , """
                         {
                           "           0.0.0.0": "==\u003e http://first-null.com/",
                           "         127.0.0.1": "==\u003e tcp://localhost/",
                           "       192.168.1.1": "==\u003e tcp://default-gateway/",
                           "   255.255.255.255": null,
-                          "null": null 
+                          "null": null
                         }
                         """.Dos2Unix()
                     }
@@ -476,7 +476,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                                     First_SpanStruct: First_SpanClass     ,
@@ -490,7 +490,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "    First_SpanStruct": "First_SpanClass     ",
@@ -536,7 +536,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               First_SpanStruct    :      First_SpanClass,
@@ -549,12 +549,12 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
-                              "First_SpanStruct    ":"     First_SpanClass",
-                              "null":"    Second_SpanClass",
-                              "Third_SpanStruct    ":"     Third_SpanClass",
+                              "First_SpanStruct    ": "     First_SpanClass",
+                              "null": "    Second_SpanClass",
+                              "Third_SpanStruct    ": "     Third_SpanClass",
                               "Fourth_SpanStruct   ": null,
                               "null": null
                             }
@@ -593,7 +593,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                                     First_SpanClass: First_SpanStruct    ,
@@ -606,14 +606,14 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
-                              "     First_SpanClass":"First_SpanStruct    ",
-                              "    Second_SpanClass":"Second_SpanStruct   ",
-                              "     Third_SpanClass":"Third_SpanStruct    ",
-                              "    Fourth_SpanClass":"Fourth_SpanStruct   ",
-                              "     Fifth_SpanClass":"Fifth_SpanStruct    "
+                              "     First_SpanClass": "First_SpanStruct    ",
+                              "    Second_SpanClass": "Second_SpanStruct   ",
+                              "     Third_SpanClass": "Third_SpanStruct    ",
+                              "    Fourth_SpanClass": "Fourth_SpanStruct   ",
+                              "     Fifth_SpanClass": "Fifth_SpanStruct    "
                             }
                             """.Dos2Unix()
                         }
@@ -651,7 +651,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               First_SpanClass     :    First_SpanStruct,
@@ -664,14 +664,14 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
-                              "First_SpanClass     ":"    First_SpanStruct",
-                              "null":"   Second_SpanStruct",
-                              "Third_SpanClass     ":"    Third_SpanStruct",
-                              "Fourth_SpanClass    ":null,
-                              "null":null
+                              "First_SpanClass     ": "    First_SpanStruct",
+                              "null": "   Second_SpanStruct",
+                              "Third_SpanClass     ": "    Third_SpanStruct",
+                              "Fourth_SpanClass    ": null,
+                              "null": null
                             }
                             """.Dos2Unix()
                         }
@@ -715,7 +715,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 3.142: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/,
@@ -727,20 +727,20 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "3.142": {
-                                "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":"http://first-value.com/"
+                                "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": "http://first-value.com/"
                               },
                               "2.718": {
-                                "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":"http://second-value.com/"
+                                "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": "http://second-value.com/"
                               },
                               "31.416": {
-                                "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":"http://third-value.com/"
+                                "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": "http://third-value.com/"
                               },
                               "27.183": {
-                                "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":"http://fourth-value.com/"
+                                "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": "http://fourth-value.com/"
                               }
                             }
                             """.Dos2Unix()
@@ -785,7 +785,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/,
@@ -798,17 +798,17 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "null": {
-                                "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":"http://first-value.com/"
+                                "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": "http://first-value.com/"
                               },
                               "2.718": {
-                                "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":"http://second-value.com/"
+                                "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": "http://second-value.com/"
                               },
                               "31.416": {
-                                "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":"http://third-value.com/"
+                                "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": "http://third-value.com/"
                               },
                               "27.183": null,
                               "null": null
@@ -855,7 +855,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>= SimpleTypeAsValueSpanFormattable: 3.142: FieldSpanFormattableAlwaysAddStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattable: http://first-value.com/,
@@ -867,20 +867,20 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "3.142": {
-                                "ComplexTypeFieldAlwaysAddSpanFormattable":"http://first-value.com/"
+                                "ComplexTypeFieldAlwaysAddSpanFormattable": "http://first-value.com/"
                               },
                               "2.718": {
-                                "ComplexTypeFieldAlwaysAddSpanFormattable":"http://second-value.com/"
+                                "ComplexTypeFieldAlwaysAddSpanFormattable": "http://second-value.com/"
                               },
                               "31.416": {
-                                "ComplexTypeFieldAlwaysAddSpanFormattable":"http://third-value.com/"
+                                "ComplexTypeFieldAlwaysAddSpanFormattable": "http://third-value.com/"
                               },
                               "27.183": {
-                                "ComplexTypeFieldAlwaysAddSpanFormattable":"http://fourth-value.com/"
+                                "ComplexTypeFieldAlwaysAddSpanFormattable": "http://fourth-value.com/"
                               }
                             }
                             """.Dos2Unix()
@@ -932,7 +932,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/,
@@ -945,17 +945,17 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "null": {
-                                "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":"http://first-value.com/"
+                                "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": "http://first-value.com/"
                               },
                               "2.718": {
-                                "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":"http://second-value.com/"
+                                "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": "http://second-value.com/"
                               },
                               "31.416": {
-                                "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":"http://third-value.com/"
+                                "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": "http://third-value.com/"
                               },
                               "27.183": null,
                               "null": null
@@ -999,7 +999,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               NoDefaultLongNoFlagsEnum.NDLNFE_4: WithDefaultLongWithFlagsEnum.WDLWFE_4,
@@ -1013,15 +1013,15 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
-                              "NDLNFE_4":"WDLWFE_4",
-                              "NDLNFE_34":"WDLWFE_34",
-                              "0":"Default",
-                              "NDLNFE_1":"WDLWFE_2, WDLWFE_3, WDLWFE_4, WDLWFE_Second4Mask, WDLWFE_LastTwoMask",
-                              "NDLNFE_13":"WDLWFE_13, WDLWFE_23",
-                              "NDLNFE_2":"WDLWFE_2, WDLWFE_5"
+                              "NDLNFE_4": "WDLWFE_4",
+                              "NDLNFE_34": "WDLWFE_34",
+                              "0": "Default",
+                              "NDLNFE_1": "WDLWFE_2, WDLWFE_3, WDLWFE_4, WDLWFE_Second4Mask, WDLWFE_LastTwoMask",
+                              "NDLNFE_13": "WDLWFE_13, WDLWFE_23",
+                              "NDLNFE_2": "WDLWFE_2, WDLWFE_5"
                             }
                             """.Dos2Unix()
                         }
@@ -1060,7 +1060,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               NoDefaultLongNoFlagsEnum.NDLNFE_4: null,
@@ -1074,14 +1074,15 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
-                              "NDLNFE_4":null,
-                              "null":"WDLWFE_Second4Mask",
-                              "NDLNFE_1":null,
-                              "NDLNFE_13":"WDLWFE_13",
-                              "null":null
+                              "NDLNFE_4": null,
+                              "null": "WDLWFE_Second4Mask",
+                              "NDLNFE_1": null,
+                              "0": "WDLWFE_All",
+                              "NDLNFE_13": "WDLWFE_13",
+                              "null": null
                             }
                             """.Dos2Unix()
                         }
@@ -1120,7 +1121,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               NoDefaultULongNoFlagsEnum.NDUNFE_4: WithDefaultULongWithFlagsEnum.WDUWFE_4,
@@ -1134,7 +1135,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "NDUNFE_4": "WDUWFE_4",
@@ -1181,7 +1182,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               NoDefaultULongNoFlagsEnum.NDUNFE_4: null,
@@ -1195,7 +1196,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "NDUNFE_4": null,
@@ -1242,7 +1243,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               WithDefaultLongNoFlagsEnum.WDLNFE_4: NoDefaultLongWithFlagsEnum.NDLWFE_4,
@@ -1256,12 +1257,12 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "WDLNFE_4": "NDLWFE_4",
                               "WDLNFE_34": "NDLWFE_34",
-                              "Default": "0",
+                              "Default": 0,
                               "WDLNFE_1": "NDLWFE_1",
                               "WDLNFE_2": "NDLWFE_2",
                               "WDLNFE_3": "NDLWFE_3"
@@ -1304,7 +1305,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               WithDefaultLongNoFlagsEnum.WDLNFE_4: null,
@@ -1318,7 +1319,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "WDLNFE_4": null,
@@ -1363,7 +1364,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               WithDefaultULongNoFlagsEnum.WDUNFE_2: NoDefaultULongWithFlagsEnum.NDUWFE_2,
@@ -1376,7 +1377,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "WDUNFE_2": "NDUWFE_2",
@@ -1420,7 +1421,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               WithDefaultULongNoFlagsEnum.WDUNFE_4: null,
@@ -1433,7 +1434,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "WDUNFE_4": null,
@@ -1480,7 +1481,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               NoDefaultLongWithFlagsEnum.NDLWFE_4: WithDefaultLongNoFlagsEnum.NDLWFE_4,
@@ -1494,7 +1495,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "NDLWFE_4": "WDLNFE_4",
@@ -1543,7 +1544,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               null: null,
@@ -1558,7 +1559,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "null": null,
@@ -1607,7 +1608,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               NoDefaultULongWithFlagsEnum.NDUWFE_4: WithDefaultULongNoFlagsEnum.WDUNFE_4,
@@ -1621,7 +1622,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "NDUWFE_4": "WDUNFE_4",
@@ -1669,7 +1670,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               null: null,
@@ -1683,7 +1684,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "null": null,
@@ -1731,7 +1732,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               WithDefaultLongWithFlagsEnum.WDLWFE_4: NoDefaultLongNoFlagsEnum.NDLNFE_4,
@@ -1745,7 +1746,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "WDLWFE_4": "NDLNFE_4",
@@ -1793,7 +1794,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               null: null,
@@ -1807,11 +1808,11 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "null": null,
-                              "WDLWFE_1, WDLWFE_3, WDLWFE_4, WDLWFE_Second4Mask":"NDLNFE_8",
+                              "WDLWFE_1, WDLWFE_3, WDLWFE_4, WDLWFE_Second4Mask": "NDLNFE_8",
                               "Default": 0,
                               "WDLWFE_First8Mask, WDLWFE_LastTwoMask": "NDLNFE_6",
                               "WDLWFE_22": "NDLNFE_22",
@@ -1855,7 +1856,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               WithDefaultULongWithFlagsEnum.WDUWFE_4: NoDefaultULongNoFlagsEnum.NDUNFE_4,
@@ -1869,7 +1870,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "WDUWFE_4": "NDUNFE_4",
@@ -1917,7 +1918,7 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
                               null: null,
@@ -1930,11 +1931,11 @@ public partial class BothRevealersDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
+                            new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                           , """
                             {
                               "null": null,
-                              "WDUWFE_1, WDUWFE_3, WDUWFE_4, WDUWFE_Second4Mask":"NDUNFE_8",
+                              "WDUWFE_1, WDUWFE_3, WDUWFE_4, WDUWFE_Second4Mask": "NDUNFE_8",
                               "Default": 0,
                               "WDUWFE_First8Mask, WDUWFE_LastTwoMask": "NDUNFE_6",
                               "WDUWFE_22": "NDUNFE_22",
