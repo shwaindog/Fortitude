@@ -526,6 +526,3 @@ public partial class SelectTypeKeyedCollectionFieldTests
         Assert.AreEqual(buildExpectedOutput, result, $"Difference at i={buildExpectedOutput.DiffPosition(result)}");
     }
 }
-
-
-//KeyedFromDictionaryFormatStringsAddFilteredStringBearer<IPAddress,·Uri,·IPAddress,·Uri>·{············0.0.0.0:·==>·http://first-null.com/,··········127.0.0.1:·==>·tcp://localhost/,····255.255.255.255:·==>·http://unknown.com/,········192.168.1.1:·==>·tcp://default-gateway/·}

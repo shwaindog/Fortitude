@@ -333,8 +333,8 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         ctb.Field.AlwaysAdd(nameof(FloatNanSingPropield), FloatNanSingPropield);
         ctb.Field.AlwaysAdd(nameof(ULongSingPropield), ULongSingPropield);
         ctb.Field.AlwaysAdd(nameof(DoubleNanSingPropield), DoubleNanSingPropield);
-        ctb.Field.AlwaysAdd(nameof(VeryLongSingPropield), VeryLongSingPropield, formatFlags: EnsureFormattedDelimited);
-        ctb.Field.AlwaysAdd(nameof(BigIntSingPropield), BigIntSingPropield, formatFlags: EnsureFormattedDelimited);
+        ctb.Field.AlwaysAdd(nameof(VeryLongSingPropield), VeryLongSingPropield);
+        ctb.Field.AlwaysAdd(nameof(BigIntSingPropield), BigIntSingPropield);
         ctb.Field.AlwaysAdd(nameof(ComplexSingPropield), ComplexSingPropield);
         ctb.Field.AlwaysAdd(nameof(DateOnlySingPropield), DateOnlySingPropield);
         ctb.Field.AlwaysAdd(nameof(TimeOnlySingPropield), TimeOnlySingPropield);
@@ -345,8 +345,8 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         ctb.Field.AlwaysAdd(nameof(NullUIntSingPropield), NullUIntSingPropield);
         ctb.Field.AlwaysAdd(nameof(NullLongSingPropield), NullLongSingPropield);
         ctb.Field.AlwaysAdd(nameof(NullDoubleSingPropield), NullDoubleSingPropield);
-        ctb.Field.AlwaysAdd(nameof(NullVeryLongSingPropield), NullVeryLongSingPropield, formatFlags: EnsureFormattedDelimited);
-        ctb.Field.AlwaysAdd(nameof(NullBigIntSingPropield), NullBigIntSingPropield, formatFlags: EnsureFormattedDelimited);
+        ctb.Field.AlwaysAdd(nameof(NullVeryLongSingPropield), NullVeryLongSingPropield);
+        ctb.Field.AlwaysAdd(nameof(NullBigIntSingPropield), NullBigIntSingPropield);
         ctb.Field.AlwaysAdd(nameof(NullComplexUnsetSingPropield), NullComplexUnsetSingPropield);
         ctb.Field.AlwaysAdd(nameof(NullDateOnlySingPropield), NullDateOnlySingPropield);
         ctb.Field.AlwaysAdd(nameof(NullTimeOnlySingPropield), NullTimeOnlySingPropield);
@@ -371,7 +371,7 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         ctb.Field.AlwaysAdd(nameof(LongSingPropield), LongSingPropield);
         ctb.Field.AlwaysAdd(nameof(DoubleSetSingPropield), DoubleSetSingPropield);
         ctb.Field.AlwaysAdd(nameof(DecimalSingPropield), DecimalSingPropield);
-        ctb.Field.AlwaysAdd(nameof(VeryUlongSingPropield), VeryUlongSingPropield, formatFlags: EnsureFormattedDelimited);
+        ctb.Field.AlwaysAdd(nameof(VeryUlongSingPropield), VeryUlongSingPropield);
         ctb.Field.AlwaysAdd(nameof(DateTimeSingPropield), DateTimeSingPropield);
         ctb.Field.AlwaysAdd(nameof(TimeSpanSingPropield), TimeSpanSingPropield);
         ctb.Field.AlwaysAdd(nameof(RuneSingPropield), RuneSingPropield);
@@ -383,7 +383,7 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         ctb.Field.AlwaysAdd(nameof(NullFloatSingPropield), NullFloatSingPropield);
         ctb.Field.AlwaysAdd(nameof(NullULongSingPropield), NullULongSingPropield);
         ctb.Field.AlwaysAdd(nameof(NullDecimalSingPropield), NullDecimalSingPropield);
-        ctb.Field.AlwaysAdd(nameof(NullVeryUlongSingPropield), NullVeryUlongSingPropield, formatFlags: EnsureFormattedDelimited);
+        ctb.Field.AlwaysAdd(nameof(NullVeryUlongSingPropield), NullVeryUlongSingPropield);
         ctb.Field.AlwaysAdd(nameof(NullComplexSetSingPropield), NullComplexSetSingPropield);
         ctb.Field.AlwaysAdd(nameof(NullDateTimeSingPropield), NullDateTimeSingPropield);
         ctb.Field.AlwaysAdd(nameof(NullTimeSpanSingPropield), NullTimeSpanSingPropield);
@@ -415,8 +415,8 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         ctb.Field.WhenNonDefaultAdd(nameof(FloatNanSingPropield), FloatNanSingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(ULongSingPropield), ULongSingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(DoubleNanSingPropield), DoubleNanSingPropield);
-        ctb.Field.WhenNonDefaultAdd(nameof(VeryLongSingPropield), VeryLongSingPropield, formatFlags: EnsureFormattedDelimited);
-        ctb.Field.WhenNonDefaultAdd(nameof(BigIntSingPropield), BigIntSingPropield, formatFlags: EnsureFormattedDelimited);
+        ctb.Field.WhenNonDefaultAdd(nameof(VeryLongSingPropield), VeryLongSingPropield);
+        ctb.Field.WhenNonDefaultAdd(nameof(BigIntSingPropield), BigIntSingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(ComplexSingPropield), ComplexSingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(DateOnlySingPropield), DateOnlySingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(TimeOnlySingPropield), TimeOnlySingPropield);
@@ -427,8 +427,8 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         ctb.Field.WhenNonDefaultAdd(nameof(NullUIntSingPropield), NullUIntSingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(NullLongSingPropield), NullLongSingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(NullDoubleSingPropield), NullDoubleSingPropield);
-        ctb.Field.WhenNonDefaultAdd(nameof(NullVeryLongSingPropield), NullVeryLongSingPropield, formatFlags: EnsureFormattedDelimited);
-        ctb.Field.WhenNonDefaultAdd(nameof(NullBigIntSingPropield), NullBigIntSingPropield, formatFlags: EnsureFormattedDelimited);
+        ctb.Field.WhenNonDefaultAdd(nameof(NullVeryLongSingPropield), NullVeryLongSingPropield);
+        ctb.Field.WhenNonDefaultAdd(nameof(NullBigIntSingPropield), NullBigIntSingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(NullComplexUnsetSingPropield), NullComplexUnsetSingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(NullDateOnlySingPropield), NullDateOnlySingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(NullTimeOnlySingPropield), NullTimeOnlySingPropield);
@@ -453,7 +453,7 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         ctb.Field.WhenNonDefaultAdd(nameof(LongSingPropield), LongSingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(DoubleSetSingPropield), DoubleSetSingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(DecimalSingPropield), DecimalSingPropield);
-        ctb.Field.WhenNonDefaultAdd(nameof(VeryUlongSingPropield), VeryUlongSingPropield, formatFlags: EnsureFormattedDelimited);
+        ctb.Field.WhenNonDefaultAdd(nameof(VeryUlongSingPropield), VeryUlongSingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(DateTimeSingPropield), DateTimeSingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(TimeSpanSingPropield), TimeSpanSingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(RuneSingPropield), RuneSingPropield);
@@ -465,7 +465,7 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         ctb.Field.WhenNonDefaultAdd(nameof(NullFloatSingPropield), NullFloatSingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(NullULongSingPropield), NullULongSingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(NullDecimalSingPropield), NullDecimalSingPropield);
-        ctb.Field.WhenNonDefaultAdd(nameof(NullVeryUlongSingPropield), NullVeryUlongSingPropield, formatFlags: EnsureFormattedDelimited);
+        ctb.Field.WhenNonDefaultAdd(nameof(NullVeryUlongSingPropield), NullVeryUlongSingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(NullComplexSetSingPropield), NullComplexSetSingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(NullDateTimeSingPropield), NullDateTimeSingPropield);
         ctb.Field.WhenNonDefaultAdd(nameof(NullTimeSpanSingPropield), NullTimeSpanSingPropield);
@@ -497,8 +497,8 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         ctb.Field.WhenNonNullAdd(nameof(FloatNanSingPropield), FloatNanSingPropield);
         ctb.Field.WhenNonNullAdd(nameof(ULongSingPropield), ULongSingPropield);
         ctb.Field.WhenNonNullAdd(nameof(DoubleNanSingPropield), DoubleNanSingPropield);
-        ctb.Field.WhenNonNullAdd(nameof(VeryLongSingPropield), VeryLongSingPropield, formatFlags: EnsureFormattedDelimited);
-        ctb.Field.WhenNonNullAdd(nameof(BigIntSingPropield), BigIntSingPropield, formatFlags: EnsureFormattedDelimited);
+        ctb.Field.WhenNonNullAdd(nameof(VeryLongSingPropield), VeryLongSingPropield);
+        ctb.Field.WhenNonNullAdd(nameof(BigIntSingPropield), BigIntSingPropield);
         ctb.Field.WhenNonNullAdd(nameof(ComplexSingPropield), ComplexSingPropield);
         ctb.Field.WhenNonNullAdd(nameof(DateOnlySingPropield), DateOnlySingPropield);
         ctb.Field.WhenNonNullAdd(nameof(TimeOnlySingPropield), TimeOnlySingPropield);
@@ -509,8 +509,8 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         ctb.Field.WhenNonNullAdd(nameof(NullUIntSingPropield), NullUIntSingPropield);
         ctb.Field.WhenNonNullAdd(nameof(NullLongSingPropield), NullLongSingPropield);
         ctb.Field.WhenNonNullAdd(nameof(NullDoubleSingPropield), NullDoubleSingPropield);
-        ctb.Field.WhenNonNullAdd(nameof(NullVeryLongSingPropield), NullVeryLongSingPropield, formatFlags: EnsureFormattedDelimited);
-        ctb.Field.WhenNonNullAdd(nameof(NullBigIntSingPropield), NullBigIntSingPropield, formatFlags: EnsureFormattedDelimited);
+        ctb.Field.WhenNonNullAdd(nameof(NullVeryLongSingPropield), NullVeryLongSingPropield);
+        ctb.Field.WhenNonNullAdd(nameof(NullBigIntSingPropield), NullBigIntSingPropield);
         ctb.Field.WhenNonNullAdd(nameof(NullComplexUnsetSingPropield), NullComplexUnsetSingPropield);
         ctb.Field.WhenNonNullAdd(nameof(NullDateOnlySingPropield), NullDateOnlySingPropield);
         ctb.Field.WhenNonNullAdd(nameof(NullTimeOnlySingPropield), NullTimeOnlySingPropield);
@@ -535,7 +535,7 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         ctb.Field.WhenNonNullAdd(nameof(LongSingPropield), LongSingPropield);
         ctb.Field.WhenNonNullAdd(nameof(DoubleSetSingPropield), DoubleSetSingPropield);
         ctb.Field.WhenNonNullAdd(nameof(DecimalSingPropield), DecimalSingPropield);
-        ctb.Field.WhenNonNullAdd(nameof(VeryUlongSingPropield), VeryUlongSingPropield, formatFlags: EnsureFormattedDelimited);
+        ctb.Field.WhenNonNullAdd(nameof(VeryUlongSingPropield), VeryUlongSingPropield);
         ctb.Field.WhenNonNullAdd(nameof(DateTimeSingPropield), DateTimeSingPropield);
         ctb.Field.WhenNonNullAdd(nameof(TimeSpanSingPropield), TimeSpanSingPropield);
         ctb.Field.WhenNonNullAdd(nameof(RuneSingPropield), RuneSingPropield);
@@ -547,7 +547,7 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         ctb.Field.WhenNonNullAdd(nameof(NullFloatSingPropield), NullFloatSingPropield);
         ctb.Field.WhenNonNullAdd(nameof(NullULongSingPropield), NullULongSingPropield);
         ctb.Field.WhenNonNullAdd(nameof(NullDecimalSingPropield), NullDecimalSingPropield);
-        ctb.Field.WhenNonNullAdd(nameof(NullVeryUlongSingPropield), NullVeryUlongSingPropield, formatFlags: EnsureFormattedDelimited);
+        ctb.Field.WhenNonNullAdd(nameof(NullVeryUlongSingPropield), NullVeryUlongSingPropield);
         ctb.Field.WhenNonNullAdd(nameof(NullComplexSetSingPropield), NullComplexSetSingPropield);
         ctb.Field.WhenNonNullAdd(nameof(NullDateTimeSingPropield), NullDateTimeSingPropield);
         ctb.Field.WhenNonNullAdd(nameof(NullTimeSpanSingPropield), NullTimeSpanSingPropield);

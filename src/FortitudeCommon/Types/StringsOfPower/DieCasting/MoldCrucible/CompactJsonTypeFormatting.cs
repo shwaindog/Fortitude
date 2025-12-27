@@ -53,7 +53,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
 
         return setFlags;
     }
-    
+
     public override FormatSwitches ResolveStringFormattingFlags<T>(
         char lastNonWhiteSpace, T input, FormatSwitches callerFormattingFlags
       , string formatString = "")
@@ -63,19 +63,19 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         FormatSwitches setFlags = callerFormattingFlags;
 
         setFlags |= base.ResolveStringFormattingFlags(lastNonWhiteSpace, input, callerFormattingFlags, formatString);
-        
+
         var typeofT = typeof(T);
         if (typeofT.IsAnyTypeHoldingCharsCached())
         {
             var notAsStringOrValue = !(callerFormattingFlags.HasAsStringContentFlag()
                                     || callerFormattingFlags.HasAsValueContentFlag());
-            setFlags |= !callerFormattingFlags.HasDisableAutoDelimiting() && notAsStringOrValue 
-                ? FormatSwitches.EnsureFormattedDelimited 
+            setFlags |= !callerFormattingFlags.HasDisableAutoDelimiting() && notAsStringOrValue
+                ? FormatSwitches.EnsureFormattedDelimited
                 : FormatSwitchesExtensions.None;
             // setFlags |= setFlags.ShouldDelimit() && callerFormattingFlags.DoesNotHaveAsValueContentFlag() ? EncodeAll : EncodeInnerContent;
-            setFlags |= setFlags.ShouldDelimit() && callerFormattingFlags.HasAsStringContentFlag() 
-                ? FormatSwitches.EncodeAll 
-                :  FormatSwitches.EncodeInnerContent;
+            setFlags |= setFlags.ShouldDelimit() && callerFormattingFlags.HasAsStringContentFlag()
+                ? FormatSwitches.EncodeAll
+                : FormatSwitches.EncodeInnerContent;
         }
         return setFlags;
     }
@@ -88,7 +88,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         var isAnyTypeHoldingChars = typeOfT.IsAnyTypeHoldingCharsCached();
         if (isAnyTypeHoldingChars)
         {
-            if(!(typeOfT.IsChar() || typeOfT.IsRune() || typeOfT.IsNullableChar() || typeOfT.IsNullableRune()))
+            if (!(typeOfT.IsChar() || typeOfT.IsRune() || typeOfT.IsNullableChar() || typeOfT.IsNullableRune()))
                 return DisableAutoDelimiting | AsValueContent;
         }
         var isDoubleQuoteDelimitedSpanFormattable = input.IsDoubleQuoteDelimitedSpanFormattable(fallbackValue, formatString);
@@ -162,13 +162,25 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
 
     public virtual ContentSeparatorRanges AppendTypeClosing(ITypeMolderDieCast moldInternal)
     {
-        var sb                        = moldInternal.Sb;
+        var sb = moldInternal.Sb;
+
         var previousContentPadSpacing = GraphBuilder.LastContentSeparatorPaddingRanges;
 
-        GraphBuilder.RemoveLastSeparatorAndPadding();
-        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags, true);
+        var lastContentChar = GraphBuilder.RemoveLastSeparatorAndPadding();
 
-        return GraphBuilder.StartAppendContentAndComplete(BrcCls, sb, this, previousContentPadSpacing.PreviousFormatFlags);
+        if (moldInternal.AppendSettings.SkipTypeParts.HasTypeEndFlag())
+        {
+            GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags, true);
+        }
+        else
+        {
+            if (lastContentChar != BrcOpnChar)
+            {
+                GraphBuilder.StartAppendContentAndComplete(BrcCls, sb, this, previousContentPadSpacing.PreviousFormatFlags);
+            }
+            else { GraphBuilder.StartAppendContent(BrcCls, sb, this, DefaultCallerTypeFlags); }
+        }
+        return GraphBuilder.Complete(previousContentPadSpacing.PreviousFormatFlags);
     }
 
 
@@ -247,10 +259,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
     {
-        if (!source.HasValue)
-        {
-            return AppendFormattedNull(sb, formatString, formatFlags, true);
-        }
+        if (!source.HasValue) { return AppendFormattedNull(sb, formatString, formatFlags, true); }
         return FormatFieldName(sb, source.Value, formatString);
     }
 
@@ -297,7 +306,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        var sb           = tos.WriteBuffer;
+        var sb = tos.WriteBuffer;
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, callerFormatFlags);
         var preAppendLen = sb.Length;
         tos.SetCallerFormatString(callerFormatString);
@@ -318,7 +327,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     public virtual IStringBuilder FormatFieldName<TBearer>(ISecretStringOfPower tos, TBearer styledObj, string? callerFormatString = null
       , FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?
     {
-        var sb           = tos.WriteBuffer;
+        var sb = tos.WriteBuffer;
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, callerFormatFlags);
         var preAppendLen = sb.Length;
         tos.SetCallerFormatString(callerFormatString);
@@ -405,14 +414,18 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
         if (formatFlags.ShouldDelimit() && (!formatString.IsDblQtBounded() || formatFlags.HasEncodeBounds()))
         {
-            if(formatFlags.HasAsStringContentFlag()) GraphBuilder.AppendContent(DblQt);
-            else GraphBuilder.AppendDelimiter(DblQt);
+            if (formatFlags.HasAsStringContentFlag())
+                GraphBuilder.AppendContent(DblQt);
+            else
+                GraphBuilder.AppendDelimiter(DblQt);
         }
         base.Format(source, sourceFrom, sb, formatString, maxTransferCount, formatFlags: (FormatSwitches)formatFlags);
         if (formatFlags.ShouldDelimit() && (!formatString.IsDblQtBounded() || formatFlags.HasEncodeBounds()))
         {
-            if(formatFlags.HasAsStringContentFlag()) GraphBuilder.AppendContent(DblQt);
-            else GraphBuilder.AppendDelimiter(DblQt);
+            if (formatFlags.HasAsStringContentFlag())
+                GraphBuilder.AppendContent(DblQt);
+            else
+                GraphBuilder.AppendDelimiter(DblQt);
         }
         GraphBuilder.MarkContentEnd();
         return sb;
@@ -444,14 +457,18 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         {
             if (formatFlags.ShouldDelimit() && (!formatString.IsDblQtBounded() || formatFlags.HasEncodeBounds()))
             {
-                if(formatFlags.HasAsStringContentFlag()) GraphBuilder.AppendContent(DblQt);
-                else GraphBuilder.AppendDelimiter(DblQt);
+                if (formatFlags.HasAsStringContentFlag())
+                    GraphBuilder.AppendContent(DblQt);
+                else
+                    GraphBuilder.AppendDelimiter(DblQt);
             }
             base.Format(source, sourceFrom, sb, formatString, maxTransferCount, fmtHndlingFlags);
             if (formatFlags.ShouldDelimit() && (!formatString.IsDblQtBounded() || formatFlags.HasEncodeBounds()))
             {
-                if(formatFlags.HasAsStringContentFlag()) GraphBuilder.AppendContent(DblQt);
-                else GraphBuilder.AppendDelimiter(DblQt);
+                if (formatFlags.HasAsStringContentFlag())
+                    GraphBuilder.AppendContent(DblQt);
+                else
+                    GraphBuilder.AppendDelimiter(DblQt);
             }
         }
         else
@@ -526,14 +543,18 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         {
             if (formatFlags.ShouldDelimit() && (!formatString.IsDblQtBounded() || formatFlags.HasEncodeBounds()))
             {
-                if(formatFlags.HasAsStringContentFlag()) GraphBuilder.AppendContent(DblQt);
-                else GraphBuilder.AppendDelimiter(DblQt);
+                if (formatFlags.HasAsStringContentFlag())
+                    GraphBuilder.AppendContent(DblQt);
+                else
+                    GraphBuilder.AppendDelimiter(DblQt);
             }
             base.Format(source, sourceFrom, sb, formatString, maxTransferCount, fmtHndlingFlags);
             if (formatFlags.ShouldDelimit() && (!formatString.IsDblQtBounded() || formatFlags.HasEncodeBounds()))
             {
-                if(formatFlags.HasAsStringContentFlag()) GraphBuilder.AppendContent(DblQt);
-                else GraphBuilder.AppendDelimiter(DblQt);
+                if (formatFlags.HasAsStringContentFlag())
+                    GraphBuilder.AppendContent(DblQt);
+                else
+                    GraphBuilder.AppendDelimiter(DblQt);
             }
         }
         else
@@ -605,14 +626,18 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
         if (formatFlags.ShouldDelimit() && (!formatString.IsDblQtBounded() || formatFlags.HasEncodeBounds()))
         {
-            if(formatFlags.HasAsStringContentFlag()) GraphBuilder.AppendContent(DblQt);
-            else GraphBuilder.AppendDelimiter(DblQt);
+            if (formatFlags.HasAsStringContentFlag())
+                GraphBuilder.AppendContent(DblQt);
+            else
+                GraphBuilder.AppendDelimiter(DblQt);
         }
         base.Format(source, sourceFrom, sb, formatString, maxTransferCount, (FormatSwitches)formatFlags);
         if (formatFlags.ShouldDelimit() && (!formatString.IsDblQtBounded() || formatFlags.HasEncodeBounds()))
         {
-            if(formatFlags.HasAsStringContentFlag()) GraphBuilder.AppendContent(DblQt);
-            else GraphBuilder.AppendDelimiter(DblQt);
+            if (formatFlags.HasAsStringContentFlag())
+                GraphBuilder.AppendContent(DblQt);
+            else
+                GraphBuilder.AppendDelimiter(DblQt);
         }
         GraphBuilder.MarkContentEnd();
         return sb;
@@ -660,21 +685,24 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
         if (StyleOptions.WriteKeyValuePairsAsCollection
          && (keyedCollectionType.IsNotReadOnlyDictionaryType() || keyedCollectionType.IsArray() ||
-             keyedCollectionType.IsReadOnlyList())) { sb.Append(SqBrktOpn); }
-        else { sb.Append(BrcOpn); }
-        GraphBuilder.MarkContentEnd();
+             keyedCollectionType.IsReadOnlyList())) { GraphBuilder.AppendContent(SqBrktOpn); }
+        else { GraphBuilder.AppendContent(BrcOpn); }
+        GraphBuilder.Complete(formatFlags);
         return sb;
     }
 
     public virtual IStringBuilder AppendKeyedCollectionEnd(IStringBuilder sb, Type keyedCollectionType, Type keyType, Type valueType
       , int totalItemCount, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
-        sb.RemoveLastWhiteSpacedCommaIfFound();
-        if (StyleOptions.WriteKeyValuePairsAsCollection
-         && (keyedCollectionType.IsNotReadOnlyDictionaryType() || keyedCollectionType.IsArray() ||
-             keyedCollectionType.IsReadOnlyList())) { GraphBuilder.AppendDelimiter(SqBrktCls); }
-        else { GraphBuilder.AppendDelimiter(BrcCls); }
+        GraphBuilder.RemoveLastSeparatorAndPadding();
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags, true);
+        if (!formatFlags.HasSuppressClosing())
+        {
+            if (StyleOptions.WriteKeyValuePairsAsCollection
+             && (keyedCollectionType.IsNotReadOnlyDictionaryType() || keyedCollectionType.IsArray() ||
+                 keyedCollectionType.IsReadOnlyList())) { GraphBuilder.AppendContent(SqBrktCls); }
+            else { GraphBuilder.AppendContent(BrcCls); }
+        }
         GraphBuilder.MarkContentEnd();
         return sb;
     }
@@ -721,14 +749,14 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             AddNextFieldSeparator(valueFlags);
             AppendFieldName(typeMold.Sb, "Value").FieldEnd(typeMold, this, valueFlags);
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { valueStyler(value, typeMold.Master); }
+            else { FormatFieldContents(typeMold.Master,  value, valueStyler, callerFormatFlags: valueFlags); }
             AppendTypeClosing(typeMold);
         }
         else
         {
             typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags, true).FieldEnd();
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { valueStyler(value, typeMold.Master); }
+            else {FormatFieldContents(typeMold.Master,  value, valueStyler, callerFormatFlags: valueFlags); }
         }
         return typeMold;
     }
@@ -749,20 +777,20 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             AppendComplexTypeOpening(typeMold, valueFlags);
             AppendFieldName(typeMold.Sb, "Key").FieldEnd(typeMold, this, valueFlags);
             if (key == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { keyStyler(key, typeMold.Master); }
+            else { FormatFieldName(typeMold.Master, key, keyStyler, callerFormatFlags: valueFlags); }
             AddNextFieldSeparator(valueFlags);
             AppendFieldName(typeMold.Sb, "Value").FieldEnd(typeMold, this, valueFlags);
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { valueStyler(value, typeMold.Master); }
+            else { FormatFieldContents(typeMold.Master,  value, valueStyler, callerFormatFlags: valueFlags); }
             AppendTypeClosing(typeMold);
         }
         else
         {
-            if (key == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { keyStyler(key, typeMold.Master); }
+            if (key == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags, true); }
+            else { FormatFieldName(typeMold.Master, key, keyStyler, callerFormatFlags: valueFlags); }
             typeMold.FieldEnd();
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { valueStyler(value, typeMold.Master); }
+            else { FormatFieldContents(typeMold.Master,  value, valueStyler, callerFormatFlags: valueFlags); }
         }
         return typeMold;
     }
@@ -783,20 +811,21 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             AppendComplexTypeOpening(typeMold, valueFlags);
             AppendFieldName(typeMold.Sb, "Key").FieldEnd(typeMold, this, valueFlags);
             if (key == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { keyStyler(key.Value, typeMold.Master); }
+            else { FormatFieldContents(typeMold.Master,  key.Value, keyStyler, callerFormatFlags: valueFlags); }
             AddNextFieldSeparator(valueFlags);
             AppendFieldName(typeMold.Sb, "Value").FieldEnd(typeMold, this, valueFlags);
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { valueStyler(value, typeMold.Master); }
+            else { FormatFieldContents(typeMold.Master,  value, valueStyler, callerFormatFlags: valueFlags); }
             AppendTypeClosing(typeMold);
         }
         else
         {
-            if (key == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { keyStyler(key.Value, typeMold.Master); }
+            if (key == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags, true); }
+            else { FormatFieldName(typeMold.Master, key.Value, keyStyler, callerFormatFlags: valueFlags); }
+            
             typeMold.FieldEnd();
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { valueStyler(value, typeMold.Master); }
+            else { FormatFieldContents(typeMold.Master,  value, valueStyler, callerFormatFlags: valueFlags); }
         }
         return typeMold;
     }
@@ -817,20 +846,20 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             AppendComplexTypeOpening(typeMold, valueFlags);
             AppendFieldName(typeMold.Sb, "Key").FieldEnd(typeMold, this, valueFlags);
             if (key == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { keyStyler(key, typeMold.Master); }
+            else { FormatFieldContents(typeMold.Master,  key, keyStyler, callerFormatFlags: valueFlags); }
             AddNextFieldSeparator(valueFlags);
             AppendFieldName(typeMold.Sb, "Value").FieldEnd(typeMold, this, valueFlags);
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { valueStyler(value.Value, typeMold.Master); }
+            else { FormatFieldContents(typeMold.Master, value.Value, valueStyler, callerFormatFlags: valueFlags); }
             AppendTypeClosing(typeMold);
         }
         else
         {
-            if (key == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { keyStyler(key, typeMold.Master); }
+            if (key == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags, true); }
+            else { FormatFieldName(typeMold.Master, key, keyStyler, callerFormatFlags: valueFlags); }
             typeMold.FieldEnd();
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { valueStyler(value.Value, typeMold.Master); }
+            else { FormatFieldContents(typeMold.Master,  value.Value, valueStyler, callerFormatFlags: valueFlags); }
         }
         return typeMold;
     }
@@ -849,8 +878,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         {
             AppendComplexTypeOpening(typeMold, valueFlags);
             AppendFieldName(typeMold.Sb, "Key").FieldEnd(typeMold, this, valueFlags);
-            if (key == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags, true); }
+            if (key == null) { AppendFormattedNull(typeMold.Sb, keyFormatString, valueFlags); }
+            else { typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags); }
             AddNextFieldSeparator(valueFlags);
             AppendFieldName(typeMold.Sb, "Value").FieldEnd(typeMold, this, valueFlags);
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
@@ -859,7 +888,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         }
         else
         {
-            if (key == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
+            if (key == null) { AppendFormattedNull(typeMold.Sb, keyFormatString, valueFlags, true); }
             else { typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags, true); }
             typeMold.FieldEnd();
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
@@ -884,20 +913,20 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             AppendComplexTypeOpening(typeMold, valueFlags);
             AppendFieldName(typeMold.Sb, "Key").FieldEnd(typeMold, this, valueFlags);
             if (key == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { keyStyler(key.Value, typeMold.Master); }
+            else { FormatFieldName(typeMold.Master, key.Value, keyStyler, callerFormatFlags: valueFlags); }
             AddNextFieldSeparator(valueFlags);
             AppendFieldName(typeMold.Sb, "Value").FieldEnd(typeMold, this, valueFlags);
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { valueStyler(value.Value, typeMold.Master); }
+            else { FormatFieldContents(typeMold.Master,  value.Value, valueStyler, callerFormatFlags: valueFlags); }
             AppendTypeClosing(typeMold);
         }
         else
         {
-            if (key == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { keyStyler(key.Value, typeMold.Master); }
+            if (key == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags, true); }
+            else { FormatFieldName(typeMold.Master, key.Value, keyStyler, callerFormatFlags: valueFlags); }
             typeMold.FieldEnd();
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { valueStyler(value.Value, typeMold.Master); }
+            else { FormatFieldContents(typeMold.Master,  value.Value, valueStyler, callerFormatFlags: valueFlags); }
         }
         return typeMold;
     }
@@ -1303,7 +1332,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         {
             GraphBuilder.ResetCurrent((FormatFlags)formatSwitches, true);
             if ((elementType.IsChar() && (formatSwitches.TreatCharArrayAsString()
-               || (!JsonOptions.CharBufferWritesAsCharCollection && formatSwitches.DoesNotHaveAsCollectionFlag()))))
+                                       || (!JsonOptions.CharBufferWritesAsCharCollection && formatSwitches.DoesNotHaveAsCollectionFlag()))))
             {
                 if (formatSwitches.ShouldDelimit())
                 {
