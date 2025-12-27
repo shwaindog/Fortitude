@@ -250,8 +250,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             keyedCollectionType.AppendShortNameInCSharpFormat(sb);
             GraphBuilder.AppendContent(Spc);
         }
-        GraphBuilder.AppendContent(BrcOpn).AppendPadding(Spc);
-        GraphBuilder.Complete(formatFlags);
+        GraphBuilder.AppendContent(BrcOpn);
+        AddNextFieldPadding(formatFlags);     
         return sb;
     }
 

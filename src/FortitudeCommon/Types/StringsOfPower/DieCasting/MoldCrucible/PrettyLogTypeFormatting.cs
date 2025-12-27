@@ -110,27 +110,38 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     }
 
     public override IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType
-      , Type keyType, Type valueType, FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , Type keyType, Type valueType, FormatFlags callerFormattingFlags = DefaultCallerTypeFlags)
     {
-        base.AppendKeyedCollectionStart(sb, keyedCollectionType, keyType, valueType, formatFlags);
-
         StyleOptions.IndentLevel++;
-
-        return sb.Append(StyleOptions.NewLineStyle)
-                 .Append(StyleOptions.IndentChar
-                       , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+        base.AppendKeyedCollectionStart(sb, keyedCollectionType, keyType, valueType, callerFormattingFlags);
+        GraphBuilder.Complete(callerFormattingFlags);
+        return sb;
     }
 
     public override IStringBuilder AppendKeyedCollectionEnd(IStringBuilder sb, Type keyedCollectionType
-      , Type keyType, Type valueType, int totalItemCount, FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , Type keyType, Type valueType, int totalItemCount, FormatFlags callerFormattingFlags = DefaultCallerTypeFlags)
     {
-        sb.RemoveLastWhiteSpacedCommaIfFound();
+        var lastNonWhiteSpace         = GraphBuilder.RemoveLastSeparatorAndPadding();
         StyleOptions.IndentLevel--;
-        if (totalItemCount > 0)
-            sb.Append(StyleOptions.NewLineStyle)
-              .Append(StyleOptions.IndentChar
-                    , StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
-        return base.AppendKeyedCollectionEnd(sb, keyedCollectionType, keyType, valueType, totalItemCount, formatFlags);
+
+        if (callerFormattingFlags.UseMainFieldPadding())
+        {
+            if (totalItemCount > 0 && lastNonWhiteSpace != BrcOpnChar && callerFormattingFlags.CanAddNewLine())
+            {
+                GraphBuilder.AppendContent(StyleOptions.NewLineStyle);
+
+                if (!callerFormattingFlags.HasNoWhitespacesToNextFlag())
+                {
+                    GraphBuilder.AppendContent(StyleOptions.IndentChar, StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+                }
+            }
+        }
+        else
+        {
+            GraphBuilder.AppendPadding(StyleOptions.AlternateFieldPadding);
+        }
+        GraphBuilder.AppendContent(BrcCls);
+        return sb;
     }
     
     public override IStringBuilder FormatCollectionStart(ITypeMolderDieCast moldInternal, Type itemElementType
@@ -213,8 +224,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     }
 
     public override IStringBuilder FormatCollectionEnd(ITypeMolderDieCast moldInternal, int? resultsFoundCount, Type itemElementType
-      , int? totalItemCount
-      , string? formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , int? totalItemCount , string? formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var sb = moldInternal.Sb;
         if (!totalItemCount.HasValue)
