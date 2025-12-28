@@ -156,7 +156,7 @@ public partial class SimpleDictTestData
                           5.43656365691809: "One doesn't even appear at the start of Euler nature number.",
                           8.539734222673566: "Oiler and Euler are very different things.",
                           1: "All for one and one for all.",
-                          -1: "Imagine there's no tax havens, it's easy if you try" 
+                          -1: "Imagine there's no tax havens, it's easy if you try"
                         }
                         """.Dos2Unix()
                     }
@@ -428,10 +428,10 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                       , """
                         {
-                                  0.0.0.0: ==> http://first-null.com/,
-                                127.0.0.1: ==> tcp://localhost/,
-                          255.255.255.255: ==> http://unknown.com/,
-                              192.168.1.1: ==> tcp://default-gateway/
+                                     0.0.0.0: ==> http://first-null.com/,
+                                   127.0.0.1: ==> tcp://localhost/,
+                             255.255.255.255: ==> http://unknown.com/,
+                                 192.168.1.1: ==> tcp://default-gateway/
                         }
                         """.Dos2Unix()
                     }
@@ -480,11 +480,11 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                       , """
                         {
-                                  0.0.0.0: ==> http://first-null.com/,
-                                127.0.0.1: ==> tcp://localhost/,
-                              192.168.1.1: ==> tcp://default-gateway/,
-                          255.255.255.255: ==> null,
-                                     null: ==> null
+                                     0.0.0.0: ==> http://first-null.com/,
+                                   127.0.0.1: ==> tcp://localhost/,
+                                 192.168.1.1: ==> tcp://default-gateway/,
+                             255.255.255.255: ==> null,
+                                        null: ==> null
                         }
                         """.Dos2Unix()
                     }
@@ -536,12 +536,12 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                       , """
                         {
-                                First_SpanStruct: First_SpanClass     ,
-                               Second_SpanStruct: Second_SpanClass    ,
-                                Third_SpanStruct: Third_SpanClass     , 
-                               Fourth_SpanStruct: Fourth_SpanClass    ,
-                                Fifth_SpanStruct: Fifth_SpanClass     ,
-                                Sixth_SpanStruct: Sixth_SpanClass     
+                              First_SpanStruct: First_SpanClass     ,
+                             Second_SpanStruct: Second_SpanClass    ,
+                              Third_SpanStruct: Third_SpanClass     ,
+                             Fourth_SpanStruct: Fourth_SpanClass    ,
+                              Fifth_SpanStruct: Fifth_SpanClass     ,
+                              Sixth_SpanStruct: Sixth_SpanClass     
                         }
                         """.Dos2Unix()
                     }
@@ -647,11 +647,11 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                       , """
                         {
-                                First_SpanClass: First_SpanStruct    ,
-                               Second_SpanClass: Second_SpanStruct   ,
-                                Third_SpanClass: Third_SpanStruct    ,
-                               Fourth_SpanClass: Fourth_SpanStruct   ,
-                                Fifth_SpanClass: Fifth_SpanStruct     
+                               First_SpanClass: First_SpanStruct    ,
+                              Second_SpanClass: Second_SpanStruct   ,
+                               Third_SpanClass: Third_SpanStruct    ,
+                              Fourth_SpanClass: Fourth_SpanStruct   ,
+                               Fifth_SpanClass: Fifth_SpanStruct    
                         }
                         """.Dos2Unix()
                     }
@@ -702,11 +702,11 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                       , """
                         {
-                          First_SpanClass     :    First_SpanStruct,
-                          null                :   Second_SpanStruct,
-                          Third_SpanClass     :    Third_SpanStruct,
-                          Fourth_SpanClass    :                null,
-                          null                :                null
+                          First_SpanClass     :     First_SpanStruct,
+                          null                :    Second_SpanStruct,
+                          Third_SpanClass     :     Third_SpanStruct,
+                          Fourth_SpanClass    :                 null,
+                          null                :                 null
                         }
                         """.Dos2Unix()
                     }
@@ -764,17 +764,17 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                       , """
                         {
-                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 3.142: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> { 
-                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/ 
-                           },
-                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> { 
-                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/ 
-                           },
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 3.142: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                            ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/
+                          },
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                            ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/
+                          },
                           SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
-                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/ 
+                            ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/
                           },
                           SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 27.183: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
-                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://fourth-value.com/ 
+                            ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://fourth-value.com/
                           }
                         }
                         """.Dos2Unix()
@@ -840,18 +840,17 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                       , """
                         {
-                          null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> { 
-                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/ 
-                           },
-                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> { 
-                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/ 
-                           },
-                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
-                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/ 
+                          null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                            ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/
                           },
-                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 27.183: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
-                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 27.183:                         null,
-                          null:                         null
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                            ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/
+                          },
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                            ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/
+                          },
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 27.183:                           null,
+                          null:                           null
                         }
                         """.Dos2Unix()
                     }
@@ -914,17 +913,17 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                       , """
                         {
-                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>= SimpleTypeAsValueSpanFormattable: 3.142: FieldSpanFormattableAlwaysAddStringBearer<Uri> { 
-                             ComplexTypeFieldAlwaysAddSpanFormattable: http://first-value.com/ 
-                           },
-                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>= SimpleTypeAsValueSpanFormattable: 2.718: FieldSpanFormattableAlwaysAddStringBearer<Uri> { 
-                             ComplexTypeFieldAlwaysAddSpanFormattable: http://second-value.com/ 
-                           },
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>= SimpleTypeAsValueSpanFormattable: 3.142: FieldSpanFormattableAlwaysAddStringBearer<Uri> {
+                            ComplexTypeFieldAlwaysAddSpanFormattable: http://first-value.com/
+                          },
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>= SimpleTypeAsValueSpanFormattable: 2.718: FieldSpanFormattableAlwaysAddStringBearer<Uri> {
+                            ComplexTypeFieldAlwaysAddSpanFormattable: http://second-value.com/
+                          },
                           SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>= SimpleTypeAsValueSpanFormattable: 31.416: FieldSpanFormattableAlwaysAddStringBearer<Uri> {
-                             ComplexTypeFieldAlwaysAddSpanFormattable: http://third-value.com/ 
+                            ComplexTypeFieldAlwaysAddSpanFormattable: http://third-value.com/
                           },
                           SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>= SimpleTypeAsValueSpanFormattable: 27.183: FieldSpanFormattableAlwaysAddStringBearer<Uri> {
-                             ComplexTypeFieldAlwaysAddSpanFormattable: http://fourth-value.com/ 
+                            ComplexTypeFieldAlwaysAddSpanFormattable: http://fourth-value.com/
                           }
                         }
                         """.Dos2Unix()
@@ -989,14 +988,14 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                       , """
                         {
-                          null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> { 
-                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/ 
-                           },
-                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>= SimpleTypeAsValueSpanFormattable: 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> { 
-                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/ 
-                           },
+                          null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                            ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/
+                          },
+                          SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>= SimpleTypeAsValueSpanFormattable: 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                            ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/
+                          },
                           SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>= SimpleTypeAsValueSpanFormattable: 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
-                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/ 
+                            ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/
                           },
                           SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>= SimpleTypeAsValueSpanFormattable: 27.183:                           null,
                           null:                           null
@@ -1065,7 +1064,7 @@ public partial class SimpleDictTestData
                           NoDefaultLongNoFlagsEnum.0: WithDefaultLongWithFlagsEnum.Default,
                           NoDefaultLongNoFlagsEnum.NDLNFE_1: WithDefaultLongWithFlagsEnum.WDLWFE_2 | WithDefaultLongWithFlagsEnum.WDLWFE_3 | WithDefaultLongWithFlagsEnum.WDLWFE_4 | WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask | WithDefaultLongWithFlagsEnum.WDLWFE_LastTwoMask,
                           NoDefaultLongNoFlagsEnum.NDLNFE_13: WithDefaultLongWithFlagsEnum.WDLWFE_13 | WithDefaultLongWithFlagsEnum.WDLWFE_23,
-                          NoDefaultLongNoFlagsEnum.NDLNFE_2: WithDefaultLongWithFlagsEnum.WDLWFE_2 | WithDefaultLongWithFlagsEnum.WDLWFE_5 
+                          NoDefaultLongNoFlagsEnum.NDLNFE_2: WithDefaultLongWithFlagsEnum.WDLWFE_2 | WithDefaultLongWithFlagsEnum.WDLWFE_5
                         }
                         """.Dos2Unix()
                     }
@@ -1465,7 +1464,7 @@ public partial class SimpleDictTestData
                           null: NoDefaultULongWithFlagsEnum.NDUWFE_2,
                           WithDefaultULongNoFlagsEnum.Default: NoDefaultULongWithFlagsEnum.0,
                           WithDefaultULongNoFlagsEnum.WDUNFE_13: NoDefaultULongWithFlagsEnum.NDUWFE_13,
-                          null: NoDefaultULongWithFlagsEnum.NDUWFE_All 
+                          null: NoDefaultULongWithFlagsEnum.NDUWFE_All
                         }
                         """.Dos2Unix()
                     }
@@ -1820,7 +1819,7 @@ public partial class SimpleDictTestData
                       , """
                         {
                           null: null,
-                          WithDefaultLongWithFlagsEnum.WDLWFE_First4Mask | WithDefaultLongWithFlagsEnum.WDLWFE_5 | WithDefaultLongWithFlagsEnum.WDLWFE_7 | WithDefaultLongWithFlagsEnum.WDLWFE_8: NoDefaultLongNoFlagsEnum.NDLNFE_8,
+                          WithDefaultLongWithFlagsEnum.WDLWFE_1 | WithDefaultLongWithFlagsEnum.WDLWFE_3 | WithDefaultLongWithFlagsEnum.WDLWFE_4 | WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask: NoDefaultLongNoFlagsEnum.NDLNFE_8,
                           WithDefaultLongWithFlagsEnum.Default: NoDefaultLongNoFlagsEnum.0,
                           WithDefaultLongWithFlagsEnum.WDLWFE_First8Mask | WithDefaultLongWithFlagsEnum.WDLWFE_LastTwoMask: NoDefaultLongNoFlagsEnum.NDLNFE_6,
                           WithDefaultLongWithFlagsEnum.WDLWFE_22: NoDefaultLongNoFlagsEnum.NDLNFE_22,

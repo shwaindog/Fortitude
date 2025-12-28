@@ -252,7 +252,7 @@ public partial class BothRevealersDictTestData
                               "1                                            ":                                             1,
                               "113427455640312821154458202477256070485      ":       113427455640312821154458202477256070485,
                               "85070591730234615865843651857942052863       ": null,
-                              "340282366920938463463374607431768211455      ":       340282366920938463463374607431768211455 
+                              "340282366920938463463374607431768211455      ":       340282366920938463463374607431768211455
                             }
                             """.Dos2Unix()
                         }
@@ -365,10 +365,10 @@ public partial class BothRevealersDictTestData
                             new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
-                                      0.0.0.0: ==> http://first-null.com/,
-                                    127.0.0.1: ==> tcp://localhost/,
-                              255.255.255.255: ==> http://unknown.com/,
-                                  192.168.1.1: ==> tcp://default-gateway/
+                                         0.0.0.0: ==> http://first-null.com/,
+                                       127.0.0.1: ==> tcp://localhost/,
+                                 255.255.255.255: ==> http://unknown.com/,
+                                     192.168.1.1: ==> tcp://default-gateway/
                             }
                             """.Dos2Unix()
                         }
@@ -420,10 +420,10 @@ public partial class BothRevealersDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                       , """
                         {
-                                  0.0.0.0: ==> http://first-null.com/,
-                                127.0.0.1: ==> tcp://localhost/,
-                              192.168.1.1: ==> tcp://default-gateway/,
-                          255.255.255.255:null,
+                                     0.0.0.0: ==> http://first-null.com/,
+                                   127.0.0.1: ==> tcp://localhost/,
+                                 192.168.1.1: ==> tcp://default-gateway/,
+                             255.255.255.255: null,
                           null: null
                         }
                         """.Dos2Unix()
@@ -479,12 +479,12 @@ public partial class BothRevealersDictTestData
                             new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
-                                    First_SpanStruct: First_SpanClass     ,
-                                   Second_SpanStruct: Second_SpanClass    ,
-                                    Third_SpanStruct: Third_SpanClass     , 
-                                   Fourth_SpanStruct: Fourth_SpanClass    ,
-                                    Fifth_SpanStruct: Fifth_SpanClass     ,
-                                    Sixth_SpanStruct: Sixth_SpanClass     
+                                  First_SpanStruct: First_SpanClass     ,
+                                 Second_SpanStruct: Second_SpanClass    ,
+                                  Third_SpanStruct: Third_SpanClass     ,
+                                 Fourth_SpanStruct: Fourth_SpanClass    ,
+                                  Fifth_SpanStruct: Fifth_SpanClass     ,
+                                  Sixth_SpanStruct: Sixth_SpanClass     
                             }
                             """.Dos2Unix()
                         }
@@ -596,11 +596,11 @@ public partial class BothRevealersDictTestData
                             new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
-                                    First_SpanClass: First_SpanStruct    ,
-                                   Second_SpanClass: Second_SpanStruct   ,
-                                    Third_SpanClass: Third_SpanStruct    ,
-                                   Fourth_SpanClass: Fourth_SpanStruct   ,
-                                    Fifth_SpanClass: Fifth_SpanStruct     
+                                   First_SpanClass: First_SpanStruct    ,
+                                  Second_SpanClass: Second_SpanStruct   ,
+                                   Third_SpanClass: Third_SpanStruct    ,
+                                  Fourth_SpanClass: Fourth_SpanStruct   ,
+                                   Fifth_SpanClass: Fifth_SpanStruct    
                             }
                             """.Dos2Unix()
                         }
@@ -654,9 +654,9 @@ public partial class BothRevealersDictTestData
                             new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
-                              First_SpanClass     :    First_SpanStruct,
-                              null:   Second_SpanStruct,
-                              Third_SpanClass     :    Third_SpanStruct,
+                              First_SpanClass     :     First_SpanStruct,
+                              null:    Second_SpanStruct,
+                              Third_SpanClass     :     Third_SpanStruct,
                               Fourth_SpanClass    : null,
                               null: null
                             }
@@ -721,7 +721,7 @@ public partial class BothRevealersDictTestData
                               SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 3.142: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/,
                               SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/,
                               SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/,
-                              SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 27.183: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://fourth-value.com/ 
+                              SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 27.183: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://fourth-value.com/
                             }
                             """.Dos2Unix()
                         }
@@ -791,7 +791,7 @@ public partial class BothRevealersDictTestData
                               null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/,
                               SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/,
                               SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/,
-                              SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 27.183: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 27.183: null,
+                              SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 27.183: null,
                               null: null
                             }
                             """.Dos2Unix()
@@ -1007,7 +1007,7 @@ public partial class BothRevealersDictTestData
                               NoDefaultLongNoFlagsEnum.0: WithDefaultLongWithFlagsEnum.Default,
                               NoDefaultLongNoFlagsEnum.NDLNFE_1: WithDefaultLongWithFlagsEnum.WDLWFE_2 | WithDefaultLongWithFlagsEnum.WDLWFE_3 | WithDefaultLongWithFlagsEnum.WDLWFE_4 | WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask | WithDefaultLongWithFlagsEnum.WDLWFE_LastTwoMask,
                               NoDefaultLongNoFlagsEnum.NDLNFE_13: WithDefaultLongWithFlagsEnum.WDLWFE_13 | WithDefaultLongWithFlagsEnum.WDLWFE_23,
-                              NoDefaultLongNoFlagsEnum.NDLNFE_2: WithDefaultLongWithFlagsEnum.WDLWFE_2 | WithDefaultLongWithFlagsEnum.WDLWFE_5 
+                              NoDefaultLongNoFlagsEnum.NDLNFE_2: WithDefaultLongWithFlagsEnum.WDLWFE_2 | WithDefaultLongWithFlagsEnum.WDLWFE_5
                             }
                             """.Dos2Unix()
                         }
@@ -1428,7 +1428,7 @@ public partial class BothRevealersDictTestData
                               null: NoDefaultULongWithFlagsEnum.NDUWFE_2,
                               WithDefaultULongNoFlagsEnum.Default: NoDefaultULongWithFlagsEnum.0,
                               WithDefaultULongNoFlagsEnum.WDUNFE_13: NoDefaultULongWithFlagsEnum.NDUWFE_13,
-                              null: NoDefaultULongWithFlagsEnum.NDUWFE_All 
+                              null: NoDefaultULongWithFlagsEnum.NDUWFE_All
                             }
                             """.Dos2Unix()
                         }
@@ -1484,7 +1484,7 @@ public partial class BothRevealersDictTestData
                             new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
-                              NoDefaultLongWithFlagsEnum.NDLWFE_4: WithDefaultLongNoFlagsEnum.NDLWFE_4,
+                              NoDefaultLongWithFlagsEnum.NDLWFE_4: WithDefaultLongNoFlagsEnum.WDLNFE_4,
                               NoDefaultLongWithFlagsEnum.NDLWFE_First4Mask | NoDefaultLongWithFlagsEnum.NDLWFE_5 | NoDefaultLongWithFlagsEnum.NDLWFE_7 | NoDefaultLongWithFlagsEnum.NDLWFE_8: WithDefaultLongNoFlagsEnum.WDLNFE_6,
                               NoDefaultLongWithFlagsEnum.0: WithDefaultLongNoFlagsEnum.Default,
                               NoDefaultLongWithFlagsEnum.NDLWFE_First8Mask | NoDefaultLongWithFlagsEnum.NDLWFE_LastTwoMask: WithDefaultLongNoFlagsEnum.WDLNFE_3,
@@ -1923,6 +1923,7 @@ public partial class BothRevealersDictTestData
                             {
                               null: null,
                               WithDefaultULongWithFlagsEnum.WDUWFE_1 | WithDefaultULongWithFlagsEnum.WDUWFE_3 | WithDefaultULongWithFlagsEnum.WDUWFE_4 | WithDefaultULongWithFlagsEnum.WDUWFE_Second4Mask: NoDefaultULongNoFlagsEnum.NDUNFE_8,
+                              WithDefaultULongWithFlagsEnum.Default: NoDefaultULongNoFlagsEnum.0,
                               WithDefaultULongWithFlagsEnum.WDUWFE_First8Mask | WithDefaultULongWithFlagsEnum.WDUWFE_LastTwoMask: NoDefaultULongNoFlagsEnum.NDUNFE_6,
                               WithDefaultULongWithFlagsEnum.WDUWFE_22: NoDefaultULongNoFlagsEnum.NDUNFE_22,
                               WithDefaultULongWithFlagsEnum.WDUWFE_32: null

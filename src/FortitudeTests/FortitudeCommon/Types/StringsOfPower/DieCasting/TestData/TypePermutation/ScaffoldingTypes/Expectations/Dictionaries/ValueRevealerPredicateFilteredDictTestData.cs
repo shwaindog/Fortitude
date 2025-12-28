@@ -54,17 +54,18 @@ public partial class ValueRevealerDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                       , """
                         {
-                          t: $1.00 
+                          t: $1.00
                         }
                         """.Dos2Unix()
                     }
                    ,
                     {
-                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson), """
-                            {
-                              "t": $1.00
-                            }
-                            """.Dos2Unix()
+                        new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
+                      , """
+                        {
+                          "t": $1.00
+                        }
+                        """.Dos2Unix()
                     }
                 }
               , new ValueRevealerDictExpect<bool, int>
@@ -82,19 +83,21 @@ public partial class ValueRevealerDictTestData
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog), """
-                                {
-                                  "false": "0"
-                                }
-                                """.Dos2Unix()
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
+                          , """
+                            {
+                              "false": "0"
+                            }
+                            """.Dos2Unix()
                         }
                        ,
                         {
-                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson), """
-                                {
-                                  "false": "0"
-                                }
-                                """.Dos2Unix()
+                            new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
+                          , """
+                            {
+                              "false": "0"
+                            }
+                            """.Dos2Unix()
                         }
                     }
               , new ValueRevealerDictExpect<double, ICharSequence>
@@ -182,7 +185,7 @@ public partial class ValueRevealerDictTestData
                             {
                               8.539734222673566: "nt things.",
                                               1: "e for all.",
-                                             -1: "if you try" 
+                                             -1: "if you try"
                             }
                             """.Dos2Unix()
                         }
@@ -229,9 +232,9 @@ public partial class ValueRevealerDictTestData
                             new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
-                              "'0'": 0,
-                              "'170141183460469231731687303715884105727'": -170141183460469231731687303715884105727,
-                              "'1'": -1
+                              '0': 0,
+                              '170141183460469231731687303715884105727': -170141183460469231731687303715884105727,
+                              '1': -1
                             }
                             """.Dos2Unix()
                         }
@@ -279,9 +282,9 @@ public partial class ValueRevealerDictTestData
                             new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
-                              "0                                            ": "   0",
-                              "170141183460469231731687303715884105727      ": null,
-                              "1                                            ": "   1"
+                              0                                            : "   0",
+                              170141183460469231731687303715884105727      : null,
+                              1                                            : "   1"
                             }
                             """.Dos2Unix()
                         }
@@ -330,10 +333,10 @@ public partial class ValueRevealerDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                       , """
                         {
-                                  0.0.0.0: ==> http://first-null.com/,
-                                127.0.0.1: ==> tcp://localhost/,
-                          255.255.255.255: ==> http://unknown.com/,
-                              192.168.1.1: ==> tcp://default-gateway/
+                                     0.0.0.0: ==> http://first-null.com/,
+                                   127.0.0.1: ==> tcp://localhost/,
+                             255.255.255.255: ==> http://unknown.com/,
+                                 192.168.1.1: ==> tcp://default-gateway/
                         }
                         """.Dos2Unix()
                     }
@@ -385,11 +388,11 @@ public partial class ValueRevealerDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                       , """
                         {
-                                  0.0.0.0: ==> http://first-null.com/,
-                                127.0.0.1: ==> tcp://localhost/,
-                              192.168.1.1: ==> tcp://default-gateway/,
-                          255.255.255.255: null,
-                                     null: null
+                                     0.0.0.0: ==> http://first-null.com/,
+                                   127.0.0.1: ==> tcp://localhost/,
+                                 192.168.1.1: ==> tcp://default-gateway/,
+                             255.255.255.255: null,
+                                        null: null
                         }
                         """.Dos2Unix()
                     }
@@ -438,9 +441,9 @@ public partial class ValueRevealerDictTestData
                             new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
-                                   Fourth_SpanStruct: Fourth_SpanClass    ,
-                                    Fifth_SpanStruct: Fifth_SpanClass     ,
-                                    Sixth_SpanStruct: Sixth_SpanClass     
+                                 Fourth_SpanStruct: Fourth_SpanClass    ,
+                                  Fifth_SpanStruct: Fifth_SpanClass     ,
+                                  Sixth_SpanStruct: Sixth_SpanClass     
                             }
                             """.Dos2Unix()
                         }
@@ -489,7 +492,7 @@ public partial class ValueRevealerDictTestData
                             {
                               First_SpanStruct    :      First_SpanClass,
                               null                :     Second_SpanClass,
-                              Third_SpanStruct    :      Third_SpanClass 
+                              Third_SpanStruct    :      Third_SpanClass
                             }
                             """.Dos2Unix()
                         }
@@ -536,9 +539,9 @@ public partial class ValueRevealerDictTestData
                             new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
-                                    First_SpanClass: First_SpanStruct    ,
-                                   Second_SpanClass: Second_SpanStruct   ,
-                                    Third_SpanClass: Third_SpanStruct     
+                                   First_SpanClass: First_SpanStruct    ,
+                                  Second_SpanClass: Second_SpanStruct   ,
+                                   Third_SpanClass: Third_SpanStruct    
                             }
                             """.Dos2Unix()
                         }
@@ -585,9 +588,9 @@ public partial class ValueRevealerDictTestData
                             new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
-                              First_SpanClass     :    First_SpanStruct,
-                              null                :   Second_SpanStruct,
-                              Third_SpanClass     :    Third_SpanStruct
+                              First_SpanClass     :     First_SpanStruct,
+                              null                :    Second_SpanStruct,
+                              Third_SpanClass     :     Third_SpanStruct
                             }
                             """.Dos2Unix()
                         }
@@ -702,7 +705,7 @@ public partial class ValueRevealerDictTestData
                             {
                               null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/,
                               SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/,
-                              SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/ 
+                              SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>= SimpleTypeAsValueSpanFormattableStruct: 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/
                             }
                             """.Dos2Unix()
                         }
@@ -1261,8 +1264,8 @@ public partial class ValueRevealerDictTestData
                             new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
-                              NoDefaultLongWithFlagsEnum.NDLWFE_4: WithDefaultLongNoFlagsEnum.NDLWFE_4,
-                              NoDefaultLongWithFlagsEnum.NDLWFE_First4Mask | NoDefaultLongWithFlagsEnum.NDLWFE_5 | NoDefaultLongWithFlagsEnum.NDLWFE_7 | NoDefaultLongWithFlagsEnum.NDLWFE_8: WithDefaultLongNoFlagsEnum.WDLNFE_4,
+                              NoDefaultLongWithFlagsEnum.NDLWFE_4: WithDefaultLongNoFlagsEnum.WDLNFE_4,
+                              NoDefaultLongWithFlagsEnum.NDLWFE_First4Mask | NoDefaultLongWithFlagsEnum.NDLWFE_5 | NoDefaultLongWithFlagsEnum.NDLWFE_7 | NoDefaultLongWithFlagsEnum.NDLWFE_8: WithDefaultLongNoFlagsEnum.WDLNFE_6,
                               NoDefaultLongWithFlagsEnum.0: WithDefaultLongNoFlagsEnum.Default
                             }
                             """.Dos2Unix()
@@ -1311,7 +1314,7 @@ public partial class ValueRevealerDictTestData
                             {
                               null: null,
                               NoDefaultLongWithFlagsEnum.NDLWFE_4: WithDefaultLongNoFlagsEnum.WDLNFE_4,
-                              NoDefaultLongWithFlagsEnum.NDLWFE_First4Mask | NoDefaultLongWithFlagsEnum.NDLWFE_5 | NoDefaultLongWithFlagsEnum.NDLWFE_7 | NoDefaultLongWithFlagsEnum.NDLWFE_8: null 
+                              NoDefaultLongWithFlagsEnum.NDLWFE_First4Mask | NoDefaultLongWithFlagsEnum.NDLWFE_5 | NoDefaultLongWithFlagsEnum.NDLWFE_7 | NoDefaultLongWithFlagsEnum.NDLWFE_8: null
                             }
                             """.Dos2Unix()
                         }
@@ -1409,7 +1412,7 @@ public partial class ValueRevealerDictTestData
                             {
                               null: null,
                               NoDefaultULongWithFlagsEnum.NDUWFE_First4Mask | NoDefaultULongWithFlagsEnum.NDUWFE_5 | NoDefaultULongWithFlagsEnum.NDUWFE_7 | NoDefaultULongWithFlagsEnum.NDUWFE_8: WithDefaultULongNoFlagsEnum.WDUNFE_1,
-                              NoDefaultULongWithFlagsEnum.NDUWFE_34: WithDefaultULongNoFlagsEnum.WDUNFE_34 
+                              NoDefaultULongWithFlagsEnum.NDUWFE_34: WithDefaultULongNoFlagsEnum.WDUNFE_34
                             }
                             """.Dos2Unix()
                         }
@@ -1505,8 +1508,8 @@ public partial class ValueRevealerDictTestData
                           , """
                             {
                               null: null,
-                              WithDefaultLongWithFlagsEnum.WDLWFE_First4Mask | WithDefaultLongWithFlagsEnum.WDLWFE_5 | WithDefaultLongWithFlagsEnum.WDLWFE_7 | WithDefaultLongWithFlagsEnum.WDLWFE_8: NoDefaultLongNoFlagsEnum.NDLNFE_8,
-                              WithDefaultLongWithFlagsEnum.Default: NoDefaultLongNoFlagsEnum.0 
+                              WithDefaultLongWithFlagsEnum.WDLWFE_1 | WithDefaultLongWithFlagsEnum.WDLWFE_3 | WithDefaultLongWithFlagsEnum.WDLWFE_4 | WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask: NoDefaultLongNoFlagsEnum.NDLNFE_8,
+                              WithDefaultLongWithFlagsEnum.Default: NoDefaultLongNoFlagsEnum.0
                             }
                             """.Dos2Unix()
                         }
@@ -1604,7 +1607,7 @@ public partial class ValueRevealerDictTestData
                             {
                               null: null,
                               WithDefaultULongWithFlagsEnum.WDUWFE_1 | WithDefaultULongWithFlagsEnum.WDUWFE_3 | WithDefaultULongWithFlagsEnum.WDUWFE_4 | WithDefaultULongWithFlagsEnum.WDUWFE_Second4Mask: NoDefaultULongNoFlagsEnum.NDUNFE_8,
-                              WithDefaultULongWithFlagsEnum.Default: NoDefaultULongNoFlagsEnum.0 
+                              WithDefaultULongWithFlagsEnum.Default: NoDefaultULongNoFlagsEnum.0
                             }
                             """.Dos2Unix()
                         }
