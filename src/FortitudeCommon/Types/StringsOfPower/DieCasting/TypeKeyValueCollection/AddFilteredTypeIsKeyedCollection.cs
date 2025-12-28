@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -560,7 +559,7 @@ public partial class KeyedCollectionMold
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
                 stb.RevealCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
                 hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(kvpType, ItemCount);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
@@ -608,7 +607,7 @@ public partial class KeyedCollectionMold
                 stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
                 stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueStyler, null, formatFlags);
                 hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(kvpType, ItemCount);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }

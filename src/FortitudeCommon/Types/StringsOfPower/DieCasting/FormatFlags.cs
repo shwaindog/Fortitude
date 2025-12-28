@@ -103,6 +103,8 @@ public static class FieldContentHandlingExtensions
     public static bool TreatCharArrayAsString(this FormatFlags flags) => flags.HasAsStringContentFlag() || flags.HasAsValueContentFlag();
 
     public static bool HasReformatMultiLineFlag(this FormatFlags flags) => (flags & ReformatMultiLine) > 0;
+    public static bool HasOnOneLine(this FormatFlags flags)             => (flags & OnOneLine) > 0;
+    public static bool DoesNotHaveOnOneLine(this FormatFlags flags)             => (flags & OnOneLine) == 0;
     public static bool HasJsamlEncodingFlag(this FormatFlags flags)     => (flags & JsamlEncoding) > 0;
     public static bool HasNoItemSeparatorFlag(this FormatFlags flags)   => (flags & NoItemSeparator) > 0;
     public static bool HasNoItemPaddingFlag(this FormatFlags flags)     => (flags & NoItemPadding) > 0;
@@ -122,7 +124,8 @@ public static class FieldContentHandlingExtensions
     public static bool HasNextEnsureNewLineFlag(this FormatFlags flags)   => (flags & NextEnsureNewLine) > 0;
 
     public static bool CanAddNewLine(this FormatFlags flags) =>
-        (!flags.HasNoWhitespacesToNextFlag() || flags.HasNextEnsureNewLineFlag()) && flags.DoesNotHaveEnsureCompactLayout();
+        (!flags.HasNoWhitespacesToNextFlag() || flags.HasNextEnsureNewLineFlag()) 
+     && flags.DoesNotHaveEnsureCompactLayout() && flags.DoesNotHaveOnOneLine();
 
     public static bool HasNoFieldSeparatorFlag(this FormatFlags flags) => (flags & NoFieldSeparator) > 0;
     public static bool HasNoFieldPaddingFlag(this FormatFlags flags)   => (flags & NoFieldPadding) > 0;
