@@ -13,6 +13,11 @@ public interface ITransferState<T> : ITransferState where T : class
     T CopyFrom(T source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
 }
 
+public interface IMigrateFrom<TFrom, TTo> : ITransferState where TFrom : class
+{
+    TTo CopyFrom(TFrom source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
+}
+
 [Flags]
 public enum CopyMergeFlags : ushort
 {

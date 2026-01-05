@@ -66,9 +66,9 @@ public interface ITheOneString : IReusableObject<ITheOneString>
 
     ComplexTypeMold StartComplexType<T>(T toStyle, CreateContext createContext = default);
 
-    SimpleValueTypeMold StartSimpleValueType<T>(T toStyle, CreateContext createContext = default);
+    SimpleContentTypeMold StartSimpleContentType<T>(T toStyle, CreateContext createContext = default);
 
-    ComplexValueTypeMold StartComplexValueType<T>(T toStyle, CreateContext createContext = default);
+    ComplexContentTypeMold StartComplexContentType<T>(T toStyle, CreateContext createContext = default);
 
     CallContextDisposable ResolveContextForCallerFlags(FormatFlags contentFlags);
 
@@ -338,8 +338,10 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     void ISecretStringOfPower.TypeComplete(ITypeMolderDieCast completeType)
     {
-        PopCurrentSettings();
-        ((IRecyclableObject)completeType).DecrementRefCount();
+        if (completeType.DecrementRefCount() == 0)
+        {
+            PopCurrentSettings();
+        }
     }
 
     public StateExtractStringRange RegisterVisitedInstanceAndConvert(object obj, bool isKeyName, string? formatString = null
@@ -350,8 +352,8 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
 
         return existingRefId > 0 || remainingDepth <= 0
-            ? StartComplexValueType(obj).AsValueMatch("", obj, formatString, formatFlags).Complete()
-            : StartSimpleValueType(obj).AsValueMatch("", obj, formatString, formatFlags).Complete();
+            ? StartComplexContentType(obj).AsValueMatch("", obj, formatString, formatFlags).Complete()
+            : StartSimpleContentType(obj).AsValueMatch(obj, formatString, formatFlags).Complete();
     }
 
     public bool RegisterVisitedCheckCanContinue<T>(T guest)
@@ -361,7 +363,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var existingRefId = SourceGraphVisitRefId(guest, type);
         if (existingRefId > 0)
         {
-            StartComplexValueType(guest).AsStringOrNull("", "").Complete();
+            StartComplexContentType(guest).AsStringOrNull("", "").Complete();
             return false;
         }
         
@@ -540,7 +542,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         return complexTypeBuilder;
     }
 
-    public SimpleValueTypeMold StartSimpleValueType<T>(T toStyle, CreateContext createContext = default)
+    public SimpleContentTypeMold StartSimpleContentType<T>(T toStyle, CreateContext createContext = default)
     {
         var visitType      = typeof(T);
         var actualType     = toStyle?.GetType() ?? visitType;
@@ -549,14 +551,14 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var appendSettings = GetValueTypeAppendSettings(toStyle, actualType, typeFormatter, createContext.FormatFlags);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
         var simpleValueBuilder =
-            Recycler.Borrow<SimpleValueTypeMold>().InitializeSimpleValueTypeBuilder
+            Recycler.Borrow<SimpleContentTypeMold>().InitializeSimpleValueTypeBuilder
                 (actualType, this, appendSettings, createContext.NameOverride, remainingDepth
                , typeFormatter, existingRefId, createContext.FormatFlags);
         TypeStart(toStyle, simpleValueBuilder, actualType);
         return simpleValueBuilder;
     }
 
-    public ComplexValueTypeMold StartComplexValueType<T>(T toStyle, CreateContext createContext = default)
+    public ComplexContentTypeMold StartComplexContentType<T>(T toStyle, CreateContext createContext = default)
     {
         var visitType      = typeof(T);
         var actualType     = toStyle?.GetType() ?? visitType;
@@ -564,12 +566,12 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
         var appendSettings = GetValueTypeAppendSettings(toStyle, actualType, typeFormatter, createContext.FormatFlags);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
-        var keyedCollectionBuilder =
-            Recycler.Borrow<ComplexValueTypeMold>().InitializeComplexValueTypeBuilder
+        var complexContentBuilder =
+            Recycler.Borrow<ComplexContentTypeMold>().InitializeComplexValueTypeBuilder
                 (actualType, this, appendSettings, createContext.NameOverride, remainingDepth
                , typeFormatter, existingRefId, createContext.FormatFlags);
-        TypeStart(toStyle, keyedCollectionBuilder, actualType);
-        return keyedCollectionBuilder;
+        TypeStart(toStyle, complexContentBuilder, actualType);
+        return complexContentBuilder;
     }
 
     ITheOneString ISecretStringOfPower.AddBaseFieldsEnd()

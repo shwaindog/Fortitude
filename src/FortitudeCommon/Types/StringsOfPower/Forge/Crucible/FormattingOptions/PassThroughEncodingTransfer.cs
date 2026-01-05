@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using FortitudeCommon.Extensions;
 
 namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
@@ -33,7 +34,6 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
         return written;
     }
 
-
     public virtual int TransferPrefix(bool encodePrefix, ReadOnlySpan<char> source, IStringBuilder destSb) => 
         Transfer(source, 0, destSb);
 
@@ -54,9 +54,23 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
         return destSb.Length - preAppendLength;
     }
 
+    public virtual int InsertTransfer(ReadOnlySpan<char> source, IStringBuilder destSb, int destStartIndex)
+    {
+        var preAppendLength = destSb.Length;
+        destSb.InsertAt(source, destStartIndex);
+        return destSb.Length - preAppendLength;
+    }
+
     public virtual int Transfer(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex
       , int maxTransferCount = int.MaxValue) =>
         Transfer(source, 0, destSpan, destStartIndex, maxTransferCount);
+
+    public virtual int InsertTransfer(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex
+       ,int currentEndIndex)
+    {
+        destSpan.ShiftByAmount(destStartIndex, currentEndIndex, source.Length);
+        return Transfer(source, 0, destSpan, destStartIndex, source.Length);
+    }
 
     public virtual int Transfer(ReadOnlySpan<char> source, int sourceFrom, Span<char> destSpan
       , int destStartIndex, int maxTransferCount = int.MaxValue)

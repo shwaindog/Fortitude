@@ -5,7 +5,6 @@ using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
     ScaffoldingStringBuilderInvokeFlags;
@@ -14,28 +13,31 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.ValueTypeScaffolds;
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsStruct | SupportsValueFormatString | DefaultTreatedAsValueOut)]
-public class SimpleAsValueBoolWithFieldSimpleValueTypeStringBearer : FormattedMoldScaffold<bool>
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsStruct | SupportsValueFormatString | DefaultTreatedAsValueOut)]
+public class ComplexContentAsValueBool : FormattedMoldScaffold<bool>
 {
-    public bool SimpleTypeAsValueBool
+    public bool BoolComplexContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueBool);
+    public override string PropertyName => nameof(BoolComplexContentAsValue);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValue
-               (nameof(SimpleTypeAsValueBool)
-              , SimpleTypeAsValueBool, ValueFormatString, FormattingFlags)
+        tos.StartComplexContentType(this)
+           .AsValue
+               (nameof(BoolComplexContentAsValue)
+              , BoolComplexContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsStruct | SupportsValueFormatString | DefaultTreatedAsValueOut)]
-public class SimpleAsValueBoolNoFieldSimpleValueTypeStringBearer : FormattedMoldScaffold<bool>
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsStruct | SupportsValueFormatString | DefaultTreatedAsValueOut)]
+public class SimpleContentAsValueBool : FormattedMoldScaffold<bool>
 {
-    public bool SimpleTypeAsValueBool
+    public bool BoolSimpleContentAsValue
     {
         get => Value;
         set => Value = value;
@@ -44,32 +46,40 @@ public class SimpleAsValueBoolNoFieldSimpleValueTypeStringBearer : FormattedMold
     public override string PropertyName => "";
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValue(SimpleTypeAsValueBool, ValueFormatString).Complete();
+        tos.StartSimpleContentType(this)
+           .AsValue
+               (BoolSimpleContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
+           .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsNullableStruct | SupportsValueFormatString | DefaultTreatedAsValueOut)]
-public class SimpleAsValueNullableBoolWithFieldSimpleValueTypeStringBearer : FormattedMoldScaffold<bool?>
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsNullableStruct | SupportsValueFormatString
+                | DefaultTreatedAsValueOut)]
+public class ComplexContentAsValueNullableBool : FormattedMoldScaffold<bool?>
 {
-    public bool? SimpleTypeAsValueNullableBool
+    public bool? NullableBoolComplexContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueNullableBool);
+    public override string PropertyName => nameof(NullableBoolComplexContentAsValue);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValueOrNull
-               (nameof(SimpleTypeAsValueNullableBool)
-              , SimpleTypeAsValueNullableBool, ValueFormatString, FormattingFlags)
+        tos.StartComplexContentType(this).AsValueOrNull
+               (nameof(NullableBoolComplexContentAsValue)
+              , NullableBoolComplexContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsNullableStruct | SupportsValueFormatString | DefaultTreatedAsValueOut
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsNullableStruct | SupportsValueFormatString | DefaultTreatedAsValueOut
                 | DefaultBecomesNull)]
-public class SimpleAsValueNullableBoolNoFieldSimpleValueTypeStringBearer : FormattedMoldScaffold<bool?>
+public class SimpleContentAsValueNullableBool : FormattedMoldScaffold<bool?>
 {
-    public bool? SimpleTypeAsValueNullableBool
+    public bool? NullableBoolSimpleContentAsValue
     {
         get => Value;
         set => Value = value;
@@ -78,71 +88,118 @@ public class SimpleAsValueNullableBoolNoFieldSimpleValueTypeStringBearer : Forma
     public override string PropertyName => "";
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValueOrNull(SimpleTypeAsValueNullableBool, ValueFormatString, FormattingFlags).Complete();
+        tos.StartSimpleContentType(this)
+           .AsValueOrNull
+               (NullableBoolSimpleContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
+           .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString
                 | DefaultTreatedAsValueOut | DefaultBecomesZero)]
-public class SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<TFmt> : FormattedMoldScaffold<TFmt>
-, IEquatable<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<TFmt>>
-   where TFmt : ISpanFormattable?
+public class ComplexContentAsValueSpanFormattable<TFmt> : FormattedMoldScaffold<TFmt>
+  , IEquatable<ComplexContentAsValueSpanFormattable<TFmt>>
+    where TFmt : ISpanFormattable?
 {
-    public SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer() { }
-
-    public SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer(TFmt value) => Value = value;
-    public TFmt SimpleTypeAsValueSpanFormattable
+    public ComplexContentAsValueSpanFormattable() => Value = default!;
+    public ComplexContentAsValueSpanFormattable(TFmt value) => Value = value;
+    public TFmt SpanFormattableComplexContentAsValue
     {
         get => Value!;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueSpanFormattable);
+    public override string PropertyName => nameof(SpanFormattableComplexContentAsValue);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValue
-               (nameof(SimpleTypeAsValueSpanFormattable)
-              , SimpleTypeAsValueSpanFormattable, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
+        tos.StartComplexContentType(this).AsValue
+               (nameof(SpanFormattableComplexContentAsValue)
+              , SpanFormattableComplexContentAsValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
            .Complete();
-    
-    public bool Equals(SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<TFmt>? other) =>
+
+    public bool Equals(ComplexContentAsValueSpanFormattable<TFmt>? other) =>
         EqualityComparer<TFmt>.Default.Equals(Value, other!.Value);
 
     public override bool Equals(object? obj)
     {
         if (obj is null) return false;
         if (obj.GetType() != GetType()) return false;
-        return Equals((SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<TFmt>)obj);
+        return Equals((ComplexContentAsValueSpanFormattable<TFmt>)obj);
     }
 
     // ReSharper disable once NonReadonlyMemberInGetHashCode
     public override int GetHashCode() => Value != null ? EqualityComparer<TFmt>.Default.GetHashCode(Value) : 0;
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString
                 | DefaultTreatedAsValueOut | DefaultBecomesZero)]
-public struct SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<TFmt> : IStringBearer,
-    IEquatable<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<TFmt>>
-    where TFmt : ISpanFormattable
+public class SimpleContentAsValueSpanFormattable<TFmt> : FormattedMoldScaffold<TFmt>
+  , IEquatable<SimpleContentAsValueSpanFormattable<TFmt>>
+    where TFmt : ISpanFormattable?
 {
-    public SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer() { }
-
-    public SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer(TFmt value) => Value = value;
-    public TFmt? SimpleTypeAsValueSpanFormattableStruct
+    public SimpleContentAsValueSpanFormattable() => Value = default!;
+    public SimpleContentAsValueSpanFormattable(TFmt value) => Value = value;
+    public TFmt SpanFormattableSimpleContentAsValue
     {
         get => Value!;
         set => Value = value;
     }
 
-    public string PropertyName => nameof(SimpleTypeAsValueSpanFormattableStruct);
+    public override string PropertyName => nameof(SpanFormattableSimpleContentAsValue);
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .AsValue
+               (SpanFormattableSimpleContentAsValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+
+    public bool Equals(SimpleContentAsValueSpanFormattable<TFmt>? other) =>
+        EqualityComparer<TFmt>.Default.Equals(Value, other!.Value);
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null) return false;
+        if (obj.GetType() != GetType()) return false;
+        return Equals((SimpleContentAsValueSpanFormattable<TFmt>)obj);
+    }
+
+    // ReSharper disable once NonReadonlyMemberInGetHashCode
+    public override int GetHashCode() => Value != null ? EqualityComparer<TFmt>.Default.GetHashCode(Value) : 0;
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString
+                | DefaultTreatedAsValueOut | DefaultBecomesZero)]
+public struct ComplexStructContentAsValueSpanFormattable<TFmt> : ISinglePropertyTestStringBearer
+  , IEquatable<ComplexStructContentAsValueSpanFormattable<TFmt>>
+    where TFmt : ISpanFormattable
+{
+    public ComplexStructContentAsValueSpanFormattable() { }
+
+    public ComplexStructContentAsValueSpanFormattable(TFmt value) => Value = value;
+    public TFmt? SpanFormattableComplexStructContentAsValue
+    {
+        get => Value!;
+        set => Value = value;
+    }
+
+    public string PropertyName => nameof(SpanFormattableComplexStructContentAsValue);
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValue
-               (nameof(SimpleTypeAsValueSpanFormattableStruct)
-              , SimpleTypeAsValueSpanFormattableStruct, tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
+        tos.StartComplexContentType(this)
+           .AsValue
+               (nameof(SpanFormattableComplexStructContentAsValue)
+              , SpanFormattableComplexStructContentAsValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
            .Complete();
-    
-    public FormatFlags ContentHandlingFlags { get; set; }
-    
+
+    public FormatFlags FormattingFlags { get; set; }
+
     public TFmt? Value { get; set; } = default!;
 
     public PalantírReveal<TFmt> CreateRevealer
@@ -150,29 +207,31 @@ public struct SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBe
         get
         {
             var formatString    = ValueFormatString;
-            var contentHandling = ContentHandlingFlags;
+            var formattingFlags = FormattingFlags;
             return (cloaked, tos) =>
                 tos.StartComplexType(cloaked)
                    .Field.AlwaysAdd
-                       ($"CloakedRevealer{nameof(SimpleTypeAsValueSpanFormattableStruct)}"
-                      , cloaked, formatString, contentHandling)
+                       ($"CloakedRevealer{nameof(SpanFormattableComplexStructContentAsValue)}"
+                      , cloaked
+                      , formatString
+                      , formattingFlags)
                    .Complete();
         }
     }
-    
+
     public Delegate CreateRevealerDelegate => CreateRevealer;
-    
+
     public string? ValueFormatString { get; set; }
 
 
-    public bool Equals(SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<TFmt> other) =>
+    public bool Equals(ComplexStructContentAsValueSpanFormattable<TFmt> other) =>
         EqualityComparer<TFmt>.Default.Equals(Value, other.Value);
 
     public override bool Equals(object? obj)
     {
         if (obj is null) return false;
         if (obj.GetType() != GetType()) return false;
-        return Equals((SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<TFmt>)obj);
+        return Equals((ComplexStructContentAsValueSpanFormattable<TFmt>)obj);
     }
 
     // ReSharper disable once NonReadonlyMemberInGetHashCode
@@ -181,12 +240,102 @@ public struct SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBe
     public override string ToString() => $"{GetType().CachedCSharpNameWithConstraints()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString
                 | DefaultTreatedAsValueOut | DefaultBecomesZero)]
-public class SimpleAsValueSpanFormattableNoFieldSimpleValueTypeStringBearer<TFmt> : FormattedMoldScaffold<TFmt>
-   where TFmt : ISpanFormattable?
+public struct SimpleStructContentAsValueSpanFormattable<TFmt> : ISinglePropertyTestStringBearer
+  , IEquatable<SimpleStructContentAsValueSpanFormattable<TFmt>>
+    where TFmt : ISpanFormattable
 {
-    public TFmt SimpleTypeAsValueSpanFormattable
+    public SimpleStructContentAsValueSpanFormattable() { }
+
+    public SimpleStructContentAsValueSpanFormattable(TFmt value) => Value = value;
+    public TFmt? SpanFormattableSimpleStructContentAsValue
+    {
+        get => Value!;
+        set => Value = value;
+    }
+
+    public string PropertyName => nameof(SpanFormattableSimpleStructContentAsValue);
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexContentType(this)
+           .AsValue
+               (nameof(SpanFormattableSimpleStructContentAsValue)
+              , SpanFormattableSimpleStructContentAsValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+
+    public FormatFlags FormattingFlags { get; set; }
+
+    public TFmt? Value { get; set; } = default!;
+
+    public PalantírReveal<TFmt> CreateRevealer
+    {
+        get
+        {
+            var formatString    = ValueFormatString;
+            var formattingFlags = FormattingFlags;
+            return (cloaked, tos) =>
+                tos.StartComplexType(cloaked)
+                   .Field.AlwaysAdd
+                       ($"CloakedRevealer{nameof(SpanFormattableSimpleStructContentAsValue)}"
+                      , cloaked
+                      , formatString
+                      , formattingFlags)
+                   .Complete();
+        }
+    }
+
+    public Delegate CreateRevealerDelegate => CreateRevealer;
+
+    public string? ValueFormatString { get; set; }
+
+
+    public bool Equals(SimpleStructContentAsValueSpanFormattable<TFmt> other) =>
+        EqualityComparer<TFmt>.Default.Equals(Value, other.Value);
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null) return false;
+        if (obj.GetType() != GetType()) return false;
+        return Equals((SimpleStructContentAsValueSpanFormattable<TFmt>)obj);
+    }
+
+    // ReSharper disable once NonReadonlyMemberInGetHashCode
+    public override int GetHashCode() => Value != null ? EqualityComparer<TFmt>.Default.GetHashCode(Value) : 0;
+
+    public override string ToString() => $"{GetType().CachedCSharpNameWithConstraints()}({Value})";
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsOnlyNullableClassSpanFormattable | SupportsValueFormatString
+                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+public class ComplexContentAsValueSpanFormattableOrNull<TFmt> : FormattedMoldScaffold<TFmt> where TFmt : ISpanFormattable?
+{
+    public TFmt SpanFormattableOrNullComplexContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(SpanFormattableOrNullComplexContentAsValue);
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexContentType(this)
+           .AsValueOrNull
+               (nameof(SpanFormattableOrNullComplexContentAsValue)
+              , SpanFormattableOrNullComplexContentAsValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString
+                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+public class SimpleContentAsValueSpanFormattableOrNull<TFmt> : FormattedMoldScaffold<TFmt>
+    where TFmt : ISpanFormattable?
+{
+    public TFmt SpanFormattableOrNullSimpleContentAsValue
     {
         get => Value!;
         set => Value = value;
@@ -195,287 +344,296 @@ public class SimpleAsValueSpanFormattableNoFieldSimpleValueTypeStringBearer<TFmt
     public override string PropertyName => "";
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValue(SimpleTypeAsValueSpanFormattable, tos.CallerContext.FormatString ?? ValueFormatString
-                                             , FormattingFlags)
+        tos.StartSimpleContentType(this)
+           .AsValueOrNull
+               (SpanFormattableOrNullSimpleContentAsValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableClassSpanFormattable | SupportsValueFormatString
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsOnlyNullableClassSpanFormattable | SupportsValueFormatString
                 | DefaultTreatedAsValueOut | DefaultBecomesNull)]
-public class SimpleAsValueNullableSpanFormattableClassWithFieldSimpleValueTypeStringBearer<TFmtClass> :
-    FormattedMoldScaffold<TFmtClass?> where TFmtClass : class, ISpanFormattable
+public struct ComplexStructContentAsValueSpanFormattableOrNull<TFmt> : ISinglePropertyTestStringBearer,
+    IEquatable<ComplexStructContentAsValueSpanFormattableOrNull<TFmt>>
+    where TFmt : ISpanFormattable?
 {
-    public TFmtClass? SimpleTypeAsValueNullableSpanFormattableClass
+    public TFmt SpanFormattableOrNullComplexStructContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueNullableSpanFormattableClass);
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValueOrNull
-               (nameof(SimpleTypeAsValueNullableSpanFormattableClass)
-              , SimpleTypeAsValueNullableSpanFormattableClass, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableClassSpanFormattable | SupportsValueFormatString
-                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
-public struct SimpleAsValueNullableSpanFormattableClassWithFieldSimpleValueTypeStructStringBearer<TFmtClass> : IStringBearer,
-    IEquatable<SimpleAsValueNullableSpanFormattableClassWithFieldSimpleValueTypeStructStringBearer<TFmtClass>>  
-    where TFmtClass : class, ISpanFormattable
-{
-    public TFmtClass? SimpleTypeAsValueNullableSpanFormattableClass
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public string PropertyName => nameof(SimpleTypeAsValueNullableSpanFormattableClass);
+    public string PropertyName => nameof(SpanFormattableOrNullComplexStructContentAsValue);
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValueOrNull
-               (nameof(SimpleTypeAsValueNullableSpanFormattableClass)
-              , SimpleTypeAsValueNullableSpanFormattableClass, tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
+        tos.StartComplexContentType(this)
+           .AsValueOrNull
+               (nameof(SpanFormattableOrNullComplexStructContentAsValue)
+              , SpanFormattableOrNullComplexStructContentAsValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
            .Complete();
-    
+
     public string? ValueFormatString { get; set; }
 
-    public FormatFlags ContentHandlingFlags { get; set; }
+    public FormatFlags FormattingFlags { get; set; }
 
-    public TFmtClass? Value { get; set; }
-    
-    public bool Equals(SimpleAsValueNullableSpanFormattableClassWithFieldSimpleValueTypeStructStringBearer<TFmtClass> other) => 
+    public TFmt Value { get; set; }
+
+    public bool Equals(ComplexStructContentAsValueSpanFormattableOrNull<TFmt> other) =>
         Equals(Value, other.Value);
-    
+
     public override bool Equals(object? obj)
     {
         if (obj is null) return false;
         if (obj.GetType() != GetType()) return false;
-        return Equals((SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<TFmtClass>)obj);
+        return Equals((ComplexStructContentAsValueSpanFormattableOrNull<TFmt>)obj);
     }
 
     // ReSharper disable once NonReadonlyMemberInGetHashCode
-    public override int GetHashCode() => Value != null ? EqualityComparer<TFmtClass>.Default.GetHashCode(Value) : 0;
+    public override int GetHashCode() => Value != null ? EqualityComparer<TFmt>.Default.GetHashCode(Value) : 0;
 
     public override string ToString() => $"{GetType().CachedCSharpNameWithConstraints()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableClassSpanFormattable | SupportsValueFormatString
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsOnlyNullableClassSpanFormattable | SupportsValueFormatString
                 | DefaultTreatedAsValueOut | DefaultBecomesNull)]
-public class SimpleAsValueNullableSpanFormattableClassNoFieldSimpleValueTypeStringBearer<TFmtClass> :
-    FormattedMoldScaffold<TFmtClass?> where TFmtClass : class, ISpanFormattable
+public struct SimpleStructContentAsValueSpanFormattableOrNull<TFmt> : ISinglePropertyTestStringBearer,
+    IEquatable<SimpleStructContentAsValueSpanFormattableOrNull<TFmt>>
+    where TFmt : ISpanFormattable?
 {
-    public TFmtClass? SimpleTypeAsValueNullableSpanFormattableClass
+    public TFmt SpanFormattableOrNullSimpleStructContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => "";
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValueOrNull(SimpleTypeAsValueNullableSpanFormattableClass
-                                                   , tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableClassSpanFormattable | SupportsSettingDefaultValue
-                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesNull)]
-public class SimpleAsValueNullableSpanFormattableClassWithDefaultWithFieldSimpleValueTypeStringBearer<TFmtClass> :
-    FormattedMoldScaffold<TFmtClass?>, IMoldSupportedDefaultValue<TFmtClass> where TFmtClass : class, ISpanFormattable
-{
-    public TFmtClass? SimpleTypeAsValueNullableSpanFormattableClassWithDefault
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueNullableSpanFormattableClassWithDefault);
-
-    public TFmtClass DefaultValue { get; set; } = null!;
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValueOrDefault
-               (nameof(SimpleTypeAsValueNullableSpanFormattableClassWithDefault)
-              , SimpleTypeAsValueNullableSpanFormattableClassWithDefault
-              , DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableClassSpanFormattable | SupportsSettingDefaultValue
-                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
-public class SimpleAsValueNullableSpanFormattableClassWithStringDefaultWithFieldSimpleValueTypeStringBearer<TFmtClass> :
-    FormattedMoldScaffold<TFmtClass?>, IMoldSupportedDefaultValue<string> where TFmtClass : class, ISpanFormattable
-{
-    public TFmtClass? SimpleTypeAsValueNullableSpanFormattableClassWithDefault
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueNullableSpanFormattableClassWithDefault);
-
-    public string DefaultValue { get; set; } = "";
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValueOrDefault
-               (nameof(SimpleTypeAsValueNullableSpanFormattableClassWithDefault)
-              , SimpleTypeAsValueNullableSpanFormattableClassWithDefault
-              , DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableClassSpanFormattable | SupportsSettingDefaultValue
-                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesNull)]
-public class SimpleAsValueNullableSpanFormattableClassWithDefaultNoFieldSimpleValueTypeStringBearer<TFmtClass> :
-    FormattedMoldScaffold<TFmtClass?>, IMoldSupportedDefaultValue<TFmtClass> where TFmtClass : class, ISpanFormattable
-{
-    public TFmtClass? SimpleTypeAsValueNullableSpanFormattableClassWithDefault
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => "";
-
-    public TFmtClass DefaultValue { get; set; } = null!;
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValueOrDefault
-               (SimpleTypeAsValueNullableSpanFormattableClassWithDefault,
-                DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableClassSpanFormattable | SupportsSettingDefaultValue
-                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
-public class SimpleAsValueNullableSpanFormattableClassWithStringDefaultNoFieldSimpleValueTypeStringBearer<TFmtClass> :
-    FormattedMoldScaffold<TFmtClass?>, IMoldSupportedDefaultValue<string> where TFmtClass : class, ISpanFormattable
-{
-    public TFmtClass? SimpleTypeAsValueNullableSpanFormattableClassWithStringDefault
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => "";
-
-    public string DefaultValue { get; set; } = "";
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValueOrDefault
-               (SimpleTypeAsValueNullableSpanFormattableClassWithStringDefault,
-                DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableStructSpanFormattable | SupportsValueFormatString
-                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
-public class SimpleAsValueNullableSpanFormattableStructWithFieldSimpleValueTypeStringBearer<TFmtStruct> :
-    FormattedMoldScaffold<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
-{
-    public TFmtStruct? SimpleTypeAsValueNullableSpanFormattableStruct
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueNullableSpanFormattableStruct);
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValueOrNull
-               (nameof(SimpleTypeAsValueNullableSpanFormattableStruct)
-              , SimpleTypeAsValueNullableSpanFormattableStruct, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableStructSpanFormattable | SupportsValueFormatString
-                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
-public class SimpleAsValueNullableSpanFormattableStructNoFieldSimpleValueTypeStringBearer<TFmtStruct> :
-    FormattedMoldScaffold<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
-{
-    public TFmtStruct? SimpleTypeAsValueNullableSpanFormattableStruct
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => "";
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValueOrNull(SimpleTypeAsValueNullableSpanFormattableStruct, 
-                                                     tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableStructSpanFormattable | SupportsSettingDefaultValue
-                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesNull | DefaultBecomesNull)]
-public class SimpleAsValueNullableSpanFormattableStructWithDefaultWithFieldSimpleValueTypeStringBearer<TFmtStruct> :
-    FormattedMoldScaffold<TFmtStruct?>, IMoldSupportedDefaultValue<TFmtStruct> where TFmtStruct : struct, ISpanFormattable
-{
-    public TFmtStruct? SimpleTypeAsValueNullableSpanFormattableStructWithDefault
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueNullableSpanFormattableStructWithDefault);
-
-    public TFmtStruct DefaultValue { get; set; } = default!;
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValueOrDefault
-               (nameof(SimpleTypeAsValueNullableSpanFormattableStructWithDefault)
-              , SimpleTypeAsValueNullableSpanFormattableStructWithDefault
-              , DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableStructSpanFormattable | SupportsSettingDefaultValue
-                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackString | DefaultBecomesNull)]
-public struct SimpleAsValueNullableSpanFormattableStructWithStringDefaultWithFieldSimpleValueTypeStructStringBearer<TFmtStruct> : IStringBearer,
-    IEquatable<SimpleAsValueNullableSpanFormattableStructWithStringDefaultWithFieldSimpleValueTypeStructStringBearer<TFmtStruct>>,  
-    IMoldSupportedDefaultValue<string> where TFmtStruct : struct, ISpanFormattable
-{
-    public SimpleAsValueNullableSpanFormattableStructWithStringDefaultWithFieldSimpleValueTypeStructStringBearer() { }
-
-    public SimpleAsValueNullableSpanFormattableStructWithStringDefaultWithFieldSimpleValueTypeStructStringBearer(TFmtStruct? value)
-    {
-        Value = value;
-    }
-    
-    public TFmtStruct? SimpleTypeAsValueNullableSpanFormattableStructWithDefault
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public string PropertyName => nameof(SimpleTypeAsValueNullableSpanFormattableStructWithDefault);
-
-    public string DefaultValue { get; set; } = "";
+    public string PropertyName => nameof(SpanFormattableOrNullSimpleStructContentAsValue);
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValueOrNull
-               (nameof(SimpleTypeAsValueNullableSpanFormattableStructWithDefault)
-              , SimpleTypeAsValueNullableSpanFormattableStructWithDefault, tos.CallerContext.FormatString ?? ValueFormatString, ContentHandlingFlags)
+        tos.StartSimpleContentType(this)
+           .AsValueOrNull
+               (SpanFormattableOrNullSimpleStructContentAsValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
            .Complete();
-    
+
     public string? ValueFormatString { get; set; }
 
-    public FormatFlags ContentHandlingFlags { get; set; }
+    public FormatFlags FormattingFlags { get; set; }
 
-    public TFmtStruct? Value { get; set; }
-    
-    public bool Equals(SimpleAsValueNullableSpanFormattableStructWithStringDefaultWithFieldSimpleValueTypeStructStringBearer<TFmtStruct> other) => 
+    public TFmt Value { get; set; }
+
+    public bool Equals(SimpleStructContentAsValueSpanFormattableOrNull<TFmt> other) =>
         Equals(Value, other.Value);
-    
+
     public override bool Equals(object? obj)
     {
         if (obj is null) return false;
         if (obj.GetType() != GetType()) return false;
-        return Equals((SimpleAsValueNullableSpanFormattableStructWithStringDefaultWithFieldSimpleValueTypeStructStringBearer<TFmtStruct>)obj);
+        return Equals((SimpleStructContentAsValueSpanFormattableOrNull<TFmt>)obj);
+    }
+
+    // ReSharper disable once NonReadonlyMemberInGetHashCode
+    public override int GetHashCode() => Value != null ? EqualityComparer<TFmt>.Default.GetHashCode(Value) : 0;
+
+    public override string ToString() => $"{GetType().CachedCSharpNameWithConstraints()}({Value})";
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsOnlyNullableClassSpanFormattable | SupportsSettingDefaultValue
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesNull)]
+public class ComplexContentAsValueSpanFormattableOrDefault<TFmt> :
+    FormattedMoldScaffold<TFmt?>, IMoldSupportedDefaultValue<TFmt> where TFmt : ISpanFormattable?
+{
+    public TFmt? SpanFormattableOrDefaultComplexContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(SpanFormattableOrDefaultComplexContentAsValue);
+
+    public TFmt DefaultValue { get; set; } = default!;
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexContentType(this)
+           .AsValueOrDefault
+               (nameof(SpanFormattableOrDefaultComplexContentAsValue)
+              , SpanFormattableOrDefaultComplexContentAsValue
+              , DefaultValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsOnlyNullableClassSpanFormattable | SupportsSettingDefaultValue
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
+public class SimpleContentAsValueNullableSpanFormattableOrStringDefault<TFmt> :
+    FormattedMoldScaffold<TFmt>, IMoldSupportedDefaultValue<string> where TFmt : ISpanFormattable?
+{
+    public TFmt SpanFormattableOrStringDefaultSimpleContentAsValueNullable
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(SpanFormattableOrStringDefaultSimpleContentAsValueNullable);
+
+    public string DefaultValue { get; set; } = "";
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .AsValueOrDefault
+               (SpanFormattableOrStringDefaultSimpleContentAsValueNullable
+              , DefaultValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsOnlyNullableStructSpanFormattable | SupportsValueFormatString
+                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+public class ComplexContentAsValueNullableStructSpanFormattableOrNull<TFmtStruct> :
+    FormattedMoldScaffold<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
+{
+    public TFmtStruct? NullableStructSpanFormattableOrNullComplexContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(NullableStructSpanFormattableOrNullComplexContentAsValue);
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexContentType(this)
+           .AsValueOrNull
+               (nameof(NullableStructSpanFormattableOrNullComplexContentAsValue)
+              , NullableStructSpanFormattableOrNullComplexContentAsValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsOnlyNullableStructSpanFormattable | SupportsValueFormatString
+                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+public class SimpleContentAsValueNullableStructSpanFormattableOrNull<TFmtStruct> :
+    FormattedMoldScaffold<TFmtStruct?> where TFmtStruct : struct, ISpanFormattable
+{
+    public TFmtStruct? NullableStructSpanFormattableOrNullSimpleContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => "";
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .AsValueOrNull
+               (NullableStructSpanFormattableOrNullSimpleContentAsValue,
+                tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsOnlyNullableStructSpanFormattable | SupportsSettingDefaultValue
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesNull | DefaultBecomesNull)]
+public class ComplexContentAsValueNullableStructSpanFormattableOrDefault<TFmtStruct> :
+    FormattedMoldScaffold<TFmtStruct?>, IMoldSupportedDefaultValue<TFmtStruct> where TFmtStruct : struct, ISpanFormattable
+{
+    public TFmtStruct? NullableStructSpanFormattableOrDefaultComplexContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(NullableStructSpanFormattableOrDefaultComplexContentAsValue);
+
+    public TFmtStruct DefaultValue { get; set; } = default!;
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexContentType(this)
+           .AsValueOrDefault
+               (nameof(NullableStructSpanFormattableOrDefaultComplexContentAsValue)
+              , NullableStructSpanFormattableOrDefaultComplexContentAsValue
+              , DefaultValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsOnlyNullableStructSpanFormattable | SupportsSettingDefaultValue
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesNull | DefaultBecomesNull)]
+public class SimpleContentAsValueNullableStructSpanFormattableOrDefault<TFmtStruct> :
+    FormattedMoldScaffold<TFmtStruct?>, IMoldSupportedDefaultValue<TFmtStruct> where TFmtStruct : struct, ISpanFormattable
+{
+    public TFmtStruct? NullableStructSpanFormattableOrDefaultSimpleContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(NullableStructSpanFormattableOrDefaultSimpleContentAsValue);
+
+    public TFmtStruct DefaultValue { get; set; } = default!;
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .AsValueOrDefault
+               (NullableStructSpanFormattableOrDefaultSimpleContentAsValue
+              , DefaultValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsOnlyNullableStructSpanFormattable | SupportsSettingDefaultValue
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackString | DefaultBecomesNull)]
+public struct ComplexStructContentAsValueNullableStructSpanFormattableOrStringDefault<TFmtStruct> :
+    ISinglePropertyTestStringBearer,
+    IEquatable<ComplexStructContentAsValueNullableStructSpanFormattableOrStringDefault<TFmtStruct>>,
+    IMoldSupportedDefaultValue<string> where TFmtStruct : struct, ISpanFormattable
+{
+    public ComplexStructContentAsValueNullableStructSpanFormattableOrStringDefault() { }
+
+    public ComplexStructContentAsValueNullableStructSpanFormattableOrStringDefault(TFmtStruct? value)
+    {
+        Value = value;
+    }
+
+    public TFmtStruct? NullableStructSpanFormattableOrStringDefaultComplexStructContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public string PropertyName => nameof(NullableStructSpanFormattableOrStringDefaultComplexStructContentAsValue);
+
+    public string DefaultValue { get; set; } = "";
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexContentType(this).AsValueOrNull
+               (nameof(NullableStructSpanFormattableOrStringDefaultComplexStructContentAsValue)
+              , NullableStructSpanFormattableOrStringDefaultComplexStructContentAsValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+
+    public string? ValueFormatString { get; set; }
+
+    public FormatFlags FormattingFlags { get; set; }
+
+    public TFmtStruct? Value { get; set; }
+
+    public bool Equals(ComplexStructContentAsValueNullableStructSpanFormattableOrStringDefault<TFmtStruct> other) =>
+        Equals(Value, other.Value);
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null) return false;
+        if (obj.GetType() != GetType()) return false;
+        return Equals((ComplexStructContentAsValueNullableStructSpanFormattableOrStringDefault<TFmtStruct>)obj);
     }
 
     // ReSharper disable once NonReadonlyMemberInGetHashCode
@@ -484,35 +642,91 @@ public struct SimpleAsValueNullableSpanFormattableStructWithStringDefaultWithFie
     public override string ToString() => $"{GetType().CachedCSharpNameWithConstraints()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableStructSpanFormattable | SupportsSettingDefaultValue
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsOnlyNullableStructSpanFormattable | SupportsSettingDefaultValue
                 | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackString | DefaultBecomesNull)]
-public class SimpleAsValueNullableSpanFormattableStructWithStringDefaultWithFieldSimpleValueTypeStringBearer<TFmtStruct> :
-    FormattedMoldScaffold<TFmtStruct?>, IMoldSupportedDefaultValue<string> where TFmtStruct : struct, ISpanFormattable
+public struct SimpleStructContentAsValueNullableStructSpanFormattableOrStringDefault<TFmtStruct> :
+    ISinglePropertyTestStringBearer,
+    IEquatable<SimpleStructContentAsValueNullableStructSpanFormattableOrStringDefault<TFmtStruct>>,
+    IMoldSupportedDefaultValue<string> where TFmtStruct : struct, ISpanFormattable
 {
-    public TFmtStruct? SimpleTypeAsValueNullableSpanFormattableStructWithDefault
+    public SimpleStructContentAsValueNullableStructSpanFormattableOrStringDefault() { }
+
+    public SimpleStructContentAsValueNullableStructSpanFormattableOrStringDefault(TFmtStruct? value)
+    {
+        Value = value;
+    }
+
+    public TFmtStruct? NullableStructSpanFormattableOrStringDefaultSimpleStructContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueNullableSpanFormattableStructWithDefault);
+    public string PropertyName => nameof(NullableStructSpanFormattableOrStringDefaultSimpleStructContentAsValue);
+
+    public string DefaultValue { get; set; } = "";
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this).AsValueOrNull
+               (NullableStructSpanFormattableOrStringDefaultSimpleStructContentAsValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+
+    public string? ValueFormatString { get; set; }
+
+    public FormatFlags FormattingFlags { get; set; }
+
+    public TFmtStruct? Value { get; set; }
+
+    public bool Equals(SimpleStructContentAsValueNullableStructSpanFormattableOrStringDefault<TFmtStruct> other) =>
+        Equals(Value, other.Value);
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null) return false;
+        if (obj.GetType() != GetType()) return false;
+        return Equals((SimpleStructContentAsValueNullableStructSpanFormattableOrStringDefault<TFmtStruct>)obj);
+    }
+
+    // ReSharper disable once NonReadonlyMemberInGetHashCode
+    public override int GetHashCode() => Value != null ? EqualityComparer<TFmtStruct?>.Default.GetHashCode(Value) : 0;
+
+    public override string ToString() => $"{GetType().CachedCSharpNameWithConstraints()}({Value})";
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsOnlyNullableStructSpanFormattable | SupportsSettingDefaultValue
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackString | DefaultBecomesNull)]
+public class ComplexContentAsValueNullableStructSpanFormattableOrStringDefault<TFmtStruct> :
+    FormattedMoldScaffold<TFmtStruct?>, IMoldSupportedDefaultValue<string> where TFmtStruct : struct, ISpanFormattable
+{
+    public TFmtStruct? NullableStructSpanFormattableOrStringDefaultComplexContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(NullableStructSpanFormattableOrStringDefaultComplexContentAsValue);
 
     public string DefaultValue { get; set; } = "";
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValueOrDefault
-               (nameof(SimpleTypeAsValueNullableSpanFormattableStructWithDefault)
-              , SimpleTypeAsValueNullableSpanFormattableStructWithDefault
-              , DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
+        tos.StartComplexContentType(this)
+           .AsValueOrDefault
+               ( nameof(NullableStructSpanFormattableOrStringDefaultComplexContentAsValue)
+              , NullableStructSpanFormattableOrStringDefaultComplexContentAsValue
+              , DefaultValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableStructSpanFormattable | SupportsSettingDefaultValue
-                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesNull)]
-public class SimpleAsValueNullableSpanFormattableStructWithDefaultNoFieldSimpleValueTypeStringBearer<TFmtStruct> :
-    FormattedMoldScaffold<TFmtStruct?>, IMoldSupportedDefaultValue<TFmtStruct> where TFmtStruct : struct, ISpanFormattable
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsOnlyNullableStructSpanFormattable | SupportsSettingDefaultValue
+                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackString | DefaultBecomesNull)]
+public class SimpleContentAsValueNullableStructSpanFormattableOrStringDefault<TFmtStruct> :
+    FormattedMoldScaffold<TFmtStruct?>, IMoldSupportedDefaultValue<string> where TFmtStruct : struct, ISpanFormattable
 {
-    public TFmtStruct? SimpleTypeAsValueNullableSpanFormattableStructWithDefault
+    public TFmtStruct? NullableStructSpanFormattableOrStringDefaultSimpleContentAsValue
     {
         get => Value;
         set => Value = value;
@@ -520,69 +734,52 @@ public class SimpleAsValueNullableSpanFormattableStructWithDefaultNoFieldSimpleV
 
     public override string PropertyName => "";
 
-    public TFmtStruct DefaultValue { get; set; } = default!;
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValueOrDefault
-               (SimpleTypeAsValueNullableSpanFormattableStructWithDefault
-              , DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsOnlyNullableStructSpanFormattable | SupportsSettingDefaultValue
-                | SupportsValueFormatString | DefaultTreatedAsValueOut | DefaultBecomesFallbackString | DefaultBecomesNull)]
-public class SimpleAsValueNullableSpanFormattableStructWithStringDefaultNoFieldSimpleValueTypeStringBearer<TFmtStruct> :
-    FormattedMoldScaffold<TFmtStruct?>, IMoldSupportedDefaultValue<string> where TFmtStruct : struct, ISpanFormattable
-{
-    public TFmtStruct? SimpleTypeAsValueNullableSpanFormattableStructWithStringDefault
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => "";
-
     public string DefaultValue { get; set; } = "";
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValueOrDefault
-               (SimpleTypeAsValueNullableSpanFormattableStructWithStringDefault
-              , DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
+        tos.StartSimpleContentType(this)
+           .AsValueOrDefault
+               (NullableStructSpanFormattableOrStringDefaultSimpleContentAsValue
+              , DefaultValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | DefaultTreatedAsValueOut
-                | DefaultBecomesNull)]
-public class SimpleAsValueCloakedBearerWithFieldSimpleValueTypeStringBearer<TCloaked, TRevealBase> :
-    ValueRevealerMoldScaffold<TCloaked, TRevealBase> 
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsAnyExceptNullableStruct | SupportsValueRevealer 
+                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+public class ComplexContentAsValueCloakedBearer<TCloaked, TRevealBase> :
+    ValueRevealerMoldScaffold<TCloaked, TRevealBase>
     where TCloaked : TRevealBase
     where TRevealBase : notnull
 {
-    public TCloaked SimpleTypeAsValueCloakedBearer
+    public TCloaked CloakedBearerComplexContentAsValue
     {
         get => Value!;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueCloakedBearer);
+    public override string PropertyName => nameof(CloakedBearerComplexContentAsValue);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartComplexContentType(this)
            .RevealAsValue
-               (nameof(SimpleTypeAsValueCloakedBearer)
-              , SimpleTypeAsValueCloakedBearer
-              , ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
+               (nameof(CloakedBearerComplexContentAsValue)
+              , CloakedBearerComplexContentAsValue
+              , ValueRevealer
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | DefaultTreatedAsValueOut
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | DefaultTreatedAsValueOut
                 | DefaultBecomesNull)]
-public class SimpleAsValueCloakedBearerNoFieldSimpleValueTypeStringBearer<TCloaked, TRevealBase> :
-    ValueRevealerMoldScaffold<TCloaked, TRevealBase> 
+public class SimpleContentAsValueCloakedBearer<TCloaked, TRevealBase> :
+    ValueRevealerMoldScaffold<TCloaked, TRevealBase>
     where TCloaked : TRevealBase
     where TRevealBase : notnull
 {
-    public TCloaked SimpleTypeAsValueCloakedBearer
+    public TCloaked CloakedBearerSimpleContentAsValue
     {
         get => Value!;
         set => Value = value;
@@ -591,44 +788,49 @@ public class SimpleAsValueCloakedBearerNoFieldSimpleValueTypeStringBearer<TCloak
     public override string PropertyName => "";
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .RevealAsValue(SimpleTypeAsValueCloakedBearer, ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString
-                        , FormattingFlags)
+        tos.StartSimpleContentType(this)
+           .RevealAsValue
+               (CloakedBearerSimpleContentAsValue
+              , ValueRevealer
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | DefaultTreatedAsValueOut
-                | DefaultBecomesNull)]
-public class SimpleAsValueCloakedBearerOrNullWithFieldSimpleValueTypeStringBearer<TCloaked, TRevealBase> :
-    ValueRevealerMoldScaffold<TCloaked, TRevealBase> 
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsAnyExceptNullableStruct | SupportsValueRevealer 
+                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+public class ComplexContentAsValueCloakedBearerOrNull<TCloaked, TRevealBase> :
+    ValueRevealerMoldScaffold<TCloaked, TRevealBase>
     where TCloaked : TRevealBase
     where TRevealBase : notnull
 {
-    public TCloaked SimpleTypeAsValueCloakedBearer
+    public TCloaked CloakedBearerOrNullComplexContentAsValue
     {
         get => Value!;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueCloakedBearer);
+    public override string PropertyName => nameof(CloakedBearerOrNullComplexContentAsValue);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartComplexContentType(this)
            .RevealAsValueOrNull
-               (nameof(SimpleTypeAsValueCloakedBearer)
-              , SimpleTypeAsValueCloakedBearer
-              , ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
+               (nameof(CloakedBearerOrNullComplexContentAsValue)
+              , CloakedBearerOrNullComplexContentAsValue
+              , ValueRevealer
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | DefaultTreatedAsValueOut
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | DefaultTreatedAsValueOut
                 | DefaultBecomesNull)]
-public class SimpleAsValueCloakedBearerOrNullNoFieldSimpleValueTypeStringBearer<TCloaked, TRevealBase> :
-    ValueRevealerMoldScaffold<TCloaked, TRevealBase> 
+public class SimpleContentAsValueCloakedBearerOrNull<TCloaked, TRevealBase> :
+    ValueRevealerMoldScaffold<TCloaked, TRevealBase>
     where TCloaked : TRevealBase
     where TRevealBase : notnull
 {
-    public TCloaked SimpleTypeAsValueCloakedBearer
+    public TCloaked CloakedBearerOrNullSimpleContentAsValue
     {
         get => Value!;
         set => Value = value;
@@ -637,46 +839,52 @@ public class SimpleAsValueCloakedBearerOrNullNoFieldSimpleValueTypeStringBearer<
     public override string PropertyName => "";
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .RevealAsValueOrNull(SimpleTypeAsValueCloakedBearer, ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString
-                              , FormattingFlags)
+        tos.StartSimpleContentType(this)
+           .RevealAsValueOrNull
+               (CloakedBearerOrNullSimpleContentAsValue
+              , ValueRevealer
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsSettingDefaultValue
-                | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
-public class SimpleAsValueCloakedBearerWithDefaultWithFieldSimpleValueTypeStringBearer<TCloaked, TRevealBase> :
-    ValueRevealerMoldScaffold<TCloaked?, TRevealBase>, IMoldSupportedDefaultValue<string> 
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsAnyExceptNullableStruct | SupportsValueRevealer 
+                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
+public class ComplexContentAsValueCloakedBearerOrDefault<TCloaked, TRevealBase> :
+    ValueRevealerMoldScaffold<TCloaked?, TRevealBase>, IMoldSupportedDefaultValue<string>
     where TCloaked : TRevealBase
     where TRevealBase : notnull
 {
-    public TCloaked? SimpleTypeAsValueCloakedBearer
+    public TCloaked? CloakedBearerOrDefaultComplexContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueCloakedBearer);
+    public override string PropertyName => nameof(CloakedBearerOrDefaultComplexContentAsValue);
 
     public string DefaultValue { get; set; } = "";
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartComplexContentType(this)
            .RevealAsValueOrDefault
-               (nameof(SimpleTypeAsValueCloakedBearer)
-              , SimpleTypeAsValueCloakedBearer
-              , ValueRevealer, DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
+               (nameof(CloakedBearerOrDefaultComplexContentAsValue)
+              , CloakedBearerOrDefaultComplexContentAsValue
+              , ValueRevealer
+              , DefaultValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsSettingDefaultValue
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsSettingDefaultValue
                 | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
-public class SimpleAsValueCloakedBearerWithDefaultNoFieldSimpleValueTypeStringBearer<TCloaked, TRevealBase> :
-    ValueRevealerMoldScaffold<TCloaked?, TRevealBase>, IMoldSupportedDefaultValue<string> 
+public class SimpleContentAsValueCloakedBearerOrDefault<TCloaked, TRevealBase> :
+    ValueRevealerMoldScaffold<TCloaked?, TRevealBase>, IMoldSupportedDefaultValue<string>
     where TCloaked : TRevealBase
     where TRevealBase : notnull
 {
-    public TCloaked? SimpleTypeAsValueCloakedBearer
+    public TCloaked? CloakedBearerOrDefaultSimpleContentAsValue
     {
         get => Value;
         set => Value = value;
@@ -687,81 +895,46 @@ public class SimpleAsValueCloakedBearerWithDefaultNoFieldSimpleValueTypeStringBe
     public string DefaultValue { get; set; } = "";
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .RevealAsValueOrDefault(SimpleTypeAsValueCloakedBearer, ValueRevealer, DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString
-                                 , FormattingFlags)
+        tos.StartSimpleContentType(this)
+           .RevealAsValueOrDefault
+               (CloakedBearerOrDefaultSimpleContentAsValue
+              , ValueRevealer
+              , DefaultValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyNullableStruct | SupportsValueRevealer | DefaultTreatedAsValueOut
-                | DefaultBecomesNull)]
-public class SimpleAsValueNullableCloakedBearerNoFieldSimpleValueTypeStringBearer<TCloakedStruct> :
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsAnyNullableStruct | SupportsValueRevealer 
+                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+public class ComplexContentAsValueNullableStructCloakedBearer<TCloakedStruct> :
     ValueRevealerMoldScaffold<TCloakedStruct?, TCloakedStruct> where TCloakedStruct : struct
 {
-    public TCloakedStruct? SimpleTypeAsValueCloakedBearer
+    public TCloakedStruct? NullableStructCloakedBearerComplexContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => "";
+    public override string PropertyName => nameof(NullableStructCloakedBearerComplexContentAsValue);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .RevealAsValue(SimpleTypeAsValueCloakedBearer, ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyNullableStruct | SupportsValueRevealer | DefaultTreatedAsValueOut
-                | DefaultBecomesNull)]
-public class SimpleAsValueNullableCloakedBearerWithFieldSimpleValueTypeStringBearer<TCloakedStruct> :
-    ValueRevealerMoldScaffold<TCloakedStruct?, TCloakedStruct> where TCloakedStruct : struct
-{
-    public TCloakedStruct? SimpleTypeAsValueCloakedBearer
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueCloakedBearer);
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartComplexContentType(this)
            .RevealAsValue
-               (nameof(SimpleTypeAsValueCloakedBearer)
-              , SimpleTypeAsValueCloakedBearer
-              , ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
+               (nameof(NullableStructCloakedBearerComplexContentAsValue)
+              , NullableStructCloakedBearerComplexContentAsValue
+              , ValueRevealer
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyNullableStruct | SupportsValueRevealer | DefaultTreatedAsValueOut
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsAnyNullableStruct | SupportsValueRevealer | DefaultTreatedAsValueOut
                 | DefaultBecomesNull)]
-public class SimpleAsValueNullableCloakedBearerOrNullWithFieldSimpleValueTypeStringBearer<TCloakedStruct> :
+public class SimpleContentAsValueNullableStructCloakedBearer<TCloakedStruct> :
     ValueRevealerMoldScaffold<TCloakedStruct?, TCloakedStruct> where TCloakedStruct : struct
 {
-    public TCloakedStruct? SimpleTypeAsValueCloakedBearer
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueCloakedBearer);
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .RevealAsValueOrNull
-               (nameof(SimpleTypeAsValueCloakedBearer)
-              , SimpleTypeAsValueCloakedBearer
-              , ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyNullableStruct | SupportsValueRevealer | DefaultTreatedAsValueOut
-                | DefaultBecomesNull)]
-public class SimpleAsValueNullableCloakedBearerOrNullNoFieldSimpleValueTypeStringBearer<TCloakedStruct> :
-    ValueRevealerMoldScaffold<TCloakedStruct?, TCloakedStruct> where TCloakedStruct : struct
-{
-    public TCloakedStruct? SimpleTypeAsValueCloakedBearer
+    public TCloakedStruct? NullableStructCloakedBearerSimpleContentAsValue
     {
         get => Value;
         set => Value = value;
@@ -770,43 +943,96 @@ public class SimpleAsValueNullableCloakedBearerOrNullNoFieldSimpleValueTypeStrin
     public override string PropertyName => "";
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .RevealAsValueOrNull(SimpleTypeAsValueCloakedBearer, ValueRevealer, tos.CallerContext.FormatString ?? ValueFormatString
-                              , FormattingFlags)
+        tos.StartSimpleContentType(this)
+           .RevealAsValue
+               (NullableStructCloakedBearerSimpleContentAsValue
+              , ValueRevealer
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyNullableStruct | SupportsValueRevealer | SupportsSettingDefaultValue
-                | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
-public class SimpleAsValueNullableCloakedBearerWithDefaultWithFieldSimpleValueTypeStringBearer<TCloakedStruct> :
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsAnyNullableStruct | SupportsValueRevealer 
+                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+public class ComplexContentAsValueNullableStructCloakedBearerOrNull<TCloakedStruct> :
+    ValueRevealerMoldScaffold<TCloakedStruct?, TCloakedStruct> where TCloakedStruct : struct
+{
+    public TCloakedStruct? NullableStructCloakedBearerOrNullComplexContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(NullableStructCloakedBearerOrNullComplexContentAsValue);
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexContentType(this)
+           .RevealAsValueOrNull
+               (nameof(NullableStructCloakedBearerOrNullComplexContentAsValue)
+              , NullableStructCloakedBearerOrNullComplexContentAsValue
+              , ValueRevealer
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsAnyNullableStruct | SupportsValueRevealer | DefaultTreatedAsValueOut
+                | DefaultBecomesNull)]
+public class SimpleContentAsValueNullableCloakedBearerOrNull<TCloakedStruct> :
+    ValueRevealerMoldScaffold<TCloakedStruct?, TCloakedStruct> where TCloakedStruct : struct
+{
+    public TCloakedStruct? NullableCloakedBearerOrNullSimpleContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => "";
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .RevealAsValueOrNull
+               (NullableCloakedBearerOrNullSimpleContentAsValue
+              , ValueRevealer
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsAnyNullableStruct | SupportsValueRevealer 
+                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
+public class ComplexContentAsValueNullableStructCloakedBearerOrDefault<TCloakedStruct> :
     ValueRevealerMoldScaffold<TCloakedStruct?, TCloakedStruct>, IMoldSupportedDefaultValue<string>
     where TCloakedStruct : struct
 {
-    public TCloakedStruct? SimpleTypeAsValueCloakedBearer
+    public TCloakedStruct? NullableStructCloakedBearerOrDefaultComplexContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueCloakedBearer);
+    public override string PropertyName => nameof(NullableStructCloakedBearerOrDefaultComplexContentAsValue);
 
     public string DefaultValue { get; set; } = "";
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartComplexContentType(this)
            .RevealAsValueOrDefault
-               (nameof(SimpleTypeAsValueCloakedBearer)
-              , SimpleTypeAsValueCloakedBearer
-              , ValueRevealer, DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
+               (nameof(NullableStructCloakedBearerOrDefaultComplexContentAsValue)
+              , NullableStructCloakedBearerOrDefaultComplexContentAsValue
+              , ValueRevealer
+              , DefaultValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyNullableStruct | SupportsValueRevealer | SupportsSettingDefaultValue
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsAnyNullableStruct | SupportsValueRevealer | SupportsSettingDefaultValue
                 | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
-public class SimpleAsValueNullableCloakedBearerWithDefaultNoFieldSimpleValueTypeStringBearer<TCloakedStruct> :
+public class SimpleContentAsValueNullableCloakedBearerOrDefault<TCloakedStruct> :
     ValueRevealerMoldScaffold<TCloakedStruct?, TCloakedStruct>, IMoldSupportedDefaultValue<string> where TCloakedStruct : struct
 {
-    public TCloakedStruct? SimpleTypeAsValueCloakedBearer
+    public TCloakedStruct? NullableCloakedBearerOrDefaultSimpleContentAsValue
     {
         get => Value;
         set => Value = value;
@@ -817,331 +1043,308 @@ public class SimpleAsValueNullableCloakedBearerWithDefaultNoFieldSimpleValueType
     public string DefaultValue { get; set; } = "";
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .RevealAsValueOrDefault(SimpleTypeAsValueCloakedBearer, ValueRevealer, DefaultValue, tos.CallerContext.FormatString ?? ValueFormatString
-                                 , FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | DefaultTreatedAsValueOut
-                | DefaultBecomesNull)]
-public class SimpleAsValueStringBearerWithFieldSimpleValueTypeStringBearer<TBearer> : ProxyFormattedMoldScaffold<TBearer>
-    where TBearer : IStringBearer
-{
-    public TBearer SimpleTypeAsValueStringBearer
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueStringBearer);
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .RevealAsValue(nameof(SimpleTypeAsValueStringBearer), SimpleTypeAsValueStringBearer, tos.CallerContext.FormatString ?? ValueFormatString
-                        , FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | DefaultTreatedAsValueOut
-                | DefaultBecomesNull)]
-public class SimpleAsValueStringBearerNoFieldSimpleValueTypeStringBearer<TBearer> : ProxyFormattedMoldScaffold<TBearer>
-    where TBearer : IStringBearer
-{
-    public TBearer SimpleTypeAsValueStringBearer
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueStringBearer);
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .RevealAsValue(nameof(SimpleTypeAsValueStringBearer), SimpleTypeAsValueStringBearer, tos.CallerContext.FormatString ?? ValueFormatString
-                        , FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | DefaultTreatedAsValueOut
-                | DefaultBecomesNull)]
-public class SimpleAsValueStringBearerOrNullWithFieldSimpleValueTypeStringBearer<TBearer> : ProxyFormattedMoldScaffold<TBearer?> where
-    TBearer : IStringBearer
-{
-    public TBearer? SimpleTypeAsValueStringBearer
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueStringBearer);
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .RevealAsValueOrNull(nameof(SimpleTypeAsValueStringBearer), SimpleTypeAsValueStringBearer
-                              , tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | DefaultTreatedAsValueOut
-                | DefaultBecomesNull)]
-public class SimpleAsValueStringBearerOrNullNoFieldSimpleValueTypeStringBearer<TBearer> : ProxyFormattedMoldScaffold<TBearer?> where
-    TBearer : IStringBearer
-{
-    public TBearer? SimpleTypeAsValueStringBearer
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueStringBearer);
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .RevealAsValueOrNull(nameof(SimpleTypeAsValueStringBearer), SimpleTypeAsValueStringBearer
-                              , tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | SupportsSettingDefaultValue
-                | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
-public class SimpleAsValueStringBearerWithDefaultWithFieldSimpleValueTypeStringBearer<TBearer> : ProxyFormattedMoldScaffold<TBearer?>
-  , IMoldSupportedDefaultValue<string> where TBearer : IStringBearer
-{
-    public TBearer? SimpleTypeAsValueStringBearer
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueStringBearer);
-
-    public string DefaultValue { get; set; } = "";
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .RevealAsValueOrDefault(nameof(SimpleTypeAsValueStringBearer), SimpleTypeAsValueStringBearer, DefaultValue
-                                 , tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | SupportsSettingDefaultValue
-                | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
-public class SimpleAsValueStringBearerWithDefaultNoFieldSimpleValueTypeStringBearer<TBearer> : ProxyFormattedMoldScaffold<TBearer?>
-  , IMoldSupportedDefaultValue<string> where TBearer : IStringBearer
-{
-    public TBearer? SimpleTypeAsValueStringBearer
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueStringBearer);
-
-    public string DefaultValue { get; set; } = "";
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .RevealAsValueOrDefault(nameof(SimpleTypeAsValueStringBearer), SimpleTypeAsValueStringBearer, DefaultValue
-                                 , tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | DefaultTreatedAsValueOut
-                | DefaultBecomesNull)]
-public class SimpleAsValueNullableStringBearerWithFieldSimpleValueTypeStringBearer<TBearerStruct> : ProxyFormattedMoldScaffold<TBearerStruct?>
-    where TBearerStruct : struct, IStringBearer
-{
-    public TBearerStruct? SimpleTypeAsValueStringBearer
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueStringBearer);
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .RevealAsValue(nameof(SimpleTypeAsValueStringBearer), SimpleTypeAsValueStringBearer
-                        , tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | DefaultTreatedAsValueOut
-                | DefaultBecomesNull)]
-public class SimpleAsValueNullableStringBearerNoFieldSimpleValueTypeStringBearer<TBearerStruct> : ProxyFormattedMoldScaffold<TBearerStruct?>
-    where TBearerStruct : struct, IStringBearer
-{
-    public TBearerStruct? SimpleTypeAsValueStringBearer
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueStringBearer);
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .RevealAsValue(nameof(SimpleTypeAsValueStringBearer), SimpleTypeAsValueStringBearer
-                        , tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | DefaultTreatedAsValueOut
-                | DefaultBecomesNull)]
-public class SimpleAsValueNullableStringBearerOrNullWithFieldSimpleValueTypeStringBearer<TBearerStruct>
-    : ProxyFormattedMoldScaffold<TBearerStruct?> where TBearerStruct : struct, IStringBearer
-{
-    public TBearerStruct? SimpleTypeAsValueStringBearer
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueStringBearer);
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .RevealAsValueOrNull(nameof(SimpleTypeAsValueStringBearer), SimpleTypeAsValueStringBearer
-                              , tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | DefaultTreatedAsValueOut
-                | DefaultBecomesNull)]
-public class SimpleAsValueNullableStringBearerOrNullNoFieldSimpleValueTypeStringBearer<TBearerStruct>
-    : ProxyFormattedMoldScaffold<TBearerStruct?> where TBearerStruct : struct, IStringBearer
-{
-    public TBearerStruct? SimpleTypeAsValueStringBearer
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueStringBearer);
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .RevealAsValueOrNull(nameof(SimpleTypeAsValueStringBearer), SimpleTypeAsValueStringBearer
-                              , tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | SupportsSettingDefaultValue
-                | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
-public class SimpleAsValueNullableStringBearerWithDefaultWithFieldSimpleValueTypeStringBearer<TBearerStruct>
-    : ProxyFormattedMoldScaffold<TBearerStruct?>, IMoldSupportedDefaultValue<string> where TBearerStruct : struct, IStringBearer
-{
-    public TBearerStruct? SimpleTypeAsValueStringBearer
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueStringBearer);
-
-    public string DefaultValue { get; set; } = "";
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .RevealAsValueOrDefault(nameof(SimpleTypeAsValueStringBearer), SimpleTypeAsValueStringBearer, DefaultValue
-                                 , tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | SupportsSettingDefaultValue
-                | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
-public class SimpleAsValueNullableStringBearerWithDefaultNoFieldSimpleValueTypeStringBearer<TBearerStruct>
-    : ProxyFormattedMoldScaffold<TBearerStruct?>, IMoldSupportedDefaultValue<string> where TBearerStruct : struct, IStringBearer
-{
-    public TBearerStruct? SimpleTypeAsValueStringBearer
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueStringBearer);
-
-    public string DefaultValue { get; set; } = "";
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .RevealAsValueOrDefault(nameof(SimpleTypeAsValueStringBearer), SimpleTypeAsValueStringBearer, DefaultValue
-                                 , tos.CallerContext.FormatString ?? ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsArray | CallsAsSpan | AcceptsCharArray | SupportsValueFormatString
-                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesZero)]
-public class SimpleAsValueCharSpanWithFieldOrDefaultSimpleValueTypeStringBearer : FormattedMoldScaffold<char[]>
-  , ISupportsSettingValueFromString
-{
-    public char[] SimpleTypeAsValueCharSpan
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueCharSpan);
-
-    public string? StringValue
-    {
-        get => new(Value.AsSpan());
-        set => Value = value?.ToCharArray()!;
-    }
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .AsValue
-               (nameof(SimpleTypeAsValueCharSpan)
-              , SimpleTypeAsValueCharSpan.AsSpan()
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsArray | CallsAsSpan | AcceptsCharArray | SupportsValueFormatString
-                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
-public class SimpleAsValueCharSpanWithDefaultWithFieldAsSpanSimpleValueTypeStringBearer : FormattedMoldScaffold<char[]>
-  , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>
-{
-    public char[] SimpleTypeAsValueCharSpan
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueCharSpan);
-
-    public string DefaultValue { get; set; } = "";
-
-    public string? StringValue
-    {
-        get => new(Value.AsSpan());
-        set => Value = value?.ToCharArray()!;
-    }
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .AsValueOrDefault
-               (nameof(SimpleTypeAsValueCharSpan)
-              , SimpleTypeAsValueCharSpan.AsSpan()
+        tos.StartSimpleContentType(this)
+           .RevealAsValueOrDefault
+               (NullableCloakedBearerOrDefaultSimpleContentAsValue
+              , ValueRevealer
               , DefaultValue
-              , ValueFormatString, FormattingFlags)
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsArray | CallsAsSpan | AcceptsCharArray | SupportsValueFormatString
+[TypeGeneratePart(ContentType  | ComplexType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer 
                 | DefaultTreatedAsValueOut | DefaultBecomesNull)]
-public class SimpleAsValueCharSpanWithFieldSimpleValueTypeStringBearer : FormattedMoldScaffold<char[]>
+public class ComplexContentAsValueStringBearer<TBearer> : ProxyFormattedMoldScaffold<TBearer>
+    where TBearer : IStringBearer
+{
+    public TBearer StringBearerComplexContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(StringBearerComplexContentAsValue);
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexContentType(this)
+           .RevealAsValue
+               (nameof(StringBearerComplexContentAsValue)
+              , StringBearerComplexContentAsValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | DefaultTreatedAsValueOut
+                | DefaultBecomesNull)]
+public class SimpleContentAsValueStringBearer<TBearer> : ProxyFormattedMoldScaffold<TBearer>
+    where TBearer : IStringBearer
+{
+    public TBearer StringBearerSimpleContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(StringBearerSimpleContentAsValue);
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .RevealAsValue
+               (StringBearerSimpleContentAsValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer 
+                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+public class ComplexContentAsValueStringBearerOrNull<TBearer> : ProxyFormattedMoldScaffold<TBearer?> where
+    TBearer : IStringBearer
+{
+    public TBearer? StringBearerOrNullComplexContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(StringBearerOrNullComplexContentAsValue);
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexContentType(this)
+           .RevealAsValueOrNull
+               (nameof(StringBearerOrNullComplexContentAsValue)
+              , StringBearerOrNullComplexContentAsValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | DefaultTreatedAsValueOut
+                | DefaultBecomesNull)]
+public class SimpleContentAsValueStringBearerOrNull<TBearer> : ProxyFormattedMoldScaffold<TBearer?> where
+    TBearer : IStringBearer
+{
+    public TBearer? StringBearerOrNullSimpleContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(StringBearerOrNullSimpleContentAsValue);
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .RevealAsValueOrNull
+               (StringBearerOrNullSimpleContentAsValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer 
+                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
+public class ComplexContentAsValueStringBearerOrStringDefault<TBearer> : ProxyFormattedMoldScaffold<TBearer?>
+  , IMoldSupportedDefaultValue<string> where TBearer : IStringBearer
+{
+    public TBearer? StringBearerOrStringDefaultComplexContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(StringBearerOrStringDefaultComplexContentAsValue);
+
+    public string DefaultValue { get; set; } = "";
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexContentType(this)
+           .RevealAsValueOrDefault
+               (nameof(StringBearerOrStringDefaultComplexContentAsValue)
+              , StringBearerOrStringDefaultComplexContentAsValue, DefaultValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer 
+                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
+public class SimpleContentAsValueStringBearerOrStringDefault<TBearer> : ProxyFormattedMoldScaffold<TBearer?>
+  , IMoldSupportedDefaultValue<string> where TBearer : IStringBearer
+{
+    public TBearer? StringBearerOrStringDefaultSimpleContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(StringBearerOrStringDefaultSimpleContentAsValue);
+
+    public string DefaultValue { get; set; } = "";
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .RevealAsValueOrDefault
+               (StringBearerOrStringDefaultSimpleContentAsValue, DefaultValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | DefaultTreatedAsValueOut
+                | DefaultBecomesNull)]
+public class ComplexContentAsValueNullableStructStringBearer<TBearerStruct> : ProxyFormattedMoldScaffold<TBearerStruct?>
+    where TBearerStruct : struct, IStringBearer
+{
+    public TBearerStruct? NullableStructStringBearerComplexContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(NullableStructStringBearerComplexContentAsValue);
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexContentType(this)
+           .RevealAsValue
+               (nameof(NullableStructStringBearerComplexContentAsValue)
+              , NullableStructStringBearerComplexContentAsValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | DefaultTreatedAsValueOut
+                | DefaultBecomesNull)]
+public class SimpleContentAsValueNullableStructStringBearer<TBearerStruct> : ProxyFormattedMoldScaffold<TBearerStruct?>
+    where TBearerStruct : struct, IStringBearer
+{
+    public TBearerStruct? NullableStructStringBearerSimpleContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(NullableStructStringBearerSimpleContentAsValue);
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .RevealAsValue
+               (NullableStructStringBearerSimpleContentAsValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | DefaultTreatedAsValueOut
+                | DefaultBecomesNull)]
+public class ComplexContentAsValueNullableStructStringBearerOrNull<TBearerStruct>
+    : ProxyFormattedMoldScaffold<TBearerStruct?> where TBearerStruct : struct, IStringBearer
+{
+    public TBearerStruct? NullableStructStringBearerOrNullComplexContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(NullableStructStringBearerOrNullComplexContentAsValue);
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexContentType(this)
+           .RevealAsValueOrNull
+               (nameof(NullableStructStringBearerOrNullComplexContentAsValue)
+              , NullableStructStringBearerOrNullComplexContentAsValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | DefaultTreatedAsValueOut
+                | DefaultBecomesNull)]
+public class SimpleContentAsValueNullableStructStringBearerOrNull<TBearerStruct>
+    : ProxyFormattedMoldScaffold<TBearerStruct?> where TBearerStruct : struct, IStringBearer
+{
+    public TBearerStruct? NullableStructStringBearerOrNullSimpleContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(NullableStructStringBearerOrNullSimpleContentAsValue);
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .RevealAsValueOrNull
+               (NullableStructStringBearerOrNullSimpleContentAsValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | SupportsSettingDefaultValue
+                | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
+public class ComplexContentAsValueNullableStructStringBearerOrStringDefault<TBearerStruct>
+    : ProxyFormattedMoldScaffold<TBearerStruct?>, IMoldSupportedDefaultValue<string> where TBearerStruct : struct, IStringBearer
+{
+    public TBearerStruct? NullableStructStringBearerOrStringDefaultComplexContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(NullableStructStringBearerOrStringDefaultComplexContentAsValue);
+
+    public string DefaultValue { get; set; } = "";
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexContentType(this)
+           .RevealAsValueOrDefault
+               (nameof(NullableStructStringBearerOrStringDefaultComplexContentAsValue)
+              , NullableStructStringBearerOrStringDefaultComplexContentAsValue
+              , DefaultValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | SupportsSettingDefaultValue
+                | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
+public class SimpleContentAsValueNullableStructStringBearerOrStringDefault<TBearerStruct>
+    : ProxyFormattedMoldScaffold<TBearerStruct?>, IMoldSupportedDefaultValue<string> where TBearerStruct : struct, IStringBearer
+{
+    public TBearerStruct? NullableStructStringBearerOrStringDefaultSimpleContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(NullableStructStringBearerOrStringDefaultSimpleContentAsValue);
+
+    public string DefaultValue { get; set; } = "";
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .RevealAsValueOrDefault
+               (NullableStructStringBearerOrStringDefaultSimpleContentAsValue
+              , DefaultValue
+              , tos.CallerContext.FormatString ?? ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsArray | CallsAsSpan | AcceptsCharArray 
+                | SupportsValueFormatString | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesZero)]
+public class ComplexContentAsValueCharSpan : FormattedMoldScaffold<char[]>
   , ISupportsSettingValueFromString
 {
-    public char[] SimpleTypeAsValueCharSpan
+    public char[] CharSpanComplexContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueCharSpan);
+    public override string PropertyName => nameof(CharSpanComplexContentAsValue);
 
     public string? StringValue
     {
@@ -1150,25 +1353,27 @@ public class SimpleAsValueCharSpanWithFieldSimpleValueTypeStringBearer : Formatt
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .AsValueOrNull
-               (nameof(SimpleTypeAsValueCharSpan).ToCharArray().AsSpan()
-              , SimpleTypeAsValueCharSpan.AsSpan()
-              , ValueFormatString, FormattingFlags)
+        tos.StartComplexContentType(this)
+           .AsValue
+               (nameof(CharSpanComplexContentAsValue)
+              , CharSpanComplexContentAsValue.AsSpan()
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsArray | CallsAsSpan | AcceptsCharArray | DefaultTreatedAsValueOut
-                | DefaultBecomesZero)]
-public class SimpleAsValueCharSpanWithNoFieldAsSpanSimpleValueTypeStringBearer : MoldScaffoldBase<char[]>
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsArray | CallsAsSpan | AcceptsCharArray 
+                | SupportsValueFormatString | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesZero)]
+public class SimpleContentAsValueCharSpan : FormattedMoldScaffold<char[]>
+  , ISupportsSettingValueFromString
 {
-    public char[] SimpleTypeAsValueCharSpan
+    public char[] CharSpanSimpleContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => "";
+    public override string PropertyName => nameof(CharSpanSimpleContentAsValue);
 
     public string? StringValue
     {
@@ -1177,23 +1382,145 @@ public class SimpleAsValueCharSpanWithNoFieldAsSpanSimpleValueTypeStringBearer :
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .AsValueOrZero(SimpleTypeAsValueCharSpan.AsSpan(), FormattingFlags)
+        tos.StartSimpleContentType(this)
+           .AsValue
+               (CharSpanSimpleContentAsValue.AsSpan()
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | SupportsValueFormatString |
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsArray | CallsAsSpan | AcceptsCharArray 
+                | SupportsValueFormatString | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue 
+                | DefaultBecomesFallbackString)]
+public class ComplexContentAsValueCharSpanOrDefault : FormattedMoldScaffold<char[]>
+  , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>
+{
+    public char[] CharSpanOrDefaultComplexContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(CharSpanOrDefaultComplexContentAsValue);
+
+    public string DefaultValue { get; set; } = "";
+
+    public string? StringValue
+    {
+        get => new(Value.AsSpan());
+        set => Value = value?.ToCharArray()!;
+    }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexContentType(this)
+           .AsValueOrDefault
+               (nameof(CharSpanOrDefaultComplexContentAsValue)
+              , CharSpanOrDefaultComplexContentAsValue.AsSpan()
+              , DefaultValue
+              , ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsArray | CallsAsSpan | AcceptsCharArray | SupportsValueFormatString
+                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
+public class SimpleContentAsValueCharSpanOrDefault : FormattedMoldScaffold<char[]>
+  , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>
+{
+    public char[] CharSpanOrDefaultSimpleContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(CharSpanOrDefaultSimpleContentAsValue);
+
+    public string DefaultValue { get; set; } = "";
+
+    public string? StringValue
+    {
+        get => new(Value.AsSpan());
+        set => Value = value?.ToCharArray()!;
+    }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .AsValueOrDefault
+               (CharSpanOrDefaultSimpleContentAsValue.AsSpan()
+              , DefaultValue
+              , ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsArray | CallsAsSpan | AcceptsCharArray | DefaultTreatedAsValueOut
+                | DefaultBecomesZero | SupportsValueFormatString)]
+public class ComplexContentAsValueCharSpanOrZero : FormattedMoldScaffold<char[]>, ISupportsSettingValueFromString
+{
+    public char[] CharSpanOrZeroComplexContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(CharSpanOrZeroComplexContentAsValue);
+
+    public string? StringValue
+    {
+        get => new(Value.AsSpan());
+        set => Value = value?.ToCharArray()!;
+    }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexContentType(this)
+           .AsValueOrZero
+               ( nameof(CharSpanOrZeroComplexContentAsValue)
+              , CharSpanOrZeroComplexContentAsValue.AsSpan()
+              , ValueFormatString  
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsArray | CallsAsSpan | AcceptsCharArray | DefaultTreatedAsValueOut
+                | DefaultBecomesZero | SupportsValueFormatString)]
+public class SimpleContentAsValueCharSpanOrZero : FormattedMoldScaffold<char[]>
+{
+    public char[] CharSpanOrZeroSimpleContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(CharSpanOrZeroSimpleContentAsValue);
+
+    public string? StringValue
+    {
+        get => new(Value.AsSpan());
+        set => Value = value?.ToCharArray()!;
+    }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .AsValueOrZero
+               (CharSpanOrZeroSimpleContentAsValue.AsSpan()
+              , ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | SupportsValueFormatString |
                   SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesZero)]
-public class SimpleAsValueCharReadOnlySpanWithFieldOrDefaultSimpleValueTypeStringBearer : FormattedMoldScaffold<string>
+public class ComplexContentAsValueReadOnlyCharSpan : FormattedMoldScaffold<string>
   , ISupportsSettingValueFromString
 {
-    public string SimpleTypeAsValueCharReadOnlySpanOrDefault
+    public string ReadOnlyCharSpanComplexContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueCharReadOnlySpanOrDefault);
+    public override string PropertyName => nameof(ReadOnlyCharSpanComplexContentAsValue);
 
     public string? StringValue
     {
@@ -1202,26 +1529,27 @@ public class SimpleAsValueCharReadOnlySpanWithFieldOrDefaultSimpleValueTypeStrin
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartComplexContentType(this)
            .AsValue
-               ((ReadOnlySpan<char>)nameof(SimpleTypeAsValueCharReadOnlySpanOrDefault)
-              , (ReadOnlySpan<char>)SimpleTypeAsValueCharReadOnlySpanOrDefault
-              , ValueFormatString, FormattingFlags)
+               (nameof(ReadOnlyCharSpanComplexContentAsValue)
+              , (ReadOnlySpan<char>)ReadOnlyCharSpanComplexContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | SupportsValueFormatString |
+[TypeGeneratePart(ContentType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | SupportsValueFormatString |
                   SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
-public class SimpleAsValueCharReadOnlySpanWithDefaultWithFieldSimpleValueTypeStringBearer : FormattedMoldScaffold<string>
+public class SimpleContentAsValueReadOnlyCharSpan : FormattedMoldScaffold<string>
   , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>
 {
-    public string SimpleTypeAsValueCharReadOnlySpanWithDefault
+    public string ReadOnlyCharSpanSimpleContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueCharReadOnlySpanWithDefault);
+    public override string PropertyName => nameof(ReadOnlyCharSpanSimpleContentAsValue);
 
     public string DefaultValue { get; set; } = "";
 
@@ -1232,26 +1560,27 @@ public class SimpleAsValueCharReadOnlySpanWithDefaultWithFieldSimpleValueTypeStr
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartSimpleContentType(this)
            .AsValueOrDefault
-               ((ReadOnlySpan<char>)nameof(SimpleTypeAsValueCharReadOnlySpanWithDefault)
-              , (ReadOnlySpan<char>)SimpleTypeAsValueCharReadOnlySpanWithDefault
-              , DefaultValue, ValueFormatString, FormattingFlags)
+               ((ReadOnlySpan<char>)ReadOnlyCharSpanSimpleContentAsValue
+              , DefaultValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | SupportsValueFormatString
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | SupportsValueFormatString
                 | DefaultTreatedAsValueOut | DefaultBecomesNull)]
-public class SimpleAsValueCharReadOnlySpanWithFieldOrNullSimpleValueTypeStringBearer : FormattedMoldScaffold<string>
+public class ComplexContentAsValueReadOnlyCharSpanOrNull : FormattedMoldScaffold<string>
   , ISupportsSettingValueFromString
 {
-    public string SimpleTypeAsValueCharReadOnlySpan
+    public string ReadOnlyCharSpanOrNullComplexContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueCharReadOnlySpan);
+    public override string PropertyName => nameof(ReadOnlyCharSpanOrNullComplexContentAsValue);
 
     public string? StringValue
     {
@@ -1260,122 +1589,27 @@ public class SimpleAsValueCharReadOnlySpanWithFieldOrNullSimpleValueTypeStringBe
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartComplexContentType(this)
            .AsValueOrNull
-               ((ReadOnlySpan<char>)nameof(SimpleTypeAsValueCharReadOnlySpan)
-              , (ReadOnlySpan<char>)SimpleTypeAsValueCharReadOnlySpan
-              , ValueFormatString, FormattingFlags)
+               ((ReadOnlySpan<char>)nameof(ReadOnlyCharSpanOrNullComplexContentAsValue)
+              , (ReadOnlySpan<char>)ReadOnlyCharSpanOrNullComplexContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | DefaultTreatedAsValueOut
-                | DefaultBecomesZero)]
-public class SimpleAsValueCharReadOnlySpanWithNoFieldOrDefaultSimpleValueTypeStringBearer : MoldScaffoldBase<string>
-{
-    public string SimpleTypeAsValueCharReadOnlySpan
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => "";
-
-    public string? StringValue
-    {
-        get => Value;
-        set => Value = value!;
-    }
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .AsValueOrZero((ReadOnlySpan<char>)SimpleTypeAsValueCharReadOnlySpan, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsArray | CallsAsSpan | AcceptsCharArray
-                | DefaultTreatedAsValueOut | DefaultBecomesZero)]
-public class SimpleAsValueCharSpanWithNoFieldOrDefaultSimpleValueTypeStringBearer : MoldScaffoldBase<char[]>
-{
-    public char[] SimpleTypeAsValueCharSpanOrDefault
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => "";
-
-    public string? StringValue
-    {
-        get => new(Value.AsSpan());
-        set => Value = value?.ToCharArray()!;
-    }
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .AsValue(SimpleTypeAsValueCharSpanOrDefault.AsSpan(), FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | DefaultTreatedAsValueOut
-                | DefaultBecomesZero)]
-public class SimpleAsValueCharReadOnlySpanWithNoFieldOrDefaultFieldSimpleValueTypeStringBearer : MoldScaffoldBase<string>
-{
-    public string SimpleTypeAsValueCharReadOnlySpanOrDefault
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => "";
-
-    public string? StringValue
-    {
-        get => Value;
-        set => Value = value!;
-    }
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .AsValue((ReadOnlySpan<char>)SimpleTypeAsValueCharReadOnlySpanOrDefault, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | DefaultTreatedAsValueOut
-                | DefaultBecomesZero)]
-public class SimpleAsValueStringWithNoFieldOrDefaultFieldSimpleValueTypeStringBearer : MoldScaffoldBase<string>
-{
-    public string SimpleTypeAsValueStringOrDefaultNoFormatting
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => "";
-
-    public string? StringValue
-    {
-        get => Value;
-        set => Value = value!;
-    }
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .AsValue(SimpleTypeAsValueStringOrDefaultNoFormatting, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | SupportsValueFormatString
-                | DefaultTreatedAsValueOut | DefaultBecomesZero)]
-public class SimpleAsValueStringWithFieldOrDefaultSimpleValueTypeStringBearer : FormattedMoldScaffold<string>
+[TypeGeneratePart(ContentType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | SupportsValueFormatString
+                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+public class SimpleContentAsValueReadOnlyCharSpanOrNull : FormattedMoldScaffold<string>
   , ISupportsSettingValueFromString
 {
-    public string SimpleTypeAsValueStringOrDefault
+    public string ReadOnlyCharSpanOrNullSimpleContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueStringOrDefault);
+    public override string PropertyName => nameof(ReadOnlyCharSpanOrNullSimpleContentAsValue);
 
     public string? StringValue
     {
@@ -1384,26 +1618,172 @@ public class SimpleAsValueStringWithFieldOrDefaultSimpleValueTypeStringBearer : 
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartSimpleContentType(this)
+           .AsValueOrNull
+               ((ReadOnlySpan<char>)ReadOnlyCharSpanOrNullSimpleContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | DefaultTreatedAsValueOut
+                | DefaultBecomesZero | SupportsValueFormatString)]
+public class ComplexContentContentAsValueReadOnlyCharSpanOrZero : FormattedMoldScaffold<string>, ISupportsSettingValueFromString
+{
+    public string ReadOnlyCharSpanOrZeroComplexContentContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(ReadOnlyCharSpanOrZeroComplexContentContentAsValue);
+
+    public string? StringValue
+    {
+        get => Value;
+        set => Value = value!;
+    }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexContentType(this)
+           .AsValueOrZero
+               ( nameof(ReadOnlyCharSpanOrZeroComplexContentContentAsValue)
+              , (ReadOnlySpan<char>)ReadOnlyCharSpanOrZeroComplexContentContentAsValue
+              , ValueFormatString  
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | DefaultTreatedAsValueOut
+                | DefaultBecomesZero | SupportsValueFormatString)]
+public class SimpleContentAsValueReadOnlyCharSpanOrZero : FormattedMoldScaffold<string>
+{
+    public string ReadOnlyCharSpanOrZeroSimpleContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => "";
+
+    public string? StringValue
+    {
+        get => Value;
+        set => Value = value!;
+    }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .AsValueOrZero
+               ((ReadOnlySpan<char>)ReadOnlyCharSpanOrZeroSimpleContentAsValue
+              , ValueFormatString  
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | SupportsValueFormatString
+                | DefaultTreatedAsValueOut | DefaultBecomesFallbackString)]
+public class ComplexContentAsValueReadOnlyCharSpanOrStringDefault : FormattedMoldScaffold<string>
+  , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>
+{
+    public string ReadOnlyCharSpanOrStringDefaultComplexContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(ReadOnlyCharSpanOrStringDefaultComplexContentAsValue);
+    
+    public string DefaultValue { get; set; } = "";
+
+    public string? StringValue
+    {
+        get => Value;
+        set => Value = value!;
+    }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexContentType(this)
+           .AsValueOrDefault
+               (nameof(ReadOnlyCharSpanOrStringDefaultComplexContentAsValue)
+              , (ReadOnlySpan<char>)ReadOnlyCharSpanOrStringDefaultComplexContentAsValue
+              , DefaultValue
+              , ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType  | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | SupportsValueFormatString
+                | DefaultTreatedAsValueOut | DefaultBecomesFallbackString)]
+public class SimpleContentAsValueReadOnlyCharSpanOrDefault : FormattedMoldScaffold<string>
+  , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>
+{
+    public string ReadOnlyCharSpanOrDefaultSimpleContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(ReadOnlyCharSpanOrDefaultSimpleContentAsValue);
+    
+    public string DefaultValue { get; set; } = "";
+
+    public string? StringValue
+    {
+        get => Value;
+        set => Value = value!;
+    }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .AsValueOrDefault
+               ((ReadOnlySpan<char>)ReadOnlyCharSpanOrDefaultSimpleContentAsValue
+              , DefaultValue
+              , ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | SupportsValueFormatString
+                | DefaultTreatedAsValueOut | DefaultBecomesZero)]
+public class ComplexContentAsValueString : FormattedMoldScaffold<string>
+  , ISupportsSettingValueFromString
+{
+    public string StringComplexContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(StringComplexContentAsValue);
+
+    public string? StringValue
+    {
+        get => Value;
+        set => Value = value!;
+    }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexContentType(this)
            .AsValue
-               ((ReadOnlySpan<char>)nameof(SimpleTypeAsValueStringOrDefault)
-              , SimpleTypeAsValueStringOrDefault
-              , ValueFormatString, FormattingFlags)
+               (nameof(StringComplexContentAsValue)
+              , StringComplexContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | SupportsValueFormatString
-                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
-public class SimpleAsValueStringWithFieldSimpleValueTypeStringBearer : FormattedMoldScaffold<string>
-  , ISupportsSettingValueFromString
+[TypeGeneratePart(ContentType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | SupportsValueFormatString
+                | DefaultTreatedAsValueOut | DefaultBecomesZero)]
+public class SimpleContentAsValueString : FormattedMoldScaffold<string>, ISupportsSettingValueFromString
 {
-    public string SimpleTypeAsValueString
+    public string StringSimpleContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueString);
+    public override string PropertyName => nameof(StringSimpleContentAsValue);
 
     public string? StringValue
     {
@@ -1412,25 +1792,82 @@ public class SimpleAsValueStringWithFieldSimpleValueTypeStringBearer : Formatted
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .AsValueOrNull
-               (nameof(SimpleTypeAsValueString)
-              , SimpleTypeAsValueString
-              , ValueFormatString, FormattingFlags)
+        tos.StartSimpleContentType(this)
+           .AsValue
+               (StringSimpleContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | SupportsValueFormatString
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | SupportsValueFormatString
                 | DefaultTreatedAsValueOut | DefaultBecomesNull)]
-public struct SimpleAsValueStringWithFieldSimpleValueTypeStructStringBearer : IStringBearer, ISupportsSettingValueFromString
+public class ComplexContentAsValueStringOrNull : FormattedMoldScaffold<string>
+  , ISupportsSettingValueFromString
 {
-    public string SimpleTypeAsValueString
+    public string StringOrNullComplexContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(StringOrNullComplexContentAsValue);
+
+    public string? StringValue
+    {
+        get => Value;
+        set => Value = value!;
+    }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexContentType(this)
+           .AsValueOrNull
+               (nameof(StringOrNullComplexContentAsValue)
+              , StringOrNullComplexContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | SupportsValueFormatString
+                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+public class SimpleContentAsValueStringOrNull : FormattedMoldScaffold<string>
+  , ISupportsSettingValueFromString
+{
+    public string StringOrNullSimpleContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(StringOrNullSimpleContentAsValue);
+
+    public string? StringValue
+    {
+        get => Value;
+        set => Value = value!;
+    }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .AsValueOrNull
+               (StringOrNullSimpleContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | SupportsValueFormatString
+                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+public struct ComplexStructContentAsValueString : ISinglePropertyTestStringBearer, ISupportsSettingValueFromString
+{
+    public string StringComplexStructContentAsValue
     {
         get => Value!;
         set => Value = value;
     }
 
-    public string PropertyName => nameof(SimpleTypeAsValueString);
+    public string PropertyName => nameof(StringComplexStructContentAsValue);
 
     public string? StringValue
     {
@@ -1439,64 +1876,70 @@ public struct SimpleAsValueStringWithFieldSimpleValueTypeStructStringBearer : IS
     }
 
     public StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartComplexContentType(this)
            .AsValueOrNull
-               (nameof(SimpleTypeAsValueString)
-              , SimpleTypeAsValueString
-              , ValueFormatString, ContentHandlingFlags)
+               (nameof(StringComplexStructContentAsValue)
+              , StringComplexStructContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
-    
+
     public string? ValueFormatString { get; set; }
 
-    public FormatFlags ContentHandlingFlags { get; set; }
+    public FormatFlags FormattingFlags { get; set; }
 
     public string? Value { get; set; }
 
     public override string ToString() => $"{GetType().CachedCSharpNameNoConstraints()}({Value})";
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges
-                | DefaultTreatedAsValueOut | DefaultBecomesZero)]
-public class SimpleAsValueStringRangeOrDefaultSimpleValueTypeStringBearer : FormattedMoldScaffold<string>
-  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
-{
-    public string SimpleTypeAsValueStringRangeOrDefault
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueStringRangeOrDefault);
-    public int FromIndex { get; set; }
-
-    public int Length { get; set; }
-
-    public string? StringValue
-    {
-        get => Value;
-        set => Value = value!;
-    }
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValue
-               (nameof(SimpleTypeAsValueStringRangeOrDefault)
-              , SimpleTypeAsValueStringRangeOrDefault
-              , FromIndex, Length, ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges
+[TypeGeneratePart(ContentType | SingleValueCardinality | CallsAsReadOnlySpan | AcceptsString | SupportsValueFormatString
                 | DefaultTreatedAsValueOut | DefaultBecomesNull)]
-public class SimpleAsValueStringRangeSimpleValueTypeStringBearer : FormattedMoldScaffold<string>
+public struct SimpleStructContentAsValueString : ISinglePropertyTestStringBearer, ISupportsSettingValueFromString
+{
+    public string StringSimpleStructContentAsValue
+    {
+        get => Value!;
+        set => Value = value;
+    }
+
+    public string PropertyName => nameof(StringSimpleStructContentAsValue);
+
+    public string? StringValue
+    {
+        get => Value;
+        set => Value = value!;
+    }
+
+    public StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .AsValueOrNull
+               (StringSimpleStructContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
+           .Complete();
+
+    public string? ValueFormatString { get; set; }
+
+    public FormatFlags FormattingFlags { get; set; }
+
+    public string? Value { get; set; }
+
+    public override string ToString() => $"{GetType().CachedCSharpNameNoConstraints()}({Value})";
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges
+                | DefaultTreatedAsValueOut | DefaultBecomesZero)]
+public class ComplexContentAsValueStringRange : FormattedMoldScaffold<string>
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
-    public string SimpleTypeAsValueStringRange
+    public string StringRangeComplexContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueStringRange);
+    public override string PropertyName => nameof(StringRangeComplexContentAsValue);
     public int FromIndex { get; set; }
 
     public int Length { get; set; }
@@ -1508,25 +1951,129 @@ public class SimpleAsValueStringRangeSimpleValueTypeStringBearer : FormattedMold
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValueOrNull
-               (nameof(SimpleTypeAsValueStringRange)
-              , SimpleTypeAsValueStringRange
-              , FromIndex, Length, ValueFormatString, FormattingFlags)
+        tos.StartComplexContentType(this)
+           .AsValue
+               (nameof(StringRangeComplexContentAsValue)
+              , StringRangeComplexContentAsValue
+              , FromIndex
+              , Length
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges
+                | DefaultTreatedAsValueOut | DefaultBecomesZero)]
+public class SimpleContentAsValueStringRange : FormattedMoldScaffold<string>
+  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
+{
+    public string StringRangeSimpleContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(StringRangeSimpleContentAsValue);
+    public int FromIndex { get; set; }
+
+    public int Length { get; set; }
+
+    public string? StringValue
+    {
+        get => Value;
+        set => Value = value!;
+    }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .AsValue
+               (StringRangeSimpleContentAsValue
+              , FromIndex
+              , Length
+              , ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges
+                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+public class ComplexContentAsValueStringRangeOrNull : FormattedMoldScaffold<string>
+  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
+{
+    public string StringRangeOrNullComplexContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(StringRangeOrNullComplexContentAsValue);
+    public int FromIndex { get; set; }
+
+    public int Length { get; set; }
+
+    public string? StringValue
+    {
+        get => Value;
+        set => Value = value!;
+    }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexContentType(this)
+           .AsValueOrNull
+               (nameof(StringRangeOrNullComplexContentAsValue)
+              , StringRangeOrNullComplexContentAsValue
+              , FromIndex
+              , Length
+              , ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges
+                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+public class SimpleContentAsValueStringRangeOrNull : FormattedMoldScaffold<string>
+  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
+{
+    public string StringRangeOrNullSimpleContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(StringRangeOrNullSimpleContentAsValue);
+    public int FromIndex { get; set; }
+
+    public int Length { get; set; }
+
+    public string? StringValue
+    {
+        get => Value;
+        set => Value = value!;
+    }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .AsValueOrNull
+               (StringRangeOrNullSimpleContentAsValue
+              , FromIndex
+              , Length
+              , ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges
                 | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
-public class SimpleAsValueStringRangeWithDefaultSimpleValueTypeStringBearer : FormattedMoldScaffold<string>
+public class ComplexContentAsValueStringRangeOrDefault : FormattedMoldScaffold<string>
   , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting
 {
-    public string SimpleTypeAsValueStringRangeWithDefaultValue
+    public string StringRangeOrDefaultComplexContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueStringRangeWithDefaultValue);
+    public override string PropertyName => nameof(StringRangeOrDefaultComplexContentAsValue);
 
     public string DefaultValue { get; set; } = "";
     public int FromIndex { get; set; }
@@ -1540,25 +2087,66 @@ public class SimpleAsValueStringRangeWithDefaultSimpleValueTypeStringBearer : Fo
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValueOrDefault
-               (nameof(SimpleTypeAsValueStringRangeWithDefaultValue)
-              , SimpleTypeAsValueStringRangeWithDefaultValue
-              , FromIndex, Length, DefaultValue, ValueFormatString, FormattingFlags)
+        tos.StartComplexContentType(this)
+           .AsValueOrDefault
+               (nameof(StringRangeOrDefaultComplexContentAsValue)
+              , StringRangeOrDefaultComplexContentAsValue
+              , FromIndex
+              , Length
+              , DefaultValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsCharArray | SupportsValueFormatString | DefaultTreatedAsValueOut
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsString | SupportsValueFormatString | SupportsIndexSubRanges
+                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
+public class SimpleContentAsValueStringRangeOrDefault : FormattedMoldScaffold<string>
+  , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting
+{
+    public string StringRangeOrDefaultSimpleContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(StringRangeOrDefaultSimpleContentAsValue);
+
+    public string DefaultValue { get; set; } = "";
+    public int FromIndex { get; set; }
+
+    public int Length { get; set; }
+
+    public string? StringValue
+    {
+        get => Value;
+        set => Value = value!;
+    }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .AsValueOrDefault
+               (StringRangeOrDefaultSimpleContentAsValue
+              , FromIndex
+              , Length
+              , DefaultValue
+              , ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsCharArray | SupportsValueFormatString | DefaultTreatedAsValueOut
                 | DefaultBecomesZero)]
-public class SimpleAsValueCharArrayWithFieldOrDefaultSimpleValueTypeStringBearer : FormattedMoldScaffold<char[]>
+public class ComplexContentAsValueCharArray : FormattedMoldScaffold<char[]>
   , ISupportsSettingValueFromString
 {
-    public char[] SimpleTypeAsValueCharArrayOrDefault
+    public char[] CharArrayComplexContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueCharArrayOrDefault);
+    public override string PropertyName => nameof(CharArrayComplexContentAsValue);
 
     public string? StringValue
     {
@@ -1567,25 +2155,54 @@ public class SimpleAsValueCharArrayWithFieldOrDefaultSimpleValueTypeStringBearer
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValue
-               (nameof(SimpleTypeAsValueCharArrayOrDefault)
-              , SimpleTypeAsValueCharArrayOrDefault
-              , ValueFormatString, FormattingFlags)
+        tos.StartComplexContentType(this)
+           .AsValue
+               (nameof(CharArrayComplexContentAsValue)
+              , CharArrayComplexContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges |
-                  DefaultTreatedAsValueOut | DefaultBecomesZero)]
-public class SimpleAsValueCharArrayRangeWithFieldOrDefaultSimpleValueTypeStringBearer : FormattedMoldScaffold<char[]>
-  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsCharArray | SupportsValueFormatString | DefaultTreatedAsValueOut
+                | DefaultBecomesZero)]
+public class SimpleContentAsValueCharArray : FormattedMoldScaffold<char[]>, ISupportsSettingValueFromString
 {
-    public char[] SimpleTypeAsValueCharArrayRangeOrDefault
+    public char[] CharArraySimpleContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueCharArrayRangeOrDefault);
+    public override string PropertyName => nameof(CharArraySimpleContentAsValue);
+
+    public string? StringValue
+    {
+        get => Value != null! ? new string(Value) : null;
+        set => Value = value?.ToCharArray() ?? [];
+    }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .AsValue
+               (CharArraySimpleContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges |
+                  DefaultTreatedAsValueOut | DefaultBecomesZero)]
+public class ComplexContentAsValueCharArrayRange : FormattedMoldScaffold<char[]>
+  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
+{
+    public char[] CharArrayRangeComplexContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(CharArrayRangeComplexContentAsValue);
     public int FromIndex { get; set; }
 
     public int Length { get; set; }
@@ -1597,19 +2214,90 @@ public class SimpleAsValueCharArrayRangeWithFieldOrDefaultSimpleValueTypeStringB
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValue
-               (nameof(SimpleTypeAsValueCharArrayRangeOrDefault)
-              , SimpleTypeAsValueCharArrayRangeOrDefault
-              , FromIndex, Length, ValueFormatString, FormattingFlags)
+        tos.StartComplexContentType(this)
+           .AsValue
+               (nameof(CharArrayRangeComplexContentAsValue)
+              , CharArrayRangeComplexContentAsValue
+              , FromIndex
+              , Length
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges |
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges |
                   DefaultTreatedAsValueOut | DefaultBecomesZero)]
-public class SimpleAsValueCharArrayRangeNoFieldOrDefaultSimpleValueTypeStringBearer : FormattedMoldScaffold<char[]>
+public class SimpleContentAsValueCharArrayRange : FormattedMoldScaffold<char[]>
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
-    public char[] SimpleTypeAsValueCharArrayRangeOrDefault
+    public char[] CharArrayRangeSimpleContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(CharArrayRangeSimpleContentAsValue);
+    public int FromIndex { get; set; }
+
+    public int Length { get; set; }
+
+    public string? StringValue
+    {
+        get => Value != null! ? new string(Value) : null;
+        set => Value = value?.ToCharArray() ?? [];
+    }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .AsValue
+               (CharArrayRangeSimpleContentAsValue
+              , FromIndex
+              , Length
+              , ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges |
+                  DefaultTreatedAsValueOut | DefaultBecomesNull)]
+public class ComplexContentAsValueCharArrayRangeOrNull : FormattedMoldScaffold<char[]>
+  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
+{
+    public char[] CharArrayRangeOrNullComplexContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(CharArrayRangeOrNullComplexContentAsValue);
+    public int FromIndex { get; set; }
+
+    public int Length { get; set; }
+
+    public string? StringValue
+    {
+        get => Value != null! ? new string(Value) : null;
+        set => Value = value?.ToCharArray() ?? [];
+    }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexContentType(this)
+           .AsValueOrNull
+               (nameof(CharArrayRangeOrNullComplexContentAsValue)
+              , CharArrayRangeOrNullComplexContentAsValue
+              , FromIndex
+              , Length
+              , ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges |
+                  DefaultTreatedAsValueOut | DefaultBecomesNull)]
+public class SimpleContentAsValueCharArrayRangeOrNull : FormattedMoldScaffold<char[]>
+  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
+{
+    public char[] CharArrayRangeOrNullSimpleContentAsValue
     {
         get => Value;
         set => Value = value;
@@ -1627,82 +2315,28 @@ public class SimpleAsValueCharArrayRangeNoFieldOrDefaultSimpleValueTypeStringBea
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValue(SimpleTypeAsValueCharArrayRangeOrDefault
-                                             , FromIndex, Length, ValueFormatString, FormattingFlags)
+        tos.StartSimpleContentType(this)
+           .AsValueOrNull
+               (CharArrayRangeOrNullSimpleContentAsValue
+              , FromIndex
+              , Length
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges |
-                  DefaultTreatedAsValueOut | DefaultBecomesNull)]
-public class SimpleAsValueCharArrayRangeWithFieldSimpleValueTypeStringBearer : FormattedMoldScaffold<char[]>
-  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
-{
-    public char[] SimpleTypeAsValueCharArrayRange
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueCharArrayRange);
-    public int FromIndex { get; set; }
-
-    public int Length { get; set; }
-
-    public string? StringValue
-    {
-        get => Value != null! ? new string(Value) : null;
-        set => Value = value?.ToCharArray() ?? [];
-    }
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValueOrNull
-               (nameof(SimpleTypeAsValueCharArrayRange)
-              , SimpleTypeAsValueCharArrayRange
-              , FromIndex, Length, ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges |
-                  DefaultTreatedAsValueOut | DefaultBecomesNull)]
-public class SimpleAsValueCharArrayRangeNoFieldSimpleValueTypeStringBearer : FormattedMoldScaffold<char[]>
-  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
-{
-    public char[] SimpleTypeAsValueCharArrayRange
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => "";
-    public int FromIndex { get; set; }
-
-    public int Length { get; set; }
-
-    public string? StringValue
-    {
-        get => Value != null! ? new string(Value) : null;
-        set => Value = value?.ToCharArray() ?? [];
-    }
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValueOrNull
-               (SimpleTypeAsValueCharArrayRange
-              , FromIndex, Length, ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges
                 | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
-public class SimpleAsValueCharArrayRangeWithFieldWithDefaultSimpleValueTypeStringBearer : FormattedMoldScaffold<char[]>
+public class ComplexContentAsValueCharArrayRangeOrStringDefault : FormattedMoldScaffold<char[]>
   , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting
 {
-    public char[] SimpleTypeAsValueCharArrayRange
+    public char[] CharArrayRangeOrStringDefaultComplexContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueCharArrayRange);
+    public override string PropertyName => nameof(CharArrayRangeOrStringDefaultComplexContentAsValue);
 
     public string DefaultValue { get; set; } = "";
     public int FromIndex { get; set; }
@@ -1716,19 +2350,24 @@ public class SimpleAsValueCharArrayRangeWithFieldWithDefaultSimpleValueTypeStrin
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValueOrDefault
-               (nameof(SimpleTypeAsValueCharArrayRange)
-              , SimpleTypeAsValueCharArrayRange
-              , FromIndex, Length, DefaultValue, ValueFormatString, FormattingFlags)
+        tos.StartComplexContentType(this)
+           .AsValueOrDefault
+               (nameof(CharArrayRangeOrStringDefaultComplexContentAsValue)
+              , CharArrayRangeOrStringDefaultComplexContentAsValue
+              , FromIndex
+              , Length
+              , DefaultValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsCharArray | SupportsValueFormatString | SupportsIndexSubRanges
                 | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
-public class SimpleAsValueCharArrayRangeNoFieldWithDefaultSimpleValueTypeStringBearer : FormattedMoldScaffold<char[]>
+public class SimpleContentAsValueCharArrayRangeOrStringDefault : FormattedMoldScaffold<char[]>
   , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting
 {
-    public char[] SimpleTypeAsValueCharArrayRange
+    public char[] CharArrayRangeOrStringDefaultSimpleContentAsValue
     {
         get => Value;
         set => Value = value;
@@ -1748,24 +2387,29 @@ public class SimpleAsValueCharArrayRangeNoFieldWithDefaultSimpleValueTypeStringB
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this).AsValueOrDefault
-               (SimpleTypeAsValueCharArrayRange
-              , FromIndex, Length, DefaultValue, ValueFormatString, FormattingFlags)
+        tos.StartSimpleContentType(this)
+           .AsValueOrDefault
+               (CharArrayRangeOrStringDefaultSimpleContentAsValue
+              , FromIndex
+              , Length
+              , DefaultValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsCharSequence | SupportsValueFormatString
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsCharSequence | SupportsValueFormatString
                 | DefaultTreatedAsValueOut | DefaultBecomesZero)]
-public class SimpleAsValueCharSequenceWithFieldOrDefaultSimpleValueTypeStringBearer<TCharSeq> : FormattedMoldScaffold<TCharSeq>
+public class ComplexContentAsValueCharSequence<TCharSeq> : FormattedMoldScaffold<TCharSeq>
   , ISupportsSettingValueFromString where TCharSeq : ICharSequence
 {
-    public TCharSeq SimpleTypeAsValueCharSequenceOrDefault
+    public TCharSeq CharSequenceComplexContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueCharSequenceOrDefault);
+    public override string PropertyName => nameof(CharSequenceComplexContentAsValue);
 
     public string? StringValue
     {
@@ -1783,21 +2427,22 @@ public class SimpleAsValueCharSequenceWithFieldOrDefaultSimpleValueTypeStringBea
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartComplexContentType(this)
            .AsValue
-               (nameof(SimpleTypeAsValueCharSequenceOrDefault)
-              , SimpleTypeAsValueCharSequenceOrDefault
-              , ValueFormatString, FormattingFlags)
+               (nameof(CharSequenceComplexContentAsValue)
+              , CharSequenceComplexContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsCharSequence | SupportsValueFormatString | DefaultTreatedAsValueOut
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsCharSequence | SupportsValueFormatString | DefaultTreatedAsValueOut
                 | DefaultBecomesZero)]
-public class SimpleAsValueCharSequenceNoFieldOrDefaultSimpleValueTypeStringBearer<TCharSeq> : FormattedMoldScaffold<TCharSeq>
+public class SimpleContentAsValueCharSequence<TCharSeq> : FormattedMoldScaffold<TCharSeq>
   , ISupportsSettingValueFromString
     where TCharSeq : ICharSequence
 {
-    public TCharSeq SimpleTypeAsValueCharSequenceOrDefault
+    public TCharSeq CharSequenceSimpleContentAsValue
     {
         get => Value;
         set => Value = value;
@@ -1821,58 +2466,62 @@ public class SimpleAsValueCharSequenceNoFieldOrDefaultSimpleValueTypeStringBeare
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartSimpleContentType(this)
            .AsValue
-               (SimpleTypeAsValueCharSequenceOrDefault
-              , ValueFormatString, FormattingFlags)
+               (CharSequenceSimpleContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges |
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges 
+                 | DefaultTreatedAsValueOut | DefaultBecomesZero)]
+public class ComplexContentAsValueCharSequenceRange<TCharSeq> : FormattedMoldScaffold<TCharSeq>
+  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting where TCharSeq : ICharSequence
+{
+    public TCharSeq CharSequenceRangeComplexContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(CharSequenceRangeComplexContentAsValue);
+    public int FromIndex { get; set; }
+
+    public int Length { get; set; }
+
+    public string? StringValue
+    {
+        get => Value != null! ? Value.ToString() : null;
+        set
+        {
+            var typeOfCharSeq = typeof(TCharSeq);
+
+            if (typeOfCharSeq == typeof(CharArrayStringBuilder))
+                Value = (TCharSeq)(object)new CharArrayStringBuilder(value);
+            else
+                Value = (TCharSeq)(object)new MutableString(value);
+        }
+    }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexContentType(this)
+           .AsValue
+               (nameof(CharSequenceRangeComplexContentAsValue)
+              , CharSequenceRangeComplexContentAsValue
+              , FromIndex
+              , Length
+              , ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges |
                   DefaultTreatedAsValueOut | DefaultBecomesZero)]
-public class SimpleAsValueCharSequenceRangeWithFieldOrDefaultSimpleValueTypeStringBearer<TCharSeq> : FormattedMoldScaffold<TCharSeq>
+public class SimpleContentAsValueCharSequenceRange<TCharSeq> : FormattedMoldScaffold<TCharSeq>
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting where TCharSeq : ICharSequence
 {
-    public TCharSeq SimpleTypeAsValueCharSequenceRangeOrDefault
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(SimpleTypeAsValueCharSequenceRangeOrDefault);
-    public int FromIndex { get; set; }
-
-    public int Length { get; set; }
-
-    public string? StringValue
-    {
-        get => Value != null! ? Value.ToString() : null;
-        set
-        {
-            var typeOfCharSeq = typeof(TCharSeq);
-
-            if (typeOfCharSeq == typeof(CharArrayStringBuilder))
-                Value = (TCharSeq)(object)new CharArrayStringBuilder(value);
-            else
-                Value = (TCharSeq)(object)new MutableString(value);
-        }
-    }
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .AsValue
-               (nameof(SimpleTypeAsValueCharSequenceRangeOrDefault)
-              , SimpleTypeAsValueCharSequenceRangeOrDefault
-              , FromIndex, Length, ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges |
-                  DefaultTreatedAsValueOut | DefaultBecomesZero)]
-public class SimpleAsValueCharSequenceRangeNoFieldOrDefaultSimpleValueTypeStringBearer<TCharSeq> : FormattedMoldScaffold<TCharSeq>
-  , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting where TCharSeq : ICharSequence
-{
-    public TCharSeq SimpleTypeAsValueCharSequenceRangeOrDefault
+    public TCharSeq CharSequenceRangeSimpleContentAsValue
     {
         get => Value;
         set => Value = value;
@@ -1899,25 +2548,28 @@ public class SimpleAsValueCharSequenceRangeNoFieldOrDefaultSimpleValueTypeString
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartSimpleContentType(this)
            .AsValue
-               (SimpleTypeAsValueCharSequenceRangeOrDefault
-              , FromIndex, Length, ValueFormatString, FormattingFlags)
+               (CharSequenceRangeSimpleContentAsValue
+              , FromIndex
+              , Length
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges |
-                  DefaultTreatedAsValueOut | DefaultBecomesNull)]
-public class SimpleAsValueCharSequenceRangeWithFieldSimpleValueTypeStringBearer<TCharSeq> : FormattedMoldScaffold<TCharSeq>
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsCharSequence | SupportsValueFormatString 
+                | SupportsIndexSubRanges | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+public class ComplexContentAsValueCharSequenceRangeOrNull<TCharSeq> : FormattedMoldScaffold<TCharSeq>
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting where TCharSeq : ICharSequence
 {
-    public TCharSeq SimpleTypeAsValueCharSequenceRangeOrDefault
+    public TCharSeq CharSequenceRangeOrNullComplexContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueCharSequenceRangeOrDefault);
+    public override string PropertyName => nameof(CharSequenceRangeOrNullComplexContentAsValue);
     public int FromIndex { get; set; }
 
     public int Length { get; set; }
@@ -1937,20 +2589,23 @@ public class SimpleAsValueCharSequenceRangeWithFieldSimpleValueTypeStringBearer<
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartComplexContentType(this)
            .AsValueOrNull
-               (nameof(SimpleTypeAsValueCharSequenceRangeOrDefault)
-              , SimpleTypeAsValueCharSequenceRangeOrDefault
-              , FromIndex, Length, ValueFormatString, FormattingFlags)
+               (nameof(CharSequenceRangeOrNullComplexContentAsValue)
+              , CharSequenceRangeOrNullComplexContentAsValue
+              , FromIndex
+              , Length
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges |
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges |
                   DefaultTreatedAsValueOut | DefaultBecomesNull)]
-public class SimpleAsValueCharSequenceRangeNoFieldSimpleValueTypeStringBearer<TCharSeq> : FormattedMoldScaffold<TCharSeq>
+public class SimpleContentAsValueCharSequenceRangeOrNull<TCharSeq> : FormattedMoldScaffold<TCharSeq>
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting where TCharSeq : ICharSequence
 {
-    public TCharSeq SimpleTypeAsValueCharSequenceRangeOrDefault
+    public TCharSeq CharSequenceRangeOrNullSimpleContentAsValue
     {
         get => Value;
         set => Value = value;
@@ -1976,26 +2631,29 @@ public class SimpleAsValueCharSequenceRangeNoFieldSimpleValueTypeStringBearer<TC
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartSimpleContentType(this)
            .AsValueOrNull
-               (SimpleTypeAsValueCharSequenceRangeOrDefault
-              , FromIndex, Length, ValueFormatString, FormattingFlags)
+               (CharSequenceRangeOrNullSimpleContentAsValue
+              , FromIndex
+              , Length
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges
-                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
-public class SimpleAsValueCharSequenceRangeWithFieldWithDefaultSimpleValueTypeStringBearer<TCharSeq> : FormattedMoldScaffold<TCharSeq>
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | SingleValueCardinality | AcceptsCharSequence | SupportsValueFormatString 
+                | SupportsIndexSubRanges | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
+public class ComplexContentAsValueCharSequenceRangeOrStringDefault<TCharSeq> : FormattedMoldScaffold<TCharSeq>
   , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting
     where TCharSeq : ICharSequence
 {
-    public TCharSeq SimpleTypeAsValueCharSequenceRangeWithDefault
+    public TCharSeq CharSequenceRangeOrStringDefaultComplexContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueCharSequenceRangeWithDefault);
+    public override string PropertyName => nameof(CharSequenceRangeOrStringDefaultComplexContentAsValue);
 
     public string DefaultValue { get; set; } = "";
     public int FromIndex { get; set; }
@@ -2017,21 +2675,25 @@ public class SimpleAsValueCharSequenceRangeWithFieldWithDefaultSimpleValueTypeSt
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartComplexContentType(this)
            .AsValueOrDefault
-               (nameof(SimpleTypeAsValueCharSequenceRangeWithDefault)
-              , SimpleTypeAsValueCharSequenceRangeWithDefault
-              , FromIndex, Length, DefaultValue, ValueFormatString, FormattingFlags)
+               (nameof(CharSequenceRangeOrStringDefaultComplexContentAsValue)
+              , CharSequenceRangeOrStringDefaultComplexContentAsValue
+              , FromIndex
+              , Length
+              , DefaultValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsCharSequence | SupportsValueFormatString | SupportsIndexSubRanges
                 | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
-public class SimpleAsValueCharSequenceRangeNoFieldWithDefaultSimpleValueTypeStringBearer<TCharSeq> : FormattedMoldScaffold<TCharSeq>
+public class SimpleContentAsValueCharSequenceRangeOrStringDefault<TCharSeq> : FormattedMoldScaffold<TCharSeq>
   , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting
     where TCharSeq : ICharSequence
 {
-    public TCharSeq SimpleTypeAsValueCharSequenceRangeWithDefault
+    public TCharSeq CharSequenceRangeOrStringDefaultSimpleContentAsValue
     {
         get => Value;
         set => Value = value;
@@ -2058,25 +2720,29 @@ public class SimpleAsValueCharSequenceRangeNoFieldWithDefaultSimpleValueTypeStri
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartSimpleContentType(this)
            .AsValueOrDefault
-               (SimpleTypeAsValueCharSequenceRangeWithDefault
-              , FromIndex, Length, DefaultValue, ValueFormatString, FormattingFlags)
+               (CharSequenceRangeOrStringDefaultSimpleContentAsValue
+              , FromIndex
+              , Length
+              , DefaultValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsStringBuilder | SupportsValueFormatString
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsStringBuilder | SupportsValueFormatString
                 | DefaultTreatedAsValueOut | DefaultBecomesZero)]
-public class SimpleAsValueStringBuilderWithFieldOrDefaultSimpleValueTypeStringBearer : FormattedMoldScaffold<StringBuilder>
+public class ComplexContentAsValueStringBuilder : FormattedMoldScaffold<StringBuilder>
   , ISupportsSettingValueFromString
 {
-    public StringBuilder SimpleTypeAsValueStringBuilderOrDefault
+    public StringBuilder StringBuilderComplexContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueStringBuilderOrDefault);
+    public override string PropertyName => nameof(StringBuilderComplexContentAsValue);
 
     public string? StringValue
     {
@@ -2085,20 +2751,21 @@ public class SimpleAsValueStringBuilderWithFieldOrDefaultSimpleValueTypeStringBe
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartComplexContentType(this)
            .AsValue
-               (nameof(SimpleTypeAsValueStringBuilderOrDefault)
-              , SimpleTypeAsValueStringBuilderOrDefault
-              , ValueFormatString, FormattingFlags)
+               (nameof(StringBuilderComplexContentAsValue)
+              , StringBuilderComplexContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsStringBuilder | SupportsValueFormatString
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsStringBuilder | SupportsValueFormatString
                 | DefaultTreatedAsValueOut | DefaultBecomesZero)]
-public class SimpleAsValueStringBuilderNoFieldOrDefaultSimpleValueTypeStringBearer : FormattedMoldScaffold<StringBuilder>
+public class SimpleContentAsValueStringBuilder : FormattedMoldScaffold<StringBuilder>
   , ISupportsSettingValueFromString
 {
-    public StringBuilder SimpleTypeAsValueStringBuilderOrDefault
+    public StringBuilder StringBuilderSimpleContentAsValue
     {
         get => Value;
         set => Value = value;
@@ -2113,25 +2780,26 @@ public class SimpleAsValueStringBuilderNoFieldOrDefaultSimpleValueTypeStringBear
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartSimpleContentType(this)
            .AsValue
-               (SimpleTypeAsValueStringBuilderOrDefault
-              , ValueFormatString, FormattingFlags)
+               (StringBuilderSimpleContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges |
-                  DefaultTreatedAsValueOut | DefaultBecomesZero)]
-public class SimpleAsValueStringBuilderRangeWithFieldOrDefaultSimpleValueTypeStringBearer : FormattedMoldScaffold<StringBuilder>
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsStringBuilder | SupportsValueFormatString 
+                | SupportsIndexSubRanges | DefaultTreatedAsValueOut | DefaultBecomesZero)]
+public class ComplexContentAsValueStringBuilderRange : FormattedMoldScaffold<StringBuilder>
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
-    public StringBuilder SimpleTypeAsValueStringBuilderRangeOrDefault
+    public StringBuilder StringBuilderRangeComplexContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueStringBuilderRangeOrDefault);
+    public override string PropertyName => nameof(StringBuilderRangeComplexContentAsValue);
     public int FromIndex { get; set; }
 
     public int Length { get; set; }
@@ -2143,20 +2811,23 @@ public class SimpleAsValueStringBuilderRangeWithFieldOrDefaultSimpleValueTypeStr
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartComplexContentType(this)
            .AsValue
-               (nameof(SimpleTypeAsValueStringBuilderRangeOrDefault)
-              , SimpleTypeAsValueStringBuilderRangeOrDefault
-              , FromIndex, Length, ValueFormatString, FormattingFlags)
+               (nameof(StringBuilderRangeComplexContentAsValue)
+              , StringBuilderRangeComplexContentAsValue
+              , FromIndex
+              , Length
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges |
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges |
                   DefaultTreatedAsValueOut | DefaultBecomesZero)]
-public class SimpleAsValueStringBuilderRangeNoFieldOrDefaultSimpleValueTypeStringBearer : FormattedMoldScaffold<StringBuilder>
+public class SimpleContentAsValueStringBuilderRange : FormattedMoldScaffold<StringBuilder>
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
-    public StringBuilder SimpleTypeAsValueStringBuilderRangeOrDefault
+    public StringBuilder StringBuilderRangeSimpleContentAsValue
     {
         get => Value;
         set => Value = value;
@@ -2174,25 +2845,28 @@ public class SimpleAsValueStringBuilderRangeNoFieldOrDefaultSimpleValueTypeStrin
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartSimpleContentType(this)
            .AsValue
-               (SimpleTypeAsValueStringBuilderRangeOrDefault
-              , FromIndex, Length, ValueFormatString, FormattingFlags)
+               (StringBuilderRangeSimpleContentAsValue
+              , FromIndex
+              , Length
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges |
-                  DefaultTreatedAsValueOut | DefaultBecomesNull)]
-public class SimpleAsValueStringBuilderRangeWithFieldSimpleValueTypeStringBearer : FormattedMoldScaffold<StringBuilder?>
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsStringBuilder | SupportsValueFormatString 
+                | SupportsIndexSubRanges | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+public class ComplexContentAsValueStringBuilderRangeOrNull : FormattedMoldScaffold<StringBuilder?>
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
-    public StringBuilder? SimpleTypeAsValueStringBuilderRangeOrDefault
+    public StringBuilder? StringBuilderRangeOrNullComplexContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueStringBuilderRangeOrDefault);
+    public override string PropertyName => nameof(StringBuilderRangeOrNullComplexContentAsValue);
     public int FromIndex { get; set; }
 
     public int Length { get; set; }
@@ -2204,20 +2878,23 @@ public class SimpleAsValueStringBuilderRangeWithFieldSimpleValueTypeStringBearer
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartComplexContentType(this)
            .AsValueOrNull
-               (nameof(SimpleTypeAsValueStringBuilderRangeOrDefault)
-              , SimpleTypeAsValueStringBuilderRangeOrDefault
-              , FromIndex, Length, ValueFormatString, FormattingFlags)
+               (nameof(StringBuilderRangeOrNullComplexContentAsValue)
+              , StringBuilderRangeOrNullComplexContentAsValue
+              , FromIndex
+              , Length
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges |
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges |
                   DefaultTreatedAsValueOut | DefaultBecomesNull)]
-public class SimpleAsValueStringBuilderRangeNoFieldSimpleValueTypeStringBearer : FormattedMoldScaffold<StringBuilder?>
+public class SimpleContentAsValueStringBuilderRangeOrNull : FormattedMoldScaffold<StringBuilder?>
   , ISupportsSettingValueFromString, ISupportsIndexRangeLimiting
 {
-    public StringBuilder? SimpleTypeAsValueStringBuilderRangeOrDefault
+    public StringBuilder? StringBuilderRangeOrNullSimpleContentAsValue
     {
         get => Value;
         set => Value = value;
@@ -2235,25 +2912,28 @@ public class SimpleAsValueStringBuilderRangeNoFieldSimpleValueTypeStringBearer :
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartSimpleContentType(this)
            .AsValueOrNull
-               (SimpleTypeAsValueStringBuilderRangeOrDefault
-              , FromIndex, Length, ValueFormatString, FormattingFlags)
+               (StringBuilderRangeOrNullSimpleContentAsValue
+              , FromIndex
+              , Length
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges
                 | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
-public class SimpleAsValueStringBuilderRangeWithFieldWithDefaultSimpleValueTypeStringBearer : FormattedMoldScaffold<StringBuilder?>
+public class ComplexContentAsValueStringBuilderRangeOrStringDefault : FormattedMoldScaffold<StringBuilder?>
   , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting
 {
-    public StringBuilder? SimpleTypeAsValueStringBuilderRangeWithDefault
+    public StringBuilder? StringBuilderRangeOrStringDefaultComplexContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueStringBuilderRangeWithDefault);
+    public override string PropertyName => nameof(StringBuilderRangeOrStringDefaultComplexContentAsValue);
 
     public string DefaultValue { get; set; } = "";
     public int FromIndex { get; set; }
@@ -2267,20 +2947,24 @@ public class SimpleAsValueStringBuilderRangeWithFieldWithDefaultSimpleValueTypeS
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartComplexContentType(this)
            .AsValueOrDefault
-               (nameof(SimpleTypeAsValueStringBuilderRangeWithDefault)
-              , SimpleTypeAsValueStringBuilderRangeWithDefault
-              , FromIndex, Length, DefaultValue, ValueFormatString, FormattingFlags)
+               (nameof(StringBuilderRangeOrStringDefaultComplexContentAsValue)
+              , StringBuilderRangeOrStringDefaultComplexContentAsValue
+              , FromIndex
+              , Length
+              , DefaultValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsStringBuilder | SupportsValueFormatString | SupportsIndexSubRanges
                 | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
-public class SimpleAsValueStringBuilderRangeNoFieldWithDefaultSimpleValueTypeStringBearer : FormattedMoldScaffold<StringBuilder?>
+public class SimpleContentAsValueStringBuilderRangeOrDefault : FormattedMoldScaffold<StringBuilder?>
   , ISupportsSettingValueFromString, IMoldSupportedDefaultValue<string>, ISupportsIndexRangeLimiting
 {
-    public StringBuilder? SimpleTypeAsValueStringBuilderRangeWithDefault
+    public StringBuilder? StringBuilderRangeOrDefaultSimpleContentAsValue
     {
         get => Value;
         set => Value = value;
@@ -2299,73 +2983,154 @@ public class SimpleAsValueStringBuilderRangeNoFieldWithDefaultSimpleValueTypeStr
     }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartSimpleContentType(this)
            .AsValueOrDefault
-               (SimpleTypeAsValueStringBuilderRangeWithDefault
-              , FromIndex, Length, DefaultValue, ValueFormatString, FormattingFlags)
+               (StringBuilderRangeOrDefaultSimpleContentAsValue
+              , FromIndex
+              , Length
+              , DefaultValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyGeneric | SupportsValueFormatString
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsAnyGeneric | SupportsValueFormatString
                 | DefaultTreatedAsValueOut | DefaultBecomesNull)]
-public class SimpleAsValueMatchOrDefaultSimpleValueTypeStringBearer<TAny> : FormattedMoldScaffold<TAny?>
+public class ComplexContentAsValueMatch<TAny> : FormattedMoldScaffold<TAny?>
 {
-    public TAny? SimpleTypeAsValueMatchOrDefault
+    public TAny? MatchComplexContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueMatchOrDefault);
+    public override string PropertyName => nameof(MatchComplexContentAsValue);
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .AsValueMatch(nameof(SimpleTypeAsValueMatchOrDefault), SimpleTypeAsValueMatchOrDefault, ValueFormatString
-                       , FormattingFlags)
+        tos.StartComplexContentType(this)
+           .AsValueMatch
+               (nameof(MatchComplexContentAsValue)
+              , MatchComplexContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyGeneric | SupportsValueFormatString
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsAnyGeneric | SupportsValueFormatString
                 | DefaultTreatedAsValueOut | DefaultBecomesNull)]
-public class SimpleAsValueMatchSimpleValueTypeStringBearer<TAny> : FormattedMoldScaffold<TAny?>
+public class SimpleContentAsValueMatch<TAny> : FormattedMoldScaffold<TAny?>
 {
-    public TAny? SimpleTypeAsValueMatch
+    public TAny? MatchSimpleContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueMatch);
+    public override string PropertyName => nameof(MatchSimpleContentAsValue);
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .AsValueMatch
+               (MatchSimpleContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsAnyGeneric | SupportsValueFormatString
+                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+public class ComplexContentAsValueMatchOrNull<TAny> : FormattedMoldScaffold<TAny?>
+{
+    public TAny? MatchOrNullComplexContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(MatchOrNullComplexContentAsValue);
 
     public string DefaultValue { get; set; } = "";
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
-           .AsValueMatchOrNull(nameof(SimpleTypeAsValueMatch), SimpleTypeAsValueMatch, ValueFormatString
-                             , FormattingFlags)
+        tos.StartComplexContentType(this)
+           .AsValueMatchOrNull
+               (nameof(MatchOrNullComplexContentAsValue)
+              , MatchOrNullComplexContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(SimpleType | SingleValueCardinality | AcceptsAnyGeneric | SupportsValueFormatString
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsAnyGeneric | SupportsValueFormatString
+                | DefaultTreatedAsValueOut | DefaultBecomesNull)]
+public class SimpleContentAsValueMatchOrNull<TAny> : FormattedMoldScaffold<TAny?>
+{
+    public TAny? MatchOrNullSimpleContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(MatchOrNullSimpleContentAsValue);
+
+    public string DefaultValue { get; set; } = "";
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .AsValueMatchOrNull
+               (MatchOrNullSimpleContentAsValue
+              , ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | ComplexType | SingleValueCardinality | AcceptsAnyGeneric | SupportsValueFormatString
                 | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackString)]
-public class SimpleAsValueMatchWithDefaultSimpleValueTypeStringBearer<TAny> : FormattedMoldScaffold<TAny?>
+public class ComplexContentAsValueMatchOrStringDefault<TAny> : FormattedMoldScaffold<TAny?>
   , IMoldSupportedDefaultValue<string>
 {
-    public TAny? SimpleTypeAsValueMatchWithDefault
+    public TAny? MatchOrStringDefaultComplexContentAsValue
     {
         get => Value;
         set => Value = value;
     }
 
-    public override string PropertyName => nameof(SimpleTypeAsValueMatchWithDefault);
+    public override string PropertyName => nameof(MatchOrStringDefaultComplexContentAsValue);
 
     public string DefaultValue { get; set; } = "";
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleValueType(this)
+        tos.StartComplexContentType(this)
            .AsValueMatchOrDefault
-               (nameof(SimpleTypeAsValueMatchWithDefault)
-              , SimpleTypeAsValueMatchWithDefault
-              , DefaultValue, ValueFormatString, FormattingFlags)
+               (nameof(MatchOrStringDefaultComplexContentAsValue)
+              , MatchOrStringDefaultComplexContentAsValue
+              , DefaultValue
+              , ValueFormatString
+              , FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(ContentType | SingleValueCardinality | AcceptsAnyGeneric | SupportsValueFormatString
+                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackString)]
+public class SimpleContentAsValueMatchOrStringDefault<TAny> : FormattedMoldScaffold<TAny?>
+  , IMoldSupportedDefaultValue<string>
+{
+    public TAny? MatchOrStringDefaultSimpleContentAsValue
+    {
+        get => Value;
+        set => Value = value;
+    }
+
+    public override string PropertyName => nameof(MatchOrStringDefaultSimpleContentAsValue);
+
+    public string DefaultValue { get; set; } = "";
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartSimpleContentType(this)
+           .AsValueMatchOrDefault
+               (MatchOrStringDefaultSimpleContentAsValue
+              , DefaultValue
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }

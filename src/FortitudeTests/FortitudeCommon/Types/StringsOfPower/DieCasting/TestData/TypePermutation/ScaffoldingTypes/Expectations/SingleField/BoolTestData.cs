@@ -33,7 +33,7 @@ public static class BoolTestData
                      | DefaultTreatedAsValueOut)
               , "true"
             }
-            ,{ new EK(SimpleType | AcceptsStruct | DefaultTreatedAsStringOut) , "\"true\"" }
+            ,{ new EK(ContentType | AcceptsStruct | DefaultTreatedAsStringOut) , "\"true\"" }
         }
       , new FieldExpect<bool>(false, "'{0}'", true, true)
         {
@@ -43,13 +43,13 @@ public static class BoolTestData
               , "'false'"
             }
            ,
-            { new EK(SimpleType | AcceptsStruct | DefaultTreatedAsStringOut) , "\"'false'\"" }
+            { new EK(ContentType | AcceptsStruct | DefaultTreatedAsStringOut) , "\"'false'\"" }
         }
       , new FieldExpect<bool>(true, "\"{0,-10}\"")
         {
-            { new EK(SimpleType | AcceptsStruct, Log | Compact | Pretty) , "\"true      \"" }
-          , { new EK(SimpleType | AcceptsStruct | DefaultTreatedAsValueOut) , "\"true      \"" }
-          , { new EK(SimpleType | AcceptsStruct) , 
+            { new EK(ContentType | AcceptsStruct, Log | Compact | Pretty) , "\"true      \"" }
+          , { new EK(ContentType | AcceptsStruct | DefaultTreatedAsValueOut) , "\"true      \"" }
+          , { new EK(ContentType | AcceptsStruct) , 
                 """
                 "\u0022true      \u0022"
                 """
@@ -65,19 +65,19 @@ public static class BoolTestData
       , new FieldExpect<bool?>(false, "{0}")
         {
             { new EK(AcceptsNullableStruct | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "false" }
-           ,{ new EK(SimpleType | AcceptsNullableStruct  | DefaultTreatedAsStringOut), "\"false\"" }
+           ,{ new EK(ContentType | AcceptsNullableStruct  | DefaultTreatedAsStringOut), "\"false\"" }
         }
       , new FieldExpect<bool?>(true, "{0}", true, true)
         {
             { new EK(AcceptsNullableStruct | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "true" }
-           , { new EK(SimpleType | AcceptsNullableStruct | DefaultTreatedAsStringOut), "\"true\"" }
+           , { new EK(ContentType | AcceptsNullableStruct | DefaultTreatedAsStringOut), "\"true\"" }
         }
       , new FieldExpect<bool?>(null, "{0}",true, false)
         {
-            { new EK( SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesNull | DefaultBecomesFallbackValue), "null" }
-           ,{ new EK( SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString), "false" }
-           ,{ new EK( SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString), "\"false\"" }
-           ,{ new EK( SimpleType | CallsViaMatch), "null" }
+            { new EK( ContentType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesNull | DefaultBecomesFallbackValue), "null" }
+           ,{ new EK( ContentType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString), "false" }
+           ,{ new EK( ContentType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString), "\"false\"" }
+           ,{ new EK( ContentType | CallsViaMatch), "null" }
           , { new EK(AcceptsNullableStruct | AlwaysWrites | NonDefaultWrites | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut), "null" }
         }
       , new FieldExpect<bool?>(false, "'{0}'", true, true)
@@ -87,13 +87,13 @@ public static class BoolTestData
                      | DefaultTreatedAsValueOut) , "'false'"
             }
            ,
-            { new EK(SimpleType | AcceptsNullableStruct | DefaultTreatedAsStringOut) , "\"'false'\"" }
+            { new EK(ContentType | AcceptsNullableStruct | DefaultTreatedAsStringOut) , "\"'false'\"" }
         }
       , new FieldExpect<bool?>(true, "\"{0,-10}\"")
         {
-            { new EK(SimpleType | AcceptsNullableStruct, Log | Compact | Pretty) , "\"true      \"" }
-          , { new EK(SimpleType | AcceptsNullableStruct | DefaultTreatedAsValueOut) , "\"true      \"" }
-          , { new EK(SimpleType | AcceptsNullableStruct) , 
+            { new EK(ContentType | AcceptsNullableStruct, Log | Compact | Pretty) , "\"true      \"" }
+          , { new EK(ContentType | AcceptsNullableStruct | DefaultTreatedAsValueOut) , "\"true      \"" }
+          , { new EK(ContentType | AcceptsNullableStruct) , 
                 """
                 "\u0022true      \u0022"
                 """

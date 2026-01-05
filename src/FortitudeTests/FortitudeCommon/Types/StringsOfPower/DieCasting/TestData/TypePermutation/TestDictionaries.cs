@@ -36,12 +36,12 @@ public class TestDictionaries
 
     public static readonly List<bool> Bool_False_SubList = [false];
 
-    public static readonly PalantírReveal<bool> Bool_Reveal          = (b, tos) => tos.StartSimpleValueType(b).AsValue(b);
-    public static readonly PalantírReveal<bool> Bool_Reveal_AsString = (b, tos) => tos.StartSimpleValueType(b).AsString(b);
-    public static readonly PalantírReveal<bool> Bool_OneChar_Reveal  = (b, tos) => tos.StartSimpleValueType(b).AsValue(b, "{0[..1]}");
+    public static readonly PalantírReveal<bool> Bool_Reveal          = (b, tos) => tos.StartSimpleContentType(b).AsValue(b);
+    public static readonly PalantírReveal<bool> Bool_Reveal_AsString = (b, tos) => tos.StartSimpleContentType(b).AsString(b);
+    public static readonly PalantírReveal<bool> Bool_OneChar_Reveal  = (b, tos) => tos.StartSimpleContentType(b).AsValue(b, "{0[..1]}");
 
-    public static readonly PalantírReveal<int> Int_Money_Reveal          = (i, tos) => tos.StartSimpleValueType(i).AsValue(i, "{0:C2}");
-    public static readonly PalantírReveal<int> Int_NegativeString_Reveal = (i, tos) => tos.StartSimpleValueType(i).AsValue(-i, "\"{0}\"");
+    public static readonly PalantírReveal<int> Int_Money_Reveal          = (i, tos) => tos.StartSimpleContentType(i).AsValue(i, "{0:C2}");
+    public static readonly PalantírReveal<int> Int_NegativeString_Reveal = (i, tos) => tos.StartSimpleContentType(i).AsValue(-i, "\"{0}\"");
 
     public static readonly List<KeyValuePair<bool, int?>> BoolNullIntKvpList =
         [new KeyValuePair<bool, int?>(true, 1), new KeyValuePair<bool, int?>(false, null)];
@@ -92,14 +92,14 @@ public class TestDictionaries
 
     public static readonly List<double> Double_Second_4_SubList = [Math.PI * Math.E, 1, -1, 100];
 
-    public static readonly PalantírReveal<double> Double_Reveal            = (d, tos) => tos.StartSimpleValueType(d).AsValue(d);
-    public static readonly PalantírReveal<double> Double_Reveal_1Dp        = (d, tos) => tos.StartSimpleValueType(d).AsValue(d, "N1");
-    public static readonly PalantírReveal<double> Double_Reveal_Pad17      = (d, tos) => tos.StartSimpleValueType(d).AsValue(d, "{0,17}");
-    public static readonly PalantírReveal<double> Double_Reveal_PadMinus17 = (d, tos) => tos.StartSimpleValueType(d).AsValue(d, "{0,-17}");
+    public static readonly PalantírReveal<double> Double_Reveal            = (d, tos) => tos.StartSimpleContentType(d).AsValue(d);
+    public static readonly PalantírReveal<double> Double_Reveal_1Dp        = (d, tos) => tos.StartSimpleContentType(d).AsValue(d, "N1");
+    public static readonly PalantírReveal<double> Double_Reveal_Pad17      = (d, tos) => tos.StartSimpleContentType(d).AsValue(d, "{0,17}");
+    public static readonly PalantírReveal<double> Double_Reveal_PadMinus17 = (d, tos) => tos.StartSimpleContentType(d).AsValue(d, "{0,-17}");
 
-    public static readonly PalantírReveal<ICharSequence> CharSequenceMap_10Chars     = (cs, tos) => tos.StartSimpleValueType(cs).AsString(cs, "{0[..10]}");
-    public static readonly PalantírReveal<ICharSequence> CharSequenceMap_Pad50       = (cs, tos) => tos.StartSimpleValueType(cs).AsString(cs, "{0,-50}");
-    public static readonly PalantírReveal<ICharSequence> CharSequenceMap_Last10Chars = (cs, tos) => tos.StartSimpleValueType(cs).AsString(cs, "{0[^10..]}");
+    public static readonly PalantírReveal<ICharSequence> CharSequenceMap_10Chars     = (cs, tos) => tos.StartSimpleContentType(cs).AsString(cs, "{0[..10]}");
+    public static readonly PalantírReveal<ICharSequence> CharSequenceMap_Pad50       = (cs, tos) => tos.StartSimpleContentType(cs).AsString(cs, "{0,-50}");
+    public static readonly PalantírReveal<ICharSequence> CharSequenceMap_Last10Chars = (cs, tos) => tos.StartSimpleContentType(cs).AsString(cs, "{0[^10..]}");
 
     public static readonly List<KeyValuePair<double, ICharSequence?>> DoubleNullCharSequence =
     [
@@ -179,13 +179,13 @@ public class TestDictionaries
       , new (UInt128.MaxValue, UInt128.MaxValue)
     ];
     
-    public static readonly PalantírReveal<UInt128> UInt128_Reveal_SglQt = (ui, tos) => tos.StartSimpleValueType(ui).AsValue(ui, "'{0}'");
-    public static readonly PalantírReveal<UInt128> UInt128_Reveal_DblQtPadMinus45 = (ui, tos) => tos.StartSimpleValueType(ui).AsValue(ui, "\"{0,-45}\"");
+    public static readonly PalantírReveal<UInt128> UInt128_Reveal_SglQt = (ui, tos) => tos.StartSimpleContentType(ui).AsValue(ui, "'{0}'");
+    public static readonly PalantírReveal<UInt128> UInt128_Reveal_DblQtPadMinus45 = (ui, tos) => tos.StartSimpleContentType(ui).AsValue(ui, "\"{0,-45}\"");
     
-    public static readonly PalantírReveal<BigInteger> BigInteger_Reveal_Negative = (bi, tos) => tos.StartSimpleValueType(bi).AsValue(-bi);
-    public static readonly PalantírReveal<BigInteger> BigInteger_Reveal_Pad45 = (bi, tos) => tos.StartSimpleValueType(bi).AsValue(bi, "{0,45}");
-    public static readonly PalantírReveal<BigInteger> BigInteger_DblQt_Pad4 = (bi, tos) => tos.StartSimpleValueType(bi).AsValue(bi, "\"{0,4}\"");
-    public static readonly PalantírReveal<BigInteger> BigInteger_Separators = (bi, tos) => tos.StartSimpleValueType(bi).AsValue(bi, "{0:###,##0.0}");
+    public static readonly PalantírReveal<BigInteger> BigInteger_Reveal_Negative = (bi, tos) => tos.StartSimpleContentType(bi).AsValue(-bi);
+    public static readonly PalantírReveal<BigInteger> BigInteger_Reveal_Pad45 = (bi, tos) => tos.StartSimpleContentType(bi).AsValue(bi, "{0,45}");
+    public static readonly PalantírReveal<BigInteger> BigInteger_DblQt_Pad4 = (bi, tos) => tos.StartSimpleContentType(bi).AsValue(bi, "\"{0,4}\"");
+    public static readonly PalantírReveal<BigInteger> BigInteger_Separators = (bi, tos) => tos.StartSimpleContentType(bi).AsValue(bi, "{0:###,##0.0}");
     
 
     public static readonly KeyValuePredicate<UInt128, BigInteger?> NullVeryULongBigInteger_First_3 = (count, _, _) =>
@@ -249,9 +249,9 @@ public class TestDictionaries
     public static readonly KeyValuePredicate<IPAddress, Uri> IPAddressUri_Second_3 = (count, _, _) =>
         BetweenRetrieveRange(count, 4, 7);
     
-    public static readonly PalantírReveal<IPAddress>        IPAddress_Reveal_Pad18     = (u, tos) => tos.StartSimpleValueType(u).AsValue(u, "{0,18}");
+    public static readonly PalantírReveal<IPAddress>        IPAddress_Reveal_Pad18     = (u, tos) => tos.StartSimpleContentType(u).AsValue(u, "{0,18}");
     
-    public static readonly PalantírReveal<Uri>        Uri_Reveal_RightArrow     = (u, tos) => tos.StartSimpleValueType(u).AsValue(u, "==> {0}");
+    public static readonly PalantírReveal<Uri>        Uri_Reveal_RightArrow     = (u, tos) => tos.StartSimpleContentType(u).AsValue(u, "==> {0}");
 
     public static readonly List<KeyValuePair<IPAddress, Uri?>> IPAddressNullUriMap =
     [
@@ -312,10 +312,10 @@ public class TestDictionaries
         ];
     
     public static readonly PalantírReveal<MySpanFormattableClass>        MySpanFormattableClass_Reveal_PadMinus20     = 
-        (msfc, tos) => tos.StartSimpleValueType(msfc).AsValue(msfc, "{0,-20}");
+        (msfc, tos) => tos.StartSimpleContentType(msfc).AsValue(msfc, "{0,-20}");
     
     public static readonly PalantírReveal<MySpanFormattableClass>        MySpanFormattableClass_Reveal_Pad20     = 
-        (msfc, tos) => tos.StartSimpleValueType(msfc).AsValue(msfc, "{0,20}");
+        (msfc, tos) => tos.StartSimpleContentType(msfc).AsValue(msfc, "{0,20}");
 
     public static readonly List<KeyValuePair<MySpanFormattableStruct, MySpanFormattableClass?>> MySpanFormattableStructNullClassMap =
     [
@@ -345,10 +345,10 @@ public class TestDictionaries
         BetweenRetrieveRange(count, 4, 7);
     
     public static readonly PalantírReveal<MySpanFormattableStruct>        MySpanFormattableStruct_Reveal_PadMinus20     = 
-        (msfc, tos) => tos.StartSimpleValueType(msfc).AsValue(msfc, "{0,-20}");
+        (msfc, tos) => tos.StartSimpleContentType(msfc).AsValue(msfc, "{0,-20}");
     
     public static readonly PalantírReveal<MySpanFormattableStruct>        MySpanFormattableStruct_Reveal_Pad20     = 
-        (msfc, tos) => tos.StartSimpleValueType(msfc).AsValue(msfc, "{0,20}");
+        (msfc, tos) => tos.StartSimpleContentType(msfc).AsValue(msfc, "{0,20}");
 
     public static readonly Dictionary<MySpanFormattableClass, MySpanFormattableStruct> MySpanFormattableClassStructMap = new()
     {
@@ -422,182 +422,182 @@ public class TestDictionaries
     ];
 
 
-    public static readonly Dictionary<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>
+    public static readonly Dictionary<ComplexStructContentAsValueSpanFormattable<decimal>
       , FieldSpanFormattableAlwaysAddStructStringBearer<Uri>> StructBearerToComplexBearerMap = new()
     {
         {
-            new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>((decimal)Math.PI)
+            new ComplexStructContentAsValueSpanFormattable<decimal>((decimal)Math.PI)
           , new FieldSpanFormattableAlwaysAddStructStringBearer<Uri>(new Uri("http://first-value.com"))
         }
        ,
         {
-            new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>((decimal)Math.E)
+            new ComplexStructContentAsValueSpanFormattable<decimal>((decimal)Math.E)
           , new FieldSpanFormattableAlwaysAddStructStringBearer<Uri>(new Uri("http://second-value.com"))
         }
        ,
         {
-            new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>((decimal)Math.PI * 10)
+            new ComplexStructContentAsValueSpanFormattable<decimal>((decimal)Math.PI * 10)
           , new FieldSpanFormattableAlwaysAddStructStringBearer<Uri>(new Uri("http://third-value.com"))
         }
        ,
         {
-            new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>((decimal)Math.E * 10)
+            new ComplexStructContentAsValueSpanFormattable<decimal>((decimal)Math.E * 10)
           , new FieldSpanFormattableAlwaysAddStructStringBearer<Uri>(new Uri("http://fourth-value.com"))
         }
     };
 
-    public static KeyValuePredicate<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>
+    public static KeyValuePredicate<ComplexStructContentAsValueSpanFormattable<decimal>
       , FieldSpanFormattableAlwaysAddStructStringBearer<Uri>> StructBearerToComplexBearer_First_10 = (count, _, _) =>
         StopOnFirstExclusion(count <= 10);
 
-    public static readonly KeyValuePredicate<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>
+    public static readonly KeyValuePredicate<ComplexStructContentAsValueSpanFormattable<decimal>
       , FieldSpanFormattableAlwaysAddStructStringBearer<Uri>> StructBearerToComplexBearer_First_3 = (count, _, _) =>
         StopOnFirstExclusion(count <= 3);
 
-    public static KeyValuePredicate<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>
+    public static KeyValuePredicate<ComplexStructContentAsValueSpanFormattable<decimal>
       , FieldSpanFormattableAlwaysAddStructStringBearer<Uri>> StructBearerToComplexBearer_Second_3 = (count, _, _) =>
         BetweenRetrieveRange(count, 4, 7);
 
-    public static readonly List<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>> StructBearer_First_3_SubList = 
+    public static readonly List<ComplexStructContentAsValueSpanFormattable<decimal>> StructBearer_First_3_SubList = 
     [
         new ((decimal)Math.PI)
       , new ((decimal)Math.E)
       , new ((decimal)Math.PI * 10)
     ];
 
-    public static readonly List<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>> StructBearer_Second_3_SubList = 
+    public static readonly List<ComplexStructContentAsValueSpanFormattable<decimal>> StructBearer_Second_3_SubList = 
     [
         new ((decimal)Math.E * 10)
     ];
     
-    public static readonly PalantírReveal<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>> StructBearerDecimal_Reveal_N3     = 
-        (msfc, tos) => tos.StartSimpleValueType(msfc).RevealAsValue("", msfc, "N3");
+    public static readonly PalantírReveal<ComplexStructContentAsValueSpanFormattable<decimal>> StructBearerDecimal_Reveal_N3     = 
+        (msfc, tos) => tos.StartSimpleContentType(msfc).RevealAsValue(msfc, "N3");
     
     public static readonly PalantírReveal<FieldSpanFormattableAlwaysAddStructStringBearer<Uri>>        StructBearer_Reveal_Pad30     = 
-        (msfc, tos) => tos.StartSimpleValueType(msfc).RevealAsValue("", msfc, "{0,30}");
+        (msfc, tos) => tos.StartSimpleContentType(msfc).RevealAsValue(msfc, "{0,30}");
 
-    public static readonly List<KeyValuePair<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>
+    public static readonly List<KeyValuePair<ComplexStructContentAsValueSpanFormattable<decimal>
       , FieldSpanFormattableAlwaysAddStructStringBearer<Uri>?>> StructBearerToNullComplexStructBearerMap =
     [
-        new ( new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>((decimal)Math.PI),
+        new ( new ComplexStructContentAsValueSpanFormattable<decimal>((decimal)Math.PI),
              new FieldSpanFormattableAlwaysAddStructStringBearer<Uri>(new Uri("http://first-value.com")))
-      , new ( new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>((decimal)Math.E)
+      , new ( new ComplexStructContentAsValueSpanFormattable<decimal>((decimal)Math.E)
            , new FieldSpanFormattableAlwaysAddStructStringBearer<Uri>(new Uri("http://second-value.com")))
-      , new ( new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>((decimal)Math.PI * 10)
+      , new ( new ComplexStructContentAsValueSpanFormattable<decimal>((decimal)Math.PI * 10)
            , new FieldSpanFormattableAlwaysAddStructStringBearer<Uri>(new Uri("http://third-value.com")))
-      , new ( new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>((decimal)Math.E * 10), null )
+      , new ( new ComplexStructContentAsValueSpanFormattable<decimal>((decimal)Math.E * 10), null )
     ];
 
-    public static readonly List<KeyValuePair<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>?
+    public static readonly List<KeyValuePair<ComplexStructContentAsValueSpanFormattable<decimal>?
       , FieldSpanFormattableAlwaysAddStructStringBearer<Uri>?>> NullStructBearerToComplexBearerMap =
     [
         new (null, new FieldSpanFormattableAlwaysAddStructStringBearer<Uri>(new Uri("http://first-value.com")))
-      , new ( new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>((decimal)Math.E)
+      , new ( new ComplexStructContentAsValueSpanFormattable<decimal>((decimal)Math.E)
            , new FieldSpanFormattableAlwaysAddStructStringBearer<Uri>(new Uri("http://second-value.com")))
-      , new ( new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>((decimal)Math.PI * 10)
+      , new ( new ComplexStructContentAsValueSpanFormattable<decimal>((decimal)Math.PI * 10)
            , new FieldSpanFormattableAlwaysAddStructStringBearer<Uri>(new Uri("http://third-value.com")) )
-      , new ( new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>((decimal)Math.E * 10), null )
+      , new ( new ComplexStructContentAsValueSpanFormattable<decimal>((decimal)Math.E * 10), null )
       , new (null, null)
     ];
 
-    public static KeyValuePredicate<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>?,
+    public static KeyValuePredicate<ComplexStructContentAsValueSpanFormattable<decimal>?,
             FieldSpanFormattableAlwaysAddStructStringBearer<Uri>?>
         NullStructBearerToComplexBearerMap_First_10 = (count, _, _) => StopOnFirstExclusion(count <= 10);
 
-    public static readonly KeyValuePredicate<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>?,
+    public static readonly KeyValuePredicate<ComplexStructContentAsValueSpanFormattable<decimal>?,
             FieldSpanFormattableAlwaysAddStructStringBearer<Uri>?>
         NullStructBearerToComplexBearerMap_First_3 = (count, _, _) => StopOnFirstExclusion(count <= 3);
 
-    public static KeyValuePredicate<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStructStringBearer<decimal>?,
+    public static KeyValuePredicate<ComplexStructContentAsValueSpanFormattable<decimal>?,
             FieldSpanFormattableAlwaysAddStructStringBearer<Uri>?>
         NullStructBearerToComplexBearerMap_Second_3 = (count, _, _) => BetweenRetrieveRange(count, 4, 7);
 
-    public static readonly Dictionary<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>
+    public static readonly Dictionary<ComplexContentAsValueSpanFormattable<decimal>
       , FieldSpanFormattableAlwaysAddStringBearer<Uri>> ClassBearerToComplexBearerMap = new()
     {
         {
-            new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>((decimal)Math.PI)
+            new ComplexContentAsValueSpanFormattable<decimal>((decimal)Math.PI)
           , new FieldSpanFormattableAlwaysAddStringBearer<Uri>(new Uri("http://first-value.com"))
         }
        ,
         {
-            new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>((decimal)Math.E)
+            new ComplexContentAsValueSpanFormattable<decimal>((decimal)Math.E)
           , new FieldSpanFormattableAlwaysAddStringBearer<Uri>(new Uri("http://second-value.com"))
         }
        ,
         {
-            new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>((decimal)Math.PI * 10)
+            new ComplexContentAsValueSpanFormattable<decimal>((decimal)Math.PI * 10)
           , new FieldSpanFormattableAlwaysAddStringBearer<Uri>(new Uri("http://third-value.com"))
         }
        ,
         {
-            new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>((decimal)Math.E * 10)
+            new ComplexContentAsValueSpanFormattable<decimal>((decimal)Math.E * 10)
           , new FieldSpanFormattableAlwaysAddStringBearer<Uri>(new Uri("http://fourth-value.com"))
         }
     };
 
-    public static KeyValuePredicate<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>
+    public static KeyValuePredicate<ComplexContentAsValueSpanFormattable<decimal>
       , FieldSpanFormattableAlwaysAddStringBearer<Uri>> ClassBearerToComplexBearer_First_10 = (count, _, _) =>
         StopOnFirstExclusion(count <= 10);
 
-    public static readonly KeyValuePredicate<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>
+    public static readonly KeyValuePredicate<ComplexContentAsValueSpanFormattable<decimal>
       , FieldSpanFormattableAlwaysAddStringBearer<Uri>> ClassBearerToComplexBearer_First_3 = (count, _, _) =>
         StopOnFirstExclusion(count <= 3);
 
-    public static KeyValuePredicate<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>
+    public static KeyValuePredicate<ComplexContentAsValueSpanFormattable<decimal>
       , FieldSpanFormattableAlwaysAddStringBearer<Uri>> ClassBearerToComplexBearer_Second_3 = (count, _, _) =>
         BetweenRetrieveRange(count, 4, 7);
 
-    public static readonly List<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>> ClassBearer_First_3_SubList = 
+    public static readonly List<ComplexContentAsValueSpanFormattable<decimal>> ClassBearer_First_3_SubList = 
     [
         new ((decimal)Math.PI)
       , new ((decimal)Math.E)
       , new ((decimal)Math.PI * 10)
     ];
 
-    public static readonly List<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>> ClassBearer_Second_3_SubList = 
+    public static readonly List<ComplexContentAsValueSpanFormattable<decimal>> ClassBearer_Second_3_SubList = 
     [
         new ((decimal)Math.E * 10)
     ];
     
-    public static readonly PalantírReveal<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>> ClassBearerDecimal_Reveal_N3 = 
-        (msfc, tos) => tos.StartSimpleValueType(msfc).RevealAsValue("", msfc, "N3");
+    public static readonly PalantírReveal<ComplexContentAsValueSpanFormattable<decimal>> ClassBearerDecimal_Reveal_N3 = 
+        (msfc, tos) => tos.StartSimpleContentType(msfc).RevealAsValue(msfc, "N3");
     
     public static readonly PalantírReveal<FieldSpanFormattableAlwaysAddStringBearer<Uri>> ClassBearer_Reveal_Pad30 = 
-        (msfc, tos) => tos.StartSimpleValueType(msfc).RevealAsValue("", msfc, "{0,30}");
+        (msfc, tos) => tos.StartSimpleContentType(msfc).RevealAsValue(msfc, "{0,30}");
 
-    public static readonly List<KeyValuePair<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>
+    public static readonly List<KeyValuePair<ComplexContentAsValueSpanFormattable<decimal>
       , FieldSpanFormattableAlwaysAddStructStringBearer<Uri>?>> ClassBearerToNullStructComplexBearerMap =
     [
-        new (new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>((decimal)Math.PI), null)
-      , new (new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>((decimal)Math.E)
+        new (new ComplexContentAsValueSpanFormattable<decimal>((decimal)Math.PI), null)
+      , new (new ComplexContentAsValueSpanFormattable<decimal>((decimal)Math.E)
            , new FieldSpanFormattableAlwaysAddStructStringBearer<Uri>(new Uri("http://second-value.com")))
-      , new (new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>((decimal)Math.PI * 10)
+      , new (new ComplexContentAsValueSpanFormattable<decimal>((decimal)Math.PI * 10)
            , new FieldSpanFormattableAlwaysAddStructStringBearer<Uri>(new Uri("http://third-value.com")))
-      , new (new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>((decimal)Math.E * 10), null)
+      , new (new ComplexContentAsValueSpanFormattable<decimal>((decimal)Math.E * 10), null)
     ];
 
-    public static readonly List<KeyValuePair<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>?
+    public static readonly List<KeyValuePair<ComplexContentAsValueSpanFormattable<decimal>?
       , FieldSpanFormattableAlwaysAddStructStringBearer<Uri>?>> NullClassBearerToComplexBearerMap =
     [
         new ( null, new FieldSpanFormattableAlwaysAddStructStringBearer<Uri>(new Uri("http://first-value.com")) )
-      , new ( new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>((decimal)Math.E)
+      , new ( new ComplexContentAsValueSpanFormattable<decimal>((decimal)Math.E)
            , new FieldSpanFormattableAlwaysAddStructStringBearer<Uri>(new Uri("http://second-value.com")) )
-      , new ( new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>((decimal)Math.PI * 10)
+      , new ( new ComplexContentAsValueSpanFormattable<decimal>((decimal)Math.PI * 10)
            , new FieldSpanFormattableAlwaysAddStructStringBearer<Uri>(new Uri("http://third-value.com")) )
-      , new ( new SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>((decimal)Math.E * 10), null )
+      , new ( new ComplexContentAsValueSpanFormattable<decimal>((decimal)Math.E * 10), null )
       , new (null, null)
     ];
 
-    public static KeyValuePredicate<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>?,
+    public static KeyValuePredicate<ComplexContentAsValueSpanFormattable<decimal>?,
             FieldSpanFormattableAlwaysAddStructStringBearer<Uri>?>
         NullClassBearerToComplexBearer_First_10 = (count, _, _) => StopOnFirstExclusion(count <= 10);
 
-    public static readonly KeyValuePredicate<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>?,
+    public static readonly KeyValuePredicate<ComplexContentAsValueSpanFormattable<decimal>?,
             FieldSpanFormattableAlwaysAddStructStringBearer<Uri>?>
         NullClassBearerToComplexBearer_First_3 = (count, _, _) => StopOnFirstExclusion(count <= 3);
 
-    public static KeyValuePredicate<SimpleAsValueSpanFormattableWithFieldSimpleValueTypeStringBearer<decimal>?,
+    public static KeyValuePredicate<ComplexContentAsValueSpanFormattable<decimal>?,
             FieldSpanFormattableAlwaysAddStructStringBearer<Uri>?>
         NullClassBearerToComplexBearer_Second_3 = (count, _, _) => BetweenRetrieveRange(count, 4, 7);
 
@@ -695,7 +695,7 @@ public class TestDictionaries
       , NoDefaultLongNoFlagsEnum.NDLNFE_2
     ];
     
-    public static readonly PalantírReveal<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlags_Reveal  = (e, tos) => tos.StartSimpleValueType(e).AsValue(e);
+    public static readonly PalantírReveal<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlags_Reveal  = (e, tos) => tos.StartSimpleContentType(e).AsValue(e);
 
     public static readonly List<KeyValuePair<NoDefaultLongNoFlagsEnum, WithDefaultLongWithFlagsEnum?>> EnumLongNdNfToNullWdWfMap =
     [
@@ -758,7 +758,7 @@ public class TestDictionaries
       , NoDefaultULongNoFlagsEnum.NDUNFE_2
     ];
     
-    public static readonly PalantírReveal<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlags_Reveal  = (e, tos) => tos.StartSimpleValueType(e).AsValue(e);
+    public static readonly PalantírReveal<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlags_Reveal  = (e, tos) => tos.StartSimpleContentType(e).AsValue(e);
 
     public static readonly List<KeyValuePair<NoDefaultULongNoFlagsEnum, WithDefaultULongWithFlagsEnum?>> EnumULongNdNfToNullWdWfMap =
     [
@@ -823,7 +823,7 @@ public class TestDictionaries
       , WithDefaultLongNoFlagsEnum.WDLNFE_3
     ];
     
-    public static readonly PalantírReveal<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlags_Reveal  = (e, tos) => tos.StartSimpleValueType(e).AsValue(e);
+    public static readonly PalantírReveal<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlags_Reveal  = (e, tos) => tos.StartSimpleContentType(e).AsValue(e);
 
     public static readonly List<KeyValuePair<WithDefaultLongNoFlagsEnum, NoDefaultLongWithFlagsEnum?>> EnumLongWdNfToNullNdWfMap =
     [
@@ -886,7 +886,7 @@ public class TestDictionaries
     ];
     
     public static readonly PalantírReveal<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlags_Reveal  = 
-        (e, tos) => tos.StartSimpleValueType(e).AsValue(e);
+        (e, tos) => tos.StartSimpleContentType(e).AsValue(e);
 
     public static readonly List<KeyValuePair<WithDefaultULongNoFlagsEnum, NoDefaultULongWithFlagsEnum?>> EnumULongWdNfToNullNdWfMap =
     [
@@ -952,7 +952,7 @@ public class TestDictionaries
     ];
     
     public static readonly PalantírReveal<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlags_Reveal  = 
-        (e, tos) => tos.StartSimpleValueType(e).AsValue(e);
+        (e, tos) => tos.StartSimpleContentType(e).AsValue(e);
 
     public static readonly List<KeyValuePair<NoDefaultLongWithFlagsEnum, WithDefaultLongNoFlagsEnum?>> EnumLongNdWfToNullWdNfMap =
     [
@@ -1018,7 +1018,7 @@ public class TestDictionaries
     ];
     
     public static readonly PalantírReveal<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlags_Reveal  = 
-        (e, tos) => tos.StartSimpleValueType(e).AsValue(e);
+        (e, tos) => tos.StartSimpleContentType(e).AsValue(e);
 
     public static readonly List<KeyValuePair<NoDefaultULongWithFlagsEnum, WithDefaultULongNoFlagsEnum?>> EnumULongNdWfToNullWdNfMap =
     [
@@ -1084,7 +1084,7 @@ public class TestDictionaries
     ];
     
     public static readonly PalantírReveal<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlags_Reveal  = 
-        (e, tos) => tos.StartSimpleValueType(e).AsValue(e);
+        (e, tos) => tos.StartSimpleContentType(e).AsValue(e);
 
     public static readonly List<KeyValuePair<WithDefaultLongWithFlagsEnum, NoDefaultLongNoFlagsEnum?>> EnumLongWdWfToNullNdNfMap =
     [
@@ -1149,7 +1149,7 @@ public class TestDictionaries
     ];
     
     public static readonly PalantírReveal<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlags_Reveal  = 
-        (e, tos) => tos.StartSimpleValueType(e).AsValue(e);
+        (e, tos) => tos.StartSimpleContentType(e).AsValue(e);
 
     public static readonly List<KeyValuePair<WithDefaultULongWithFlagsEnum, NoDefaultULongNoFlagsEnum?>> EnumULongWdWfToNullNdNfMap =
     [

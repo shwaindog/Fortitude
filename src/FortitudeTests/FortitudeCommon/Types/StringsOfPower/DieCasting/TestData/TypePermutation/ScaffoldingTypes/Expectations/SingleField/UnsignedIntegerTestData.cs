@@ -20,12 +20,12 @@ public class UnsignedIntegerTestData
         // byte
         new FieldExpect<byte>(0, "")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "0" }
         }
       , new FieldExpect<byte>(255)
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"255\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"255\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -35,7 +35,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<byte>(128, "C2")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$128.00\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$128.00\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -45,10 +45,10 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<byte>(77, "\"{0,-20}\"")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable, AnyLog), "\"77                  \"" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyJson)
+            { new EK(ContentType | AcceptsSpanFormattable, AnyLog), "\"77                  \"" }
+          , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyJson)
               , "\"77                  \"" }
-          , { new EK(SimpleType | AcceptsSpanFormattable), 
+          , { new EK(ContentType | AcceptsSpanFormattable), 
                 """
                 "\u002277                  \u0022"
                 """
@@ -62,12 +62,12 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<byte>(32, "", true, 32)
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"32\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"32\"" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "32" }
         }
       , new FieldExpect<byte>(255, "{0[..1]}")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"2\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"2\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -77,7 +77,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<byte>(255, "{0[1..2]}")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"5\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"5\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -87,7 +87,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<byte>(255, "{0[1..]}")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"55\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"55\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -99,19 +99,19 @@ public class UnsignedIntegerTestData
         // byte?
       , new FieldExpect<byte?>(0, "{0}")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "0" }
         }
       , new FieldExpect<byte?>(null, "", true)
         {
-            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
+            { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
               , "0" }
-          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
+          , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
               , "\"0\"" }
-          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero |  DefaultBecomesFallbackString 
+          , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+          , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero |  DefaultBecomesFallbackString 
                    | DefaultBecomesFallbackValue), "0" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString 
+          , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString 
                    | DefaultBecomesFallbackValue), "\"0\"" }
            ,
             {
@@ -121,7 +121,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<byte?>(255)
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"255\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"255\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -131,7 +131,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<byte?>(128, "C2")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$128.00\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$128.00\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -141,11 +141,11 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<byte?>(144, "\"{0,20}\"")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable, AnyLog)
+            { new EK(ContentType | AcceptsSpanFormattable, AnyLog)
               , "\"                 144\"" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyJson)
+          , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyJson)
               , "\"                 144\"" }
-          , { new EK(SimpleType | AcceptsSpanFormattable), "\"\\u0022                 144\\u0022\"" }
+          , { new EK(ContentType | AcceptsSpanFormattable), "\"\\u0022                 144\\u0022\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -155,12 +155,12 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<byte?>(64, "", true, 64)
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"64\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"64\"" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "64" }
         }
       , new FieldExpect<byte?>(255, "{0[..1]}")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"2\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"2\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -170,7 +170,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<byte?>(255, "{0[1..2]}")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"5\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"5\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -180,7 +180,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<byte?>(255, "{0[1..]}")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"55\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"55\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -192,9 +192,9 @@ public class UnsignedIntegerTestData
         // char
       , new FieldExpect<char>('\0', "")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyLog ), "\0" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, AnyLog), "\"\0\"" }
-          , { new EK(SimpleType | AcceptsSpanFormattable), "\"\\u0000\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyLog ), "\0" }
+          , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, AnyLog), "\"\0\"" }
+          , { new EK(ContentType | AcceptsSpanFormattable), "\"\\u0000\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut
@@ -212,23 +212,23 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<char>('A')
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyLog), "A" }
-          , { new EK(SimpleType | AcceptsSpanFormattable), "\"A\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyLog), "A" }
+          , { new EK(ContentType | AcceptsSpanFormattable), "\"A\"" }
           , { new EK(AcceptsSpanFormattable | AllOutputConditionsMask, AnyLog) , "A" }
           , { new EK(AcceptsSpanFormattable | AllOutputConditionsMask, AnyJson) , "\"A\"" }
         }
       , new FieldExpect<char>(' ', "'{0}'")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyLog), "' '" }
-          , { new EK(SimpleType | AcceptsSpanFormattable), "\"' '\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyLog), "' '" }
+          , { new EK(ContentType | AcceptsSpanFormattable), "\"' '\"" }
           , { new EK(AcceptsSpanFormattable | AllOutputConditionsMask , AnyLog) , "' '" }
           , { new EK(AcceptsSpanFormattable | AllOutputConditionsMask , AnyJson) , "\"' '\"" }
         }
       , new FieldExpect<char>('z', "\"{0,-20}\"")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable, AnyLog), "\"z                   \"" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"z                   \"" }
-          , { new EK(SimpleType | AcceptsSpanFormattable), 
+            { new EK(ContentType | AcceptsSpanFormattable, AnyLog), "\"z                   \"" }
+          , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"z                   \"" }
+          , { new EK(ContentType | AcceptsSpanFormattable), 
                 """
                 "\u0022z                   \u0022"
                 """
@@ -243,39 +243,39 @@ public class UnsignedIntegerTestData
         // char?
       , new FieldExpect<char?>('\0', "")
         {
-            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut, AnyLog), "\0" }
-          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut, AnyLog), "\"\0\"" }
-          , { new EK(SimpleType | CallsViaMatch), "\"\\u0000\"" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyLog), "\0" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, AnyLog), "\"\0\"" }
-          , { new EK(SimpleType | AcceptsSpanFormattable), "\"\\u0000\"" }
+            { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut, AnyLog), "\0" }
+          , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut, AnyLog), "\"\0\"" }
+          , { new EK(ContentType | CallsViaMatch), "\"\\u0000\"" }
+          , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyLog), "\0" }
+          , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, AnyLog), "\"\0\"" }
+          , { new EK(ContentType | AcceptsSpanFormattable), "\"\\u0000\"" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, AnyLog), "\0" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, AnyJson), "\"\\u0000\"" }
         }
       , new FieldExpect<char?>(null, "", true)
         {
-            { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue
+            { new EK(ContentType | CallsViaMatch | DefaultBecomesNull), "null" }
+          , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue
                    , AnyLog), "\0" }
-          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue
+          , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue
                    , AnyLog), "\"\0\"" }
-          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
+          , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
               , "\"\\u0000\"" }
-          , { new EK(SimpleType | CallsViaMatch |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue), "\"\\u0000\"" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut |  DefaultBecomesFallbackString 
+          , { new EK(ContentType | CallsViaMatch |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue), "\"\\u0000\"" }
+          , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut |  DefaultBecomesFallbackString 
                    | DefaultBecomesFallbackValue | DefaultBecomesZero, AnyLog), "\0" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString 
+          , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString 
                    | DefaultBecomesFallbackValue | DefaultBecomesZero, AnyLog), "\"\0\"" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut |  DefaultBecomesFallbackString 
+          , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut |  DefaultBecomesFallbackString 
                    | DefaultBecomesFallbackValue | DefaultBecomesZero, AnyJson), "\"\\u0000\"" }
-          , { new EK(SimpleType | AcceptsSpanFormattable |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue | DefaultBecomesZero
+          , { new EK(ContentType | AcceptsSpanFormattable |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue | DefaultBecomesZero
                    , AnyJson), "\"\\u0000\"" }
-          , { new EK(SimpleType | AcceptsSpanFormattable |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue | DefaultBecomesZero
+          , { new EK(ContentType | AcceptsSpanFormattable |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue | DefaultBecomesZero
                    , AnyLog) , "\0" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString 
+          , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString 
                    | DefaultBecomesFallbackValue, AnyLog) , "\"\0\"" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | AcceptsSpanFormattable), "\"\\u0000\"" }
+          , { new EK(ContentType | AcceptsSpanFormattable | DefaultBecomesNull), "null" }
+          , { new EK(ContentType | AcceptsSpanFormattable), "\"\\u0000\"" }
           ,
             {
                 new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut)
@@ -284,24 +284,24 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<char?>('A')
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyLog), "A" }
-          , { new EK(SimpleType | AcceptsSpanFormattable), "\"A\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyLog), "A" }
+          , { new EK(ContentType | AcceptsSpanFormattable), "\"A\"" }
           , { new EK(AcceptsSpanFormattable | AllOutputConditionsMask, AnyLog) , "A" }
           , { new EK(AcceptsSpanFormattable | AllOutputConditionsMask, AnyJson) , "\"A\"" }
         }
       , new FieldExpect<char?>(' ', "'{0}'")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyLog), "' '" }
-          , { new EK(SimpleType | AcceptsSpanFormattable), "\"' '\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyLog), "' '" }
+          , { new EK(ContentType | AcceptsSpanFormattable), "\"' '\"" }
           , { new EK(AcceptsSpanFormattable | AllOutputConditionsMask, AnyLog) , "' '" }
           , { new EK(AcceptsSpanFormattable | AllOutputConditionsMask, AnyJson) , "\"' '\"" }
         }
       , new FieldExpect<char?>('z', "\"{0,20}\"")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable, AnyLog), "\"                   z\"" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyJson)
+            { new EK(ContentType | AcceptsSpanFormattable, AnyLog), "\"                   z\"" }
+          , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, AnyJson)
               , "\"                   z\"" }
-          , { new EK(SimpleType | AcceptsSpanFormattable), "\"\\u0022                   z\\u0022\"" }
+          , { new EK(ContentType | AcceptsSpanFormattable), "\"\\u0022                   z\\u0022\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask)
@@ -313,12 +313,12 @@ public class UnsignedIntegerTestData
         // ushort
       , new FieldExpect<ushort>(0, "")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "0" }
         }
       , new FieldExpect<ushort>(32000, "N2")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"32,000.00\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"32,000.00\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -328,12 +328,12 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<ushort>(32, "C0", true, 32)
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32\"" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "$32" }
         }
       , new FieldExpect<ushort>(ushort.MaxValue, "'{0:B16}'")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'1111111111111111'\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'1111111111111111'\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -343,11 +343,11 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<ushort>(55, "\"{0,-20}\"")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable, AnyLog), "\"55                  \"" }
+            { new EK(ContentType | AcceptsSpanFormattable, AnyLog), "\"55                  \"" }
            ,
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"55                  \"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"55                  \"" }
            ,
-            { new EK(SimpleType | AcceptsSpanFormattable)
+            { new EK(ContentType | AcceptsSpanFormattable)
               , """
                 "\u002255                  \u0022"
                 """
@@ -362,19 +362,19 @@ public class UnsignedIntegerTestData
         // ushort?
       , new FieldExpect<ushort?>(0, "")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "0" }
         }
       , new FieldExpect<ushort?>(null, "", true)
         {
-            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
+            { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
               , "0" }
-          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
+          , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
               , "\"0\"" }
-          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero |  DefaultBecomesFallbackString 
+          , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+          , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero |  DefaultBecomesFallbackString 
                    | DefaultBecomesFallbackValue), "0" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString 
+          , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString 
                    | DefaultBecomesFallbackValue), "\"0\"" }
            ,
             {
@@ -384,7 +384,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<ushort?>(32000, "N2")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"32,000.00\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"32,000.00\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -394,12 +394,12 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<ushort?>(32, "C8", true, 32)
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32.00000000\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32.00000000\"" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "$32.00000000" }
         }
       , new FieldExpect<ushort?>(ushort.MaxValue, "'{0:B16}'")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'1111111111111111'\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'1111111111111111'\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -409,11 +409,11 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<ushort?>(55, "\"{0,20}\"")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable, AnyLog), "\"                  55\"" }
+            { new EK(ContentType | AcceptsSpanFormattable, AnyLog), "\"                  55\"" }
            ,
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"                  55\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"                  55\"" }
            ,
-            { new EK(SimpleType | AcceptsSpanFormattable)
+            { new EK(ContentType | AcceptsSpanFormattable)
               , """
                 "\u0022                  55\u0022"
                 """
@@ -428,12 +428,12 @@ public class UnsignedIntegerTestData
         // uint
       , new FieldExpect<uint>(0, "")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "0" }
         }
       , new FieldExpect<uint>(32000, "0x{0:X}")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -443,12 +443,12 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<uint>(32, "C0", true, 32)
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32\"" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "$32" }
         }
       , new FieldExpect<uint>(uint.MaxValue, "'{0:X8}'")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'FFFFFFFF'\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'FFFFFFFF'\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -458,7 +458,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<uint>(uint.MinValue, "'{0:X9}'", true, 100)
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'000000000'\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'000000000'\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -468,11 +468,11 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<uint>(55, "\"{0,-20}\"")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable, AnyLog), "\"55                  \"" }
+            { new EK(ContentType | AcceptsSpanFormattable, AnyLog), "\"55                  \"" }
            ,
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"55                  \"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"55                  \"" }
            ,
-            { new EK(SimpleType | AcceptsSpanFormattable)
+            { new EK(ContentType | AcceptsSpanFormattable)
               , """
                 "\u002255                  \u0022"
                 """
@@ -487,19 +487,19 @@ public class UnsignedIntegerTestData
         // uint?
       , new FieldExpect<uint?>(0, "")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "0" }
         }
       , new FieldExpect<uint?>(null, "", true)
         {
-            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
+            { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
               , "0" }
-          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
+          , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
               , "\"0\"" }
-          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero |  DefaultBecomesFallbackString 
+          , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+          , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero |  DefaultBecomesFallbackString 
                    | DefaultBecomesFallbackValue), "0" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString 
+          , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString 
                    | DefaultBecomesFallbackValue), "\"0\"" }
            ,
             {
@@ -509,7 +509,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<uint?>(32000, "0x{0:X}")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -519,7 +519,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<uint?>(32, "C8", true, 32)
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32.00000000\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32.00000000\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut)
@@ -528,7 +528,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<uint?>(uint.MaxValue, "'{0:X8}'")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'FFFFFFFF'\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'FFFFFFFF'\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -538,7 +538,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<uint?>(uint.MinValue, "'{0:X9}'", true, 100)
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'000000000'\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'000000000'\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -548,11 +548,11 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<uint?>(55, "\"{0,20}\"")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable, AnyLog), "\"                  55\"" }
+            { new EK(ContentType | AcceptsSpanFormattable, AnyLog), "\"                  55\"" }
            ,
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"                  55\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"                  55\"" }
            ,
-            { new EK(SimpleType | AcceptsSpanFormattable)
+            { new EK(ContentType | AcceptsSpanFormattable)
               , """
                 "\u0022                  55\u0022"
                 """
@@ -568,12 +568,12 @@ public class UnsignedIntegerTestData
         // ulong
       , new FieldExpect<ulong>(0, "")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "0" }
         }
       , new FieldExpect<ulong>(32000, "0x{0:X}")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -583,12 +583,12 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<ulong>(32, "C0", true, 32)
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32\"" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "$32" }
         }
       , new FieldExpect<ulong>(ulong.MaxValue, "'{0:X16}'")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'FFFFFFFFFFFFFFFF'\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'FFFFFFFFFFFFFFFF'\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -598,7 +598,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<ulong>(ulong.MinValue, "'{0:X17}'", true, 100)
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'00000000000000000'\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'00000000000000000'\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -608,11 +608,11 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<ulong>(55, "\"{0,-20}\"")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable, AnyLog), "\"55                  \"" }
+            { new EK(ContentType | AcceptsSpanFormattable, AnyLog), "\"55                  \"" }
            ,
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"55                  \"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"55                  \"" }
            ,
-            { new EK(SimpleType | AcceptsSpanFormattable)
+            { new EK(ContentType | AcceptsSpanFormattable)
               , """
                 "\u002255                  \u0022"
                 """
@@ -627,19 +627,19 @@ public class UnsignedIntegerTestData
         // ulong?
       , new FieldExpect<ulong?>(0, "")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "0" }
         }
       , new FieldExpect<ulong?>(null, "", true)
         {
-            { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
+            { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
               , "0" }
-          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
+          , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
               , "\"0\"" }
-          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero |  DefaultBecomesFallbackString 
+          , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+          , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero |  DefaultBecomesFallbackString 
                    | DefaultBecomesFallbackValue), "0" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString 
+          , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut |  DefaultBecomesFallbackString 
                    | DefaultBecomesFallbackValue), "\"0\"" }
            ,
             {
@@ -649,7 +649,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<ulong?>(32000, "0x{0:X}")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -659,12 +659,12 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<ulong?>(32, "C8", true, 32)
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32.00000000\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32.00000000\"" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "$32.00000000" }
         }
       , new FieldExpect<ulong?>(ulong.MaxValue, "'{0:X16}'")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'FFFFFFFFFFFFFFFF'\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'FFFFFFFFFFFFFFFF'\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -674,7 +674,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<ulong?>(ulong.MinValue, "'{0:X17}'", true, 100)
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'00000000000000000'\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'00000000000000000'\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -684,11 +684,11 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<ulong?>(55, "\"{0,20}\"")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable, AnyLog), "\"                  55\"" }
+            { new EK(ContentType | AcceptsSpanFormattable, AnyLog), "\"                  55\"" }
            ,
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"                  55\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"                  55\"" }
            ,
-            { new EK(SimpleType | AcceptsSpanFormattable)
+            { new EK(ContentType | AcceptsSpanFormattable)
               , """
                 "\u0022                  55\u0022"
                 """
@@ -703,7 +703,7 @@ public class UnsignedIntegerTestData
         // UInt128
       , new FieldExpect<UInt128>(0, "")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut, AnyLog)
               , "0" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut, AnyJson)
@@ -711,7 +711,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<UInt128>(32000, "0x{0:X}")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -727,7 +727,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<UInt128>(32, "C0", true, 32)
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32\"" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut, AnyLog)
               , "$32" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut, AnyJson)
@@ -735,7 +735,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<UInt128>(UInt128.MaxValue, "'{0:X32}'")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -751,7 +751,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<UInt128>(UInt128.MinValue, "'{0:X33}'", true, (UInt128)100)
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'000000000000000000000000000000000'\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'000000000000000000000000000000000'\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -768,16 +768,16 @@ public class UnsignedIntegerTestData
       , new FieldExpect<UInt128>(UInt128.MaxValue, "\"{0,-52:N0}\"")
         {
             {
-                new EK(SimpleType | AcceptsSpanFormattable, AnyLog)
+                new EK(ContentType | AcceptsSpanFormattable, AnyLog)
               , "\"340,282,366,920,938,463,463,374,607,431,768,211,455 \""
             }
            ,{
-                new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut)
+                new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut)
               , "\"340,282,366,920,938,463,463,374,607,431,768,211,455 \""
             }
            ,
             {
-                new EK(SimpleType | AcceptsSpanFormattable)
+                new EK(ContentType | AcceptsSpanFormattable)
               , """
                 "\u0022340,282,366,920,938,463,463,374,607,431,768,211,455 \u0022"
                 """
@@ -793,7 +793,7 @@ public class UnsignedIntegerTestData
         // UInt128?
       , new FieldExpect<UInt128?>(0, "")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut, AnyLog)
               , "0" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut, AnyJson)
@@ -801,14 +801,14 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<UInt128?>(null, "", true)
         {
-            { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull), "null" }
-          , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue
+            { new EK(ContentType | CallsViaMatch | DefaultBecomesNull), "null" }
+          , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue
                    , AnyLog), "0" }
-          , { new EK(SimpleType | CallsViaMatch |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue), "\"0\"" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero |  DefaultBecomesFallbackString 
+          , { new EK(ContentType | CallsViaMatch |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue), "\"0\"" }
+          , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero |  DefaultBecomesFallbackString 
                    | DefaultBecomesFallbackValue, AnyLog), "0" }
-          , { new EK(SimpleType | AcceptsSpanFormattable |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue), "\"0\"" }
-          , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull), "null" }
+          , { new EK(ContentType | AcceptsSpanFormattable |  DefaultBecomesFallbackString | DefaultBecomesFallbackValue), "\"0\"" }
+          , { new EK(ContentType | AcceptsSpanFormattable | DefaultBecomesNull), "null" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut)
@@ -817,7 +817,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<UInt128?>(32000, "0x{0:X}")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -833,7 +833,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<UInt128?>(32, "C0", true, 32)
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32\"" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut, AnyLog)
               , "$32" }
           , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut, AnyJson)
@@ -841,7 +841,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<UInt128?>(UInt128.MaxValue, "'{0:X32}'")
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -857,7 +857,7 @@ public class UnsignedIntegerTestData
         }
       , new FieldExpect<UInt128?>(UInt128.MinValue, "'{0:X33}'", true, (UInt128)100)
         {
-            { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'000000000000000000000000000000000'\"" }
+            { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'000000000000000000000000000000000'\"" }
            ,
             {
                 new EK(AcceptsSpanFormattable | AllOutputConditionsMask
@@ -874,16 +874,16 @@ public class UnsignedIntegerTestData
       , new FieldExpect<UInt128?>(UInt128.MaxValue, "\"{0,-52:N0}\"")
         {
             {
-                new EK(SimpleType | AcceptsSpanFormattable, AnyLog)
+                new EK(ContentType | AcceptsSpanFormattable, AnyLog)
               , "\"340,282,366,920,938,463,463,374,607,431,768,211,455 \""
             }
            ,{
-                new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut)
+                new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut)
               , "\"340,282,366,920,938,463,463,374,607,431,768,211,455 \""
             }
            ,
             {
-                new EK(SimpleType | AcceptsSpanFormattable)
+                new EK(ContentType | AcceptsSpanFormattable)
               , """
                 "\u0022340,282,366,920,938,463,463,374,607,431,768,211,455 \u0022"
                 """

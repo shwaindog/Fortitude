@@ -6,7 +6,6 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 

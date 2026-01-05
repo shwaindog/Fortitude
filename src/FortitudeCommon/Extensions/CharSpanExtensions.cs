@@ -810,21 +810,22 @@ public static class CharSpanExtensions
     public static int ShiftByAmount(this Span<char> slidingCharBuffer, int from, int to, int byAmount)
     {
         if (byAmount == 0) return 0;
-        byAmount = Math.Min(byAmount, Math.Max(byAmount,  slidingCharBuffer.Length - to + byAmount));
-        byAmount = Math.Max(byAmount, -from);
+        from     = Math.Clamp(from, 0, slidingCharBuffer.Length);
+        to       = Math.Clamp(to, from, slidingCharBuffer.Length);
+        byAmount = Math.Clamp(byAmount, -from, slidingCharBuffer.Length - to);
 
         if (byAmount > 0)
         {
-            for (var i = to - 1 + byAmount; i >= from + byAmount; i--)
+            for (var i = to - 1; i >= from; i--)
             {
-                slidingCharBuffer[i] = slidingCharBuffer[i - byAmount];
+                slidingCharBuffer[i + byAmount] = slidingCharBuffer[i];
             }
             return byAmount;
         }
         
-        for (var i = from + byAmount; i < to + byAmount; i--)
+        for (var i = from; i < to  - 1; i++)
         {
-            slidingCharBuffer[i] = slidingCharBuffer[i - byAmount];
+            slidingCharBuffer[i + byAmount] = slidingCharBuffer[i];
         }
         return byAmount;
     }

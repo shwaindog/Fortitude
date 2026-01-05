@@ -186,7 +186,7 @@ public class FieldExpect<TInput, TDefault> : ExpectBase<TInput?>, ISingleFieldEx
         } 
         else if (!FormatFlags.HasDisableAddingAutoCallerTypeFlags() && scaffFlags.HasOutputTreatedAsString())
         {
-            createdStringBearer.FormattingFlags = FormatFlags | AsStringContent;
+            createdStringBearer.FormattingFlags = FormatFlags | EncodeAll;
         }
         else 
         {

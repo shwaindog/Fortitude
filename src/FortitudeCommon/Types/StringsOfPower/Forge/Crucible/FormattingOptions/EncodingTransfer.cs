@@ -32,9 +32,12 @@ public interface IEncodingTransfer
     int TransferSuffix(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex, bool encodeSuffix);
 
     int Transfer(ReadOnlySpan<char> source, IStringBuilder destSb, int destStartIndex = int.MaxValue);
-
+    int InsertTransfer(ReadOnlySpan<char> source, IStringBuilder destSb, int destStartIndex);
+  
     int Transfer(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex
       , int maxTransferCount = int.MaxValue);
+
+    int InsertTransfer(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex, int currentEndIndex);
 
     int Transfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder destSb
     , int destStartIndex = int.MaxValue, int maxTransferCount = int.MaxValue);

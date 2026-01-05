@@ -15,7 +15,7 @@ public enum ScaffoldingStringBuilderInvokeFlags : ulong
   , NonNullWrites                              = 0x00_00_00_00_00_00_04
   , NonNullAndPopulatedWrites                  = 0x00_00_00_00_00_00_08
   , AllOutputConditionsMask                    = 0x00_00_00_00_00_00_0F
-  , SimpleType                                 = 0x00_00_00_00_00_00_10
+  , ContentType                                = 0x00_00_00_00_00_00_10
   , ComplexType                                = 0x00_00_00_00_00_00_20
   , OrderedCollectionType                      = 0x00_00_00_00_00_00_40
   , KeyedCollectionType                        = 0x00_00_00_00_00_00_80
@@ -98,8 +98,11 @@ public static class ScaffoldingStringBuilderInvokeFlagsExtensions
     public static bool HasComplexTypeFlag(this ScaffoldingStringBuilderInvokeFlags flags) =>
         (flags & ComplexType) > 0;
 
+    public static bool DoesNotHaveComplexTypeFlag(this ScaffoldingStringBuilderInvokeFlags flags) =>
+        (flags & ComplexType) == 0;
+
     public static bool HasSimpleTypeFlag(this ScaffoldingStringBuilderInvokeFlags flags) =>
-        (flags & SimpleType) > 0;
+        (flags & ContentType) > 0;
 
     public static bool HasOrderedCollectionTypeFlag(this ScaffoldingStringBuilderInvokeFlags flags) =>
         (flags & OrderedCollectionType) > 0;

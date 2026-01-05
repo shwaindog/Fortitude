@@ -2,16 +2,16 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.DataStructures.MemoryPools;
+using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeKeyValueCollection;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 
-public interface ITypeMolderDieCast
+public interface ITypeMolderDieCast : IRecyclableObject, ITransferState
 {
     TypeMolder TypeMolder { get; }
 
@@ -61,10 +61,15 @@ public interface ITypeMolderDieCast
 
     public void UnSetIgnoreFlag(SkipTypeParts flagToUnset);
 
-    IRecycler Recycler { get; }
+    new IRecycler Recycler { get; }
 }
 
-public interface ITypeMolderDieCast<out T> : ITypeMolderDieCast where T : TypeMolder
+public interface IMigratableTypeMolderDieCast : ITypeMolderDieCast, ITransferState<ITypeMolderDieCast>
+{
+    TypeMolder.StyleTypeBuilderPortableState PortableState { get; }
+}
+
+public interface ITypeMolderDieCast<out T> : IMigratableTypeMolderDieCast where T : TypeMolder
 {
     T StyleTypeBuilder { get; }
 
@@ -106,14 +111,14 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
     
     public ISecretStringOfPower Master => typeBuilderState.Master;
 
+    TypeMolder.StyleTypeBuilderPortableState IMigratableTypeMolderDieCast.PortableState => typeBuilderState;
+    
     public string? TypeName => typeBuilderState.TypeName;
 
     public Type TypeBeingBuilt => typeBuilderState.TypeBeingBuilt;
 
     public FormatFlags CallerContentHandling => Master.CallerContext.FormatFlags;
     public FormatFlags CreateContentHandling => typeBuilderState.CreateFormatFlags;
-
-    public ContentSeparatorRanges LastContentSeparatorPaddingRanges { get; set; }
 
     public int RemainingGraphDepth { get; set; }
 
@@ -193,6 +198,21 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
             //OwningAppender.AddTypeEnd(StyleTypeBuilder);
         }
         return Master;
+    }
+
+    public ITransferState     CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags) => 
+        CopyFrom(source as ITypeMolderDieCast, copyMergeFlags);
+
+    public virtual ITypeMolderDieCast CopyFrom(ITypeMolderDieCast? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        if (source == null) return this;
+        RemainingGraphDepth = source.RemainingGraphDepth;
+        WriteAsContent      = source.WriteAsContent;
+        SkipBody            = source.SkipBody;
+        SkipFields          = source.SkipFields;
+        LastStartNewLineContentPos = source.LastStartNewLineContentPos;
+
+        return this;
     }
 
     public override void StateReset()

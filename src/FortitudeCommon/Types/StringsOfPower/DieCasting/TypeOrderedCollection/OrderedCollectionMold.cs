@@ -139,8 +139,7 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
         logOnlyInternalField?.DecrementRefCount();
         logOnlyInternalField = null!;
 
-        MoldStateField.DecrementIndent();
-        MoldStateField = null!;
+        base.InheritedStateReset();
     }
 
     public ComplexOrderedCollectionMold AddBaseFieldsStart()

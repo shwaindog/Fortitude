@@ -483,8 +483,8 @@ public class AsyncReadWriterRecyclingCharArray : ReusableObject<AsyncReadWriterR
     public StateExtractStringRange RevealState(ITheOneString tos)
     {
         return
-         tos.StartSimpleValueType(this)
-           .AsStringOrDefault(nameof(protectedCharArray), (ICharSequence?)protectedCharArray)
+         tos.StartComplexContentType(this)
+           .AsStringOrDefault(nameof(protectedCharArray), protectedCharArray)
            .Complete();
     }
 

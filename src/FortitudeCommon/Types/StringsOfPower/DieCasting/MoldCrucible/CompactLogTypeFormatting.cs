@@ -79,24 +79,26 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return setFlags;
     }
 
-    public virtual FormatFlags ResolveContentAsValueFormattingFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = "")
+    public virtual FormatFlags ResolveContentAsValueFormattingFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = ""
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var typeOfT               = typeof(T);
         var isAnyTypeHoldingChars = typeOfT.IsAnyTypeHoldingChars() || typeOfT.IsChar() || typeOfT.IsNullableChar();
-        if (input == null && (fallbackValue.Length == 0 && !isAnyTypeHoldingChars)) return AsValueContent;
-        if (isAnyTypeHoldingChars) return DisableAutoDelimiting | AsValueContent;
-        return AsValueContent;
+        if (input == null && (fallbackValue.Length == 0 && !isAnyTypeHoldingChars)) return formatFlags | AsValueContent;
+        if (isAnyTypeHoldingChars) return formatFlags | DisableAutoDelimiting | AsValueContent;
+        return formatFlags | AsValueContent;
     }
 
-    public virtual FormatFlags ResolveContentAsStringFormattingFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = "")
+    public virtual FormatFlags ResolveContentAsStringFormattingFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = ""
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var typeOfT                     = typeof(T);
         var isSpanFormattableOrNullable = typeOfT.IsSpanFormattableOrNullable();
         var isAnyTypeHoldingChars       = typeOfT.IsAnyTypeHoldingChars() || typeOfT.IsChar() || typeOfT.IsNullableChar();
-        if (isAnyTypeHoldingChars) return DisableAutoDelimiting | AsStringContent;
+        if (isAnyTypeHoldingChars) return formatFlags | DisableAutoDelimiting | AsStringContent;
         var isDoubleQuoteDelimitedSpanFormattable = input.IsDoubleQuoteDelimitedSpanFormattable(fallbackValue, formatString);
-        if (isSpanFormattableOrNullable && isDoubleQuoteDelimitedSpanFormattable) return DisableAutoDelimiting | AsStringContent;
-        return AsStringContent;
+        if (isSpanFormattableOrNullable && isDoubleQuoteDelimitedSpanFormattable) return formatFlags | DisableAutoDelimiting | AsStringContent;
+        return formatFlags | AsStringContent;
     }
 
     public SkipTypeParts GetNextValueTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FormatFlags formatFlags)
@@ -230,7 +232,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             Span<char> justPrefixPaddingSuffix = stackalloc char[formatStringBufferSize];
             justPrefixPaddingSuffix = justPrefixPaddingSuffix.ToPrefixLayoutSuffixOnlyFormatString(formatString);
             Format(StyleOptions.NullString, 0, sb, justPrefixPaddingSuffix
-                 , formatFlags: FormatSwitches.DefaultCallerTypeFlags);
+                 , formatSwitches: FormatSwitches.DefaultCallerTypeFlags);
         }
         else { sb.Append(StyleOptions.NullString); }
         GraphBuilder.MarkContentEnd();
@@ -471,7 +473,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
-        base.Format(source, sourceFrom, sb, formatString ?? "", maxTransferCount, formatFlags: (FormatSwitches)formatFlags);
+        base.Format(source, sourceFrom, sb, formatString ?? "", maxTransferCount, formatSwitches: (FormatSwitches)formatFlags);
         GraphBuilder.MarkContentEnd();
         return sb;
     }
@@ -642,7 +644,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         }
 
         if (formatFlags.ShouldDelimit()) sb.Append(DblQt);
-        base.Format(source, sourceFrom, sb, formatSpan, maxTransferCount, formatFlags: (FormatSwitches)formatFlags);
+        base.Format(source, sourceFrom, sb, formatSpan, maxTransferCount, formatSwitches: (FormatSwitches)formatFlags);
         if (formatFlags.ShouldDelimit()) sb.Append(DblQt);
         GraphBuilder.MarkContentEnd();
         return sb;
@@ -681,7 +683,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         }
 
         if (formatFlags.ShouldDelimit() && (formatFlags.HasAsCollectionFlag() || StyleOptions.CharBufferWritesAsCharCollection)) sb.Append(SqBrktOpnChar);
-        base.Format(source, sourceFrom, sb, formatSpan, maxTransferCount, formatFlags: (FormatSwitches)formatFlags);
+        base.Format(source, sourceFrom, sb, formatSpan, maxTransferCount, formatSwitches: (FormatSwitches)formatFlags);
         if (formatFlags.ShouldDelimit() && (formatFlags.HasAsCollectionFlag() || StyleOptions.CharBufferWritesAsCharCollection)) sb.Append(SqBrktClsChar);
         GraphBuilder.MarkContentEnd();
         return sb;
@@ -710,7 +712,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         }
 
         if (formatFlags.ShouldDelimit()) sb.Append(DblQt);
-        base.Format(source, sourceFrom, sb, formatSpan, maxTransferCount, formatFlags: (FormatSwitches)formatFlags);
+        base.Format(source, sourceFrom, sb, formatSpan, maxTransferCount, formatSwitches: (FormatSwitches)formatFlags);
         if (formatFlags.ShouldDelimit()) sb.Append(DblQt);
         GraphBuilder.MarkContentEnd();
         return sb;
@@ -739,7 +741,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         }
 
         if (formatFlags.ShouldDelimit()) sb.Append(DblQt);
-        base.Format(source, sourceFrom, sb, formatSpan, maxTransferCount, formatFlags: (FormatSwitches)formatFlags);
+        base.Format(source, sourceFrom, sb, formatSpan, maxTransferCount, formatSwitches: (FormatSwitches)formatFlags);
         if (formatFlags.ShouldDelimit()) sb.Append(DblQt);
         GraphBuilder.MarkContentEnd();
         return sb;

@@ -43,8 +43,10 @@ public static class FormatSwitchesExtensions
     public static bool HasEncodeBoundsFlag(this FormatSwitches flags)   => (flags & EncodeBounds) > 0;
     
     public static bool HasEncodeInnerContent(this FormatSwitches flags) => (flags & EncodeInnerContent) > 0;
+    
+    public static bool DoesNotHaveEncodeInnerContent(this FormatSwitches flags) => (flags & EncodeInnerContent) == 0;
 
-    public static bool HaEnsureFormattedDelimitedFlag(this FormatSwitches flags) => (flags & EnsureFormattedDelimited) > 0;
+    public static bool HasEnsureFormattedDelimitedFlag(this FormatSwitches flags) => (flags & EnsureFormattedDelimited) > 0;
 
     public static bool HasNoAutoAddCallerTypeFlag(this FormatSwitches flags) => (flags & NoAutoAddCallerType) > 0;
 
@@ -52,13 +54,12 @@ public static class FormatSwitchesExtensions
 
     public static bool HasAsStringContentFlag(this FormatSwitches flags) => (flags & AsStringContent) > 0;
 
-    public static bool HasAsValueContentFlag(this FormatSwitches flags) => (flags & AsValueContent) > 0;
-
+    public static bool HasAsValueContentFlag(this FormatSwitches flags)  => (flags & AsValueContent) > 0;
+    public static bool HasContentTreatmentFlags(this FormatSwitches flags) => flags.HasAsStringContentFlag() || flags.HasAsValueContentFlag();
+    public static bool TreatCharArrayAsString(this FormatSwitches flags)  => flags.HasContentTreatmentFlags();
+    public static bool TreatCharsAsEncodedString(this FormatSwitches flags)  => flags.HasContentTreatmentFlags() && !flags.HasReformatMultiLineFlag();
     public static bool IsUnspecifiedContent(this FormatSwitches flags) => !(flags.HasAsStringContentFlag() || flags.HasAsValueContentFlag());
-
     public static bool ShouldDelimit(this FormatSwitches flags) => (flags & EnsureFormattedDelimited) > 0;
-
-    public static bool TreatCharArrayAsString(this FormatSwitches flags) => flags.HasAsStringContentFlag() || flags.HasAsValueContentFlag();
 
     public static bool HasNoItemSeparatorFlag(this FormatSwitches flags) => (flags & NoItemSeparator) > 0;
     public static bool HasNoItemPaddingFlag(this FormatSwitches flags)   => (flags & NoItemPadding) > 0;
@@ -68,5 +69,8 @@ public static class FormatSwitchesExtensions
     public static bool UseMainItemPadding(this FormatSwitches flags)     => (flags & UseAltItemSeparator) == 0;
     
     public static bool HasAsCollectionFlag(this FormatSwitches flags)         => (flags & AsCollection) > 0;
+    
+    public static bool HasReformatMultiLineFlag(this FormatSwitches flags)         => (flags & ReformatMultiLine) > 0;
+    public static bool DoesNotHaveReformatMultiLineFlag(this FormatSwitches flags)         => (flags & ReformatMultiLine) == 0;
     public static bool DoesNotHaveAsCollectionFlag(this FormatSwitches flags) => (flags & AsCollection) == 0;
 }

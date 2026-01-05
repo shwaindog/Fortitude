@@ -49,7 +49,7 @@ public class GraphTrackingBuilder
 
     public IEncodingTransfer ParentGraphEncoder
     {
-        get => parentGraphEncoder ?? graphEncoder;
+        get => parentGraphEncoder ??= new PassThroughEncodingTransfer();
         set => parentGraphEncoder = value;
     }
 

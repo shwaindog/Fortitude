@@ -12,7 +12,7 @@ using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.ValueType;
 
 
-public partial class ValueTypeMoldTests
+public partial class ContentTypeMoldTests
 {
 
     [TestMethod]
@@ -46,8 +46,7 @@ public partial class ValueTypeMoldTests
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactJsonAsString(formatExpectation, scaffoldingToCall);
     }
-
-
+    
     [TestMethod]
     [DynamicData(nameof(NonNullableSpanFormattableExpectAsValue), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void CompactJsonNonNullFmtAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -55,8 +54,7 @@ public partial class ValueTypeMoldTests
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactJsonAsValue(formatExpectation, scaffoldingToCall);
     }
-
-
+    
     [TestMethod]
     [DynamicData(nameof(NonNullableSpanFormattableExpectAsString), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void CompactJsonNonNullFmtAsString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -64,8 +62,7 @@ public partial class ValueTypeMoldTests
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactJsonAsString(formatExpectation, scaffoldingToCall);
     }
-
-
+    
     [TestMethod]
     [DynamicData(nameof(NullableStructSpanFormattableExpectAsValue), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void CompactJsonNullFmtStructAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -73,8 +70,7 @@ public partial class ValueTypeMoldTests
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactJsonAsValue(formatExpectation, scaffoldingToCall);
     }
-
-
+    
     [TestMethod]
     [DynamicData(nameof(NullableStructSpanFormattableExpectAsString), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void CompactJsonNullFmtStructAsString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -90,8 +86,7 @@ public partial class ValueTypeMoldTests
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactJsonAsValue(formatExpectation, scaffoldingToCall);
     }
-
-
+    
     [TestMethod]
     [DynamicData(nameof(StringExpectAsString), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void CompactJsonStringAsString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -99,8 +94,7 @@ public partial class ValueTypeMoldTests
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactJsonAsString(formatExpectation, scaffoldingToCall);
     }
-
-
+    
     [TestMethod]
     [DynamicData(nameof(CharArrayExpectAsValue), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void CompactJsonCharArrayAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -117,7 +111,6 @@ public partial class ValueTypeMoldTests
         SharedCompactJsonAsString(formatExpectation, scaffoldingToCall);
     }
 
-
     [TestMethod]
     [DynamicData(nameof(CharSequenceExpectAsValue), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void CompactJsonCharSequenceAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -126,7 +119,6 @@ public partial class ValueTypeMoldTests
         SharedCompactJsonAsValue(formatExpectation, scaffoldingToCall);
     }
 
-
     [TestMethod]
     [DynamicData(nameof(CharSequenceExpectAsString), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void CompactJsonCharSequenceAsString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -134,8 +126,7 @@ public partial class ValueTypeMoldTests
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactJsonAsString(formatExpectation, scaffoldingToCall);
     }
-
-
+    
     [TestMethod]
     [DynamicData(nameof(StringBuilderExpectAsValue), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void CompactJsonStringBuilderAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -192,7 +183,7 @@ public partial class ValueTypeMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactJsonAsValue(SpanFormattableStructTestData.SpanFormattableStructExpectations[60], ScaffoldingRegistry.AllScaffoldingTypes[1318]);
+        SharedCompactJsonAsValue(EnumTestData.EnumExpectations[2], ScaffoldingRegistry.AllScaffoldingTypes[1264]);
     }
 
     private void SharedCompactJsonAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)

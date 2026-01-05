@@ -117,7 +117,7 @@ public partial class SelectTypeFieldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactJson(CharArrayTestData.AllCharArrayExpectations[11], ScaffoldingRegistry.AllScaffoldingTypes[1031]);
+        SharedCompactJson(CharArrayTestData.AllCharArrayExpectations[23], ScaffoldingRegistry.AllScaffoldingTypes[1031]);
     }
 
     private void SharedCompactJson(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)

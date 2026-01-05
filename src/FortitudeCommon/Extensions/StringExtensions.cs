@@ -270,6 +270,34 @@ public static class StringExtensions
         return hasTwoOpeningBraces && hasTwoClosingBraces;
     }
     
+    public static bool HasAnyPairedBrc(this string input)
+    {
+        var foundOpeningBrace  = input.Length > 1 && input[0] == '{';
+        var foundClosingBrace = input.Length > 1 && input[^1] == '}';
+        if (foundOpeningBrace && foundClosingBrace) return true;
+        int i = 0;
+        for (; i < input.Length && !foundOpeningBrace; i++)
+        {
+            var checkChar = input[i];
+            if (checkChar == '{')
+            {
+                foundOpeningBrace = true;
+                break;
+            }
+        }
+        int j = input.Length - 1;
+        for (; j > i && !foundClosingBrace; i--)
+        {
+            var checkChar = input[i];
+            if (checkChar == '}')
+            {
+                foundClosingBrace = true;
+                break;
+            }
+        }
+        return foundOpeningBrace && foundClosingBrace;
+    }
+    
     public static string MakeWhiteSpaceVisible(this string input)
     {
         var sb = new StringBuilder();

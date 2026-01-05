@@ -93,6 +93,7 @@ public static class FieldContentHandlingExtensions
     public const FormatFlags None = 0;
 
     public static bool HasEncodeBounds(this FormatFlags flags)                     => (flags & EncodeBounds) > 0;
+    public static bool HasEncodeAll(this FormatFlags flags)                        => (flags & EncodeAll) == EncodeAll;
     public static bool HasDisableAddingAutoCallerTypeFlags(this FormatFlags flags) => (flags & NoAutoAddCallerTypeFlags) > 0;
     public static bool HasEnsureFormattedDelimitedFlag(this FormatFlags flags)     => (flags & EnsureFormattedDelimited) > 0;
     public static bool HasAsStringContentFlag(this FormatFlags flags)              => (flags & AsStringContent) > 0;
@@ -100,9 +101,14 @@ public static class FieldContentHandlingExtensions
     public static bool HasAsValueContentFlag(this FormatFlags flags)               => (flags & AsValueContent) > 0;
     public static bool DoesNotHaveAsValueContentFlag(this FormatFlags flags)       => (flags & AsValueContent) == 0;
 
-    public static bool TreatCharArrayAsString(this FormatFlags flags) => flags.HasAsStringContentFlag() || flags.HasAsValueContentFlag();
+    public static bool HasContentTreatmentFlags(this FormatFlags flags) => flags.HasAsStringContentFlag() || flags.HasAsValueContentFlag();
+    public static bool TreatCharArrayAsString(this FormatFlags flags)   => flags.HasContentTreatmentFlags();
+    
+    public static bool TreatCharsAsEncodedString(this FormatFlags flags)   => 
+        flags.HasContentTreatmentFlags() && !flags.HasReformatMultiLineFlag();
 
     public static bool HasReformatMultiLineFlag(this FormatFlags flags) => (flags & ReformatMultiLine) > 0;
+    public static bool DoesNotHaveReformatMultiLineFlag(this FormatFlags flags) => (flags & ReformatMultiLine) == 0;
     public static bool HasOnOneLine(this FormatFlags flags)             => (flags & OnOneLine) > 0;
     public static bool DoesNotHaveOnOneLine(this FormatFlags flags)             => (flags & OnOneLine) == 0;
     public static bool HasJsamlEncodingFlag(this FormatFlags flags)     => (flags & JsamlEncoding) > 0;
