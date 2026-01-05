@@ -100,6 +100,8 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         var result               = new StateExtractStringRange(TypeName ?? TypeBeingBuilt.CachedCSharpNameWithConstraints(), MoldStateField.Master, typeWriteRange);
         PortableState.CompleteResult = result;
         MoldStateField.Master.TypeComplete(MoldStateField);
+        MoldStateField =  null!;
+        ((IRecyclableObject)this).DecrementRefCount();
         return result;
     }
 
@@ -130,10 +132,11 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
 
     protected override void InheritedStateReset()
     {
-        MoldStateField.DecrementIndent();
-        MoldStateField = null!;
-
-        MeRecyclable.StateReset();
+        if (MoldStateField != null!)
+        {
+            MoldStateField.DecrementRefCount();
+            MoldStateField = null!;
+        }
     }
 }
 

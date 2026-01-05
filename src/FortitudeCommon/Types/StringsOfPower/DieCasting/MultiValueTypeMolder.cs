@@ -45,8 +45,7 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
         logOnlyInternalField?.DecrementRefCount();
         logOnlyInternalField = null!;
 
-        MoldStateField?.DecrementIndent();
-        MoldStateField = null!;
+        base.InheritedStateReset();
     }
 
     public TExt AddBaseStyledToStringFields<T>(T thisType) where T : IStringBearer

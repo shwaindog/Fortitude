@@ -55,9 +55,10 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
 
         FormatSwitches setFlags = callerFormattingFlags;
 
-        var typeofT = input.GetType();
+        var typeofT                           = input.GetType();
+        var typeIsSpanFormattableOrNullable = typeofT.IsSpanFormattableOrNullableCached();
         if (formatString.IsNotJsonTypeOpenCloseBounded()
-         && typeofT.IsSpanFormattableOrNullableCached()
+         && typeIsSpanFormattableOrNullable
          && !typeofT.IsEnum() // enums will by default auto select, but will always delimit
             // if EnsureFormattedDelimited unless format string does so already   
          && !callerFormattingFlags.HasDisableAutoDelimiting()
@@ -68,6 +69,10 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                       || !typeofT.IsJsonStringExemptType())
                 ? EnsureFormattedDelimited
                 : None;
+        }
+        if (callerFormattingFlags.DoesNotHaveReformatMultiLineFlag() && typeIsSpanFormattableOrNullable)
+        {
+            setFlags |= EncodeInnerContent;
         }
         return setFlags;
     }
@@ -373,8 +378,8 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             }
             if (!isInt && !wrapInQuotes && !alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting())
             {
-                sb.InsertAt(DblQt, markInsertIndex);
-                sb.Append(DblQt);
+                LayoutEncoder.InsertTransfer(DblQt, sb, markInsertIndex);
+                LayoutEncoder.Transfer(DblQt, sb);
             }
         }
         else
@@ -467,10 +472,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             }
             if (!isInt && !wrapInQuotes && !alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting())
             {
-                destCharSpan.ShiftByAmount(destStartIndex, destStartIndex + enumLen, 1);
-                destCharSpan.OverWriteAt(destStartIndex, DblQt);
-                destCharSpan.OverWriteAt(destStartIndex + enumLen + 1, DblQt);
-                charsAdded = enumLen + 2;
+                charsAdded += LayoutEncoder.InsertTransfer(DblQt, destCharSpan,  destStartIndex, destStartIndex + enumLen);
+                charsAdded += LayoutEncoder.Transfer(DblQt, destCharSpan, destStartIndex + enumLen + 1);
+                charsAdded +=  enumLen;
             }
             else { charsAdded += enumLen; }
         }

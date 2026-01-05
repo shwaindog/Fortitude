@@ -20,35 +20,35 @@ public static class StringBuilderTestData
             new StringLikeExpect<StringBuilder, StringBuilder>
                 (new StringBuilder(""), "", true, new StringBuilder("0"))
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut), "" }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut), "\"\"" }
+                { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut), "" }
+              , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut), "\"\"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut | DefaultBecomesZero
+                    new EK(ContentType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut | DefaultBecomesZero
                          | DefaultBecomesFallbackValue)
                   , "0"
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut
+                    new EK(ContentType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut
                          | EmptyBecomesNull | DefaultBecomesNull)
                   , "null"
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsStringOut | DefaultBecomesZero
+                    new EK(ContentType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsStringOut | DefaultBecomesZero
                          | DefaultBecomesFallbackValue)
                   , "\"0\""
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsStringOut | DefaultBecomesEmpty)
+                    new EK(ContentType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsStringOut | DefaultBecomesEmpty)
                   , "\"\""
                 }
-              , { new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut), "" }
+              , { new EK(ContentType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut), "" }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsStringOut)
+                    new EK(ContentType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsStringOut)
                   , "\"\""
                 }
 
@@ -63,9 +63,9 @@ public static class StringBuilderTestData
           , new StringLikeExpect<StringBuilder, StringBuilder>
                 (null, "", true, new StringBuilder(""))
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString), "" }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString), "\"\"" }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut), "null" }
+                { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString), "" }
+              , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString), "\"\"" }
+              , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut), "null" }
                ,
                 {
                     new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonDefaultWrites | DefaultTreatedAsValueOut |
@@ -86,7 +86,7 @@ public static class StringBuilderTestData
           , new StringLikeExpect<StringBuilder,  StringBuilder>
                 (null, "", false, new StringBuilder(""), 10, 50)
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut), "null" }
+                { new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut), "null" }
                ,
                 {
                     new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonDefaultWrites
@@ -101,7 +101,7 @@ public static class StringBuilderTestData
           , new StringLikeExpect<StringBuilder, StringBuilder>
                 (null, "", true, new StringBuilder("0"), -1, -10)
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut), "null" }
+                { new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut), "null" }
                ,
                 {
                     new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonDefaultWrites
@@ -118,36 +118,36 @@ public static class StringBuilderTestData
                 (new StringBuilder("It"), "\"{0}\"", false, new StringBuilder(), 3, 2)
             {
                 {
-                    new EK(SimpleType | CallsViaMatch | DefaultBecomesFallbackValue, Log | Compact | Pretty)
+                    new EK(ContentType | CallsViaMatch | DefaultBecomesFallbackValue, Log | Compact | Pretty)
                   , "\"\""
                 }
                ,
                 {
-                    new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)
+                    new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)
                   , "\"\""
                 }
-              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallbackValue), "\"\\u0022\\u0022\"" }
+              , { new EK(ContentType | CallsViaMatch | DefaultBecomesFallbackValue), "\"\\u0022\\u0022\"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultBecomesZero
+                    new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultBecomesZero
                          , Log | Compact | Pretty)
                   , "\"0\""
                 }
-              , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut | DefaultBecomesZero), "\"0\"" }
+              , { new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut | DefaultBecomesZero), "\"0\"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultBecomesZero)
+                    new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultBecomesZero)
                   , "\"\\u00220\\u0022\""
                 }
-              , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence, Log | Compact | Pretty), "\"\"" }
-              , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut), "\"\"" }
-              , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence), "\"\\u0022\\u0022\"" }
+              , { new EK(ContentType | AcceptsChars | AcceptsCharSequence, Log | Compact | Pretty), "\"\"" }
+              , { new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut), "\"\"" }
+              , { new EK(ContentType | AcceptsChars | AcceptsCharSequence), "\"\\u0022\\u0022\"" }
               , { new EK(AcceptsChars | AlwaysWrites | NonNullWrites), "\"\"" }
             }
           , new StringLikeExpect<StringBuilder, StringBuilder>
                 (new StringBuilder("began"), "'{0[8..10]}'", false, new StringBuilder("0"), 10, 5)
             {
-                { new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut), "''" }
+                { new EK(ContentType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut), "''" }
                ,
                 {
                     new EK(AcceptsChars | AcceptsStringBuilder | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -157,14 +157,14 @@ public static class StringBuilderTestData
             }
           , new StringLikeExpect<StringBuilder>(new StringBuilder("with"), "\"{0[8..10]}\"")
             {
-                { new EK(SimpleType | CallsViaMatch | AcceptsStringBuilder, Log | Compact | Pretty), "\"\"" }
-              , { new EK(SimpleType | CallsViaMatch | AcceptsStringBuilder | DefaultBecomesFallbackValue | DefaultTreatedAsValueOut), "\"\"" }
-              , { new EK(SimpleType | CallsViaMatch | AcceptsStringBuilder | DefaultBecomesFallbackValue), "\"\\u0022\\u0022\"" }
-              , { new EK(SimpleType | AcceptsChars | AcceptsStringBuilder, Log | Compact | Pretty), "\"\"" }
-              , { new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut), "\"\"" }
+                { new EK(ContentType | CallsViaMatch | AcceptsStringBuilder, Log | Compact | Pretty), "\"\"" }
+              , { new EK(ContentType | CallsViaMatch | AcceptsStringBuilder | DefaultBecomesFallbackValue | DefaultTreatedAsValueOut), "\"\"" }
+              , { new EK(ContentType | CallsViaMatch | AcceptsStringBuilder | DefaultBecomesFallbackValue), "\"\\u0022\\u0022\"" }
+              , { new EK(ContentType | AcceptsChars | AcceptsStringBuilder, Log | Compact | Pretty), "\"\"" }
+              , { new EK(ContentType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut), "\"\"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsStringBuilder)
+                    new EK(ContentType | AcceptsChars | AcceptsStringBuilder)
                   , "\"\\u0022\\u0022\""
                 }
                , { new EK(AcceptsChars | AcceptsStringBuilder | AllOutputConditionsMask ) , "\"\"" }
@@ -175,7 +175,7 @@ public static class StringBuilderTestData
                 { new EK(AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut | DefaultBecomesZero), "0" }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut |
+                    new EK(ContentType | AcceptsChars | AcceptsStringBuilder | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut |
                            DefaultBecomesNull)
                   , "null"
                 }
@@ -277,19 +277,19 @@ public static class StringBuilderTestData
                , "{0,0/ /\n/[1..^1]}")
                 {
                     {
-                        new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | CallsAsSpan | DefaultTreatedAsValueOut
+                        new EK(ContentType | AcceptsChars | AcceptsStringBuilder | CallsAsSpan | DefaultTreatedAsValueOut
                              , Log | Compact | Pretty)
                       , "within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach"
                     }
                    ,
                     {
-                        new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | CallsAsSpan | DefaultTreatedAsStringOut
+                        new EK(ContentType | AcceptsChars | AcceptsStringBuilder | CallsAsSpan | DefaultTreatedAsStringOut
                              , Log | Compact | Pretty)
                       , "\"within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach\""
                     }
                    ,
                     {
-                        new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | CallsAsSpan | DefaultTreatedAsValueOut)
+                        new EK(ContentType | AcceptsChars | AcceptsStringBuilder | CallsAsSpan | DefaultTreatedAsValueOut)
                       , """
                         within\u000athese\u000astrings\u000awas\u000abound\u000athe\u000aflexibility,\u000amutability\u000aand\u000athe
                         \u000aoperators\u000ato\u000agovern\u000aeach
@@ -297,7 +297,7 @@ public static class StringBuilderTestData
                     }
                    ,
                     {
-                        new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | CallsAsSpan)
+                        new EK(ContentType | AcceptsChars | AcceptsStringBuilder | CallsAsSpan)
                       , """
                         "within\u000athese\u000astrings\u000awas\u000abound\u000athe\u000aflexibility,\u000amutability\u000aand\u000athe
                         \u000aoperators\u000ato\u000agovern\u000aeach"
@@ -305,7 +305,7 @@ public static class StringBuilderTestData
                     }
                    ,
                     {
-                        new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | CallsAsSpan | DefaultTreatedAsStringOut
+                        new EK(ContentType | AcceptsChars | AcceptsStringBuilder | CallsAsSpan | DefaultTreatedAsStringOut
                              , Log | Compact | Pretty)
                       , "\"within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach\""
                     }

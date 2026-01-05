@@ -29,6 +29,10 @@ public static class TypeExtensions
     public static readonly Type NullableTypeDef             = typeof(Nullable<>);
     public static readonly Type EnumType                    = typeof(Enum);
     public static readonly Type CharType                    = typeof(char);
+    public static readonly Type CharSpanType                = typeof(Span<char>);
+    public static readonly Type ReadOnlyCharSpanType        = typeof(ReadOnlySpan<char>);
+    public static readonly Type CharMemoryType              = typeof(Memory<char>);
+    public static readonly Type ReadOnlyCharMemoryType      = typeof(ReadOnlyMemory<char>);
     public static readonly Type NullableCharType            = typeof(char?);
     public static readonly Type RuneType                    = typeof(Rune);
     public static readonly Type NullableRuneType            = typeof(Rune?);
@@ -602,6 +606,15 @@ public static class TypeExtensions
     public static bool IsNullableCharArray(this Type check)    => check == typeof(char?[]);
     public static bool IsNotNullableCharArray(this Type check) => !check.IsNullableCharArray();
 
+    public static bool IsCharSpan(this Type check)             => check == CharSpanType;
+    public static bool IsNotCharSpan(this Type check)          => !check.IsCharSpan();
+    public static bool IsReadOnlyCharSpan(this Type check)             => check == ReadOnlyCharSpanType;
+    public static bool IsNotReadOnlyCharSpan(this Type check)          => !check.IsReadOnlyCharSpan();
+    public static bool IsCharMemory(this Type check)             => check == CharMemoryType;
+    public static bool IsNotCharMemory(this Type check)          => !check.IsCharMemory();
+    public static bool IsReadOnlyCharMemory(this Type check)             => check == ReadOnlyCharMemoryType;
+    public static bool IsNotReadOnlyCharMemory(this Type check)          => !check.IsReadOnlyCharMemory();
+
     public static bool IsRune(this Type check)                 => check == RuneType;
     public static bool IsNotRune(this Type check)              => !check.IsRune();
     public static bool IsNullableRune(this Type check)         => check == NullableRuneType;
@@ -778,10 +791,11 @@ public static class TypeExtensions
     public static bool IsNotStringBuilderList(this Type check) => !check.IsStringBuilderList();
 
     public static bool IsAnyTypeHoldingChars(this Type check) =>
-        check.IsChar() || check.IsNullableChar() || check.IsRune() || check.IsNullableRune() || check.IsString() || check.IsStringArray()
-     || check.IsStringList() || check.IsCharArray() || check.IsNullableCharArray() || check.IsRuneArray() || check.IsNullableRuneArray()
-     || check.IsCharSequence() || check.IsCharSequenceSupportArray() || check.IsCharSequenceSupportingList() || check.IsStringBuilder()
-     || check.IsStringBuilderArray() || check.IsStringBuilderList();
+        check.IsChar() || check.IsNullableChar() || check.IsRune() || check.IsNullableRune() || check.IsString()
+     || check.IsCharMemory() || check.IsReadOnlyCharMemory() || check.IsCharSpan() || check.IsReadOnlyCharSpan()   
+     || check.IsStringArray() || check.IsStringList() || check.IsCharArray() || check.IsNullableCharArray() || check.IsRuneArray() 
+     || check.IsNullableRuneArray() || check.IsCharSequence() || check.IsCharSequenceSupportArray() || check.IsCharSequenceSupportingList() 
+     || check.IsStringBuilder() || check.IsStringBuilderArray() || check.IsStringBuilderList();
 
     public static bool IsAnyTypeHoldingCharsCached(this Type check) =>
         IsAnyTypeHoldingCache.GetOrAdd(check, t => t.IsAnyTypeHoldingChars());

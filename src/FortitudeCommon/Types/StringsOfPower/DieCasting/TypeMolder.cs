@@ -29,8 +29,6 @@ public record struct StateExtractStringRange(string TypeName, ITheOneString Type
 
 public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
 {
-    protected readonly StyleTypeBuilderPortableState PortableState = new();
-
     protected int StartIndex;
 
     protected void InitializeStyledTypeBuilder(
@@ -43,6 +41,8 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
       , int existingRefId
       , FormatFlags createFormatFlags )
     {
+        PortableState ??= new();
+        
         PortableState.TypeBeingBuilt      = typeBeingBuilt;
         PortableState.Master              = master;
         PortableState.TypeName            = typeName;
@@ -51,10 +51,12 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
         PortableState.AppenderSettings    = typeSettings;
         PortableState.CompleteResult      = null;
         PortableState.ExistingRefId       = existingRefId;
-        PortableState.CreateFormatFlags = createFormatFlags;
+        PortableState.CreateFormatFlags   = createFormatFlags;
 
         StartIndex = master.WriteBuffer.Length;
     }
+
+    protected StyleTypeBuilderPortableState PortableState { get; set; }
 
     public bool IsComplete => PortableState.CompleteResult != null;
 
@@ -117,6 +119,11 @@ public interface ITypeBuilderComponentSource
     ITypeMolderDieCast MoldState { get; }
 }
 
+public interface IMigratableTypeBuilderComponentSource
+{
+    IMigratableTypeMolderDieCast MigratableMoldState { get; }
+}
+
 public interface ITypeBuilderComponentSource<out T> : ITypeBuilderComponentSource where T : TypeMolder
 {
     ITypeMolderDieCast<T> KnownTypeMoldState { get; }
@@ -124,8 +131,6 @@ public interface ITypeBuilderComponentSource<out T> : ITypeBuilderComponentSourc
 
 public static class StyledTypeBuilderExtensions
 {
-    internal const string Null = "null";
-
     private static readonly ConcurrentDictionary<(Type, Type), Delegate> DynamicSpanFmtContentInvokers           = new();
     private static readonly ConcurrentDictionary<(Type, Type), Delegate> DynamicSpanFmtCollectionElementInvokers = new();
 

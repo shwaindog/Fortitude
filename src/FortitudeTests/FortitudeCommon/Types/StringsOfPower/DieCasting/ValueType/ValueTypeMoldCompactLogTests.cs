@@ -18,11 +18,10 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.ValueType;
 
 [TestClass]
-public partial class ValueTypeMoldTests
+public partial class ContentTypeMoldTests
 {
     private static IReadOnlyList<ScaffoldingPartEntry> scafReg = ScaffoldingRegistry.AllScaffoldingTypes;
-
-
+    
     private static IVersatileFLogger logger = null!;
 
     [ClassInitialize]
@@ -45,7 +44,7 @@ public partial class ValueTypeMoldTests
         where !fe.IsNullable
         from scaffoldToCall in
             scafReg
-                .IsSimpleType()
+                .IsContentType()
                 .ProcessesSingleValue()
                 .AcceptsBoolean()
                 .AcceptsNonNullables()
@@ -64,7 +63,7 @@ public partial class ValueTypeMoldTests
         from fe in BoolTestData.AllBoolExpectations
         where !fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsSimpleType()
+            scafReg.IsContentType()
                    .ProcessesSingleValue()
                    .AcceptsBoolean()
                    .AcceptsNonNullables()
@@ -83,7 +82,7 @@ public partial class ValueTypeMoldTests
         from fe in BoolTestData.AllBoolExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsSimpleType().ProcessesSingleValue().AcceptsBoolean().AcceptsNullableStructs()
+            scafReg.IsContentType().ProcessesSingleValue().AcceptsBoolean().AcceptsNullableStructs()
                    .HasTreatedAsValueOut()
         select new object[] { fe, scaffoldToCall };
 
@@ -99,7 +98,7 @@ public partial class ValueTypeMoldTests
         from fe in BoolTestData.AllBoolExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsSimpleType().ProcessesSingleValue().AcceptsBoolean().AcceptsNullableStructs()
+            scafReg.IsContentType().ProcessesSingleValue().AcceptsBoolean().AcceptsNullableStructs()
                    .HasTreatedAsStringOut()
         select new object[] { fe, scaffoldToCall };
 
@@ -118,14 +117,14 @@ public partial class ValueTypeMoldTests
             var structJoins = from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
                 where fe.InputType.IsValueType && !fe.IsNullable
                 from scaffoldToCall in
-                    scafReg.IsSimpleType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNonNullStructs()
+                    scafReg.IsContentType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNonNullStructs()
                            .HasTreatedAsValueOut()
                 select new object[] { fe, scaffoldToCall };
 
             var classJoins = from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
                 where !fe.InputType.IsValueType
                 from scaffoldToCall in
-                    scafReg.IsSimpleType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsClasses()
+                    scafReg.IsContentType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsClasses()
                            .HasTreatedAsValueOut()
                 select new object[] { fe, scaffoldToCall };
 
@@ -149,14 +148,14 @@ public partial class ValueTypeMoldTests
             var structJoins = from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
                 where fe.InputType.IsValueType && !fe.IsNullable
                 from scaffoldToCall in
-                    scafReg.IsSimpleType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNonNullStructs()
+                    scafReg.IsContentType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNonNullStructs()
                            .HasTreatedAsStringOut()
                 select new object[] { fe, scaffoldToCall };
 
             var classJoins = from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
                 where !fe.InputType.IsValueType
                 from scaffoldToCall in
-                    scafReg.IsSimpleType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsClasses()
+                    scafReg.IsContentType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsClasses()
                            .HasTreatedAsStringOut()
                 select new object[] { fe, scaffoldToCall };
 
@@ -177,7 +176,7 @@ public partial class ValueTypeMoldTests
         from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
         where fe is { IsNullable: true, IsStruct: true }
         from scaffoldToCall in
-            scafReg.IsSimpleType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNullableStructs()
+            scafReg.IsContentType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNullableStructs()
                    .HasTreatedAsValueOut()
         select new object[] { fe, scaffoldToCall };
 
@@ -194,7 +193,7 @@ public partial class ValueTypeMoldTests
         from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
         where fe is { IsNullable: true, IsStruct: true }
         from scaffoldToCall in
-            scafReg.IsSimpleType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNullableStructs()
+            scafReg.IsContentType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNullableStructs()
                    .HasTreatedAsStringOut()
         select new object[] { fe, scaffoldToCall };
 
@@ -214,7 +213,7 @@ public partial class ValueTypeMoldTests
             var acceptsFormatString = from fe in StringTestData.AllStringExpectations
                 where fe.InputType.IsString()
                 from scaffoldToCall in
-                    scafReg.IsSimpleType().ProcessesSingleValue().AcceptsString().HasSupportsValueFormatString().NotHasSupportsValueRevealer()
+                    scafReg.IsContentType().ProcessesSingleValue().AcceptsString().HasSupportsValueFormatString().NotHasSupportsValueRevealer()
                            .HasTreatedAsValueOut()
                 where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
                 select new object[] { fe, scaffoldToCall };
@@ -230,7 +229,7 @@ public partial class ValueTypeMoldTests
                     })
                     .SelectMany(_ =>
                                     scafReg
-                                        .IsSimpleType()
+                                        .IsContentType()
                                         .ProcessesSingleValue()
                                         .AcceptsString()
                                         .HasNotSupportsValueFormatString()
@@ -261,7 +260,7 @@ public partial class ValueTypeMoldTests
             var acceptsFormatString = from fe in StringTestData.AllStringExpectations
                 where fe.InputType.IsString()
                 from scaffoldToCall in
-                    scafReg.IsSimpleType().ProcessesSingleValue().AcceptsString().HasSupportsValueFormatString().NotHasSupportsValueRevealer()
+                    scafReg.IsContentType().ProcessesSingleValue().AcceptsString().HasSupportsValueFormatString().NotHasSupportsValueRevealer()
                            .HasTreatedAsStringOut()
                 where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
                 select new object[] { fe, scaffoldToCall };
@@ -277,7 +276,7 @@ public partial class ValueTypeMoldTests
                     })
                     .SelectMany(_ =>
                                     scafReg
-                                        .IsSimpleType()
+                                        .IsContentType()
                                         .ProcessesSingleValue()
                                         .AcceptsString()
                                         .HasNotSupportsValueFormatString()
@@ -308,7 +307,7 @@ public partial class ValueTypeMoldTests
             var acceptsFormatString = from fe in CharArrayTestData.AllCharArrayExpectations
                 where fe.InputType.IsCharArray()
                 from scaffoldToCall in
-                    scafReg.IsSimpleType().ProcessesSingleValue().AcceptsCharArray().HasSupportsValueFormatString().NotHasSupportsValueRevealer()
+                    scafReg.IsContentType().ProcessesSingleValue().AcceptsCharArray().HasSupportsValueFormatString().NotHasSupportsValueRevealer()
                            .HasTreatedAsValueOut()
                 where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
                 select new object[] { fe, scaffoldToCall };
@@ -324,7 +323,7 @@ public partial class ValueTypeMoldTests
                     })
                     .SelectMany(_ =>
                                     scafReg
-                                        .IsSimpleType()
+                                        .IsContentType()
                                         .ProcessesSingleValue()
                                         .AcceptsCharArray()
                                         .HasNotSupportsValueFormatString()
@@ -355,7 +354,7 @@ public partial class ValueTypeMoldTests
             var acceptsFormatString = from fe in CharArrayTestData.AllCharArrayExpectations
                 where fe.InputType.IsCharArray()
                 from scaffoldToCall in
-                    scafReg.IsSimpleType().ProcessesSingleValue().AcceptsCharArray().HasSupportsValueFormatString().NotHasSupportsValueRevealer()
+                    scafReg.IsContentType().ProcessesSingleValue().AcceptsCharArray().HasSupportsValueFormatString().NotHasSupportsValueRevealer()
                            .HasTreatedAsStringOut()
                 where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
                 select new object[] { fe, scaffoldToCall };
@@ -371,7 +370,7 @@ public partial class ValueTypeMoldTests
                     })
                     .SelectMany(_ =>
                                     scafReg
-                                        .IsSimpleType()
+                                        .IsContentType()
                                         .ProcessesSingleValue()
                                         .AcceptsCharArray()
                                         .HasNotSupportsValueFormatString()
@@ -398,7 +397,7 @@ public partial class ValueTypeMoldTests
         from fe in CharSequenceTestData.AllCharSequenceExpectations
         where fe.InputType.ImplementsInterface<ICharSequence>()
         from scaffoldToCall in
-            scafReg.IsSimpleType().ProcessesSingleValue().AcceptsCharSequence().NotHasSupportsValueRevealer()
+            scafReg.IsContentType().ProcessesSingleValue().AcceptsCharSequence().NotHasSupportsValueRevealer()
                    .HasTreatedAsValueOut()
         where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
         select new object[] { fe, scaffoldToCall };
@@ -416,7 +415,7 @@ public partial class ValueTypeMoldTests
         from fe in CharSequenceTestData.AllCharSequenceExpectations
         where fe.InputType.ImplementsInterface<ICharSequence>()
         from scaffoldToCall in
-            scafReg.IsSimpleType().ProcessesSingleValue().AcceptsCharSequence().NotHasSupportsValueRevealer()
+            scafReg.IsContentType().ProcessesSingleValue().AcceptsCharSequence().NotHasSupportsValueRevealer()
                    .HasTreatedAsStringOut()
         where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
         select new object[] { fe, scaffoldToCall };
@@ -434,7 +433,7 @@ public partial class ValueTypeMoldTests
         from fe in StringBuilderTestData.AllStringBuilderExpectations
         where fe.InputType.IsStringBuilder()
         from scaffoldToCall in
-            scafReg.IsSimpleType().ProcessesSingleValue().AcceptsStringBuilder().NotHasSupportsValueRevealer()
+            scafReg.IsContentType().ProcessesSingleValue().AcceptsStringBuilder().NotHasSupportsValueRevealer()
                    .HasTreatedAsValueOut()
         where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
         select new object[] { fe, scaffoldToCall };
@@ -452,7 +451,7 @@ public partial class ValueTypeMoldTests
         from fe in StringBuilderTestData.AllStringBuilderExpectations
         where fe.InputType.IsStringBuilder()
         from scaffoldToCall in
-            scafReg.IsSimpleType().ProcessesSingleValue().AcceptsStringBuilder().NotHasSupportsValueRevealer()
+            scafReg.IsContentType().ProcessesSingleValue().AcceptsStringBuilder().NotHasSupportsValueRevealer()
                    .HasTreatedAsStringOut()
         where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
         select new object[] { fe, scaffoldToCall };
@@ -470,7 +469,7 @@ public partial class ValueTypeMoldTests
         from fe in CloakedBearerTestData.AllCloakedBearerExpectations
         where !fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsSimpleType().ProcessesSingleValue().AcceptsNonNullables().HasSupportsValueRevealer()
+            scafReg.IsContentType().ProcessesSingleValue().AcceptsNonNullables().HasSupportsValueRevealer()
                    .HasTreatedAsValueOut()
         select new object[] { fe, scaffoldToCall };
 
@@ -487,7 +486,7 @@ public partial class ValueTypeMoldTests
         from fe in CloakedBearerTestData.AllCloakedBearerExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsSimpleType().ProcessesSingleValue().AcceptsNullableStructs().HasSupportsValueRevealer()
+            scafReg.IsContentType().ProcessesSingleValue().AcceptsNullableStructs().HasSupportsValueRevealer()
                    .HasTreatedAsValueOut()
         select new object[] { fe, scaffoldToCall };
 
@@ -503,7 +502,7 @@ public partial class ValueTypeMoldTests
         from fe in StringBearerTestData.AllStringBearerExpectations
         where !fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsSimpleType().ProcessesSingleValue().AcceptsNonNullables()
+            scafReg.IsContentType().ProcessesSingleValue().AcceptsNonNullables()
                    .NotHasSupportsValueRevealer().HasAcceptsStringBearer()
                    .HasTreatedAsValueOut()
         select new object[] { fe, scaffoldToCall };
@@ -521,7 +520,7 @@ public partial class ValueTypeMoldTests
         from fe in StringBearerTestData.AllStringBearerExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsSimpleType().ProcessesSingleValue().AcceptsNullableStructs()
+            scafReg.IsContentType().ProcessesSingleValue().AcceptsNullableStructs()
                    .NotHasSupportsValueRevealer().HasAcceptsStringBearer()
                    .HasTreatedAsValueOut()
         select new object[] { fe, scaffoldToCall };
@@ -539,7 +538,7 @@ public partial class ValueTypeMoldTests
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactLogAsString(StringTestData.AllStringExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[1210]);
+        SharedCompactLogAsString(CharArrayTestData.AllCharArrayExpectations[4], ScaffoldingRegistry.AllScaffoldingTypes[1203]);
     }
 
     private void SharedCompactLogAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -566,9 +565,11 @@ public partial class ValueTypeMoldTests
         string BuildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            var compactLogTemplate = expectation.GetType().ExtendsGenericBaseType(typeof(NullableStringBearerExpect<>))
-                ? (propertyName.IsNotEmpty() ? "{0} {{ {1}: {2} }}" : "{0} {{ {2} }}")
-                : (propertyName.IsNotEmpty() ? "{0}= {1}: {2}" : "{0}= {2}");
+            var compactLogTemplate = 
+                condition.HasComplexTypeFlag() 
+             || expectation.GetType().ExtendsGenericBaseType(typeof(NullableStringBearerExpect<>))
+                    ? (propertyName.IsNotEmpty() ? "{0} {{ {1}: {2} }}" : "{0} {{ {2} }}")
+                    :  "{0}= {2}";
 
             var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
             if (expectValue == IFormatExpectation.NoResultExpectedValue)
@@ -648,9 +649,11 @@ public partial class ValueTypeMoldTests
         string BuildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            var compactLogTemplate = expectation.GetType().ExtendsGenericBaseType(typeof(NullableStringBearerExpect<>))
+            var compactLogTemplate = 
+                condition.HasComplexTypeFlag() 
+             || expectation.GetType().ExtendsGenericBaseType(typeof(NullableStringBearerExpect<>))
                 ? (propertyName.IsNotEmpty() ? "{0} {{ {1}: {2} }}" : "{0} {{ {2} }}")
-                : (propertyName.IsNotEmpty() ? "{0}= {1}: {2}" : "{0}= {2}");
+                :  "{0}= {2}";
 
             var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
 

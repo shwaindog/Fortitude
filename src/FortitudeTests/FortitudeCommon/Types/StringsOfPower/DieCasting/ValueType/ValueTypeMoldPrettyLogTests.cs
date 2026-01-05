@@ -12,7 +12,7 @@ using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.ValueType;
 
 
-public partial class ValueTypeMoldTests
+public partial class ContentTypeMoldTests
 {
 
     [TestMethod]
@@ -187,12 +187,12 @@ public partial class ValueTypeMoldTests
         SharedPrettyLogAsValue(formatExpectation, scaffoldingToCall);
     }
 
-    // [TestMethod]
+    [TestMethod]
     public void PrettyLogSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactJsonAsValue(SpanFormattableTestData.AllSpanFormattableExpectations.Value[209], ScaffoldingRegistry.AllScaffoldingTypes[1139]);
+        SharedPrettyLogAsValue(CloakedBearerTestData.AllCloakedBearerExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[1261]);
     }
 
     private void SharedPrettyLogAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -215,16 +215,33 @@ public partial class ValueTypeMoldTests
         string BuildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            const string prettyLogTemplate = "{0}= {1}{2}";
+            var prettyLogTemplate = 
+                condition.HasComplexTypeFlag() 
+             || expectation.GetType().ExtendsGenericBaseType(typeof(NullableStringBearerExpect<>))
+                    ? (propertyName.IsNotEmpty() ? "{0} {{{1}{2}{3}{1}}}" : "{0} {{ {2} }}")
+                    :  "{0}= {3}";
 
-            var maybeProperty = propertyName.IsNotEmpty() ? $"{propertyName}: " : "";
+            var maybeNewLine = "";
+            var maybeIndent  = "";
+
+            var maybeProperty = propertyName.IsNotEmpty() && condition.HasComplexTypeFlag() ? $"{propertyName}: " : "";
             var expectValue   = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
-            if (expectValue == IFormatExpectation.NoResultExpectedValue)
+            if (expectValue != IFormatExpectation.NoResultExpectedValue)
+            {
+                maybeNewLine = "\n";
+                maybeIndent  = "  ";
+                expectValue  = 
+                    maybeProperty + 
+                    (condition.HasComplexTypeFlag() && expectValue.HasAnyPairedBrc() 
+                        ? expectValue.IndentSubsequentLines() 
+                        : expectValue);
+            }
+            else
             {
                 expectValue = "";
             }
 
-            return string.Format(prettyLogTemplate, className, maybeProperty, expectValue);
+            return string.Format(prettyLogTemplate, className, maybeNewLine, maybeIndent, expectValue);
         }
 
         string BuildChildExpectedOutput(string className, string propertyName
@@ -239,7 +256,9 @@ public partial class ValueTypeMoldTests
             {
                 maybeNewLine = "\n";
                 maybeIndent  = "  ";
-                expectValue  = propertyName + ": " + expectValue;
+                expectValue  = propertyName + ": " + (condition.HasComplexTypeFlag() && expectValue.HasAnyPairedBrc() 
+                    ? expectValue.IndentSubsequentLines() 
+                    : expectValue);;
             }
 
             else { expectValue = ""; }
@@ -304,16 +323,32 @@ public partial class ValueTypeMoldTests
         string BuildExpectedOutput(string className, string propertyName
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
-            const string prettyLogTemplate = "{0}= {1}{2}";
+            var prettyLogTemplate = 
+                condition.HasComplexTypeFlag() 
+             || expectation.GetType().ExtendsGenericBaseType(typeof(NullableStringBearerExpect<>))
+                    ? (propertyName.IsNotEmpty() ? "{0} {{{1}{2}{3}{1}}}" : "{0} {{ {2} }}")
+                    :  "{0}= {3}";
 
-            var maybeProperty = propertyName.IsNotEmpty() ? $"{propertyName}: " : "";
+            var maybeNewLine  = "";
+            var maybeIndent   = "";
+            var maybeProperty = propertyName.IsNotEmpty() && condition.HasComplexTypeFlag() ? $"{propertyName}: " : "";
             var expectValue   = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
-            if (expectValue == IFormatExpectation.NoResultExpectedValue)
+            if (expectValue != IFormatExpectation.NoResultExpectedValue)
+            {
+                maybeNewLine = "\n";
+                maybeIndent  = "  ";
+                expectValue  = 
+                    maybeProperty 
+                  + (condition.HasComplexTypeFlag() && expectValue.HasAnyPairedBrc() 
+                        ? expectValue.IndentSubsequentLines() 
+                        : expectValue);
+            }
+            else
             {
                 expectValue = "";
             }
 
-            return string.Format(prettyLogTemplate, className, maybeProperty, expectValue);
+            return string.Format(prettyLogTemplate, className, maybeNewLine, maybeIndent, expectValue);
         }
 
         string BuildChildExpectedOutput(string className, string propertyName
@@ -328,7 +363,9 @@ public partial class ValueTypeMoldTests
             {
                 maybeNewLine = "\n";
                 maybeIndent  = "  ";
-                expectValue  = propertyName + ": " + expectValue;
+                expectValue  = propertyName + ": " + (condition.HasComplexTypeFlag() && expectValue.HasAnyPairedBrc() 
+                    ? expectValue.IndentSubsequentLines() 
+                    : expectValue);
             }
 
             else { expectValue = ""; }

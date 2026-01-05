@@ -872,7 +872,7 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
     public StateExtractStringRange RevealState(ITheOneString tos)
     {
         return
-            tos.StartSimpleValueType(this)
+            tos.StartComplexContentType(this)
                 .AsStringOrNull(nameof(backingArray), backingArray, 0, length).Complete();
     }
 

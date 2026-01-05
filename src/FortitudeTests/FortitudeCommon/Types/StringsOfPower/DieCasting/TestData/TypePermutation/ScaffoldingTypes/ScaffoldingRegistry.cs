@@ -25,7 +25,7 @@ public record ScaffoldingPartEntry(Type ScaffoldingType, ScaffoldingStringBuilde
 
     public int RequiredNumOfTypeArguments => ScaffoldingType.IsGenericType ? ScaffoldingType.GenericTypeArguments.Length : 0;
 
-    public bool IsValueMold => ScaffoldingFlags.HasAnyOf(SimpleType);
+    public bool IsValueMold => ScaffoldingFlags.HasAnyOf(ContentType);
 
     public bool IsComplexMold => ScaffoldingFlags.HasAnyOf(ComplexType);
 
@@ -147,95 +147,192 @@ public static class ScaffoldingRegistry
     }
 
     public static IEnumerable<ScaffoldingPartEntry> ComplexTypeFieldAlwaysAddFilter(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsComplexType().ProcessesSingleValue().AlwaysWrites();
+        subSet
+            .IsComplexType()
+            .IsNotContentType()
+            .ProcessesSingleValue()
+            .AlwaysWrites();
 
     public static IEnumerable<ScaffoldingPartEntry> ComplexTypeFieldWhenNonDefaultAddFilter(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsComplexType().ProcessesSingleValue().PopulatedWrites();
+        subSet
+            .IsComplexType()
+            .IsNotContentType()
+            .ProcessesSingleValue()
+            .PopulatedWrites();
 
     public static IEnumerable<ScaffoldingPartEntry> ComplexTypeFieldWhenNonNullAddFilter(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsComplexType().ProcessesSingleValue().NonNullWrites();
+        subSet
+            .IsComplexType()
+            .IsNotContentType()
+            .ProcessesSingleValue()
+            .NonNullWrites();
 
     public static IEnumerable<ScaffoldingPartEntry> ComplexTypeFieldWhenNonNullOrDefaultAddFilter(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsComplexType().ProcessesSingleValue().NonNullAndPopulatedWrites();
+        subSet
+            .IsComplexType()
+            .IsNotContentType()
+            .ProcessesSingleValue()
+            .NonNullAndPopulatedWrites();
 
     public static IEnumerable<ScaffoldingPartEntry> ComplexTypeCollectionFieldAlwaysAddAllFilter(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsComplexType().ProcessesCollection().AlwaysWrites().NoFilterPredicate();
+        subSet
+            .IsComplexType()
+            .ProcessesCollection()
+            .AlwaysWrites()
+            .NoFilterPredicate();
     
     public static IEnumerable<ScaffoldingPartEntry>
         ComplexTypeCollectionFieldWhenNonNullAddAllFilter(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsComplexType().ProcessesCollection().NonNullWrites().NoFilterPredicate();
+        subSet
+            .IsComplexType()
+            .ProcessesCollection()
+            .NonNullWrites()
+            .NoFilterPredicate();
     
     public static IEnumerable<ScaffoldingPartEntry>
         ComplexTypeCollectionFieldWhenPopulatedAddAllFilter(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsComplexType().ProcessesCollection().NonNullAndPopulatedWrites().NoFilterPredicate();
+        subSet
+            .IsComplexType()
+            .ProcessesCollection()
+            .NonNullAndPopulatedWrites()
+            .NoFilterPredicate();
 
     public static IEnumerable<ScaffoldingPartEntry> ComplexTypeCollectionFieldWhenNonNullAddFilteredFilter(
         this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsComplexType().ProcessesCollection().NonNullWrites().HasFilterPredicate();
+        subSet
+            .IsComplexType()
+            .ProcessesCollection()
+            .NonNullWrites()
+            .HasFilterPredicate();
 
     public static IEnumerable<ScaffoldingPartEntry>
         ComplexTypeCollectionFieldWhenPopulatedWithFilter(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsComplexType().ProcessesCollection().NonNullAndPopulatedWrites().HasFilterPredicate();
+        subSet
+            .IsComplexType()
+            .ProcessesCollection()
+            .NonNullAndPopulatedWrites()
+            .HasFilterPredicate();
 
     public static IEnumerable<ScaffoldingPartEntry>
         ComplexTypeCollectionFieldAlwaysAddFilteredFilter(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsComplexType().ProcessesCollection().AlwaysWrites().HasFilterPredicate();
+        subSet
+            .IsComplexType()
+            .ProcessesCollection()
+            .AlwaysWrites()
+            .HasFilterPredicate();
     
     public static IEnumerable<ScaffoldingPartEntry> ComplexTypeKeyedCollectionFieldAlwaysAddAllFilter
         (this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsComplexType().ProcessesKeyedCollection().AlwaysWrites().NoFilterPredicate().NoSubsetList();
+        subSet
+            .IsComplexType()
+            .ProcessesKeyedCollection()
+            .AlwaysWrites()
+            .NoFilterPredicate()
+            .NoSubsetList();
 
     public static IEnumerable<ScaffoldingPartEntry> ComplexTypeKeyedCollectionFieldWhenNonNullAddAllFilter
         (this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsComplexType().ProcessesKeyedCollection().NonNullWrites().NoFilterPredicate().NoSubsetList();
+        subSet
+            .IsComplexType()
+            .ProcessesKeyedCollection()
+            .NonNullWrites()
+            .NoFilterPredicate()
+            .NoSubsetList();
 
     public static IEnumerable<ScaffoldingPartEntry> ComplexTypeKeyedCollectionFieldAlwaysAddFiltered(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsComplexType().ProcessesKeyedCollection().AlwaysWrites().HasFilterPredicate();
+        subSet
+            .IsComplexType()
+            .ProcessesKeyedCollection()
+            .AlwaysWrites()
+            .HasFilterPredicate();
 
     public static IEnumerable<ScaffoldingPartEntry> ComplexTypeKeyedCollectionFieldWhenNonNullAddFiltered(
         this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsComplexType().ProcessesKeyedCollection().NonNullWrites().HasFilterPredicate();
+        subSet
+            .IsComplexType()
+            .ProcessesKeyedCollection()
+            .NonNullWrites()
+            .HasFilterPredicate();
 
     public static IEnumerable<ScaffoldingPartEntry> ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilter(
         this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsComplexType().ProcessesKeyedCollection().PopulatedWrites().HasFilterPredicate();
+        subSet
+            .IsComplexType()
+            .ProcessesKeyedCollection()
+            .PopulatedWrites()
+            .HasFilterPredicate();
 
     public static IEnumerable<ScaffoldingPartEntry> ComplexTypeKeyedCollectionFieldAlwaysAddSelectKeysFilter(
         this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsComplexType().ProcessesKeyedCollection().AlwaysWrites().NoFilterPredicate().HasSubsetListFilter();
+        subSet
+            .IsComplexType()
+            .ProcessesKeyedCollection()
+            .AlwaysWrites()
+            .NoFilterPredicate()
+            .HasSubsetListFilter();
 
     public static IEnumerable<ScaffoldingPartEntry> ComplexTypeKeyedCollectionFieldWhenNonNullAddSelectKeysFilter(
         this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsComplexType().ProcessesKeyedCollection().NonNullWrites().NoFilterPredicate().HasSubsetListFilter();
+        subSet
+            .IsComplexType()
+            .ProcessesKeyedCollection()
+            .NonNullWrites()
+            .NoFilterPredicate()
+            .HasSubsetListFilter();
 
     public static IEnumerable<ScaffoldingPartEntry> ComplexTypeKeyedCollectionFieldPopulatedWithSelectKeysFilter(
         this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsComplexType().ProcessesKeyedCollection().PopulatedWrites().NoFilterPredicate().HasSubsetListFilter();
+        subSet
+            .IsComplexType()
+            .ProcessesKeyedCollection()
+            .PopulatedWrites()
+            .NoFilterPredicate()
+            .HasSubsetListFilter();
 
     public static IEnumerable<ScaffoldingPartEntry> OrderedCollectionAlwaysAddAllFilter(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsOrderedCollectionType().ProcessesCollection().NoFilterPredicate();
+        subSet
+            .IsOrderedCollectionType()
+            .ProcessesCollection()
+            .NoFilterPredicate();
 
     public static IEnumerable<ScaffoldingPartEntry> OrderedCollectionAddFiltered(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsOrderedCollectionType().ProcessesCollection().HasFilterPredicate();
+        subSet
+            .IsOrderedCollectionType()
+            .ProcessesCollection()
+            .HasFilterPredicate();
     
     public static IEnumerable<ScaffoldingPartEntry> KeyedCollectionAlwaysAddAllFilter(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsKeyedCollectionType().ProcessesKeyedCollection().NoFilterPredicate().NoSubsetList();
+        subSet
+            .IsKeyedCollectionType()
+            .ProcessesKeyedCollection()
+            .NoFilterPredicate()
+            .NoSubsetList();
 
     public static IEnumerable<ScaffoldingPartEntry> KeyedCollectionAddFiltered(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsKeyedCollectionType().ProcessesKeyedCollection().HasFilterPredicate();
+        subSet
+            .IsKeyedCollectionType()
+            .ProcessesKeyedCollection()
+            .HasFilterPredicate();
 
     public static IEnumerable<ScaffoldingPartEntry> KeyedCollectionAddWithSelectedKeysFilter(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.IsKeyedCollectionType().ProcessesKeyedCollection().NoFilterPredicate().HasSubsetListFilter();
+        subSet
+            .IsKeyedCollectionType()
+            .ProcessesKeyedCollection()
+            .NoFilterPredicate()
+            .HasSubsetListFilter();
 
-    public static IEnumerable<ScaffoldingPartEntry> IsSimpleType(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(SimpleType));
+    public static IEnumerable<ScaffoldingPartEntry> IsContentType(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ContentType));
+
+    public static IEnumerable<ScaffoldingPartEntry> IsNotContentType(this IEnumerable<ScaffoldingPartEntry> subSet) =>
+        subSet.Where(spe => spe.ScaffoldingFlags.HasNoneOf(ContentType));
 
     public static IEnumerable<ScaffoldingPartEntry> IsComplexType(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(ComplexType));
 
     public static IEnumerable<ScaffoldingPartEntry> IsJustComplexType(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasComplexTypeFlag()
-                         && spe.ScaffoldingFlags.HasNoneOf(SimpleType | OrderedCollectionType | KeyedCollectionType));
+                         && spe.ScaffoldingFlags.HasNoneOf(ContentType | OrderedCollectionType | KeyedCollectionType));
 
     public static IEnumerable<ScaffoldingPartEntry> IsOrderedCollectionType(this IEnumerable<ScaffoldingPartEntry> subSet) =>
         subSet.Where(spe => spe.ScaffoldingFlags.HasOrderedCollectionTypeFlag());

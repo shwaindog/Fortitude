@@ -1177,7 +1177,7 @@ public class ScaffoldingValidateClassTests
     [TestMethod]
     public void AllSimpleValueTypeAsValueScaffoldingHasMatchingAsStringScaffolding()
     {
-        var allSimpleTypeInvokers = scafReg.IsSimpleType().ToList();
+        var allSimpleTypeInvokers = scafReg.IsContentType().ToList();
         var allAsValueInvokers    = allSimpleTypeInvokers.Where(spe => spe.Name.Contains("SimpleAsValue")).ToList();
         var asValueUniqueNamePart = new List<string>();
 

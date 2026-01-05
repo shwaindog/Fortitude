@@ -45,6 +45,7 @@ public partial class SelectTypeFieldTests
         where !fe.IsNullable
         from scaffoldToCall in
             scafReg.IsComplexType()
+                   .IsNotContentType()
                    .ProcessesSingleValue()
                    .AcceptsBoolean()
                    .AcceptsNonNullables()
@@ -62,7 +63,12 @@ public partial class SelectTypeFieldTests
         from fe in BoolTestData.AllBoolExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsComplexType().ProcessesSingleValue().AcceptsBoolean().AcceptsNullableStructs()
+            scafReg
+                .IsComplexType()
+                .IsNotContentType()
+                .ProcessesSingleValue()
+                .AcceptsBoolean()
+                .AcceptsNullableStructs()
         select new object[] { fe, scaffoldToCall };
 
     [TestMethod]
@@ -77,7 +83,13 @@ public partial class SelectTypeFieldTests
         from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
         where !fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsComplexType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNonNullables()
+            scafReg
+                .IsComplexType()
+                .IsNotContentType()
+                .ProcessesSingleValue()
+                .HasSpanFormattable()
+                .NotHasSupportsValueRevealer()
+                .AcceptsNonNullables()
         select new object[] { fe, scaffoldToCall };
 
 
@@ -88,30 +100,18 @@ public partial class SelectTypeFieldTests
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         SharedCompactLog(formatExpectation, scaffoldingToCall);
     }
-    //
-    // [TestMethod]
-    // public void PrintCompositeList()
-    // {
-    //     List<ISingleFieldExpectation> list = 
-    //     [
-    //       ..NumberTestData.AllNumberExpectations.Value
-    //       , ..SpanFormattableStructTestData.SpanFormattableStructExpectations
-    //       , ..SpanFormattableClassTestData.SpanFormattableClassExpectations
-    //       , ..EnumTestData.EnumExpectations
-    //     ];
-    //
-    //     for (var i = 0; i < list.Count; i++)
-    //     {
-    //         var enumExpectations = list[i];
-    //         logger.Info($"[{i}] : " + enumExpectations);
-    //     }
-    // }
 
     private static IEnumerable<object[]> NullableStructSpanFormattableExpect =>
         from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
         where fe is { IsNullable: true, IsStruct: true }
         from scaffoldToCall in
-            scafReg.IsComplexType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNullableStructs()
+            scafReg
+                .IsComplexType()
+                .IsNotContentType()
+                .ProcessesSingleValue()
+                .HasSpanFormattable()
+                .NotHasSupportsValueRevealer()
+                .AcceptsNullableStructs()
         select new object[] { fe, scaffoldToCall };
 
 
@@ -127,7 +127,12 @@ public partial class SelectTypeFieldTests
         from fe in StringTestData.AllStringExpectations
         where fe.InputType.IsString()
         from scaffoldToCall in
-            scafReg.IsComplexType().ProcessesSingleValue().AcceptsString().NotHasSupportsValueRevealer()
+            scafReg
+                .IsComplexType()
+                .IsNotContentType()
+                .ProcessesSingleValue()
+                .AcceptsString()
+                .NotHasSupportsValueRevealer()
         where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
         select new object[] { fe, scaffoldToCall };
 
@@ -144,7 +149,12 @@ public partial class SelectTypeFieldTests
         from fe in CharArrayTestData.AllCharArrayExpectations
         where fe.InputType.IsCharArray()
         from scaffoldToCall in
-            scafReg.IsComplexType().ProcessesSingleValue().AcceptsCharArray().NotHasSupportsValueRevealer()
+            scafReg
+                .IsComplexType()
+                .IsNotContentType()
+                .ProcessesSingleValue()
+                .AcceptsCharArray()
+                .NotHasSupportsValueRevealer()
         where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
         select new object[] { fe, scaffoldToCall };
 
@@ -161,7 +171,12 @@ public partial class SelectTypeFieldTests
         from fe in CharSequenceTestData.AllCharSequenceExpectations
         where fe.InputType.ImplementsInterface<ICharSequence>()
         from scaffoldToCall in
-            scafReg.IsComplexType().ProcessesSingleValue().AcceptsCharSequence().NotHasSupportsValueRevealer()
+            scafReg
+                .IsComplexType()
+                .IsNotContentType()
+                .ProcessesSingleValue()
+                .AcceptsCharSequence()
+                .NotHasSupportsValueRevealer()
         where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
         select new object[] { fe, scaffoldToCall };
 
@@ -178,7 +193,12 @@ public partial class SelectTypeFieldTests
         from fe in StringBuilderTestData.AllStringBuilderExpectations
         where fe.InputType.IsStringBuilder()
         from scaffoldToCall in
-            scafReg.IsComplexType().ProcessesSingleValue().AcceptsStringBuilder().NotHasSupportsValueRevealer()
+            scafReg
+                .IsComplexType()
+                .IsNotContentType()
+                .ProcessesSingleValue()
+                .AcceptsStringBuilder()
+                .NotHasSupportsValueRevealer()
         where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
         select new object[] { fe, scaffoldToCall };
 
@@ -195,7 +215,12 @@ public partial class SelectTypeFieldTests
         from fe in CloakedBearerTestData.AllCloakedBearerExpectations
         where !fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsComplexType().ProcessesSingleValue().AcceptsNonNullables().HasSupportsValueRevealer()
+            scafReg
+                .IsComplexType()
+                .IsNotContentType()
+                .ProcessesSingleValue()
+                .AcceptsNonNullables()
+                .HasSupportsValueRevealer()
         select new object[] { fe, scaffoldToCall };
 
 
@@ -211,7 +236,12 @@ public partial class SelectTypeFieldTests
         from fe in CloakedBearerTestData.AllCloakedBearerExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsComplexType().ProcessesSingleValue().AcceptsNullableStructs().HasSupportsValueRevealer()
+            scafReg
+                .IsComplexType()
+                .IsNotContentType()
+                .ProcessesSingleValue()
+                .AcceptsNullableStructs()
+                .HasSupportsValueRevealer()
         select new object[] { fe, scaffoldToCall };
 
 
@@ -227,8 +257,13 @@ public partial class SelectTypeFieldTests
         from fe in StringBearerTestData.AllStringBearerExpectations
         where !fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsComplexType().ProcessesSingleValue().AcceptsNonNullables()
-                   .NotHasSupportsValueRevealer().HasAcceptsStringBearer()
+            scafReg
+                .IsComplexType()
+                .IsNotContentType()
+                .ProcessesSingleValue()
+                .AcceptsNonNullables()
+                .NotHasSupportsValueRevealer()
+                .HasAcceptsStringBearer()
         select new object[] { fe, scaffoldToCall };
 
 
@@ -244,8 +279,13 @@ public partial class SelectTypeFieldTests
         from fe in StringBearerTestData.AllStringBearerExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsComplexType().ProcessesSingleValue().AcceptsNullableStructs()
-                   .NotHasSupportsValueRevealer().HasAcceptsStringBearer()
+            scafReg
+                .IsComplexType()
+                .IsNotContentType()
+                .ProcessesSingleValue()
+                .AcceptsNullableStructs()
+                .NotHasSupportsValueRevealer()
+                .HasAcceptsStringBearer()
         select new object[] { fe, scaffoldToCall };
 
     [TestMethod]

@@ -65,16 +65,16 @@ public static class TestCollections
     public static readonly List<sbyte?> NullSByteList = [..SByteArray];
 
 
-    public static PalantírReveal<sbyte> SByteF0Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueOrNull(showMe, "F0");
-    public static PalantírReveal<sbyte> SByteF2Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueOrNull(showMe, "{0,15:F2}");
-    public static PalantírReveal<sbyte> SByteF4Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueOrNull(showMe, "F4");
+    public static PalantírReveal<sbyte> SByteF0Revealer = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueOrNull(showMe, "F0");
+    public static PalantírReveal<sbyte> SByteF2Revealer = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueOrNull(showMe, "{0,15:F2}");
+    public static PalantírReveal<sbyte> SByteF4Revealer = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueOrNull(showMe, "F4");
     public static PalantírReveal<sbyte> SByteF0OrDefault42Revealer
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueOrDefault(showMe, 42, "F0");
+        = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueOrDefault(showMe, 42, "F0");
     public static PalantírReveal<sbyte> SByteF2OrDefault42Revealer
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueOrDefault(showMe, "42.00,", "{0,15:F2}");
+        = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueOrDefault(showMe, "42.00,", "{0,15:F2}");
 
     public static PalantírReveal<sbyte> SByteF4OrDefault42Revealer
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueOrDefault(showMe, 42, "F4");
+        = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueOrDefault(showMe, 42, "F4");
 
     public static OrderedCollectionPredicate<sbyte> SByte_Lt_10 = (_, item) => EvaluateIsIncludedAndContinue(item < 10);
     public static OrderedCollectionPredicate<sbyte> SByte_Gt_10 = (_, item) => EvaluateIsIncludedAndContinue(item > 10);
@@ -92,9 +92,9 @@ public static class TestCollections
     public static readonly byte?[]     NullByteArray = [0, 1, null, 2, 3, 4, 5, null, 9, 245, null, null, null, null, 250, 251, 252, 253, 254, 255];
     public static readonly List<byte?> NullByteList  = [..ByteArray];
 
-    public static PalantírReveal<byte> ByteF0Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe);
-    public static PalantírReveal<byte> ByteF2Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "{0,15:F2}");
-    public static PalantírReveal<byte> ByteF4Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "F4");
+    public static PalantírReveal<byte> ByteF0Revealer = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValue(showMe);
+    public static PalantírReveal<byte> ByteF2Revealer = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValue(showMe, "{0,15:F2}");
+    public static PalantírReveal<byte> ByteF4Revealer = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValue(showMe, "F4");
 
     public static OrderedCollectionPredicate<byte> Byte_Lt_10 = (_, item) => EvaluateIsIncludedAndContinue(item < 10);
     public static OrderedCollectionPredicate<byte> Byte_Gt_10 = (_, item) => EvaluateIsIncludedAndContinue(item > 10);
@@ -109,10 +109,10 @@ public static class TestCollections
     ];
     public static readonly List<long> LongList = [..LongArray];
 
-    public static PalantírReveal<long> LongF0Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "F0");
-    public static PalantírReveal<long> LongF2Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "F2");
+    public static PalantírReveal<long> LongF0Revealer = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValue(showMe, "F0");
+    public static PalantírReveal<long> LongF2Revealer = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValue(showMe, "F2");
 
-    public static PalantírReveal<long> LongF4Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "F4");
+    public static PalantírReveal<long> LongF4Revealer = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValue(showMe, "F4");
 
     public static OrderedCollectionPredicate<long> Long_Lt_10 = (_, item) => EvaluateIsIncludedAndContinue(item < 10);
     public static OrderedCollectionPredicate<long> Long_Gt_10 = (_, item) => EvaluateIsIncludedAndContinue(item > 10);
@@ -123,10 +123,10 @@ public static class TestCollections
     public static readonly ulong[]     ULongArray = [0, 1, 2, 3, 4, 5, ulong.MaxValue - 3, ulong.MaxValue - 2, ulong.MaxValue - 1, ulong.MaxValue];
     public static readonly List<ulong> ULongList  = [..ULongArray];
 
-    public static PalantírReveal<ulong> ULongF0Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "F0");
-    public static PalantírReveal<ulong> ULongF2Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "F2");
+    public static PalantírReveal<ulong> ULongF0Revealer = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValue(showMe, "F0");
+    public static PalantírReveal<ulong> ULongF2Revealer = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValue(showMe, "F2");
 
-    public static PalantírReveal<ulong> ULongF4Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "F4");
+    public static PalantírReveal<ulong> ULongF4Revealer = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValue(showMe, "F4");
 
     public static OrderedCollectionPredicate<ulong> ULong_Lt_10 = (_, item) => EvaluateIsIncludedAndContinue(item < 10);
     public static OrderedCollectionPredicate<ulong> ULong_Gt_10 = (_, item) => EvaluateIsIncludedAndContinue(item > 10);
@@ -141,10 +141,10 @@ public static class TestCollections
     ];
     public static readonly List<decimal> DecimalList = [..DecimalArray];
 
-    public static PalantírReveal<decimal> DecimalF0Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "F0");
-    public static PalantírReveal<decimal> DecimalF2Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "F2");
+    public static PalantírReveal<decimal> DecimalF0Revealer = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValue(showMe, "F0");
+    public static PalantírReveal<decimal> DecimalF2Revealer = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValue(showMe, "F2");
 
-    public static PalantírReveal<decimal> DecimalF4Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "F4");
+    public static PalantírReveal<decimal> DecimalF4Revealer = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValue(showMe, "F4");
 
     public static OrderedCollectionPredicate<decimal> Decimal_Lt_10 = (_, item) => EvaluateIsIncludedAndContinue(item < 10);
     public static OrderedCollectionPredicate<decimal> Decimal_Gt_10 = (_, item) => EvaluateIsIncludedAndContinue(item > 10);
@@ -159,10 +159,10 @@ public static class TestCollections
     ];
     public static readonly List<BigInteger> BigIntegerList = [..BigIntegerArray];
 
-    public static PalantírReveal<BigInteger> BigIntegerF0Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "F0");
-    public static PalantírReveal<BigInteger> BigIntegerF2Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "F2");
+    public static PalantírReveal<BigInteger> BigIntegerF0Revealer = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValue(showMe, "F0");
+    public static PalantírReveal<BigInteger> BigIntegerF2Revealer = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValue(showMe, "F2");
 
-    public static PalantírReveal<BigInteger> BigIntegerF4Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValue(showMe, "F4");
+    public static PalantírReveal<BigInteger> BigIntegerF4Revealer = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValue(showMe, "F4");
 
     public static OrderedCollectionPredicate<BigInteger> BigInteger_Lt_10 = (_, item) => EvaluateIsIncludedAndContinue(item < 10);
     public static OrderedCollectionPredicate<BigInteger> BigInteger_Gt_10 = (_, item) => EvaluateIsIncludedAndContinue(item > 10);
@@ -582,8 +582,8 @@ public static class TestCollections
         return withNulls;
     });
 
-    public static PalantírReveal<object> ObjPad10Revealer = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe, "\"{0,10}\"");
-    public static PalantírReveal<object> ObjRevealer      = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe);
+    public static PalantírReveal<object> ObjPad10Revealer = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueMatch(showMe, "\"{0,10}\"");
+    public static PalantírReveal<object> ObjRevealer      = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueMatch(showMe);
 
     public static OrderedCollectionPredicate<object> Obj_All_Numbers    = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
     public static OrderedCollectionPredicate<object> Obj_All_NonNumbers = (_, item) => EvaluateIsIncludedAndContinue(!item.GetType().IsNumericType());
@@ -644,9 +644,9 @@ public static class TestCollections
     });
 
     public static PalantírReveal<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlagsEnumPad10Revealer
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe, "\"{0,10}\"");
+        = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueMatch(showMe, "\"{0,10}\"");
     public static PalantírReveal<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlagsEnumRevealer
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe);
+        = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueMatch(showMe);
     public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlagsEnum_All_Numbers
         = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
     public static OrderedCollectionPredicate<NoDefaultLongNoFlagsEnum> NoDefaultLongNoFlagsEnum_All_NonNumbers
@@ -715,9 +715,9 @@ public static class TestCollections
     });
 
     public static PalantírReveal<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlagsEnumPad10Revealer
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe, "\"{0,10}\"");
+        = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueMatch(showMe, "\"{0,10}\"");
     public static PalantírReveal<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlagsEnumRevealer
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe);
+        = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueMatch(showMe);
     public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlagsEnum_All_Numbers
         = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
     public static OrderedCollectionPredicate<NoDefaultULongNoFlagsEnum> NoDefaultULongNoFlagsEnum_All_NonNumbers
@@ -787,9 +787,9 @@ public static class TestCollections
     });
 
     public static PalantírReveal<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlagsEnumPad10Revealer
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe, "\"{0,10}\"");
+        = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueMatch(showMe, "\"{0,10}\"");
     public static PalantírReveal<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlagsEnumRevealer
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe);
+        = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueMatch(showMe);
     public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlagsEnum_All_Numbers
         = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
     public static OrderedCollectionPredicate<WithDefaultLongNoFlagsEnum> WithDefaultLongNoFlagsEnum_All_NonNumbers
@@ -858,9 +858,9 @@ public static class TestCollections
     });
 
     public static PalantírReveal<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlagsEnumPad10Revealer
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe, "\"{0,10}\"");
+        = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueMatch(showMe, "\"{0,10}\"");
     public static PalantírReveal<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlagsEnumRevealer
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe);
+        = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueMatch(showMe);
     public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlagsEnum_All_Numbers
         = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
     public static OrderedCollectionPredicate<WithDefaultULongNoFlagsEnum> WithDefaultULongNoFlagsEnum_All_NonNumbers
@@ -939,9 +939,9 @@ public static class TestCollections
     });
 
     public static PalantírReveal<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlagsEnumPad10Revealer
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe, "\"{0,10}\"");
+        = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueMatch(showMe, "\"{0,10}\"");
     public static PalantírReveal<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlagsEnumRevealer
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe);
+        = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueMatch(showMe);
     public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlagsEnum_All_Numbers
         = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
     public static OrderedCollectionPredicate<NoDefaultLongWithFlagsEnum> NoDefaultLongWithFlagsEnum_All_NonNumbers
@@ -1018,9 +1018,9 @@ public static class TestCollections
     });
 
     public static PalantírReveal<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlagsEnumPad10Revealer
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe, "\"{0,10}\"");
+        = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueMatch(showMe, "\"{0,10}\"");
     public static PalantírReveal<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlagsEnumRevealer
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe);
+        = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueMatch(showMe);
     public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlagsEnum_All_Numbers
         = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
     public static OrderedCollectionPredicate<NoDefaultULongWithFlagsEnum> NoDefaultULongWithFlagsEnum_All_NonNumbers
@@ -1097,9 +1097,9 @@ public static class TestCollections
     });
 
     public static PalantírReveal<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlagsEnumPad10Revealer
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe, "\"{0,10}\"");
+        = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueMatch(showMe, "\"{0,10}\"");
     public static PalantírReveal<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlagsEnumRevealer
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe);
+        = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueMatch(showMe);
     public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlagsEnum_All_Numbers
         = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
     public static OrderedCollectionPredicate<WithDefaultLongWithFlagsEnum> WithDefaultLongWithFlagsEnum_All_NonNumbers
@@ -1176,9 +1176,9 @@ public static class TestCollections
     });
 
     public static PalantírReveal<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlagsEnumPad10Revealer
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe, "\"{0,10}\"");
+        = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueMatch(showMe, "\"{0,10}\"");
     public static PalantírReveal<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlagsEnumRevealer
-        = (showMe, tos) => tos.StartSimpleValueType(showMe).AsValueMatch("", showMe);
+        = (showMe, tos) => tos.StartSimpleContentType(showMe).AsValueMatch(showMe);
     public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlagsEnum_All_Numbers
         = (_, item) => EvaluateIsIncludedAndContinue(item.GetType().IsNumericType());
     public static OrderedCollectionPredicate<WithDefaultULongWithFlagsEnum> WithDefaultULongWithFlagsEnum_All_NonNumbers

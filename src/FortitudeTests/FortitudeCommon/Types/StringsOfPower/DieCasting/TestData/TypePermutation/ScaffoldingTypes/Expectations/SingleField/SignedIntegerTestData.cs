@@ -19,12 +19,12 @@ public static class SignedIntegerTestData
             // short
             new FieldExpect<short>(0, "")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "0" }
             }
           , new FieldExpect<short>(32000, "N2")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"32,000.00\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"32,000.00\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -34,12 +34,12 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<short>(32, "C0", true, 32)
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32\"" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "$32" }
             }
           , new FieldExpect<short>(-16328, "'{0}'")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'-16328'\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'-16328'\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -49,11 +49,11 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<short>(55, "\"{0,-20}\"")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable, Log | Compact | Pretty), "\"55                  \"" }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"55                  \"" }
+                { new EK(ContentType | AcceptsSpanFormattable, Log | Compact | Pretty), "\"55                  \"" }
+              , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"55                  \"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable)
+                    new EK(ContentType | AcceptsSpanFormattable)
                   , """
                     "\u002255                  \u0022"
                     """
@@ -69,7 +69,7 @@ public static class SignedIntegerTestData
             // short?
           , new FieldExpect<short?>(0, "")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut)
@@ -78,22 +78,22 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<short?>(null, "", true)
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
+                { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
                   , "0" }
                ,
                 {
-                    new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
+                    new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
                   , "\"0\""
                 }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+              , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallbackString 
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallbackString 
                           | DefaultBecomesFallbackValue) , "0"
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallbackString |
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallbackString |
                            DefaultBecomesFallbackValue)
                   , "\"0\""
                 }
@@ -105,7 +105,7 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<short?>(32000, "N2")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"32,000.00\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"32,000.00\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -115,12 +115,12 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<short?>(32, "C0", true, 32)
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32\"" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "$32" }
             }
           , new FieldExpect<short?>(-16328, "'{0}'")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'-16328'\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'-16328'\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -130,11 +130,11 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<short?>(55, "\"{0,20}\"")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable, Log | Compact | Pretty), "\"                  55\"" }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"                  55\"" }
+                { new EK(ContentType | AcceptsSpanFormattable, Log | Compact | Pretty), "\"                  55\"" }
+              , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"                  55\"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable)
+                    new EK(ContentType | AcceptsSpanFormattable)
                   , """
                     "\u0022                  55\u0022"
                     """
@@ -150,12 +150,12 @@ public static class SignedIntegerTestData
             // int
           , new FieldExpect<int>(0, "")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "0" }
             }
           , new FieldExpect<int>(32000, "0x{0:X}")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -165,7 +165,7 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<int>(32, "C0", true, 32)
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut)
@@ -174,7 +174,7 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<int>(int.MaxValue, "'{0:X8}'")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'7FFFFFFF'\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'7FFFFFFF'\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -184,7 +184,7 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<int>(int.MinValue, "'{0:X9}'")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'080000000'\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'080000000'\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -194,11 +194,11 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<int>(55, "\"{0,-20}\"")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable, Log | Compact | Pretty), "\"55                  \"" }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"55                  \"" }
+                { new EK(ContentType | AcceptsSpanFormattable, Log | Compact | Pretty), "\"55                  \"" }
+              , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"55                  \"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable)
+                    new EK(ContentType | AcceptsSpanFormattable)
                   , """
                     "\u002255                  \u0022"
                     """
@@ -214,27 +214,27 @@ public static class SignedIntegerTestData
             // int?
           , new FieldExpect<int?>(0, "")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "0" }
             }
           , new FieldExpect<int?>(null, "", true)
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
+                { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
                   , "0" }
                ,
                 {
-                    new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
+                    new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
                   , "\"0\""
                 }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+              , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallbackString 
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallbackString 
                           | DefaultBecomesFallbackValue) , "0"
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallbackString |
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallbackString |
                            DefaultBecomesFallbackValue)
                   , "\"0\""
                 }
@@ -246,7 +246,7 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<int?>(32000, "0x{0:X}")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -256,7 +256,7 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<int?>(32, "C8", true, 32)
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32.00000000\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32.00000000\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut)
@@ -265,7 +265,7 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<int?>(int.MaxValue, "'{0:X8}'")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'7FFFFFFF'\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'7FFFFFFF'\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -275,7 +275,7 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<int?>(int.MinValue, "'{0:X9}'")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'080000000'\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'080000000'\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -285,11 +285,11 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<int?>(55, "\"{0,20}\"")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable, Log | Compact | Pretty), "\"                  55\"" }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"                  55\"" }
+                { new EK(ContentType | AcceptsSpanFormattable, Log | Compact | Pretty), "\"                  55\"" }
+              , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"                  55\"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable)
+                    new EK(ContentType | AcceptsSpanFormattable)
                   , """
                     "\u0022                  55\u0022"
                     """
@@ -305,12 +305,12 @@ public static class SignedIntegerTestData
             // long
           , new FieldExpect<long>(0, "")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "0" }
             }
           , new FieldExpect<long>(32000, "0x{0:X}")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -320,12 +320,12 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<long>(32, "C0", true, 32)
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32\"" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "$32" }
             }
           , new FieldExpect<long>(long.MaxValue, "'{0:X16}'")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'7FFFFFFFFFFFFFFF'\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'7FFFFFFFFFFFFFFF'\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -335,7 +335,7 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<long>(long.MinValue, "'{0:X17}'")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'08000000000000000'\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'08000000000000000'\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -345,11 +345,11 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<long>(55, "\"{0,-20}\"")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable, Log | Compact | Pretty), "\"55                  \"" }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"55                  \"" }
+                { new EK(ContentType | AcceptsSpanFormattable, Log | Compact | Pretty), "\"55                  \"" }
+              , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"55                  \"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable)
+                    new EK(ContentType | AcceptsSpanFormattable)
                   , """
                     "\u002255                  \u0022"
                     """
@@ -365,27 +365,27 @@ public static class SignedIntegerTestData
             // long?
           , new FieldExpect<long?>(0, "")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "0" }
             }
           , new FieldExpect<long?>(null, "", true)
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
+                { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
                   , "0" }
                ,
                 {
-                    new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
+                    new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackString | DefaultBecomesFallbackValue)
                   , "\"0\""
                 }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+              , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallbackString 
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallbackString 
                           | DefaultBecomesFallbackValue) , "0"
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallbackString |
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut | DefaultBecomesFallbackString |
                            DefaultBecomesFallbackValue) , "\"0\""
                 }
                ,
@@ -396,7 +396,7 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<long?>(32000, "0x{0:X}")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -406,12 +406,12 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<long?>(32, "C8", true, 32)
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32.00000000\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32.00000000\"" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut), "$32.00000000" }
             }
           , new FieldExpect<long?>(long.MaxValue, "'{0:X16}'")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'7FFFFFFFFFFFFFFF'\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'7FFFFFFFFFFFFFFF'\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -421,7 +421,7 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<long?>(long.MinValue, "'{0:X17}'")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'08000000000000000'\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'08000000000000000'\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -431,11 +431,11 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<long?>(55, "\"{0,20}\"")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable, Log | Compact | Pretty), "\"                  55\"" }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"                  55\"" }
+                { new EK(ContentType | AcceptsSpanFormattable, Log | Compact | Pretty), "\"                  55\"" }
+              , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut), "\"                  55\"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable)
+                    new EK(ContentType | AcceptsSpanFormattable)
                   , """
                     "\u0022                  55\u0022"
                     """
@@ -451,7 +451,7 @@ public static class SignedIntegerTestData
             // Int128
           , new FieldExpect<Int128>(0, "")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0\"" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut, Log | Compact | Pretty)
                   , "0" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut, Json | Compact | Pretty)
@@ -459,7 +459,7 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<Int128>(32000, "0x{0:X}")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -475,7 +475,7 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<Int128>(32, "C0", true, 32)
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32\"" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut, Log | Compact | Pretty)
                   , "$32" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut, Json | Compact | Pretty)
@@ -483,7 +483,7 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<Int128>(Int128.MaxValue, "'{0:X32}'")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -499,7 +499,7 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<Int128>(Int128.MinValue, "'{0:X33}'")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'080000000000000000000000000000000'\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'080000000000000000000000000000000'\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -516,17 +516,17 @@ public static class SignedIntegerTestData
           , new FieldExpect<Int128>(Int128.MaxValue, "\"{0,-52:N0}\"")
             {
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable, Log | Compact | Pretty)
+                    new EK(ContentType | AcceptsSpanFormattable, Log | Compact | Pretty)
                   , "\"170,141,183,460,469,231,731,687,303,715,884,105,727 \""
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut)
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut)
                   , "\"170,141,183,460,469,231,731,687,303,715,884,105,727 \""
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable)
+                    new EK(ContentType | AcceptsSpanFormattable)
                   , """
                     "\u0022170,141,183,460,469,231,731,687,303,715,884,105,727 \u0022"
                     """
@@ -542,8 +542,8 @@ public static class SignedIntegerTestData
             // Int128?
           , new FieldExpect<Int128?>(0, "")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "0" }
-              , { new EK(SimpleType | AcceptsSpanFormattable), "\"0\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "0" }
+              , { new EK(ContentType | AcceptsSpanFormattable), "\"0\"" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut, Log | Compact | Pretty)
                   , "0" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut, Json | Compact | Pretty)
@@ -551,21 +551,21 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<Int128?>(null, "", true)
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull), "null" }
+                { new EK(ContentType | CallsViaMatch | DefaultBecomesNull), "null" }
                ,
                 {
-                    new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackString | DefaultBecomesFallbackValue
+                    new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackString | DefaultBecomesFallbackValue
                          , Log | Compact | Pretty)
                   , "0"
                 }
-              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallbackString | DefaultBecomesFallbackValue), "\"0\"" }
+              , { new EK(ContentType | CallsViaMatch | DefaultBecomesFallbackString | DefaultBecomesFallbackValue), "\"0\"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallbackString 
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallbackString 
                           | DefaultBecomesFallbackValue , Log | Compact | Pretty) , "0"
                 }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallbackString | DefaultBecomesFallbackValue), "\"0\"" }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull), "null" }
+              , { new EK(ContentType | AcceptsSpanFormattable | DefaultBecomesFallbackString | DefaultBecomesFallbackValue), "\"0\"" }
+              , { new EK(ContentType | AcceptsSpanFormattable | DefaultBecomesNull), "null" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut)
@@ -574,7 +574,7 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<Int128?>(32000, "0x{0:X}")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"0x7D00\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -590,7 +590,7 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<Int128?>(32, "C0", true, 32)
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"$32\"" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut, Log | Compact | Pretty)
                   , "$32" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut, Json | Compact | Pretty)
@@ -598,7 +598,7 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<Int128?>(Int128.MaxValue, "'{0:X32}'")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -614,7 +614,7 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<Int128?>(Int128.MinValue, "'{0:X33}'")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'080000000000000000000000000000000'\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut), "\"'080000000000000000000000000000000'\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -631,17 +631,17 @@ public static class SignedIntegerTestData
           , new FieldExpect<Int128?>(Int128.MaxValue, "\"{0,-52:N0}\"")
             {
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable, Log | Compact | Pretty)
+                    new EK(ContentType | AcceptsSpanFormattable, Log | Compact | Pretty)
                   , "\"170,141,183,460,469,231,731,687,303,715,884,105,727 \""
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Json | Compact | Pretty)
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Json | Compact | Pretty)
                   , "\"170,141,183,460,469,231,731,687,303,715,884,105,727 \""
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable)
+                    new EK(ContentType | AcceptsSpanFormattable)
                   , """
                     "\u0022170,141,183,460,469,231,731,687,303,715,884,105,727 \u0022"
                     """
@@ -657,15 +657,15 @@ public static class SignedIntegerTestData
             // BigInteger
           , new FieldExpect<BigInteger>(0, "")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "0" }
-              , { new EK(SimpleType | AcceptsSpanFormattable), "\"0\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "0" }
+              , { new EK(ContentType | AcceptsSpanFormattable), "\"0\"" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "0" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, Json | Compact | Pretty), "\"0\"" }
             }
           , new FieldExpect<BigInteger>(32000, "0x{0:X}")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "0x7D00" }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut), "\"0x7D00\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "0x7D00" }
+              , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut), "\"0x7D00\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -681,20 +681,20 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<BigInteger>(32, "C0", true, 32)
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "$32" }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut), "\"$32\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "$32" }
+              , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut), "\"$32\"" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "$32" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, Json | Compact | Pretty), "\"$32\"" }
             }
           , new FieldExpect<BigInteger>(UInt128.MaxValue * (BigInteger)50, "'{0:X32}'")
             {
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty)
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty)
                   , "'31FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFCE'"
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut)
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut)
                   , "\"'31FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFCE'\""
                 }
                ,
@@ -713,10 +713,10 @@ public static class SignedIntegerTestData
           , new FieldExpect<BigInteger>(Int128.MinValue * (BigInteger)50, "'{0:X33}'")
             {
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty)
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty)
                   , "'E700000000000000000000000000000000'"
                 }
-              , { new EK(SimpleType | AcceptsSpanFormattable), "\"'E700000000000000000000000000000000'\"" }
+              , { new EK(ContentType | AcceptsSpanFormattable), "\"'E700000000000000000000000000000000'\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -733,17 +733,17 @@ public static class SignedIntegerTestData
           , new FieldExpect<BigInteger>(UInt128.MaxValue * (BigInteger)100, "\"{0,-56:N0}\"")
             {
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable, Log | Compact | Pretty)
+                    new EK(ContentType | AcceptsSpanFormattable, Log | Compact | Pretty)
                   , "\"34,028,236,692,093,846,346,337,460,743,176,821,145,500  \""
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Json | Compact | Pretty)
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Json | Compact | Pretty)
                   , "\"34,028,236,692,093,846,346,337,460,743,176,821,145,500  \""
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, Json | Compact | Pretty)
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, Json | Compact | Pretty)
                   , """
                     "\u002234,028,236,692,093,846,346,337,460,743,176,821,145,500  \u0022"
                     """
@@ -758,28 +758,28 @@ public static class SignedIntegerTestData
             // BigInteger?
           , new FieldExpect<BigInteger?>(0, "")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "0" }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut), "\"0\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "0" }
+              , { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut), "\"0\"" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, Log | Compact | Pretty), "0" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites, Json | Compact | Pretty), "\"0\"" }
             }
           , new FieldExpect<BigInteger?>(null, "", true)
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultBecomesNull), "null" }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut, Log | Compact | Pretty), "0" }
-              , { new EK(SimpleType | CallsViaMatch), "\"0\"" }
+                { new EK(ContentType | CallsViaMatch | DefaultBecomesNull), "null" }
+              , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut, Log | Compact | Pretty), "0" }
+              , { new EK(ContentType | CallsViaMatch), "\"0\"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallbackString 
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultBecomesZero | DefaultBecomesFallbackString 
                           | DefaultBecomesFallbackValue , Log | Compact | Pretty) , "0"
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesFallbackString | DefaultBecomesFallbackValue
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultBecomesFallbackString | DefaultBecomesFallbackValue
                          | DefaultBecomesZero)
                   , "\"0\""
                 }
-              , { new EK(SimpleType | AcceptsSpanFormattable | DefaultBecomesNull), "null" }
+              , { new EK(ContentType | AcceptsSpanFormattable | DefaultBecomesNull), "null" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut)
@@ -788,8 +788,8 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<BigInteger?>(32000, "0x{0:X}")
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "0x7D00" }
-              , { new EK(SimpleType | AcceptsSpanFormattable), "\"0x7D00\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "0x7D00" }
+              , { new EK(ContentType | AcceptsSpanFormattable), "\"0x7D00\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -805,8 +805,8 @@ public static class SignedIntegerTestData
             }
           , new FieldExpect<BigInteger?>(32, "C0", true, 32)
             {
-                { new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "$32" }
-              , { new EK(SimpleType | AcceptsSpanFormattable), "\"$32\"" }
+                { new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty), "$32" }
+              , { new EK(ContentType | AcceptsSpanFormattable), "\"$32\"" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut, Log | Compact | Pretty)
                   , "$32" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites | DefaultTreatedAsValueOut, Json | Compact | Pretty)
@@ -815,12 +815,12 @@ public static class SignedIntegerTestData
           , new FieldExpect<BigInteger?>(UInt128.MaxValue * (BigInteger)50, "'{0:X32}'")
             {
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty)
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty)
                   , "'31FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFCE'"
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut)
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut)
                   , "\"'31FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFCE'\""
                 }
                ,
@@ -839,10 +839,10 @@ public static class SignedIntegerTestData
           , new FieldExpect<BigInteger?>(Int128.MinValue * (BigInteger)50, "'{0:X33}'")
             {
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty)
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty)
                   , "'E700000000000000000000000000000000'"
                 }
-              , { new EK(SimpleType | AcceptsSpanFormattable), "\"'E700000000000000000000000000000000'\"" }
+              , { new EK(ContentType | AcceptsSpanFormattable), "\"'E700000000000000000000000000000000'\"" }
                ,
                 {
                     new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
@@ -859,22 +859,22 @@ public static class SignedIntegerTestData
           , new FieldExpect<BigInteger?>(UInt128.MaxValue * (BigInteger)100, "\"{0,-56:N0}\"")
             {
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty)
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, Log | Compact | Pretty)
                   , "\"34,028,236,692,093,846,346,337,460,743,176,821,145,500  \""
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, Log | Compact | Pretty)
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, Log | Compact | Pretty)
                   , "\"34,028,236,692,093,846,346,337,460,743,176,821,145,500  \""
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsValueOut)
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut)
                   , "\"34,028,236,692,093,846,346,337,460,743,176,821,145,500  \""
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsSpanFormattable | DefaultTreatedAsStringOut)
+                    new EK(ContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut)
                   , "\"\\u002234,028,236,692,093,846,346,337,460,743,176,821,145,500  \\u0022\""
                 }
                ,

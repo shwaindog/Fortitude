@@ -22,35 +22,35 @@ public class CharSequenceTestData
             // string
             new StringLikeExpect<CharArrayStringBuilder, CharArrayStringBuilder>( new CharArrayStringBuilder(""), "", true, new CharArrayStringBuilder("0"))
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut), "" }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut), "\"\"" }
+                { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut), "" }
+              , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut), "\"\"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsValueOut | DefaultBecomesZero
+                    new EK(ContentType | AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsValueOut | DefaultBecomesZero
                          | DefaultBecomesFallbackValue)
                   , "0"
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut
+                    new EK(ContentType | AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut
                          | EmptyBecomesNull | DefaultBecomesNull)
                   , "null"
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsStringOut | DefaultBecomesZero
+                    new EK(ContentType | AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsStringOut | DefaultBecomesZero
                          | DefaultBecomesFallbackValue)
                   , "\"0\""
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsStringOut | DefaultBecomesEmpty)
+                    new EK(ContentType | AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsStringOut | DefaultBecomesEmpty)
                   , "\"\""
                 }
-              , { new EK(SimpleType | AcceptsChars | DefaultTreatedAsValueOut), "" }
+              , { new EK(ContentType | AcceptsChars | DefaultTreatedAsValueOut), "" }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsStringOut)
+                    new EK(ContentType | AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsStringOut)
                   , "\"\""
                 }
 
@@ -65,35 +65,35 @@ public class CharSequenceTestData
           , new StringLikeExpect<MutableString, MutableString>
                 (new MutableString(""), "", true, new MutableString("0"), formatFlags: AsCollection)
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut), "" }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut), "\"\"" }
+                { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut), "" }
+              , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut), "\"\"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut | DefaultBecomesZero
+                    new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut | DefaultBecomesZero
                          | DefaultBecomesFallbackValue)
                   , "0"
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut
+                    new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut
                          | EmptyBecomesNull | DefaultBecomesNull)
                   , "null"
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut | DefaultBecomesZero
+                    new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut | DefaultBecomesZero
                          | DefaultBecomesFallbackValue)
                   , "\"0\""
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut | DefaultBecomesEmpty)
+                    new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut | DefaultBecomesEmpty)
                   , "\"\""
                 }
-              , { new EK(SimpleType | AcceptsChars | DefaultTreatedAsValueOut), "" }
+              , { new EK(ContentType | AcceptsChars | DefaultTreatedAsValueOut), "" }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut)
+                    new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut)
                   , "\"\""
                 }
                ,
@@ -123,11 +123,11 @@ public class CharSequenceTestData
           , new StringLikeExpect<CharArrayStringBuilder, CharArrayStringBuilder>
                 (null, "", true, new CharArrayStringBuilder(""))
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString)
+                { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString)
                   , "" }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue  | DefaultBecomesFallbackString)
+              , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue  | DefaultBecomesFallbackString)
                   , "\"\"" }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut), "null" }
+              , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut), "null" }
                ,
                 {
                     new EK(AcceptsChars | AlwaysWrites | NonDefaultWrites | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut
@@ -147,11 +147,11 @@ public class CharSequenceTestData
           , new StringLikeExpect<MutableString, MutableString>
                 (null, "", true, new MutableString(""))
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString)
+                { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString)
                   , "" }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString)
+              , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue | DefaultBecomesFallbackString)
                   , "\"\"" }
-              , { new EK(SimpleType | CallsViaMatch), "null" }
+              , { new EK(ContentType | CallsViaMatch), "null" }
                ,
                 {
                     new EK(AcceptsChars | AlwaysWrites | NonDefaultWrites | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut
@@ -171,7 +171,7 @@ public class CharSequenceTestData
           , new StringLikeExpect<CharArrayStringBuilder, CharArrayStringBuilder>
                 (null, "", false, [], 10, 50)
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut), "null" }
+                { new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut), "null" }
                ,
                 {
                     new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonDefaultWrites
@@ -186,7 +186,7 @@ public class CharSequenceTestData
           , new StringLikeExpect<MutableString, MutableString>
                 (null, "", false, [], 10, 50)
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut), "null" }
+                { new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut), "null" }
                ,
                 {
                     new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonDefaultWrites
@@ -201,7 +201,7 @@ public class CharSequenceTestData
           , new StringLikeExpect<MutableString, MutableString>
                 (null, "", false, new MutableString(""), 10, 50)
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut), "null" }
+                { new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut), "null" }
                ,
                 {
                     new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonDefaultWrites
@@ -216,9 +216,9 @@ public class CharSequenceTestData
           , new StringLikeExpect<CharArrayStringBuilder, CharArrayStringBuilder>
                 (null, "", true, new CharArrayStringBuilder("0"), -1, -10)
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue), "" }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue), "\"\"" }
-              , { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut), "null" }
+                { new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue), "" }
+              , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue), "\"\"" }
+              , { new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut), "null" }
                ,
                 {
                     new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonDefaultWrites
@@ -234,7 +234,7 @@ public class CharSequenceTestData
           , new StringLikeExpect<MutableString, MutableString>
                 (null, "", true, new MutableString("0"), -1, -10)
             {
-                { new EK(SimpleType | CallsViaMatch | DefaultTreatedAsStringOut), "null" }
+                { new EK(ContentType | CallsViaMatch | DefaultTreatedAsStringOut), "null" }
                ,
                 {
                     new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonDefaultWrites
@@ -281,32 +281,32 @@ public class CharSequenceTestData
                 (new MutableString("It"), "\"{0}\"", false, new MutableString(), 3, 2, AsCollection)
             {
                 {
-                    new EK(SimpleType | CallsViaMatch | DefaultBecomesFallbackValue, Log | Compact | Pretty)
+                    new EK(ContentType | CallsViaMatch | DefaultBecomesFallbackValue, Log | Compact | Pretty)
                   , "\"\""
                 }
                ,
                 {
-                    new EK(SimpleType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)
+                    new EK(ContentType | CallsViaMatch | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)
                   , "\"\""
                 }
-              , { new EK(SimpleType | CallsViaMatch | DefaultBecomesFallbackValue), "\"\\u0022\\u0022\"" }
+              , { new EK(ContentType | CallsViaMatch | DefaultBecomesFallbackValue), "\"\\u0022\\u0022\"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultBecomesZero
+                    new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultBecomesZero
                          , Log | Compact | Pretty)
                   , "\"0\""
                 }
-              , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut | DefaultBecomesZero), "\"0\"" }
+              , { new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut | DefaultBecomesZero), "\"0\"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultBecomesZero)
+                    new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultBecomesZero)
                   , "\"\\u00220\\u0022\""
                 }
-              , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence, Log | Compact | Pretty), "\"\"" }
-              , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut), "\"\"" }
+              , { new EK(ContentType | AcceptsChars | AcceptsCharSequence, Log | Compact | Pretty), "\"\"" }
+              , { new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut), "\"\"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharSequence)
+                    new EK(ContentType | AcceptsChars | AcceptsCharSequence)
                   , "\"\\u0022\\u0022\""
                 }
                ,
@@ -336,7 +336,7 @@ public class CharSequenceTestData
           , new StringLikeExpect<MutableString>("began", "[{0[8..10]}]", false, "0", 10, 5
                                                 )
             {
-                { new EK(SimpleType | AcceptsChars | DefaultTreatedAsValueOut), "[]" }
+                { new EK(ContentType | AcceptsChars | DefaultTreatedAsValueOut), "[]" }
                ,
                 {
                     new EK(AcceptsChars | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites | DefaultTreatedAsStringOut)
@@ -356,8 +356,8 @@ public class CharSequenceTestData
                 (new CharArrayStringBuilder("began"), "'{0[8..10]}'", false, [], 10, 5
                , formatFlags: AsCollection)
             {
-                { new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut), "''" }
-              , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut), "\"''\"" }
+                { new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut), "''" }
+              , { new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut), "\"''\"" }
                ,
                 {
                     new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites | DefaultTreatedAsStringOut
@@ -382,29 +382,29 @@ public class CharSequenceTestData
             }
           , new StringLikeExpect<CharArrayStringBuilder, CharArrayStringBuilder>( new CharArrayStringBuilder( "with"), "\"{0[8..10]}\"")
             {
-                { new EK(SimpleType | CallsViaMatch | AcceptsString, Log | Compact | Pretty), "\"\"" }
-              , { new EK(SimpleType | CallsViaMatch | AcceptsString | DefaultBecomesFallbackValue | DefaultTreatedAsValueOut), "\"\"" }
-              , { new EK(SimpleType | CallsViaMatch | AcceptsString | DefaultBecomesFallbackValue), "\"\\u0022\\u0022\"" }
-              , { new EK(SimpleType | AcceptsChars | AcceptsString | CallsAsReadOnlySpan, Log | Compact | Pretty), "\"\"" }
+                { new EK(ContentType | CallsViaMatch | AcceptsString, Log | Compact | Pretty), "\"\"" }
+              , { new EK(ContentType | CallsViaMatch | AcceptsString | DefaultBecomesFallbackValue | DefaultTreatedAsValueOut), "\"\"" }
+              , { new EK(ContentType | CallsViaMatch | AcceptsString | DefaultBecomesFallbackValue), "\"\\u0022\\u0022\"" }
+              , { new EK(ContentType | AcceptsChars | AcceptsString | CallsAsReadOnlySpan, Log | Compact | Pretty), "\"\"" }
 
               , { new EK(AcceptsChars | AcceptsString | CallsAsReadOnlySpan | DefaultTreatedAsValueOut), "\"\"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsString | CallsAsReadOnlySpan)
+                    new EK(ContentType | AcceptsChars | AcceptsString | CallsAsReadOnlySpan)
                   , "\"\\u0022\\u0022\""
                 }
                , { new EK(AcceptsChars | CallsAsReadOnlySpan | AllOutputConditionsMask ) , "\"\"" }
             }
           , new StringLikeExpect<MutableString>(new MutableString("with"), "\"{0[8..10]}\"", formatFlags: AsCollection)
             {
-                { new EK(SimpleType | AcceptsChars | CallsViaMatch | CallsAsSpan, Log | Compact | Pretty), "\"\"" }
-              , { new EK(SimpleType | AcceptsChars | CallsViaMatch | DefaultBecomesFallbackValue | DefaultTreatedAsValueOut), "\"\"" }
-              , { new EK(SimpleType | AcceptsChars | CallsViaMatch | DefaultBecomesFallbackValue), "\"\\u0022\\u0022\"" }
-              , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence | CallsAsSpan, Log | Compact | Pretty), "\"\"" }
-              , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence | CallsAsSpan | DefaultTreatedAsValueOut), "\"\"" }
+                { new EK(ContentType | AcceptsChars | CallsViaMatch | CallsAsSpan, Log | Compact | Pretty), "\"\"" }
+              , { new EK(ContentType | AcceptsChars | CallsViaMatch | DefaultBecomesFallbackValue | DefaultTreatedAsValueOut), "\"\"" }
+              , { new EK(ContentType | AcceptsChars | CallsViaMatch | DefaultBecomesFallbackValue), "\"\\u0022\\u0022\"" }
+              , { new EK(ContentType | AcceptsChars | AcceptsCharSequence | CallsAsSpan, Log | Compact | Pretty), "\"\"" }
+              , { new EK(ContentType | AcceptsChars | AcceptsCharSequence | CallsAsSpan | DefaultTreatedAsValueOut), "\"\"" }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharSequence | CallsAsSpan), """""
+                    new EK(ContentType | AcceptsChars | AcceptsCharSequence | CallsAsSpan), """""
                                                                                            "\u0022\u0022"
                                                                                            """""
                 }
@@ -435,7 +435,7 @@ public class CharSequenceTestData
           , new StringLikeExpect<MutableString, MutableString>( new MutableString("the"), "{0}", true, new MutableString(""), -1, -10)
             {
                 { new EK(AcceptsChars | DefaultTreatedAsValueOut | DefaultBecomesZero), "0" }
-              , { new EK(SimpleType | AcceptsChars | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
+              , { new EK(ContentType | AcceptsChars | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut | DefaultBecomesNull), "null" }
               , { new EK(AcceptsChars | DefaultTreatedAsValueOut), "" }
               , { new EK(AcceptsChars | CallsAsReadOnlySpan | DefaultTreatedAsStringOut), "\"\"" }
                ,
@@ -453,15 +453,15 @@ public class CharSequenceTestData
           , new StringLikeExpect<CharArrayStringBuilder, CharArrayStringBuilder>
                 (new CharArrayStringBuilder("the"), "{0}", true, new CharArrayStringBuilder(""), -1, -10, AsCollection)
                 {
-                    { new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut | DefaultBecomesZero), "0" }
+                    { new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut | DefaultBecomesZero), "0" }
                    ,
                     {
-                        new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut |
+                        new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut | DefaultTreatedAsStringOut |
                                DefaultBecomesNull)
                       , "null"
                     }
-                  , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut), "" }
-                  , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut), "\"\"" }
+                  , { new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut), "" }
+                  , { new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut), "\"\"" }
                    ,
                     {
                         new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonNullWrites, Log | Compact | Pretty)
@@ -485,12 +485,12 @@ public class CharSequenceTestData
                , formatFlags: AsCollection)
             {
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut)
+                    new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut)
                   , "[    orging]"
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut)
+                    new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut)
                   , "\"[    orging]\""
                 }
                ,
@@ -542,12 +542,12 @@ public class CharSequenceTestData
                , formatFlags: AsCollection)
                 {
                     {
-                        new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut)
+                        new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut)
                       , "[It began with the forging of the Great Strings.]"
                     }
                    ,
                     {
-                        new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut)
+                        new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut)
                       , "\"[It began with the forging of the Great Strings.]\""
                     }
                    ,
@@ -644,12 +644,12 @@ public class CharSequenceTestData
                , "3{0[5..]}", formatFlags: AsCollection)
                 {
                     {
-                        new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut)
+                        new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut)
                       , "3 were given to the Assembly Programmers, impractical, wackiest and hairiest of all beings."
                     }
                    ,
                     {
-                        new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut)
+                        new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut)
                       , "\"3 were given to the Assembly Programmers, impractical, wackiest and hairiest of all beings.\""
                     }
                    ,
@@ -789,12 +789,12 @@ public class CharSequenceTestData
                , "'{0,30}'", fromIndex: -1, length: 24, formatFlags: AsCollection)
                 {
                     {
-                        new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut)
+                        new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut)
                       , "'      Seven to the Cobol-Lords'"
                     }
                    ,
                     {
-                        new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut)
+                        new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut)
                       , "\"'      Seven to the Cobol-Lords'\""
                     }
                    ,
@@ -884,22 +884,22 @@ public class CharSequenceTestData
                , fromIndex: 9, length: 41, formatFlags: AsCollection)
                 {
                     {
-                        new EK(SimpleType | AcceptsCharSequence | DefaultTreatedAsValueOut, Log | Compact | Pretty)
+                        new EK(ContentType | AcceptsCharSequence | DefaultTreatedAsValueOut, Log | Compact | Pretty)
                       , "***\"nine strings were gifted to the race of\"###"
                     }
                    ,
                     {
-                        new EK(SimpleType | AcceptsCharSequence | DefaultTreatedAsStringOut, Log | Compact | Pretty)
+                        new EK(ContentType | AcceptsCharSequence | DefaultTreatedAsStringOut, Log | Compact | Pretty)
                       , "\"***\"nine strings were gifted to the race of\"###\""
                     }
                    ,
                     {
-                        new EK(SimpleType | AcceptsCharSequence | DefaultTreatedAsValueOut, Json | Compact | Pretty)
+                        new EK(ContentType | AcceptsCharSequence | DefaultTreatedAsValueOut, Json | Compact | Pretty)
                       , "***\\u0022nine strings were gifted to the race of\\u0022###"
                     }
                    ,
                     {
-                        new EK(SimpleType | AcceptsCharSequence)
+                        new EK(ContentType | AcceptsCharSequence)
                       , "\"***\\u0022nine strings were gifted to the race of\\u0022###\""
                     }
                    ,
@@ -979,19 +979,19 @@ public class CharSequenceTestData
                                        , "{0,0/ /\n/[1..^1]}")
             {
                 {
-                    new EK(SimpleType | AcceptsChars | CallsAsReadOnlySpan | AcceptsString | CallsAsSpan | DefaultTreatedAsValueOut
+                    new EK(ContentType | AcceptsChars | CallsAsReadOnlySpan | AcceptsString | CallsAsSpan | DefaultTreatedAsValueOut
                          , Log | Compact | Pretty)
                   , "within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach"
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | CallsAsReadOnlySpan | AcceptsString | CallsAsSpan | DefaultTreatedAsStringOut
+                    new EK(ContentType | AcceptsChars | CallsAsReadOnlySpan | AcceptsString | CallsAsSpan | DefaultTreatedAsStringOut
                          , Log | Compact | Pretty)
                   , "\"within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach\""
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | CallsAsReadOnlySpan | AcceptsString | CallsAsSpan | DefaultTreatedAsValueOut)
+                    new EK(ContentType | AcceptsChars | CallsAsReadOnlySpan | AcceptsString | CallsAsSpan | DefaultTreatedAsValueOut)
                   , """
                     within\u000athese\u000astrings\u000awas\u000abound\u000athe\u000aflexibility,\u000amutability\u000aand\u000athe
                     \u000aoperators\u000ato\u000agovern\u000aeach
@@ -999,7 +999,7 @@ public class CharSequenceTestData
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | CallsAsReadOnlySpan | AcceptsString | CallsAsSpan)
+                    new EK(ContentType | AcceptsChars | CallsAsReadOnlySpan | AcceptsString | CallsAsSpan)
                   , """
                     "within\u000athese\u000astrings\u000awas\u000abound\u000athe\u000aflexibility,\u000amutability\u000aand\u000athe
                     \u000aoperators\u000ato\u000agovern\u000aeach"
@@ -1007,7 +1007,7 @@ public class CharSequenceTestData
                 }
                ,
                 {
-                    new EK(SimpleType | AcceptsChars | CallsAsReadOnlySpan | AcceptsString | CallsAsSpan | DefaultTreatedAsStringOut
+                    new EK(ContentType | AcceptsChars | CallsAsReadOnlySpan | AcceptsString | CallsAsSpan | DefaultTreatedAsStringOut
                          , Log | Compact | Pretty)
                   , "\"within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach\""
                 }
@@ -1038,19 +1038,19 @@ public class CharSequenceTestData
                , "{0,0/ /\n/[1..^1]}", formatFlags: AsCollection)
                 {
                     {
-                        new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | CallsAsSpan | DefaultTreatedAsValueOut
+                        new EK(ContentType | AcceptsChars | AcceptsStringBuilder | CallsAsSpan | DefaultTreatedAsValueOut
                              , Log | Compact | Pretty)
                       , "within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach"
                     }
                    ,
                     {
-                        new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | CallsAsSpan | DefaultTreatedAsStringOut
+                        new EK(ContentType | AcceptsChars | AcceptsStringBuilder | CallsAsSpan | DefaultTreatedAsStringOut
                              , Log | Compact | Pretty)
                       , "\"within\nthese\nstrings\nwas\nbound\nthe\nflexibility,\nmutability\nand\nthe\noperators\nto\ngovern\neach\""
                     }
                    ,
                     {
-                        new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | CallsAsSpan | DefaultTreatedAsValueOut)
+                        new EK(ContentType | AcceptsChars | AcceptsStringBuilder | CallsAsSpan | DefaultTreatedAsValueOut)
                       , """
                         within\u000athese\u000astrings\u000awas\u000abound\u000athe\u000aflexibility,\u000amutability\u000aand\u000athe
                         \u000aoperators\u000ato\u000agovern\u000aeach
@@ -1058,7 +1058,7 @@ public class CharSequenceTestData
                     }
                    ,
                     {
-                        new EK(SimpleType | AcceptsChars | AcceptsStringBuilder | CallsAsSpan)
+                        new EK(ContentType | AcceptsChars | AcceptsStringBuilder | CallsAsSpan)
                       , """
                         "within\u000athese\u000astrings\u000awas\u000abound\u000athe\u000aflexibility,\u000amutability\u000aand\u000athe
                         \u000aoperators\u000ato\u000agovern\u000aeach"
@@ -1209,8 +1209,8 @@ public class CharSequenceTestData
                 (new MutableString("But they were all of them deceived, for another string was made."), "{0,0/,//[1..]}"
                , formatFlags: AsCollection)
                 {
-                    { new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut), " for another string was made." }
-                  , { new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut), "\" for another string was made.\"" }
+                    { new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut), " for another string was made." }
+                  , { new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut), "\" for another string was made.\"" }
                    ,
                     {
                         new EK(AcceptsChars | AcceptsCharSequence | AlwaysWrites | NonDefaultWrites | NonNullWrites |
@@ -1286,12 +1286,12 @@ public class CharSequenceTestData
                , formatFlags: AsCollection)
                 {
                     {
-                        new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut)
+                        new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut)
                       , " after many Moons of playing Doom! the Dotnet Lord Hejlsberg forged a master String"
                     }
                    ,
                     {
-                        new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut)
+                        new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut)
                       , "\" after many Moons of playing Doom! the Dotnet Lord Hejlsberg forged a master String\""
                     }
                    ,
@@ -1426,12 +1426,12 @@ public class CharSequenceTestData
                , formatFlags: AsCollection)
                 {
                     {
-                        new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut)
+                        new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsValueOut)
                       , "and in the dustbins of time confine them"
                     }
                    ,
                     {
-                        new EK(SimpleType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut)
+                        new EK(ContentType | AcceptsChars | AcceptsCharSequence | DefaultTreatedAsStringOut)
                       , "\"and in the dustbins of time confine them\""
                     }
                    ,

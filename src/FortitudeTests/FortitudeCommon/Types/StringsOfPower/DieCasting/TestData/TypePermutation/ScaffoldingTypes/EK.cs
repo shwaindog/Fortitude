@@ -46,7 +46,10 @@ public class EK
         if (MatchScaff.HasCallsViaMatch()) { bothCallViaMatchOrNeither = condition.HasCallsViaMatch(); }
         
         var meetsMoldTypeCondition = (MatchScaff & MoldTypeConditionMask) == 0 
-                                  || (MatchScaff & MoldTypeConditionMask & condition) > 0;
+                                  // || (style.IsLog() 
+                                  //        ? ((MatchScaff & MoldTypeConditionMask) == (MoldTypeConditionMask & condition))
+                                  //        : ((MatchScaff & MoldTypeConditionMask & condition) > 0));
+                                  ||  ((MatchScaff & MoldTypeConditionMask & condition) > 0);
         
         var meetsWriteCondition    = 
             (MatchScaff & AllOutputConditionsMask & condition) > 0 

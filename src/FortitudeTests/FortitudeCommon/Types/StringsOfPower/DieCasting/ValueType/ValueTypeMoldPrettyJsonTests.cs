@@ -18,7 +18,7 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.ValueType;
 
 
-public partial class ValueTypeMoldTests
+public partial class ContentTypeMoldTests
 {
 
     [TestMethod]
@@ -193,12 +193,12 @@ public partial class ValueTypeMoldTests
         SharedPrettyJsonAsValue(formatExpectation, scaffoldingToCall);
     }
 
-    // [TestMethod]
+    [TestMethod]
     public void PrettyJsonSingleTest()
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactJsonAsValue(SpanFormattableTestData.AllSpanFormattableExpectations.Value[209], ScaffoldingRegistry.AllScaffoldingTypes[1139]);
+        SharedPrettyJsonAsValue(StringTestData.AllStringExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[1262]);
     }
 
     private void SharedPrettyJsonAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
@@ -213,6 +213,11 @@ public partial class ValueTypeMoldTests
         logger.WarnAppend("FormatExpectation - ")?
               .AppendLine(formatExpectation.ToString())
               .FinalAppend("");
+            
+        logger.InfoAppend("To Debug Test past the following code into ")?
+              .Append(nameof(PrettyJsonSingleTest)).Append("()\n\n")
+              .Append("SharedPrettyJsonAsValue(")
+              .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
 
         // ReSharper disable once RedundantArgumentDefaultValue
         var tos = new TheOneString().Initialize(Pretty | Json);
@@ -222,7 +227,11 @@ public partial class ValueTypeMoldTests
           , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
         {
             var expectValue  = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
-            if (expectValue == IFormatExpectation.NoResultExpectedValue)
+            if (expectValue != IFormatExpectation.NoResultExpectedValue)
+            {
+                
+            }
+            else
             { expectValue = ""; }
             return expectValue;
         }
@@ -237,7 +246,9 @@ public partial class ValueTypeMoldTests
             {
                 maybeNewLine = "\n";
                 maybeIndent  = "  ";
-                expectValue  = "\"" + propertyName + "\": " + expectValue;
+                expectValue  = "\"" + propertyName + "\": " + (condition.HasComplexTypeFlag() && expectValue.IsBrcBounded() 
+                    ? expectValue.IndentSubsequentLines() 
+                    : expectValue);;
             }
 
             else { expectValue = ""; }
@@ -267,11 +278,6 @@ public partial class ValueTypeMoldTests
                   .AppendLine("Expected it to match -")
                   .AppendLine(buildExpectedOutput)
                   .FinalAppend("");
-            
-            logger.InfoAppend("To Debug Test past the following code into ")?
-                  .Append(nameof(PrettyJsonSingleTest)).Append("()\n\n")
-                  .Append("SharedPrettyJsonAsValue(")
-                  .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
         }
         else
         {
@@ -333,7 +339,9 @@ public partial class ValueTypeMoldTests
             {
                 maybeNewLine = "\n";
                 maybeIndent  = "  ";
-                expectValue  = "\"" + propertyName + "\": " + expectValue.IndentSubsequentLines();
+                expectValue  = "\"" + propertyName + "\": " + (condition.HasComplexTypeFlag() && expectValue.IsBrcBounded() 
+                    ? expectValue.IndentSubsequentLines() 
+                    : expectValue);
             }
 
             else { expectValue = ""; }

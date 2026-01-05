@@ -21,9 +21,11 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     FormatFlags ResolveContentFormattingFlags<T>(IStringBuilder sb, T input, FormatFlags callerFormattingFlags
     , string formatString = "", bool isFieldName = false);
     
-    FormatFlags ResolveContentAsValueFormattingFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = "");
+    FormatFlags ResolveContentAsValueFormattingFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = ""
+    , FormatFlags callerFlags = DefaultCallerTypeFlags);
     
-    FormatFlags ResolveContentAsStringFormattingFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = "");
+    FormatFlags ResolveContentAsStringFormattingFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = ""
+    , FormatFlags callerFlags = DefaultCallerTypeFlags);
 
     ContentSeparatorRanges AppendValueTypeOpening(ITypeMolderDieCast moldInternal, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
