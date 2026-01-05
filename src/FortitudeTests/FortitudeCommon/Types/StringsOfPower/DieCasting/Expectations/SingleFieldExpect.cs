@@ -9,12 +9,11 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Expectations;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
-using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes.
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Expectations.
     ScaffoldingStringBuilderInvokeFlags;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Expectations;
 
 public interface ISingleFieldExpectation : IFormatExpectation
 {

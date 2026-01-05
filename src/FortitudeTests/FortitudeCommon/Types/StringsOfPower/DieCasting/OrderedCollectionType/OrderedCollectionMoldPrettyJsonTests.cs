@@ -5,7 +5,6 @@ using System.Globalization;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Expectations;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Expectations.OrderedCollectionFieldsTypes;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 

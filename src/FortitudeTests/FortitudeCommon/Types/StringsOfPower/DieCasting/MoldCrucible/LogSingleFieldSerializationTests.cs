@@ -1,10 +1,7 @@
-﻿using System.Text.Json;
-using FluentAssertions;
-using FortitudeCommon.Logging.Config.ExampleConfig;
+﻿using FortitudeCommon.Logging.Config.ExampleConfig;
 using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Types.StringsOfPower;
-using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation;
 

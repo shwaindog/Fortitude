@@ -9,7 +9,6 @@ using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Expectations;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Expectations.OrderedCollectionFieldsTypes;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 

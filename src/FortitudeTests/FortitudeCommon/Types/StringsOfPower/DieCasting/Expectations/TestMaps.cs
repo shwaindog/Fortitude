@@ -10,7 +10,7 @@ using FortitudeCommon.Logging.Config.ExampleConfig;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using static FortitudeCommon.Logging.Config.ExampleConfig.FLogConfigExamples;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Expectations;
 
 public class TestMaps
 {

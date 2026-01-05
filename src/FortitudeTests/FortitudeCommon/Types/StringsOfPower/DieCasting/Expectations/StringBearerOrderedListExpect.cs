@@ -8,12 +8,11 @@ using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.Options;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Expectations;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 #pragma warning disable CS8714 // The type cannot be used as type parameter in the generic type or method. Nullability of type argument doesn't match 'notnull' constraint.
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation.ScaffoldingTypes;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Expectations;
 
 // ReSharper disable twice ExplicitCallerInfoArgument
 public class NullStructStringBearerOrderedListExpect<TChildScaffoldListElement>
