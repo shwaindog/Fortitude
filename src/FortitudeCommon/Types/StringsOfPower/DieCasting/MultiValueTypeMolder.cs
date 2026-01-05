@@ -2,15 +2,14 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Options;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
 {
-    private TypeFieldCollection.SelectTypeCollectionField<TExt>? logOnlyInternalCollectionField;
-    private SelectTypeField<TExt>?  logOnlyInternalField;
+    private ComplexType.CollectionField.SelectTypeCollectionField<TExt>? logOnlyInternalCollectionField;
+    private ComplexType.UnitField.SelectTypeField<TExt>?                 logOnlyInternalField;
     
     protected void InitializeMultiValueTypeBuilder
     (
@@ -28,14 +27,14 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
     }
 
 
-    public TypeFields.SelectTypeField<TExt>? LogOnlyInternalField =>
+    public ComplexType.UnitField.SelectTypeField<TExt>? LogOnlyInternalField =>
         logOnlyInternalField ??= Settings.Style.AllowsUnstructured()
-            ? PortableState.Master.Recycler.Borrow<TypeFields.SelectTypeField<TExt>>().Initialize(MoldStateField)
+            ? PortableState.Master.Recycler.Borrow<ComplexType.UnitField.SelectTypeField<TExt>>().Initialize(MoldStateField)
             : null;
 
-    public TypeFieldCollection.SelectTypeCollectionField<TExt>? LogOnlyInternalCollectionField =>
+    public ComplexType.CollectionField.SelectTypeCollectionField<TExt>? LogOnlyInternalCollectionField =>
         logOnlyInternalCollectionField ??= Settings.Style.AllowsUnstructured()
-            ? PortableState.Master.Recycler.Borrow<TypeFieldCollection.SelectTypeCollectionField<TExt>>().Initialize(MoldStateField)
+            ? PortableState.Master.Recycler.Borrow<ComplexType.CollectionField.SelectTypeCollectionField<TExt>>().Initialize(MoldStateField)
             : null;
 
     protected override void InheritedStateReset()

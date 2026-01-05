@@ -5,7 +5,7 @@ using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeKeyValueCollection;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.KeyedCollectionType;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
 
@@ -99,7 +99,7 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
         RemainingGraphDepth = typeBuilderPortableState.RemainingGraphDepth;
 
         var typeOfTExt = typeof(TExt);
-        hasJsonFields = typeOfTExt == typeof(ComplexTypeMold)
+        hasJsonFields = typeOfTExt == typeof(ComplexPocoTypeMold)
                      || typeOfTExt == typeof(KeyedCollectionMold)
                      || typeof(MultiValueTypeMolder<TExt>).IsAssignableFrom(typeOfTExt);
 

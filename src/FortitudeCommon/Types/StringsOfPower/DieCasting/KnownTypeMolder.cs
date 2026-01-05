@@ -4,7 +4,6 @@
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 

@@ -6,7 +6,6 @@ using System.Net;
 using System.Numerics;
 using System.Text;
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 
 namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 

@@ -14,10 +14,9 @@ using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeKeyValueCollection;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.KeyedCollectionType;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.ValueType;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
@@ -64,7 +63,7 @@ public interface ITheOneString : IReusableObject<ITheOneString>
 
     ComplexOrderedCollectionMold StartComplexCollectionType<T>(T toStyle, CreateContext createContext = default);
 
-    ComplexTypeMold StartComplexType<T>(T toStyle, CreateContext createContext = default);
+    ComplexPocoTypeMold StartComplexType<T>(T toStyle, CreateContext createContext = default);
 
     SimpleContentTypeMold StartSimpleContentType<T>(T toStyle, CreateContext createContext = default);
 
@@ -526,7 +525,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         return explicitOrderedCollectionBuilder;
     }
 
-    public ComplexTypeMold StartComplexType<T>(T toStyle, CreateContext createContext = default)
+    public ComplexPocoTypeMold StartComplexType<T>(T toStyle, CreateContext createContext = default)
     {
         var visitType      = typeof(T);
         var actualType     = toStyle?.GetType() ?? visitType;
@@ -535,7 +534,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var appendSettings = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, createContext.FormatFlags);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
         var complexTypeBuilder =
-            Recycler.Borrow<ComplexTypeMold>().InitializeComplexTypeBuilder
+            Recycler.Borrow<ComplexPocoTypeMold>().InitializeComplexTypeBuilder
                 (actualType, this, appendSettings, createContext.NameOverride
                , remainingDepth, typeFormatter, existingRefId, createContext.FormatFlags);
         TypeStart(toStyle, complexTypeBuilder, actualType);
