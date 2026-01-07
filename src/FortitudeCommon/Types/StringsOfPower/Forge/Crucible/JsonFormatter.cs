@@ -305,7 +305,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     public override int Format<TFmt>(TFmt source, IStringBuilder sb, ReadOnlySpan<char> formatString
       , FormatSwitches formatSwitches = EncodeInnerContent)
     {
-        if (source == null) { return (Options.NullWritesEmpty ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length)); }
+        if (source == null) { return (Options.NullWritesEmpty ? 0 : LayoutEncoder.Transfer(Options.NullString, sb)); }
         var originalLength = sb.Length;
         var fmtType        = typeof(TFmt);
         fmtType = fmtType == typeof(ISpanFormattable) ? source.GetType() : fmtType;
@@ -315,18 +315,18 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         if (fmtType.IsValueType && fmtType.IsNumericType())
         {
             if (!wrapInQuotes) { wrapInQuotes = source.IsDoubleQuoteDelimitedSpanFormattable(); }
-            if (wrapInQuotes && !alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) sb.Append(DblQt);
+            if (wrapInQuotes && !alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) LayoutEncoder.Transfer(DblQt, sb);
             base.Format(source, sb, formatString, formatSwitches);
-            if (wrapInQuotes && !alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) sb.Append(DblQt);
+            if (wrapInQuotes && !alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) LayoutEncoder.Transfer(DblQt, sb);
         }
         else if (source is DateTime sourceDateTime)
         {
             if (JsonOptions.DateTimeIsNumber)
             {
                 var converted = JsonOptions.DateTimeTicksToNumberPrecision(sourceDateTime.Ticks);
-                if (wrapInQuotes && !formatSwitches.HasDisableAutoDelimiting()) sb.Append(DblQt);
+                if (wrapInQuotes && !formatSwitches.HasDisableAutoDelimiting()) LayoutEncoder.Transfer(DblQt, sb);
                 base.Format(converted, sb, formatString, formatSwitches);
-                if (wrapInQuotes && !formatSwitches.HasDisableAutoDelimiting()) sb.Append(DblQt);
+                if (wrapInQuotes && !formatSwitches.HasDisableAutoDelimiting()) LayoutEncoder.Transfer(DblQt, sb);
             }
             else
             {
@@ -334,9 +334,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     formatString = JsonOptions.DateTimeAsStringFormatString;
                 }
-                if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) sb.Append(DblQt);
+                if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) LayoutEncoder.Transfer(DblQt, sb);
                 base.Format(source, sb, formatString, formatSwitches);
-                if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) sb.Append(DblQt);
+                if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) LayoutEncoder.Transfer(DblQt, sb);
             }
         }
         else if (source is DateOnly dateTimeOnly)
@@ -345,9 +345,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             {
                 formatString = JsonOptions.DateOnlyAsStringFormatString;
             }
-            if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) sb.Append(DblQt);
+            if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) LayoutEncoder.Transfer(DblQt, sb);
             base.Format(dateTimeOnly, sb, formatString, formatSwitches);
-            if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) sb.Append(DblQt);
+            if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) LayoutEncoder.Transfer(DblQt, sb);
         }
         else if (source is TimeOnly sourceTimeOnly)
         {
@@ -359,17 +359,17 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                     formatString = "HH:mm:ss";
                 }
             }
-            if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) sb.Append(DblQt);
+            if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) LayoutEncoder.Transfer(DblQt, sb);
             base.Format(source, sb, formatString, formatSwitches);
-            if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) sb.Append(DblQt);
+            if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) LayoutEncoder.Transfer(DblQt, sb);
         }
         else if (source is Enum)
         {
             var markInsertIndex = sb.Length;
 
-            if (wrapInQuotes && !alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) sb.Append(DblQt);
+            if (wrapInQuotes && !alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) LayoutEncoder.Transfer(DblQt, sb);
             var enumLen = base.Format(source, sb, formatString, formatSwitches);
-            if (wrapInQuotes && !alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) sb.Append(DblQt);
+            if (wrapInQuotes && !alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) LayoutEncoder.Transfer(DblQt, sb);
             var isInt = enumLen > 0;
             for (int i = 0; i < enumLen && isInt; i++)
             {
@@ -384,9 +384,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         }
         else
         {
-            if (wrapInQuotes && !alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) sb.Append(DblQt);
+            if (wrapInQuotes && !alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) LayoutEncoder.Transfer(DblQt, sb);
             base.Format(source, sb, formatString, formatSwitches);
-            if (wrapInQuotes && !alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) sb.Append(DblQt);
+            if (wrapInQuotes && !alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) LayoutEncoder.Transfer(DblQt, sb);
         }
         return sb.Length - originalLength;
     }
@@ -404,20 +404,21 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             if (!wrapInQuotes) { wrapInQuotes = source.IsDoubleQuoteDelimitedSpanFormattable(); }
             if (wrapInQuotes && !alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting())
-                charsAdded += destCharSpan.OverWriteAt(destStartIndex, DblQt);
+                charsAdded += LayoutEncoder.Transfer(  DblQt, destCharSpan, destStartIndex);
             charsAdded += base.Format(source, destCharSpan, destStartIndex + charsAdded, formatString, formatSwitches);
             if (wrapInQuotes && !alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting())
-                charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, DblQt);
+                charsAdded += LayoutEncoder.Transfer(  DblQt, destCharSpan, destStartIndex + charsAdded);
         }
         else if (source is DateTime sourceDateTime)
         {
             if (JsonOptions.DateTimeIsNumber)
             {
                 var converted = JsonOptions.DateTimeTicksToNumberPrecision(sourceDateTime.Ticks);
-                if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) charsAdded += destCharSpan.OverWriteAt(destStartIndex, DblQt);
+                if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) 
+                    charsAdded += LayoutEncoder.Transfer(  DblQt, destCharSpan, destStartIndex);
                 charsAdded += base.Format(converted, destCharSpan, destStartIndex + charsAdded, formatString, formatSwitches);
                 if (!alreadyFormatDelimited && JsonOptions.WrapValuesInQuotes && !formatSwitches.HasDisableAutoDelimiting())
-                    charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, DblQt);
+                    charsAdded += LayoutEncoder.Transfer(  DblQt, destCharSpan, destStartIndex + charsAdded);
             }
             else
             {
@@ -425,10 +426,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                 {
                     formatString = JsonOptions.DateTimeAsStringFormatString;
                 }
-                if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) charsAdded += destCharSpan.OverWriteAt(destStartIndex, DblQt);
+                if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) 
+                    charsAdded += LayoutEncoder.Transfer(  DblQt, destCharSpan, destStartIndex);
                 charsAdded += base.Format(source, destCharSpan, destStartIndex + charsAdded, formatString, formatSwitches);
                 if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting())
-                    charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, DblQt);
+                    charsAdded += LayoutEncoder.Transfer(  DblQt, destCharSpan, destStartIndex + charsAdded);
             }
         }
         else if (source is DateOnly dateTimeOnly)
@@ -437,10 +439,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             {
                 formatString = JsonOptions.DateOnlyAsStringFormatString;
             }
-            if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) charsAdded += destCharSpan.OverWriteAt(destStartIndex, DblQt);
+            if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) 
+                charsAdded += LayoutEncoder.Transfer(  DblQt, destCharSpan, destStartIndex);
             charsAdded += base.Format(dateTimeOnly, destCharSpan, destStartIndex + charsAdded, formatString, formatSwitches);
             if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting())
-                charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, DblQt);
+                charsAdded += LayoutEncoder.Transfer(  DblQt, destCharSpan, destStartIndex + charsAdded);
         }
         else if (source is TimeOnly sourceTimeOnly)
         {
@@ -452,10 +455,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                     formatString = "HH:mm:ss";
                 }
             }
-            if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) charsAdded += destCharSpan.OverWriteAt(destStartIndex, DblQt);
+            if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) 
+                charsAdded += LayoutEncoder.Transfer(  DblQt, destCharSpan, destStartIndex);
             charsAdded += base.Format(sourceTimeOnly, destCharSpan, destStartIndex + charsAdded, formatString, formatSwitches);
             if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting())
-                charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, DblQt);
+                charsAdded += LayoutEncoder.Transfer(  DblQt, destCharSpan, destStartIndex + charsAdded);
         }
         else if (source is Enum)
         {
@@ -480,10 +484,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         }
         else
         {
-            if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) charsAdded += destCharSpan.OverWriteAt(destStartIndex, DblQt);
+            if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting()) 
+                charsAdded += LayoutEncoder.Transfer(  DblQt, destCharSpan, destStartIndex);
             charsAdded += base.Format(source, destCharSpan, destStartIndex + charsAdded, formatString, formatSwitches);
             if (!alreadyFormatDelimited && !formatSwitches.HasDisableAutoDelimiting())
-                charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, DblQt);
+                charsAdded += LayoutEncoder.Transfer(  DblQt, destCharSpan, destStartIndex + charsAdded);
         }
         return charsAdded;
     }
@@ -491,7 +496,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     public override int Format<TFmtStruct>(TFmtStruct? source, IStringBuilder sb, ReadOnlySpan<char> formatString
       , FormatSwitches formatSwitches = EncodeInnerContent)
     {
-        if (!source.HasValue) { return (Options.NullWritesEmpty ? 0 : sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length)); }
+        if (!source.HasValue) { return (Options.NullWritesEmpty ? 0 : LayoutEncoder.Transfer(Options.NullString, sb)); }
         return Format(source.Value, sb, formatString, formatSwitches);
     }
 
@@ -511,7 +516,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
 
         if (arg0.Length == 0 && Options is { IgnoreEmptyCollection: false, EmptyCollectionWritesNull: true })
         {
-            return sb.Append(Options.NullString).ReturnCharCount(Options.NullString.Length);
+            return LayoutEncoder.Transfer(Options.NullString, sb);
         }
         var elementType = typeof(TFmt);
         if (arg0.Length > 0 || !Options.IgnoreEmptyCollection) { CollectionStart(elementType, sb, arg0.Length > 0); }

@@ -285,10 +285,11 @@ public static class StringExtensions
                 break;
             }
         }
+        if (!foundOpeningBrace) return false;
         int j = input.Length - 1;
-        for (; j > i && !foundClosingBrace; i--)
+        for (; j > i && !foundClosingBrace; j--)
         {
-            var checkChar = input[i];
+            var checkChar = input[j];
             if (checkChar == '}')
             {
                 foundClosingBrace = true;

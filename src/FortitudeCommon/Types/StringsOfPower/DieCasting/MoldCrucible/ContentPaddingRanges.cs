@@ -3,7 +3,6 @@
 
 using System.Runtime.CompilerServices;
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;

@@ -1,8 +1,6 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
-
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 public struct MoldDieCastSettings(SkipTypeParts skipTypeParts)

@@ -1,7 +1,6 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeFields;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;

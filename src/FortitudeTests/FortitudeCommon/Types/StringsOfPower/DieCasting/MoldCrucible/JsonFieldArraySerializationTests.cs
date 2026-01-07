@@ -1,5 +1,4 @@
-﻿using System.Text.Encodings.Web;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentAssertions;
 using FortitudeCommon.Logging.Config.ExampleConfig;
@@ -9,7 +8,7 @@ using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TextJsonConverters;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TypePermutation;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Scenarios.CompareToSystemTextJson.TypePermutation;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
