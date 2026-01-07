@@ -1,194 +1,105 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Globalization;
-using FortitudeCommon.Extensions;
+using System.Reflection;
 using FortitudeCommon.Types.StringsOfPower;
-using FortitudeCommon.Types.StringsOfPower.Forge;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Expectations;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.UnitField.FixtureScaffolding;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Expectations.UnitFieldsContentTypes;
+using FortitudeCommon.Types.StringsOfPower.Options;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations.UnitFieldsContentTypes;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
-using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Expectations.
-    ScaffoldingStringBuilderInvokeFlags;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.UnitField;
 
-public partial class SelectTypeFieldTests
+[NoMatchingProductionClass]
+[TestClass]
+public class SelectTypeFieldCompactJsonTests : SelectTypeFieldTests
 {
+    public override StringStyle TestStyle => Compact | Json;
+    
+    [ClassInitialize]
+    public static void EnsureBaseClassInitialized(TestContext testContext) => 
+        AllDerivedShouldCallThisInClassInitialize(testContext);
+    
+    public static string CreateDataDrivenTestName(MethodInfo methodInfo, object[] data) => GenerateScaffoldExpectationTestName(methodInfo, data);
+    
     [TestMethod]
-    [DynamicData(nameof(NonNullableBooleanExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonNonNullBool(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(NonNullableBooleanExpect), typeof(SelectTypeFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void CompactJsonNonNullBool(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(NullableBooleanExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonNullBool(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(NullableBooleanExpect), typeof(SelectTypeFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void CompactJsonNullBool(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(NonNullableSpanFormattableExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonNonNullFmt(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(NonNullableSpanFormattableExpect), typeof(SelectTypeFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void CompactJsonNonNullFmt(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(NullableStructSpanFormattableExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonNullFmtStruct(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(NullableStructSpanFormattableExpect), typeof(SelectTypeFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void CompactJsonNullFmtStruct(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(StringExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(StringExpect), typeof(SelectTypeFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void CompactJsonString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(CharArrayExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonCharArray(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(CharArrayExpect), typeof(SelectTypeFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void CompactJsonCharArray(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(CharSequenceExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonCharSequence(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(CharSequenceExpect), typeof(SelectTypeFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void CompactJsonCharSequence(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(StringBuilderExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonStringBuilder(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(StringBuilderExpect), typeof(SelectTypeFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void CompactJsonStringBuilder(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(NonNullCloakedBearerExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonNonNullCloakedBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(NonNullCloakedBearerExpect), typeof(SelectTypeFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void CompactJsonNonNullCloakedBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(NullCloakedBearerExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonNullCloakedBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(NullCloakedBearerExpect), typeof(SelectTypeFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void CompactJsonNullCloakedBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(NonNullStringBearerExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonNonNullStringBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(NonNullStringBearerExpect), typeof(SelectTypeFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void CompactJsonNonNullStringBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(NullStringBearerExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void CompactJsonNullStringBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedCompactJson(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(NullStringBearerExpect), typeof(SelectTypeFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void CompactJsonNullStringBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    public void CompactJsonSingleTest()
+    public override void RunExecuteIndividualScaffoldExpectation()
     {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedCompactJson(StringBearerTestData.AllStringBearerExpectations[24], ScaffoldingRegistry.AllScaffoldingTypes[891]);
+        ExecuteIndividualScaffoldExpectation(StringBearerTestData.AllStringBearerExpectations[24], ScaffoldingRegistry.AllScaffoldingTypes[891]);
     }
 
-    private void SharedCompactJson(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    protected override string BuildExpectedRootOutput(ITheOneString tos, string className, string propertyName
+      , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
-        logger.InfoAppend("Complex Type Single Value Field  Scaffolding Class - ")?
-              .AppendLine(scaffoldingToCall.Name)
-              .AppendLine()
-              .AppendLine("Scaffolding Flags -")
-              .AppendLine(scaffoldingToCall.ScaffoldingFlags.ToString("F").Replace(",", " |"))
-              .FinalAppend("\n");
+        const string compactJsonTemplate = "{{{0}}}";
 
-        logger.WarnAppend("FormatExpectation - ")?
-              .AppendLine(formatExpectation.ToString())
-              .FinalAppend("");
-            
-        logger.InfoAppend("To Debug Test past the following code into ")?
-              .Append(nameof(CompactJsonSingleTest)).Append("()\n\n")
-              .Append("SharedCompactJson(")
-              .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
-
-
-        var tos          = new TheOneString().Initialize(Compact | Json);
-        
-        string BuildExpectedOutput(string className, string propertyName
-          , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
+        var expectValue = expectation.GetExpectedOutputFor(condition, tos, expectation.ValueFormatString);
+        if (expectValue != IFormatExpectation.NoResultExpectedValue)
         {
-            const string compactJsonTemplate = "{{{0}}}";
-
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
-            if (expectValue != IFormatExpectation.NoResultExpectedValue)
-            {
-                expectValue = "\"" + propertyName + "\":" + expectValue;
-            }
-            else { expectValue = ""; }
-            return string.Format(compactJsonTemplate, expectValue);
+            expectValue = "\"" + propertyName + "\":" + expectValue;
         }
-
-        if (formatExpectation is IComplexFieldFormatExpectation complexFieldExpectation)
-        {
-            complexFieldExpectation.WhenValueExpectedOutput = BuildExpectedOutput;
-        }
-        tos.Clear();
-        
-        var stringBearer = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall, tos.Settings);
-        stringBearer.RevealState(tos);
-        var buildExpectedOutput =
-            BuildExpectedOutput
-                (stringBearer.GetType().CachedCSharpNameNoConstraints()
-               , ((ISinglePropertyTestStringBearer)stringBearer).PropertyName
-               , scaffoldingToCall.ScaffoldingFlags
-               , formatExpectation).MakeWhiteSpaceVisible();
-        var result = tos.WriteBuffer.ToString().MakeWhiteSpaceVisible();
-        if (buildExpectedOutput != result)
-        {
-            logger.ErrorAppend("Result Did not match Expected - ")?.AppendLine()
-                  .Append(result).AppendLine()
-                  .AppendLine("Expected it to match -")
-                  .AppendLine(buildExpectedOutput)
-                  .FinalAppend("");
-            
-            logger.InfoAppend("To Debug Test past the following code into ")?
-                  .Append(nameof(CompactJsonSingleTest)).Append("()\n\n")
-                  .Append("SharedCompactJson(")
-                  .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
-        }
-        else
-        {
-            logger.InfoAppend("Result Matched Expected - ")?.AppendLine()
-                  .Append(result).AppendLine()
-                  .FinalAppend("");
-        }
-        Assert.AreEqual(buildExpectedOutput, result);
+        else { expectValue = ""; }
+        return string.Format(compactJsonTemplate, expectValue);
     }
 }

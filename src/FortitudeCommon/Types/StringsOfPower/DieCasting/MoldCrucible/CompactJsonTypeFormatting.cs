@@ -91,6 +91,10 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     {
         var typeOfT                     = typeof(T);
         var modifiedFlags               = formatFlags;
+        if (formatFlags.DoesNotHaveReformatMultiLineFlag())
+        {
+            modifiedFlags |= EncodeInnerContent;
+        }
         var isSpanFormattableOrNullable = typeOfT.IsSpanFormattableOrNullableCached();
         // if (input == null && fallbackValue.Length > 0) return DefaultCallerTypeFlags;
         var isAnyTypeHoldingChars = typeOfT.IsAnyTypeHoldingCharsCached();
@@ -100,10 +104,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
                 return modifiedFlags | DisableAutoDelimiting | AsValueContent;
         }
         var isDoubleQuoteDelimitedSpanFormattable = input.IsDoubleQuoteDelimitedSpanFormattable(fallbackValue, formatString);
-        if (formatFlags.DoesNotHaveReformatMultiLineFlag())
-        {
-            modifiedFlags |= EncodeInnerContent;
-        }
         if (isSpanFormattableOrNullable && isDoubleQuoteDelimitedSpanFormattable) 
             return modifiedFlags | EnsureFormattedDelimited | AsValueContent;
         return modifiedFlags | AsValueContent;
@@ -114,16 +114,16 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     {
         var typeOfT                     = typeof(T);
         var modifiedFlags               = formatFlags;
-        var isSpanFormattableOrNullable = typeOfT.IsSpanFormattableOrNullableCached();
-        var isAnyTypeHoldingChars       = typeOfT.IsAnyTypeHoldingCharsCached();
-        if (isAnyTypeHoldingChars) return DisableAutoDelimiting | AsStringContent;
-        var isJsonStringExemptType = typeOfT.IsJsonStringExemptTypeCached();
-        var isDoubleQuoteDelimitedSpanFormattable
-            = input.IsDoubleQuoteDelimitedSpanFormattable(fallbackValue, formatString) || !isJsonStringExemptType;
         if (formatFlags.DoesNotHaveReformatMultiLineFlag())
         {
             modifiedFlags |= EncodeInnerContent;
         }
+        var isSpanFormattableOrNullable = typeOfT.IsSpanFormattableOrNullableCached();
+        var isAnyTypeHoldingChars       = typeOfT.IsAnyTypeHoldingCharsCached();
+        if (isAnyTypeHoldingChars) return modifiedFlags | DisableAutoDelimiting | AsStringContent;
+        var isJsonStringExemptType = typeOfT.IsJsonStringExemptTypeCached();
+        var isDoubleQuoteDelimitedSpanFormattable
+            = input.IsDoubleQuoteDelimitedSpanFormattable(fallbackValue, formatString) || !isJsonStringExemptType;
         if (isSpanFormattableOrNullable && isDoubleQuoteDelimitedSpanFormattable) return modifiedFlags | DisableAutoDelimiting | AsStringContent;
         return modifiedFlags | AsStringContent;
     }

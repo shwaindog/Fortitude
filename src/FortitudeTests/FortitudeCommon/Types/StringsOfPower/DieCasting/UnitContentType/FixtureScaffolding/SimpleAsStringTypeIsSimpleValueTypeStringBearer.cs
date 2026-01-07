@@ -5,12 +5,12 @@ using System.Text;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.Forge;
-using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Expectations.
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations.
     ScaffoldingStringBuilderInvokeFlags;
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Expectations.ValueTypeScaffolds;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations.ValueTypeScaffolds;
 
 [TypeGeneratePart(IsContentType | IsComplexType | SingleValueCardinality | AcceptsStruct | SupportsValueFormatString | DefaultTreatedAsStringOut)]
 public class ComplexContentAsStringBool : FormattedMoldScaffold<bool>
@@ -759,8 +759,8 @@ public class ComplexContentAsStringStringBearer<TBearer> : ProxyFormattedMoldSca
 
 [TypeGeneratePart(IsContentType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | DefaultTreatedAsStringOut
                 | DefaultBecomesEmpty)]
-public class SimpleContentAsStringStringBearer<TBearer> : ProxyFormattedMoldScaffold<TBearer> where TBearer
-    : FormattedMoldScaffold<TBearer?>
+public class SimpleContentAsStringStringBearer<TBearer> : ProxyFormattedMoldScaffold<TBearer> 
+    where TBearer : IStringBearer
 {
     public TBearer StringBearerSimpleContentAsString
     {
@@ -782,8 +782,7 @@ public class SimpleContentAsStringStringBearer<TBearer> : ProxyFormattedMoldScaf
 [TypeGeneratePart(IsContentType | IsComplexType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer
                 | DefaultTreatedAsStringOut | DefaultBecomesNull)]
 public class ComplexContentAsStringStringBearerOrNull<TBearer> : ProxyFormattedMoldScaffold<TBearer?> where
-    TBearer
-    : FormattedMoldScaffold<TBearer?>
+    TBearer : IStringBearer
 {
     public TBearer? StringBearerOrNullComplexContentAsString
     {
@@ -806,7 +805,7 @@ public class ComplexContentAsStringStringBearerOrNull<TBearer> : ProxyFormattedM
 [TypeGeneratePart(IsContentType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | DefaultTreatedAsStringOut
                 | DefaultBecomesNull)]
 public class SimpleContentAsStringStringBearerOrNull<TBearer> : ProxyFormattedMoldScaffold<TBearer?> where
-    TBearer : FormattedMoldScaffold<TBearer?>
+    TBearer : IStringBearer
 {
     public TBearer? StringBearerOrNullSimpleContentAsString
     {
@@ -823,9 +822,9 @@ public class SimpleContentAsStringStringBearerOrNull<TBearer> : ProxyFormattedMo
 }
 
 [TypeGeneratePart(IsContentType | IsComplexType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer
-                | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue)]
-public class ComplexContentAsStringStringBearerOrStringDefault<TBearer> : ProxyFormattedMoldScaffold<TBearer?>
-    where TBearer : IMoldSupportedDefaultValue<string>, IMoldSupportedValue<TBearer?>
+                | DefaultTreatedAsStringOut | DefaultBecomesFallbackString)]
+public class ComplexContentAsStringStringBearerOrStringDefault<TBearer> : ProxyFormattedMoldScaffold<TBearer?>, IMoldSupportedDefaultValue<string>
+    where TBearer : IStringBearer
 {
     public TBearer? StringBearerOrStringDefaultComplexContentAsString
     {
@@ -849,10 +848,9 @@ public class ComplexContentAsStringStringBearerOrStringDefault<TBearer> : ProxyF
 }
 
 [TypeGeneratePart(IsContentType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | DefaultTreatedAsStringOut
-                | DefaultBecomesFallbackValue)]
-public class SimpleContentAsStringStringBearerOrStringDefault<TBearer> : ProxyFormattedMoldScaffold<TBearer?>
-    where TBearer
-    : IMoldSupportedDefaultValue<string>, IMoldSupportedValue<TBearer?>
+                | DefaultBecomesFallbackString)]
+public class SimpleContentAsStringStringBearerOrStringDefault<TBearer> : ProxyFormattedMoldScaffold<TBearer?>, IMoldSupportedDefaultValue<string>
+    where TBearer : IStringBearer
 {
     public TBearer? StringBearerOrStringDefaultSimpleContentAsString
     {
@@ -899,10 +897,10 @@ public class ComplexContentAsStringNullableStructStringBearer<TBearerStruct> : P
 
 [TypeGeneratePart(IsContentType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | DefaultTreatedAsStringOut
                 | DefaultBecomesEmpty)]
-public class SimpleContentAsStringNullableStructStringBearer<TBearerStruct> : ProxyFormattedMoldScaffold<TBearerStruct>
+public class SimpleContentAsStringNullableStructStringBearer<TBearerStruct> : ProxyFormattedMoldScaffold<TBearerStruct?>
     where TBearerStruct : struct, IStringBearer
 {
-    public TBearerStruct NullableStructStringBearerSimpleContentAsString
+    public TBearerStruct? NullableStructStringBearerSimpleContentAsString
     {
         get => Value;
         set => Value = value;
@@ -965,8 +963,9 @@ public class SimpleContentAsStringNullableStructStringBearerOrNull<TBearerStruct
 }
 
 [TypeGeneratePart(IsContentType | IsComplexType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | DefaultTreatedAsStringOut
-                | DefaultBecomesFallbackValue)]
+                | DefaultBecomesFallbackString)]
 public class ComplexContentAsStringNullableStructStringBearerOrStringDefault<TBearerStruct> : ProxyFormattedMoldScaffold<TBearerStruct?>
+  , IMoldSupportedDefaultValue<string>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct? NullableStructStringBearerOrStringDefaultComplexContentAsString
@@ -991,9 +990,9 @@ public class ComplexContentAsStringNullableStructStringBearerOrStringDefault<TBe
 }
 
 [TypeGeneratePart(IsContentType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | DefaultTreatedAsStringOut
-                | DefaultBecomesFallbackValue)]
-public class SimpleContentAsStringNullableStructStringBearerOrStringDefault<TBearerStruct>
-    : ProxyFormattedMoldScaffold<TBearerStruct?>
+                | DefaultBecomesFallbackString)]
+public class SimpleContentAsStringNullableStructStringBearerOrStringDefault<TBearerStruct> : ProxyFormattedMoldScaffold<TBearerStruct?>
+  , IMoldSupportedDefaultValue<string>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct? NullableStructStringBearerOrStringDefaultSimpleContentAsString

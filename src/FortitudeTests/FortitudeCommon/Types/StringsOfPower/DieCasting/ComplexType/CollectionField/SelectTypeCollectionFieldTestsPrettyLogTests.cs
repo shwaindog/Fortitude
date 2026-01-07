@@ -1,226 +1,141 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Globalization;
+using System.Reflection;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Expectations;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Expectations.OrderedCollectionFieldsTypes;
+using FortitudeCommon.Types.StringsOfPower.Options;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations.OrderedCollectionFieldsTypes;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.CollectionField;
 
-public partial class SelectTypeCollectionFieldTests
+[NoMatchingProductionClass]
+[TestClass]
+public class SelectTypeCollectionFieldPrettyLogTests : SelectTypeCollectionFieldTests
 {
+    public override StringStyle TestStyle => Pretty | Log;
+    
+    [ClassInitialize]
+    public static void EnsureBaseClassInitialized(TestContext testContext) => 
+        AllDerivedShouldCallThisInClassInitialize(testContext);
+
+    public static string CreateDataDrivenTestName(MethodInfo methodInfo, object[] data) => 
+        GenerateScaffoldExpectationTestName(methodInfo, data);
+    
     [TestMethod]
-    [DynamicData(nameof(UnfilteredBooleanCollectionsExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredPrettyLogBoolCollections(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedPrettyLog(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(UnfilteredBooleanCollectionsExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredPrettyLogBoolCollections(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(FilteredBooleanCollectionsExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredPrettyLogBoolCollections(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedPrettyLog(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(FilteredBooleanCollectionsExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredPrettyLogBoolCollections(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(UnfilteredFmtCollectionsExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredPrettyLogFmtList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedPrettyLog(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(UnfilteredFmtCollectionsExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredPrettyLogFmtList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(FilteredFmtCollectionsExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredPrettyLogFmtList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedPrettyLog(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(FilteredFmtCollectionsExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredPrettyLogFmtList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(UnfilteredStringCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredPrettyLogStringList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedPrettyLog(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(UnfilteredStringCollectionExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredPrettyLogStringList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(FilteredStringCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredPrettyLogStringList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedPrettyLog(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(FilteredStringCollectionExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredPrettyLogStringList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(UnfilteredCharSequenceCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredPrettyLogCharSequenceList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedPrettyLog(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(UnfilteredCharSequenceCollectionExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredPrettyLogCharSequenceList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(FilteredCharSequenceCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredPrettyLogCharSequenceList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedPrettyLog(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(FilteredCharSequenceCollectionExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredPrettyLogCharSequenceList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(UnfilteredStringBuilderCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredPrettyLogStringBuilderList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedPrettyLog(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(UnfilteredStringBuilderCollectionExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredPrettyLogStringBuilderList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(FilteredStringBuilderCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredPrettyLogStringBuilderList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedPrettyLog(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(FilteredStringBuilderCollectionExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredPrettyLogStringBuilderList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(UnfilteredCloakedBearerCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredPrettyLogCloakedBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedPrettyLog(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(UnfilteredCloakedBearerCollectionExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredPrettyLogCloakedBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(FilteredCloakedBearerCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredPrettyLogCloakedBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedPrettyLog(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(FilteredCloakedBearerCollectionExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredPrettyLogCloakedBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(UnfilteredStringBearerCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredPrettyLogStringBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedPrettyLog(formatExpectation, scaffoldingToCall);
-    }
+    [DynamicData(nameof(UnfilteredStringBearerCollectionExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredPrettyLogStringBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(FilteredStringBearerCollectionExpect), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredPrettyLogStringBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        SharedPrettyLog(formatExpectation, scaffoldingToCall);
-    }
-
+    [DynamicData(nameof(FilteredStringBearerCollectionExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredPrettyLogStringBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
+    
     [TestMethod]
-    public void PrettyLogListTest()
+    public override void RunExecuteIndividualScaffoldExpectation()
     {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        SharedPrettyLog(StringBearerCollectionsTestData.AllStringBearerCollectionExpectations[9], ScaffoldingRegistry.AllScaffoldingTypes[139]);
+        ExecuteIndividualScaffoldExpectation(StringBearerCollectionsTestData.AllStringBearerCollectionExpectations[9], ScaffoldingRegistry.AllScaffoldingTypes[139]);
     }
 
-    private void SharedPrettyLog(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
+    protected override string BuildExpectedRootOutput(ITheOneString tos, string className, string propertyName
+      , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
-        logger.InfoAppend("Ordered Collection Type Single Value Field  Scaffolding Class - ")?
-              .AppendLine(scaffoldingToCall.Name)
-              .AppendLine()
-              .AppendLine("Scaffolding Flags -")
-              .AppendLine(scaffoldingToCall.ScaffoldingFlags.ToString("F").Replace(",", " |"))
-              .FinalAppend("\n");
+        const string compactLogTemplate = "{0} {{{1}{2}{3}{1}}}";
 
-        logger.WarnAppend("FormatExpectation - ")?
-              .AppendLine(formatExpectation.ToString())
-              .FinalAppend("");
 
-        logger.InfoAppend("To Debug Test past the following code into ")?
-              .Append(nameof(PrettyLogListTest)).Append("()\n\n")
-              .Append("SharedPrettyLog(")
-              .Append(formatExpectation.ItemCodePath).Append(", ")
-              .Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
-
-        // ReSharper disable once RedundantArgumentDefaultValue
-        var tos = new TheOneString().Initialize(Pretty | Log);
-        tos.Settings.NewLineStyle = "\n";
-
-        string BuildExpectedOutput(string className, string propertyName
-          , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
+        var maybeNewLine = "";
+        var maybeIndent  = "";
+        var expectValue  = expectation.GetExpectedOutputFor(condition, tos, expectation.ValueFormatString);
+        if (expectValue != IFormatExpectation.NoResultExpectedValue)
         {
-            const string compactLogTemplate = "{0} {{{1}{2}{3}{1}}}";
-
-
-            var maybeNewLine = "";
-            var maybeIndent  = "";
-            var expectValue  = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
-            if (expectValue != IFormatExpectation.NoResultExpectedValue)
+            maybeNewLine = "\n";
+            maybeIndent  = "  ";
+            if (expectValue != "null"
+             && expectation is IOrderedListExpect orderedListExpectation
+             && orderedListExpectation.ElementCallType.IsEnumOrNullable())
             {
-                maybeNewLine = "\n";
-                maybeIndent  = "  ";
-                if (expectValue != "null"
-                 && expectation is IOrderedListExpect orderedListExpectation
-                 && orderedListExpectation.ElementCallType.IsEnumOrNullable())
-                {
-                    expectValue = propertyName + ": (" + orderedListExpectation.CollectionCallType.ShortNameInCSharpFormat() + ")" +
-                                  expectValue.IndentSubsequentLines();
-                }
-                else { expectValue = propertyName + ": " + expectValue.IndentSubsequentLines(); }
+                expectValue = propertyName + ": (" + orderedListExpectation.CollectionCallType.ShortNameInCSharpFormat() + ")" +
+                              expectValue.IndentSubsequentLines();
             }
-
-            else { expectValue = ""; }
-
-            return string.Format(compactLogTemplate, className, maybeNewLine, maybeIndent, expectValue);
+            else { expectValue = propertyName + ": " + expectValue.IndentSubsequentLines(); }
         }
 
-        string BuildChildExpectedOutput(string className, string propertyName
-          , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
-        {
-            var compactLogTemplate = className.IsNotEmpty() ? "({0}){1}" : "{1}";
+        else { expectValue = ""; }
 
-            var expectValue = expectation.GetExpectedOutputFor(condition, tos.Settings, expectation.ValueFormatString);
-            if (expectValue == IFormatExpectation.NoResultExpectedValue) { expectValue = ""; }
-            return string.Format(compactLogTemplate, className, expectValue);
-        }
+        return string.Format(compactLogTemplate, className, maybeNewLine, maybeIndent, expectValue);
+    }
+    
+    protected override string BuildExpectedChildOutput(ITheOneString tos, string className, string propertyName
+      , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
+    {
+        var compactLogTemplate = className.IsNotEmpty() ? "({0}){1}" : "{1}";
 
-        if (formatExpectation is IComplexFieldFormatExpectation complexFieldExpectation)
-        {
-            complexFieldExpectation.WhenValueExpectedOutput = BuildChildExpectedOutput;
-        }
-        tos.Clear();
-        var stringBearer = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall, tos.Settings);
-        stringBearer.RevealState(tos);
-        var buildExpectedOutput =
-            BuildExpectedOutput
-                (stringBearer.GetType().CachedCSharpNameNoConstraints()
-               , ((ISinglePropertyTestStringBearer)stringBearer).PropertyName
-               , scaffoldingToCall.ScaffoldingFlags
-               , formatExpectation).MakeWhiteSpaceVisible();
-        var result = tos.WriteBuffer.ToString().MakeWhiteSpaceVisible();
-        if (buildExpectedOutput != result)
-        {
-            logger.ErrorAppend("Result Did not match Expected - ")?.AppendLine()
-                  .Append(result).AppendLine()
-                  .AppendLine("Expected it to match -")
-                  .AppendLine(buildExpectedOutput)
-                  .FinalAppend("");
-        }
-        else
-        {
-            logger.InfoAppend("Result Matched Expected - ")?.AppendLine()
-                  .Append(result).AppendLine()
-                  .FinalAppend("");
-        }
-        Assert.AreEqual(buildExpectedOutput, result, $"Difference at i={buildExpectedOutput.DiffPosition(result)}");
+        var expectValue = expectation.GetExpectedOutputFor(condition, tos, expectation.ValueFormatString);
+        if (expectValue == IFormatExpectation.NoResultExpectedValue) { expectValue = ""; }
+        return string.Format(compactLogTemplate, className, expectValue);
     }
 }

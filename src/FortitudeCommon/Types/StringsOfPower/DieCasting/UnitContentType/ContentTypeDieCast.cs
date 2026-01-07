@@ -1787,9 +1787,9 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         if(ValueInComplexType && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinStringWithDefault(value, palantírReveal, formatString, defaultValue, formatFlags, addStartDblQt, addEndDblQt); }
+            using (callContext) { VettedJoinStringWithDefault(value, palantírReveal,  defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
         }
-        else { VettedJoinStringWithDefault(value, palantírReveal, formatString, defaultValue, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinStringWithDefault(value, palantírReveal, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
         
         return ConditionalValueTypeSuffix();
     }
