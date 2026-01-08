@@ -350,7 +350,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     IStringBuilder IMutableStringBuilder<IStringBuilder>.CopyTo(int sourceIndex, Span<char> destination, int count) =>
         CopyTo(sourceIndex, destination, count);
 
-    int IMutableStringBuilder<IStringBuilder>.EnsureCapacity(int capacity) => EnsureCapacity(capacity);
+    int IMutableStringBuilder<IStringBuilder>.EnsureCapacity(int requiredRemainingCapacity) => EnsureCapacity(requiredRemainingCapacity);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, bool value) => Insert(atIndex, value);
 
@@ -1449,10 +1449,14 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public int EnsureCapacity(int capacity)
+    public int EnsureCapacity(int requiredRemainingCapacity)
     {
-        sb.Length += capacity;
-        return sb.EnsureCapacity(capacity);
+        var remaining = sb.Capacity - sb.Length;
+        if (remaining < requiredRemainingCapacity)
+        {
+            sb.Capacity += sb.Capacity * 2;
+        }
+        return sb.Capacity - sb.Length;
     }
 
     public MutableString Insert(int atIndex, bool value)

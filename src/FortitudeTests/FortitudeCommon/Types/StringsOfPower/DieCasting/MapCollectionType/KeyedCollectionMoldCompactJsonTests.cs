@@ -71,7 +71,7 @@ public class KeyedCollectionMoldCompactJsonTests : KeyedCollectionMoldTests
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(SimpleDictTestData.AllSubListFilteredDictExpectations[7], ScaffoldingRegistry.AllScaffoldingTypes[989]);
+        ExecuteIndividualScaffoldExpectation(BothRevealersDictTestData.AllPredicateFilteredKeyedCollectionsExpectations[2], ScaffoldingRegistry.AllScaffoldingTypes[920]);
     }
 
     protected override string BuildExpectedRootOutput(ITheOneString tos, string className, string propertyName

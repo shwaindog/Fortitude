@@ -95,7 +95,7 @@ public class SelectTypeFieldCompactLogTests : SelectTypeFieldTests
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(SignedIntegerTestData.SignedIntegerExpectations[61], ScaffoldingRegistry.AllScaffoldingTypes[883]);
+        ExecuteIndividualScaffoldExpectation(StringBuilderTestData.AllStringBuilderExpectations[16], ScaffoldingRegistry.AllScaffoldingTypes[889]);
     }
 
     protected override string BuildExpectedRootOutput(ITheOneString tos, string className, string propertyName

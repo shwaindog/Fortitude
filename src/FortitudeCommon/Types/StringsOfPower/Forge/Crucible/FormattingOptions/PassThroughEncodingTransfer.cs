@@ -23,6 +23,7 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
     public int Transfer(Rune? source, IStringBuilder destSb)
     {
         var preAppendLength = destSb.Length;
+        destSb.EnsureCapacity(2);
         destSb.Append(source);
         return destSb.Length - preAppendLength;
     }
@@ -46,10 +47,61 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
     public virtual int TransferSuffix(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex, bool encodeSuffix) => 
         Transfer(source, 0, destSpan, destStartIndex);
 
+    public int CalculateEncodedLength(ReadOnlySpan<char> source, int sourceFrom = 0, int maxTransferCount = int.MaxValue)
+    {
+        var capLen = Math.Clamp(maxTransferCount, 0, source.Length);
+        var i      = Math.Clamp(sourceFrom, 0, source.Length);
+        var end    = Math.Clamp(i + capLen, i, source.Length);
+        return end - i;
+    }
+
+    public int CalculateEncodedLength(char[] source, int sourceFrom = 0, int maxTransferCount = Int32.MaxValue)
+    {
+        var capLen = Math.Clamp(maxTransferCount, 0, source.Length);
+        var i      = Math.Clamp(sourceFrom, 0, source.Length);
+        var end    = Math.Clamp(i + capLen, i, source.Length);
+        return end - i;
+    }
+
+    public int CalculateEncodedLength(ICharSequence source, int sourceFrom = 0, int maxTransferCount = Int32.MaxValue)
+    {
+        var capLen = Math.Clamp(maxTransferCount, 0, source.Length);
+        var i      = Math.Clamp(sourceFrom, 0, source.Length);
+        var end    = Math.Clamp(i + capLen, i, source.Length);
+        return end - i;
+    }
+
+    public int CalculateEncodedLength(StringBuilder source, int sourceFrom = 0, int maxTransferCount = Int32.MaxValue) 
+    {
+        var capLen = Math.Clamp(maxTransferCount, 0, source.Length);
+        var i      = Math.Clamp(sourceFrom, 0, source.Length);
+        var end    = Math.Clamp(i + capLen, i, source.Length);
+        return end - i;
+    }
+
+    public int CalculateLengthForCappedEncodeLength(int cappedLength, ReadOnlySpan<char> source, int sourceFrom = 0
+      , int maxTransferCount = int.MaxValue) => 
+        CalculateEncodedLength(source, sourceFrom, cappedLength);
+
+    public int CalculateLengthForCappedEncodeLength(int cappedLength, char[] source, int sourceFrom = 0, int maxTransferCount = Int32.MaxValue) => 
+        CalculateEncodedLength(source, sourceFrom, cappedLength);
+
+    public int CalculateLengthForCappedEncodeLength(int cappedLength, ICharSequence source, int sourceFrom = 0
+      , int maxTransferCount = Int32.MaxValue) => 
+        CalculateEncodedLength(source, sourceFrom, cappedLength);
+
+    public int CalculateLengthForCappedEncodeLength(int cappedLength, StringBuilder source, int sourceFrom = 0
+      , int maxTransferCount = Int32.MaxValue) => 
+        CalculateEncodedLength(source, sourceFrom, cappedLength);
+
     public virtual int Transfer(ReadOnlySpan<char> source, IStringBuilder destSb
       , int destStartIndex = int.MaxValue)
     {
         var preAppendLength = destSb.Length;
+        
+        
+        destSb.EnsureCapacity(source.Length);
+        
         destSb.Append(source);
         return destSb.Length - preAppendLength;
     }
@@ -57,6 +109,7 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
     public virtual int InsertTransfer(ReadOnlySpan<char> source, IStringBuilder destSb, int destStartIndex)
     {
         var preAppendLength = destSb.Length;
+        destSb.EnsureCapacity(source.Length);
         destSb.InsertAt(source, destStartIndex);
         return destSb.Length - preAppendLength;
     }
@@ -77,7 +130,7 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
     {
         var cappedFrom   = Math.Clamp(sourceFrom, 0, source.Length);
         var cappedLength = Math.Clamp(maxTransferCount, 0, source.Length - cappedFrom);
-
+        
         for (var i = 0; i < cappedLength; i++) destSpan[i + destStartIndex] = source[cappedFrom + i];
         return cappedLength;
     }
@@ -87,7 +140,8 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
     {
         var cappedFrom   = Math.Clamp(sourceFrom, 0, source.Length);
         var cappedLength = Math.Clamp(maxTransferCount, 0, source.Length - cappedFrom);
-        var end = cappedFrom + cappedLength;
+        
+        destSb.EnsureCapacity(cappedLength);
         
         destSb.Append(source, cappedFrom, cappedLength);
         return cappedLength;
@@ -96,9 +150,9 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
     public virtual int Transfer(ICustomStringFormatter stringFormatter, char[] source, IStringBuilder destSb, int destStartIndex = int.MaxValue)
     {
         var preAppendLength = destSb.Length;
-        destSb.Append("[");
+        
+        destSb.EnsureCapacity(source.Length);
         destSb.Append(source);
-        destSb.Append("]");
         return destSb.Length - preAppendLength;
     }
 
@@ -106,6 +160,7 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
       , int maxTransferCount = int.MaxValue)
     {
         var cappedLength = Math.Clamp(maxTransferCount, 0, Math.Max(0, Math.Min(source.Length, destSpan.Length - destStartIndex)));
+        
         for (var i = 0; i < cappedLength; i++) destSpan[i + 1 + destStartIndex] = source[i];
         return cappedLength + 2;
     }
@@ -116,6 +171,9 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
     {
         var cappedFrom   = Math.Clamp(sourceFrom, 0, source.Length);
         var cappedLength = Math.Clamp(maxTransferCount, 0, source.Length - cappedFrom);
+        
+        destSb.EnsureCapacity(cappedLength);
+        
         destSb.Append(source, cappedFrom, cappedLength);
         return cappedLength;
     }
@@ -132,6 +190,8 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
       , int destStartIndex = int.MaxValue)
     {
         var preAppendLength = destSb.Length;
+        
+        destSb.EnsureCapacity(preAppendLength);
         destSb.Append(source);
         return destSb.Length - preAppendLength;
     }
@@ -148,7 +208,11 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
     public virtual int Transfer(StringBuilder source, int sourceFrom, IStringBuilder destSb
       , int destStartIndex = int.MaxValue, int maxTransferCount = int.MaxValue)
     {
-        var cappedLength = Math.Clamp(maxTransferCount, 0, Math.Max(0, source.Length));
+        sourceFrom   = Math.Clamp(sourceFrom, 0, source.Length);
+        var cappedLength = Math.Clamp(maxTransferCount, 0, source.Length - sourceFrom);
+        
+        destSb.EnsureCapacity(cappedLength);
+        
         destSb.Append(source, sourceFrom, cappedLength);
         return cappedLength;
     }
@@ -165,6 +229,8 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
       , int destStartIndex = int.MaxValue)
     {
         var preAppendLength = destSb.Length;
+        
+        destSb.EnsureCapacity(source.Length);
         destSb.Append(source);
         return destSb.Length - preAppendLength;
     }
@@ -184,6 +250,7 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
     {
         var cappedLength = Math.Clamp(maxTransferCount, 0, Math.Max(0, source.Length - sourceFrom));
 
+        destSb.EnsureCapacity(cappedLength);
         destSb.Append(source, sourceFrom, cappedLength);
         return cappedLength;
     }

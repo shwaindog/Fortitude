@@ -8,6 +8,7 @@ using FortitudeCommon.Logging.Config.ExampleConfig;
 using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
@@ -79,7 +80,7 @@ public abstract class CommonExpectationTestBase
               .Append(scaffoldingToCall.ItemCodePath)
               .FinalAppend(");");
         
-        var tos = new TheOneString().Initialize(TestStyle);
+        var tos = new TheOneString().Initialize(new CharArrayStringBuilder(), TestStyle);
         tos.Settings.NewLineStyle = "\n";
 
         if (formatExpectation is IComplexFieldFormatExpectation complexFieldExpectation)

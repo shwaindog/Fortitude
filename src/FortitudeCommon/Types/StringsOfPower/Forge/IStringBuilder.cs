@@ -202,10 +202,10 @@ public static class IStringBuilderExtensions
 
     public static IStringBuilder ShiftRightAt(this IStringBuilder toMutate, int from, int by)
     {
-        if (by < 0) return toMutate;
         var oldLength = toMutate.Length;
+        if (by < 0 || oldLength <= from) return toMutate;
         toMutate.EnsureCapacity(by);
-
+        toMutate.Length = oldLength + by;
         for (var i = oldLength - 1 + by; i >= from + by; i--)
         {
             toMutate[i] = toMutate[i - by];

@@ -249,7 +249,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     {
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
         if (!formatFlags.HasDisableAutoDelimiting() && !formatString.IsDblQtBounded()) GraphBuilder.AppendDelimiter(DblQt);
-        Format(source, sb, formatString).ToStringBuilder(sb);
+        Format(source, sb, formatString, (FormatSwitches)formatFlags).ToStringBuilder(sb);
         if (!formatFlags.HasDisableAutoDelimiting() && !formatString.IsDblQtBounded()) GraphBuilder.AppendDelimiter(DblQt);
         return sb;
     }
@@ -259,7 +259,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     {
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
         if (!formatFlags.HasDisableAutoDelimiting() && !formatString.IsDblQtBounded()) GraphBuilder.AppendDelimiter(DblQt);
-        Format(source, sb, formatString).ToStringBuilder(sb);
+        Format(source, sb, formatString, (FormatSwitches)formatFlags).ToStringBuilder(sb);
         if (!formatFlags.HasDisableAutoDelimiting() && !formatString.IsDblQtBounded()) GraphBuilder.AppendDelimiter(DblQt);
         return sb;
     }
@@ -279,7 +279,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         where TFmtStruct : struct, ISpanFormattable
     {
         if (!source.HasValue) { return AppendFormattedNull(sb, formatString, formatFlags, true); }
-        return FormatFieldName(sb, source.Value, formatString);
+        return FormatFieldName(sb, source.Value, formatString, formatFlags);
     }
 
     public virtual IStringBuilder FormatFieldName(IStringBuilder sb, ReadOnlySpan<char> source, int sourceFrom = 0, string? formatString = null
@@ -287,7 +287,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     {
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
         if (!formatFlags.HasDisableAutoDelimiting() && !formatString.IsDblQtBounded()) GraphBuilder.AppendDelimiter(DblQt);
-        base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
+        base.Format(source, sourceFrom, sb, formatString, maxTransferCount, (FormatSwitches)formatFlags);
         if (!formatFlags.HasDisableAutoDelimiting() && !formatString.IsDblQtBounded()) GraphBuilder.AppendDelimiter(DblQt);
         return sb;
     }
@@ -296,7 +296,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
       , int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (!formatFlags.HasDisableAutoDelimiting() && !formatString.IsDblQtBounded()) GraphBuilder.AppendDelimiter(DblQt);
-        base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
+        base.Format(source, sourceFrom, sb, formatString, maxTransferCount, (FormatSwitches)formatFlags);
         if (!formatFlags.HasDisableAutoDelimiting() && !formatString.IsDblQtBounded()) GraphBuilder.AppendDelimiter(DblQt);
         return sb;
     }
@@ -305,7 +305,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
       , int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (!formatFlags.HasDisableAutoDelimiting() && !formatString.IsDblQtBounded()) GraphBuilder.AppendDelimiter(DblQt);
-        base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
+        base.Format(source, sourceFrom, sb, formatString, maxTransferCount, (FormatSwitches)formatFlags);
         if (!formatFlags.HasDisableAutoDelimiting() && !formatString.IsDblQtBounded()) GraphBuilder.AppendDelimiter(DblQt);
         return sb;
     }
@@ -314,7 +314,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
       , int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (!formatFlags.HasDisableAutoDelimiting() && !formatString.IsDblQtBounded()) GraphBuilder.AppendDelimiter(DblQt);
-        base.Format(source, sourceFrom, sb, formatString, maxTransferCount);
+        base.Format(source, sourceFrom, sb, formatString, maxTransferCount, (FormatSwitches)formatFlags);
         if (!formatFlags.HasDisableAutoDelimiting() && !formatString.IsDblQtBounded()) GraphBuilder.AppendDelimiter(DblQt);
         return sb;
     }

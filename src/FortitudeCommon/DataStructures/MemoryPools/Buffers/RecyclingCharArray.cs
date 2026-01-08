@@ -59,7 +59,7 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
     {
         get
         {
-            if (index < backingArray!.Length - 1) { return backingArray[index]; }
+            if (index < backingArray!.Length) { return backingArray[index]; }
             throw new ArgumentException($"Tried to access char array at {index} which beyond end of the array");
         }
         set
@@ -239,7 +239,7 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
                 IndexOutOfRangeException($"Attempting to add {amountToAdd} chars to RecyclingCharArray with RemainingCapacity = {RemainingCapacity}");
         if (length < backingArray!.Length)
         {
-            var stopIndex = Math.Min(RemainingCapacity, Math.Min(startIndex + lengthToAdd, item.Length));
+            var stopIndex = Math.Min(startIndex + RemainingCapacity, Math.Min(startIndex + lengthToAdd, item.Length));
             for (int i = startIndex; i < stopIndex; i++) { backingArray[length++] = item[i]; }
         }
     }
@@ -264,7 +264,7 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
                 IndexOutOfRangeException($"Attempting to add {amountToAdd} chars to RecyclingCharArray with RemainingCapacity = {RemainingCapacity}");
         if (length < backingArray!.Length)
         {
-            var stopIndex = Math.Min(RemainingCapacity, Math.Min(startIndex + lengthToAdd, item.Length));
+            var stopIndex = Math.Min(startIndex + RemainingCapacity, Math.Min(startIndex + lengthToAdd, item.Length));
             for (int i = startIndex; i < stopIndex; i++) { backingArray[length++] = item[i]; }
         }
     }
@@ -378,13 +378,14 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
     public void Insert(int index, string item)
     {
         var itemLen         = item.Length;
-        var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen);
-        for (int i = cappedLengthEnd; i > index && i > 0; i--) { backingArray[i] = backingArray![i - itemLen]; }
+        var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length - 1);
+        for (int i = cappedLengthEnd; i >= index && i >= 0; i--) { backingArray[i+itemLen] = backingArray![i]; }
         if (index < backingArray!.Length)
         {
-            var stopIndex = Math.Min(RemainingCapacity, item.Length);
-            for (int i = 0; i < stopIndex; i++) { backingArray[length++] = item[i]; }
-            length += stopIndex;
+            var stopLen = Math.Min(RemainingCapacity, itemLen);
+            int j         = index;
+            for (int i = 0; i < stopLen; i++) { backingArray[j++] = item[i]; }
+            length += stopLen;
         }
     }
 
@@ -584,8 +585,8 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
         var cappedLength = Math.Clamp(searchLength,  0, length - startIndex);
         if (startIndex >= 0 && startIndex < length)
         {
-            var arraySpan = backingArray.AsSpan().Slice(startIndex);
-            length += arraySpan.ReplaceCapped(cappedLength, find, replace);
+            var arraySpan = backingArray.AsSpan();
+            length += arraySpan.ReplaceCapped(startIndex, cappedLength, find, replace);
         }
     }
 
@@ -601,10 +602,11 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
 
     public void Replace(ICharSequence find, ICharSequence replace, int startIndex, int searchLength)
     {
+        var cappedLength = Math.Clamp(searchLength,  0, length - startIndex);
         if (startIndex >= 0 && startIndex < length)
         {
-            var arraySpan = backingArray.AsSpan().Slice(startIndex);
-            length += arraySpan.ReplaceCapped(length, find, replace);
+            var arraySpan = backingArray.AsSpan();
+            length += arraySpan.ReplaceCapped(startIndex, cappedLength, find, replace);
         }
     }
 
@@ -620,10 +622,11 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
 
     public void Replace(StringBuilder find, StringBuilder replace, int startIndex, int searchLength)
     {
+        var cappedLength = Math.Clamp(searchLength,  0, length - startIndex);
         if (startIndex >= 0 && startIndex < length)
         {
-            var arraySpan = backingArray.AsSpan().Slice(startIndex);
-            length += arraySpan.ReplaceCapped(length, find, replace);
+            var arraySpan = backingArray.AsSpan();
+            length += arraySpan.ReplaceCapped(startIndex, cappedLength, find, replace);
         }
     }
 
@@ -641,9 +644,10 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
 
     public RecyclingCharArray EnsureCapacity(int minReqCapacity)
     {
-        if (RemainingCapacity < minReqCapacity)
+        if (RemainingCapacity <= minReqCapacity)
         {
-            var newRecyclingArray = (Capacity * 2).SourceRecyclingCharArray();
+            var nextBase2 = minReqCapacity.NextPowerOfTwo();
+            var newRecyclingArray = (Math.Max(Capacity * 2, nextBase2)).SourceRecyclingCharArray();
             var myCa              = backingArray!;
             var newCa             = newRecyclingArray.BackingArray;
             for (var i = 0; i < Count; i++) { newCa[i] = myCa[i]; }

@@ -127,7 +127,7 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
     T   Clear();
     T   CopyTo(int sourceIndex, char[] destination, int destinationIndex, int count);
     T   CopyTo(int sourceIndex, Span<char> destination, int count);
-    int EnsureCapacity(int capacity);
+    int EnsureCapacity(int requiredRemainingCapacity);
     T   Insert(int atIndex, bool value);
     T   Insert(int atIndex, byte value);
     T   Insert(int atIndex, char value);

@@ -5,8 +5,6 @@ using FortitudeCommon.Extensions;
 
 namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
-
-
 public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
 {
     protected const char DblQtChar = '"';
@@ -284,7 +282,7 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
         }
         if (isInsert)
         {
-            var oldLength = preAppendDestSpanEnd;
+            var oldLength  = preAppendDestSpanEnd;
             var numOfChars = toMap.IsBmp ? 1 : 2;
             for (var j = oldLength - 1; j >= destStartIndex; j--) { destSpan[j + numOfChars] = destSpan[j]; }
         }
@@ -297,6 +295,7 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
     public virtual int Transfer(Rune? source, IStringBuilder destSb)
     {
         if (source == null) return 0;
+        destSb.EnsureCapacity(2);
         return ProcessAppendRune(source.Value, destSb);
     }
 
@@ -340,10 +339,7 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
                 else
                     break;
             }
-            if (i < source.Length)
-            {
-                return JsEscapingTransfer(source, i, destSpan, destStartIndex + i) + i;
-            }
+            if (i < source.Length) { return JsEscapingTransfer(source, i, destSpan, destStartIndex + i) + i; }
             return i;
         }
         else { return JsEscapingTransfer(source, 0, destSpan, destStartIndex); }
@@ -389,10 +385,7 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
             {
                 var encodedCount = JsEscapingTransfer(source, 0, destSpan, destStartIndex, maxTransferCount: i);
                 var escapedChars = source.Length - i;
-                for (var j = 0; j < escapedChars; j++)
-                {
-                    destSpan.OverWriteAt(destStartIndex + encodedCount + j, source[i + j]);
-                }
+                for (var j = 0; j < escapedChars; j++) { destSpan.OverWriteAt(destStartIndex + encodedCount + j, source[i + j]); }
                 return encodedCount + escapedChars;
             }
             return 0;
@@ -417,7 +410,7 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
     }
 
     public virtual int InsertTransfer(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex
-      ,int currentEndIndex)
+      , int currentEndIndex)
     {
         return JsEscapingTransfer(source, 0, destSpan, destStartIndex, preAppendDestSpanEnd: currentEndIndex, isInsert: true);
     }
@@ -434,12 +427,253 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
         return JsEscapingTransfer(source, sourceFrom, destSpan, destStartIndex, maxTransferCount);
     }
 
+    protected int CountEncodedChars(Rune toMap, Span<char> dummyBuffer)
+    {
+        return ProcessRune(toMap, dummyBuffer, 0, 1, false);
+    }
+
+    public int CalculateEncodedLength(ReadOnlySpan<char> source, int sourceFrom = 0, int maxTransferCount = int.MaxValue)
+    {
+        var capLen    = Math.Clamp(maxTransferCount, 0, source.Length);
+        var i         = Math.Clamp(sourceFrom, 0, source.Length);
+        var end       = Math.Clamp(i + capLen, i, source.Length);
+        int charCount = 0;
+
+        Span<char> dummyBuffer = stackalloc char[16];
+
+        for (; i < end; i++)
+        {
+            var iChar = source[i];
+            if (iChar.IsSingleCharRune())
+            {
+                var iRune = new Rune(iChar);
+                charCount += CountEncodedChars(iRune, dummyBuffer);
+            }
+            else if (i + 1 < end)
+            {
+                var iRune = new Rune(iChar, source[++i]);
+                charCount += CountEncodedChars(iRune, dummyBuffer);
+            }
+        }
+        return charCount;
+    }
+
+    public int CalculateEncodedLength(char[] source, int sourceFrom = 0, int maxTransferCount = Int32.MaxValue)
+    {
+        var capLen = Math.Clamp(maxTransferCount, 0, source.Length);
+        var i      = Math.Clamp(sourceFrom, 0, source.Length);
+        var end    = Math.Clamp(i + capLen, i, source.Length);
+
+        int charCount = 0;
+
+        Span<char> dummyBuffer = stackalloc char[16];
+        for (; i < end; i++)
+        {
+            var iChar = source[i];
+            if (iChar.IsSingleCharRune())
+            {
+                var iRune = new Rune(iChar);
+                charCount += CountEncodedChars(iRune, dummyBuffer);
+            }
+            else if (i + 1 < end)
+            {
+                var iRune = new Rune(iChar, source[++i]);
+                charCount += CountEncodedChars(iRune, dummyBuffer);
+            }
+        }
+        return charCount;
+    }
+
+    public int CalculateEncodedLength(ICharSequence source, int sourceFrom = 0, int maxTransferCount = Int32.MaxValue)
+    {
+        var capLen = Math.Clamp(maxTransferCount, 0, source.Length);
+        var i      = Math.Clamp(sourceFrom, 0, source.Length);
+        var end    = Math.Clamp(i + capLen, 0, source.Length);
+
+        int charCount = 0;
+
+        Span<char> dummyBuffer = stackalloc char[16];
+        for (; i < end; i++)
+        {
+            var iChar = source[i];
+            if (iChar.IsSingleCharRune())
+            {
+                var iRune = new Rune(iChar);
+                charCount += CountEncodedChars(iRune, dummyBuffer);
+            }
+            else if (i + 1 < end)
+            {
+                var iRune = new Rune(iChar, source[++i]);
+                charCount += CountEncodedChars(iRune, dummyBuffer);
+            }
+        }
+        return charCount;
+    }
+
+    public int CalculateEncodedLength(StringBuilder source, int sourceFrom = 0, int maxTransferCount = Int32.MaxValue)
+    {
+        var capLen = Math.Clamp(maxTransferCount, 0, source.Length);
+        var i      = Math.Clamp(sourceFrom, 0, source.Length);
+        var end    = Math.Clamp(i + capLen, 0, source.Length);
+
+        int charCount = 0;
+
+        Span<char> dummyBuffer = stackalloc char[16];
+        for (; i < end; i++)
+        {
+            var iChar = source[i];
+            if (iChar.IsSingleCharRune())
+            {
+                var iRune = new Rune(iChar);
+                charCount += CountEncodedChars(iRune, dummyBuffer);
+            }
+            else if (i + 1 < end)
+            {
+                var iRune = new Rune(iChar, source[++i]);
+                charCount += CountEncodedChars(iRune, dummyBuffer);
+            }
+        }
+        return charCount;
+    }
+
+    public int CalculateLengthForCappedEncodeLength(int cappedLength, ReadOnlySpan<char> source, int sourceFrom = 0
+      , int maxTransferCount = int.MaxValue)
+    {
+        if (source.Length == 0) { return 0; }
+
+        var capLen = Math.Clamp(maxTransferCount, 0, source.Length);
+        var i      = Math.Clamp(sourceFrom, 0, source.Length);
+        var end    = Math.Clamp(i + capLen, i, source.Length);
+
+        int charCount     = 0;
+        int nextRuneCount = 0;
+
+        Span<char> dummyBuffer = stackalloc char[16];
+
+        for (; i < end; i++)
+        {
+            var iChar = source[i];
+            if (iChar.IsSingleCharRune())
+            {
+                var iRune = new Rune(iChar);
+                nextRuneCount = CountEncodedChars(iRune, dummyBuffer);
+            }
+            else if (i + 1 < end)
+            {
+                var iRune = new Rune(iChar, source[++i]);
+                nextRuneCount = CountEncodedChars(iRune, dummyBuffer);
+            }
+            if (charCount + nextRuneCount > cappedLength) { return Math.Max(0, i - 1); }
+            charCount += nextRuneCount;
+        }
+        return i;
+    }
+
+    public int CalculateLengthForCappedEncodeLength(int cappedLength, char[] source, int sourceFrom = 0, int maxTransferCount = Int32.MaxValue)
+    {
+        if (source.Length == 0) { return 0; }
+
+        var capLen = Math.Clamp(maxTransferCount, 0, source.Length);
+        var i      = Math.Clamp(sourceFrom, 0, source.Length);
+        var end    = Math.Clamp(i + capLen, 0, source.Length);
+
+        var charCount     = 0;
+        var nextRuneCount = 0;
+
+        Span<char> dummyBuffer = stackalloc char[16];
+
+        for (; i < end; i++)
+        {
+            var iChar = source[i];
+            if (iChar.IsSingleCharRune())
+            {
+                var iRune = new Rune(iChar);
+                nextRuneCount = CountEncodedChars(iRune, dummyBuffer);
+            }
+            else if (i + 1 < end)
+            {
+                var iRune = new Rune(iChar, source[++i]);
+                nextRuneCount = CountEncodedChars(iRune, dummyBuffer);
+            }
+            if (charCount + nextRuneCount > cappedLength) { return Math.Max(0, i - 1); }
+            charCount += nextRuneCount;
+        }
+        return i;
+    }
+
+    public int CalculateLengthForCappedEncodeLength(int cappedLength, ICharSequence source, int sourceFrom = 0, int maxTransferCount = Int32.MaxValue)
+    {
+        if (source.Length == 0) { return 0; }
+
+        var capLen = Math.Clamp(maxTransferCount, 0, source.Length);
+        var i      = Math.Clamp(sourceFrom, 0, source.Length);
+        var end    = Math.Clamp(i + capLen, 0, source.Length);
+
+        var charCount     = 0;
+        var nextRuneCount = 0;
+
+        Span<char> dummyBuffer = stackalloc char[16];
+
+        for (; i < end; i++)
+        {
+            var iChar = source[i];
+            if (iChar.IsSingleCharRune())
+            {
+                var iRune = new Rune(iChar);
+                nextRuneCount = CountEncodedChars(iRune, dummyBuffer);
+            }
+            else if (i + 1 < end)
+            {
+                var iRune = new Rune(iChar, source[++i]);
+                nextRuneCount = CountEncodedChars(iRune, dummyBuffer);
+            }
+            if (charCount + nextRuneCount > cappedLength) { return Math.Max(0, i - 1); }
+            charCount += nextRuneCount;
+        }
+        return i;
+    }
+
+    public int CalculateLengthForCappedEncodeLength(int cappedLength, StringBuilder source, int sourceFrom = 0, int maxTransferCount = Int32.MaxValue)
+    {
+        if (source.Length == 0) { return 0; }
+        
+        var capLen = Math.Clamp(maxTransferCount, 0, source.Length);
+        var i      = Math.Clamp(sourceFrom, 0, source.Length);
+        var end    = Math.Clamp(i + capLen, 0, source.Length);
+
+        var charCount     = 0;
+        var nextRuneCount = 0;
+
+        Span<char> dummyBuffer = stackalloc char[16];
+
+        for (; i < end; i++)
+        {
+            var iChar = source[i];
+            if (iChar.IsSingleCharRune())
+            {
+                var iRune = new Rune(iChar);
+                nextRuneCount = CountEncodedChars(iRune, dummyBuffer);
+            }
+            else if (i + 1 < end)
+            {
+                var iRune = new Rune(iChar, source[++i]);
+                nextRuneCount = CountEncodedChars(iRune, dummyBuffer);
+            }
+            if (charCount + nextRuneCount > cappedLength) { return Math.Max(0, i - 1); }
+            charCount += nextRuneCount;
+        }
+        return i;
+    }
+
     protected int JsEscapingTransfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder sb, int destStartIndex = int.MaxValue
       , int maxTransferCount = int.MaxValue, bool isInsert = false)
     {
         var  capLen         = Math.Clamp(maxTransferCount, 0, source.Length);
         var  i              = Math.Clamp(sourceFrom, 0, source.Length);
-        var  end            = Math.Clamp(capLen + i, 0, source.Length);
+        var  end            = Math.Clamp(capLen + i, i, source.Length);
+        
+        sb.EnsureCapacity(CalculateEncodedLength(source, sourceFrom, capLen));
+            
         var  originalLength = sb.Length;
         bool isAppend       = false;
         if (destStartIndex == int.MaxValue || destStartIndex > sb.Length)
@@ -488,7 +722,7 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
       , int destStartIndex, int maxTransferCount = int.MaxValue, int preAppendDestSpanEnd = int.MaxValue, bool isInsert = false)
     {
         var sourceAppendLen = source.Length;
-        
+
         var capLen = Math.Clamp(maxTransferCount, 0, sourceAppendLen);
         var i      = Math.Clamp(sourceFrom, 0, sourceAppendLen);
         var end    = Math.Clamp(capLen + i, 0, sourceAppendLen);
@@ -531,6 +765,10 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
             var  capLen       = Math.Clamp(maxTransferCount, 0, source.Length);
             int  cappedFrom   = j = Math.Clamp(sourceFrom, 0, source.Length);
             var  cappedEnd    = Math.Clamp(capLen, 0, source.Length);
+            
+            
+            destSb.EnsureCapacity(CalculateEncodedLength(source, sourceFrom, capLen));
+            
             int  lastAdded    = 0;
             char previousChar = '\0';
             for (; j < cappedEnd; j++)
@@ -556,6 +794,7 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
             var  capLen       = Math.Clamp(maxTransferCount, 0, source.Length);
             int  i            = Math.Clamp(sourceFrom, 0, source.Length);
             var  cappedEnd    = Math.Clamp(capLen + i, 0, source.Length);
+            
             int  lastAdded    = 0;
             char previousChar = '\0';
             for (; i < cappedEnd; i++)
@@ -626,6 +865,9 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
         var  capLen         = Math.Clamp(maxTransferCount, 0, source.Length);
         var  i              = Math.Clamp(sourceFrom, 0, source.Length);
         var  end            = Math.Clamp(capLen + i, 0, source.Length);
+        
+        sb.EnsureCapacity(CalculateEncodedLength(source, sourceFrom, capLen));
+        
         var  originalLength = sb.Length;
         bool isAppend       = false;
         if (destStartIndex == int.MaxValue || destStartIndex > sb.Length)
@@ -728,6 +970,9 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
         var  capLen         = Math.Clamp(maxTransferCount, 0, source.Length);
         var  i              = Math.Clamp(sourceFrom, 0, source.Length);
         var  end            = Math.Clamp(i + capLen, 0, source.Length);
+        
+        sb.EnsureCapacity(CalculateEncodedLength(source, sourceFrom, capLen));
+        
         var  originalLength = sb.Length;
         bool isAppend       = false;
         if (destStartIndex == int.MaxValue || destStartIndex > sb.Length)

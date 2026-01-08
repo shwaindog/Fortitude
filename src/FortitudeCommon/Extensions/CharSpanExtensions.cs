@@ -411,6 +411,25 @@ public static class CharSpanExtensions
         return -1;
     }
 
+    public static int IndexOf(this Span<char> subject, ReadOnlySpan<char> toFind, int startingAtIndex = 0)
+    {
+        var searchLength = subject.Length - toFind.Length;
+        int i            = startingAtIndex;
+
+        var lastFindIndex = toFind.Length - 1;
+        for (; i <= searchLength; i++)
+        {
+            for (var j = 0; j < toFind.Length; j++)
+            {
+                var checkChar   = subject[i + j];
+                var compareChar = toFind[j];
+                if (checkChar != compareChar) break;
+                if (j == lastFindIndex) return i;
+            }
+        }
+        return -1;
+    }
+
     public static int IndexOf(this ReadOnlySpan<char> subject, string toFind, int startingAtIndex)
     {
         var searchLength = subject.Length - toFind.Length;
@@ -523,6 +542,72 @@ public static class CharSpanExtensions
         return foundCount;
     }
 
+    public static int SubSequenceOccurenceCount(this ReadOnlySpan<char> searchSpan, ICharSequence findSequence)
+    {
+        var findLength  = findSequence.Length;
+        if (findLength == 0) return -1;
+        var searchLength  = searchSpan.Length;
+        int lastCharIndex = searchLength - findLength;
+        int foundCount   = 0;
+        for (var i = 0; i < lastCharIndex; i++)
+        {
+            var checkChar = searchSpan[i];
+            if (checkChar == findSequence[0])
+            {
+                var allSame = true;
+                for (int j = 1; j < findLength && i + j < lastCharIndex; j++)
+                {
+                    checkChar = searchSpan[i+j];
+                    var matchChar = findSequence[j];
+                    if (checkChar != matchChar)
+                    {
+                        allSame = false;
+                        break;
+                    }
+                }
+                if (allSame)
+                {
+                    foundCount++;
+                    i = i + findLength;
+                }
+            }
+        }
+        return foundCount;
+    }
+
+    public static int SubSequenceOccurenceCount(this ReadOnlySpan<char> searchSpan, StringBuilder findSequence)
+    {
+        var findLength  = findSequence.Length;
+        if (findLength == 0) return -1;
+        var searchLength  = searchSpan.Length;
+        int lastCharIndex = searchLength - findLength;
+        int foundCount   = 0;
+        for (var i = 0; i < lastCharIndex; i++)
+        {
+            var checkChar = searchSpan[i];
+            if (checkChar == findSequence[0])
+            {
+                var allSame = true;
+                for (int j = 1; j < findLength && i + j < lastCharIndex; j++)
+                {
+                    checkChar = searchSpan[i+j];
+                    var matchChar = findSequence[j];
+                    if (checkChar != matchChar)
+                    {
+                        allSame = false;
+                        break;
+                    }
+                }
+                if (allSame)
+                {
+                    foundCount++;
+                    i = i + findLength;
+                }
+            }
+        }
+        return foundCount;
+    }
+
     public static ReadOnlySpan<char> SplitAt(this ReadOnlySpan<char> stringAsSpan, char splitChar, int splitIndex)
     {
         var length          = stringAsSpan.Length;
@@ -570,140 +655,146 @@ public static class CharSpanExtensions
         return stringAsSpan;
     }
 
-    public static int ReplaceCapped(this Span<char> searchSpace, int searchPopLength, string find, string replace, int occurences = int.MaxValue)
+    public static int ReplaceCapped(this Span<char> searchReplaceSpan, int fromIndex, int searchPopLength, string find, string replace, int occurences = int.MaxValue)
     {
         var findSpan    = find.AsSpan();
         var replaceSpan = replace.AsSpan();
-        return ReplaceCapped(searchSpace, searchPopLength, findSpan, replaceSpan, occurences);
+        return ReplaceCapped(searchReplaceSpan, fromIndex, searchPopLength, findSpan, replaceSpan, occurences);
     }
 
     public static int ReplaceCapped
-        (this Span<char> searchSpace, int searchPopLength, ReadOnlySpan<char> find, ReadOnlySpan<char> replace, int occurences = int.MaxValue)
+        (this Span<char> searchReplaceSpan, int fromIndex, int searchPopLength, ReadOnlySpan<char> find, ReadOnlySpan<char> replace, int occurences = int.MaxValue)
     {
         int lengthChange    = 0;
         var fromToDeltaSize = find.Length - replace.Length;
 
         var found = 0;
 
+        var nextFromIndex = fromIndex;
         int indexOfFind;
         do
         {
-            indexOfFind = searchSpace.IndexOf(find);
+            indexOfFind = searchReplaceSpan.IndexOf(find, nextFromIndex);
+            if (indexOfFind > fromIndex + searchPopLength) break;
             if (indexOfFind >= 0)
             {
+                searchPopLength -= fromToDeltaSize;
                 if (fromToDeltaSize > 0)
                 {
-                    var startIndex = Math.Min(searchSpace.Length - 1, searchPopLength + fromToDeltaSize);
-                    var stopIndex  = indexOfFind + find.Length;
-                    for (int i = startIndex; i > stopIndex; i--)
+                    var startIndex = indexOfFind + find.Length;
+                    var stopIndex  = Math.Min(searchReplaceSpan.Length, searchPopLength);
+                    for (int i = startIndex; i < stopIndex; i++)
                     {
-                        searchSpace[i] = searchSpace[i - fromToDeltaSize];
+                        searchReplaceSpan[i] = searchReplaceSpan[i + fromToDeltaSize];
                     }
-                    lengthChange    += fromToDeltaSize;
-                    searchPopLength += fromToDeltaSize;
+                    lengthChange    -= fromToDeltaSize;
                 }
                 else if (fromToDeltaSize < 0)
                 {
-                    var startIndex = indexOfFind + find.Length;
-                    var stopIndex  = Math.Min(searchSpace.Length - 1, searchPopLength);
-                    for (int i = startIndex; i < stopIndex; i++)
+                    var startIndex = Math.Min(searchReplaceSpan.Length - 1, fromIndex + searchPopLength - 1);
+                    var stopIndex  = indexOfFind + find.Length - fromToDeltaSize;
+                    for (int i = startIndex; i >= stopIndex; i--)
                     {
-                        searchSpace[i] = searchSpace[i - fromToDeltaSize];
+                        searchReplaceSpan[i] = searchReplaceSpan[i + fromToDeltaSize];
                     }
-                    lengthChange    += fromToDeltaSize;
-                    searchPopLength += fromToDeltaSize;
+                    lengthChange    -= fromToDeltaSize;
+                    
                 }
                 found++;
-                searchSpace.OverWriteAt(indexOfFind, replace);
-                searchSpace = searchSpace.Slice(indexOfFind + replace.Length);
+                searchReplaceSpan.OverWriteAt(indexOfFind, replace);
+                nextFromIndex = indexOfFind + fromToDeltaSize + 1;
             }
         } while (indexOfFind >= 0 && found < occurences);
         return lengthChange;
     }
 
     public static int ReplaceCapped
-        (this Span<char> searchSpace, int searchPopLength, ICharSequence find, ICharSequence replace, int occurences = int.MaxValue)
+        (this Span<char> searchReplaceSpan, int fromIndex, int searchPopLength, ICharSequence find, ICharSequence replace, int occurences = int.MaxValue)
     {
         int lengthChange    = 0;
         var fromToDeltaSize = find.Length - replace.Length;
 
         var found = 0;
 
+        var nextFromIndex = fromIndex;
         int indexOfFind;
         do
         {
-            indexOfFind = searchSpace.IndexOf(find);
+            indexOfFind = searchReplaceSpan.IndexOf(find, nextFromIndex);
+            if (indexOfFind > fromIndex + searchPopLength) break;
             if (indexOfFind >= 0)
             {
+                searchPopLength -= fromToDeltaSize;
                 if (fromToDeltaSize > 0)
                 {
-                    var startIndex = Math.Min(searchSpace.Length - 1, searchPopLength + fromToDeltaSize);
-                    var stopIndex  = indexOfFind + find.Length;
-                    for (int i = startIndex; i > stopIndex; i--)
+                    var startIndex = indexOfFind + find.Length;
+                    var stopIndex  = Math.Min(searchReplaceSpan.Length, searchPopLength);
+                    for (int i = startIndex; i < stopIndex; i++)
                     {
-                        searchSpace[i] = searchSpace[i - fromToDeltaSize];
+                        searchReplaceSpan[i] = searchReplaceSpan[i + fromToDeltaSize];
                     }
-                    lengthChange    += fromToDeltaSize;
-                    searchPopLength += fromToDeltaSize;
+                    lengthChange    -= fromToDeltaSize;
                 }
                 else if (fromToDeltaSize < 0)
                 {
-                    var startIndex = indexOfFind + find.Length;
-                    var stopIndex  = Math.Min(searchSpace.Length - 1, searchPopLength);
-                    for (int i = startIndex; i < stopIndex; i++)
+                    var startIndex = Math.Min(searchReplaceSpan.Length - 1, fromIndex + searchPopLength - 1);
+                    var stopIndex  = indexOfFind + find.Length - fromToDeltaSize;
+                    for (int i = startIndex; i >= stopIndex; i--)
                     {
-                        searchSpace[i] = searchSpace[i - fromToDeltaSize];
+                        searchReplaceSpan[i] = searchReplaceSpan[i + fromToDeltaSize];
                     }
-                    lengthChange    += fromToDeltaSize;
-                    searchPopLength += fromToDeltaSize;
+                    lengthChange    -= fromToDeltaSize;
+                    
                 }
                 found++;
-                searchSpace.OverWriteAt(indexOfFind, replace);
-                searchSpace = searchSpace.Slice(indexOfFind + replace.Length);
+                searchReplaceSpan.OverWriteAt(indexOfFind, replace);
+                nextFromIndex = indexOfFind + fromToDeltaSize + 1;
             }
         } while (indexOfFind >= 0 && found < occurences);
         return lengthChange;
     }
 
     public static int ReplaceCapped
-        (this Span<char> searchSpace, int searchPopLength, StringBuilder find, StringBuilder replace, int occurences = int.MaxValue)
+        (this Span<char> searchReplaceSpan, int fromIndex, int searchPopLength, StringBuilder find, StringBuilder replace, int occurences = int.MaxValue)
     {
         int lengthChange    = 0;
         var fromToDeltaSize = find.Length - replace.Length;
 
         var found = 0;
 
+        var nextFromIndex = fromIndex;
         int indexOfFind;
         do
         {
-            indexOfFind = searchSpace.IndexOf(find);
+            indexOfFind = searchReplaceSpan.IndexOf(find, nextFromIndex);
+            if (indexOfFind > fromIndex + searchPopLength) break;
             if (indexOfFind >= 0)
             {
+                searchPopLength -= fromToDeltaSize;
                 if (fromToDeltaSize > 0)
                 {
-                    var startIndex = Math.Min(searchSpace.Length - 1, searchPopLength + fromToDeltaSize);
-                    var stopIndex  = indexOfFind + find.Length;
-                    for (int i = startIndex; i > stopIndex; i--)
+                    var startIndex = indexOfFind + find.Length;
+                    var stopIndex  = Math.Min(searchReplaceSpan.Length, searchPopLength);
+                    for (int i = startIndex; i < stopIndex; i++)
                     {
-                        searchSpace[i] = searchSpace[i - fromToDeltaSize];
+                        searchReplaceSpan[i] = searchReplaceSpan[i + fromToDeltaSize];
                     }
-                    lengthChange    += fromToDeltaSize;
-                    searchPopLength += fromToDeltaSize;
+                    lengthChange    -= fromToDeltaSize;
                 }
                 else if (fromToDeltaSize < 0)
                 {
-                    var startIndex = indexOfFind + find.Length;
-                    var stopIndex  = Math.Min(searchSpace.Length - 1, searchPopLength);
-                    for (int i = startIndex; i < stopIndex; i++)
+                    var startIndex = Math.Min(searchReplaceSpan.Length - 1, fromIndex + searchPopLength - 1);
+                    var stopIndex  = indexOfFind + find.Length - fromToDeltaSize;
+                    for (int i = startIndex; i >= stopIndex; i--)
                     {
-                        searchSpace[i] = searchSpace[i - fromToDeltaSize];
+                        searchReplaceSpan[i] = searchReplaceSpan[i + fromToDeltaSize];
                     }
-                    lengthChange    += fromToDeltaSize;
-                    searchPopLength += fromToDeltaSize;
+                    lengthChange    -= fromToDeltaSize;
+                    
                 }
                 found++;
-                searchSpace.OverWriteAt(indexOfFind, replace);
-                searchSpace = searchSpace.Slice(indexOfFind + replace.Length);
+                searchReplaceSpan.OverWriteAt(indexOfFind, replace);
+                nextFromIndex = indexOfFind + fromToDeltaSize + 1;
             }
         } while (indexOfFind >= 0 && found < occurences);
         return lengthChange;
@@ -1083,7 +1174,6 @@ public static class CharSpanExtensions
 
     public static bool ContainsTokens(this ReadOnlySpan<char> maybeTokenFormatting, (string Open, string Close)? tokenDelimiter = null)
     {
-        tokenDelimiter ??= DefaultTokenStartEndDelimiter;
         var openClose    = tokenDelimiter ?? DefaultTokenStartEndDelimiter;
         var foundOpening = false;
         var foundClosing = false;
@@ -1101,29 +1191,12 @@ public static class CharSpanExtensions
         }
         return foundOpening && foundClosing;
     }
-    //
-    // public static Range TokenNextTokenOpenMatchingEnd(this ReadOnlySpan<char> tokenisedFormatting, (string Open, string Close) openClose)
-    // {
-    //     var atIndex       = tokenisedFormatting.Length;
-    //     var nextTokenOpen = tokenisedFormatting.IndexOf(openClose.Open);
-    //     if (nextTokenOpen >= 0)
-    //     {
-    //         atIndex = nextTokenOpen + openClose.Open.Length;
-    //         var remainingString        = tokenisedFormatting[atIndex..];
-    //         var tokenOpenRange         = new Range(Index.FromStart(nextTokenOpen), Index.FromStart(atIndex));
-    //         var subTokenPlusCloseRange = TokenNextTokenOpenMatchingEnd(remainingString, 1, openClose);
-    //         var totalRange             = tokenOpenRange.ConcatLength(subTokenPlusCloseRange);
-    //         return totalRange;
-    //     }
-    //     return new Range(tokenisedFormatting.Length, tokenisedFormatting.Length);
-    // }
 
     public static Range TokenNextTokenOpenMatchingEnd
         (this ReadOnlySpan<char> tokenisedFormatting, (string Open, string Close) openClose, int depth = 0)
     {
         Range? sumRange = null;
 
-        var clsLen         = openClose.Close.Length;
         var firstTokenOpen = tokenisedFormatting.IndexOf(openClose.Open, 0);
         var nextTokenClose = tokenisedFormatting.IndexOf(openClose.Close, 0);
         var remaining      = tokenisedFormatting;
