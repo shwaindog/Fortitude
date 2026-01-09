@@ -957,12 +957,12 @@ public static class EnumTestData
             {
                 {
                     new EK(IsContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
-                  , "NoDefaultLongWithFlagsEnum.NDLWFE_4 |·NoDefaultLongWithFlagsEnum.NDLWFE_Second4Mask |·NoDefaultLongWithFlagsEnum.NDLWFE_LastTwoMask"
+                  , "NoDefaultLongWithFlagsEnum.NDLWFE_4 | NoDefaultLongWithFlagsEnum.NDLWFE_Second4Mask | NoDefaultLongWithFlagsEnum.NDLWFE_LastTwoMask"
                 }
                ,
                 {
                     new EK(IsContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, CompactLog | Pretty)
-                  , "\"NoDefaultLongWithFlagsEnum.NDLWFE_4 |·NoDefaultLongWithFlagsEnum.NDLWFE_Second4Mask |·NoDefaultLongWithFlagsEnum.NDLWFE_LastTwoMask\""
+                  , "\"NoDefaultLongWithFlagsEnum.NDLWFE_4 | NoDefaultLongWithFlagsEnum.NDLWFE_Second4Mask | NoDefaultLongWithFlagsEnum.NDLWFE_LastTwoMask\""
                 }
                ,
                 {
@@ -972,7 +972,7 @@ public static class EnumTestData
                ,
                 {
                     new EK(AcceptsSpanFormattable | AllOutputConditionsMask, CompactLog | Pretty)
-                  , "NoDefaultLongWithFlagsEnum.NDLWFE_4 |·NoDefaultLongWithFlagsEnum.NDLWFE_Second4Mask |·NoDefaultLongWithFlagsEnum.NDLWFE_LastTwoMask"
+                  , "NoDefaultLongWithFlagsEnum.NDLWFE_4 | NoDefaultLongWithFlagsEnum.NDLWFE_Second4Mask | NoDefaultLongWithFlagsEnum.NDLWFE_LastTwoMask"
                 }
                ,
                 {
@@ -1226,12 +1226,12 @@ public static class EnumTestData
             {
                 {
                     new EK(IsContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
-                  , "NoDefaultLongWithFlagsEnum.NDLWFE_4 |·NoDefaultLongWithFlagsEnum.NDLWFE_Second4Mask |·NoDefaultLongWithFlagsEnum.NDLWFE_LastTwoMask"
+                  , "NoDefaultLongWithFlagsEnum.NDLWFE_4 | NoDefaultLongWithFlagsEnum.NDLWFE_Second4Mask | NoDefaultLongWithFlagsEnum.NDLWFE_LastTwoMask"
                 }
                ,
                 {
                     new EK(IsContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, CompactLog | Pretty)
-                  , "\"NoDefaultLongWithFlagsEnum.NDLWFE_4 |·NoDefaultLongWithFlagsEnum.NDLWFE_Second4Mask |·NoDefaultLongWithFlagsEnum.NDLWFE_LastTwoMask\""
+                  , "\"NoDefaultLongWithFlagsEnum.NDLWFE_4 | NoDefaultLongWithFlagsEnum.NDLWFE_Second4Mask | NoDefaultLongWithFlagsEnum.NDLWFE_LastTwoMask\""
                 }
                ,
                 {
@@ -1241,7 +1241,7 @@ public static class EnumTestData
                ,
                 {
                     new EK(AcceptsSpanFormattable | AllOutputConditionsMask, CompactLog | Pretty)
-                  , "NoDefaultLongWithFlagsEnum.NDLWFE_4 |·NoDefaultLongWithFlagsEnum.NDLWFE_Second4Mask |·NoDefaultLongWithFlagsEnum.NDLWFE_LastTwoMask"
+                  , "NoDefaultLongWithFlagsEnum.NDLWFE_4 | NoDefaultLongWithFlagsEnum.NDLWFE_Second4Mask | NoDefaultLongWithFlagsEnum.NDLWFE_LastTwoMask"
                 }
                ,
                 {
@@ -1449,12 +1449,12 @@ public static class EnumTestData
             {
                 {
                     new EK(IsContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
-                  , "NoDefaultULongWithFlagsEnum.NDUWFE_4 |·NoDefaultULongWithFlagsEnum.NDUWFE_Second4Mask |·NoDefaultULongWithFlagsEnum.NDUWFE_LastTwoMask"
+                  , "NoDefaultULongWithFlagsEnum.NDUWFE_4 | NoDefaultULongWithFlagsEnum.NDUWFE_Second4Mask | NoDefaultULongWithFlagsEnum.NDUWFE_LastTwoMask"
                 }
                ,
                 {
                     new EK(IsContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, CompactLog | Pretty)
-                  , "\"NoDefaultULongWithFlagsEnum.NDUWFE_4 |·NoDefaultULongWithFlagsEnum.NDUWFE_Second4Mask |·NoDefaultULongWithFlagsEnum.NDUWFE_LastTwoMask\""
+                  , "\"NoDefaultULongWithFlagsEnum.NDUWFE_4 | NoDefaultULongWithFlagsEnum.NDUWFE_Second4Mask | NoDefaultULongWithFlagsEnum.NDUWFE_LastTwoMask\""
                 }
                ,
                 {
@@ -1464,7 +1464,7 @@ public static class EnumTestData
                ,
                 {
                     new EK(AcceptsSpanFormattable | AllOutputConditionsMask, CompactLog | Pretty)
-                  , "NoDefaultULongWithFlagsEnum.NDUWFE_4 |·NoDefaultULongWithFlagsEnum.NDUWFE_Second4Mask |·NoDefaultULongWithFlagsEnum.NDUWFE_LastTwoMask"
+                  , "NoDefaultULongWithFlagsEnum.NDUWFE_4 | NoDefaultULongWithFlagsEnum.NDUWFE_Second4Mask | NoDefaultULongWithFlagsEnum.NDUWFE_LastTwoMask"
                 }
                ,
                 {
@@ -1719,12 +1719,12 @@ public static class EnumTestData
             {
                 {
                     new EK(IsContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
-                  , "NoDefaultULongWithFlagsEnum.NDUWFE_4 |·NoDefaultULongWithFlagsEnum.NDUWFE_Second4Mask |·NoDefaultULongWithFlagsEnum.NDUWFE_LastTwoMask"
+                  , "NoDefaultULongWithFlagsEnum.NDUWFE_4 | NoDefaultULongWithFlagsEnum.NDUWFE_Second4Mask | NoDefaultULongWithFlagsEnum.NDUWFE_LastTwoMask"
                 }
                ,
                 {
                     new EK(IsContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, CompactLog | Pretty)
-                  , "\"NoDefaultULongWithFlagsEnum.NDUWFE_4 |·NoDefaultULongWithFlagsEnum.NDUWFE_Second4Mask |·NoDefaultULongWithFlagsEnum.NDUWFE_LastTwoMask\""
+                  , "\"NoDefaultULongWithFlagsEnum.NDUWFE_4 | NoDefaultULongWithFlagsEnum.NDUWFE_Second4Mask | NoDefaultULongWithFlagsEnum.NDUWFE_LastTwoMask\""
                 }
                ,
                 {
@@ -1734,7 +1734,7 @@ public static class EnumTestData
                ,
                 {
                     new EK(AcceptsSpanFormattable | AllOutputConditionsMask, CompactLog | Pretty)
-                  , "NoDefaultULongWithFlagsEnum.NDUWFE_4 |·NoDefaultULongWithFlagsEnum.NDUWFE_Second4Mask |·NoDefaultULongWithFlagsEnum.NDUWFE_LastTwoMask"
+                  , "NoDefaultULongWithFlagsEnum.NDUWFE_4 | NoDefaultULongWithFlagsEnum.NDUWFE_Second4Mask | NoDefaultULongWithFlagsEnum.NDUWFE_LastTwoMask"
                 }
                ,
                 {
@@ -1941,12 +1941,12 @@ public static class EnumTestData
             {
                 {
                     new EK(IsContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
-                  , "WithDefaultLongWithFlagsEnum.WDLWFE_4 |·WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask |·WithDefaultLongWithFlagsEnum.WDLWFE_LastTwoMask"
+                  , "WithDefaultLongWithFlagsEnum.WDLWFE_4 | WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask | WithDefaultLongWithFlagsEnum.WDLWFE_LastTwoMask"
                 }
                ,
                 {
                     new EK(IsContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, CompactLog | Pretty)
-                  , "\"WithDefaultLongWithFlagsEnum.WDLWFE_4 |·WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask |·WithDefaultLongWithFlagsEnum.WDLWFE_LastTwoMask\""
+                  , "\"WithDefaultLongWithFlagsEnum.WDLWFE_4 | WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask | WithDefaultLongWithFlagsEnum.WDLWFE_LastTwoMask\""
                 }
                ,
                 {
@@ -1956,7 +1956,7 @@ public static class EnumTestData
                ,
                 {
                     new EK(AcceptsSpanFormattable | AllOutputConditionsMask, CompactLog | Pretty)
-                  , "WithDefaultLongWithFlagsEnum.WDLWFE_4 |·WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask |·WithDefaultLongWithFlagsEnum.WDLWFE_LastTwoMask"
+                  , "WithDefaultLongWithFlagsEnum.WDLWFE_4 | WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask | WithDefaultLongWithFlagsEnum.WDLWFE_LastTwoMask"
                 }
                ,
                 {
@@ -2200,12 +2200,12 @@ public static class EnumTestData
             {
                 {
                     new EK(IsContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
-                  , "WithDefaultLongWithFlagsEnum.WDLWFE_4 |·WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask |·WithDefaultLongWithFlagsEnum.WDLWFE_LastTwoMask"
+                  , "WithDefaultLongWithFlagsEnum.WDLWFE_4 | WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask | WithDefaultLongWithFlagsEnum.WDLWFE_LastTwoMask"
                 }
                ,
                 {
                     new EK(IsContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, CompactLog | Pretty)
-                  , "\"WithDefaultLongWithFlagsEnum.WDLWFE_4 |·WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask |·WithDefaultLongWithFlagsEnum.WDLWFE_LastTwoMask\""
+                  , "\"WithDefaultLongWithFlagsEnum.WDLWFE_4 | WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask | WithDefaultLongWithFlagsEnum.WDLWFE_LastTwoMask\""
                 }
                ,
                 {
@@ -2215,7 +2215,7 @@ public static class EnumTestData
                ,
                 {
                     new EK(AcceptsSpanFormattable | AllOutputConditionsMask, CompactLog | Pretty)
-                  , "WithDefaultLongWithFlagsEnum.WDLWFE_4 |·WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask |·WithDefaultLongWithFlagsEnum.WDLWFE_LastTwoMask"
+                  , "WithDefaultLongWithFlagsEnum.WDLWFE_4 | WithDefaultLongWithFlagsEnum.WDLWFE_Second4Mask | WithDefaultLongWithFlagsEnum.WDLWFE_LastTwoMask"
                 }
                ,
                 {
@@ -2421,12 +2421,12 @@ public static class EnumTestData
             {
                 {
                     new EK(IsContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
-                  , "WithDefaultULongWithFlagsEnum.WDUWFE_4 |·WithDefaultULongWithFlagsEnum.WDUWFE_Second4Mask |·WithDefaultULongWithFlagsEnum.WDUWFE_LastTwoMask"
+                  , "WithDefaultULongWithFlagsEnum.WDUWFE_4 | WithDefaultULongWithFlagsEnum.WDUWFE_Second4Mask | WithDefaultULongWithFlagsEnum.WDUWFE_LastTwoMask"
                 }
                ,
                 {
                     new EK(IsContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, CompactLog | Pretty)
-                  , "\"WithDefaultULongWithFlagsEnum.WDUWFE_4 |·WithDefaultULongWithFlagsEnum.WDUWFE_Second4Mask |·WithDefaultULongWithFlagsEnum.WDUWFE_LastTwoMask\""
+                  , "\"WithDefaultULongWithFlagsEnum.WDUWFE_4 | WithDefaultULongWithFlagsEnum.WDUWFE_Second4Mask | WithDefaultULongWithFlagsEnum.WDUWFE_LastTwoMask\""
                 }
                ,
                 {
@@ -2436,7 +2436,7 @@ public static class EnumTestData
                ,
                 {
                     new EK(AcceptsSpanFormattable | AllOutputConditionsMask, CompactLog | Pretty)
-                  , "WithDefaultULongWithFlagsEnum.WDUWFE_4 |·WithDefaultULongWithFlagsEnum.WDUWFE_Second4Mask |·WithDefaultULongWithFlagsEnum.WDUWFE_LastTwoMask"
+                  , "WithDefaultULongWithFlagsEnum.WDUWFE_4 | WithDefaultULongWithFlagsEnum.WDUWFE_Second4Mask | WithDefaultULongWithFlagsEnum.WDUWFE_LastTwoMask"
                 }
                ,
                 {
@@ -2681,12 +2681,12 @@ public static class EnumTestData
             {
                 {
                     new EK(IsContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty)
-                  , "WithDefaultULongWithFlagsEnum.WDUWFE_4 |·WithDefaultULongWithFlagsEnum.WDUWFE_Second4Mask |·WithDefaultULongWithFlagsEnum.WDUWFE_LastTwoMask"
+                  , "WithDefaultULongWithFlagsEnum.WDUWFE_4 | WithDefaultULongWithFlagsEnum.WDUWFE_Second4Mask | WithDefaultULongWithFlagsEnum.WDUWFE_LastTwoMask"
                 }
                ,
                 {
                     new EK(IsContentType | AcceptsSpanFormattable | DefaultTreatedAsStringOut, CompactLog | Pretty)
-                  , "\"WithDefaultULongWithFlagsEnum.WDUWFE_4 |·WithDefaultULongWithFlagsEnum.WDUWFE_Second4Mask |·WithDefaultULongWithFlagsEnum.WDUWFE_LastTwoMask\""
+                  , "\"WithDefaultULongWithFlagsEnum.WDUWFE_4 | WithDefaultULongWithFlagsEnum.WDUWFE_Second4Mask | WithDefaultULongWithFlagsEnum.WDUWFE_LastTwoMask\""
                 }
                ,
                 {
@@ -2696,7 +2696,7 @@ public static class EnumTestData
                ,
                 {
                     new EK(AcceptsSpanFormattable | AllOutputConditionsMask, CompactLog | Pretty)
-                  , "WithDefaultULongWithFlagsEnum.WDUWFE_4 |·WithDefaultULongWithFlagsEnum.WDUWFE_Second4Mask |·WithDefaultULongWithFlagsEnum.WDUWFE_LastTwoMask"
+                  , "WithDefaultULongWithFlagsEnum.WDUWFE_4 | WithDefaultULongWithFlagsEnum.WDUWFE_Second4Mask | WithDefaultULongWithFlagsEnum.WDUWFE_LastTwoMask"
                 }
                ,
                 {

@@ -33,7 +33,7 @@ public abstract class SelectTypeFieldTests : CommonExpectationTestBase
         (from fe in BoolTestData.AllBoolExpectations
         where !fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsAComplexType()
+            ScafReg.IsAComplexType()
                    .IsNotContentType()
                    .ProcessesSingleValue()
                    .AcceptsBoolean()
@@ -45,7 +45,7 @@ public abstract class SelectTypeFieldTests : CommonExpectationTestBase
         (from fe in BoolTestData.AllBoolExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg
+            ScafReg
                 .IsAComplexType()
                 .IsNotContentType()
                 .ProcessesSingleValue()
@@ -58,7 +58,7 @@ public abstract class SelectTypeFieldTests : CommonExpectationTestBase
         (from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
         where !fe.IsNullable
         from scaffoldToCall in
-            scafReg
+            ScafReg
                 .IsAComplexType()
                 .IsNotContentType()
                 .ProcessesSingleValue()
@@ -72,7 +72,7 @@ public abstract class SelectTypeFieldTests : CommonExpectationTestBase
         (from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
         where fe is { IsNullable: true, IsStruct: true }
         from scaffoldToCall in
-            scafReg
+            ScafReg
                 .IsAComplexType()
                 .IsNotContentType()
                 .ProcessesSingleValue()
@@ -86,7 +86,7 @@ public abstract class SelectTypeFieldTests : CommonExpectationTestBase
         (from fe in StringTestData.AllStringExpectations
         where fe.InputType.IsString()
         from scaffoldToCall in
-            scafReg
+            ScafReg
                 .IsAComplexType()
                 .IsNotContentType()
                 .ProcessesSingleValue()
@@ -100,7 +100,7 @@ public abstract class SelectTypeFieldTests : CommonExpectationTestBase
         (from fe in CharArrayTestData.AllCharArrayExpectations
         where fe.InputType.IsCharArray()
         from scaffoldToCall in
-            scafReg
+            ScafReg
                 .IsAComplexType()
                 .IsNotContentType()
                 .ProcessesSingleValue()
@@ -114,7 +114,7 @@ public abstract class SelectTypeFieldTests : CommonExpectationTestBase
         (from fe in CharSequenceTestData.AllCharSequenceExpectations
         where fe.InputType.ImplementsInterface<ICharSequence>()
         from scaffoldToCall in
-            scafReg
+            ScafReg
                 .IsAComplexType()
                 .IsNotContentType()
                 .ProcessesSingleValue()
@@ -128,7 +128,7 @@ public abstract class SelectTypeFieldTests : CommonExpectationTestBase
         (from fe in StringBuilderTestData.AllStringBuilderExpectations
         where fe.InputType.IsStringBuilder()
         from scaffoldToCall in
-            scafReg
+            ScafReg
                 .IsAComplexType()
                 .IsNotContentType()
                 .ProcessesSingleValue()
@@ -142,7 +142,7 @@ public abstract class SelectTypeFieldTests : CommonExpectationTestBase
         (from fe in CloakedBearerTestData.AllCloakedBearerExpectations
         where !fe.IsNullable
         from scaffoldToCall in
-            scafReg
+            ScafReg
                 .IsAComplexType()
                 .IsNotContentType()
                 .ProcessesSingleValue()
@@ -155,7 +155,7 @@ public abstract class SelectTypeFieldTests : CommonExpectationTestBase
         (from fe in CloakedBearerTestData.AllCloakedBearerExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg
+            ScafReg
                 .IsAComplexType()
                 .IsNotContentType()
                 .ProcessesSingleValue()
@@ -168,7 +168,7 @@ public abstract class SelectTypeFieldTests : CommonExpectationTestBase
         (from fe in StringBearerTestData.AllStringBearerExpectations
         where !fe.IsNullable
         from scaffoldToCall in
-            scafReg
+            ScafReg
                 .IsAComplexType()
                 .IsNotContentType()
                 .ProcessesSingleValue()
@@ -182,7 +182,7 @@ public abstract class SelectTypeFieldTests : CommonExpectationTestBase
         (from fe in StringBearerTestData.AllStringBearerExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg
+            ScafReg
                 .IsAComplexType()
                 .IsNotContentType()
                 .ProcessesSingleValue()

@@ -1,8 +1,11 @@
 ﻿using System.Text;
+using FortitudeCommon.DataStructures.MemoryPools;
 
 namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
-public interface IEncodingTransfer
+
+
+public interface IEncodingTransfer : IRecyclableObject
 {
     string EncodingTransferConfigKey { get; }
 
@@ -15,6 +18,16 @@ public interface IEncodingTransfer
 
     int Transfer(Rune? source, IStringBuilder destSb);
     int Transfer(Rune? source, Span<char> dest, int destIndex);
+
+    int CalculateEncodedLength(ReadOnlySpan<char> source, int sourceFrom = 0, int maxTransferCount = int.MaxValue);
+    int CalculateEncodedLength(char[] source, int sourceFrom = 0, int maxTransferCount = int.MaxValue);
+    int CalculateEncodedLength(ICharSequence source, int sourceFrom = 0, int maxTransferCount = int.MaxValue);
+    int CalculateEncodedLength(StringBuilder source, int sourceFrom = 0, int maxTransferCount = int.MaxValue);
+
+    int CalculateLengthForCappedEncodeLength(int cappedLength, ReadOnlySpan<char> source, int sourceFrom = 0, int maxTransferCount = int.MaxValue);
+    int CalculateLengthForCappedEncodeLength(int cappedLength, char[] source, int sourceFrom = 0, int maxTransferCount = int.MaxValue);
+    int CalculateLengthForCappedEncodeLength(int cappedLength, ICharSequence source, int sourceFrom = 0, int maxTransferCount = int.MaxValue);
+    int CalculateLengthForCappedEncodeLength(int cappedLength, StringBuilder source, int sourceFrom = 0, int maxTransferCount = int.MaxValue);
 
     int Transfer(ICustomStringFormatter stringFormatter, char[] source, IStringBuilder destSb, int destStartIndex = int.MaxValue);
     int Transfer(ICustomStringFormatter stringFormatter, char[] source, Span<char> destSpan, int destStartIndex, int maxTransferCount = int.MaxValue);

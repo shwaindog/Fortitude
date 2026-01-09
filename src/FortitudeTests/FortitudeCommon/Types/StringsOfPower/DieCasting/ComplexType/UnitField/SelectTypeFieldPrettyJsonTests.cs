@@ -2,8 +2,10 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Reflection;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations.UnitFieldsContentTypes;
@@ -90,43 +92,60 @@ public class SelectTypeFieldPrettyJsonTests : SelectTypeFieldTests
         ExecuteIndividualScaffoldExpectation(StringBearerTestData.AllStringBearerExpectations[24], ScaffoldingRegistry.AllScaffoldingTypes[901]);
     }
 
-    protected override string BuildExpectedRootOutput(ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
         const string prettyJsonTemplate = "{{{0}{1}{2}{0}}}";
 
         var maybeNewLine = "";
         var maybeIndent  = "";
-        var expectValue  = expectation.GetExpectedOutputFor(condition, tos, expectation.ValueFormatString);
-        if (expectValue != IFormatExpectation.NoResultExpectedValue)
+        var expectValue  = 
+            expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
+        if (!expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))
         {
             maybeNewLine = "\n";
             maybeIndent  = "  ";
-            expectValue  = "\"" + propertyName + "\": " + expectValue;
+            var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
+            nextExpect.Append("\"").Append(propertyName).Append("\": ").Append(expectValue);
+            expectValue.DecrementRefCount();
+            expectValue = nextExpect;
         }
 
-        else { expectValue = ""; }
+        else
+        {
+            expectValue.Clear();
+        }
 
-        return string.Format(prettyJsonTemplate, maybeNewLine, maybeIndent, expectValue);
+        var fmtExpect = sbFactory.Borrow<CharArrayStringBuilder>();
+        fmtExpect.AppendFormat(prettyJsonTemplate, maybeNewLine, maybeIndent, expectValue);
+        expectValue.DecrementRefCount();
+        return fmtExpect;
     }
     
-    protected override string BuildExpectedChildOutput(ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
         const string prettyJsonTemplate = "{{{0}{1}{1}{2}{0}{1}}}";
 
         var maybeNewLine = "";
         var maybeIndent  = "";
-        var expectValue  = expectation.GetExpectedOutputFor(condition, tos, expectation.ValueFormatString);
-        if (expectValue != IFormatExpectation.NoResultExpectedValue)
+        var expectValue  = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
+        if (!expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))
         {
             maybeNewLine = "\n";
             maybeIndent  = "  ";
-            expectValue  = "\"" + propertyName + "\": " + expectValue.IndentSubsequentLines();
+            var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
+            nextExpect.Append("\"").Append(propertyName).Append("\": ").Append(expectValue.IndentSubsequentLines());
+            expectValue.DecrementRefCount();
+            expectValue = nextExpect;
+        }
+        else { 
+            expectValue.Clear();
         }
 
-        else { expectValue = ""; }
-
-        return string.Format(prettyJsonTemplate, maybeNewLine, maybeIndent, expectValue);
+        var fmtExpect = sbFactory.Borrow<CharArrayStringBuilder>();
+        fmtExpect.AppendFormat(prettyJsonTemplate, maybeNewLine, maybeIndent, expectValue);
+        expectValue.DecrementRefCount();
+        return fmtExpect;
     }
 }

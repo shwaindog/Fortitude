@@ -3,10 +3,12 @@
 
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
@@ -56,15 +58,17 @@ public class NullStructCloakedOrderedListExpect<TChildScaffoldListElement>
 
     public BuildExpectedOutput WhenValueExpectedOutput { get; set; } = null!;
 
-    public override string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition, ITheOneString tos,  string? formatString = null)
+    public override IStringBuilder GetExpectedOutputFor(IRecycler sbFactory, ScaffoldingStringBuilderInvokeFlags condition, ITheOneString tos
+     ,  string? formatString = null)
     {
         FieldValueExpectation.ClearExpectations();
         foreach (var expectedResult in ExpectedResults) { FieldValueExpectation.Add(expectedResult); }
-        var expectValue = FieldValueExpectation.GetExpectedOutputFor(condition, tos, formatString);
-        if (expectValue != IFormatExpectation.NoResultExpectedValue && expectValue != "null" && expectValue != "")
+        var expectValue = FieldValueExpectation.GetExpectedOutputFor(sbFactory, condition, tos, formatString);
+        if (!expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue) 
+             && !expectValue.SequenceMatches("null") && !expectValue.SequenceMatches(""))
         {
             expectValue = WhenValueExpectedOutput
-                (tos, (calledValueType ?? typeof(TChildScaffoldListElement)).CachedCSharpNameNoConstraints()
+                (sbFactory, tos, (calledValueType ?? typeof(TChildScaffoldListElement)).CachedCSharpNameNoConstraints()
                , RevealerScaffold.PropertyName, condition, FieldValueExpectation);
         }
         return expectValue;
@@ -208,15 +212,17 @@ public class CloakedOrderedListExpect<TChildScaffoldListElement, TFilterBase, TR
 
     public BuildExpectedOutput WhenValueExpectedOutput { get; set; } = null!;
 
-    public override string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition, ITheOneString tos,  string? formatString = null)
+    public override IStringBuilder GetExpectedOutputFor(IRecycler sbFactory, ScaffoldingStringBuilderInvokeFlags condition, ITheOneString tos
+     ,  string? formatString = null)
     {
         FieldValueExpectation.ClearExpectations();
         foreach (var expectedResult in ExpectedResults) { FieldValueExpectation.Add(expectedResult); }
-        var expectValue = FieldValueExpectation.GetExpectedOutputFor(condition, tos, formatString);
-        if (expectValue != IFormatExpectation.NoResultExpectedValue && expectValue != "null" && expectValue != "")
+        var expectValue = FieldValueExpectation.GetExpectedOutputFor(sbFactory, condition, tos, formatString);
+        if (!expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue) 
+         && !expectValue.SequenceMatches("null") && !expectValue.SequenceMatches(""))
         {
             expectValue = WhenValueExpectedOutput
-                (tos, (calledValueType ?? typeof(TChildScaffoldListElement)).CachedCSharpNameNoConstraints()
+                (sbFactory, tos, (calledValueType ?? typeof(TChildScaffoldListElement)).CachedCSharpNameNoConstraints()
                , RevealerScaffold?.PropertyName ?? "NoRevealerScaffold", condition, FieldValueExpectation);
         }
         return expectValue;

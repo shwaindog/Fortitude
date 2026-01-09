@@ -29,7 +29,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     protected const string RndBrktOpn   = "(";
     protected const string RndBrktCls   = ")";
 
-    public GraphTrackingBuilder GraphBuilder { get; protected set; } = null!;
+    public GraphTrackingBuilder GraphBuilder { get; set; } = null!;
 
     public virtual CompactLogTypeFormatting Initialize(GraphTrackingBuilder graphTrackingBuilder, StyleOptions styleOptions)
     {
@@ -1048,5 +1048,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         destIndex += destSpan.OverWriteAt(destIndex, SqBrktCls);
         GraphBuilder.MarkContentEnd(destIndex);
         return destIndex - originalDestIndex;
+    }
+
+    public override void StateReset()
+    {
+        GraphBuilder = null!;
+        base.StateReset();
     }
 }

@@ -3,6 +3,7 @@
 
 using System.Runtime.CompilerServices;
 using System.Text;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
@@ -13,8 +14,8 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
 
 
-public delegate string BuildExpectedOutput(ITheOneString tos, string className, string propertyName, ScaffoldingStringBuilderInvokeFlags condition
-  , IFormatExpectation expectation);
+public delegate IStringBuilder BuildExpectedOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
+  , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation);
 
 public class CloakedBearerExpect<TChildScaffoldType, TChildScaffold> : FieldExpect<TChildScaffoldType>, IComplexFieldFormatExpectation
     where TChildScaffold : ISinglePropertyTestStringBearer, IUnknownPalantirRevealerFactory
@@ -43,7 +44,8 @@ public class CloakedBearerExpect<TChildScaffoldType, TChildScaffold> : FieldExpe
 
     public BuildExpectedOutput WhenValueExpectedOutput { get; set; } = null!;
 
-    public override string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition, ITheOneString tos, string? formatString = null)
+    public override IStringBuilder GetExpectedOutputFor(IRecycler sbFactory, ScaffoldingStringBuilderInvokeFlags condition, ITheOneString tos
+      , string? formatString = null)
     {
         FieldValueExpectation.ClearExpectations();
         foreach (var expectedResult in ExpectedResults) { FieldValueExpectation.Add(expectedResult); }
@@ -51,11 +53,11 @@ public class CloakedBearerExpect<TChildScaffoldType, TChildScaffold> : FieldExpe
         {
             condition |= AcceptsChars | AcceptsString | AcceptsCharArray | AcceptsCharSequence | AcceptsStringBuilder;
         }
-        var expectValue = FieldValueExpectation.GetExpectedOutputFor(condition, tos, formatString);
-        if (expectValue != IFormatExpectation.NoResultExpectedValue && Input != null)
+        var expectValue = FieldValueExpectation.GetExpectedOutputFor(sbFactory, condition, tos, formatString);
+        if (!expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue) && Input != null)
         {
             expectValue = WhenValueExpectedOutput
-                (tos, (Input?.GetType() ?? typeof(TChildScaffoldType)).CachedCSharpNameNoConstraints()
+                (sbFactory, tos, (Input?.GetType() ?? typeof(TChildScaffoldType)).CachedCSharpNameNoConstraints()
                , $"CloakedRevealer{RevealerScaffold.PropertyName}", condition, FieldValueExpectation);
         }
         return expectValue;

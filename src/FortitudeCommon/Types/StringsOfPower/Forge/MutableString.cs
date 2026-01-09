@@ -52,6 +52,14 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     public MutableString(StringBuilder initializedBuilder) => sb = initializedBuilder;
 
+    public MutableString Initialize(string? initialString)
+    {
+        sb.Clear();
+        sb.Append(initialString);
+
+        return this;
+    }
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     [DebuggerHidden]
     IMaybeFrozen IFreezable.Freeze => Freeze;
@@ -350,7 +358,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     IStringBuilder IMutableStringBuilder<IStringBuilder>.CopyTo(int sourceIndex, Span<char> destination, int count) =>
         CopyTo(sourceIndex, destination, count);
 
-    int IMutableStringBuilder<IStringBuilder>.EnsureCapacity(int capacity) => EnsureCapacity(capacity);
+    int IMutableStringBuilder<IStringBuilder>.EnsureCapacity(int requiredRemainingCapacity) => EnsureCapacity(requiredRemainingCapacity);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Insert(int atIndex, bool value) => Insert(atIndex, value);
 
@@ -411,6 +419,8 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         Replace(find, replace, startIndex, length);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(string find, string? replace) => Replace(find, replace);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(ReadOnlySpan<char> find, ReadOnlySpan<char> replace) => Replace(find, replace);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(string find, string replace, int startIndex, int length) =>
         Replace(find, replace, startIndex, length);
@@ -1449,10 +1459,14 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public int EnsureCapacity(int capacity)
+    public int EnsureCapacity(int requiredRemainingCapacity)
     {
-        sb.Length += capacity;
-        return sb.EnsureCapacity(capacity);
+        var remaining = sb.Capacity - sb.Length;
+        if (remaining < requiredRemainingCapacity)
+        {
+            sb.Capacity += sb.Capacity * 2;
+        }
+        return sb.Capacity - sb.Length;
     }
 
     public MutableString Insert(int atIndex, bool value)
@@ -1656,6 +1670,13 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     {
         if (IsFrozen) return ShouldThrow();
         sb.Replace(find, replace);
+        return this;
+    }
+
+    public MutableString Replace(ReadOnlySpan<char> find, ReadOnlySpan<char> replace)
+    {
+        if (IsFrozen) return ShouldThrow();
+        Replace(find, replace, 0, int.MaxValue);
         return this;
     }
 

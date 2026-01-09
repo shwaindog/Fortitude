@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Runtime.CompilerServices;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
@@ -36,26 +37,52 @@ public class GraphTrackingBuilder
 
     public ContentSeparatorRanges? PenUltimateContentSeparatorPaddingRanges { get; set; }
 
+    public void Reset()
+    {
+        if (graphEncoder is not PassThroughEncodingTransfer)
+        {
+            graphEncoder?.DecrementRefCount();
+            graphEncoder = Recycler.ThreadStaticRecycler.Borrow<PassThroughEncodingTransfer>();
+        }
+        if (parentGraphEncoder is not PassThroughEncodingTransfer)
+        {
+            parentGraphEncoder?.DecrementRefCount();
+            parentGraphEncoder = null!;
+        }
+        LastContentSeparatorPaddingRanges        = default;
+        
+        PenUltimateContentSeparatorPaddingRanges = null;
+    }
+
     public IEncodingTransfer GraphEncoder
     {
         get => graphEncoder;
         set
         {
+            if (ReferenceEquals(parentGraphEncoder, value)  && ReferenceEquals(graphEncoder, value)) return;
+            if (parentGraphEncoder != null && !ReferenceEquals(parentGraphEncoder, graphEncoder))
+            {
+                parentGraphEncoder.DecrementRefCount();
+            }
             parentGraphEncoder = graphEncoder;
+            if (parentGraphEncoder != null && !ReferenceEquals(graphEncoder, value))
+            {
+                parentGraphEncoder.DecrementRefCount();
+            }
             graphEncoder       = value;
         }
     }
 
     public IEncodingTransfer ParentGraphEncoder
     {
-        get => parentGraphEncoder ??= new PassThroughEncodingTransfer();
+        get => parentGraphEncoder ??= Recycler.ThreadStaticRecycler.Borrow<PassThroughEncodingTransfer>();
         set => parentGraphEncoder = value;
     }
 
     private IStringBuilder sb = null!;
 
     private IStyledTypeFormatting styledFormatting = null!;
-    private IEncodingTransfer     graphEncoder     = new PassThroughEncodingTransfer();
+    private IEncodingTransfer     graphEncoder     = Recycler.ThreadStaticRecycler.Borrow<PassThroughEncodingTransfer>();
     private IEncodingTransfer?    parentGraphEncoder;
 
     public bool HasCommitContent => CurrentSectionRanges.HasContent;
@@ -80,8 +107,7 @@ public class GraphTrackingBuilder
             Complete(CurrentSectionRanges.StartedWithFormatFlags);
         }
         var highWaterMark = new ContentSeparatorRanges
-            (FormatFlags.DefaultCallerTypeFlags
-           , new Range(Index.End, Index.End)); // Empty content Range stops penultimate seperator/padding removal.
+            (FormatFlags.DefaultCallerTypeFlags, new Range(Index.End, Index.End)); // Empty content Range stops penultimate seperator/padding removal.
         PenUltimateContentSeparatorPaddingRanges = LastContentSeparatorPaddingRanges;
         LastContentSeparatorPaddingRanges        = highWaterMark;
     }

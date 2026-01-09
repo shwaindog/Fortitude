@@ -32,7 +32,7 @@ public abstract class ContentTypeMoldAsStringTests : CommonExpectationTestBase
         (from fe in BoolTestData.AllBoolExpectations
         where !fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsContentType()
+            ScafReg.IsContentType()
                    .ProcessesSingleValue()
                    .AcceptsBoolean()
                    .AcceptsNonNullables()
@@ -44,7 +44,7 @@ public abstract class ContentTypeMoldAsStringTests : CommonExpectationTestBase
         (from fe in BoolTestData.AllBoolExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsContentType().ProcessesSingleValue().AcceptsBoolean().AcceptsNullableStructs()
+            ScafReg.IsContentType().ProcessesSingleValue().AcceptsBoolean().AcceptsNullableStructs()
                    .HasTreatedAsStringOut()
         select new object[] { fe, scaffoldToCall }).ToList();
 
@@ -56,14 +56,14 @@ public abstract class ContentTypeMoldAsStringTests : CommonExpectationTestBase
             var structJoins = from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
                 where fe.InputType.IsValueType && !fe.IsNullable
                 from scaffoldToCall in
-                    scafReg.IsContentType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNonNullStructs()
+                    ScafReg.IsContentType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNonNullStructs()
                            .HasTreatedAsStringOut()
                 select new object[] { fe, scaffoldToCall };
 
             var classJoins = from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
                 where !fe.InputType.IsValueType
                 from scaffoldToCall in
-                    scafReg.IsContentType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsClasses()
+                    ScafReg.IsContentType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsClasses()
                            .HasTreatedAsStringOut()
                 select new object[] { fe, scaffoldToCall };
 
@@ -76,7 +76,7 @@ public abstract class ContentTypeMoldAsStringTests : CommonExpectationTestBase
         (from fe in SpanFormattableTestData.AllSpanFormattableExpectations.Value
         where fe is { IsNullable: true, IsStruct: true }
         from scaffoldToCall in
-            scafReg.IsContentType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNullableStructs()
+            ScafReg.IsContentType().ProcessesSingleValue().HasSpanFormattable().NotHasSupportsValueRevealer().AcceptsNullableStructs()
                    .HasTreatedAsStringOut()
         select new object[] { fe, scaffoldToCall }).ToList();
 
@@ -88,7 +88,7 @@ public abstract class ContentTypeMoldAsStringTests : CommonExpectationTestBase
             var acceptsFormatString = from fe in StringTestData.AllStringExpectations
                 where fe.InputType.IsString()
                 from scaffoldToCall in
-                    scafReg.IsContentType().ProcessesSingleValue().AcceptsString().HasSupportsValueFormatString().NotHasSupportsValueRevealer()
+                    ScafReg.IsContentType().ProcessesSingleValue().AcceptsString().HasSupportsValueFormatString().NotHasSupportsValueRevealer()
                            .HasTreatedAsStringOut()
                 where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
                 select new object[] { fe, scaffoldToCall };
@@ -103,7 +103,7 @@ public abstract class ContentTypeMoldAsStringTests : CommonExpectationTestBase
                         return fe.InputType.IsString() && noFormatStringModifications;
                     })
                     .SelectMany(_ =>
-                                    scafReg
+                                    ScafReg
                                         .IsContentType()
                                         .ProcessesSingleValue()
                                         .AcceptsString()
@@ -127,7 +127,7 @@ public abstract class ContentTypeMoldAsStringTests : CommonExpectationTestBase
             var acceptsFormatString = from fe in CharArrayTestData.AllCharArrayExpectations
                 where fe.InputType.IsCharArray()
                 from scaffoldToCall in
-                    scafReg.IsContentType().ProcessesSingleValue().AcceptsCharArray().HasSupportsValueFormatString().NotHasSupportsValueRevealer()
+                    ScafReg.IsContentType().ProcessesSingleValue().AcceptsCharArray().HasSupportsValueFormatString().NotHasSupportsValueRevealer()
                            .HasTreatedAsStringOut()
                 where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
                 select new object[] { fe, scaffoldToCall };
@@ -142,7 +142,7 @@ public abstract class ContentTypeMoldAsStringTests : CommonExpectationTestBase
                         return fe.InputType.IsCharArray() && noFormatStringModifications;
                     })
                     .SelectMany(_ =>
-                                    scafReg
+                                    ScafReg
                                         .IsContentType()
                                         .ProcessesSingleValue()
                                         .AcceptsCharArray()
@@ -163,7 +163,7 @@ public abstract class ContentTypeMoldAsStringTests : CommonExpectationTestBase
         (from fe in CharSequenceTestData.AllCharSequenceExpectations
         where fe.InputType.ImplementsInterface<ICharSequence>()
         from scaffoldToCall in
-            scafReg.IsContentType().ProcessesSingleValue().AcceptsCharSequence().NotHasSupportsValueRevealer()
+            ScafReg.IsContentType().ProcessesSingleValue().AcceptsCharSequence().NotHasSupportsValueRevealer()
                    .HasTreatedAsStringOut()
         where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
         select new object[] { fe, scaffoldToCall }).ToList();
@@ -173,7 +173,7 @@ public abstract class ContentTypeMoldAsStringTests : CommonExpectationTestBase
         (from fe in StringBuilderTestData.AllStringBuilderExpectations
         where fe.InputType.IsStringBuilder()
         from scaffoldToCall in
-            scafReg.IsContentType().ProcessesSingleValue().AcceptsStringBuilder().NotHasSupportsValueRevealer()
+            ScafReg.IsContentType().ProcessesSingleValue().AcceptsStringBuilder().NotHasSupportsValueRevealer()
                    .HasTreatedAsStringOut()
         where !fe.HasIndexRangeLimiting || scaffoldToCall.ScaffoldingFlags.HasAllOf(SupportsIndexSubRanges)
         select new object[] { fe, scaffoldToCall }).ToList();
@@ -183,7 +183,7 @@ public abstract class ContentTypeMoldAsStringTests : CommonExpectationTestBase
         (from fe in CloakedBearerTestData.AllCloakedBearerExpectations
         where !fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsContentType().ProcessesSingleValue().AcceptsNonNullables().HasSupportsValueRevealer()
+            ScafReg.IsContentType().ProcessesSingleValue().AcceptsNonNullables().HasSupportsValueRevealer()
                    .HasTreatedAsStringOut()
         select new object[] { fe, scaffoldToCall }).ToList();
 
@@ -192,7 +192,7 @@ public abstract class ContentTypeMoldAsStringTests : CommonExpectationTestBase
         (from fe in CloakedBearerTestData.AllCloakedBearerExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsContentType().ProcessesSingleValue().AcceptsNullableStructs().HasSupportsValueRevealer()
+            ScafReg.IsContentType().ProcessesSingleValue().AcceptsNullableStructs().HasSupportsValueRevealer()
                    .HasTreatedAsStringOut()
         select new object[] { fe, scaffoldToCall }).ToList();
     
@@ -201,7 +201,7 @@ public abstract class ContentTypeMoldAsStringTests : CommonExpectationTestBase
         (from fe in StringBearerTestData.AllStringBearerExpectations
         where !fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsContentType().ProcessesSingleValue().AcceptsNonNullables()
+            ScafReg.IsContentType().ProcessesSingleValue().AcceptsNonNullables()
                    .NotHasSupportsValueRevealer().HasAcceptsStringBearer()
                    .HasTreatedAsStringOut()
         select new object[] { fe, scaffoldToCall }).ToList();
@@ -211,7 +211,7 @@ public abstract class ContentTypeMoldAsStringTests : CommonExpectationTestBase
         (from fe in StringBearerTestData.AllStringBearerExpectations
         where fe.IsNullable
         from scaffoldToCall in
-            scafReg.IsContentType().ProcessesSingleValue().AcceptsNullableStructs()
+            ScafReg.IsContentType().ProcessesSingleValue().AcceptsNullableStructs()
                    .NotHasSupportsValueRevealer().HasAcceptsStringBearer()
                    .HasTreatedAsStringOut()
         select new object[] { fe, scaffoldToCall }).ToList();

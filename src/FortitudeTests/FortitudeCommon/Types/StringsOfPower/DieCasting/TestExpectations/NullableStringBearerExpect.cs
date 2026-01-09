@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Runtime.CompilerServices;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
@@ -49,16 +50,16 @@ public class NullableStringBearerExpect<TInput, TDefault> : FieldExpect<TInput?,
                                                                   , name, srcFile, srcLine);
     }
 
-    public override string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition, ITheOneString tos, string? formatString = null)
+    public override IStringBuilder GetExpectedOutputFor(IRecycler sbFactory, ScaffoldingStringBuilderInvokeFlags condition, ITheOneString tos, string? formatString = null)
     {
         FieldValueExpectation.ClearExpectations();
         foreach (var expectedResult in ExpectedResults) { FieldValueExpectation.Add(expectedResult); }
         condition |= AcceptsSpanFormattable | AcceptsChars | AcceptsString;
-        var expectValue = FieldValueExpectation.GetExpectedOutputFor(condition, tos, formatString);
-        if (expectValue != IFormatExpectation.NoResultExpectedValue && Input != null)
+        var expectValue = FieldValueExpectation.GetExpectedOutputFor(sbFactory, condition, tos, formatString);
+        if (!expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue) && Input != null)
         {
             expectValue = WhenValueExpectedOutput
-                (tos, (Input?.GetType() ?? typeof(TInput)).CachedCSharpNameNoConstraints(), ((ISinglePropertyTestStringBearer)Input!.Value).PropertyName
+                (sbFactory, tos, (Input?.GetType() ?? typeof(TInput)).CachedCSharpNameNoConstraints(), ((ISinglePropertyTestStringBearer)Input!.Value).PropertyName
                , condition
                , FieldValueExpectation);
         }

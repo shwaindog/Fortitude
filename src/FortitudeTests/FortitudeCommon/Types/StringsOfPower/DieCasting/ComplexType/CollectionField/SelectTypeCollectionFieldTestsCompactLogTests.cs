@@ -2,8 +2,10 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Reflection;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations.OrderedCollectionFieldsTypes;
@@ -101,41 +103,55 @@ public class SelectTypeCollectionFieldCompactLogTests : SelectTypeCollectionFiel
         ExecuteIndividualScaffoldExpectation(CharSequenceCollectionsTestData.AllCharSequenceCollectionExpectations[7], ScaffoldingRegistry.AllScaffoldingTypes[39]);
     }
 
-    protected override string BuildExpectedRootOutput(ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
         const string compactLogTemplate = "{0} {{{1}{2}{1}}}";
 
         var maybePadding = "";
-        var expectValue  = expectation.GetExpectedOutputFor(condition, tos, expectation.ValueFormatString);
-        if (expectValue != IFormatExpectation.NoResultExpectedValue)
+        var expectValue  = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
+        if (!expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))
         {
             maybePadding = expectValue.Length > 0 ? " " : "";
-            if (expectValue != "null" &&  expectation is IOrderedListExpect orderedListExpectation 
+            if (!expectValue.SequenceMatches( "null") &&  expectation is IOrderedListExpect orderedListExpectation 
                                        && orderedListExpectation.ElementCallType.IsEnumOrNullable())
             {
-                expectValue = propertyName + ": (" + orderedListExpectation.CollectionCallType.ShortNameInCSharpFormat() + ")" + 
-                              expectValue;    
+                var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
+
+                nextExpect.Append(propertyName).Append(": (");
+                orderedListExpectation.CollectionCallType.AppendShortNameInCSharpFormat(nextExpect).Append(")");
+                nextExpect.Append(expectValue);
+                expectValue.DecrementRefCount();
+                expectValue = nextExpect;
             }
             else
             {
-                expectValue = propertyName + ": " + expectValue;
+                var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
+                nextExpect.Append(propertyName).Append(": ").Append(expectValue);
+                expectValue.DecrementRefCount();
+                expectValue = nextExpect;
             }
         }
-        else { expectValue = ""; }
-        return string.Format(compactLogTemplate, className, maybePadding,  expectValue);
+        else { expectValue.Clear(); }
+        var fmtExpect = sbFactory.Borrow<CharArrayStringBuilder>();
+        fmtExpect.AppendFormat(compactLogTemplate, className, maybePadding, expectValue);
+        expectValue.DecrementRefCount();
+        return fmtExpect;
     }
     
-    protected override string BuildExpectedChildOutput(ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
         var compactLogTemplate = className.IsNotEmpty() ? "({0}){1}" : "{1}";
 
-        var expectValue = expectation.GetExpectedOutputFor(condition, tos, expectation.ValueFormatString);
-        if (expectValue == IFormatExpectation.NoResultExpectedValue)
+        var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
+        if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))
         {
-            expectValue = "";
+            expectValue.Clear();
         }
-        return string.Format(compactLogTemplate, className, expectValue);
+        var fmtExpect = sbFactory.Borrow<CharArrayStringBuilder>();
+        fmtExpect.AppendFormat(compactLogTemplate, className, expectValue);
+        expectValue.DecrementRefCount();
+        return fmtExpect;
     }
 }

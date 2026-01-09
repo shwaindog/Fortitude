@@ -30,7 +30,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
         (from fe in BoolCollectionsTestData.AllBoolCollectionExpectations
             where !fe.ElementTypeIsNullable && !fe.HasRestrictingFilter   
             from scaffoldToCall in 
-                scafReg
+                ScafReg
                     .IsAnOrderedCollectionType()
                     .NoFilterPredicate()
                     .AcceptsBoolean()
@@ -40,7 +40,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
                 from fe in BoolCollectionsTestData.AllBoolCollectionExpectations
                 where fe.ElementTypeIsNullable && !fe.HasRestrictingFilter   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsAnOrderedCollectionType()
                         .NoFilterPredicate()
                         .AcceptsBoolean()
@@ -53,7 +53,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
         (from fe in BoolCollectionsTestData.AllBoolCollectionExpectations
             where !fe.ElementTypeIsNullable && fe.HasRestrictingFilter   
             from scaffoldToCall in 
-                scafReg
+                ScafReg
                     .IsAnOrderedCollectionType()
                     .HasFilterPredicate()
                     .AcceptsBoolean()
@@ -63,7 +63,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
                 from fe in BoolCollectionsTestData.AllBoolCollectionExpectations
                 where fe.ElementTypeIsNullable && fe.HasRestrictingFilter   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsAnOrderedCollectionType()
                         .HasFilterPredicate()
                         .AcceptsBoolean()
@@ -77,7 +77,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
         (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
             where fe is {ElementTypeIsNullable: false, HasRestrictingFilter: false }   
             from scaffoldToCall in 
-                scafReg
+                ScafReg
                     .IsAnOrderedCollectionType()
                     .NoFilterPredicate()
                     .HasSpanFormattable()
@@ -89,7 +89,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
                 where fe is { ElementTypeIsNullable: true, ElementTypeIsStruct: true, HasRestrictingFilter: false }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsAnOrderedCollectionType()
                         .NoFilterPredicate()
                         .HasSpanFormattable()
@@ -101,7 +101,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
                 where fe is {ElementTypeIsClass : true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsAnOrderedCollectionType()
                         .NoFilterPredicate()
                         .HasSpanFormattable()
@@ -115,7 +115,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
         (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
             where fe is {ElementTypeIsNullable: false, HasRestrictingFilter: true }   
             from scaffoldToCall in 
-                scafReg
+                ScafReg
                     .IsAnOrderedCollectionType()
                     .HasFilterPredicate()
                     .HasSpanFormattable()
@@ -126,7 +126,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
                 where fe is { ElementTypeIsNullable: true, ElementTypeIsStruct: true, HasRestrictingFilter: true }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsAnOrderedCollectionType()
                         .HasFilterPredicate()
                         .HasSpanFormattable()
@@ -137,7 +137,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
                 where fe is {ElementTypeIsClass : true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsAnOrderedCollectionType()
                         .HasFilterPredicate()
                         .HasSpanFormattable()
@@ -150,7 +150,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
         (from fe in StringCollectionsTestData.AllStringCollectionExpectations
             where fe is {ContainsNullElements : false,  HasRestrictingFilter: false } 
             from scaffoldToCall in 
-                scafReg
+                ScafReg
                     .IsAnOrderedCollectionType()
                     .AcceptsNonNullables()
                     .NoFilterPredicate()
@@ -161,7 +161,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
                 from fe in StringCollectionsTestData.AllStringCollectionExpectations
                 where fe is {ContainsNullElements : true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsAnOrderedCollectionType()
                         .NoFilterPredicate()
                         .AcceptsString()
@@ -174,7 +174,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
         (from fe in StringCollectionsTestData.AllStringCollectionExpectations
             where fe is {ContainsNullElements : false,  HasRestrictingFilter: true } 
             from scaffoldToCall in 
-                scafReg
+                ScafReg
                     .IsAnOrderedCollectionType()
                     .AcceptsNonNullables()
                     .HasFilterPredicate()
@@ -185,7 +185,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
                 from fe in StringCollectionsTestData.AllStringCollectionExpectations
                 where fe is {ContainsNullElements : true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsAnOrderedCollectionType()
                         .HasFilterPredicate()
                         .AcceptsString()
@@ -198,7 +198,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
         (from fe in CharSequenceCollectionsTestData.AllCharSequenceCollectionExpectations
             where fe is {ContainsNullElements : false,  HasRestrictingFilter: false } 
             from scaffoldToCall in 
-                scafReg
+                ScafReg
                     .IsAnOrderedCollectionType()
                     .AcceptsNonNullables()
                     .NoFilterPredicate()
@@ -209,7 +209,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
                 from fe in CharSequenceCollectionsTestData.AllCharSequenceCollectionExpectations
                 where fe is {ContainsNullElements : true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsAnOrderedCollectionType()
                         .NoFilterPredicate()
                         .AcceptsCharSequence()
@@ -222,7 +222,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
         (from fe in CharSequenceCollectionsTestData.AllCharSequenceCollectionExpectations
             where fe is { ContainsNullElements : false,  HasRestrictingFilter: true } 
             from scaffoldToCall in 
-                scafReg
+                ScafReg
                     .IsAnOrderedCollectionType()
                     .AcceptsNonNullables()
                     .HasFilterPredicate()
@@ -233,7 +233,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
                 from fe in CharSequenceCollectionsTestData.AllCharSequenceCollectionExpectations
                 where fe is {ContainsNullElements : true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsAnOrderedCollectionType()
                         .HasFilterPredicate()
                         .AcceptsCharSequence()
@@ -246,7 +246,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
         (from fe in StringBuilderCollectionsTestData.AllStringBuilderCollectionExpectations
             where fe is {ContainsNullElements : false,  HasRestrictingFilter: false } 
             from scaffoldToCall in 
-                scafReg
+                ScafReg
                     .IsAnOrderedCollectionType()
                     .AcceptsNonNullables()
                     .NoFilterPredicate()
@@ -257,7 +257,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
                 from fe in StringBuilderCollectionsTestData.AllStringBuilderCollectionExpectations
                 where fe is {ContainsNullElements : true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsAnOrderedCollectionType()
                         .NoFilterPredicate()
                         .AcceptsStringBuilder()
@@ -270,7 +270,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
         (from fe in StringBuilderCollectionsTestData.AllStringBuilderCollectionExpectations
             where fe is {ContainsNullElements : false,  HasRestrictingFilter: true } 
             from scaffoldToCall in 
-                scafReg
+                ScafReg
                     .IsAnOrderedCollectionType()
                     .AcceptsNonNullables()
                     .HasFilterPredicate()
@@ -281,7 +281,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
                 from fe in StringBuilderCollectionsTestData.AllStringBuilderCollectionExpectations
                 where fe is {ContainsNullElements : true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsAnOrderedCollectionType()
                         .HasFilterPredicate()
                         .AcceptsStringBuilder()
@@ -294,7 +294,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
         (from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
             where fe is {ElementTypeIsClass: true, ContainsNullElements : false,  HasRestrictingFilter: false } 
             from scaffoldToCall in 
-                scafReg
+                ScafReg
                     .IsAnOrderedCollectionType()
                     .AcceptsNonNullables()
                     .NoFilterPredicate()
@@ -304,7 +304,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
                 from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
                 where fe is {ElementTypeIsClass: true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsAnOrderedCollectionType()
                         .NoFilterPredicate()
                         .HasSupportsValueRevealer()
@@ -314,7 +314,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
                 from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
                 where fe is {ElementTypeIsNullableStruct: true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsAnOrderedCollectionType()
                         .NoFilterPredicate()
                         .HasSupportsValueRevealer()
@@ -326,7 +326,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
         (from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
             where fe is {ElementTypeIsNullable: false, ContainsNullElements : false,  HasRestrictingFilter: true } 
             from scaffoldToCall in 
-                scafReg
+                ScafReg
                     .IsAnOrderedCollectionType()
                     .AcceptsNonNullables()
                     .HasFilterPredicate()
@@ -336,7 +336,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
                 from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
                 where fe is {ElementTypeIsClass: true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsAnOrderedCollectionType()
                         .HasFilterPredicate()
                         .HasSupportsValueRevealer()
@@ -346,7 +346,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
                 from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
                 where fe is {ElementTypeIsNullableStruct: true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsAnOrderedCollectionType()
                         .HasFilterPredicate()
                         .HasSupportsValueRevealer()
@@ -358,7 +358,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
         (from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
             where fe is {ElementTypeIsClass: true, ContainsNullElements : false,  HasRestrictingFilter: false } 
             from scaffoldToCall in 
-                scafReg
+                ScafReg
                     .IsAnOrderedCollectionType()
                     .AcceptsNonNullables()
                     .NoFilterPredicate()
@@ -369,7 +369,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
                 from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
                 where fe is {ElementTypeIsClass: true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsAnOrderedCollectionType()
                         .NoFilterPredicate()
                         .HasAcceptsStringBearer()
@@ -380,7 +380,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
                 from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
                 where fe is {ElementTypeIsNullableStruct: true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsAnOrderedCollectionType()
                         .NoFilterPredicate()
                         .HasAcceptsStringBearer()
@@ -393,7 +393,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
         (from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
             where fe is {ElementTypeIsNullable: false, ContainsNullElements : false,  HasRestrictingFilter: true } 
             from scaffoldToCall in 
-                scafReg
+                ScafReg
                     .IsAnOrderedCollectionType()
                     .AcceptsNonNullables()
                     .HasFilterPredicate()
@@ -404,7 +404,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
                 from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
                 where fe is {ElementTypeIsClass: true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsAnOrderedCollectionType()
                         .HasFilterPredicate()
                         .HasAcceptsStringBearer()
@@ -415,7 +415,7 @@ public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
                 from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
                 where fe is {ElementTypeIsNullableStruct: true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsAnOrderedCollectionType()
                         .HasFilterPredicate()
                         .HasAcceptsStringBearer()

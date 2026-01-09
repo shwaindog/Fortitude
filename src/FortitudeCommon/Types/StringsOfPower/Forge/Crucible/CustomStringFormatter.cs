@@ -44,6 +44,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
 
     static CustomStringFormatter() { }
 
+    public virtual FormatStyle FormattingStyle => FormatStyle.None;
+
     protected MutableString? CharSpanCollectionScratchBuffer { get; set; }
 
     protected int LastFormatExceptionBuilderLength { get; set; }
@@ -1083,8 +1085,11 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                 catch (FormatException) { }
                 finally
                 {
-                    if (sbPreAppendLen == sb.Length) { sb.Append(source); }
-                    else { LastFormatExceptionBuilderLength = -1; }
+                    if (sbPreAppendLen == sb.Length)
+                    {
+                        sb.Append(source);
+                    }
+                    LastFormatExceptionBuilderLength = -1;
                 }
             }
             charsWritten = sb.Length - sbPreAppendLen;
@@ -1185,29 +1190,24 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
         catch (FormatException) { }
         if (source.TryFormat(charSpan, out charsWritten, "", null))
         {
-            var sbPreAppendLen = destStartIndex + charsWritten;
-            if (LastFormatExceptionBuilderLength != sbPreAppendLen)
+            try
             {
-                LastFormatExceptionBuilderLength = sbPreAppendLen;
-                try
+                var toTransfer = charSpan[..charsWritten];
+                if (!outputSubRange.IsAllRange())
                 {
-                    var toTransfer = charSpan[..charsWritten];
-                    if (!outputSubRange.IsAllRange())
-                    {
-                        outputSubRange.BoundRangeToLength(toTransfer.Length);
-                        toTransfer = toTransfer[outputSubRange];
-                    }
-                    if (layout.Length == 0)
-                    {
-                        return ResolveContentEncoderFor(source, formatSwitches)
-                            .Transfer(toTransfer, destCharSpan, destStartIndex);
-                    }
-                    var padSpan = stackalloc char[charsWritten + 256].ResetMemory();
-                    var padSize = padSpan.PadAndAlign(toTransfer, layout);
-                    charsWritten += ResolveContentEncoderFor(source, formatSwitches).Transfer(padSpan[..padSize], destCharSpan, destStartIndex);
+                    outputSubRange.BoundRangeToLength(toTransfer.Length);
+                    toTransfer = toTransfer[outputSubRange];
                 }
-                catch (FormatException) { }
+                if (layout.Length == 0)
+                {
+                    return ResolveContentEncoderFor(source, formatSwitches)
+                        .Transfer(toTransfer, destCharSpan, destStartIndex);
+                }
+                var padSpan = stackalloc char[charsWritten + 256].ResetMemory();
+                var padSize = padSpan.PadAndAlign(toTransfer, layout);
+                charsWritten = ResolveContentEncoderFor(source, formatSwitches).Transfer(padSpan[..padSize], destCharSpan, destStartIndex);
             }
+            catch (FormatException) { }
         }
         return charsWritten;
     }

@@ -2581,7 +2581,7 @@ public class EnumCollectionsTestData
                ,
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
-                  , "[\"NDLWFE_4\",\"NDLWFE_First4Mask,·NDLWFE_5,·NDLWFE_7,·NDLWFE_8\",\"NDLWFE_34\"]"
+                  , "[\"NDLWFE_4\",\"NDLWFE_First4Mask, NDLWFE_5, NDLWFE_7, NDLWFE_8\",\"NDLWFE_34\"]"
                 }
                ,
                 {
@@ -2600,7 +2600,7 @@ public class EnumCollectionsTestData
                   , """
                     [
                       "NDLWFE_4",
-                      "NDLWFE_First4Mask,·NDLWFE_5,·NDLWFE_7,·NDLWFE_8",
+                      "NDLWFE_First4Mask, NDLWFE_5, NDLWFE_7, NDLWFE_8",
                       "NDLWFE_34"
                     ]
                     """.Dos2Unix()
@@ -2869,7 +2869,7 @@ public class EnumCollectionsTestData
                ,
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
-                  , "[null,\"NDLWFE_4\",\"NDLWFE_First4Mask,·NDLWFE_5,·NDLWFE_7,·NDLWFE_8\"]"
+                  , "[null,\"NDLWFE_4\",\"NDLWFE_First4Mask, NDLWFE_5, NDLWFE_7, NDLWFE_8\"]"
                 }
                ,
                 {
@@ -2889,7 +2889,7 @@ public class EnumCollectionsTestData
                     [
                       null,
                       "NDLWFE_4",
-                      "NDLWFE_First4Mask,·NDLWFE_5,·NDLWFE_7,·NDLWFE_8"
+                      "NDLWFE_First4Mask, NDLWFE_5, NDLWFE_7, NDLWFE_8"
                     ]
                     """.Dos2Unix()
                 }

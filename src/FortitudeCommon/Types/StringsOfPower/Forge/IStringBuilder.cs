@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Text;
+using FortitudeCommon.Extensions;
 
 namespace FortitudeCommon.Types.StringsOfPower.Forge;
 
@@ -202,14 +203,127 @@ public static class IStringBuilderExtensions
 
     public static IStringBuilder ShiftRightAt(this IStringBuilder toMutate, int from, int by)
     {
-        if (by < 0) return toMutate;
         var oldLength = toMutate.Length;
+        if (by < 0 || oldLength <= from) return toMutate;
         toMutate.EnsureCapacity(by);
-
+        toMutate.Length = oldLength + by;
         for (var i = oldLength - 1 + by; i >= from + by; i--)
         {
             toMutate[i] = toMutate[i - by];
         }
         return toMutate;
+    }
+    
+    
+    public static IStringBuilder CopyAndMakeWhiteSpaceVisible(this IStringBuilder input, IStringBuilder destSb)
+    {
+        var sb = destSb;
+        for (var i = 0; i < input.Length; i++)
+        {
+            var c = input[i];
+            switch (c)
+            {
+                case ' ' :  sb.Append('\u00B7'); break;
+                case '\t' : sb.Append('\u21E5'); break;
+                case '\r' :
+                    sb.Append('\u00B6');
+                    sb.Append('\r');
+                    break;
+                case '\n' : 
+                    if (i - 1 >= 0)
+                    {
+                        var prev = input[i - 1];
+                        if (prev == '\r' && sb.Length - 2 > 0 && sb[^2] == '\u00B6')
+                        {
+                            sb.Append('\n');
+                        }
+                        else
+                        {
+                            sb.Append('\u00B6');
+                            sb.Append('\n');
+                        }
+                    }
+                    else
+                    {
+                        sb.Append('\u00B6');
+                        sb.Append('\n');
+                    }
+                    break;
+                default:  sb.Append(c); break;
+            }
+        }
+        return sb;
+    }
+    
+    public static IStringBuilder IndentSubsequentLines(this IStringBuilder input, string indentChars = "  ")
+    {
+        Span<char> replace = stackalloc char[indentChars.Length + 1];
+        replace.OverWriteAt(0, "\n");
+        replace.OverWriteAt(1, indentChars);
+        return input.Replace("\n", replace);
+    }
+    
+    public static bool IsBrcBounded(this IStringBuilder input)
+    {
+        var hasTwoOpeningBraces  = input.Length > 1 && input[0] == '{';
+        if(!hasTwoOpeningBraces) return false;
+        var hasTwoClosingBraces = input[^1] == '}';
+        if(!hasTwoClosingBraces) return false;
+        for (int i = 1; i < input.Length && hasTwoOpeningBraces; i++)
+        {
+            var checkChar = input[i];
+            if (checkChar == '{')
+            {
+                break;
+            }
+            if (checkChar == '}')
+            {
+                hasTwoOpeningBraces = false;
+                break;
+            }
+        }
+        for (int i = input.Length - 2; i >= 0 && hasTwoClosingBraces; i--)
+        {
+            var checkChar = input[i];
+            if (checkChar == '}')
+            {
+                break;
+            }
+            if (checkChar == '{')
+            {
+                hasTwoClosingBraces = false;
+                break;
+            }
+        }
+        return hasTwoOpeningBraces && hasTwoClosingBraces;
+    }
+    
+    public static bool HasAnyPairedBrc(this IStringBuilder input)
+    {
+        var foundOpeningBrace = input.Length > 1 && input[0] == '{';
+        var foundClosingBrace = input.Length > 1 && input[^1] == '}';
+        if (foundOpeningBrace && foundClosingBrace) return true;
+        int i = 0;
+        for (; i < input.Length && !foundOpeningBrace; i++)
+        {
+            var checkChar = input[i];
+            if (checkChar == '{')
+            {
+                foundOpeningBrace = true;
+                break;
+            }
+        }
+        if (!foundOpeningBrace) return false;
+        int j = input.Length - 1;
+        for (; j > i && !foundClosingBrace; j--)
+        {
+            var checkChar = input[j];
+            if (checkChar == '}')
+            {
+                foundClosingBrace = true;
+                break;
+            }
+        }
+        return foundOpeningBrace && foundClosingBrace;
     }
 }

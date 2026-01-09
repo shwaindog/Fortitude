@@ -22,6 +22,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     public const char   BrcClsChar = '}';
     public const string Cma        = IFormattingOptions.Cma;
 
+    public override FormatStyle FormattingStyle => FormatStyle.Json;
 
     public virtual IJsonFormattingOptions JsonOptions
     {

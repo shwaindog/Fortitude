@@ -2,8 +2,10 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Reflection;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations.UnitFieldsContentTypes;
@@ -91,10 +93,13 @@ public class ContentTypeMoldTestsCompactJsonAsStringTests : ContentTypeMoldCompa
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(CloakedBearerTestData.AllCloakedBearerExpectations[19], ScaffoldingRegistry.AllScaffoldingTypes[1213]);
+        ExecuteIndividualScaffoldExpectation(SpanFormattableStructTestData.SpanFormattableStructExpectations[15], ScaffoldingRegistry.AllScaffoldingTypes[1216], StringBuilderType.MutableString);
+        ExecuteIndividualScaffoldExpectation(SpanFormattableStructTestData.SpanFormattableStructExpectations[15], ScaffoldingRegistry.AllScaffoldingTypes[1217], StringBuilderType.CharArrayStringBuilder);
+        ExecuteIndividualScaffoldExpectation(SpanFormattableStructTestData.SpanFormattableStructExpectations[15], ScaffoldingRegistry.AllScaffoldingTypes[1218], StringBuilderType.MutableString);
+        ExecuteIndividualScaffoldExpectation(SpanFormattableStructTestData.SpanFormattableStructExpectations[15], ScaffoldingRegistry.AllScaffoldingTypes[1232], StringBuilderType.CharArrayStringBuilder);
     }
 
-    protected override string BuildExpectedRootOutput(ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
     {
         var compactJsonTemplate =
@@ -102,17 +107,20 @@ public class ContentTypeMoldTestsCompactJsonAsStringTests : ContentTypeMoldCompa
                 ? "\"{0}\""
                 : "{0}";
 
-        var expectValue = expectation.GetExpectedOutputFor(condition, tos, expectation.ValueFormatString);
+        var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
             
-        if (expectValue != IFormatExpectation.NoResultExpectedValue)
+        if (!expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))
         {
-            if (expectValue == "null" && condition.HasAnyOf(DefaultBecomesNull) ) return "null";
+            if (expectValue.SequenceMatches("null") && condition.HasAnyOf(DefaultBecomesNull) ) return expectValue;
         }
-        else { expectValue = ""; }
-        return string.Format(compactJsonTemplate, expectValue);
+        else { expectValue.Clear(); }
+        var fmtExpect = sbFactory.Borrow<CharArrayStringBuilder>();
+        fmtExpect.AppendFormat(compactJsonTemplate, expectValue);
+        expectValue.DecrementRefCount();
+        return fmtExpect;
     }
     
-    protected override string BuildExpectedChildOutput(ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
         string compactJsonTemplate = 
@@ -122,179 +130,16 @@ public class ContentTypeMoldTestsCompactJsonAsStringTests : ContentTypeMoldCompa
                 :  "\"{{\\u0022{0}\\u0022:{1}}}\"")
             : "{{\"{0}\":{1}}}";
 
-        var expectValue = expectation.GetExpectedOutputFor(condition, tos, expectation.ValueFormatString);
-        if (expectValue != IFormatExpectation.NoResultExpectedValue)
+        var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
+        if (!expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))
         {
-            expectValue = expectValue.Replace("\"", "\\u0022");
+            expectValue.Replace("\"", "\\u0022");
         }
-        else { expectValue = ""; }
+        else { expectValue.Clear(); }
         
-        return string.Format(compactJsonTemplate, propertyName, expectValue);
+        var fmtExpect = sbFactory.Borrow<CharArrayStringBuilder>();
+        fmtExpect.AppendFormat(compactJsonTemplate, propertyName, expectValue);
+        expectValue.DecrementRefCount();
+        return fmtExpect;
     }
-    //
-    // private void SharedCompactJsonAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    // {
-    //     logger.InfoAppend("Simple Value Type Single Value Field  Scaffolding Class - ")?
-    //           .AppendLine(scaffoldingToCall.Name)
-    //           .AppendLine()
-    //           .AppendLine("Scaffolding Flags -")
-    //           .AppendLine(new MutableString().AppendFormat("{0}",  scaffoldingToCall.ScaffoldingFlags).ToString().Replace(",", " |"))
-    //           .FinalAppend("\n");
-    //
-    //     logger.WarnAppend("FormatExpectation - ")?
-    //           .AppendLine(formatExpectation.ToString())
-    //           .FinalAppend("");
-    //         
-    //     logger.InfoAppend("To Debug Test past the following code into ")?
-    //           .Append(nameof(CompactJsonSingleTest)).Append("()\n\n")
-    //           .Append("SharedCompactJsonAsValue(")
-    //           .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
-    //
-    //     // ReSharper disable once RedundantArgumentDefaultValue
-    //     var tos = new TheOneString().Initialize(Compact | Json);
-    //     tos.Settings.NewLineStyle = "\n";
-    //
-    //     string BuildExpectedOutput(ITheOneString tos, string _, string propertyName
-    //       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
-    //     {
-    //         var compactJsonTemplate = expectation.GetType().ExtendsGenericBaseType(typeof(NullableStringBearerExpect<>))
-    //             ? "{{\"{0}\":{1}}}"
-    //             : "{1}";
-    //
-    //         var expectValue = expectation.GetExpectedOutputFor(condition, tos, expectation.ValueFormatString);
-    //         if (expectValue == IFormatExpectation.NoResultExpectedValue)
-    //         {
-    //             expectValue = "";
-    //         }
-    //         return string.Format(compactJsonTemplate, propertyName, expectValue);
-    //     }
-    //
-    //     string BuildChildExpectedOutput(ITheOneString tos, string className, string propertyName
-    //       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
-    //     {
-    //         const string compactJsonTemplate = "{{\"{0}\":{1}}}";
-    //
-    //         var expectValue = expectation.GetExpectedOutputFor(condition, tos, expectation.ValueFormatString);
-    //         return string.Format(compactJsonTemplate, propertyName, expectValue);
-    //     }
-    //
-    //     if (formatExpectation is IComplexFieldFormatExpectation complexFieldExpectation)
-    //     {
-    //         complexFieldExpectation.WhenValueExpectedOutput = BuildChildExpectedOutput;
-    //     }
-    //     tos.Clear();
-    //     var stringBearer = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall, tos.Settings);
-    //     stringBearer.RevealState(tos);
-    //     var buildExpectedOutput =
-    //         BuildExpectedOutput
-    //             (tos, stringBearer.GetType().CachedCSharpNameNoConstraints()
-    //            , ((ISinglePropertyTestStringBearer)stringBearer).PropertyName
-    //            , scaffoldingToCall.ScaffoldingFlags
-    //            , formatExpectation).MakeWhiteSpaceVisible();
-    //     var result = tos.WriteBuffer.ToString().MakeWhiteSpaceVisible();
-    //     if (buildExpectedOutput != result)
-    //     {
-    //         logger.ErrorAppend("Result Did not match Expected - ")?.AppendLine()
-    //               .Append(result).AppendLine()
-    //               .AppendLine("Expected it to match -")
-    //               .AppendLine(buildExpectedOutput)
-    //               .FinalAppend("");
-    //     }
-    //     else
-    //     {
-    //         logger.InfoAppend("Result Matched Expected - ")?.AppendLine()
-    //               .Append(result).AppendLine()
-    //               .FinalAppend("");
-    //     }
-    //     Assert.AreEqual(buildExpectedOutput, result);
-    // }
-    //
-    // private void SharedCompactJsonAsString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)
-    // {
-    //     logger.InfoAppend("Simple Value Type Single Value Field  Scaffolding Class - ")?
-    //           .AppendLine(scaffoldingToCall.Name)
-    //           .AppendLine()
-    //           .AppendLine("Scaffolding Flags -")
-    //           .AppendLine(new MutableString().AppendFormat("{0}",  scaffoldingToCall.ScaffoldingFlags).ToString().Replace(",", " |"))
-    //           .FinalAppend("\n");
-    //
-    //     logger.WarnAppend("FormatExpectation - ")?
-    //           .AppendLine(formatExpectation.ToString())
-    //           .FinalAppend("");
-    //         
-    //     logger.InfoAppend("To Debug Test past the following code into ")?
-    //           .Append(nameof(CompactJsonSingleTest)).Append("()\n\n")
-    //           .Append("SharedCompactJsonAsString(")
-    //           .Append(formatExpectation.ItemCodePath).Append(", ").Append(scaffoldingToCall.ItemCodePath).FinalAppend(");");
-    //
-    //     // ReSharper disable once RedundantArgumentDefaultValue
-    //     var tos = new TheOneString().Initialize(Compact | Json);
-    //     tos.Settings.NewLineStyle = "\n";
-    //
-    //     string BuildExpectedOutput(ITheOneString tos, string className, string propertyName
-    //       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
-    //     {
-    //         var compactJsonTemplate = expectation.GetType().ExtendsGenericBaseType(typeof(NullableStringBearerExpect<>))
-    //             ? "{{\"{0}\":{1}}}"
-    //             : "{1}";
-    //
-    //         var maybeSpace  = "";
-    //         var expectValue = expectation.GetExpectedOutputFor(condition, tos, expectation.ValueFormatString);
-    //         
-    //         if (expectValue != IFormatExpectation.NoResultExpectedValue)
-    //         {
-    //             maybeSpace = expectValue.Trim().Length > 0 ? " " : "";
-    //             if (maybeSpace.Length == 0)
-    //             {
-    //                 expectValue = "";
-    //             }
-    //         }
-    //         else { expectValue = ""; }
-    //         return string.Format(compactJsonTemplate, propertyName, expectValue);
-    //     }
-    //
-    //     string BuildChildExpectedOutput(ITheOneString tos, string className, string propertyName
-    //       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
-    //     {
-    //         const string compactJsonTemplate = "{{\"{0}\":{1}}}";
-    //
-    //         var expectValue = expectation.GetExpectedOutputFor(condition, tos, expectation.ValueFormatString);
-    //         if (expectValue != IFormatExpectation.NoResultExpectedValue)
-    //         {
-    //             expectValue = propertyName + ": " + expectValue + (expectValue.Length > 0 ? " " : "");
-    //         }
-    //         else { expectValue = ""; }
-    //         return string.Format(compactJsonTemplate, propertyName, expectValue);
-    //     }
-    //
-    //     if (formatExpectation is IComplexFieldFormatExpectation complexFieldExpectation)
-    //     {
-    //         complexFieldExpectation.WhenValueExpectedOutput = BuildChildExpectedOutput;
-    //     }
-    //     tos.Clear();
-    //     var stringBearer = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall, tos.Settings);
-    //     stringBearer.RevealState(tos);
-    //     var buildExpectedOutput =
-    //         BuildExpectedOutput
-    //             (tos, stringBearer.GetType().CachedCSharpNameNoConstraints()
-    //            , ((ISinglePropertyTestStringBearer)stringBearer).PropertyName
-    //            , scaffoldingToCall.ScaffoldingFlags
-    //            , formatExpectation).MakeWhiteSpaceVisible();
-    //     var result = tos.WriteBuffer.ToString().MakeWhiteSpaceVisible();
-    //     if (buildExpectedOutput != result)
-    //     {
-    //         logger.ErrorAppend("Result Did not match Expected - ")?.AppendLine()
-    //               .Append(result).AppendLine()
-    //               .AppendLine("Expected it to match -")
-    //               .AppendLine(buildExpectedOutput)
-    //               .FinalAppend("");
-    //     }
-    //     else
-    //     {
-    //         logger.InfoAppend("Result Matched Expected - ")?.AppendLine()
-    //               .Append(result).AppendLine()
-    //               .FinalAppend("");
-    //     }
-    //     Assert.AreEqual(buildExpectedOutput, result);
-    // }
 }
