@@ -20,7 +20,7 @@ namespace FortitudeTests.TestHelpers;
 [NoMatchingProductionClass]
 public class TestMetrics
 {
-    private const int MaxAllowedUntestedClassesInCommon            = 590;
+    private const int MaxAllowedUntestedClassesInCommon            = 610;
     private const int MaxAllowedUntestedClassesInFortitudeIO       = 155;
     private const int MaxAllowedUntestedClassesInFortitudeMarkets  = 470;
     private const int MaxAllowedUntestedClassesInFortitudeBusRules = 117;

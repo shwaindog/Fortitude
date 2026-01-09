@@ -1,10 +1,11 @@
 ﻿using System.Text;
+using FortitudeCommon.DataStructures.MemoryPools;
 
 namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
 
 
-public interface IEncodingTransfer
+public interface IEncodingTransfer : IRecyclableObject
 {
     string EncodingTransferConfigKey { get; }
 

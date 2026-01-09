@@ -2,8 +2,10 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Reflection;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations.MapCollectionsFieldsTypes;
@@ -80,33 +82,42 @@ public class SelectTypeKeyedCollectionFieldPrettyJsonTests : SelectTypeKeyedColl
         ExecuteIndividualScaffoldExpectation(BothRevealersDictTestData.AllBothRevealersUnfilteredDictExpectations[2], ScaffoldingRegistry.AllScaffoldingTypes[634]);
     }
 
-    protected override string BuildExpectedRootOutput(ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
-        const string compactJsonTemplate = "{{{0}{1}{2}{0}}}";
+        const string prettyJsonTemplate = "{{{0}{1}{2}{0}}}";
             
         var maybeNewLine = "";
         var maybeIndent  = "";
-        var expectValue  = expectation.GetExpectedOutputFor(condition, tos, expectation.ValueFormatString);
-        if (expectValue != IFormatExpectation.NoResultExpectedValue)
+        var expectValue  = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
+        if (!expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))
         {
             maybeNewLine = "\n";
             maybeIndent  = "  ";
-            expectValue  = "\"" + propertyName + "\": " + expectValue.IndentSubsequentLines();
+            
+            var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
+            nextExpect.Append("\"").Append(propertyName).Append("\": ").Append(expectValue.IndentSubsequentLines());
+            expectValue.DecrementRefCount();
+            expectValue = nextExpect;
+        }
+        else
+        {
+            expectValue.Clear();
         }
 
-        else { expectValue = ""; }
-
-        return string.Format(compactJsonTemplate, maybeNewLine, maybeIndent, expectValue);
+        var fmtExpect = sbFactory.Borrow<CharArrayStringBuilder>();
+        fmtExpect.AppendFormat(prettyJsonTemplate, maybeNewLine, maybeIndent, expectValue);
+        expectValue.DecrementRefCount();
+        return fmtExpect;
     }
     
-    protected override string BuildExpectedChildOutput(ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
-        var expectValue = expectation.GetExpectedOutputFor(condition, tos, expectation.ValueFormatString);
-        if (expectValue == IFormatExpectation.NoResultExpectedValue)
+        var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
+        if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))
         {
-            expectValue = "";
+            expectValue.Clear();
         }
         return expectValue;
     }

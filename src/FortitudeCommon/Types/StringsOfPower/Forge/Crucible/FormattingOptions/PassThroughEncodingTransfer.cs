@@ -1,9 +1,10 @@
 ﻿using System.Text;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 
 namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
-public class PassThroughEncodingTransfer : IEncodingTransfer
+public class PassThroughEncodingTransfer : RecyclableObject, IEncodingTransfer
 {
     protected const char DblQtChar = '"';
     public string EncodingTransferConfigKey { get; private set; } = nameof(EncodingType.PassThrough);
@@ -36,16 +37,105 @@ public class PassThroughEncodingTransfer : IEncodingTransfer
     }
 
     public virtual int TransferPrefix(bool encodePrefix, ReadOnlySpan<char> source, IStringBuilder destSb) => 
-        Transfer(source, 0, destSb);
+        UffixTransfer(source, destSb);
 
     public virtual int TransferPrefix(bool encodePrefix, ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex) => 
-        Transfer(source, 0, destSpan, destStartIndex);
+        UffixTransfer(source, destSpan, destStartIndex);
 
     public virtual int TransferSuffix(ReadOnlySpan<char> source, IStringBuilder destSb, bool encodeSuffix) => 
-        Transfer(source, 0, destSb);
+        UffixTransfer(source, destSb);
 
     public virtual int TransferSuffix(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex, bool encodeSuffix) => 
-        Transfer(source, 0, destSpan, destStartIndex);
+        UffixTransfer(source, destSpan, destStartIndex);
+    
+    
+    protected int UffixTransfer(ReadOnlySpan<char> source, IStringBuilder destSb)
+    {
+        var cappedLength   = source.Length;
+        
+        destSb.EnsureCapacity(cappedLength);
+        var lastCharWasBrcOpn = false;
+        var lastCharWasBrcCls = false;
+        for (int i = 0; i < cappedLength; i++)
+        {
+            var charToTransfer = source[i];
+            if (charToTransfer.IsBrcOpn())
+            {
+                if (lastCharWasBrcOpn)
+                {
+                    lastCharWasBrcOpn = false;
+                }
+                else
+                {
+                    lastCharWasBrcOpn = true;
+                    destSb.Append(charToTransfer);
+                }
+            }
+            else if (charToTransfer.IsBrcCls())
+            {
+                if (lastCharWasBrcCls)
+                {
+                    lastCharWasBrcCls = false;
+                }
+                else
+                {
+                    lastCharWasBrcCls = true;
+                    destSb.Append(charToTransfer);
+                }
+            }
+            else
+            {
+                lastCharWasBrcOpn = false;
+                lastCharWasBrcCls = false;
+                destSb.Append(charToTransfer);
+            } 
+        }
+        return cappedLength;
+    }
+    
+    protected int UffixTransfer(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex)
+    {
+        var cappedLength =  source.Length;
+        var to           = destStartIndex;
+        
+        var lastCharWasBrcOpn = false;
+        var lastCharWasBrcCls = false;
+        for (int i = 0; i < cappedLength; i++)
+        {
+            var charToTransfer = source[i];
+            if (charToTransfer.IsBrcOpn())
+            {
+                if (lastCharWasBrcOpn)
+                {
+                    lastCharWasBrcOpn = false;
+                }
+                else
+                {
+                    lastCharWasBrcOpn = true;
+                    destSpan[to++] = charToTransfer;
+                }
+            }
+            else if (charToTransfer.IsBrcCls())
+            {
+                if (lastCharWasBrcCls)
+                {
+                    lastCharWasBrcCls = false;
+                }
+                else
+                {
+                    lastCharWasBrcCls = true;
+                    destSpan[to++]    = charToTransfer;
+                }
+            }
+            else
+            {
+                lastCharWasBrcOpn = false;
+                lastCharWasBrcCls = false;
+                destSpan[to++]    = charToTransfer;
+            } 
+        }
+        return cappedLength;
+    }
 
     public int CalculateEncodedLength(ReadOnlySpan<char> source, int sourceFrom = 0, int maxTransferCount = int.MaxValue)
     {

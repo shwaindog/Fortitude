@@ -1013,6 +1013,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         ([StringSyntax(StringSyntaxAttribute.CompositeFormat)] string format, object? arg0, object? arg1, object? arg2)
     {
         ThreeObjects three = new ThreeObjects(arg0, arg1, arg2);
+        EnsureCapacity(512);
         return AppendFormatHelper(null, format, MemoryMarshal.CreateReadOnlySpan(ref three.Arg0, 3));
     }
 
@@ -1390,6 +1391,20 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         var findSpan    = find.AsSpan();
         var replaceSpan = replace.AsSpan();
         ca.Replace(findSpan, replaceSpan);
+        return this;
+    }
+
+    public CharArrayStringBuilder Replace(ReadOnlySpan<char> find, ReadOnlySpan<char> replace)
+    {
+        var searchSpan = ((ReadOnlySpan<char>)ca.WrittenAsSpan());
+        var cappedFrom = 0;
+        var cappedTo   = ca.Length;
+        var count      = searchSpan[cappedFrom..cappedTo].SubSequenceOccurenceCount(find);
+
+        var requiredIncreaseSize = count * Math.Max(0, replace.Length - find.Length);
+        EnsureCapacity(requiredIncreaseSize);
+
+        ca.Replace(find, replace, cappedFrom, cappedTo + requiredIncreaseSize);
         return this;
     }
 
@@ -1794,6 +1809,8 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(string find, string? replace) => Replace(find, replace);
 
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(ReadOnlySpan<char> find, ReadOnlySpan<char> replace) => Replace(find, replace);
+
     IStringBuilder IStringBuilder.Substring(int startIndex) => Substring(startIndex);
 
     IStringBuilder IStringBuilder.Substring(int startIndex, int length) => Substring(startIndex, length);
@@ -1807,12 +1824,10 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<char> GetEnumerator() => ca.GetEnumerator();
-
+    
     public override void StateReset()
     {
         ca.Clear();
-        ca.DecrementRefCount();
-        ca = null!;
         base.StateReset();
     }
 

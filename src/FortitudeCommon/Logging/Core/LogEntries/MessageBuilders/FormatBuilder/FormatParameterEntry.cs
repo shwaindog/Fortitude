@@ -528,7 +528,7 @@ public abstract class FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>
         if (Warnings.Length > 0) formattedStringSoFar.InsertAt(Warnings);
 
         var styleTypeStringAppender = (Recycler?.Borrow<TheOneString>() ?? new TheOneString(FormatStsa!.Style))
-            .Initialize(formattedStringSoFar, FormatStsa!.Style);
+            .ReInitialize(formattedStringSoFar, FormatStsa!.Style);
 
         var addParamsBuilder = (Recycler?.Borrow<FLogStringAppender>() ?? new FLogStringAppender())
             .Initialize(LogEntry, styleTypeStringAppender, OnComplete);
@@ -553,7 +553,7 @@ public abstract class FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>
         if (Warnings.Length > 0) formattedStringSoFar.InsertAt(Warnings);
 
         var styleTypeStringAppender = (Recycler?.Borrow<TheOneString>() ?? new TheOneString(FormatStsa!.Style))
-            .Initialize(formattedStringSoFar, FormatStsa!.Style);
+            .ReInitialize(formattedStringSoFar, FormatStsa!.Style);
 
         var addParamsBuilder = (Recycler?.Borrow<FLogStringAppender>() ?? new FLogStringAppender())
             .Initialize(LogEntry, styleTypeStringAppender, OnComplete);

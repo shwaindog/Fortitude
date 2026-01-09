@@ -392,9 +392,40 @@ public static class CharSpanExtensions
         return -1;
     }
 
+    public static int IndexOf(this ReadOnlySpan<char> subject, char toFind = Terminator, int startingAtIndex = 0)
+    {
+        var length = subject.Length;
+        int i      = startingAtIndex;
+        for (; i < length; i++)
+        {
+            var checkChar = subject[i];
+            if (checkChar == toFind) return i;
+        }
+        return -1;
+    }
+
     public static int IndexOf(this Span<char> subject, ICharSequence toFind, int startingAtIndex = 0)
     {
-        var searchLength = subject.Length - toFind.Length;
+        var searchLength = subject.Length - startingAtIndex - toFind.Length;
+        int i            = startingAtIndex;
+
+        var lastFindIndex = toFind.Length - 1;
+        for (; i <= searchLength; i++)
+        {
+            for (var j = 0; j < toFind.Length; j++)
+            {
+                var checkChar   = subject[i + j];
+                var compareChar = toFind[j];
+                if (checkChar != compareChar) break;
+                if (j == lastFindIndex) return i;
+            }
+        }
+        return -1;
+    }
+
+    public static int IndexOf(this ReadOnlySpan<char> subject, ICharSequence toFind, int startingAtIndex = 0)
+    {
+        var searchLength = subject.Length - startingAtIndex - toFind.Length;
         int i            = startingAtIndex;
 
         var lastFindIndex = toFind.Length - 1;
@@ -413,11 +444,16 @@ public static class CharSpanExtensions
 
     public static int IndexOf(this Span<char> subject, ReadOnlySpan<char> toFind, int startingAtIndex = 0)
     {
-        var searchLength = subject.Length - toFind.Length;
+        
+        var searchLength = subject.Length - startingAtIndex - toFind.Length;
+        var endIndex     = startingAtIndex + searchLength;
         int i            = startingAtIndex;
+        if (searchLength > 0 && toFind.Length == 0 
+         || searchLength == 0 && toFind.Length > 0) return -1;
+        if (searchLength == 0 && toFind.Length == 0) return 0;
 
         var lastFindIndex = toFind.Length - 1;
-        for (; i <= searchLength; i++)
+        for (; i < endIndex; i++)
         {
             for (var j = 0; j < toFind.Length; j++)
             {
@@ -432,8 +468,11 @@ public static class CharSpanExtensions
 
     public static int IndexOf(this ReadOnlySpan<char> subject, string toFind, int startingAtIndex)
     {
-        var searchLength = subject.Length - toFind.Length;
+        var searchLength = subject.Length - startingAtIndex - toFind.Length;
         int i            = startingAtIndex;
+        if (searchLength > 0 && toFind.Length == 0 
+         || searchLength == 0 && toFind.Length > 0) return -1;
+        if (searchLength == 0 && toFind.Length == 0) return 0;
 
         var lastFindIndex = toFind.Length - 1;
         for (; i <= searchLength; i++)
@@ -451,8 +490,11 @@ public static class CharSpanExtensions
 
     public static int IndexOf(this Span<char> subject, StringBuilder toFind, int startingAtIndex = 0)
     {
-        var searchLength = subject.Length - toFind.Length;
+        var searchLength = subject.Length - startingAtIndex - toFind.Length;
         int i            = startingAtIndex;
+        if (searchLength > 0 && toFind.Length == 0 
+         || searchLength == 0 && toFind.Length > 0) return -1;
+        if (searchLength == 0 && toFind.Length == 0) return 0;
 
         var lastFindIndex = toFind.Length - 1;
         for (; i <= searchLength; i++)
@@ -682,7 +724,7 @@ public static class CharSpanExtensions
                 if (fromToDeltaSize > 0)
                 {
                     var startIndex = indexOfFind + find.Length;
-                    var stopIndex  = Math.Min(searchReplaceSpan.Length, searchPopLength);
+                    var stopIndex  = Math.Min(searchReplaceSpan.Length - 1, fromIndex + searchPopLength - 1);
                     for (int i = startIndex; i < stopIndex; i++)
                     {
                         searchReplaceSpan[i] = searchReplaceSpan[i + fromToDeltaSize];
@@ -698,11 +740,12 @@ public static class CharSpanExtensions
                         searchReplaceSpan[i] = searchReplaceSpan[i + fromToDeltaSize];
                     }
                     lengthChange    -= fromToDeltaSize;
-                    
                 }
                 found++;
                 searchReplaceSpan.OverWriteAt(indexOfFind, replace);
-                nextFromIndex = indexOfFind + fromToDeltaSize + 1;
+                nextFromIndex = fromToDeltaSize < 0 
+                    ? indexOfFind + replace.Length
+                    : indexOfFind + find.Length;
             }
         } while (indexOfFind >= 0 && found < occurences);
         return lengthChange;
@@ -728,7 +771,7 @@ public static class CharSpanExtensions
                 if (fromToDeltaSize > 0)
                 {
                     var startIndex = indexOfFind + find.Length;
-                    var stopIndex  = Math.Min(searchReplaceSpan.Length, searchPopLength);
+                    var stopIndex  = Math.Min(searchReplaceSpan.Length - 1, fromIndex + searchPopLength - 1);
                     for (int i = startIndex; i < stopIndex; i++)
                     {
                         searchReplaceSpan[i] = searchReplaceSpan[i + fromToDeltaSize];
@@ -744,11 +787,12 @@ public static class CharSpanExtensions
                         searchReplaceSpan[i] = searchReplaceSpan[i + fromToDeltaSize];
                     }
                     lengthChange    -= fromToDeltaSize;
-                    
                 }
                 found++;
                 searchReplaceSpan.OverWriteAt(indexOfFind, replace);
-                nextFromIndex = indexOfFind + fromToDeltaSize + 1;
+                nextFromIndex = fromToDeltaSize < 0 
+                    ? indexOfFind + replace.Length 
+                    : indexOfFind + find.Length ;
             }
         } while (indexOfFind >= 0 && found < occurences);
         return lengthChange;
@@ -774,7 +818,7 @@ public static class CharSpanExtensions
                 if (fromToDeltaSize > 0)
                 {
                     var startIndex = indexOfFind + find.Length;
-                    var stopIndex  = Math.Min(searchReplaceSpan.Length, searchPopLength);
+                    var stopIndex  = Math.Min(searchReplaceSpan.Length, fromIndex + searchPopLength - 1);
                     for (int i = startIndex; i < stopIndex; i++)
                     {
                         searchReplaceSpan[i] = searchReplaceSpan[i + fromToDeltaSize];
@@ -794,7 +838,7 @@ public static class CharSpanExtensions
                 }
                 found++;
                 searchReplaceSpan.OverWriteAt(indexOfFind, replace);
-                nextFromIndex = indexOfFind + fromToDeltaSize + 1;
+                nextFromIndex = indexOfFind + replace.Length;
             }
         } while (indexOfFind >= 0 && found < occurences);
         return lengthChange;

@@ -52,6 +52,14 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
     public MutableString(StringBuilder initializedBuilder) => sb = initializedBuilder;
 
+    public MutableString Initialize(string? initialString)
+    {
+        sb.Clear();
+        sb.Append(initialString);
+
+        return this;
+    }
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     [DebuggerHidden]
     IMaybeFrozen IFreezable.Freeze => Freeze;
@@ -411,6 +419,8 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         Replace(find, replace, startIndex, length);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(string find, string? replace) => Replace(find, replace);
+
+    IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(ReadOnlySpan<char> find, ReadOnlySpan<char> replace) => Replace(find, replace);
 
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Replace(string find, string replace, int startIndex, int length) =>
         Replace(find, replace, startIndex, length);
@@ -1660,6 +1670,13 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     {
         if (IsFrozen) return ShouldThrow();
         sb.Replace(find, replace);
+        return this;
+    }
+
+    public MutableString Replace(ReadOnlySpan<char> find, ReadOnlySpan<char> replace)
+    {
+        if (IsFrozen) return ShouldThrow();
+        Replace(find, replace, 0, int.MaxValue);
         return this;
     }
 

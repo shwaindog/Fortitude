@@ -32,7 +32,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
         (from fe in BoolCollectionsTestData.AllBoolCollectionExpectations
             where !fe.ElementTypeIsNullable && !fe.HasRestrictingFilter   
             from scaffoldToCall in 
-                scafReg
+                ScafReg
                     .IsJustComplexType()
                     .ProcessesCollection()
                     .NoFilterPredicate()
@@ -43,7 +43,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in BoolCollectionsTestData.AllBoolCollectionExpectations
                 where fe.ElementTypeIsNullable && !fe.HasRestrictingFilter   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .NoFilterPredicate()
@@ -57,7 +57,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
         (from fe in BoolCollectionsTestData.AllBoolCollectionExpectations
             where !fe.ElementTypeIsNullable && fe.HasRestrictingFilter   
             from scaffoldToCall in 
-                scafReg
+                ScafReg
                     .IsJustComplexType()
                     .ProcessesCollection()
                     .HasFilterPredicate()
@@ -68,7 +68,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in BoolCollectionsTestData.AllBoolCollectionExpectations
                 where fe.ElementTypeIsNullable && fe.HasRestrictingFilter   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .HasFilterPredicate()
@@ -82,7 +82,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
         (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
             where fe is {ElementTypeIsNullable: false, HasRestrictingFilter: false }   
             from scaffoldToCall in 
-                scafReg
+                ScafReg
                     .IsJustComplexType()
                     .ProcessesCollection()
                     .NoFilterPredicate()
@@ -94,7 +94,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
                 where fe is { ElementTypeIsNullable: true, ElementTypeIsStruct: true, HasRestrictingFilter: false }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .NoFilterPredicate()
@@ -106,7 +106,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
                 where fe is {ElementTypeIsClass : true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .NoFilterPredicate()
@@ -121,7 +121,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
         (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
             where fe is {ElementTypeIsNullable: false, HasRestrictingFilter: true }   
             from scaffoldToCall in 
-                scafReg
+                ScafReg
                     .IsJustComplexType()
                     .ProcessesCollection()
                     .HasFilterPredicate()
@@ -134,7 +134,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
                 where fe is { ElementTypeIsNullable: true, ElementTypeIsStruct: true, HasRestrictingFilter: true }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .HasFilterPredicate()
@@ -147,7 +147,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
                 where fe is {ElementTypeIsClass : true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .HasFilterPredicate()
@@ -161,7 +161,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
         (from fe in StringCollectionsTestData.AllStringCollectionExpectations
         where fe.ElementType.IsString() && fe is {ContainsNullElements : false,  HasRestrictingFilter: false } 
         from scaffoldToCall in 
-            scafReg
+            ScafReg
                 .IsJustComplexType()
                 .ProcessesCollection()
                 .AcceptsNonNullables()
@@ -173,7 +173,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in StringCollectionsTestData.AllStringCollectionExpectations
                 where fe is {ContainsNullElements : true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .NoFilterPredicate()
@@ -186,7 +186,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in StringCollectionsTestData.AllStringCollectionExpectations
                 where fe is {ElementTypeIsClass : true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .NoFilterPredicate()
@@ -200,7 +200,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
         (from fe in StringCollectionsTestData.AllStringCollectionExpectations
         where fe.ElementType.IsString() && fe is { ContainsNullElements : false,  HasRestrictingFilter: true } 
         from scaffoldToCall in 
-            scafReg
+            ScafReg
                 .IsJustComplexType()
                 .ProcessesCollection()
                 .AcceptsNonNullables()
@@ -212,7 +212,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in StringCollectionsTestData.AllStringCollectionExpectations
                 where fe is {ContainsNullElements : true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .HasFilterPredicate()
@@ -225,7 +225,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in StringCollectionsTestData.AllStringCollectionExpectations
                 where fe is {ElementTypeIsClass : true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .HasFilterPredicate()
@@ -239,7 +239,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
         (from fe in CharSequenceCollectionsTestData.AllCharSequenceCollectionExpectations
         where fe is {ContainsNullElements : false,  HasRestrictingFilter: false } 
         from scaffoldToCall in 
-            scafReg
+            ScafReg
                 .IsJustComplexType()
                 .ProcessesCollection()
                 .AcceptsNonNullables()
@@ -251,7 +251,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in CharSequenceCollectionsTestData.AllCharSequenceCollectionExpectations
                 where fe is {ContainsNullElements : true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .NoFilterPredicate()
@@ -264,7 +264,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in CharSequenceCollectionsTestData.AllCharSequenceCollectionExpectations
                 where fe is {ElementTypeIsClass : true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .NoFilterPredicate()
@@ -278,7 +278,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
         (from fe in CharSequenceCollectionsTestData.AllCharSequenceCollectionExpectations
         where fe is { ContainsNullElements : false,  HasRestrictingFilter: true } 
         from scaffoldToCall in 
-            scafReg
+            ScafReg
                 .IsJustComplexType()
                 .ProcessesCollection()
                 .AcceptsNonNullables()
@@ -290,7 +290,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in CharSequenceCollectionsTestData.AllCharSequenceCollectionExpectations
                 where fe is {ContainsNullElements : true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .HasFilterPredicate()
@@ -303,7 +303,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in CharSequenceCollectionsTestData.AllCharSequenceCollectionExpectations
                 where fe is {ElementTypeIsClass : true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .HasFilterPredicate()
@@ -317,7 +317,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
         (from fe in StringBuilderCollectionsTestData.AllStringBuilderCollectionExpectations
         where fe is {ContainsNullElements : false,  HasRestrictingFilter: false } 
         from scaffoldToCall in 
-            scafReg
+            ScafReg
                 .IsJustComplexType()
                 .ProcessesCollection()
                 .AcceptsNonNullables()
@@ -329,7 +329,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in StringBuilderCollectionsTestData.AllStringBuilderCollectionExpectations
                 where fe is {ContainsNullElements : true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .NoFilterPredicate()
@@ -343,7 +343,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
         (from fe in StringBuilderCollectionsTestData.AllStringBuilderCollectionExpectations
         where fe is {ContainsNullElements : false,  HasRestrictingFilter: true } 
         from scaffoldToCall in 
-            scafReg
+            ScafReg
                 .IsJustComplexType()
                 .ProcessesCollection()
                 .AcceptsNonNullables()
@@ -355,7 +355,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in StringBuilderCollectionsTestData.AllStringBuilderCollectionExpectations
                 where fe is {ContainsNullElements : true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .HasFilterPredicate()
@@ -369,7 +369,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
         (from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
             where fe is {ElementTypeIsClass: true, ContainsNullElements : false,  HasRestrictingFilter: false } 
             from scaffoldToCall in 
-                scafReg
+                ScafReg
                     .IsJustComplexType()
                     .ProcessesCollection()
                     .AcceptsNonNullables()
@@ -380,7 +380,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
                 where fe is {ElementTypeIsClass: true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .NoFilterPredicate()
@@ -391,7 +391,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
                 where fe is {ElementTypeIsNullableStruct: true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .NoFilterPredicate()
@@ -404,7 +404,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
         (from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
             where fe is {ElementTypeIsNullable: false, ContainsNullElements : false,  HasRestrictingFilter: true } 
             from scaffoldToCall in 
-                scafReg
+                ScafReg
                     .IsJustComplexType()
                     .ProcessesCollection()
                     .AcceptsNonNullables()
@@ -415,7 +415,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
                 where fe is {ElementTypeIsClass: true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .HasFilterPredicate()
@@ -426,7 +426,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
                 where fe is {ElementTypeIsNullableStruct: true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .HasFilterPredicate()
@@ -439,7 +439,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
         (from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
             where fe is {ElementTypeIsClass: true, ContainsNullElements : false,  HasRestrictingFilter: false } 
             from scaffoldToCall in 
-                scafReg
+                ScafReg
                     .IsJustComplexType()
                     .ProcessesCollection()
                     .AcceptsNonNullables()
@@ -451,7 +451,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
                 where fe is {ElementTypeIsClass: true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .NoFilterPredicate()
@@ -463,7 +463,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
                 where fe is {ElementTypeIsNullableStruct: true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .NoFilterPredicate()
@@ -477,7 +477,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
         (from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
             where fe is {ElementTypeIsNullable: false, ContainsNullElements : false,  HasRestrictingFilter: true } 
             from scaffoldToCall in 
-                scafReg
+                ScafReg
                     .IsJustComplexType()
                     .ProcessesCollection()
                     .AcceptsNonNullables()
@@ -489,7 +489,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
                 where fe is {ElementTypeIsClass: true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .HasFilterPredicate()
@@ -501,7 +501,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonExpectationTestBase
                 from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
                 where fe is {ElementTypeIsNullableStruct: true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
-                    scafReg
+                    ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .HasFilterPredicate()

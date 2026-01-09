@@ -44,6 +44,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
 
     static CustomStringFormatter() { }
 
+    public virtual FormatStyle FormattingStyle => FormatStyle.None;
+
     protected MutableString? CharSpanCollectionScratchBuffer { get; set; }
 
     protected int LastFormatExceptionBuilderLength { get; set; }
@@ -1087,7 +1089,7 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
                     {
                         sb.Append(source);
                     }
-                    else { LastFormatExceptionBuilderLength = -1; }
+                    LastFormatExceptionBuilderLength = -1;
                 }
             }
             charsWritten = sb.Length - sbPreAppendLen;

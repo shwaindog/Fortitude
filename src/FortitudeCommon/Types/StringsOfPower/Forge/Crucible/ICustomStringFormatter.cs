@@ -27,7 +27,9 @@ public interface ICustomStringFormatter : IRecyclableObject
 
     int AddCollectionElementSeparatorAndPadding(Type collectionType, Span<char> destSpan, int atSpanOffset, int nextItemNumber
     , FormatSwitches formatFlags = EncodeInnerContent);
-    
+
+    FormatStyle FormattingStyle { get; }
+
     int AppendDelimiterStart(Type maybeDelimited, IStringBuilder sb);
     int AppendDelimiterEnd(Type maybeDelimited, IStringBuilder sb);
     int AppendDelimiterStart(Type maybeDelimited, Span<char> destSpan, int fromIndex);

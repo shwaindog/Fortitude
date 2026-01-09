@@ -13,9 +13,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 {
     string Name { get; }
     
-    public GraphTrackingBuilder GraphBuilder { get; }
-    
-    
+    public GraphTrackingBuilder GraphBuilder { get; set; }
 
     FormatFlags ResolveContentFormattingFlags<T>(IStringBuilder sb, T input, FormatFlags callerFormattingFlags
     , string formatString = "", bool isFieldName = false);

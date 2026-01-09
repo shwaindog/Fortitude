@@ -21,12 +21,10 @@ public static class CharSequenceExtensions
 
     public static bool SequenceMatches(this ICharSequence search, ICharSequence checkIsSame)
     {
-        var fromIndex    = search.Length;
-        var cappedLength = Math.Min(fromIndex, checkIsSame.Length);
-        if (checkIsSame.Length != cappedLength) return false;
-        for (int i = 0; i < cappedLength; i++)
+        if (search.Length != checkIsSame.Length) return false;
+        for (int i = 0; i < search.Length; i++)
         {
-            var checkChar   = search[fromIndex + i];
+            var checkChar   = search[i];
             var compareChar = checkIsSame[i];
             if (checkChar != compareChar) return false;
         }
@@ -51,5 +49,20 @@ public static class CharSequenceExtensions
         var i = sb.Length - 1;
         for (; i >= 0 && sb[i].IsWhiteSpace(); i--) ; // no op
         return sb[Math.Max(0, i)];
+    }
+    
+    
+    public static int DiffPosition(this ICharSequence input, ICharSequence compare)
+    {
+        var compareLength = Math.Min(compare.Length, input.Length);
+        for (var i = 0; i < compareLength; i++)
+        {
+            var iC = input[i];
+            var cC = compare[i];
+            if (iC != cC) return i;
+        }
+        if(input.Length > compare.Length) return compare.Length;
+        if(compare.Length > input.Length) return input.Length;
+        return -1;
     }
 }

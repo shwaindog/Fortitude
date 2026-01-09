@@ -383,7 +383,7 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
         if (index < backingArray!.Length)
         {
             var stopLen = Math.Min(RemainingCapacity, itemLen);
-            int j         = index;
+            int j       = index;
             for (int i = 0; i < stopLen; i++) { backingArray[j++] = item[i]; }
             length += stopLen;
         }
@@ -646,7 +646,7 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
     {
         if (RemainingCapacity <= minReqCapacity)
         {
-            var nextBase2 = minReqCapacity.NextPowerOfTwo();
+            var nextBase2         = (Capacity + minReqCapacity + 32).NextPowerOfTwo();
             var newRecyclingArray = (Math.Max(Capacity * 2, nextBase2)).SourceRecyclingCharArray();
             var myCa              = backingArray!;
             var newCa             = newRecyclingArray.BackingArray;

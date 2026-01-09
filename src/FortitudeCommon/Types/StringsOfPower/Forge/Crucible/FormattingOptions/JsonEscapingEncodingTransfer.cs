@@ -319,10 +319,10 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
                 else
                     break;
             }
-            if (i < source.Length) { return JsEscapingTransfer(source, i, destSb) + i; }
+            if (i < source.Length) { return UffixTransfer(source, i, destSb) + i; }
             return i;
         }
-        else { return JsEscapingTransfer(source, 0, destSb); }
+        else { return UffixTransfer(source, 0, destSb); }
     }
 
     public int TransferPrefix(bool encodePrefix, ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex)
@@ -339,10 +339,10 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
                 else
                     break;
             }
-            if (i < source.Length) { return JsEscapingTransfer(source, i, destSpan, destStartIndex + i) + i; }
+            if (i < source.Length) { return UffixTransfer(source, i, destSpan, destStartIndex + i) + i; }
             return i;
         }
-        else { return JsEscapingTransfer(source, 0, destSpan, destStartIndex); }
+        else { return UffixTransfer(source, 0, destSpan, destStartIndex); }
     }
 
     public int TransferSuffix(ReadOnlySpan<char> source, IStringBuilder destSb, bool encodeSuffix)
@@ -359,14 +359,14 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
             i += 1;
             if (source.Length > 0)
             {
-                var encodedCount = JsEscapingTransfer(source, 0, destSb, maxTransferCount: i);
+                var encodedCount = UffixTransfer(source, 0, destSb, maxTransferCount: i);
                 var escapedChars = source.Length - i;
                 for (var j = i; j < source.Length; j++) { destSb.Append(source[j]); }
                 return encodedCount + escapedChars;
             }
             return 0;
         }
-        else { return JsEscapingTransfer(source, 0, destSb); }
+        else { return UffixTransfer(source, 0, destSb); }
     }
 
     public int TransferSuffix(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex, bool encodeSuffix)
@@ -383,14 +383,161 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
             i += 1;
             if (source.Length > 0)
             {
-                var encodedCount = JsEscapingTransfer(source, 0, destSpan, destStartIndex, maxTransferCount: i);
+                var encodedCount = UffixTransfer(source, 0, destSpan, destStartIndex, maxTransferCount: i);
                 var escapedChars = source.Length - i;
                 for (var j = 0; j < escapedChars; j++) { destSpan.OverWriteAt(destStartIndex + encodedCount + j, source[i + j]); }
                 return encodedCount + escapedChars;
             }
             return 0;
         }
-        else { return JsEscapingTransfer(source, 0, destSpan, destStartIndex); }
+        else { return UffixTransfer(source, 0, destSpan, destStartIndex); }
+    }
+    
+    protected int UffixTransfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder destSb, int maxTransferCount = int.MaxValue)
+    {
+        var cappedFrom      =  Math.Clamp(sourceFrom, 0, source.Length);
+        var cappedLength    = Math.Clamp(maxTransferCount, 0, source.Length - cappedFrom);
+        var preAppendLength = destSb.Length;
+        destSb.EnsureCapacity(cappedLength);
+        var lastCharWasBrcOpn = false;
+        var lastCharWasBrcCls = false;
+        for (int i = cappedFrom; i < cappedLength; i++)
+        {
+            var charToTransfer = source[i];
+            if (charToTransfer.IsBrcOpn())
+            {
+                if (lastCharWasBrcOpn)
+                {
+                    lastCharWasBrcOpn = false;
+                }
+                else
+                {
+                    lastCharWasBrcOpn = true;
+                    if (charToTransfer.IsSingleCharRune())
+                    {
+                        var iRune = new Rune(charToTransfer);
+                        ProcessAppendRune(iRune, destSb);
+                    }
+                    else if (i + 1 < cappedLength)
+                    {
+                        var iRune = new Rune(charToTransfer, source[++i]);
+                        ProcessAppendRune(iRune, destSb); 
+                    }
+                }
+            }
+            else if (charToTransfer.IsBrcCls())
+            {
+                if (lastCharWasBrcCls)
+                {
+                    lastCharWasBrcCls = false;
+                }
+                else
+                {
+                    lastCharWasBrcCls = true;
+                    
+                    if (charToTransfer.IsSingleCharRune())
+                    {
+                        var iRune = new Rune(charToTransfer);
+                        ProcessAppendRune(iRune, destSb);
+                    }
+                    else if (i + 1 < cappedLength)
+                    {
+                        var iRune = new Rune(charToTransfer, source[++i]);
+                        ProcessAppendRune(iRune, destSb); 
+                    }
+                }
+            }
+            else
+            {
+                lastCharWasBrcOpn = false;
+                lastCharWasBrcCls = false;
+                if (charToTransfer.IsSingleCharRune())
+                {
+                    var iRune = new Rune(charToTransfer);
+                    ProcessAppendRune(iRune, destSb);
+                }
+                else if (i + 1 < cappedLength)
+                {
+                    var iRune = new Rune(charToTransfer, source[++i]);
+                    ProcessAppendRune(iRune, destSb); 
+                }
+            } 
+        }
+        return destSb.Length - preAppendLength;
+    }
+    
+    protected int UffixTransfer(ReadOnlySpan<char> source, int sourceFrom, Span<char> destSpan, int destStartIndex
+      , int maxTransferCount = int.MaxValue)
+    {
+        var cappedFrom   =  Math.Clamp(sourceFrom, 0, source.Length);
+        var cappedLength = Math.Clamp(maxTransferCount, 0, source.Length - cappedFrom);
+        
+        var lastCharWasBrcOpn = false;
+        var lastCharWasBrcCls = false;
+        
+        int countAdded = 0;
+        for (int i = cappedFrom; i < cappedLength; i++)
+        {
+            var charToTransfer = source[i];
+            if (charToTransfer.IsBrcOpn())
+            {
+                if (lastCharWasBrcOpn)
+                {
+                    lastCharWasBrcOpn = false;
+                }
+                else
+                {
+                    lastCharWasBrcOpn = true;
+                    if (charToTransfer.IsSingleCharRune())
+                    {
+                        var iRune = new Rune(charToTransfer);
+                        countAdded += ProcessRune(iRune, destSpan, destStartIndex + countAdded);
+                    }
+                    else if (i + 1 < cappedLength && destStartIndex + countAdded + 1 < destSpan.Length)
+                    {
+                        var iRune = new Rune(charToTransfer, source[++i]);
+                        countAdded += ProcessRune(iRune, destSpan, destStartIndex + countAdded);
+                    }
+                }
+            }
+            else if (charToTransfer.IsBrcCls())
+            {
+                if (lastCharWasBrcCls)
+                {
+                    lastCharWasBrcCls = false;
+                }
+                else
+                {
+                    lastCharWasBrcCls = true;
+                    if (charToTransfer.IsSingleCharRune())
+                    {
+                        var iRune = new Rune(charToTransfer);
+                        countAdded += ProcessRune(iRune, destSpan, destStartIndex + countAdded);
+                    }
+                    else if (i + 1 < cappedLength && destStartIndex + countAdded + 1 < destSpan.Length)
+                    {
+                        var iRune = new Rune(charToTransfer, source[++i]);
+                        countAdded += ProcessRune(iRune, destSpan, destStartIndex + countAdded);
+                    }
+                }
+            }
+            else
+            {
+                lastCharWasBrcOpn = false;
+                lastCharWasBrcCls = false;
+                if (charToTransfer.IsSingleCharRune())
+                {
+                    var iRune = new Rune(charToTransfer);
+                    countAdded += ProcessRune(iRune, destSpan, destStartIndex + countAdded);
+                }
+                else if (i + 1 < cappedLength && destStartIndex + countAdded + 1 < destSpan.Length)
+                {
+                    var iRune = new Rune(charToTransfer, source[++i]);
+                    countAdded += ProcessRune(iRune, destSpan, destStartIndex + countAdded);
+                }
+            } 
+        }
+        return countAdded;
     }
 
     public virtual int Transfer(ReadOnlySpan<char> source, IStringBuilder destSb, int destStartIndex = int.MaxValue)

@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Runtime.CompilerServices;
 using FortitudeCommon.DataStructures.Lists.PositionAware;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Logging.Core.LoggerViews;
@@ -31,7 +32,8 @@ public interface IFormatExpectation : ICodeLocationAwareListItem
 
     string ShortTestName { get; }
 
-    string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition, ITheOneString tos, string? formatString = null);
+    IStringBuilder GetExpectedOutputFor(IRecycler sbFactory,  ScaffoldingStringBuilderInvokeFlags condition, ITheOneString tos
+      , string? formatString = null);
 
     IStringBearer CreateStringBearerWithValueFor(ScaffoldingPartEntry scaffoldEntry, StyleOptions stringStyle);
 }
@@ -152,8 +154,10 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
         ? $"{ListOwningType.Name}.{ListMemberName}[{AtIndex}]"
         : $"UnsetListOwnerType.UnknownListMemberName[{AtIndex}]";
 
-    public virtual string GetExpectedOutputFor(ScaffoldingStringBuilderInvokeFlags condition, ITheOneString tos, string? formatString = null)
+    public virtual IStringBuilder GetExpectedOutputFor(IRecycler sbFactory,  ScaffoldingStringBuilderInvokeFlags condition, ITheOneString tos
+      , string? formatString = null)
     {
+        var sb = sbFactory.Borrow<CharArrayStringBuilder>();
         for (var i = 0; i < ExpectedResults.Count; i++)
         {
             var existing = ExpectedResults[i];
@@ -164,10 +168,12 @@ public abstract class ExpectBase<TInput> : ITypedFormatExpectation<TInput>, IEnu
             }
             Logger.WarnAppend("Selected -")?.FinalAppend(i);
             var rawInternal = existing.Value;
-            return rawInternal;
+            sb.Append(rawInternal);
+            return sb;
         }
         Logger.Error("No Match Found !");
-        return IFormatExpectation.NoResultExpectedValue;
+        sb.Append(IFormatExpectation.NoResultExpectedValue);
+        return sb;
     }
 
     public void Add(EK key, string value)

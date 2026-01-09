@@ -2,8 +2,10 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Reflection;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations.UnitFieldsContentTypes;
@@ -94,7 +96,7 @@ public class ContentTypeMoldPrettyLogAsValueTests : ContentTypeMoldAsValueTests
         ExecuteIndividualScaffoldExpectation(StringBuilderTestData.AllStringBuilderExpectations[5], ScaffoldingRegistry.AllScaffoldingTypes[1380]);
     }
 
-    protected override string BuildExpectedRootOutput(ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
         var prettyLogTemplate = 
@@ -106,45 +108,52 @@ public class ContentTypeMoldPrettyLogAsValueTests : ContentTypeMoldAsValueTests
         var maybeNewLine = "";
         var maybeIndent  = "";
 
-        var maybeProperty = propertyName.IsNotEmpty() && condition.HasComplexTypeFlag() ? $"{propertyName}: " : "";
-        var expectValue   = expectation.GetExpectedOutputFor(condition, tos, expectation.ValueFormatString);
-        if (expectValue != IFormatExpectation.NoResultExpectedValue)
+        var expectValue   = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
+        if (!expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))
         {
             maybeNewLine = "\n";
             maybeIndent  = "  ";
-            expectValue  = 
-                maybeProperty + 
-                (condition.HasComplexTypeFlag() && expectValue.HasAnyPairedBrc() 
-                    ? expectValue.IndentSubsequentLines() 
-                    : expectValue);
+            var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
+            if(propertyName.IsNotEmpty() && condition.HasComplexTypeFlag()) nextExpect.Append(propertyName).Append(": ");
+            if(condition.HasComplexTypeFlag() && expectValue.HasAnyPairedBrc()) expectValue.IndentSubsequentLines();
+            nextExpect.Append(expectValue);
+            expectValue.DecrementRefCount();
+            expectValue = nextExpect;
         }
         else
         {
-            expectValue = "";
+            expectValue.Clear();
         }
-
-        return string.Format(prettyLogTemplate, className, maybeNewLine, maybeIndent, expectValue);
+        var fmtExpect = sbFactory.Borrow<CharArrayStringBuilder>();
+        fmtExpect.AppendFormat(prettyLogTemplate, className, maybeNewLine, maybeIndent, expectValue);
+        expectValue.DecrementRefCount();
+        return fmtExpect;
     }
     
-    protected override string BuildExpectedChildOutput(ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
         const string prettyLogTemplate = "{0} {{{1}{2}{3}{1}}}";
 
         var maybeNewLine = "";
         var maybeIndent  = "";
-        var expectValue  = expectation.GetExpectedOutputFor(condition, tos, expectation.ValueFormatString);
-        if (expectValue != IFormatExpectation.NoResultExpectedValue)
+        var expectValue  = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
+        if (!expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))
         {
             maybeNewLine = "\n";
             maybeIndent  = "  ";
-            expectValue  = propertyName + ": " + (condition.HasComplexTypeFlag() && expectValue.HasAnyPairedBrc() 
-                ? expectValue.IndentSubsequentLines() 
-                : expectValue);
+            var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
+            nextExpect.Append(propertyName).Append(": ");
+            if(condition.HasComplexTypeFlag() && expectValue.HasAnyPairedBrc()) expectValue.IndentSubsequentLines();
+            nextExpect.Append(expectValue);
+            expectValue.DecrementRefCount();
+            expectValue = nextExpect;
         }
 
-        else { expectValue = ""; }
-
-        return string.Format(prettyLogTemplate, className, maybeNewLine, maybeIndent, expectValue);
+        else { expectValue.Clear(); }
+        var fmtExpect = sbFactory.Borrow<CharArrayStringBuilder>();
+        fmtExpect.AppendFormat(prettyLogTemplate, className, maybeNewLine, maybeIndent, expectValue);
+        expectValue.DecrementRefCount();
+        return fmtExpect;
     }
 }

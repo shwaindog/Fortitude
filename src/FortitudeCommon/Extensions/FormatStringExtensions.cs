@@ -27,7 +27,7 @@ public readonly struct SplitJoinRange : ISpanFormattable
 {
     private readonly DoubleCacheLineChars splitChars;
     private readonly DoubleCacheLineChars joinChars;
-    private readonly Range     splitElementsRange;
+    private readonly Range                splitElementsRange;
 
     private readonly byte splitLength;
     private readonly byte joinLength;
@@ -78,10 +78,7 @@ public readonly struct SplitJoinRange : ISpanFormattable
         }
         splitLength = (byte)Math.Min(4, splitChars.Length);
         joinLength  = (byte)Math.Min(4, joinChars.Length);
-        if (splitChars == joinChars && splitElementsRange.IsAllRange())
-        {
-            splitLength = 0;
-        }
+        if (splitChars == joinChars && splitElementsRange.IsAllRange()) { splitLength = 0; }
         this.splitElementsRange = splitElementsRange;
     }
 
@@ -92,19 +89,13 @@ public readonly struct SplitJoinRange : ISpanFormattable
 
     public int WriteSplitOn(Span<char> destination, int fromDestIndex)
     {
-        for (int i = 0; i < splitLength; i++)
-        {
-            destination[fromDestIndex + i] = splitChars[i];
-        }
+        for (int i = 0; i < splitLength; i++) { destination[fromDestIndex + i] = splitChars[i]; }
         return splitLength;
     }
 
     public int WriteJoinOn(Span<char> destination, int fromDestIndex)
     {
-        for (int i = 0; i < joinLength; i++)
-        {
-            destination[fromDestIndex + i] = joinChars[i];
-        }
+        for (int i = 0; i < joinLength; i++) { destination[fromDestIndex + i] = joinChars[i]; }
         return joinLength;
     }
 
@@ -114,15 +105,9 @@ public readonly struct SplitJoinRange : ISpanFormattable
     {
         var splitSpan           = splitChars[..splitLength];
         var splitOccurenceCount = -1;
-        if (!IsNoSplitJoin)
-        {
-            splitOccurenceCount = original.SubSequenceOccurenceCount(splitSpan);
-        }
-        if (IsNoSplitJoin || splitOccurenceCount < 1)
-        {
-            return contentEncoder.Transfer(original, bufferWritten, 0);
-        }
-        Span<Range> splitRanges    = stackalloc Range[splitOccurenceCount+1];
+        if (!IsNoSplitJoin) { splitOccurenceCount = original.SubSequenceOccurenceCount(splitSpan); }
+        if (IsNoSplitJoin || splitOccurenceCount < 1) { return contentEncoder.Transfer(original, bufferWritten, 0); }
+        Span<Range> splitRanges    = stackalloc Range[splitOccurenceCount + 1];
         var         numberOfRanges = original.Split(splitRanges, splitSpan);
         splitRanges = splitRanges[..numberOfRanges];
         var boundRange = splitElementsRange.BoundRangeToLength(splitRanges.Length);
@@ -134,10 +119,7 @@ public readonly struct SplitJoinRange : ISpanFormattable
         {
             var toCopy = original[splitRanges[i]];
             bufi += contentEncoder.Transfer(toCopy, bufferWritten, bufi);
-            if (i < splitRanges.Length - 1)
-            {
-                bufi += joinEncoder.Transfer(joinSpan, bufferWritten, bufi);
-            }
+            if (i < splitRanges.Length - 1) { bufi += joinEncoder.Transfer(joinSpan, bufferWritten, bufi); }
         }
         return bufi;
     }
@@ -146,15 +128,9 @@ public readonly struct SplitJoinRange : ISpanFormattable
     {
         var splitSpan           = splitChars[..splitLength];
         var splitOccurenceCount = -1;
-        if (!IsNoSplitJoin)
-        {
-            splitOccurenceCount = original.SubSequenceOccurenceCount(splitSpan);
-        }
-        if (IsNoSplitJoin || splitOccurenceCount < 1)
-        {
-            return contentEncoder.Transfer(original, sb);
-        }
-        Span<Range> splitRanges    = stackalloc Range[splitOccurenceCount+1];
+        if (!IsNoSplitJoin) { splitOccurenceCount = original.SubSequenceOccurenceCount(splitSpan); }
+        if (IsNoSplitJoin || splitOccurenceCount < 1) { return contentEncoder.Transfer(original, sb); }
+        Span<Range> splitRanges    = stackalloc Range[splitOccurenceCount + 1];
         var         numberOfRanges = original.Split(splitRanges, splitSpan);
         splitRanges = splitRanges[..numberOfRanges];
         var boundRange = splitElementsRange.BoundRangeToLength(splitRanges.Length);
@@ -166,10 +142,7 @@ public readonly struct SplitJoinRange : ISpanFormattable
         {
             var toCopy = original[splitRanges[i]];
             bufi += contentEncoder.Transfer(toCopy, sb);
-            if (i < splitRanges.Length - 1)
-            {
-                bufi += joinEncoder.Transfer(joinSpan, sb);
-            }
+            if (i < splitRanges.Length - 1) { bufi += joinEncoder.Transfer(joinSpan, sb); }
         }
         return bufi;
     }
@@ -209,7 +182,12 @@ public static class ExtendedSpanFormattableExtensions
         if (toCheck.Length == 0) return foundFormatStages;
         ReadOnlySpan<char> remainingSpan = toCheck[fromIndex..];
 
-        var indexOfBrcOpn = remainingSpan.IndexOf('{');
+        int indexOfBrcOpn;
+        var searchFormatOpenFrom = 0;
+
+        while ((indexOfBrcOpn = remainingSpan.IndexOf('{', searchFormatOpenFrom)) >= 0
+            && remainingSpan.Length > indexOfBrcOpn + 1
+            && remainingSpan[indexOfBrcOpn + 1] == '{') { searchFormatOpenFrom = indexOfBrcOpn + 2; }
 
         int stage = 0;
         if (indexOfBrcOpn >= 0)
@@ -226,10 +204,7 @@ public static class ExtendedSpanFormattableExtensions
                 throw new FormatException("Invalid format string expected matching closing braces from " + remainingSpan.ToString());
             }
             formatSuffix = remainingSpan[(indexOfBrcCls + 1)..];
-            if (indexOfBrcCls < remainingSpan.Length - 1)
-            {
-                foundFormatStages |= FormatStringType.Suffix;
-            }
+            if (indexOfBrcCls < remainingSpan.Length - 1) { foundFormatStages |= FormatStringType.Suffix; }
             remainingSpan = remainingSpan[1..indexOfBrcCls];
         }
         else
@@ -275,25 +250,31 @@ public static class ExtendedSpanFormattableExtensions
 
     public static bool HasFormatStringPadding(this ReadOnlySpan<char> toCheck)
     {
-        var indexOfBrcOpn = toCheck.IndexOf('{');
+        int indexOfBrcOpn;
+        var searchFormatOpenFrom = 0;
+
+        while ((indexOfBrcOpn = toCheck.IndexOf('{', searchFormatOpenFrom)) >= 0
+            && toCheck.Length > indexOfBrcOpn + 1
+            && toCheck[indexOfBrcOpn + 1] == '{') { searchFormatOpenFrom = indexOfBrcOpn + 2; }
+        
         if (indexOfBrcOpn < 0) return false;
         var remainingSpan = toCheck[indexOfBrcOpn..];
         var indexOfBrcCls = remainingSpan.IndexOf('}');
         if (indexOfBrcCls < 0) return false;
         remainingSpan = toCheck[..indexOfBrcCls];
-        var expectIdentifier         = true;
-        var expectLayoutSign         = true;
-        var expectLayout        = false;
+        var expectIdentifier = true;
+        var expectLayoutSign = true;
+        var expectLayout     = false;
         for (var i = 1; i < remainingSpan.Length; i++)
         {
             var checkChar = remainingSpan[i];
             if (expectIdentifier)
             {
-                if(checkChar.IsDigit()) continue;
+                if (checkChar.IsDigit()) continue;
                 if (checkChar.IsComma())
                 {
                     expectIdentifier = false;
-                    expectLayout = true;
+                    expectLayout     = true;
                     continue;
                 }
                 else { return false; }
@@ -305,14 +286,15 @@ public static class ExtendedSpanFormattableExtensions
                     expectLayoutSign = false;
                     continue;
                 }
-                if(checkChar.IsDigit()) return true;
+                if (checkChar.IsDigit())
+                    return true;
                 else { return false; }
             }
         }
         return false;
     }
 
-    public static bool FormatStringHasFormatSequence(this string formatString) => 
+    public static bool FormatStringHasFormatSequence(this string formatString) =>
         ((ReadOnlySpan<char>)formatString).HasFormatStringPadding();
 
     public static bool FormatStringHasFormatSequence(this ReadOnlySpan<char> toCheck)
@@ -323,14 +305,14 @@ public static class ExtendedSpanFormattableExtensions
         var indexOfBrcCls = remainingSpan.IndexOf('}');
         if (indexOfBrcCls < 0) return false;
         remainingSpan = toCheck[..indexOfBrcCls];
-        var foundColon         = false;
-        var countAfterColon        = 0;
+        var foundColon      = false;
+        var countAfterColon = 0;
         for (var i = 1; i < remainingSpan.Length; i++)
         {
             var checkChar = remainingSpan[i];
             if (!foundColon)
             {
-                if(!checkChar.IsColon()) continue;
+                if (!checkChar.IsColon()) continue;
                 foundColon = true;
             }
             countAfterColon++;
@@ -350,37 +332,29 @@ public static class ExtendedSpanFormattableExtensions
         for (var i = 1; i < remainingSpan.Length; i++)
         {
             var checkChar = remainingSpan[i];
-            if(!checkChar.IsColon()) continue;
+            if (!checkChar.IsColon()) continue;
             indexAfterColon = i + 1;
             break;
         }
-        
+
         return indexAfterColon > 0 ? remainingSpan[indexAfterColon..] : "";
     }
 
-    public static Span<char> InjectFormatSequenceIntoExistingFormatString(this Span<char> toBuild, ReadOnlySpan<char> existing, ReadOnlySpan<char> fmtSequence)
+    public static Span<char> InjectFormatSequenceIntoExistingFormatString(this Span<char> toBuild, ReadOnlySpan<char> existing
+      , ReadOnlySpan<char> fmtSequence)
     {
         existing.ExtractExtendedStringFormatStages
             (out var prefix, out var identifier, out var sliceLength
            , out var layout, out var splitJoinRange, out _, out var suffix);
 
         var charsAdded = 0;
-        if (prefix.Length > 0)
-        {
-            charsAdded = toBuild.OverWriteAt(0, prefix);
-        }
+        if (prefix.Length > 0) { charsAdded = toBuild.OverWriteAt(0, prefix); }
         charsAdded += toBuild.AddIdentifierAndSliceLength(charsAdded, identifier, sliceLength);
         charsAdded += toBuild.AddPaddingAndSplitJoin(charsAdded, layout, splitJoinRange);
         charsAdded += toBuild.AddFormatSequence(charsAdded, !identifier.IsEmpty, fmtSequence);
-        if (!identifier.IsEmpty)
-        {
-            toBuild[charsAdded++] = '}';
-        }
-        
-        if (suffix.Length > 0)
-        {
-            charsAdded += toBuild.OverWriteAt(charsAdded, suffix);
-        }
+        if (!identifier.IsEmpty) { toBuild[charsAdded++] = '}'; }
+
+        if (suffix.Length > 0) { charsAdded += toBuild.OverWriteAt(charsAdded, suffix); }
         return toBuild[..charsAdded];
     }
 
@@ -391,7 +365,6 @@ public static class ExtendedSpanFormattableExtensions
         var indexOfBrcCls = toCheck.IndexOf('}');
         if (indexOfBrcCls < 0) return 0;
         return indexOfBrcOpn + toCheck.Length - 1 - indexOfBrcCls;
-        
     }
 
     public static int PrefixSuffixLength(this ReadOnlySpan<char> toCheck)
@@ -401,7 +374,6 @@ public static class ExtendedSpanFormattableExtensions
         var indexOfBrcCls = toCheck.IndexOf('}');
         if (indexOfBrcCls < 0) return 0;
         return indexOfBrcOpn + toCheck.Length - 1 - indexOfBrcCls;
-        
     }
 
     public static FormatStringType ExtractStandardStringFormatStages
@@ -419,7 +391,12 @@ public static class ExtendedSpanFormattableExtensions
         if (toCheck.Length == 0) return foundFormatStages;
         ReadOnlySpan<char> remainingSpan = toCheck[fromIndex..];
 
-        var indexOfBrcOpn = remainingSpan.IndexOf('{');
+        int indexOfBrcOpn;
+        var searchFormatOpenFrom = 0;
+
+        while ((indexOfBrcOpn = remainingSpan.IndexOf('{', searchFormatOpenFrom)) >= 0
+            && remainingSpan.Length > indexOfBrcOpn + 1
+            && remainingSpan[indexOfBrcOpn + 1] == '{') { searchFormatOpenFrom = indexOfBrcOpn + 2; }
 
         int stage = 0;
         if (indexOfBrcOpn >= 0)
@@ -436,10 +413,7 @@ public static class ExtendedSpanFormattableExtensions
                 throw new FormatException("Invalid format string expected matching closing braces from " + remainingSpan.ToString());
             }
             formatSuffix = remainingSpan[(indexOfBrcCls + 1)..];
-            if (indexOfBrcCls < remainingSpan.Length - 1)
-            {
-                foundFormatStages |= FormatStringType.Suffix;
-            }
+            if (indexOfBrcCls < remainingSpan.Length - 1) { foundFormatStages |= FormatStringType.Suffix; }
             remainingSpan = remainingSpan[1..indexOfBrcCls];
         }
         else
@@ -485,9 +459,9 @@ public static class ExtendedSpanFormattableExtensions
         var colonIndex   = remainingSpan.IndexOf(":");
         if (colonIndex > 0)
         {
-            nextStage = 2;
+            nextStage    = 2;
             consumeExtra = 1;
-            stageEnd  = colonIndex;
+            stageEnd     = colonIndex;
         }
         var commaIndex = remainingSpan.IndexOf(",");
         if (commaIndex > 0 && (commaIndex < colonIndex || colonIndex < 0))
@@ -528,31 +502,23 @@ public static class ExtendedSpanFormattableExtensions
         {
             identifier = remainingSpan[..squareOpenIndex];
             var squareCloseIndex = remainingSpan.IndexOf("]");
-            if (squareCloseIndex < 0) throw new FormatException("Invalid format string expected ']' after '[' " + remainingSpan[squareOpenIndex..].ToString());
+            if (squareCloseIndex < 0)
+                throw new FormatException("Invalid format string expected ']' after '[' " + remainingSpan[squareOpenIndex..].ToString());
             var dotdotIndex = remainingSpan.IndexOf("..");
             if (dotdotIndex < 0)
                 throw new FormatException("Invalid format string expected \"..\" between '[' and '] " +
                                           remainingSpan[squareOpenIndex..].ToString());
             var rangeFirstChar = remainingSpan[squareOpenIndex + 1];
             var start          = Index.Start;
-            if (rangeFirstChar.IsCarat() || rangeFirstChar.IsDigit())
-            {
-                start = remainingSpan.ExtractIndexSlice(squareOpenIndex + 1);
-            }
-            remainingSpan  = remainingSpan[(dotdotIndex + 2)..];
+            if (rangeFirstChar.IsCarat() || rangeFirstChar.IsDigit()) { start = remainingSpan.ExtractIndexSlice(squareOpenIndex + 1); }
+            remainingSpan = remainingSpan[(dotdotIndex + 2)..];
             var rangeEndChar = remainingSpan[0];
             var end          = Index.End;
-            if (rangeEndChar.IsCarat() || rangeEndChar.IsDigit())
-            {
-                end = remainingSpan.ExtractIndexSlice(0, true);
-            }
+            if (rangeEndChar.IsCarat() || rangeEndChar.IsDigit()) { end = remainingSpan.ExtractIndexSlice(0, true); }
             foundFormatStages |= FormatStringType.ExtendedLimitLength;
             sourceLengthRange =  new Range(start, end);
         }
-        else
-        {
-            identifier = remainingSpan[..stageEnd];
-        }
+        else { identifier = remainingSpan[..stageEnd]; }
         return (nextStage, foundFormatStages, stageEnd + consumeExtra, sourceLengthRange);
     }
 
@@ -585,9 +551,9 @@ public static class ExtendedSpanFormattableExtensions
         colonIndex = remainingSpan.IndexOf(":");
         if (colonIndex > 0)
         {
-            nextStage = 2;
+            nextStage    = 2;
             consumeExtra = 1;
-            stageEnd  = colonIndex;
+            stageEnd     = colonIndex;
         }
         var foundFormatStages      = FormatStringType.Layout;
         var extendedSplitJoinRange = SplitJoinRange.NoSplitJoin;
@@ -618,26 +584,17 @@ public static class ExtendedSpanFormattableExtensions
                                               remainingSpan[squareLayoutOpenIndex..].ToString());
                 var rangeFirstChar = remainingSpan[squareLayoutOpenIndex + 1];
                 var start          = Index.Start;
-                if (rangeFirstChar.IsCarat() || rangeFirstChar.IsDigit())
-                {
-                    start = remainingSpan.ExtractIndexSlice(squareLayoutOpenIndex + 1);
-                }
-                remainingSpan  = remainingSpan[(dotdotIndex + 2)..];
+                if (rangeFirstChar.IsCarat() || rangeFirstChar.IsDigit()) { start = remainingSpan.ExtractIndexSlice(squareLayoutOpenIndex + 1); }
+                remainingSpan = remainingSpan[(dotdotIndex + 2)..];
                 var rangeEndChar = remainingSpan[0];
-                var end = Index.End;
-                if (rangeEndChar.IsCarat() || rangeEndChar.IsDigit())
-                {
-                    end = remainingSpan.ExtractIndexSlice(0, true);
-                }
+                var end          = Index.End;
+                if (rangeEndChar.IsCarat() || rangeEndChar.IsDigit()) { end = remainingSpan.ExtractIndexSlice(0, true); }
                 foundFormatStages        |= FormatStringType.ExtendedSplitJoinRange;
                 extendedSplitSourceRange =  new Range(start, end);
             }
             extendedSplitJoinRange = new SplitJoinRange(splitChars, joinChars, extendedSplitSourceRange);
         }
-        else
-        {
-            layout = remainingSpan[..stageEnd];
-        }
+        else { layout = remainingSpan[..stageEnd]; }
         return (nextStage, foundFormatStages, stageEnd + consumeExtra, extendedSplitJoinRange);
     }
 
@@ -684,10 +641,7 @@ public static class ExtendedSpanFormattableExtensions
         charRange = Range.All;
         var foundAt = layout.ExtractRangeFromSliceExpression(out var nullableCharRange);
 
-        if (foundAt >= 0)
-        {
-            charRange = nullableCharRange!.Value;
-        }
+        if (foundAt >= 0) { charRange = nullableCharRange!.Value; }
         return foundAt;
     }
 
@@ -699,10 +653,7 @@ public static class ExtendedSpanFormattableExtensions
         var foundFromStringLength = layout.IndexOf("[");
 
         charRange = null;
-        if (foundFromStringLength < 0)
-        {
-            return foundFromStringLength;
-        }
+        if (foundFromStringLength < 0) { return foundFromStringLength; }
 
         if (layout.Length > foundFromStringLength
          && (layout[foundFromStringLength + 1].IsDigit() || layout[foundFromStringLength + 1].IsCarat()))
@@ -744,10 +695,7 @@ public static class ExtendedSpanFormattableExtensions
         if (isLeftAligned)
         {
             destination.Append(rangeCappedInsert);
-            for (int i = rangeCappedSize; i < padding; i++)
-            {
-                destination[i] = ' ';
-            }
+            for (int i = rangeCappedSize; i < padding; i++) { destination[i] = ' '; }
             return Math.Max(rangeCappedSize, padding);
         }
         var extraRequired = padding - rangeCappedSize;
@@ -763,10 +711,7 @@ public static class ExtendedSpanFormattableExtensions
 
     public static int CalculatePaddedAlignedFormatStringLength(this ReadOnlySpan<char> toInsert, ReadOnlySpan<char> toExtractJustLayout)
     {
-        if (toExtractJustLayout.Length == 0)
-        {
-            return toInsert.Length;
-        }
+        if (toExtractJustLayout.Length == 0) { return toInsert.Length; }
         var isLeftAligned  = toExtractJustLayout[0].IsMinus();
         var isStringLength = toExtractJustLayout[0].IsDigit() || isLeftAligned;
         if (isStringLength)
@@ -786,10 +731,7 @@ public static class ExtendedSpanFormattableExtensions
 
     public static int CalculatePaddedAlignedLength(this int toInsertLength, ReadOnlySpan<char> layout)
     {
-        if (layout.Length == 0)
-        {
-            return toInsertLength;
-        }
+        if (layout.Length == 0) { return toInsertLength; }
         var isLeftAligned  = layout[0].IsMinus();
         var isStringLength = layout[0].IsDigit() || isLeftAligned;
         if (isStringLength)
@@ -799,21 +741,12 @@ public static class ExtendedSpanFormattableExtensions
             int.TryParse(layout, out var padding);
             padding = Math.Abs(padding);
 
-            if (range.IsAllRange())
-            {
-                return Math.Max(padding, toInsertLength);
-            }
+            if (range.IsAllRange()) { return Math.Max(padding, toInsertLength); }
             var deduct = range.Start.IsFromEnd
                 ? Math.Max(0, Math.Min(toInsertLength, toInsertLength - range.Start.Value))
                 : range.Start.Value;
-            if (range.End.IsFromEnd)
-            {
-                deduct += Math.Max(0, Math.Min(toInsertLength, range.End.Value));
-            }
-            else
-            {
-                deduct += Math.Min(toInsertLength, range.End.Value);
-            }
+            if (range.End.IsFromEnd) { deduct += Math.Max(0, Math.Min(toInsertLength, range.End.Value)); }
+            else { deduct                     += Math.Min(toInsertLength, range.End.Value); }
 
             return Math.Max(padding, toInsertLength - deduct);
         }
@@ -824,7 +757,7 @@ public static class ExtendedSpanFormattableExtensions
     {
         toExtractLayout.ExtractExtendedStringFormatStages
             (out _, out _, out _
-            , out var layout, out _, out _, out _);
+           , out var layout, out _, out _, out _);
 
         return MakeLayoutOnlyFormatString(toBuild, layout);
     }
@@ -841,10 +774,7 @@ public static class ExtendedSpanFormattableExtensions
         var isLeftAligned  = layout[0].IsMinus();
         var isStringLength = layout[0].IsDigit() || isLeftAligned;
         int padding        = 0;
-        if (isStringLength)
-        {
-            int.TryParse(layout, out padding);
-        }
+        if (isStringLength) { int.TryParse(layout, out padding); }
         if (padding != 0)
         {
             toBuild.OverWriteAt(2, ",");
@@ -861,12 +791,9 @@ public static class ExtendedSpanFormattableExtensions
     {
         var charsAdded = 0;
         charsAdded += toBuild.OverWriteAt(atOffset, "{");
-        charsAdded +=  toBuild.OverWriteAt(atOffset + charsAdded, identifierSpan);
+        charsAdded += toBuild.OverWriteAt(atOffset + charsAdded, identifierSpan);
 
-        if (sliceLengthRange.IsAllRange())
-        {
-            return charsAdded; 
-        }
+        if (sliceLengthRange.IsAllRange()) { return charsAdded; }
         charsAdded += toBuild.WriteRangeAsSlice(charsAdded, sliceLengthRange);
         return charsAdded;
     }
@@ -874,33 +801,24 @@ public static class ExtendedSpanFormattableExtensions
     private static int AddPaddingAndSplitJoin(this Span<char> toBuild, int atOffset, ReadOnlySpan<char> paddingSpan, SplitJoinRange splitJoinRange)
     {
         if (splitJoinRange.IsNoSplitJoin && paddingSpan.IsEmpty) return 0;
-        
+
         var charsAdded = 0;
         charsAdded += toBuild.OverWriteAt(atOffset, ",");
-        if (paddingSpan.Length > 0)
-        {
-            charsAdded += toBuild.OverWriteAt(atOffset + charsAdded, paddingSpan);
-        }
-        if (splitJoinRange.IsNoSplitJoin)
-        {
-            return charsAdded;
-        }
+        if (paddingSpan.Length > 0) { charsAdded += toBuild.OverWriteAt(atOffset + charsAdded, paddingSpan); }
+        if (splitJoinRange.IsNoSplitJoin) { return charsAdded; }
         charsAdded += toBuild.WriteSplitJoinAsSlashSearchSlashReplace(atOffset + charsAdded, splitJoinRange);
-        
+
         return charsAdded;
     }
 
     private static int AddFormatSequence(this Span<char> toBuild, int atOffset, bool isComposite, ReadOnlySpan<char> formatSequenceSpan)
     {
-        if (formatSequenceSpan.IsEmpty)
-        {
-            return 0;
-        }
-        
-        var charsAdded = 0;
-        if(isComposite) charsAdded += toBuild.OverWriteAt(atOffset, ":");
+        if (formatSequenceSpan.IsEmpty) { return 0; }
+
+        var charsAdded              = 0;
+        if (isComposite) charsAdded += toBuild.OverWriteAt(atOffset, ":");
         charsAdded += toBuild.OverWriteAt(atOffset + charsAdded, formatSequenceSpan);
-        
+
         return charsAdded;
     }
 
@@ -909,41 +827,34 @@ public static class ExtendedSpanFormattableExtensions
         formatStringToExtract.ExtractExtendedStringFormatStages
             (out var prefix, out _, out _
            , out var layout, out _, out _, out var suffix);
-        if (prefix.Length == 0 && layout.Length == 0 && suffix.Length == 0)
-        {
-            return toInsertLength;
-        }
-        return CalculatePrefixPaddedAlignedAndSuffixLength(toInsertLength, prefix, layout, suffix);;
+        if (prefix.Length == 0 && layout.Length == 0 && suffix.Length == 0) { return toInsertLength; }
+        return CalculatePrefixPaddedAlignedAndSuffixLength(toInsertLength, prefix, layout, suffix);
+        ;
     }
 
     private static int CalculatePrefixPaddedAlignedAndSuffixLength(this int toInsertLength, ReadOnlySpan<char> prefix
       , ReadOnlySpan<char> layout, ReadOnlySpan<char> suffix)
     {
-        if (prefix.Length == 0 && layout.Length == 0 && suffix.Length == 0)
-        {
-            return toInsertLength;
-        }
+        if (prefix.Length == 0 && layout.Length == 0 && suffix.Length == 0) { return toInsertLength; }
         Span<char> layoutOnlyFormatString = stackalloc char[12];
         layoutOnlyFormatString = layoutOnlyFormatString.MakeLayoutOnlyFormatString(layout);
-        return layoutOnlyFormatString.Length + prefix.Length + suffix.Length;;
+        return layoutOnlyFormatString.Length + prefix.Length + suffix.Length;
+        ;
     }
 
     public static Span<char> ToPrefixLayoutSuffixOnlyFormatString(this Span<char> toBuild, ReadOnlySpan<char> toExtractLayout)
     {
         toExtractLayout.ExtractExtendedStringFormatStages
             (out var prefix, out _, out _
-            , out var layout, out _, out _, out var suffix);
-        
+           , out var layout, out _, out _, out var suffix);
+
         if (prefix.Length > 0)
         {
             toBuild.Append(prefix);
             var layoutFormatBuild = toBuild[prefix.Length..];
             layoutFormatBuild.MakeLayoutOnlyFormatString(layout);
         }
-        else
-        {
-            toBuild.MakeLayoutOnlyFormatString(layout);
-        }
+        else { toBuild.MakeLayoutOnlyFormatString(layout); }
         toBuild.Append(suffix);
         var length = toBuild.PopulatedLength();
         return toBuild[..length];

@@ -29,7 +29,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return this;
     }
 
-    public GraphTrackingBuilder GraphBuilder { get; protected set; } = null!;
+    public GraphTrackingBuilder GraphBuilder { get; set; } = null!;
 
     public override IEncodingTransfer LayoutEncoder
     {
@@ -1394,5 +1394,11 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             GraphBuilder.MarkContentEnd(destIndex + charsAdded);
         }
         return charsAdded;
+    }
+
+    public override void StateReset()
+    {
+        GraphBuilder = null!;
+        base.StateReset();
     }
 }

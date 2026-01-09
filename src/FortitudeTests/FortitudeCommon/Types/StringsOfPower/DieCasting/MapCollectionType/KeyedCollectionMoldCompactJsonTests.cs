@@ -2,7 +2,10 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Reflection;
+using FortitudeCommon.DataStructures.MemoryPools;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations.MapCollectionsFieldsTypes;
@@ -28,7 +31,8 @@ public class KeyedCollectionMoldCompactJsonTests : KeyedCollectionMoldTests
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(SimplePredicateFilteredDictExpect), typeof(KeyedCollectionMoldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    [DynamicData(nameof(SimplePredicateFilteredDictExpect), typeof(KeyedCollectionMoldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void SimplePredicateFilteredCompactJsonDict(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
@@ -43,12 +47,14 @@ public class KeyedCollectionMoldCompactJsonTests : KeyedCollectionMoldTests
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(ValueRevealerPredicateFilteredDictExpect), typeof(KeyedCollectionMoldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    [DynamicData(nameof(ValueRevealerPredicateFilteredDictExpect), typeof(KeyedCollectionMoldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void ValueRevealerPredicateFilteredCompactJsonDict(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(ValueRevealerSubListFilteredDictExpect), typeof(KeyedCollectionMoldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    [DynamicData(nameof(ValueRevealerSubListFilteredDictExpect), typeof(KeyedCollectionMoldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void ValueRevealerSubListFilteredCompactJsonDict(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
@@ -58,12 +64,14 @@ public class KeyedCollectionMoldCompactJsonTests : KeyedCollectionMoldTests
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(BothRevealersPredicateFilteredDictExpect), typeof(KeyedCollectionMoldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    [DynamicData(nameof(BothRevealersPredicateFilteredDictExpect), typeof(KeyedCollectionMoldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void BothRevealersPredicateFilteredCompactJsonDict(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(BothRevealersSubListFilteredDictExpect), typeof(KeyedCollectionMoldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    [DynamicData(nameof(BothRevealersSubListFilteredDictExpect), typeof(KeyedCollectionMoldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void BothRevealersSubListFilteredCompactJsonDict(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
@@ -71,26 +79,29 @@ public class KeyedCollectionMoldCompactJsonTests : KeyedCollectionMoldTests
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(BothRevealersDictTestData.AllPredicateFilteredKeyedCollectionsExpectations[2], ScaffoldingRegistry.AllScaffoldingTypes[920]);
+        ExecuteIndividualScaffoldExpectation(BothRevealersDictTestData.AllPredicateFilteredKeyedCollectionsExpectations[2]
+                                           , ScaffoldingRegistry.AllScaffoldingTypes[920]);
     }
 
-    protected override string BuildExpectedRootOutput(ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
-        var expectValue = expectation.GetExpectedOutputFor(condition, tos, expectation.ValueFormatString);
-        if (expectValue == IFormatExpectation.NoResultExpectedValue)
+        var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
+        if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))
         {
-            expectValue = "";
+            expectValue.Clear();
         }
         return expectValue;
     }
     
-    protected override string BuildExpectedChildOutput(ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
-        var expectValue = expectation.GetExpectedOutputFor(condition, tos, expectation.ValueFormatString);
-        if (expectValue == IFormatExpectation.NoResultExpectedValue)
-        { expectValue = ""; }
+        var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
+        if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))
+        { 
+            expectValue.Clear();
+        }
         return expectValue;
     }
 }

@@ -1028,7 +1028,7 @@ public class FormatParameterToStringAppender : RecyclableObject, IStringAppender
     private IFLogStringAppender ConvertToStringAppender()
     {
         var styleTypeStringAppender = (Recycler?.Borrow<TheOneString>() ?? new TheOneString(logEntry.Style))
-            .Initialize(formattedString, logEntry.Style);
+            .ReInitialize(formattedString, logEntry.Style);
 
         var convertedToStringAppender = (Recycler?.Borrow<FLogStringAppender>() ?? new FLogStringAppender())
             .Initialize(logEntry, styleTypeStringAppender, onComplete);

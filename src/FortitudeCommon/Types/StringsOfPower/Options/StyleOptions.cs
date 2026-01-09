@@ -690,7 +690,19 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
     public StringStyle Style
     {
         get => values.Style;
-        set => values.Style = value;
+        set
+        {
+            values.Style = value;
+            if (formatter != null)
+            {
+                if (value.IsJson() && formatter.FormattingStyle.IsNotJson()
+                 || value.IsLog() && formatter.FormattingStyle.IsNone())
+                {
+                    formatter.DecrementRefCount();
+                    formatter = null;
+                }
+            }
+        }
     }
 
     public FormatFlags CurrentContextContentHandling
@@ -906,9 +918,10 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
         get => formatter;
         set
         {
+            if (ReferenceEquals(value, formatter)) return;
             formatter?.DecrementRefCount();
             formatter = value;
-            formatter?.IncrementRefCount();
+            value?.IncrementRefCount();
         }
     }
 
@@ -1091,7 +1104,7 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
     {
         values               = source.Values;
         values.MyObjInstance = this;
-        formatter            = source.formatter;
+        Formatter            = source.Formatter;
 
         return this;
     }
@@ -1099,6 +1112,7 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
     protected override void InheritedStateReset()
     {
         formatter?.DecrementRefCount();
+        formatter = null!;
         base.InheritedStateReset();
     }
 }

@@ -268,6 +268,24 @@ public static class CharExtensions
     public static bool IsCommaOrStop(this char check) => check.IsComma() || check.IsFullStop();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsBrcOpn(this char check) => check == '{';
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsBrcCls(this char check) => check == '}';
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsSqrBrktOpn(this char check) => check == '[';
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsSqrBrktCls(this char check) => check == ']';
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsRndBrktOpn(this char check) => check == '(';
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsRndBrktCls(this char check) => check == ')';
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsExponentSymbol(this char check) => check is 'E' or 'e';
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -25,7 +25,7 @@ public abstract class SelectTypeKeyedCollectionFieldTests : CommonExpectationTes
         (from kce in SimpleDictTestData.AllUnfilteredSimpleDictExpectations
         where !kce.HasRestrictingPredicateFilter
         from scaffoldToCall in 
-            scafReg
+            ScafReg
                 .IsAComplexType()
                 .ProcessesKeyedCollection()
                 .NotHasSupportsKeyRevealer()
@@ -40,7 +40,7 @@ public abstract class SelectTypeKeyedCollectionFieldTests : CommonExpectationTes
         simplePredicateFilteredScaffoldingExpectations ??=
         (from kce in SimpleDictTestData.AllPredicateFilteredSimpleDictExpectations
         from scaffoldToCall in
-            scafReg
+            ScafReg
                 .IsAComplexType()
                 .ProcessesKeyedCollection()
                 .NotHasSupportsKeyRevealer()
@@ -55,7 +55,7 @@ public abstract class SelectTypeKeyedCollectionFieldTests : CommonExpectationTes
         simpleSubListFilteredScaffoldingExpectations ??=
         (from kce in SimpleDictTestData.AllSubListFilteredDictExpectations
         from scaffoldToCall in
-            scafReg
+            ScafReg
                 .IsAComplexType()
                 .ProcessesKeyedCollection()
                 .NotHasSupportsKeyRevealer()
@@ -69,7 +69,7 @@ public abstract class SelectTypeKeyedCollectionFieldTests : CommonExpectationTes
         (from kce in ValueRevealerDictTestData.AllValueRevealerUnfilteredDictExpectations
             where kce.ValueTypeIsNotNullableStruct
             from scaffoldToCall in
-                scafReg
+                ScafReg
                     .IsAComplexType()
                     .ProcessesKeyedCollection()
                     .NotHasSupportsKeyRevealer()
@@ -83,7 +83,7 @@ public abstract class SelectTypeKeyedCollectionFieldTests : CommonExpectationTes
                 from kce in ValueRevealerDictTestData.AllValueRevealerUnfilteredDictExpectations
                 where kce.ValueTypeIsNullableStruct
                 from scaffoldToCall in
-                    scafReg
+                    ScafReg
                         .IsAComplexType()
                         .ProcessesKeyedCollection()
                         .NotHasSupportsKeyRevealer()
@@ -100,7 +100,7 @@ public abstract class SelectTypeKeyedCollectionFieldTests : CommonExpectationTes
         (from kce in ValueRevealerDictTestData.AllPredicateFilteredDictExpectations
             where kce.ValueTypeIsNotNullableStruct
             from scaffoldToCall in
-                scafReg
+                ScafReg
                     .IsAComplexType()
                     .ProcessesKeyedCollection()
                     .NotHasSupportsKeyRevealer()
@@ -114,7 +114,7 @@ public abstract class SelectTypeKeyedCollectionFieldTests : CommonExpectationTes
                 from kce in ValueRevealerDictTestData.AllPredicateFilteredDictExpectations
                 where kce.ValueTypeIsNullableStruct
                 from scaffoldToCall in
-                    scafReg
+                    ScafReg
                         .IsAComplexType()
                         .ProcessesKeyedCollection()
                         .NotHasSupportsKeyRevealer()
@@ -131,7 +131,7 @@ public abstract class SelectTypeKeyedCollectionFieldTests : CommonExpectationTes
         (from kce in ValueRevealerDictTestData.AllValueRevealerSubListFilteredDictExpectations
             where kce.ValueTypeIsNotNullableStruct
             from scaffoldToCall in
-                scafReg
+                ScafReg
                     .IsAComplexType()
                     .ProcessesKeyedCollection()
                     .NotHasSupportsKeyRevealer()
@@ -144,7 +144,7 @@ public abstract class SelectTypeKeyedCollectionFieldTests : CommonExpectationTes
                 from kce in ValueRevealerDictTestData.AllValueRevealerSubListFilteredDictExpectations
                 where kce.ValueTypeIsNullableStruct
                 from scaffoldToCall in
-                    scafReg
+                    ScafReg
                         .IsAComplexType()
                         .ProcessesKeyedCollection()
                         .NotHasSupportsKeyRevealer()
@@ -160,7 +160,7 @@ public abstract class SelectTypeKeyedCollectionFieldTests : CommonExpectationTes
         (from kce in BothRevealersDictTestData.AllBothRevealersUnfilteredDictExpectations
          where kce.KeyTypeIsNotNullableStruct && kce.ValueTypeIsNotNullableStruct
          from scaffoldToCall in
-            scafReg
+            ScafReg
                 .IsAComplexType()
                 .ProcessesKeyedCollection()
                 .HasSupportsKeyRevealer()
@@ -175,7 +175,7 @@ public abstract class SelectTypeKeyedCollectionFieldTests : CommonExpectationTes
                 from kce in BothRevealersDictTestData.AllBothRevealersUnfilteredDictExpectations
                 where kce.KeyTypeIsNullableStruct  && kce.ValueTypeIsNotNullableStruct
                 from scaffoldToCall in
-                    scafReg
+                    ScafReg
                         .IsAComplexType()
                         .ProcessesKeyedCollection()
                         .HasSupportsKeyRevealer()
@@ -191,7 +191,7 @@ public abstract class SelectTypeKeyedCollectionFieldTests : CommonExpectationTes
                 from kce in BothRevealersDictTestData.AllBothRevealersUnfilteredDictExpectations
                 where kce.KeyTypeIsNotNullableStruct  && kce.ValueTypeIsNullableStruct
                 from scaffoldToCall in
-                    scafReg
+                    ScafReg
                         .IsAComplexType()
                         .ProcessesKeyedCollection()
                         .HasSupportsKeyRevealer()
@@ -207,7 +207,7 @@ public abstract class SelectTypeKeyedCollectionFieldTests : CommonExpectationTes
                 from kce in BothRevealersDictTestData.AllBothRevealersUnfilteredDictExpectations
                 where kce.KeyTypeIsNullableStruct  && kce.ValueTypeIsNullableStruct
                 from scaffoldToCall in
-                    scafReg
+                    ScafReg
                         .IsAComplexType()
                         .ProcessesKeyedCollection()
                         .HasSupportsKeyRevealer()
@@ -225,7 +225,7 @@ public abstract class SelectTypeKeyedCollectionFieldTests : CommonExpectationTes
         (from kce in BothRevealersDictTestData.AllPredicateFilteredKeyedCollectionsExpectations
          where kce.KeyTypeIsNotNullableStruct && kce.ValueTypeIsNotNullableStruct
          from scaffoldToCall in
-            scafReg
+            ScafReg
                 .IsAComplexType()
                 .ProcessesKeyedCollection()
                 .HasSupportsKeyRevealer()
@@ -240,7 +240,7 @@ public abstract class SelectTypeKeyedCollectionFieldTests : CommonExpectationTes
                 from kce in BothRevealersDictTestData.AllPredicateFilteredKeyedCollectionsExpectations
                 where kce.KeyTypeIsNullableStruct  && kce.ValueTypeIsNotNullableStruct
                 from scaffoldToCall in
-                    scafReg
+                    ScafReg
                         .IsAComplexType()
                         .ProcessesKeyedCollection()
                         .HasSupportsKeyRevealer()
@@ -256,7 +256,7 @@ public abstract class SelectTypeKeyedCollectionFieldTests : CommonExpectationTes
                 from kce in BothRevealersDictTestData.AllPredicateFilteredKeyedCollectionsExpectations
                 where kce.KeyTypeIsNotNullableStruct  && kce.ValueTypeIsNullableStruct
                 from scaffoldToCall in
-                    scafReg
+                    ScafReg
                         .IsAComplexType()
                         .ProcessesKeyedCollection()
                         .HasSupportsKeyRevealer()
@@ -272,7 +272,7 @@ public abstract class SelectTypeKeyedCollectionFieldTests : CommonExpectationTes
                 from kce in BothRevealersDictTestData.AllPredicateFilteredKeyedCollectionsExpectations
                 where kce.KeyTypeIsNullableStruct  && kce.ValueTypeIsNullableStruct
                 from scaffoldToCall in
-                    scafReg
+                    ScafReg
                         .IsAComplexType()
                         .ProcessesKeyedCollection()
                         .HasSupportsKeyRevealer()
@@ -290,7 +290,7 @@ public abstract class SelectTypeKeyedCollectionFieldTests : CommonExpectationTes
         (from kce in BothRevealersDictTestData.AllBothRevealersSubListFilteredDictExpectations
          where kce.KeyTypeIsNotNullableStruct && kce.ValueTypeIsNotNullableStruct
          from scaffoldToCall in
-            scafReg
+            ScafReg
                 .IsAComplexType()
                 .ProcessesKeyedCollection()
                 .HasSupportsKeyRevealer()
@@ -304,7 +304,7 @@ public abstract class SelectTypeKeyedCollectionFieldTests : CommonExpectationTes
                 from kce in BothRevealersDictTestData.AllBothRevealersSubListFilteredDictExpectations
                 where kce.KeyTypeIsNullableStruct  && kce.ValueTypeIsNotNullableStruct
                 from scaffoldToCall in
-                    scafReg
+                    ScafReg
                         .IsAComplexType()
                         .ProcessesKeyedCollection()
                         .HasSupportsKeyRevealer()
@@ -319,7 +319,7 @@ public abstract class SelectTypeKeyedCollectionFieldTests : CommonExpectationTes
                 from kce in BothRevealersDictTestData.AllBothRevealersSubListFilteredDictExpectations
                 where kce.KeyTypeIsNotNullableStruct  && kce.ValueTypeIsNullableStruct
                 from scaffoldToCall in
-                    scafReg
+                    ScafReg
                         .IsAComplexType()
                         .ProcessesKeyedCollection()
                         .HasSupportsKeyRevealer()
@@ -334,7 +334,7 @@ public abstract class SelectTypeKeyedCollectionFieldTests : CommonExpectationTes
                 from kce in BothRevealersDictTestData.AllBothRevealersSubListFilteredDictExpectations
                 where kce.KeyTypeIsNullableStruct  && kce.ValueTypeIsNullableStruct
                 from scaffoldToCall in
-                    scafReg
+                    ScafReg
                         .IsAComplexType()
                         .ProcessesKeyedCollection()
                         .HasSupportsKeyRevealer()

@@ -144,7 +144,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
         Style       = style;
 
         var styleTypeStringAppender = (Recycler?.Borrow<TheOneString>() ?? new TheOneString(style))
-            .Initialize(messageBuilder!, style);
+            .ReInitialize(messageBuilder!, style);
         var stringAppender = (Recycler?.Borrow<FLogStringAppender>() ?? new FLogStringAppender())
             .Initialize(this, styleTypeStringAppender, OnMessageComplete);
 
