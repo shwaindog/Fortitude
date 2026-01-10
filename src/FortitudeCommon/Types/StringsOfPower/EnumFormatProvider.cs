@@ -79,12 +79,15 @@ public interface IEnumFormatter : IStringBearerFormattableProvider
     IEnumFormatProvider<Enum>?  AsEnumFormatProvider();
 }
 
+#pragma warning disable CS8714 // The type cannot be used as type parameter in the generic type or method. Nullability of type argument doesn't match 'notnull' constraint.
 public interface IStructEnumFormatProvider<in TEnum> : IEnumFormatter, IStringBearerRevelStateProvider<TEnum>
+    #pragma warning restore CS8714 // The type cannot be used as type parameter in the generic type or method. Nullability of type argument doesn't match 'notnull' constraint.
   , IStringBearerSpanFormattableProvider<TEnum>
-    where TEnum : notnull { }
+    where TEnum : ISpanFormattable? { }
 
 public interface IEnumFormatProvider<in TEnum> : IEnumFormatter, IStringBearerRevelStateProvider<TEnum>, IStringBearerSpanFormattableProvider<TEnum>
-    where TEnum : Enum { }
+    where TEnum : ISpanFormattable 
+{ }
 
 public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumValue>, IEnumFormatProvider<TEnumValue>
     where TEnumValue : struct, Enum, IConvertible, ISpanFormattable
@@ -173,7 +176,7 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
 
     public Type UnderlyingType { get; }
 
-    public IStructEnumFormatProvider<TEnum>? AsSpanFormattableEnumFormatProvider<TEnum>() where TEnum : ISpanFormattable =>
+    public IStructEnumFormatProvider<TEnum>? AsSpanFormattableEnumFormatProvider<TEnum>() where TEnum : ISpanFormattable? =>
         typeof(TEnum) == ForType ? (IStructEnumFormatProvider<TEnum>)this : null;
 
     public IEnumFormatProvider<TEnum>? AsTypedEnumFormatProvider<TEnum>() where TEnum : Enum =>
@@ -351,7 +354,6 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
                 {
                     vanillaSize = SourceEnumNamesFromEnum(toFormat, buildVanillaName, null, enumEncoder, joinEncoder, provider, formattingFlags);
                 }
-                ;
                 break;
             default:
                 vanillaSize = SourceEnumNamesFromEnum(toFormat, buildVanillaName, null, enumEncoder, joinEncoder, provider, formattingFlags);
@@ -379,8 +381,8 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
             if (start.IsFromEnd || start.Value > 0)
             {
                 rawSourceFrom = start.IsFromEnd
-                    ? Math.Max(rawSourceFrom, vanillaSize - start.Value)
-                    : Math.Min(vanillaSize, rawSourceFrom + start.Value);
+                    ? Math.Max(0, vanillaSize - start.Value)
+                    : Math.Min(vanillaSize, start.Value);
             }
             var end = extendLengthRange.End;
             if (!end.IsFromEnd || end.Value > 0)
@@ -450,7 +452,7 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
         public bool SupportStyleToString => parent.SupportStyleToString;
         public Type ForType => typeof(Enum);
 
-        public IStructEnumFormatProvider<TEnum>? AsSpanFormattableEnumFormatProvider<TEnum>() where TEnum : ISpanFormattable
+        public IStructEnumFormatProvider<TEnum>? AsSpanFormattableEnumFormatProvider<TEnum>() where TEnum : ISpanFormattable?
         {
             if (typeof(TEnum) == typeof(TEnumValue)) { return (IStructEnumFormatProvider<TEnum>)parent; }
             return null;

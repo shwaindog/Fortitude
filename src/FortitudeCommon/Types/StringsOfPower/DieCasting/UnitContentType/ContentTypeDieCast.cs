@@ -16,7 +16,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     public bool ValueInComplexType { get; private set; }
 
     public ContentTypeDieCast<TContentMold> InitializeValueBuilderCompAccess
-        (TContentMold externalTypeBuilder, TypeMolder.StyleTypeBuilderPortableState typeBuilderPortableState, bool isComplex)
+        (TContentMold externalTypeBuilder, TypeMolder.MoldPortableState typeBuilderPortableState, bool isComplex)
     {
         Initialize(externalTypeBuilder, typeBuilderPortableState);
 

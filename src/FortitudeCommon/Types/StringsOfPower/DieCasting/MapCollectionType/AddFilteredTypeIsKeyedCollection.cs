@@ -7,7 +7,7 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace FortitudeCommon.Types.StringsOfPower.DieCasting.KeyedCollectionType;
+namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 
 public partial class KeyedCollectionMold
 {

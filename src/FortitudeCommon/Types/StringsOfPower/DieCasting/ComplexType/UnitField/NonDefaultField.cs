@@ -22,11 +22,11 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
             ? AlwaysAdd(fieldName, value, formatString)
             : stb.WasSkipped<bool>(typeof(bool), fieldName, formatFlags);
 
-    public TMold WhenNonDefaultAdd<TFmt>(ReadOnlySpan<char> fieldName, TFmt? value, TFmt? defaultValue = default(TFmt)
+    public TMold WhenNonDefaultAdd<TFmt>(ReadOnlySpan<char> fieldName, TFmt value, TFmt? defaultValue = default(TFmt)
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable =>
         !stb.SkipField<TFmt>(value?.GetType(), fieldName, formatFlags) && !Equals(value, defaultValue ?? default(TFmt))
-            ? AlwaysAdd(fieldName, value, formatString, formatFlags)
+            ? AlwaysAdd(fieldName, value!, formatString, formatFlags)
             : stb.WasSkipped<TFmt?>(value?.GetType(), fieldName, formatFlags);
 
     public TMold WhenNonDefaultAdd<TFmtStruct>(ReadOnlySpan<char> fieldName, TFmtStruct? value, TFmtStruct? defaultValue = null
@@ -37,13 +37,13 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
             : stb.WasSkipped<TFmtStruct?>(value?.GetType(), fieldName, formatFlags);
 
 
-    public TMold WhenNonDefaultReveal<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, TCloaked? value
-      , PalantírReveal<TRevealBase> palantírReveal, TCloaked? defaultValue = default(TCloaked)
+    public TMold WhenNonDefaultReveal<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, TCloaked value
+      , PalantírReveal<TRevealBase> palantírReveal, TCloaked defaultValue = default(TCloaked)!
     , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TCloaked : TRevealBase
+        where TCloaked : TRevealBase?
         where TRevealBase : notnull =>
         !stb.SkipField<TCloaked?>(value?.GetType(), fieldName, formatFlags) && !Equals(value, defaultValue)
-            ? AlwaysReveal(fieldName, value, palantírReveal, formatString, formatFlags)
+            ? AlwaysReveal(fieldName, value!, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped<TCloaked?>(value?.GetType(), fieldName, formatFlags);
 
     public TMold WhenNonDefaultReveal<TCloakedStruct>(ReadOnlySpan<char> fieldName, TCloakedStruct? value
@@ -53,10 +53,10 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
             ? AlwaysReveal(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped<TCloakedStruct?>(value?.GetType(), fieldName, formatFlags);
 
-    public TMold WhenNonDefaultReveal<TBearer>(ReadOnlySpan<char> fieldName, TBearer? value, TBearer? defaultValue = default(TBearer)
-    , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer =>
+    public TMold WhenNonDefaultReveal<TBearer>(ReadOnlySpan<char> fieldName, TBearer value, TBearer defaultValue = default(TBearer)!
+    , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer? =>
         !stb.SkipField<TBearer?>(value?.GetType(), fieldName, formatFlags) && !Equals(value, defaultValue)
-            ? AlwaysReveal(fieldName, value, formatString, formatFlags)
+            ? AlwaysReveal(fieldName, value!, formatString, formatFlags)
             : stb.WasSkipped<TBearer?>(value?.GetType(), fieldName, formatFlags);
 
     public TMold WhenNonDefaultReveal<TBearerStruct>(ReadOnlySpan<char> fieldName, TBearerStruct? value, TBearerStruct? defaultValue = null
@@ -128,10 +128,10 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
 
     public TMold WhenNonDefaultAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq value, string defaultValue = ""
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence? =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence =>
         !stb.SkipField<char[]>(value?.GetType(), fieldName, formatFlags)
      && value == null! || !(value?.SequenceMatches(defaultValue) ?? true)
-            ? AlwaysAddCharSeq(fieldName, value, formatString, formatFlags)
+            ? AlwaysAddCharSeq(fieldName, value!, formatString, formatFlags)
             : stb.WasSkipped<char[]>(value?.GetType(), fieldName, formatFlags);
 
     public TMold WhenNonDefaultAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq value, int startIndex, int count = int.MaxValue
@@ -146,7 +146,7 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
             || (cappedLength == 0 && defaultValue.Length > 0)
             || (cappedStart < value!.Length
              && !value.SequenceMatches(defaultValue, cappedStart, cappedLength))
-            ? AlwaysAddCharSeq(fieldName, value, startIndex, count, formatString, formatFlags)
+            ? AlwaysAddCharSeq(fieldName, value!, startIndex, count, formatString, formatFlags)
             : stb.WasSkipped<TCharSeq?>(value.GetType(), fieldName, formatFlags);
     }
 

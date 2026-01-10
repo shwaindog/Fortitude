@@ -45,7 +45,7 @@ public class SnapLogEntryEventStateSpy(IList<string> snappedLogEntryEvents, stri
             .Field.AlwaysAdd("CapturedAt", TimeContext.UtcNow, "{0:HH:mm:ss.ffffff}")
             .Field.AlwaysAdd("OnQueueNumber", FLogAsyncQueue.MyCallingQueueNumber)
             .Field.WhenNonNullReveal("LogEntry", logEntryEvent.LogEntry, SummarizedFLogEntry)
-            .Field.WhenNonDefaultReveal("LogEntryBatch", logEntryEvent.LogEntriesBatch).Complete();
+            .Field.WhenNonNullReveal("LogEntryBatch", logEntryEvent.LogEntriesBatch).Complete();
 
         var logEntryEventSnap = snapStateAppender.WriteBuffer.ToString();
         LogEntries.Add(logEntryEventSnap);

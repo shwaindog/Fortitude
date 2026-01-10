@@ -369,7 +369,7 @@ public class PublishableTickInstant : FeedEventStatusUpdate, IMutablePublishable
         .Field.AlwaysReveal(nameof(SourceTickerInfo), SourceTickerInfo)
         .Field.AlwaysAdd(nameof(FeedSyncStatus), FeedSyncStatus)
         .Field.AlwaysAdd(nameof(ClientReceivedTime), ClientReceivedTime, "{0:O}")
-        .AddBaseStyledToStringFields(this)
+        .AddBaseRevealStateFields(this)
         .Complete();
 
     public virtual string QuoteToStringMembers =>

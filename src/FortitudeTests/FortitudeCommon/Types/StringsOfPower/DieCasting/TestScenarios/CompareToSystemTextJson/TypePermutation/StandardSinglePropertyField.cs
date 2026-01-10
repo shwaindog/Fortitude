@@ -5,6 +5,7 @@ using System.Text.Json.Serialization;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 // ReSharper disable MemberCanBePrivate.Global

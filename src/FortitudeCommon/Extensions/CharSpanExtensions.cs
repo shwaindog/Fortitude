@@ -751,8 +751,8 @@ public static class CharSpanExtensions
         return lengthChange;
     }
 
-    public static int ReplaceCapped
-        (this Span<char> searchReplaceSpan, int fromIndex, int searchPopLength, ICharSequence find, ICharSequence replace, int occurences = int.MaxValue)
+    public static int ReplaceCapped(this Span<char> searchReplaceSpan, int fromIndex, int searchPopLength, ICharSequence find, ICharSequence replace
+          , int occurences = int.MaxValue)
     {
         int lengthChange    = 0;
         var fromToDeltaSize = find.Length - replace.Length;
@@ -1551,8 +1551,8 @@ public static class CharSpanExtensions
         return new String(restrictedSpan);
     }
 
-    public static int CountOccurences(this ReadOnlySpan<char> source, int startingAt, char find, char terminateAt1 = '\0', char terminateAt2 = '\0')
-    {
+    public static int CountOccurrences(this ReadOnlySpan<char> source, int startingAt, char find, char terminateAt1 = '\0', char terminateAt2 = '\0')
+    { 
         if (startingAt > source.Length) return 0;
         var count = 0;
         for (int i = startingAt; i < source.Length; i++)
@@ -1563,8 +1563,7 @@ public static class CharSpanExtensions
         }
         return count;
     }
-
-
+    
     public static int WriteIntToSpan(this Span<char> writeTo, int toWrite, int startIndex)
     {
         if (startIndex != 0)
@@ -1577,8 +1576,7 @@ public static class CharSpanExtensions
         }
         return 0;
     }
-
-
+    
     public static int CalculateIntToSpanLength(this int toWrite)
     {
         int signSize = 0;

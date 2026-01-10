@@ -67,16 +67,18 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenNonNullRevealFiltered<TBearer, TBearerBase>(ReadOnlySpan<char> fieldName, Span<TBearer> value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
+    , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?, TBearerBase? =>
         value is { Length: > 0 } 
-            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatFlags) 
+            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
             : stb.WasSkipped<Memory<TBearer>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TBearerStruct>(ReadOnlySpan<char> fieldName, Span<TBearerStruct?> value
       , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
+    , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer =>
         value is { Length: > 0 } 
-            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatFlags) 
+            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
             : stb.WasSkipped<Memory<TBearerStruct?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered(ReadOnlySpan<char> fieldName, Span<string> value, OrderedCollectionPredicate<string> filterPredicate
@@ -193,16 +195,18 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenNonNullRevealFiltered<TBearer, TFilterBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer> value
       , OrderedCollectionPredicate<TFilterBase> filterPredicate
+    , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?, TFilterBase? =>
         value != null 
-            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatFlags) 
+            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
             : stb.WasSkipped<Memory<TBearer>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TBearerStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearerStruct?> value
       , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
+    , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer =>
         value != null 
-            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatFlags) 
+            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
             : stb.WasSkipped<Memory<TBearerStruct?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered(ReadOnlySpan<char> fieldName, ReadOnlySpan<string> value, OrderedCollectionPredicate<string> filterPredicate
@@ -301,33 +305,35 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenNonNullRevealFiltered<TCloaked, TFilterBase, TRevealBase>
     (string fieldName, TCloaked?[]? value, OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
+    , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TCloaked : TFilterBase?, TRevealBase?
         where TRevealBase : notnull =>
         value != null
-            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal, formatFlags)
+            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped<TCloaked?[]>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TCloakedStruct>(string fieldName, TCloakedStruct?[]? value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
+    , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
         value != null
-            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal, formatFlags)
+            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped<TCloakedStruct?[]>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TBearer, TBearerBase>(string fieldName, TBearer?[]? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
+    , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer, TBearerBase =>
         value != null 
-          ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatFlags) 
+          ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
           : stb.WasSkipped<TBearer?[]>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TBearerStruct>(string fieldName, TBearerStruct?[]? value
       , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
+    , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer =>
         value != null 
-          ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatFlags) 
+          ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
           : stb.WasSkipped<TBearerStruct?[]>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered
@@ -403,33 +409,35 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenNonNullRevealFiltered<TCloaked, TFilterBase, TRevealBase>
     (string fieldName, IReadOnlyList<TCloaked?>? value, OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TCloaked : TFilterBase?, TRevealBase? 
         where TRevealBase : notnull =>
         value != null
-            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal, formatFlags)
+            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped<IReadOnlyList<TCloaked?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TCloakedStruct>(string fieldName, IReadOnlyList<TCloakedStruct?>? value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
+    , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
         value != null
-            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal, formatFlags)
+            ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped<IReadOnlyList<TCloakedStruct?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TBearer, TBearerBase>(string fieldName, IReadOnlyList<TBearer?>? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
+    , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer, TBearerBase =>
         value != null 
-          ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatFlags) 
+          ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
           : stb.WasSkipped<IReadOnlyList<TBearer?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFiltered<TBearerStruct>(string fieldName, IReadOnlyList<TBearerStruct?>? value
       , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
+    , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer =>
         value != null 
-          ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatFlags) 
+          ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatString, formatFlags) 
           : stb.WasSkipped<IReadOnlyList<TBearerStruct?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullAddFiltered
@@ -506,19 +514,21 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenNonNullRevealFilteredEnumerate<TCloaked, TFilterBase, TRevealBase>
     (string fieldName, IEnumerable<TCloaked?>? value, OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
+    , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TCloaked : TFilterBase?, TRevealBase? 
         where TRevealBase : notnull =>
         value != null
-            ? AlwaysRevealFilteredEnumerate(fieldName, value, filterPredicate, palantírReveal, formatFlags)
+            ? AlwaysRevealFilteredEnumerate(fieldName, value, filterPredicate, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped<IEnumerable<TCloaked?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFilteredEnumerate<TCloakedStruct>(string fieldName, IEnumerable<TCloakedStruct?>? value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
+    , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
         value != null
-            ? AlwaysRevealFilteredEnumerate(fieldName, value, filterPredicate, palantírReveal, formatFlags)
+            ? AlwaysRevealFilteredEnumerate(fieldName, value, filterPredicate, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped<IEnumerable<TCloakedStruct?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFilteredEnumerate<TBearer, TBearerBase>(string fieldName, IEnumerable<TBearer?>? value
@@ -610,19 +620,21 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenNonNullRevealFilteredEnumerate<TCloaked, TFilterBase, TRevealBase>
     (string fieldName, IEnumerator<TCloaked?>? value, OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
+    , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TCloaked : TFilterBase?, TRevealBase? 
         where TRevealBase : notnull =>
         value != null
-            ? AlwaysRevealFilteredEnumerate(fieldName, value, filterPredicate, palantírReveal, formatFlags)
+            ? AlwaysRevealFilteredEnumerate(fieldName, value, filterPredicate, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped<IEnumerator<TCloaked?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFilteredEnumerate<TCloakedStruct>(string fieldName, IEnumerator<TCloakedStruct?>? value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
+    , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
         value != null
-            ? AlwaysRevealFilteredEnumerate(fieldName, value, filterPredicate, palantírReveal, formatFlags)
+            ? AlwaysRevealFilteredEnumerate(fieldName, value, filterPredicate, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped<IEnumerator<TCloakedStruct?>>( null, fieldName, formatFlags);
 
     public TExt WhenNonNullRevealFilteredEnumerate<TBearer, TBearerBase>(string fieldName, IEnumerator<TBearer?>? value

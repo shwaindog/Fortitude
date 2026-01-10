@@ -1,13 +1,12 @@
 ﻿using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.CollectionField;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.KeyedCollectionField;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType;
 
 
 public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
 {
-    private SelectTypeKeyedCollectionField<ComplexPocoTypeMold>? addKeyCollectionField;
+    private MapCollectionField.SelectTypeKeyedCollectionField<ComplexPocoTypeMold>? addKeyCollectionField;
 
     private SelectTypeCollectionField<ComplexPocoTypeMold>? addCollectionField;
 
@@ -34,21 +33,21 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
 
     public override void AppendOpening()
     {
-        State.StyleFormatter.AppendComplexTypeOpening(State);
+        State.StyleFormatter.StartComplexTypeOpening(State);
     }
     
     public override void AppendClosing()
     {
-        State.StyleFormatter.AppendTypeClosing(State);
+        State.StyleFormatter.StartComplexTypeClosing(State);
     }
 
     public virtual void StartContent()
     {
     }
 
-    public SelectTypeKeyedCollectionField<ComplexPocoTypeMold> KeyedCollectionField
+    public MapCollectionField.SelectTypeKeyedCollectionField<ComplexPocoTypeMold> KeyedCollectionField
     {
-        get => addKeyCollectionField ??= State.Recycler.Borrow<SelectTypeKeyedCollectionField<ComplexPocoTypeMold>>().Initialize(State);
+        get => addKeyCollectionField ??= State.Recycler.Borrow<MapCollectionField.SelectTypeKeyedCollectionField<ComplexPocoTypeMold>>().Initialize(State);
         protected set => addKeyCollectionField = value;
     }
 

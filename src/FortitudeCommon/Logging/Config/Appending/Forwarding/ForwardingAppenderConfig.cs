@@ -120,6 +120,6 @@ public class ForwardingAppenderConfig : AppenderDefinitionConfig, IMutableForwar
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .AddBaseStyledToStringFields(this)
+           .AddBaseRevealStateFields(this)
            .Field.AlwaysReveal(nameof(ForwardToAppenders), ForwardToAppenders).Complete();
 }

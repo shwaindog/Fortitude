@@ -1003,7 +1003,7 @@ public class FieldNullableSpanFormattableArrayWhenPopulatedWithFilterStringBeare
                 | AcceptsAnyExceptNullableStruct | SupportsValueRevealer)]
 public class FieldCloakedBearerArrayWhenPopulatedWithFilterStringBearer<TCloaked, TFilterBase, TRevealBase> : 
     RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TFilterBase, TRevealBase, TCloaked[]?>
-       where TCloaked : TRevealBase, TFilterBase
+       where TCloaked : TRevealBase?, TFilterBase?
        where TRevealBase : notnull
 {
     public TCloaked[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerArray
@@ -1016,10 +1016,12 @@ public class FieldCloakedBearerArrayWhenPopulatedWithFilterStringBearer<TCloaked
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered
+           .CollectionField.WhenPopulatedWithFilterReveal
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerArray)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerArray, ElementPredicate
-              , ValueRevealer)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerArray
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags  )
            .Complete();
 }
 
@@ -1039,7 +1041,7 @@ public class FieldNullableCloakedBearerArrayWhenPopulatedWithFilterStringBearer<
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered
+           .CollectionField.WhenPopulatedWithFilterReveal
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerArray)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerArray
               , ElementPredicate, ValueRevealer)
@@ -1049,8 +1051,8 @@ public class FieldNullableCloakedBearerArrayWhenPopulatedWithFilterStringBearer<
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | NonNullAndPopulatedWrites | FilterPredicate 
                 | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
 public class FieldStringBearerArrayWhenPopulatedWithFilterStringBearer<TBearer, TBearerBase>
-    : FilteredCollectionFieldMoldScaffold<TBearer, TBearerBase, TBearer[]>
-    where TBearer : IStringBearer, TBearerBase
+    : FormattedFilteredCollectionFieldMoldScaffold<TBearer, TBearerBase, TBearer[]>
+    where TBearer : IStringBearer?, TBearerBase?
 {
     public TBearer?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerArray
     {
@@ -1062,16 +1064,18 @@ public class FieldStringBearerArrayWhenPopulatedWithFilterStringBearer<TBearer, 
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered
+           .CollectionField.WhenPopulatedWithFilterReveal
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerArray)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerArray, ElementPredicate)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerArray
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | NonNullAndPopulatedWrites | FilterPredicate | AcceptsNullableStruct 
                 | AcceptsStringBearer)]
 public class FieldNullableStringBearerArrayWhenPopulatedWithFilterStringBearer<TBearerStruct>
-    : FilteredCollectionFieldMoldScaffold<TBearerStruct?, TBearerStruct?[]>
+    : FormattedFilteredCollectionFieldMoldScaffold<TBearerStruct?, TBearerStruct?[]>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerArray
@@ -1084,7 +1088,7 @@ public class FieldNullableStringBearerArrayWhenPopulatedWithFilterStringBearer<T
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered
+           .CollectionField.WhenPopulatedWithFilterReveal
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerArray)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerArray
               , ElementPredicate)
@@ -1309,10 +1313,11 @@ public class FieldCloakedBearerListWhenPopulatedWithFilterStringBearer<TCloaked,
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered
+           .CollectionField.WhenPopulatedWithFilterReveal
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerList)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerList, ElementPredicate
-              , ValueRevealer)
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1332,20 +1337,22 @@ public class FieldNullableCloakedBearerListWhenPopulatedWithFilterStringBearer<T
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered
+           .CollectionField.WhenPopulatedWithFilterReveal
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerList)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerList
-              , ElementPredicate, ValueRevealer)
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsList | NonNullAndPopulatedWrites | FilterPredicate 
                 | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
 public class FieldStringBearerListWhenPopulatedWithFilterStringBearer<TBearer, TBearerBase>
-    : FilteredCollectionFieldMoldScaffold<TBearer, TBearerBase, IReadOnlyList<TBearer>>
-    where TBearer : IStringBearer, TBearerBase
+    : FormattedFilteredCollectionFieldMoldScaffold<TBearer, TBearerBase, IReadOnlyList<TBearer>>
+    where TBearer : IStringBearer?, TBearerBase?
 {
-    public IReadOnlyList<TBearer?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerList
+    public IReadOnlyList<TBearer>? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerList
     {
         get => Value;
         set => Value = value!;
@@ -1355,16 +1362,18 @@ public class FieldStringBearerListWhenPopulatedWithFilterStringBearer<TBearer, T
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered
+           .CollectionField.WhenPopulatedWithFilterReveal
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerList, ElementPredicate)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerList
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsList | NonNullAndPopulatedWrites | FilterPredicate | AcceptsNullableStruct
                      | AcceptsStringBearer)]
 public class FieldNullableStringBearerListWhenPopulatedWithFilterStringBearer<TBearerStruct>
-    : FilteredCollectionFieldMoldScaffold<TBearerStruct?, IReadOnlyList<TBearerStruct?>>
+    : FormattedFilteredCollectionFieldMoldScaffold<TBearerStruct?, IReadOnlyList<TBearerStruct?>>
     where TBearerStruct : struct, IStringBearer
 {
     public IReadOnlyList<TBearerStruct?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerList
@@ -1377,9 +1386,11 @@ public class FieldNullableStringBearerListWhenPopulatedWithFilterStringBearer<TB
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered
+           .CollectionField.WhenPopulatedWithFilterReveal
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerList, ElementPredicate)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerList
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 

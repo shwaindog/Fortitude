@@ -47,7 +47,7 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
         base.InheritedStateReset();
     }
 
-    public TExt AddBaseStyledToStringFields<T>(T thisType) where T : IStringBearer
+    public TExt AddBaseRevealStateFields<T>(T thisType) where T : IStringBearer
     {
         if (MoldStateField.SkipBody) return MoldStateField.StyleTypeBuilder;
         MoldStateField.Master.AddBaseFieldsStart();

@@ -36,17 +36,24 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold>
     public override void AppendOpening()
     {
       if (IsComplexType)
-        MoldStateField.StyleFormatter.AppendComplexTypeOpening(MoldStateField);
+        MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField);
       else
-        MoldStateField.StyleFormatter.AppendValueTypeOpening(MoldStateField);
+        MoldStateField.StyleFormatter.StartContentTypeOpening(MoldStateField);
     }
     
     public override void AppendClosing()
     {
+      var formatter = MoldStateField.StyleFormatter;
       if (IsComplexType)
-        MoldStateField.StyleFormatter.AppendTypeClosing(MoldStateField);
+      {
+        formatter.StartComplexTypeClosing(MoldStateField);
+        formatter.FinishComplexTypeClosing(MoldStateField);
+      }
       else
-        MoldStateField.StyleFormatter.AppendValueTypeClosing(MoldStateField);
+      {
+        formatter.StartContentTypeClosing(MoldStateField);
+        formatter.FinishContentTypeClosing(MoldStateField);
+      }
     }
     
     public override bool IsComplexType => Msf.IsLog;

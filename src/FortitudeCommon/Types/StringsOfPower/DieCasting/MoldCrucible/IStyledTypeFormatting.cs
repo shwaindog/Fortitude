@@ -24,16 +24,23 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     FormatFlags ResolveContentAsStringFormattingFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = ""
     , FormatFlags callerFlags = DefaultCallerTypeFlags);
 
-    ContentSeparatorRanges AppendValueTypeOpening(ITypeMolderDieCast moldInternal, FormatFlags formatFlags = DefaultCallerTypeFlags);
+    ContentSeparatorRanges StartContentTypeOpening(ITypeMolderDieCast moldInternal, FormatFlags formatFlags = DefaultCallerTypeFlags);
+    ContentSeparatorRanges FinishContentTypeOpening(ITypeMolderDieCast moldInternal, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    ContentSeparatorRanges AppendValueTypeClosing(ITypeMolderDieCast moldInternal);
+    ContentSeparatorRanges StartContentTypeClosing(ITypeMolderDieCast moldInternal);
+    ContentSeparatorRanges FinishContentTypeClosing(ITypeMolderDieCast moldInternal);
 
-    ContentSeparatorRanges AppendComplexTypeOpening(ITypeMolderDieCast moldInternal, FormatFlags formatFlags = DefaultCallerTypeFlags);
+    ContentSeparatorRanges StartComplexTypeOpening(ITypeMolderDieCast moldInternal, FormatFlags formatFlags = DefaultCallerTypeFlags);
+    ContentSeparatorRanges FinishComplexTypeOpening(ITypeMolderDieCast moldInternal, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     SeparatorPaddingRanges AppendFieldValueSeparator(ITypeMolderDieCast moldInternal, FormatFlags formatFlags = DefaultCallerTypeFlags);
     
     SkipTypeParts GetNextValueTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FormatFlags formatFlags);
     SkipTypeParts GetNextComplexTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FormatFlags formatFlags);
+    SkipTypeParts GetNextValueTypePartFlags<TElement>(ITheOneString tos, Span<TElement> forValue, Type actualType, FormatFlags formatFlags);
+    SkipTypeParts GetNextValueTypePartFlags<TElement>(ITheOneString tos, ReadOnlySpan<TElement> forValue, Type actualType, FormatFlags formatFlags);
+    SkipTypeParts GetNextComplexTypePartFlags<TElement>(ITheOneString tos, Span<TElement> forValue, Type actualType, FormatFlags formatFlags);
+    SkipTypeParts GetNextComplexTypePartFlags<TElement>(ITheOneString tos, ReadOnlySpan<TElement> forValue, Type actualType, FormatFlags formatFlags);
 
     Range? AddNextFieldSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
     ContentSeparatorRanges AddNextFieldPadding(FormatFlags formatFlags = DefaultCallerTypeFlags);
@@ -41,7 +48,8 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel);
 
-    ContentSeparatorRanges AppendTypeClosing(ITypeMolderDieCast moldInternal);
+    ContentSeparatorRanges StartComplexTypeClosing(ITypeMolderDieCast moldInternal);
+    ContentSeparatorRanges FinishComplexTypeClosing(ITypeMolderDieCast moldInternal);
 
     IStringBuilder AppendFormattedNull(IStringBuilder sb, string? formatString, FormatFlags formatFlags = DefaultCallerTypeFlags
     , bool isFieldName = false);
@@ -127,8 +135,9 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
       , int retrieveCount, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TFmtStruct: struct, ISpanFormattable;
 
-    IStringBuilder CollectionNextItemFormat<TCloaked, TCloakedBase>(ITheOneString tos, TCloaked? item
-      , int retrieveCount, PalantírReveal<TCloakedBase> styler)
+    IStringBuilder CollectionNextItemFormat<TCloaked, TCloakedBase>(ISecretStringOfPower tos, TCloaked? item
+      , int retrieveCount, PalantírReveal<TCloakedBase> styler, string? formatString
+    , FormatFlags formatFlags = DefaultCallerTypeFlags)
       where TCloaked : TCloakedBase?
       where TCloakedBase : notnull;
 
@@ -144,7 +153,8 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder CollectionNextItemFormat(IStringBuilder sb, StringBuilder? item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    IStringBuilder CollectionNextStringBearerFormat<TBearer>(ITheOneString tos, TBearer item, int retrieveCount) 
+    IStringBuilder CollectionNextStringBearerFormat<TBearer>(ISecretStringOfPower tos, TBearer item, int retrieveCount, string? formatString
+    , FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TBearer : IStringBearer?;
 
     IStringBuilder FormatCollectionEnd(ITypeMolderDieCast moldInternal, int? resultsFoundCount, Type itemElementType, int? totalItemCount

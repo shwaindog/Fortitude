@@ -19,10 +19,17 @@ public class ContentJoinTypeMold<TMold> : KnownTypeMolder<ContentJoinTypeMold<TM
     
     public override void AppendClosing()
     {
+        var formatter = MoldStateField.StyleFormatter;
         if (IsComplexType)
-            MoldStateField.StyleFormatter.AppendTypeClosing(MoldStateField);
+        {
+            formatter.StartComplexTypeClosing(MoldStateField);
+            formatter.FinishComplexTypeClosing(MoldStateField);
+        }
         else
-            MoldStateField.StyleFormatter.AppendValueTypeClosing(MoldStateField);
+        {
+            formatter.StartContentTypeClosing(MoldStateField);
+            formatter.FinishContentTypeClosing(MoldStateField);
+        }
     }
     
     public ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags)

@@ -27,18 +27,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAll(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -57,18 +46,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAll(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -88,18 +66,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAll(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -119,18 +86,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAll(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -147,18 +103,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value.Length == 0)
         {
             stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
+            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, "", formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).RevealAll(value, palantírReveal, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -177,19 +125,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, "", formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).RevealAll(value, palantírReveal, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysRevealAll<TBearer>(ReadOnlySpan<char> fieldName, Span<TBearer> value, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public TExt AlwaysRevealAll<TBearer>(ReadOnlySpan<char> fieldName, Span<TBearer> value, string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
         if (stb.SkipField<Memory<TBearer>>(value.Length > 0 ? typeof(Span<TBearer>) : null, fieldName, formatFlags))
@@ -200,22 +141,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value.Length == 0)
         {
             stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
+            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.RevealStringBearerOrNull(item);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, "", formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).RevealAll(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysRevealAll<TBearerStruct>(ReadOnlySpan<char> fieldName, Span<TBearerStruct?> value
+    public TExt AlwaysRevealAll<TBearerStruct>(ReadOnlySpan<char> fieldName, Span<TBearerStruct?> value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
@@ -230,15 +163,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.RevealNullableStringBearerOrNull(item);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, "", formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).RevealAll(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -257,18 +182,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAll(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -287,18 +201,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAllNullable(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -318,25 +221,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAllCharSeq(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAllCharSeqNullable<TCharSeq>(ReadOnlySpan<char> fieldName, Span<TCharSeq?> value
+    public TExt AlwaysAddAllCharSeqNullable<TCharSeq>(ReadOnlySpan<char> fieldName, Span<TCharSeq> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TCharSeq : ICharSequence
+        where TCharSeq : ICharSequence?
     {
         if (stb.SkipField<Memory<TCharSeq?>>(value.Length > 0 ? typeof(Span<TCharSeq?>) : null, fieldName, formatFlags))
             return stb.WasSkipped<Memory<TCharSeq?>>(value.Length > 0 ? typeof(Span<TCharSeq?>) : null, fieldName, formatFlags);
@@ -349,18 +241,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAllCharSeq(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -379,18 +260,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAll(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -409,18 +279,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAllNullable(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -439,18 +298,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAllMatch(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -470,18 +318,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAllObject(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -501,18 +338,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAllObjectNullable(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -531,18 +357,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAll(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -561,18 +376,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAll(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -592,18 +396,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAll(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -623,18 +416,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAll(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -655,15 +437,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, "", formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).RevealAll(value, palantírReveal, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -683,19 +457,11 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, "", formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).RevealAll(value, palantírReveal, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysRevealAll<TBearer>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer> value
+    public TExt AlwaysRevealAll<TBearer>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer> value, string? formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
@@ -707,22 +473,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value.Length == 0)
         {
             stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
+            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.RevealStringBearerOrNull(item);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, "", formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).RevealAll(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysRevealAll<TBearerStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearerStruct?> value
+    public TExt AlwaysRevealAll<TBearerStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearerStruct?> value, string? formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
@@ -735,18 +493,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value.Length == 0)
         {
             stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
+            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.RevealNullableStringBearerOrNull(item);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, "", formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).RevealAll(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -765,18 +515,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAll(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -795,18 +534,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAllNullable(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -826,18 +554,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAllCharSeq(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -857,18 +574,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAll(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -888,18 +594,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAllNullable(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -918,18 +613,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
             return stb.AddGoToNext();
         }
-        stb.StyleFormatter.FormatCollectionStart(stb, elementType, value.Length > 0, collectionType, formatFlags);
-        if (value.Length > 0)
-        {
-            formatString ??= "";
-            for (var i = 0; i < value.Length; i++)
-            {
-                var item = value[i];
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
-            }
-        }
-        stb.StyleFormatter.FormatCollectionEnd(stb, value.Length, elementType, value.Length, formatString, formatFlags);
+        stb.Master.StartExplicitCollectionType(value, formatFlags).AddAllMatch(value, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -978,7 +662,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAll<TFmt>(string fieldName, TFmt?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    public TExt AlwaysAddAll<TFmt>(string fieldName, TFmt?[]? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable
     {
@@ -1019,7 +704,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealAll<TCloaked, TRevealBase>
     (string fieldName, TCloaked?[]? value, PalantírReveal<TRevealBase> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -1027,7 +712,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped<TCloaked?[]>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).RevealAll(value, palantírReveal, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value).RevealAll(value, palantírReveal, formatString, formatFlags).Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(TCloaked), null, value?.GetType() ??
@@ -1039,14 +724,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealAll<TCloakedStruct>
     (string fieldName, TCloakedStruct?[]? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
         if (stb.SkipField<TCloakedStruct?[]>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<TCloakedStruct?[]>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).RevealAll(value, palantírReveal, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value).RevealAll(value, palantírReveal, formatString, formatFlags).Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(TCloakedStruct?), null, value?.GetType() ??
@@ -1056,15 +741,15 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysRevealAll<TBearer>(string fieldName, TBearer?[]? value
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TBearer : IStringBearer
+    public TExt AlwaysRevealAll<TBearer>(string fieldName, TBearer[]? value
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TBearer : IStringBearer?
     {
-        if (stb.SkipField<TBearer?[]>(value?.GetType(), fieldName, formatFlags))
-            return stb.WasSkipped<TBearer?[]>(value?.GetType(), fieldName, formatFlags);
+        if (stb.SkipField<TBearer[]>(value?.GetType(), fieldName, formatFlags))
+            return stb.WasSkipped<TBearer[]>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).RevealAll(value).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags).RevealAll(value, formatString, formatFlags).Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(string), null, value?.GetType() ??
@@ -1075,14 +760,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealAll<TBearerStruct>(string fieldName, TBearerStruct?[]? value
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
         if (stb.SkipField<TBearerStruct?[]>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<TBearerStruct?[]>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).RevealAll(value).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags).RevealAll(value, formatString, formatFlags).Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(string), null, value?.GetType() ??
@@ -1260,7 +945,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealAll<TCloaked, TRevealBase>
     (string fieldName, IReadOnlyList<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -1268,7 +953,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped<IReadOnlyList<TCloaked?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).RevealAll(value, palantírReveal, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value).RevealAll(value, palantírReveal, formatString, formatFlags).Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(TRevealBase), null, value?.GetType() ??
@@ -1280,14 +965,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealAll<TCloakedStruct>
     (string fieldName, IReadOnlyList<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
         if (stb.SkipField<IReadOnlyList<TCloakedStruct?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyList<TCloakedStruct?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).RevealAll(value, palantírReveal, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value).RevealAll(value, palantírReveal, formatString, formatFlags).Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(TCloakedStruct), null, value?.GetType() ??
@@ -1299,7 +984,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealAll<TBearer>(string fieldName, IReadOnlyList<TBearer?>? value
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TBearer : IStringBearer
+        where TBearer : IStringBearer?
     {
         if (stb.SkipField<IReadOnlyList<TBearer?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyList<TBearer?>>(value?.GetType(), fieldName, formatFlags);
@@ -1486,7 +1171,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealAllEnumerate<TCloaked, TRevealBase>
     (string fieldName, IEnumerable<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -1494,7 +1179,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped<IEnumerable<TCloaked?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).RevealAllEnumerate(value, palantírReveal, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value).RevealAllEnumerate(value, palantírReveal, formatString, formatFlags).Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(TRevealBase), null, value?.GetType() ??
@@ -1506,14 +1191,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealAllEnumerate<TCloakedStruct>
     (string fieldName, IEnumerable<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
         if (stb.SkipField<IEnumerable<TCloakedStruct?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerable<TCloakedStruct?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).RevealAllEnumerate(value, palantírReveal, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value).RevealAllEnumerate(value, palantírReveal, formatString, formatFlags).Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(TCloakedStruct?), null, value?.GetType() ??
@@ -1524,7 +1209,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealAllEnumerate<TBearer>(string fieldName, IEnumerable<TBearer?>? value
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer
     {
         if (stb.SkipField<IEnumerable<TBearer?>>(value?.GetType(), fieldName, formatFlags))
@@ -1542,7 +1227,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealAllEnumerate<TBearerStruct>(string fieldName, IEnumerable<TBearerStruct?>? value
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
         if (stb.SkipField<IEnumerable<TBearerStruct?>>(value?.GetType(), fieldName, formatFlags))
@@ -1745,7 +1430,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealAllEnumerate<TCloaked, TRevealBase>
     (string fieldName, IEnumerator<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -1756,7 +1441,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (hasValue)
         {
             value!.Reset();
-            stb.Master.StartSimpleCollectionType(value).RevealAllEnumerate(value, palantírReveal, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value).RevealAllEnumerate(value, palantírReveal, formatString, formatFlags).Complete();
         }
         else
         {
@@ -1770,7 +1455,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealAllEnumerate<TCloakedStruct>
     (string fieldName, IEnumerator<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
         if (stb.SkipField<IEnumerator<TCloakedStruct?>>(value?.GetType(), fieldName, formatFlags))
@@ -1780,7 +1465,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (hasValue)
         {
             value!.Reset();
-            stb.Master.StartSimpleCollectionType(value).RevealAllEnumerate(value, palantírReveal, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value).RevealAllEnumerate(value, palantírReveal, formatString, formatFlags).Complete();
         }
         else
         {

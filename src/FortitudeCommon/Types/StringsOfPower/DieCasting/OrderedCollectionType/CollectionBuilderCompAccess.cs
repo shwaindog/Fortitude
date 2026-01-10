@@ -3,14 +3,14 @@
 
 using FortitudeCommon.Types.StringsOfPower.Options;
 
-namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
+namespace FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 
 public class CollectionBuilderCompAccess<TOCMold> : TypeMolderDieCast<TOCMold> where TOCMold : TypeMolder
 {
     public bool CollectionInComplexType { get; private set; }
 
     public CollectionBuilderCompAccess<TOCMold> InitializeOrderCollectionComponentAccess
-        (TOCMold externalTypeBuilder, TypeMolder.StyleTypeBuilderPortableState typeBuilderPortableState, bool isComplex)
+        (TOCMold externalTypeBuilder, TypeMolder.MoldPortableState typeBuilderPortableState, bool isComplex)
     {
         Initialize(externalTypeBuilder, typeBuilderPortableState);
 
@@ -32,7 +32,7 @@ public class CollectionBuilderCompAccess<TOCMold> : TypeMolderDieCast<TOCMold> w
 
     public bool ConditionalCollectionSuffix(Type elementType, int? count, string? formatString, FormatFlags formatFlags)
     {
-        if (StyleTypeBuilder is OrderedCollectionMold<TOCMold> ocMold)
+        if (StyleTypeBuilder is OrderedCollectionType.OrderedCollectionMold<TOCMold> ocMold)
         {
             ocMold.ResultCount = count ?? 0;
         }

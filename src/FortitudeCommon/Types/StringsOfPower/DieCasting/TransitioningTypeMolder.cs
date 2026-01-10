@@ -16,18 +16,25 @@ public abstract class TransitioningTypeMolder<TCurrent, TNext> : KnownTypeMolder
 
     public override void AppendOpening()
     {
+        var formatter = MoldStateField.StyleFormatter;
         if (IsComplexType)
-            MoldStateField.StyleFormatter.AppendComplexTypeOpening(MoldStateField);
+        {
+            formatter.StartComplexTypeOpening(MoldStateField);
+            formatter.FinishComplexTypeOpening(MoldStateField);
+        }
         else
-            MoldStateField.StyleFormatter.AppendValueTypeOpening(MoldStateField);
+        {
+            formatter.StartContentTypeOpening(MoldStateField);
+            formatter.FinishContentTypeOpening(MoldStateField);
+        }
     }
 
     public override void AppendClosing()
     {
         if (IsComplexType)
-            MoldStateField.StyleFormatter.AppendTypeClosing(MoldStateField);
+            MoldStateField.StyleFormatter.StartComplexTypeClosing(MoldStateField);
         else
-            MoldStateField.StyleFormatter.AppendValueTypeClosing(MoldStateField);
+            MoldStateField.StyleFormatter.StartContentTypeClosing(MoldStateField);
     }
 
     public virtual TNext TransitionToNextMold()

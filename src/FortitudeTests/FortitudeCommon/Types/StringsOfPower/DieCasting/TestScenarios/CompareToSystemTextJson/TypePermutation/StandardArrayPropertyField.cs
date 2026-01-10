@@ -7,6 +7,7 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeTests.FortitudeCommon.Extensions;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 // ReSharper disable FormatStringProblem

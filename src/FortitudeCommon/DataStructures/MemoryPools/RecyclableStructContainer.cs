@@ -16,7 +16,7 @@ public class RecyclableContainer<T> : RecyclableObject, IEquatable<T>, IEquatabl
         return this;
     }
 
-    public bool Equals(T other) => EqualityComparer<T>.Default.Equals(StoredValue, other);
+    public bool Equals(T? other) => EqualityComparer<T>.Default.Equals(StoredValue, other);
     
     public bool Equals(RecyclableContainer<T>? other) => 
         other != null && EqualityComparer<T>.Default.Equals(StoredValue, other.StoredValue);
@@ -29,7 +29,9 @@ public class RecyclableContainer<T> : RecyclableObject, IEquatable<T>, IEquatabl
     }
 
     // ReSharper disable once NonReadonlyMemberInGetHashCode
-    public override int GetHashCode() => EqualityComparer<T>.Default.GetHashCode(StoredValue);
+    public override int GetHashCode() => !EqualityComparer<T>.Default.Equals(StoredValue, default) 
+        // ReSharper disable once NonReadonlyMemberInGetHashCode
+        ? EqualityComparer<T>.Default.GetHashCode(StoredValue!) : 0;
 
     public override string ToString() => $"{GetType().CachedCSharpNameWithConstraints()}({StoredValue})";
 }

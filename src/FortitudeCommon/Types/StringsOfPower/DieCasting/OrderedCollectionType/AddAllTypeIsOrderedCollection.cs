@@ -8,7 +8,7 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 #pragma warning disable CS0618 // Type or member is obsolete
 
-namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
+namespace FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 
 public partial class OrderedCollectionMold<TOCMold>
     where TOCMold : TypeMolder
@@ -611,7 +611,7 @@ public partial class OrderedCollectionMold<TOCMold>
     }
 
     public TOCMold RevealAll<TCloaked, TRevealBase>(TCloaked?[]? value, PalantírReveal<TRevealBase> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -637,7 +637,7 @@ public partial class OrderedCollectionMold<TOCMold>
 
 
     public TOCMold RevealAll<TCloakedStruct>(TCloakedStruct?[]? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
         if (stb.SkipField<TCloakedStruct?[]>(value?.GetType(), "", formatFlags))
@@ -662,7 +662,7 @@ public partial class OrderedCollectionMold<TOCMold>
     }
 
     public TOCMold RevealAll<TCloaked, TRevealBase>(Span<TCloaked> value, PalantírReveal<TRevealBase> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -688,7 +688,7 @@ public partial class OrderedCollectionMold<TOCMold>
     }
 
     public TOCMold RevealAll<TCloakedStruct>(Span<TCloakedStruct?> value, PalantírReveal<TCloakedStruct> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
         if (stb.SkipField<Memory<TCloakedStruct>>(value.Length > 0 ? typeof(Span<TCloakedStruct>) : null, "", formatFlags))
@@ -713,7 +713,7 @@ public partial class OrderedCollectionMold<TOCMold>
     }
 
     public TOCMold RevealAll<TCloaked, TRevealBase>(ReadOnlySpan<TCloaked> value, PalantírReveal<TRevealBase> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -739,7 +739,7 @@ public partial class OrderedCollectionMold<TOCMold>
     }
 
     public TOCMold RevealAll<TCloakedStruct>(ReadOnlySpan<TCloakedStruct?> value, PalantírReveal<TCloakedStruct> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
         if (stb.SkipField<ReadOnlyMemory<TCloakedStruct>>(value.Length > 0 ? typeof(ReadOnlySpan<TCloakedStruct>) : null, "", formatFlags))
@@ -764,7 +764,7 @@ public partial class OrderedCollectionMold<TOCMold>
     }
 
     public TOCMold RevealAll<TCloaked, TRevealBase>(IReadOnlyList<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -790,7 +790,7 @@ public partial class OrderedCollectionMold<TOCMold>
     }
 
     public TOCMold RevealAll<TCloakedStruct>(IReadOnlyList<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
         if (stb.SkipField<IReadOnlyList<TCloakedStruct?>>(value?.GetType(), "", formatFlags))
@@ -815,7 +815,7 @@ public partial class OrderedCollectionMold<TOCMold>
     }
 
     public TOCMold RevealAllEnumerate<TCloaked, TRevealBase>(IEnumerable<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -840,7 +840,7 @@ public partial class OrderedCollectionMold<TOCMold>
     }
 
     public TOCMold RevealAllEnumerate<TCloakedStruct>(IEnumerable<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
         if (stb.SkipField<IEnumerable<TCloakedStruct?>>(value?.GetType(), "", formatFlags))
@@ -864,7 +864,7 @@ public partial class OrderedCollectionMold<TOCMold>
     }
 
     public TOCMold RevealAllEnumerate<TCloaked, TRevealBase>(IEnumerator<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -892,7 +892,7 @@ public partial class OrderedCollectionMold<TOCMold>
     }
 
     public TOCMold RevealAllEnumerate<TCloakedStruct>(IEnumerator<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
         if (stb.SkipField<IEnumerator<TCloakedStruct?>>(value?.GetType(), "", formatFlags))
@@ -918,10 +918,11 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealAll<TBearer>(TBearer?[]? value, FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TBearer : IStringBearer
+    public TOCMold RevealAll<TBearer>(TBearer[]? value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TBearer : IStringBearer?
     {
-        if (stb.SkipField<TBearer[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<TBearer[]>(value?.GetType(), "", formatFlags);
+        if (stb.SkipField<TBearer[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<TBearer[]>(value?.GetType()
+       , "", formatFlags);
         var elementType = typeof(TBearer);
         var any         = false;
         if (value != null)
@@ -941,7 +942,7 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealAll<TBearerStruct>(TBearerStruct?[]? value, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public TOCMold RevealAll<TBearerStruct>(TBearerStruct?[]? value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
         if (stb.SkipField<TBearerStruct[]>(value?.GetType(), "", formatFlags))
@@ -965,7 +966,7 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealAll<TBearer>(Span<TBearer> value, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public TOCMold RevealAll<TBearer>(Span<TBearer> value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
         if (stb.SkipField<Memory<TBearer>>(value.Length > 0 ? typeof(Span<TBearer>) : null, "", formatFlags))
@@ -989,7 +990,7 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealAll<TBearerStruct>(Span<TBearerStruct?> value, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public TOCMold RevealAll<TBearerStruct>(Span<TBearerStruct?> value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
         if (stb.SkipField<Memory<TBearerStruct?>>(value.Length > 0 ? typeof(Span<TBearerStruct?>) : null, "", formatFlags))
@@ -1013,7 +1014,7 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealAll<TBearer>(ReadOnlySpan<TBearer> value, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public TOCMold RevealAll<TBearer>(ReadOnlySpan<TBearer> value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
         if (stb.SkipField<ReadOnlyMemory<TBearer?>>(value.Length > 0 ? typeof(ReadOnlySpan<TBearer?>) : null, "", formatFlags))
@@ -1037,7 +1038,8 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealAll<TBearerStruct>(ReadOnlySpan<TBearerStruct?> value, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public TOCMold RevealAll<TBearerStruct>(ReadOnlySpan<TBearerStruct?> value, string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
         if (stb.SkipField<ReadOnlyMemory<TBearerStruct?>>(value.Length > 0 ? typeof(ReadOnlySpan<TBearerStruct?>) : null, "", formatFlags))
@@ -1061,8 +1063,8 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealAll<TBearer>(IReadOnlyList<TBearer?>? value, FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TBearer : IStringBearer
+    public TOCMold RevealAll<TBearer>(IReadOnlyList<TBearer>? value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TBearer : IStringBearer?
     {
         if (stb.SkipField<IReadOnlyList<TBearer?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IReadOnlyList<TBearer?>>(value?.GetType(), "", formatFlags);
@@ -1085,7 +1087,8 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealAll<TBearerStruct>(IReadOnlyList<TBearerStruct?>? value, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public TOCMold RevealAll<TBearerStruct>(IReadOnlyList<TBearerStruct?>? value, string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
         if (stb.SkipField<IReadOnlyList<TBearerStruct?>>(value?.GetType(), "", formatFlags))
@@ -1109,8 +1112,9 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealAllEnumerate<TBearer>(IEnumerable<TBearer?>? value, FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TBearer : IStringBearer
+    public TOCMold RevealAllEnumerate<TBearer>(IEnumerable<TBearer>? value, string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TBearer : IStringBearer?
     {
         if (stb.SkipField<IEnumerable<TBearer?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<TBearer?>>(value?.GetType(), "", formatFlags);
@@ -1132,7 +1136,8 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealAllEnumerate<TBearerStruct>(IEnumerable<TBearerStruct?>? value, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public TOCMold RevealAllEnumerate<TBearerStruct>(IEnumerable<TBearerStruct?>? value, string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
         if (stb.SkipField<IEnumerable<TBearerStruct>>(value?.GetType(), "", formatFlags))
@@ -1155,8 +1160,9 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealAllEnumerate<TBearer>(IEnumerator<TBearer?>? value, FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TBearer : IStringBearer
+    public TOCMold RevealAllEnumerate<TBearer>(IEnumerator<TBearer>? value, string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TBearer : IStringBearer?
     {
         if (stb.SkipField<IEnumerator<TBearer?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<TBearer?>>(value?.GetType(), "", formatFlags);
@@ -1182,7 +1188,8 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold RevealAllEnumerate<TBearerStruct>(IEnumerator<TBearerStruct?>? value, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public TOCMold RevealAllEnumerate<TBearerStruct>(IEnumerator<TBearerStruct?>? value, string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
         if (stb.SkipField<IEnumerable<TBearerStruct?>>(value?.GetType(), "", formatFlags))

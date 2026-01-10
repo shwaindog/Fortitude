@@ -9,8 +9,8 @@ using System.Text;
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.KeyedCollectionType;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
@@ -55,7 +55,7 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
         StartIndex = master.WriteBuffer.Length;
     }
 
-    protected StyleTypeBuilderPortableState PortableState { get; set; }
+    protected MoldPortableState PortableState { get; set; } = null!;
 
     public bool IsComplete => PortableState.CompleteResult != null;
 
@@ -91,7 +91,7 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
         MeRecyclable.StateReset();
     }
 
-    public class StyleTypeBuilderPortableState
+    public class MoldPortableState
     {
         public MoldDieCastSettings AppenderSettings;
 
@@ -287,9 +287,9 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static ITypeMolderDieCast<TExt> RevealCloakedBearerField<TCloaked, TCloakedBase, TExt>(this ITypeMolderDieCast<TExt> stb
-      , ReadOnlySpan<char> fieldName, TCloaked? value, PalantírReveal<TCloakedBase> cloakedRevealer, string? formatString = null
+      , ReadOnlySpan<char> fieldName, TCloaked value, PalantírReveal<TCloakedBase> cloakedRevealer, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool isKeyName = false)
-        where TCloaked : TCloakedBase 
+        where TCloaked : TCloakedBase? 
         where TExt : TypeMolder
         where TCloakedBase : notnull
     {
@@ -943,19 +943,6 @@ public static class StyledTypeBuilderExtensions
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder =>
         stb.StyleFormatter.CollectionNextItemFormat(stb.Sb, value, retrieveCount, formatString, formatFlags).AnyToCompAccess(stb);
-
-    public static void StartDictionary<TExt>(this ITypeMolderDieCast<TExt> stb
-      , Type dictionaryType, Type keyType, Type valueType, FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TExt : TypeMolder
-    {
-        stb.StyleFormatter.AppendKeyedCollectionStart(stb.Sb, dictionaryType, keyType, valueType,  formatFlags);
-    }
-
-    public static void EndDictionary<TExt>(this ITypeMolderDieCast<TExt> stb)
-        where TExt : TypeMolder
-    {
-        stb.StyleFormatter.AppendTypeClosing(stb);
-    }
 
     private delegate IStringBuilder SpanFmtStructContentHandler<in TFmt>(IStringBuilder sb, IStyledTypeFormatting stf, TFmt fmt
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags, bool isFieldName = false);

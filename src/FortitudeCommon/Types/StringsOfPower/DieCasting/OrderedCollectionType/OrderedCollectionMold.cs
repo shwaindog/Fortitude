@@ -1,8 +1,9 @@
 ﻿using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
-namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
+namespace FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 
 public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
     where TOCMold : TypeMolder
@@ -37,7 +38,7 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
 
     public override void AppendOpening()
     {
-        if (CompAsOrderedCollection.CollectionInComplexType) { MoldStateField.StyleFormatter.AppendComplexTypeOpening(MoldStateField); }
+        if (CompAsOrderedCollection.CollectionInComplexType) { MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField); }
         else
         {
             var elementType = MoldStateField.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
@@ -49,18 +50,23 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
 
     public override void AppendClosing()
     {
-        if (CompAsOrderedCollection.CollectionInComplexType) { MoldStateField.StyleFormatter.AppendTypeClosing(MoldStateField); }
+        var formatter = MoldStateField.StyleFormatter;
+        if (CompAsOrderedCollection.CollectionInComplexType)
+        {
+            formatter.StartComplexTypeClosing(MoldStateField);
+            formatter.FinishComplexTypeClosing(MoldStateField);
+        }
         else
         {
             var elementType = MoldStateField.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
-            MoldStateField.StyleFormatter.FormatCollectionEnd(MoldStateField, ResultCount, elementType!, ResultCount, "", MoldStateField.CreateContentHandling);
+            formatter.FormatCollectionEnd(MoldStateField, ResultCount, elementType!, ResultCount, "", MoldStateField.CreateContentHandling);
         }
     }
 
     protected virtual CollectionBuilderCompAccess<TOCMold> CompAsOrderedCollection => (CollectionBuilderCompAccess<TOCMold>)MoldStateField;
 }
 
-public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCollectionMold>
+public class SimpleOrderedCollectionMold : OrderedCollectionType.OrderedCollectionMold<SimpleOrderedCollectionMold>
 {
     public SimpleOrderedCollectionMold InitializeSimpleOrderedCollectionBuilder(
         Type typeBeingBuilt
@@ -88,7 +94,7 @@ public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCo
     }
 }
 
-public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrderedCollectionMold>
+public class ComplexOrderedCollectionMold : OrderedCollectionType.OrderedCollectionMold<ComplexOrderedCollectionMold>
 {
     private ComplexType.CollectionField.SelectTypeCollectionField<ComplexOrderedCollectionMold>? logOnlyInternalCollectionField;
     private ComplexType.UnitField.SelectTypeField<ComplexOrderedCollectionMold>?                 logOnlyInternalField;

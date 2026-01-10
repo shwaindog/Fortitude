@@ -5,9 +5,9 @@ using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.KeyedCollectionType;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
+using KeyedCollectionMold = FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType.KeyedCollectionMold;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 
@@ -66,7 +66,7 @@ public interface ITypeMolderDieCast : IRecyclableObject, ITransferState
 
 public interface IMigratableTypeMolderDieCast : ITypeMolderDieCast, ITransferState<ITypeMolderDieCast>
 {
-    TypeMolder.StyleTypeBuilderPortableState PortableState { get; }
+    TypeMolder.MoldPortableState PortableState { get; }
 }
 
 public interface ITypeMolderDieCast<out T> : IMigratableTypeMolderDieCast where T : TypeMolder
@@ -86,13 +86,13 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
 
     public TExt StyleTypeBuilder { get; private set; } = null!;
 
-    private TypeMolder.StyleTypeBuilderPortableState typeBuilderState = null!;
+    private TypeMolder.MoldPortableState typeBuilderState = null!;
 
     private bool skipFields;
     private bool writeAsContent;
 
     public TypeMolderDieCast<TExt> Initialize
-        (TExt externalTypeBuilder, TypeMolder.StyleTypeBuilderPortableState typeBuilderPortableState)
+        (TExt externalTypeBuilder, TypeMolder.MoldPortableState typeBuilderPortableState)
     {
         StyleTypeBuilder    = externalTypeBuilder;
         typeBuilderState    = typeBuilderPortableState;
@@ -111,7 +111,7 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
     
     public ISecretStringOfPower Master => typeBuilderState.Master;
 
-    TypeMolder.StyleTypeBuilderPortableState IMigratableTypeMolderDieCast.PortableState => typeBuilderState;
+    TypeMolder.MoldPortableState IMigratableTypeMolderDieCast.PortableState => typeBuilderState;
     
     public string? TypeName => typeBuilderState.TypeName;
 

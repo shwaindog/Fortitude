@@ -145,7 +145,7 @@ public abstract class AppenderDefinitionConfig : AppenderReferenceConfig, IMutab
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .AddBaseStyledToStringFields(this)
+           .AddBaseRevealStateFields(this)
            .Field.WhenNonDefaultAdd(nameof(RunOnAsyncQueueNumber), RunOnAsyncQueueNumber)
            .Field.WhenNonNullOrDefaultAdd(nameof(InheritFromAppenderName), InheritFromAppenderName)
            .Field.WhenNonDefaultAdd(nameof(IsTemplateOnlyDefinition), IsTemplateOnlyDefinition).Complete();

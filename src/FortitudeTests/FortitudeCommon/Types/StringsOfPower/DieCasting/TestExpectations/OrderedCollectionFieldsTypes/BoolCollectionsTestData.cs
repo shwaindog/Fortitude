@@ -6,7 +6,7 @@ using FortitudeCommon.Extensions;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations.
     ScaffoldingStringBuilderInvokeFlags;
-using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Scenarios.CompareToSystemTextJson.TypePermutation.TestCollections;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData.TestCollections;
 
 // ReSharper disable FormatStringProblem
 

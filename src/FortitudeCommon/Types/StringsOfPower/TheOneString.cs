@@ -14,12 +14,13 @@ using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.KeyedCollectionType;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
+using KeyedCollectionMold = FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType.KeyedCollectionMold;
 
 #endregion
 
@@ -61,6 +62,16 @@ public interface ITheOneString : IReusableObject<ITheOneString>
       , CreateContext createContext = default);
 
     SimpleOrderedCollectionMold StartSimpleCollectionType<T>(T toStyle, CreateContext createContext = default);
+
+    ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(Span<TElement> toStyle, CreateContext createContext = default);
+    
+    ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(Span<TElement?> toStyle, CreateContext createContext = default)
+        where TElement : struct;
+    
+    ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(ReadOnlySpan<TElement> toStyle, CreateContext createContext = default);
+    
+    ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(ReadOnlySpan<TElement?> toStyle, CreateContext createContext = default)
+        where TElement : struct;
 
     ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<T, TElement>(T toStyle, CreateContext createContext = default);
 
@@ -551,6 +562,70 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         return complexOrderedCollectionBuilder;
     }
 
+    public ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(Span<TElement> toStyle, CreateContext createContext = default)
+    {
+        var visitType      = typeof(Span<TElement>);
+        var actualType     = visitType;
+        var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
+        var appendSettings = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, createContext.FormatFlags);
+        var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
+        var explicitOrderedCollectionBuilder =
+            Recycler.Borrow<ExplicitOrderedCollectionMold<TElement>>().InitializeExplicitOrderedCollectionBuilder
+                (actualType, this, appendSettings, createContext.NameOverride, remainingDepth
+               , typeFormatter, 0, createContext.FormatFlags);
+        TypeStart(toStyle, explicitOrderedCollectionBuilder, actualType);
+        return explicitOrderedCollectionBuilder;
+    }
+
+    public ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(Span<TElement?> toStyle, CreateContext createContext = default)
+        where TElement : struct
+    {
+        var visitType      = typeof(Span<TElement?>);
+        var actualType     = visitType;
+        var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
+        var appendSettings = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, createContext.FormatFlags);
+        var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
+        var explicitOrderedCollectionBuilder =
+            Recycler.Borrow<ExplicitOrderedCollectionMold<TElement>>().InitializeExplicitOrderedCollectionBuilder
+                (actualType, this, appendSettings, createContext.NameOverride, remainingDepth
+               , typeFormatter, 0, createContext.FormatFlags);
+        TypeStart(toStyle, explicitOrderedCollectionBuilder, actualType);
+        return explicitOrderedCollectionBuilder;
+    }
+
+    public ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(ReadOnlySpan<TElement> toStyle
+      , CreateContext createContext = default)
+    {
+        var visitType      = typeof(ReadOnlySpan<TElement>);
+        var actualType     = visitType;
+        var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
+        var appendSettings = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, createContext.FormatFlags);
+        var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
+        var explicitOrderedCollectionBuilder =
+            Recycler.Borrow<ExplicitOrderedCollectionMold<TElement>>().InitializeExplicitOrderedCollectionBuilder
+                (actualType, this, appendSettings, createContext.NameOverride, remainingDepth
+               , typeFormatter, 0, createContext.FormatFlags);
+        TypeStart(toStyle, explicitOrderedCollectionBuilder, actualType);
+        return explicitOrderedCollectionBuilder;
+    }
+
+    public ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(ReadOnlySpan<TElement?> toStyle
+      , CreateContext createContext = default)
+        where TElement : struct
+    {
+        var visitType      = typeof(ReadOnlySpan<TElement?>);
+        var actualType     = visitType;
+        var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
+        var appendSettings = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, createContext.FormatFlags);
+        var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
+        var explicitOrderedCollectionBuilder =
+            Recycler.Borrow<ExplicitOrderedCollectionMold<TElement>>().InitializeExplicitOrderedCollectionBuilder
+                (actualType, this, appendSettings, createContext.NameOverride, remainingDepth
+               , typeFormatter, 0, createContext.FormatFlags);
+        TypeStart(toStyle, explicitOrderedCollectionBuilder, actualType);
+        return explicitOrderedCollectionBuilder;
+    }
+
     public ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<T, TElement>(T toStyle, CreateContext createContext = default)
     {
         var visitType      = typeof(T);
@@ -648,6 +723,22 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         return this;
     }
 
+    public MoldDieCastSettings GetComplexTypeAppendSettings<TElement>(Span<TElement> forValue, Type actualType
+      , IStyledTypeFormatting formatter, FormatFlags formatFlags)
+    {
+        var nextDieSettings = AppendSettings;
+        nextDieSettings.SkipTypeParts |= formatter.GetNextComplexTypePartFlags(this, forValue, actualType, formatFlags);
+        return nextDieSettings;
+    }
+
+    public MoldDieCastSettings GetComplexTypeAppendSettings<TElement>(ReadOnlySpan<TElement> forValue, Type actualType
+      , IStyledTypeFormatting formatter, FormatFlags formatFlags)
+    {
+        var nextDieSettings = AppendSettings;
+        nextDieSettings.SkipTypeParts |= formatter.GetNextComplexTypePartFlags(this, forValue, actualType, formatFlags);
+        return nextDieSettings;
+    }
+
     public MoldDieCastSettings GetComplexTypeAppendSettings<T>(T forValue, Type actualType, IStyledTypeFormatting formatter, FormatFlags formatFlags)
     {
         var nextDieSettings = AppendSettings;
@@ -714,6 +805,38 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     protected int NextRefId() => NextObjVisitedRefId++;
 
+    protected void TypeStart<TElement>(Span<TElement> toStyle, TypeMolder newType, Type typeOfT)
+    {
+        GraphNodeVisit newVisit;
+            newVisit = new GraphNodeVisit
+                (OrderedObjectGraph.Count, CurrentGraphNodeIndex, typeof(Span<TElement>), newType.IsComplexType
+               , null, (CurrentNode?.GraphDepth ?? -1) + 1
+               , IndentLevel, Sb!.Length
+               , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1)
+                {
+                    TypeBuilderComponentAccess = ((ITypeBuilderComponentSource)newType).MoldState
+                };
+        if (newVisit.ObjVisitIndex != OrderedObjectGraph.Count) throw new ArgumentException("ObjVisitIndex to be the size of OrderedObjectGraph");
+
+        StartNewVisit(toStyle, newType, newVisit);
+    }
+
+    protected void TypeStart<TElement>(ReadOnlySpan<TElement> toStyle, TypeMolder newType, Type typeOfT)
+    {
+        GraphNodeVisit newVisit;
+            newVisit = new GraphNodeVisit
+                (OrderedObjectGraph.Count, CurrentGraphNodeIndex, typeof(ReadOnlySpan<TElement>), newType.IsComplexType
+               , null, (CurrentNode?.GraphDepth ?? -1) + 1
+               , IndentLevel, Sb!.Length
+               , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1)
+                {
+                    TypeBuilderComponentAccess = ((ITypeBuilderComponentSource)newType).MoldState
+                };
+        if (newVisit.ObjVisitIndex != OrderedObjectGraph.Count) throw new ArgumentException("ObjVisitIndex to be the size of OrderedObjectGraph");
+
+        StartNewVisit(toStyle, newType, newVisit);
+    }
+
     protected void TypeStart<T>(T toStyle, TypeMolder newType, Type typeOfT)
     {
         GraphNodeVisit newVisit;
@@ -742,6 +865,28 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         if (newVisit.ObjVisitIndex != OrderedObjectGraph.Count) throw new ArgumentException("ObjVisitIndex to be the size of OrderedObjectGraph");
 
         StartNewVisit(toStyle, newType, newVisit);
+    }
+
+    private void StartNewVisit<TElement>(Span<TElement> toStyle, TypeMolder newType, GraphNodeVisit newVisit)
+    {
+        newType.Start();
+        newVisit = newVisit.SetBufferFirstFieldStart(Sb!.Length);
+
+        if (!IsExemptFromCircularRefNodeTracking(newType.TypeBeingBuilt)) OrderedObjectGraph.Add(newVisit);
+
+        CurrentGraphNodeIndex  = newVisit.ObjVisitIndex;
+        nextTypeAppendSettings = new MoldDieCastSettings(SkipTypeParts.None);
+    }
+
+    private void StartNewVisit<TElement>(ReadOnlySpan<TElement> toStyle, TypeMolder newType, GraphNodeVisit newVisit)
+    {
+        newType.Start();
+        newVisit = newVisit.SetBufferFirstFieldStart(Sb!.Length);
+
+        if (!IsExemptFromCircularRefNodeTracking(newType.TypeBeingBuilt)) OrderedObjectGraph.Add(newVisit);
+
+        CurrentGraphNodeIndex  = newVisit.ObjVisitIndex;
+        nextTypeAppendSettings = new MoldDieCastSettings(SkipTypeParts.None);
     }
 
     private void StartNewVisit<T>(T toStyle, TypeMolder newType, GraphNodeVisit newVisit)

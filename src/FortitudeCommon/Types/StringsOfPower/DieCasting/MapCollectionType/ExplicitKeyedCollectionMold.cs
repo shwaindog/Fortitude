@@ -1,7 +1,7 @@
 ﻿using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
-namespace FortitudeCommon.Types.StringsOfPower.DieCasting.KeyedCollectionType;
+namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 
 public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<ExplicitKeyedCollectionMold<TKey, TValue>>
 {

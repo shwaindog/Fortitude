@@ -34,12 +34,12 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold>
 
     public override void AppendOpening()
     {
-        MoldStateField.StyleFormatter.AppendValueTypeOpening(MoldStateField);
+        MoldStateField.StyleFormatter.StartContentTypeOpening(MoldStateField);
     }
 
     public override void AppendClosing()
     {
-        MoldStateField.StyleFormatter.AppendValueTypeClosing(MoldStateField);
+        MoldStateField.StyleFormatter.StartContentTypeClosing(MoldStateField);
     }
     
     public ContentJoinTypeMold<SimpleContentTypeMold> AsValue(bool value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null

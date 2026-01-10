@@ -26,7 +26,7 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
         ? stb.AppendNullableBooleanField(fieldName, value, formatString ?? "", formatFlags).AddGoToNext()
         : stb.WasSkipped<bool?>(value?.GetType(), fieldName, formatFlags);
 
-    public TMold AlwaysAdd<TFmt>(ReadOnlySpan<char> fieldName, TFmt? value
+    public TMold AlwaysAdd<TFmt>(ReadOnlySpan<char> fieldName, TFmt value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable? =>
       !stb.SkipField<TFmt?>(value?.GetType(), fieldName, formatFlags) 
@@ -40,9 +40,9 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
         ? stb.AppendFormattableField(fieldName, value, formatString ?? "", formatFlags).AddGoToNext()
         : stb.WasSkipped<TFmtStruct?>(value?.GetType(), fieldName, formatFlags);
 
-    public TMold AlwaysReveal<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, TCloaked? value
+    public TMold AlwaysReveal<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, TCloaked value
       , PalantírReveal<TRevealBase> palantírReveal, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TCloaked : TRevealBase
+        where TCloaked : TRevealBase?
         where TRevealBase : notnull =>
         !stb.SkipField<TCloaked?>(value?.GetType(), fieldName, formatFlags) 
           ? stb.RevealCloakedBearerField(fieldName, value, palantírReveal, formatString, formatFlags).AddGoToNext()
@@ -117,9 +117,9 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
         ? stb.AppendCharSequenceField(fieldName, value, formatString ?? "", formatFlags: formatFlags).AddGoToNext()
         : stb.WasSkipped<TCharSeq>(value?.GetType(), fieldName, formatFlags);
     
-    public TMold AlwaysAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq? value, int startIndex, int length = int.MaxValue
+    public TMold AlwaysAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq value, int startIndex, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-    , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence =>
+    , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence? =>
       !stb.SkipField<TCharSeq?>(value?.GetType(), fieldName, formatFlags)
         ? stb.AppendCharSequenceField(fieldName, value, formatString ?? "", startIndex, length, formatFlags).AddGoToNext()
         : stb.WasSkipped<TCharSeq?>(value?.GetType(), fieldName, formatFlags);

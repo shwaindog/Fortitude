@@ -187,7 +187,7 @@ public class AsyncForwardingAppendersConfig : QueueingAppenderConfig, IMutableAs
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(AsyncType), AsyncType)
-           .AddBaseStyledToStringFields(this)
+           .AddBaseRevealStateFields(this)
            .Field.AlwaysAdd(nameof(AsyncQueueFullHandling), AsyncQueueFullHandling)
            .Field.AlwaysAdd(nameof(Broadcast), Broadcast)
            .Field.AlwaysAdd(nameof(MaxDispatchUnconfirmed), MaxDispatchUnconfirmed)

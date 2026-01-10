@@ -1,0 +1,42 @@
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
+
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData.TestTree;
+
+public class BinaryBranchNode<TChild> : OrderedParentNode<TChild>, IChildNode
+    where TChild : class?, IChildNode?
+{
+
+    public BinaryBranchNode() { }
+    
+    public BinaryBranchNode(string name, int? instId = null) : base([], name, instId) { }
+
+    public BinaryBranchNode(string name, TChild left, TChild right, int? instId = null) : base(name, instId, left, right)
+    {
+        Left  = left;
+        Right = right;
+    }
+
+    public BinaryBranchNode(TChild left, TChild right, string name, int? instId = null) : base(name, instId, left, right)
+    {
+        Left  = left;
+        Right = right;
+    }
+
+    public TChild? Left { get; set; }
+    
+    public TChild? Right { get; set; }
+
+    public IReadOnlyParentNode? Parent { get; set; }
+
+    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+        tos.StartComplexType(this)
+           .AddBaseRevealStateFields((Node)this)
+           .Field.WhenNonNullReveal(nameof(Left), Left)
+           .Field.WhenNonNullReveal(nameof(Right), Right)
+           .Field.WhenNonNullReveal(nameof(Parent), Parent)
+           .Complete();
+}

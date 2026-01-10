@@ -326,7 +326,7 @@ public class ValueRevealerDictExpect<TKey, TValue, TKFilterBase, TVFilterBase, T
     {
         var createdStringBearer = CreateNewStringBearer(scaffoldEntry);
 
-        if (createdStringBearer is IMoldSupportedValue<List<KeyValuePair<TKey, TValue>>> nullArrayMold)
+        if (createdStringBearer is IMoldSupportedValue<List<KeyValuePair<TKey, TValue>>?> nullArrayMold)
             nullArrayMold.Value = Input;
 
         if (HasRestrictingSubListFilter && createdStringBearer is ISupportsSubsetDisplayKeys<TKSubListDerived> supportsSettingSubListFilter)

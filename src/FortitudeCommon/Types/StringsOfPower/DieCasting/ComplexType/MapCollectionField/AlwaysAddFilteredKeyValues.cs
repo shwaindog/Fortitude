@@ -4,7 +4,7 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.KeyedCollectionField;
+namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.MapCollectionField;
 
 public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolder
 {

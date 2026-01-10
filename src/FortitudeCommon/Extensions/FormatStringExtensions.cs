@@ -557,7 +557,7 @@ public static class ExtendedSpanFormattableExtensions
         }
         var foundFormatStages      = FormatStringType.Layout;
         var extendedSplitJoinRange = SplitJoinRange.NoSplitJoin;
-        var countSlashesIfAny      = remainingSpan.CountOccurences(0, '/', ':', '}');
+        var countSlashesIfAny      = remainingSpan.CountOccurrences(0, '/', ':', '}');
         if (countSlashesIfAny == 3)
         {
             var firstFwdSlashIndex = remainingSpan.IndexOf('/');

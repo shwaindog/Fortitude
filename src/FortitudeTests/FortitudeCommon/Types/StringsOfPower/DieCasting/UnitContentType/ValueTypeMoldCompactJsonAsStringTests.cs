@@ -17,7 +17,7 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.UnitCon
 
 [NoMatchingProductionClass]
 [TestClass]
-public class ContentTypeMoldTestsCompactJsonAsStringTests : ContentTypeMoldCompactLogAsStringTests
+public class ContentTypeMoldTestsCompactJsonAsStringTests : ContentTypeMoldAsStringTests
 {
     public override StringStyle TestStyle => Compact | Json;
     

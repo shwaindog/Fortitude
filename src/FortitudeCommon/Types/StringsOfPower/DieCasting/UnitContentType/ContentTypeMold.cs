@@ -38,18 +38,32 @@ public class ContentTypeMold<TContentMold> : TransitioningTypeMolder<TContentMol
 
     public override void AppendOpening()
     {
+        var formatter = MoldStateField!.StyleFormatter;
         if (IsComplexType)
-            MoldStateField!.StyleFormatter.AppendComplexTypeOpening(MoldStateField);
+        {
+            formatter.StartComplexTypeOpening(MoldStateField);
+            formatter.FinishComplexTypeOpening(MoldStateField);
+        }
         else
-            MoldStateField!.StyleFormatter.AppendValueTypeOpening(MoldStateField);
+        {
+            formatter.StartContentTypeOpening(MoldStateField);
+            formatter.FinishContentTypeOpening(MoldStateField);
+        }
     }
 
     public override void AppendClosing()
     {
+        var formatter = MoldStateField!.StyleFormatter;
         if (IsComplexType)
-            MoldStateField!.StyleFormatter.AppendTypeClosing(MoldStateField);
+        {
+            formatter.StartComplexTypeClosing(MoldStateField);
+            formatter.FinishComplexTypeClosing(MoldStateField);
+        }
         else
-            MoldStateField!.StyleFormatter.AppendValueTypeClosing(MoldStateField);
+        {
+            formatter.StartContentTypeClosing(MoldStateField);
+            formatter.FinishContentTypeClosing(MoldStateField);
+        }
     }
 
     public IScopeDelimitedStringBuilder StartDelimitedStringBuilder() => Msf.StartDelimitedStringBuilder();

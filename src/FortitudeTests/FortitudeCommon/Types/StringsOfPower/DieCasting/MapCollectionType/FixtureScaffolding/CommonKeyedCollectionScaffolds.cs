@@ -15,7 +15,7 @@ public abstract class FormattedKeyValueMoldScaffold<TKey, TValue> : FormattedKey
 {
 
     IEnumerator IEnumerable.                        GetEnumerator() => GetEnumerator();
-    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => Value.GetEnumerator();
+    public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => Value?.GetEnumerator()!;
 
     public int Count => Value!.Count;
 
@@ -76,7 +76,7 @@ public abstract class FormattedKeyStructValueRevealerMoldScaffold<TKey, TValue> 
 
     public bool ContainsKey(TKey key) => Value?.Any(kvp => Equals(kvp.Key, key)) ?? false;
 
-    public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue? value)
+    public bool TryGetValue(TKey key, out TValue? value)
     {
         value = Value?.FirstOrDefault(kvp => Equals(kvp.Key, key)).Value;
         return Value?.Any(kvp => Equals(kvp.Key, key)) ?? false;
@@ -160,7 +160,7 @@ public abstract class KeyRevealerStructValueRevealerMoldScaffold<TKey, TValue, T
 
     public bool ContainsKey(TKey key) => Value?.Any(kvp => Equals(kvp.Key, key)) ?? false;
 
-    public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue? value)
+    public bool TryGetValue(TKey key, out TValue? value)
     {
         value = Value?.FirstOrDefault(kvp => Equals(kvp.Key, key)).Value;
         return Value?.Any(kvp => Equals(kvp.Key, key)) ?? false;
@@ -186,7 +186,7 @@ public abstract class StructKeyRevealerStructValueRevealerMoldScaffold<TKey, TVa
 
     public bool ContainsKey(TKey key) => Value?.Any(kvp => Equals(kvp.Key, key)) ?? false;
 
-    public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue? value)
+    public bool TryGetValue(TKey key, out TValue? value)
     {
         value = Value?.FirstOrDefault(kvp => Equals(kvp.Key, key)).Value;
         return Value?.Any(kvp => Equals(kvp.Key, key)) ?? false;

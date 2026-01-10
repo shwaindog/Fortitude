@@ -189,5 +189,5 @@ public class RollingFileAppenderConfig : FileAppenderConfig, IMutableRollingFile
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(RollAtSize), RollAtSize)
            .Field.AlwaysAdd(nameof(RollFileNameFormat), RollFileNameFormat)
-           .AddBaseStyledToStringFields(this).Complete();
+           .AddBaseRevealStateFields(this).Complete();
 }

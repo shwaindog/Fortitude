@@ -103,5 +103,5 @@ public class QueueingAppenderConfig : ForwardingAppenderConfig, IMutableQueueing
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .AddBaseStyledToStringFields(this).Complete();
+           .AddBaseRevealStateFields(this).Complete();
 }

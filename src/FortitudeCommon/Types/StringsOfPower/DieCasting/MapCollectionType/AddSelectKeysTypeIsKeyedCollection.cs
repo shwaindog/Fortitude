@@ -4,7 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
-namespace FortitudeCommon.Types.StringsOfPower.DieCasting.KeyedCollectionType;
+namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 
 public partial class KeyedCollectionMold
 {

@@ -107,6 +107,18 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return SkipTypeParts.None;
     }
 
+    public SkipTypeParts GetNextValueTypePartFlags<TElement>(ITheOneString tos, Span<TElement> forValue, Type actualType, FormatFlags formatFlags)
+    {
+        if (typeof(TElement).IsChar()) { return SkipTypeParts.TypeStart | SkipTypeParts.TypeName | SkipTypeParts.TypeEnd; }
+        return SkipTypeParts.None;
+    }
+
+    public SkipTypeParts GetNextValueTypePartFlags<TElement>(ITheOneString tos, ReadOnlySpan<TElement> forValue, Type actualType, FormatFlags formatFlags)
+    {
+        if (typeof(TElement).IsChar()) { return SkipTypeParts.TypeStart | SkipTypeParts.TypeName | SkipTypeParts.TypeEnd; }
+        return SkipTypeParts.None;
+    }
+
     public SkipTypeParts GetNextComplexTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FormatFlags formatFlags)
     {
         var isLastType = tos.IsLastVisitedObject(forValue);
@@ -117,8 +129,26 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         skipParts |= formatFlags.HasSuppressTypeNamesFlag() ? SkipTypeParts.TypeName : SkipTypeParts.None;
         return skipParts;
     }
+    
+    public SkipTypeParts GetNextComplexTypePartFlags<TElement>(ITheOneString tos, Span<TElement> forValue, Type actualType, FormatFlags formatFlags)
+    {
+        var skipParts  = SkipTypeParts.None;
+        skipParts |= formatFlags.HasSuppressOpening() ? SkipTypeParts.TypeStart : SkipTypeParts.None;
+        skipParts |= formatFlags.HasSuppressClosing() ? SkipTypeParts.TypeEnd : SkipTypeParts.None;
+        skipParts |= formatFlags.HasSuppressTypeNamesFlag() ? SkipTypeParts.TypeName : SkipTypeParts.None;
+        return skipParts;
+    }
 
-    public virtual ContentSeparatorRanges AppendValueTypeOpening(ITypeMolderDieCast moldInternal
+    public SkipTypeParts GetNextComplexTypePartFlags<TElement>(ITheOneString tos, ReadOnlySpan<TElement> forValue, Type actualType, FormatFlags formatFlags)
+    {
+        var skipParts  = SkipTypeParts.None;
+        skipParts |= formatFlags.HasSuppressOpening() ? SkipTypeParts.TypeStart : SkipTypeParts.None;
+        skipParts |= formatFlags.HasSuppressClosing() ? SkipTypeParts.TypeEnd : SkipTypeParts.None;
+        skipParts |= formatFlags.HasSuppressTypeNamesFlag() ? SkipTypeParts.TypeName : SkipTypeParts.None;
+        return skipParts;
+    }
+
+    public virtual ContentSeparatorRanges StartContentTypeOpening(ITypeMolderDieCast moldInternal
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var sb = moldInternal.Sb;
@@ -139,15 +169,20 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         }
         return GraphBuilder.ContentEndToRanges(formatFlags);
     }
+    
+    public virtual ContentSeparatorRanges FinishContentTypeOpening(ITypeMolderDieCast moldInternal
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) => ContentSeparatorRanges.None;
 
-    public virtual ContentSeparatorRanges AppendValueTypeClosing(ITypeMolderDieCast moldInternal)
+    public virtual ContentSeparatorRanges StartContentTypeClosing(ITypeMolderDieCast moldInternal)
     {
         GraphBuilder.RemoveLastSeparatorAndPadding();
         GraphBuilder.StartNextContentSeparatorPaddingSequence(moldInternal.Sb, this, DefaultCallerTypeFlags);
         return GraphBuilder.SnapshotLastAppendSequence(DefaultCallerTypeFlags);
     }
+    
+    public virtual ContentSeparatorRanges FinishContentTypeClosing(ITypeMolderDieCast moldInternal) => ContentSeparatorRanges.None;
 
-    public virtual ContentSeparatorRanges AppendComplexTypeOpening(ITypeMolderDieCast moldInternal
+    public virtual ContentSeparatorRanges StartComplexTypeOpening(ITypeMolderDieCast moldInternal
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var sb = moldInternal.Sb;
@@ -169,6 +204,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                .AppendPadding(Spc)
                .Complete(formatFlags);
     }
+    
+    public virtual ContentSeparatorRanges FinishComplexTypeOpening(ITypeMolderDieCast moldInternal
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) => ContentSeparatorRanges.None;
 
     public virtual SeparatorPaddingRanges AppendFieldValueSeparator(ITypeMolderDieCast moldInternal
       , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
@@ -201,7 +239,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel) =>
         sb.InsertAt(CmaSpc, atIndex).ReturnCharCount(2);
 
-    public virtual ContentSeparatorRanges AppendTypeClosing(ITypeMolderDieCast moldInternal)
+    public virtual ContentSeparatorRanges StartComplexTypeClosing(ITypeMolderDieCast moldInternal)
     {
         var sb = moldInternal.Sb;
 
@@ -220,6 +258,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         }
         return GraphBuilder.Complete(previousContentPadSpacing.PreviousFormatFlags);
     }
+    
+    public virtual ContentSeparatorRanges FinishComplexTypeClosing(ITypeMolderDieCast moldInternal) => ContentSeparatorRanges.None;
 
     public IStringBuilder AppendFormattedNull(IStringBuilder sb, string? formatString, FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool isFieldName = false)
@@ -866,13 +906,16 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb;
     }
 
-    public virtual IStringBuilder CollectionNextItemFormat<TCloaked, TCloakedBase>(ITheOneString tos
-      , TCloaked? item, int retrieveCount, PalantírReveal<TCloakedBase> styler)
+    public virtual IStringBuilder CollectionNextItemFormat<TCloaked, TCloakedBase>(ISecretStringOfPower tos
+      , TCloaked? item, int retrieveCount, PalantírReveal<TCloakedBase> styler, string? callerFormatString
+      , FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TCloaked : TCloakedBase?
         where TCloakedBase : notnull
     {
         var sb = tos.WriteBuffer;
-        if (item == null) { return AppendFormattedNull(sb, ""); }
+        if (item == null) { return AppendFormattedNull(sb, callerFormatString); }
+        tos.SetCallerFormatString(callerFormatString);
+        tos.SetCallerFormatFlags(callerFormatFlags);
         var contentStart = sb.Length;
         styler(item, tos);
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
@@ -922,12 +965,15 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb;
     }
 
-    public virtual IStringBuilder CollectionNextStringBearerFormat<TBearer>(ITheOneString tos, TBearer item, int retrieveCount)
+    public virtual IStringBuilder CollectionNextStringBearerFormat<TBearer>(ISecretStringOfPower tos, TBearer item, int retrieveCount
+      , string? callerFormatString, FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
         var sb = tos.WriteBuffer;
-        if (item == null) { return AppendFormattedNull(sb, ""); }
+        if (item == null) { return AppendFormattedNull(sb, callerFormatString); }
         var contentStart = sb.Length;
+        tos.SetCallerFormatString(callerFormatString);
+        tos.SetCallerFormatFlags(callerFormatFlags);
         item.RevealState(tos);
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
         GraphBuilder.MarkContentStart(contentStart);

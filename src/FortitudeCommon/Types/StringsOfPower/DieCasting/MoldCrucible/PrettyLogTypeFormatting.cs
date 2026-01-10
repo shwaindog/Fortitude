@@ -22,7 +22,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
 
     public override string Name => nameof(CompactJsonTypeFormatting);
 
-    public override ContentSeparatorRanges AppendComplexTypeOpening(ITypeMolderDieCast moldInternal
+    public override ContentSeparatorRanges StartComplexTypeOpening(ITypeMolderDieCast moldInternal
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var sb              = moldInternal.Sb;
@@ -87,7 +87,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         return bufferSize;
     }
 
-    public override ContentSeparatorRanges AppendTypeClosing(ITypeMolderDieCast moldInternal)
+    public override ContentSeparatorRanges StartComplexTypeClosing(ITypeMolderDieCast moldInternal)
     {
         var sb = moldInternal.Sb;
 

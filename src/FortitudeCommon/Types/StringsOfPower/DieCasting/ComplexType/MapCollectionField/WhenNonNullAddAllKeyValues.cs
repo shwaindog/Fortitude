@@ -4,7 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
-namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.KeyedCollectionField;
+namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.MapCollectionField;
 
 public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolder
 {

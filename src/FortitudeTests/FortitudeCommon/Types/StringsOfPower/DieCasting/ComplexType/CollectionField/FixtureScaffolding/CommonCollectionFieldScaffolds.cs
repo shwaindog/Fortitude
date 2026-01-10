@@ -22,7 +22,7 @@ public abstract class FormattedEnumeratorFieldMoldScaffold<TValue, TCollection> 
 { }
 
 public abstract class RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase, TCollection> 
-    : MoldScaffoldBase<TCollection>, ISupportsValueRevealer<TRevealBase>
+    : FormattedMoldScaffold<TCollection>, ISupportsValueRevealer<TRevealBase>
     where TCollection : IEnumerable<TCloaked>?
     where TRevealBase : notnull
 {
