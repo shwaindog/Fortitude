@@ -877,10 +877,10 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
-    public TOCMold AddFilteredEnumerate<TFmt, TFmtBase>(IEnumerator<TFmt?>? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
+    public TOCMold AddFilteredEnumerate<TFmt, TFmtBase>(IEnumerator<TFmt>? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable, TFmtBase
+        where TFmt : ISpanFormattable?, TFmtBase?
     {
         if (stb.SkipField<IEnumerator<TFmt?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<TFmt?>>(value?.GetType(), "", formatFlags);

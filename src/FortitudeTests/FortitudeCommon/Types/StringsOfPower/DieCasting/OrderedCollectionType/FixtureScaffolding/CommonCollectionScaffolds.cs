@@ -8,7 +8,7 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Ordered
 
 
 
-public abstract class CollectionMoldScaffold<TValue, TCollection> : CollectionFieldMoldScaffold<TValue, TCollection>
+public abstract class CollectionMoldScaffold<TValue, TCollection> :  CollectionFieldMoldScaffold<TValue, TCollection>
   , IEnumerable<TValue>
     where TCollection : IEnumerable<TValue>
 {

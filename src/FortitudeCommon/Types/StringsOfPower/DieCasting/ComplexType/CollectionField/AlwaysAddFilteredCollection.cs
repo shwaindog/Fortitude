@@ -1158,7 +1158,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredMatch<TAny, TAnyBase>(string fieldName, IReadOnlyList<TAny>? value
+    public TExt AlwaysAddFilteredMatch<TAny, TAnyBase>(string fieldName
+      , IReadOnlyList<TAny>? value
       , OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1183,7 +1184,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     [CallsObjectToString]
-    public TExt AlwaysAddFilteredObject(string fieldName, IReadOnlyList<object?>? value, OrderedCollectionPredicate<object> filterPredicate
+    public TExt AlwaysAddFilteredObject(string fieldName
+      , IReadOnlyList<object?>? value
+      , OrderedCollectionPredicate<object> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString, formatFlags);
@@ -1196,7 +1199,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped<IEnumerable<bool>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(bool), null, value?.GetType() ?? typeof(IEnumerable<bool>), formatFlags);
@@ -1205,7 +1209,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerable<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
+    public TExt AlwaysAddFilteredEnumerate(string fieldName
+      , IEnumerable<bool?>? value
+      , OrderedCollectionPredicate<bool?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -1213,7 +1219,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped<IEnumerable<bool?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(bool?), null, value?.GetType() ?? typeof(IEnumerable<bool?>), formatFlags);
@@ -1222,7 +1229,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TFmt, TFmtBase>(string fieldName, IEnumerable<TFmt?>? value
+    public TExt AlwaysAddFilteredEnumerate<TFmt, TFmtBase>(string fieldName
+      , IEnumerable<TFmt?>? value
       , OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1232,7 +1240,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped<IEnumerable<TFmt?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(TFmt), null, value?.GetType() ?? typeof(IEnumerable<TFmt>), formatFlags);
@@ -1241,7 +1250,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TFmtStruct>(string fieldName, IEnumerable<TFmtStruct?>? value
+    public TExt AlwaysAddFilteredEnumerate<TFmtStruct>(string fieldName
+      , IEnumerable<TFmtStruct?>? value
       , OrderedCollectionPredicate<TFmtStruct?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1251,7 +1261,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped<IEnumerable<TFmtStruct?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
+               .Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(TFmtStruct?), null, value?.GetType() ?? typeof(IEnumerable<TFmtStruct?>)
@@ -1262,7 +1274,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealFilteredEnumerate<TCloaked, TFilterBase, TRevealBase>
-    (string fieldName, IEnumerable<TCloaked?>? value, OrderedCollectionPredicate<TFilterBase> filterPredicate
+    (string fieldName
+      , IEnumerable<TCloaked?>? value
+      , OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1273,7 +1287,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped<IEnumerable<TCloaked?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).RevealFilteredEnumerate(value, filterPredicate, palantírReveal, formatString, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .RevealFilteredEnumerate(value, filterPredicate, palantírReveal, formatString, formatFlags)
+               .Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(TCloaked), null, value?.GetType() ?? typeof(IEnumerable<TCloaked?>), formatFlags);
@@ -1283,7 +1299,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealFilteredEnumerate<TCloakedStruct>
-    (string fieldName, IEnumerable<TCloakedStruct?>? value, OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
+    (string fieldName
+      , IEnumerable<TCloakedStruct?>? value
+      , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1293,7 +1311,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped<IEnumerable<TCloakedStruct?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).RevealFilteredEnumerate(value, filterPredicate, palantírReveal, formatString, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .RevealFilteredEnumerate(value, filterPredicate, palantírReveal, formatString, formatFlags)
+               .Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(TCloakedStruct), null, value?.GetType() ?? typeof(IEnumerable<TCloakedStruct?>)
@@ -1303,15 +1323,20 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysRevealFilteredEnumerate<TBearer, TBearerBase>(string fieldName, IEnumerable<TBearer?>? value
-      , OrderedCollectionPredicate<TBearerBase> filterPredicate, FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TBearer : IStringBearer, TBearerBase
+    public TExt AlwaysRevealFilteredEnumerate<TBearer, TBearerBase>(string fieldName
+      , IEnumerable<TBearer>? value
+      , OrderedCollectionPredicate<TBearerBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TBearer : IStringBearer?, TBearerBase?
     {
-        if (stb.SkipField<IEnumerable<TBearer?>>(value?.GetType(), fieldName, formatFlags))
-            return stb.WasSkipped<IEnumerable<TBearer?>>(value?.GetType(), fieldName, formatFlags);
+        if (stb.SkipField<IEnumerable<TBearer>>(value?.GetType(), fieldName, formatFlags))
+            return stb.WasSkipped<IEnumerable<TBearer>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).RevealFilteredEnumerate(value, filterPredicate).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .RevealFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
+               .Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(TBearer), null, value?.GetType() ?? typeof(IEnumerable<TBearer?>), formatFlags);
@@ -1320,15 +1345,20 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysRevealFilteredEnumerate<TBearerStruct>(string fieldName, IEnumerable<TBearerStruct?>? value
-      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public TExt AlwaysRevealFilteredEnumerate<TBearerStruct>(string fieldName
+      , IEnumerable<TBearerStruct?>? value
+      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
         if (stb.SkipField<IEnumerable<TBearerStruct?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerable<TBearerStruct?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).RevealFilteredEnumerate(value, filterPredicate).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .RevealFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
+               .Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(TBearerStruct?), null, value?.GetType() ?? typeof(IEnumerable<TBearerStruct?>)
@@ -1338,7 +1368,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerable<string?>? value, OrderedCollectionPredicate<string> filterPredicate
+    public TExt AlwaysAddFilteredEnumerate(string fieldName
+      , IEnumerable<string?>? value
+      , OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -1346,7 +1378,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped<IEnumerable<string?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(string), null, value?.GetType() ?? typeof(IEnumerable<string>), formatFlags);
@@ -1355,8 +1388,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredCharSeqEnumerate<TCharSeq, TCharSeqBase>(string fieldName, IEnumerable<TCharSeq?>? value
-      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    public TExt AlwaysAddFilteredCharSeqEnumerate<TCharSeq, TCharSeqBase>(string fieldName
+      , IEnumerable<TCharSeq?>? value
+      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence, TCharSeqBase
     {
@@ -1364,7 +1399,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped<IEnumerable<TCharSeq?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).AddFilteredCharSeqEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .AddFilteredCharSeqEnumerate(value, filterPredicate, formatString, formatFlags)
+               .Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(TCharSeq), null, value?.GetType() ?? typeof(IEnumerable<TCharSeq>), formatFlags);
@@ -1373,7 +1410,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerable<StringBuilder?>? value
+    public TExt AlwaysAddFilteredEnumerate(string fieldName
+      , IEnumerable<StringBuilder?>? value
       , OrderedCollectionPredicate<StringBuilder> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1382,7 +1420,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped<IEnumerable<StringBuilder?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
+               .Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(StringBuilder), null, value?.GetType() ?? typeof(IEnumerable<StringBuilder>)
@@ -1392,7 +1432,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredMatchEnumerate<TAny, TAnyBase>(string fieldName, IEnumerable<TAny?>? value
+    public TExt AlwaysAddFilteredMatchEnumerate<TAny, TAnyBase>(string fieldName
+      , IEnumerable<TAny?>? value
       , OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1402,7 +1443,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped<IEnumerable<TAny>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).AddFilteredMatchEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .AddFilteredMatchEnumerate(value, filterPredicate, formatString, formatFlags)
+               .Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(TAny?), null, value?.GetType() ?? typeof(IEnumerable<TAny?>), formatFlags);
@@ -1412,7 +1455,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     [CallsObjectToString]
-    public TExt AlwaysAddFilteredObjectEnumerate(string fieldName, IEnumerable<object?>? value, OrderedCollectionPredicate<object> filterPredicate
+    public TExt AlwaysAddFilteredObjectEnumerate(string fieldName
+      , IEnumerable<object?>? value
+      , OrderedCollectionPredicate<object> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -1420,7 +1465,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped<IEnumerable<object?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).AddFilteredObjectEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .AddFilteredObjectEnumerate(value, filterPredicate, formatString, formatFlags)
+               .Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(object), null, value?.GetType() ?? typeof(IEnumerable<object>), formatFlags);
@@ -1429,7 +1476,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerator<bool>? value, OrderedCollectionPredicate<bool> filterPredicate
+    public TExt AlwaysAddFilteredEnumerate(string fieldName
+      , IEnumerator<bool>? value
+      , OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -1437,7 +1486,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped<IEnumerator<bool>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
+               .Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(bool), null, value?.GetType() ?? typeof(IEnumerator<bool>), formatFlags);
@@ -1446,7 +1497,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerator<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
+    public TExt AlwaysAddFilteredEnumerate(string fieldName
+      , IEnumerator<bool?>? value
+      , OrderedCollectionPredicate<bool?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -1454,7 +1507,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped<IEnumerator<bool?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(bool?), null, value?.GetType() ?? typeof(IEnumerator<bool?>), formatFlags);
@@ -1463,17 +1517,20 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TFmt, TFmtBase>(string fieldName, IEnumerator<TFmt?>? value
+    public TExt AlwaysAddFilteredEnumerate<TFmt, TFmtBase>(string fieldName
+      , IEnumerator<TFmt?>? value
       , OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable, TFmtBase
+        where TFmt : ISpanFormattable?, TFmtBase?
     {
         if (stb.SkipField<IEnumerator<TFmt?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<TFmt?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
+               .Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(TFmt), null, value?.GetType() ?? typeof(IEnumerator<TFmt>), formatFlags);
@@ -1482,7 +1539,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TFmtStruct>(string fieldName, IEnumerator<TFmtStruct?>? value
+    public TExt AlwaysAddFilteredEnumerate<TFmtStruct>(string fieldName
+      , IEnumerator<TFmtStruct?>? value
       , OrderedCollectionPredicate<TFmtStruct?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1492,7 +1550,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped<IEnumerator<TFmtStruct?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(TFmtStruct?), null, value?.GetType() ?? typeof(IEnumerator<TFmtStruct?>)
@@ -1503,7 +1562,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealFilteredEnumerate<TCloaked, TFilterBase, TRevealBase>
-    (string fieldName, IEnumerator<TCloaked?>? value, OrderedCollectionPredicate<TFilterBase> filterPredicate
+    (string fieldName, IEnumerator<TCloaked?>? value
+      , OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1514,7 +1574,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped<IEnumerator<TCloaked?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value)
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
                .RevealFilteredEnumerate(value, filterPredicate, palantírReveal, formatString, formatFlags)
                .Complete();
         else
@@ -1536,7 +1596,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped<IEnumerator<TCloakedStruct?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value)
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
                .RevealFilteredEnumerate(value, filterPredicate, palantírReveal, formatString, formatFlags)
                .Complete();
         else
@@ -1549,14 +1609,18 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealFilteredEnumerate<TBearer, TBearerBase>(string fieldName, IEnumerator<TBearer?>? value
-      , OrderedCollectionPredicate<TBearerBase> filterPredicate, FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , OrderedCollectionPredicate<TBearerBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer, TBearerBase
     {
         if (stb.SkipField<IEnumerator<TBearer?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<TBearer?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).RevealFilteredEnumerate(value, filterPredicate).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .RevealFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
+               .Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(TBearer), null, value?.GetType() ?? typeof(IEnumerator<TBearer>), formatFlags);
@@ -1566,14 +1630,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysRevealFilteredEnumerate<TBearerStruct>(string fieldName, IEnumerator<TBearerStruct?>? value
-      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate, FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
         if (stb.SkipField<IEnumerator<TBearerStruct?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<TBearerStruct?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).RevealFilteredEnumerate(value, filterPredicate).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .RevealFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(TBearerStruct?), null, value?.GetType() ?? typeof(IEnumerator<TBearerStruct?>)
@@ -1584,13 +1651,16 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerator<string?>? value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipField<IEnumerator<string?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<string?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
+               .Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(string), null, value?.GetType() ?? typeof(IEnumerator<string?>), formatFlags);
@@ -1600,7 +1670,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredCharSeqEnumerate<TCharSeq, TCharSeqBase>(string fieldName, IEnumerator<TCharSeq?>? value
-      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence, TCharSeqBase
     {
@@ -1608,7 +1679,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped<IEnumerator<TCharSeq?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).AddFilteredCharSeqEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .AddFilteredCharSeqEnumerate(value, filterPredicate, formatString, formatFlags)
+               .Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(TCharSeq), null, value?.GetType() ?? typeof(IEnumerator<TCharSeq?>), formatFlags);
@@ -1618,14 +1691,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerator<StringBuilder?>? value
-      , OrderedCollectionPredicate<StringBuilder> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , OrderedCollectionPredicate<StringBuilder> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipField<IEnumerator<StringBuilder?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<StringBuilder?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
+               .Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(StringBuilder), null, value?.GetType()
@@ -1636,7 +1712,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     public TExt AlwaysAddFilteredMatchEnumerate<TAny, TAnyBase>(string fieldName, IEnumerator<TAny?>? value
-      , OrderedCollectionPredicate<TAnyBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , OrderedCollectionPredicate<TAnyBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TAny : TAnyBase?
     {
@@ -1644,7 +1721,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped<IEnumerator<TAny>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).AddFilteredMatchEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .AddFilteredMatchEnumerate(value, filterPredicate, formatString, formatFlags)
+               .Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(TAny), null, value?.GetType() ?? typeof(IEnumerator<TAny?>), formatFlags);
@@ -1654,7 +1733,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     [CallsObjectToString]
-    public TExt AlwaysAddFilteredObjectEnumerate(string fieldName, IEnumerator<object?>? value, OrderedCollectionPredicate<object> filterPredicate
+    public TExt AlwaysAddFilteredObjectEnumerate(string fieldName, IEnumerator<object?>? value
+      , OrderedCollectionPredicate<object> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -1662,7 +1742,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped<IEnumerator<object?>>(value?.GetType(), fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value).AddFilteredObjectEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
+            stb.Master.StartSimpleCollectionType(value, formatFlags)
+               .AddFilteredObjectEnumerate(value, filterPredicate, formatString, formatFlags)
+               .Complete();
         else
         {
             stb.StyleFormatter.FormatCollectionStart(stb, typeof(object), null, value?.GetType() ?? typeof(IEnumerator<object>), formatFlags);

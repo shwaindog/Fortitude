@@ -507,7 +507,7 @@ public class OrderedFromNullableSpanFormattableEnumeratorAddAllSimpleOrderedColl
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | AcceptsStruct | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer)]
+                | SupportsValueRevealer | SupportsValueFormatString)]
 public class OrderedFromCloakedBearerArrayRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TRevealBase>
     : RevealerCollectionMoldScaffold<TCloaked?, TRevealBase, TCloaked?[]?>
     where TCloaked : TRevealBase
@@ -523,11 +523,13 @@ public class OrderedFromCloakedBearerArrayRevealAllSimpleOrderedCollectionString
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(OrderedCollectionRevealAllCloakedBearerArray, ValueRevealer)
+           .RevealAll(OrderedCollectionRevealAllCloakedBearerArray, ValueRevealer
+                    , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | AcceptsAnyNullableStruct | SupportsValueRevealer)]
+[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | AcceptsAnyNullableStruct | SupportsValueRevealer
+                | SupportsValueFormatString)]
 public class OrderedFromNullableCloakedBearerArrayRevealAllSimpleOrderedCollectionStringBearer<TCloakedStruct>
     : RevealerCollectionMoldScaffold<TCloakedStruct?, TCloakedStruct, TCloakedStruct?[]?>
     where TCloakedStruct : struct
@@ -542,12 +544,13 @@ public class OrderedFromNullableCloakedBearerArrayRevealAllSimpleOrderedCollecti
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(OrderedCollectionRevealAllNullableCloakedBearerArray, ValueRevealer)
+           .RevealAll(OrderedCollectionRevealAllNullableCloakedBearerArray, ValueRevealer
+                    , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsAnyNonNullable
-                | SupportsValueRevealer)]
+                | SupportsValueRevealer | SupportsValueFormatString)]
 public class OrderedFromCloakedBearerSpanRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TRevealBase>
     : RevealerCollectionMoldScaffold<TCloaked, TRevealBase, TCloaked[]?>
     where TCloaked : TRevealBase
@@ -563,12 +566,13 @@ public class OrderedFromCloakedBearerSpanRevealAllSimpleOrderedCollectionStringB
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(OrderedCollectionRevealAllCloakedBearerSpan.AsSpan(), ValueRevealer)
+           .RevealAll(OrderedCollectionRevealAllCloakedBearerSpan.AsSpan(), ValueRevealer
+                    , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer)]
+                | SupportsValueRevealer | SupportsValueFormatString)]
 public class OrderedFromCloakedBearerNullableSpanRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TRevealBase>
     : RevealerCollectionMoldScaffold<TCloaked?, TRevealBase, TCloaked?[]?>
     where TCloaked : class?, TRevealBase?
@@ -584,12 +588,13 @@ public class OrderedFromCloakedBearerNullableSpanRevealAllSimpleOrderedCollectio
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(OrderedCollectionRevealAllCloakedBearerNullableSpan.AsSpan(), ValueRevealer)
+           .RevealAll(OrderedCollectionRevealAllCloakedBearerNullableSpan.AsSpan(), ValueRevealer
+                    , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsAnyNullableStruct
-                | SupportsValueRevealer)]
+                | SupportsValueRevealer | SupportsValueFormatString)]
 public class OrderedFromNullableCloakedBearerSpanRevealAllSimpleOrderedCollectionStringBearer<TCloakedStruct>
     : RevealerCollectionMoldScaffold<TCloakedStruct?, TCloakedStruct, TCloakedStruct?[]?>
     where TCloakedStruct : struct
@@ -604,12 +609,13 @@ public class OrderedFromNullableCloakedBearerSpanRevealAllSimpleOrderedCollectio
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(OrderedCollectionRevealAllNullableCloakedBearerSpan.AsSpan(), ValueRevealer)
+           .RevealAll(OrderedCollectionRevealAllNullableCloakedBearerSpan.AsSpan(), ValueRevealer
+                    , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsAnyNonNullable
-                | SupportsValueRevealer)]
+                | SupportsValueRevealer | SupportsValueFormatString)]
 public class OrderedFromCloakedBearerReadOnlySpanRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TRevealBase>
     : RevealerCollectionMoldScaffold<TCloaked, TRevealBase, TCloaked[]?>
     where TCloaked : TRevealBase?
@@ -625,12 +631,13 @@ public class OrderedFromCloakedBearerReadOnlySpanRevealAllSimpleOrderedCollectio
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll((ReadOnlySpan<TCloaked>)OrderedCollectionRevealAllCloakedBearerReadOnlySpan.AsSpan(), ValueRevealer)
+           .RevealAll((ReadOnlySpan<TCloaked>)OrderedCollectionRevealAllCloakedBearerReadOnlySpan.AsSpan(), ValueRevealer
+                    , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer)]
+                | SupportsValueRevealer | SupportsValueFormatString)]
 public class OrderedFromCloakedBearerNullableReadOnlySpanRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TRevealBase>
     : RevealerCollectionMoldScaffold<TCloaked?, TRevealBase, TCloaked?[]?>
     where TCloaked : TRevealBase
@@ -646,12 +653,13 @@ public class OrderedFromCloakedBearerNullableReadOnlySpanRevealAllSimpleOrderedC
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll((ReadOnlySpan<TCloaked?>)OrderedCollectionRevealAllCloakedBearerNullableReadOnlySpan.AsSpan(), ValueRevealer)
+           .RevealAll((ReadOnlySpan<TCloaked?>)OrderedCollectionRevealAllCloakedBearerNullableReadOnlySpan.AsSpan(), ValueRevealer
+                    , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsAnyNullableStruct
-                | SupportsValueRevealer)]
+                | SupportsValueRevealer | SupportsValueFormatString)]
 public class OrderedFromNullableCloakedBearerReadOnlySpanRevealAllSimpleOrderedCollectionStringBearer<TCloakedStruct>
     : RevealerCollectionMoldScaffold<TCloakedStruct?, TCloakedStruct, TCloakedStruct?[]?>
     where TCloakedStruct : struct
@@ -666,12 +674,13 @@ public class OrderedFromNullableCloakedBearerReadOnlySpanRevealAllSimpleOrderedC
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll((ReadOnlySpan<TCloakedStruct?>)OrderedCollectionRevealAllNullableCloakedBearerReadOnlySpan, ValueRevealer)
+           .RevealAll((ReadOnlySpan<TCloakedStruct?>)OrderedCollectionRevealAllNullableCloakedBearerReadOnlySpan, ValueRevealer
+                    , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsList | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer)]
+                | SupportsValueRevealer | SupportsValueFormatString)]
 public class OrderedFromCloakedBearerListRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TRevealBase>
     : RevealerCollectionMoldScaffold<TCloaked?, TRevealBase, IReadOnlyList<TCloaked?>?>
     where TCloaked : TRevealBase
@@ -687,12 +696,13 @@ public class OrderedFromCloakedBearerListRevealAllSimpleOrderedCollectionStringB
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(OrderedCollectionRevealAllCloakedBearerList, ValueRevealer)
+           .RevealAll(OrderedCollectionRevealAllCloakedBearerList, ValueRevealer
+                    , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsList | AcceptsAnyNullableStruct
-                | SupportsValueRevealer)]
+                | SupportsValueRevealer | SupportsValueFormatString)]
 public class OrderedFromNullableCloakedBearerListRevealAllSimpleOrderedCollectionStringBearer<TCloakedStruct>
     : RevealerCollectionMoldScaffold<TCloakedStruct?, TCloakedStruct, IReadOnlyList<TCloakedStruct?>?>
     where TCloakedStruct : struct
@@ -707,12 +717,13 @@ public class OrderedFromNullableCloakedBearerListRevealAllSimpleOrderedCollectio
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(OrderedCollectionRevealAllNullableCloakedBearerList, ValueRevealer)
+           .RevealAll(OrderedCollectionRevealAllNullableCloakedBearerList, ValueRevealer
+                    , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer)]
+                | SupportsValueRevealer | SupportsValueFormatString)]
 public class OrderedFromCloakedBearerEnumerableRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TRevealBase>
     : RevealerCollectionMoldScaffold<TCloaked?, TRevealBase, IEnumerable<TCloaked?>?>
     where TCloaked : TRevealBase
@@ -728,12 +739,13 @@ public class OrderedFromCloakedBearerEnumerableRevealAllSimpleOrderedCollectionS
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllEnumerate(OrderedCollectionRevealAllCloakedBearerEnumerable, ValueRevealer)
+           .RevealAllEnumerate(OrderedCollectionRevealAllCloakedBearerEnumerable, ValueRevealer
+                             , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsAnyNullableStruct
-                | SupportsValueRevealer)]
+                | SupportsValueRevealer | SupportsValueFormatString)]
 public class OrderedFromNullableCloakedBearerEnumerableRevealAllSimpleOrderedCollectionStringBearer<TCloakedStruct>
     : RevealerCollectionMoldScaffold<TCloakedStruct?, TCloakedStruct, IEnumerable<TCloakedStruct?>?>
     where TCloakedStruct : struct
@@ -748,12 +760,13 @@ public class OrderedFromNullableCloakedBearerEnumerableRevealAllSimpleOrderedCol
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllEnumerate(OrderedCollectionRevealAllNullableCloakedBearerEnumerable, ValueRevealer)
+           .RevealAllEnumerate(OrderedCollectionRevealAllNullableCloakedBearerEnumerable, ValueRevealer
+                             , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer)]
+                | SupportsValueRevealer | SupportsValueFormatString)]
 public class OrderedFromCloakedBearerEnumeratorRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TRevealBase>
     : RevealerEnumeratorMoldScaffold<TCloaked?, TRevealBase, IEnumerator<TCloaked?>?>
     where TCloaked : TRevealBase
@@ -769,12 +782,13 @@ public class OrderedFromCloakedBearerEnumeratorRevealAllSimpleOrderedCollectionS
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllEnumerate(OrderedCollectionRevealAllCloakedBearerEnumerator, ValueRevealer)
+           .RevealAllEnumerate(OrderedCollectionRevealAllCloakedBearerEnumerator, ValueRevealer
+                             , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | AcceptsAnyNullableStruct
-                | SupportsValueRevealer)]
+                | SupportsValueRevealer | SupportsValueFormatString)]
 public class OrderedFromNullableCloakedBearerEnumeratorRevealAllSimpleOrderedCollectionStringBearer<TCloakedStruct>
     : RevealerEnumeratorMoldScaffold<TCloakedStruct?, TCloakedStruct, IEnumerator<TCloakedStruct?>?>
     where TCloakedStruct : struct
@@ -789,13 +803,15 @@ public class OrderedFromNullableCloakedBearerEnumeratorRevealAllSimpleOrderedCol
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllEnumerate(OrderedCollectionRevealAllNullableCloakedBearerEnumerator, ValueRevealer)
+           .RevealAllEnumerate(OrderedCollectionRevealAllNullableCloakedBearerEnumerator, ValueRevealer
+                             , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
+[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | AcceptsTypeAllButNullableStruct | AcceptsStringBearer
+                | SupportsValueFormatString)]
 public class OrderedFromStringBearerArrayRevealAllSimpleOrderedCollectionStringBearer<TBearer>
-    : CollectionMoldScaffold<TBearer, TBearer[]>
+    : FormattedCollectionMoldScaffold<TBearer, TBearer[]>
     where TBearer : IStringBearer
 {
     public TBearer[]? OrderedCollectionRevealAllStringBearerArray
@@ -808,13 +824,15 @@ public class OrderedFromStringBearerArrayRevealAllSimpleOrderedCollectionStringB
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(OrderedCollectionRevealAllStringBearerArray)
+           .RevealAll(OrderedCollectionRevealAllStringBearerArray
+                    , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | AcceptsNullableStruct | AcceptsStringBearer)]
+[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | AcceptsNullableStruct | AcceptsStringBearer
+                | SupportsValueFormatString)]
 public class OrderedFromNullableStringBearerArrayRevealAllSimpleOrderedCollectionStringBearer<TBearerStruct>
-    : CollectionMoldScaffold<TBearerStruct?, TBearerStruct?[]>
+    : FormattedCollectionMoldScaffold<TBearerStruct?, TBearerStruct?[]>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct?[]? OrderedCollectionRevealAllNullableStringBearerArray
@@ -827,13 +845,15 @@ public class OrderedFromNullableStringBearerArrayRevealAllSimpleOrderedCollectio
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(OrderedCollectionRevealAllNullableStringBearerArray)
+           .RevealAll(OrderedCollectionRevealAllNullableStringBearerArray
+                    , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsTypeNonNullable | AcceptsStringBearer)]
+[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsTypeNonNullable | AcceptsStringBearer
+                | SupportsValueFormatString)]
 public class OrderedFromStringBearerSpanRevealAllSimpleOrderedCollectionStringBearer<TBearer>
-    : CollectionMoldScaffold<TBearer, TBearer[]>
+    : FormattedCollectionMoldScaffold<TBearer, TBearer[]>
     where TBearer : IStringBearer
 {
     public TBearer[]? OrderedCollectionRevealAllStringBearerSpan
@@ -846,14 +866,15 @@ public class OrderedFromStringBearerSpanRevealAllSimpleOrderedCollectionStringBe
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(OrderedCollectionRevealAllStringBearerSpan.AsSpan())
+           .RevealAll(OrderedCollectionRevealAllStringBearerSpan.AsSpan()
+                    , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsClass | AcceptsNullableClass
-                | AcceptsStringBearer)]
+                | AcceptsStringBearer | SupportsValueFormatString)]
 public class OrderedFromStringBearerNullableSpanRevealAllSimpleOrderedCollectionStringBearer<TBearer>
-    : CollectionMoldScaffold<TBearer?, TBearer?[]>
+    : FormattedCollectionMoldScaffold<TBearer?, TBearer?[]>
     where TBearer : class, IStringBearer
 {
     public TBearer?[]? OrderedCollectionRevealAllStringBearerNullableSpan
@@ -866,13 +887,15 @@ public class OrderedFromStringBearerNullableSpanRevealAllSimpleOrderedCollection
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(OrderedCollectionRevealAllStringBearerNullableSpan.AsSpan())
+           .RevealAll(OrderedCollectionRevealAllStringBearerNullableSpan.AsSpan()
+                    , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsNullableStruct | AcceptsStringBearer)]
+[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsNullableStruct | AcceptsStringBearer
+                | SupportsValueFormatString)]
 public class OrderedFromNullableStringBearerSpanRevealAllSimpleOrderedCollectionStringBearer<TBearerStruct>
-    : CollectionMoldScaffold<TBearerStruct?, TBearerStruct?[]>
+    : FormattedCollectionMoldScaffold<TBearerStruct?, TBearerStruct?[]>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct?[]? OrderedCollectionRevealAllNullableStringBearerSpan
@@ -885,14 +908,15 @@ public class OrderedFromNullableStringBearerSpanRevealAllSimpleOrderedCollection
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(OrderedCollectionRevealAllNullableStringBearerSpan.AsSpan())
+           .RevealAll(OrderedCollectionRevealAllNullableStringBearerSpan.AsSpan()
+                    , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsTypeNonNullable
-                | AcceptsStringBearer)]
+                | AcceptsStringBearer | SupportsValueFormatString)]
 public class OrderedFromStringBearerReadOnlySpanRevealAllSimpleOrderedCollectionStringBearer<TBearer>
-    : CollectionMoldScaffold<TBearer, TBearer[]>
+    : FormattedCollectionMoldScaffold<TBearer, TBearer[]>
     where TBearer : IStringBearer
 {
     public TBearer[]? OrderedCollectionRevealAllStringBearerReadOnlySpan
@@ -905,14 +929,15 @@ public class OrderedFromStringBearerReadOnlySpanRevealAllSimpleOrderedCollection
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll((ReadOnlySpan<TBearer>)OrderedCollectionRevealAllStringBearerReadOnlySpan.AsSpan())
+           .RevealAll((ReadOnlySpan<TBearer>)OrderedCollectionRevealAllStringBearerReadOnlySpan.AsSpan()
+                    , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsClass | AcceptsNullableClass |
-                  AcceptsStringBearer)]
+                  AcceptsStringBearer | SupportsValueFormatString)]
 public class OrderedFromStringBearerNullableReadOnlySpanRevealAllSimpleOrderedCollectionStringBearer<TBearer>
-    : CollectionMoldScaffold<TBearer?, TBearer?[]>
+    : FormattedCollectionMoldScaffold<TBearer?, TBearer?[]>
     where TBearer : class, IStringBearer
 {
     public TBearer?[]? OrderedCollectionRevealAllStringBearerNullableReadOnlySpan
@@ -925,14 +950,15 @@ public class OrderedFromStringBearerNullableReadOnlySpanRevealAllSimpleOrderedCo
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll((ReadOnlySpan<TBearer?>)OrderedCollectionRevealAllStringBearerNullableReadOnlySpan.AsSpan())
+           .RevealAll((ReadOnlySpan<TBearer?>)OrderedCollectionRevealAllStringBearerNullableReadOnlySpan.AsSpan()
+                    , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableStruct |
-                  AcceptsStringBearer)]
+                  AcceptsStringBearer | SupportsValueFormatString)]
 public class OrderedFromNullableStringBearerReadOnlySpanRevealAllSimpleOrderedCollectionStringBearer<TBearerStruct>
-    : CollectionMoldScaffold<TBearerStruct?, TBearerStruct?[]>
+    : FormattedCollectionMoldScaffold<TBearerStruct?, TBearerStruct?[]>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct?[]? OrderedCollectionRevealAllNullableStringBearerReadOnlySpan
@@ -945,12 +971,14 @@ public class OrderedFromNullableStringBearerReadOnlySpanRevealAllSimpleOrderedCo
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll((ReadOnlySpan<TBearerStruct?>)OrderedCollectionRevealAllNullableStringBearerReadOnlySpan.AsSpan())
+           .RevealAll((ReadOnlySpan<TBearerStruct?>)OrderedCollectionRevealAllNullableStringBearerReadOnlySpan.AsSpan()
+                    , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsList | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
-public class OrderedFromStringBearerListRevealAllSimpleOrderedCollectionStringBearer<TBearer> : CollectionMoldScaffold<TBearer?,
+[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsList | AcceptsTypeAllButNullableStruct | AcceptsStringBearer
+                | SupportsValueFormatString)]
+public class OrderedFromStringBearerListRevealAllSimpleOrderedCollectionStringBearer<TBearer> : FormattedCollectionMoldScaffold<TBearer?,
     IReadOnlyList<TBearer?>>
     where TBearer : IStringBearer
 {
@@ -964,13 +992,15 @@ public class OrderedFromStringBearerListRevealAllSimpleOrderedCollectionStringBe
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(OrderedCollectionRevealAllStringBearerList)
+           .RevealAll(OrderedCollectionRevealAllStringBearerList
+                    , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsList | AcceptsNullableStruct | AcceptsStringBearer)]
+[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsList | AcceptsNullableStruct | AcceptsStringBearer
+                | SupportsValueFormatString)]
 public class OrderedFromNullableStringBearerListRevealAllSimpleOrderedCollectionStringBearer<TBearerStruct>
-    : CollectionMoldScaffold<TBearerStruct?, IReadOnlyList<TBearerStruct?>>
+    : FormattedCollectionMoldScaffold<TBearerStruct?, IReadOnlyList<TBearerStruct?>>
     where TBearerStruct : struct, IStringBearer
 {
     public IReadOnlyList<TBearerStruct?>? OrderedCollectionRevealAllNullableStringBearerList
@@ -983,13 +1013,14 @@ public class OrderedFromNullableStringBearerListRevealAllSimpleOrderedCollection
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAll(OrderedCollectionRevealAllNullableStringBearerList)
+           .RevealAll(OrderedCollectionRevealAllNullableStringBearerList
+                    , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsTypeAllButNullableStruct
-                | AcceptsStringBearer)]
-public class OrderedFromStringBearerEnumerableRevealAllSimpleOrderedCollectionStringBearer<TBearer> : CollectionMoldScaffold<TBearer?,
+                | AcceptsStringBearer | SupportsValueFormatString)]
+public class OrderedFromStringBearerEnumerableRevealAllSimpleOrderedCollectionStringBearer<TBearer> : FormattedCollectionMoldScaffold<TBearer?,
     IEnumerable<TBearer?>>
     where TBearer : IStringBearer
 {
@@ -1003,13 +1034,15 @@ public class OrderedFromStringBearerEnumerableRevealAllSimpleOrderedCollectionSt
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllEnumerate(OrderedCollectionRevealAllStringBearerEnumerable)
+           .RevealAllEnumerate(OrderedCollectionRevealAllStringBearerEnumerable
+                             , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsNullableStruct | AcceptsStringBearer)]
+[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsNullableStruct | AcceptsStringBearer
+                | SupportsValueFormatString)]
 public class OrderedFromNullableStringBearerEnumerableRevealAllSimpleOrderedCollectionStringBearer<TBearerStruct>
-    : CollectionMoldScaffold<TBearerStruct?, IEnumerable<TBearerStruct?>> where TBearerStruct : struct, IStringBearer
+    : FormattedCollectionMoldScaffold<TBearerStruct?, IEnumerable<TBearerStruct?>> where TBearerStruct : struct, IStringBearer
 {
     public IEnumerable<TBearerStruct?>? OrderedCollectionRevealAllNullableStringBearerEnumerable
     {
@@ -1021,13 +1054,15 @@ public class OrderedFromNullableStringBearerEnumerableRevealAllSimpleOrderedColl
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllEnumerate(OrderedCollectionRevealAllNullableStringBearerEnumerable)
+           .RevealAllEnumerate(OrderedCollectionRevealAllNullableStringBearerEnumerable
+                             , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
+[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | AcceptsTypeAllButNullableStruct | AcceptsStringBearer
+                | SupportsValueFormatString)]
 public class OrderedFromStringBearerEnumeratorRevealAllSimpleOrderedCollectionStringBearer<TBearer> :
-    EnumeratorMoldScaffold<TBearer?, IEnumerator<TBearer?>> where TBearer : IStringBearer
+    FormattedEnumeratorMoldScaffold<TBearer?, IEnumerator<TBearer?>> where TBearer : IStringBearer
 {
     public IEnumerator<TBearer?>? OrderedCollectionRevealAllStringBearerEnumerator
     {
@@ -1039,13 +1074,15 @@ public class OrderedFromStringBearerEnumeratorRevealAllSimpleOrderedCollectionSt
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllEnumerate(OrderedCollectionRevealAllStringBearerEnumerator)
+           .RevealAllEnumerate(OrderedCollectionRevealAllStringBearerEnumerator
+                             , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | AcceptsNullableStruct | AcceptsStringBearer)]
+[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | AcceptsNullableStruct | AcceptsStringBearer
+                | SupportsValueFormatString)]
 public class OrderedFromNullableStringBearerEnumeratorRevealAllSimpleOrderedCollectionStringBearer<TBearerStruct>
-    : EnumeratorMoldScaffold<TBearerStruct?, IEnumerator<TBearerStruct?>> where TBearerStruct : struct, IStringBearer
+    : FormattedEnumeratorMoldScaffold<TBearerStruct?, IEnumerator<TBearerStruct?>> where TBearerStruct : struct, IStringBearer
 {
     public IEnumerator<TBearerStruct?>? OrderedCollectionRevealAllNullableStringBearerEnumerator
     {
@@ -1057,7 +1094,8 @@ public class OrderedFromNullableStringBearerEnumeratorRevealAllSimpleOrderedColl
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllEnumerate(OrderedCollectionRevealAllNullableStringBearerEnumerator)
+           .RevealAllEnumerate(OrderedCollectionRevealAllNullableStringBearerEnumerator
+                             , ValueFormatString, FormattingFlags)
            .Complete();
 }
 

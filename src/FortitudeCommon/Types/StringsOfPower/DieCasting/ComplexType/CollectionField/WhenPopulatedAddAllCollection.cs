@@ -286,13 +286,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenPopulatedRevealAll<TBearer>(string fieldName, TBearer?[]? value
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer =>
         value is { Length: > 0 }
-            ? AlwaysRevealAll(fieldName, value, formatFlags)
+            ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped<TBearer?[]>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedRevealAll<TBearerStruct>(string fieldName, TBearerStruct?[]? value
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer =>
         value is { Length: > 0 }
-            ? AlwaysRevealAll(fieldName, value, formatFlags)
+            ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped<TBearerStruct?[]>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedAddAll(string fieldName, string?[]? value
@@ -374,17 +374,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             : stb.WasSkipped<IReadOnlyList<TCloakedStruct?>>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedRevealAll<TBearer>(string fieldName, IReadOnlyList<TBearer?>? value
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer =>
         value is { Count: > 0 }
-            ? AlwaysRevealAll(fieldName, value, formatFlags)
+            ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped<IReadOnlyList<TBearer?>>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedRevealAll<TBearerStruct>(string fieldName, IReadOnlyList<TBearerStruct?>? value
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer =>
         value is { Count: > 0 }
-            ? AlwaysRevealAll(fieldName, value, formatFlags)
+            ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped<IReadOnlyList<TBearerStruct?>>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedAddAll(string fieldName, IReadOnlyList<string?>? value
@@ -660,7 +660,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedRevealAllEnumerate<TBearer>(string fieldName, IEnumerator<TBearer?>? value
+    public TExt WhenPopulatedRevealAllEnumerate<TBearer>(string fieldName
+      , IEnumerator<TBearer?>? value
+      , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer
     {
@@ -674,7 +676,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             var eoctb = stb.Master.StartExplicitCollectionType<TBearer>(value!);
             while (hasValue)
             {
-                eoctb.AddBearerElementAndGoToNextElement(value!.Current);
+                eoctb.AddBearerElementAndGoToNextElement(value!.Current, formatString, formatFlags);
                 hasValue = value.MoveNext();
             }
             eoctb.AppendCollectionComplete();
@@ -683,7 +685,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedRevealAllEnumerate<TBearerStruct>(string fieldName, IEnumerator<TBearerStruct?>? value
+    public TExt WhenPopulatedRevealAllEnumerate<TBearerStruct>(string fieldName
+      , IEnumerator<TBearerStruct?>? value
+      , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
@@ -697,7 +701,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             var eoctb = stb.Master.StartExplicitCollectionType<TBearerStruct>(value!);
             while (hasValue)
             {
-                eoctb.AddBearerElementAndGoToNextElement(value!.Current);
+                eoctb.AddBearerElementAndGoToNextElement(value!.Current, formatString, formatFlags);
                 hasValue = value.MoveNext();
             }
             eoctb.AppendCollectionComplete();

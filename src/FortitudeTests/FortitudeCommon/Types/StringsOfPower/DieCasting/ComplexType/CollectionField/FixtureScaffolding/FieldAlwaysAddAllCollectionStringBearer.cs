@@ -123,8 +123,8 @@ public class FieldNullableSpanFormattableSpanAlwaysAddAllStringBearer<TFmtStruct
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsAnyExceptNullableStruct |
-                  SupportsValueRevealer)]
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsAnyExceptNullableStruct 
+                 | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldCloakedBearerSpanAlwaysAddAllStringBearer<TCloaked, TRevealBase> : 
     RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase, TCloaked[]> 
     where TCloaked : TRevealBase?
@@ -148,8 +148,8 @@ public class FieldCloakedBearerSpanAlwaysAddAllStringBearer<TCloaked, TRevealBas
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsNullableClass |
-                  SupportsValueRevealer)]
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsNullableClass 
+                 | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldCloakedBearerNullableClassSpanAlwaysAddAllStringBearer<TCloaked, TRevealBase> : 
     RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase, TCloaked[]> 
     where TCloaked : class?, TRevealBase?
@@ -173,8 +173,8 @@ public class FieldCloakedBearerNullableClassSpanAlwaysAddAllStringBearer<TCloake
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsAnyNullableStruct |
-                  SupportsValueRevealer)]
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsAnyNullableStruct 
+                 | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldNullableCloakedBearerSpanAlwaysAddAllStringBearer<TCloakedStruct> : 
     RevealerCollectionFieldMoldScaffold<TCloakedStruct?, TCloakedStruct, TCloakedStruct?[]?>
     where TCloakedStruct : struct
@@ -198,7 +198,7 @@ public class FieldNullableCloakedBearerSpanAlwaysAddAllStringBearer<TCloakedStru
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AlwaysWrites | AcceptsArray | CallsAsSpan | AcceptsTypeAllButNullableStruct 
-                | AcceptsStringBearer)]
+                | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldStringBearerSpanAlwaysAddAllStringBearer<TBearer> : FormattedCollectionFieldMoldScaffold<TBearer, TBearer[]>
     where TBearer : IStringBearer?
 {
@@ -220,7 +220,8 @@ public class FieldStringBearerSpanAlwaysAddAllStringBearer<TBearer> : FormattedC
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsNullableClass | AcceptsStringBearer)]
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsNullableClass 
+                | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldStringBearerNullableClassSpanAlwaysAddAllStringBearer<TBearer> : FormattedCollectionFieldMoldScaffold<TBearer?, TBearer?[]>
     where TBearer : class?, IStringBearer?
 {
@@ -242,7 +243,8 @@ public class FieldStringBearerNullableClassSpanAlwaysAddAllStringBearer<TBearer>
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsNullableStruct | AcceptsStringBearer)]
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsNullableStruct 
+                | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldNullableStringBearerSpanAlwaysAddAllStringBearer<TBearerStruct> : FormattedCollectionFieldMoldScaffold<TBearerStruct?, TBearerStruct?[]>
     where TBearerStruct : struct, IStringBearer
 {
@@ -580,8 +582,8 @@ public class FieldNullableSpanFormattableReadOnlySpanAlwaysAddAllStringBearer<TF
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsAnyExceptNullableStruct |
-                  SupportsValueRevealer)]
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsAnyExceptNullableStruct 
+                 | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldCloakedBearerReadOnlySpanAlwaysAddAllStringBearer<TCloaked, TRevealBase> : 
     RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase, TCloaked[]> 
     where TCloaked : TRevealBase?
@@ -605,8 +607,8 @@ public class FieldCloakedBearerReadOnlySpanAlwaysAddAllStringBearer<TCloaked, TR
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsAnyNullableClass |
-                  SupportsValueRevealer)]
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsAnyNullableClass 
+                 | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldCloakedBearerNullableClassReadOnlySpanAlwaysAddAllStringBearer<TCloaked, TRevealBase> :
     RevealerCollectionFieldMoldScaffold<TCloaked?, TRevealBase, TCloaked?[]> 
     where TCloaked : class?, TRevealBase?
@@ -630,8 +632,8 @@ public class FieldCloakedBearerNullableClassReadOnlySpanAlwaysAddAllStringBearer
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsAnyNullableStruct |
-                  SupportsValueRevealer)]
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsAnyNullableStruct 
+                 | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldNullableCloakedBearerReadOnlySpanAlwaysAddAllStringBearer<TCloakedStruct> :
     RevealerCollectionFieldMoldScaffold<TCloakedStruct?, TCloakedStruct, TCloakedStruct?[]?> where TCloakedStruct : struct
 {
@@ -654,7 +656,7 @@ public class FieldNullableCloakedBearerReadOnlySpanAlwaysAddAllStringBearer<TClo
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsTypeAllButNullableStruct
-                     | AcceptsStringBearer)]
+                     | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldStringBearerReadOnlySpanAlwaysAddAllStringBearer<TBearer> : FormattedCollectionFieldMoldScaffold<TBearer, TBearer[]>
     where TBearer : IStringBearer?
 {
@@ -677,7 +679,7 @@ public class FieldStringBearerReadOnlySpanAlwaysAddAllStringBearer<TBearer> : Fo
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsNullableClass
-                | AcceptsStringBearer)]
+                | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldStringBearerNullableClassReadOnlySpanAlwaysAddAllStringBearer<TBearer> : FormattedCollectionFieldMoldScaffold<TBearer?, TBearer?[]>
     where TBearer : class, IStringBearer
 {
@@ -699,7 +701,8 @@ public class FieldStringBearerNullableClassReadOnlySpanAlwaysAddAllStringBearer<
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsNullableStructStringBearer)]
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites 
+                | AcceptsNullableStructStringBearer | SupportsValueFormatString)]
 public class FieldNullableStringBearerReadOnlySpanAlwaysAddAllStringBearer<TBearerStruct> : FormattedCollectionFieldMoldScaffold<TBearerStruct?,
     TBearerStruct?[]>
     where TBearerStruct : struct, IStringBearer
@@ -1012,7 +1015,8 @@ public class FieldNullableSpanFormattableArrayAlwaysAddAllStringBearer<TFmtStruc
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | AcceptsAnyExceptNullableStruct | SupportsValueRevealer)]
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | AcceptsAnyExceptNullableStruct 
+                | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldCloakedBearerArrayAlwaysAddAllStringBearer<TCloaked, TRevealBase> : 
     RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase, TCloaked[]?> 
     where TCloaked : TRevealBase
@@ -1037,8 +1041,8 @@ public class FieldCloakedBearerArrayAlwaysAddAllStringBearer<TCloaked, TRevealBa
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | AcceptsAnyNullableStruct |
-                  SupportsValueRevealer)]
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | AcceptsAnyNullableStruct
+                 | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldNullableCloakedBearerArrayAlwaysAddAllStringBearer<TCloakedStruct> :
     RevealerCollectionFieldMoldScaffold<TCloakedStruct?, TCloakedStruct, TCloakedStruct?[]?> where TCloakedStruct : struct
 {
@@ -1061,7 +1065,8 @@ public class FieldNullableCloakedBearerArrayAlwaysAddAllStringBearer<TCloakedStr
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | AcceptsTypeAllButNullableStruct 
+                | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldStringBearerArrayAlwaysAddAllStringBearer<TBearer> : FormattedCollectionFieldMoldScaffold<TBearer, TBearer[]>
     where TBearer : IStringBearer
 {
@@ -1083,7 +1088,8 @@ public class FieldStringBearerArrayAlwaysAddAllStringBearer<TBearer> : Formatted
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | AcceptsNullableStruct | AcceptsStringBearer)]
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | AlwaysWrites | AcceptsNullableStruct 
+                | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldNullableStringBearerArrayAlwaysAddAllStringBearer<TBearerStruct> : FormattedCollectionFieldMoldScaffold<TBearerStruct?, TBearerStruct?[]>
     where TBearerStruct : struct, IStringBearer
 {
@@ -1300,8 +1306,8 @@ public class FieldNullableSpanFormattableListAlwaysAddAllStringBearer<TFmtStruct
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | AcceptsAnyExceptNullableStruct |
-                  SupportsValueRevealer)]
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | AcceptsAnyExceptNullableStruct 
+                 | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldCloakedBearerListAlwaysAddAllStringBearer<TCloaked, TRevealBase> :
     RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase, IReadOnlyList<TCloaked>?>
    where TCloaked : TRevealBase
@@ -1325,7 +1331,8 @@ public class FieldCloakedBearerListAlwaysAddAllStringBearer<TCloaked, TRevealBas
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | AcceptsAnyNullableStruct | SupportsValueRevealer)]
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | AcceptsAnyNullableStruct | SupportsValueRevealer
+                | SupportsValueFormatString)]
 public class FieldNullableCloakedBearerListAlwaysAddAllStringBearer<TCloakedStruct> :
     RevealerCollectionFieldMoldScaffold<TCloakedStruct?, TCloakedStruct, IReadOnlyList<TCloakedStruct?>?> where TCloakedStruct : struct
 {
@@ -1347,8 +1354,9 @@ public class FieldNullableCloakedBearerListAlwaysAddAllStringBearer<TCloakedStru
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
-public class FieldStringBearerListAlwaysAddAllStringBearer<TBearer> : CollectionFieldMoldScaffold<TBearer, IReadOnlyList<TBearer>>
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | AcceptsTypeAllButNullableStruct | AcceptsStringBearer
+                | SupportsValueFormatString)]
+public class FieldStringBearerListAlwaysAddAllStringBearer<TBearer> : FormattedCollectionFieldMoldScaffold<TBearer, IReadOnlyList<TBearer>>
     where TBearer : IStringBearer
 {
     public IReadOnlyList<TBearer>? ComplexTypeCollectionFieldAlwaysAddAllStringBearerList
@@ -1363,13 +1371,15 @@ public class FieldStringBearerListAlwaysAddAllStringBearer<TBearer> : Collection
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerList)
-              , ComplexTypeCollectionFieldAlwaysAddAllStringBearerList)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringBearerList
+                , ValueFormatString, FormattingFlags)
            .Complete();
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | AcceptsNullableStruct | AcceptsStringBearer)]
-public class FieldNullableStringBearerListAlwaysAddAllStringBearer<TBearerStruct> : CollectionFieldMoldScaffold<TBearerStruct?,
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsList | AlwaysWrites | AcceptsNullableStruct | AcceptsStringBearer
+                | SupportsValueFormatString)]
+public class FieldNullableStringBearerListAlwaysAddAllStringBearer<TBearerStruct> : FormattedCollectionFieldMoldScaffold<TBearerStruct?,
     IReadOnlyList<TBearerStruct?>>
     where TBearerStruct : struct, IStringBearer
 {
@@ -1385,7 +1395,8 @@ public class FieldNullableStringBearerListAlwaysAddAllStringBearer<TBearerStruct
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerList)
-              , ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerList)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerList
+              , ValueFormatString, FormattingFlags)
            .Complete();
 
 }
@@ -1407,7 +1418,7 @@ public class FieldStringListAlwaysAddAllStringBearer : FormattedCollectionFieldM
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringList)
               , ComplexTypeCollectionFieldAlwaysAddAllStringList
-              , ValueFormatString)
+              , ValueFormatString, FormattingFlags)
            .Complete();
 
 }
@@ -1430,7 +1441,7 @@ public class FieldCharSequenceListAlwaysAddAllStringBearer<TCharSeq> : Formatted
            .CollectionField.AlwaysAddAllCharSeq
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceList)
               , ComplexTypeCollectionFieldAlwaysAddAllCharSequenceList
-              , ValueFormatString)
+              , ValueFormatString, FormattingFlags)
            .Complete();
 
 }
@@ -1453,7 +1464,7 @@ public class FieldStringBuilderListAlwaysAddAllStringBearer : FormattedCollectio
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderList)
               , ComplexTypeCollectionFieldAlwaysAddAllStringBuilderList
-              , ValueFormatString)
+              , ValueFormatString, FormattingFlags)
            .Complete();
 
 }
@@ -1474,7 +1485,7 @@ public class FieldMatchListAlwaysAddAllStringBearer<TAny> : FormattedCollectionF
            .CollectionField.AlwaysAddAllMatch
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchList)
               , ComplexTypeCollectionFieldAlwaysAddAllMatchList
-              , ValueFormatString)
+              , ValueFormatString, FormattingFlags)
            .Complete();
 
 }
@@ -1496,7 +1507,7 @@ public class FieldObjectListAlwaysAddAllStringBearer : FormattedCollectionFieldM
            .CollectionField.AlwaysAddAllObject
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectList)
               , ComplexTypeCollectionFieldAlwaysAddAllObjectList
-              , ValueFormatString)
+              , ValueFormatString, FormattingFlags)
            .Complete();
 
 }
