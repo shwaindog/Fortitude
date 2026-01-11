@@ -14,7 +14,7 @@ public abstract class FormattedKeyValueFieldMoldScaffold<TKey, TValue> : Formatt
 }
 
 public abstract class FormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, TVRevealBase> : 
-    MoldScaffoldBase<List<KeyValuePair<TKey, TValue>>?>, ISupportsKeyFormatString, ISupportsValueRevealer<TVRevealBase>
+    FormattedMoldScaffold<List<KeyValuePair<TKey, TValue>>?>, ISupportsKeyFormatString, ISupportsValueRevealer<TVRevealBase>
     where TValue : TVRevealBase?
     where TVRevealBase : notnull
 {
@@ -29,7 +29,7 @@ public abstract class FormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, T
 }
 
 public abstract class FormattedKeyStructValueRevealerFieldMoldScaffold<TKey, TValue> : 
-    MoldScaffoldBase<List<KeyValuePair<TKey, TValue?>>?>, ISupportsKeyFormatString, ISupportsValueRevealer<TValue>
+    FormattedMoldScaffold<List<KeyValuePair<TKey, TValue?>>?>, ISupportsKeyFormatString, ISupportsValueRevealer<TValue>
     where TValue : struct
 {
     public Delegate ValueRevealerDelegate { get; set; } = null!;
@@ -43,7 +43,7 @@ public abstract class FormattedKeyStructValueRevealerFieldMoldScaffold<TKey, TVa
 }
 
 public abstract class KeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKRevealBase, TVRevealBase> : 
-    MoldScaffoldBase<List<KeyValuePair<TKey, TValue>>?>, ISupportsKeyRevealer<TKRevealBase>, ISupportsValueRevealer<TVRevealBase>
+    FormattedMoldScaffold<List<KeyValuePair<TKey, TValue>>?>, ISupportsKeyRevealer<TKRevealBase>, ISupportsValueRevealer<TVRevealBase>
     where TKey : TKRevealBase?
     where TValue : TVRevealBase?
     where TKRevealBase : notnull
@@ -67,7 +67,7 @@ public abstract class KeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TK
 }
 
 public abstract class KeyRevealerStructValueRevealerFieldMoldScaffold<TKey, TValue, TKRevealBase> : 
-    MoldScaffoldBase<List<KeyValuePair<TKey, TValue?>>?>, ISupportsKeyRevealer<TKRevealBase>, ISupportsValueRevealer<TValue>
+    FormattedMoldScaffold<List<KeyValuePair<TKey, TValue?>>?>, ISupportsKeyRevealer<TKRevealBase>, ISupportsValueRevealer<TValue>
     where TKey : TKRevealBase?
     where TValue : struct
     where TKRevealBase : notnull
@@ -90,7 +90,7 @@ public abstract class KeyRevealerStructValueRevealerFieldMoldScaffold<TKey, TVal
 }
 
 public abstract class StructKeyRevealerStructValueRevealerFieldMoldScaffold<TKey, TValue> : 
-    MoldScaffoldBase<List<KeyValuePair<TKey?, TValue?>>?>, ISupportsKeyRevealer<TKey>, ISupportsValueRevealer<TValue>
+    FormattedMoldScaffold<List<KeyValuePair<TKey?, TValue?>>?>, ISupportsKeyRevealer<TKey>, ISupportsValueRevealer<TValue>
     where TKey : struct
     where TValue : struct
 {
@@ -112,7 +112,7 @@ public abstract class StructKeyRevealerStructValueRevealerFieldMoldScaffold<TKey
 }
 
 public abstract class StructKeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TVRevealBase> : 
-    MoldScaffoldBase<List<KeyValuePair<TKey?, TValue>>?>, ISupportsKeyRevealer<TKey>, ISupportsValueRevealer<TVRevealBase>
+    FormattedMoldScaffold<List<KeyValuePair<TKey?, TValue>>?>, ISupportsKeyRevealer<TKey>, ISupportsValueRevealer<TVRevealBase>
     where TKey : struct
     where TValue : TVRevealBase?
     where TVRevealBase : notnull

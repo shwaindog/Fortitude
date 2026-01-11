@@ -25,7 +25,9 @@ public class OrderedFromBoolArrayAddFilteredSimpleOrderedCollectionStringBearer 
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(OrderedCollectionAddFilteredBoolArray, ElementPredicate, ValueFormatString)
+           .AddFiltered(OrderedCollectionAddFilteredBoolArray
+                      , ElementPredicate
+                      , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -45,7 +47,9 @@ public class OrderedFromNullableBoolArrayAddFilteredSimpleOrderedCollectionStrin
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(OrderedCollectionAddFilteredNullableBoolArray, ElementPredicate, ValueFormatString)
+           .AddFiltered(OrderedCollectionAddFilteredNullableBoolArray
+                      , ElementPredicate
+                      , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -65,7 +69,9 @@ public class OrderedFromBoolSpanAddFilteredSimpleOrderedCollectionStringBearer :
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(OrderedCollectionAddFilteredBoolSpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFiltered(OrderedCollectionAddFilteredBoolSpan.AsSpan()
+                      , ElementPredicate
+                      , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -85,7 +91,9 @@ public class OrderedFromNullableBoolSpanAddFilteredSimpleOrderedCollectionString
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(OrderedCollectionAddFilteredNullableBoolSpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFiltered(OrderedCollectionAddFilteredNullableBoolSpan.AsSpan()
+                      , ElementPredicate
+                      , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -105,7 +113,9 @@ public class OrderedFromBoolReadOnlySpanAddFilteredSimpleOrderedCollectionString
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered((ReadOnlySpan<bool>)OrderedCollectionAddFilteredBoolReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFiltered((ReadOnlySpan<bool>)OrderedCollectionAddFilteredBoolReadOnlySpan.AsSpan()
+                      , ElementPredicate
+                      , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -125,7 +135,9 @@ public class OrderedFromNullableBoolReadOnlySpanAddFilteredSimpleOrderedCollecti
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered((ReadOnlySpan<bool?>)OrderedCollectionAddFilteredNullableBoolReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFiltered((ReadOnlySpan<bool?>)OrderedCollectionAddFilteredNullableBoolReadOnlySpan.AsSpan()
+                      , ElementPredicate
+                      , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -144,7 +156,9 @@ public class OrderedFromBoolListAddFilteredSimpleOrderedCollectionStringBearer :
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(OrderedCollectionAddFilteredBoolList, ElementPredicate, ValueFormatString)
+           .AddFiltered(OrderedCollectionAddFilteredBoolList
+                      , ElementPredicate
+                      , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -165,7 +179,9 @@ public class OrderedFromNullableBoolListAddFilteredSimpleOrderedCollectionString
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(OrderedCollectionAddFilteredNullableBoolList, ElementPredicate, ValueFormatString)
+           .AddFiltered(OrderedCollectionAddFilteredNullableBoolList
+                      , ElementPredicate
+                      , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -186,7 +202,10 @@ public class OrderedFromBoolEnumerableAddFilteredSimpleOrderedCollectionStringBe
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(OrderedCollectionAddFilteredBoolEnumerable, ElementPredicate, ValueFormatString)
+           .AddFilteredEnumerate
+               (OrderedCollectionAddFilteredBoolEnumerable
+               , ElementPredicate
+               , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -206,7 +225,10 @@ public class OrderedFromNullableBoolEnumerableAddFilteredSimpleOrderedCollection
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(OrderedCollectionAddFilteredNullableBoolEnumerable, ElementPredicate, ValueFormatString)
+           .AddFilteredEnumerate
+               (OrderedCollectionAddFilteredNullableBoolEnumerable
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -226,7 +248,10 @@ public class OrderedFromBoolEnumeratorAddFilteredSimpleOrderedCollectionStringBe
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(OrderedCollectionAddFilteredBoolEnumerator, ElementPredicate, ValueFormatString)
+           .AddFilteredEnumerate
+               (OrderedCollectionAddFilteredBoolEnumerator
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -247,7 +272,10 @@ public class OrderedFromNullableBoolEnumeratorAddFilteredSimpleOrderedCollection
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(OrderedCollectionAddFilteredNullableBoolEnumerator, ElementPredicate, ValueFormatString)
+           .AddFilteredEnumerate
+               (OrderedCollectionAddFilteredNullableBoolEnumerator
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -268,7 +296,10 @@ public class OrderedFromSpanFormattableArrayAddFilteredSimpleOrderedCollectionSt
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(OrderedCollectionAddFilteredSpanFormattableArray, ElementPredicate, ValueFormatString)
+           .AddFiltered
+               (OrderedCollectionAddFilteredSpanFormattableArray
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -289,7 +320,10 @@ public class OrderedFromNullableSpanFormattableArrayAddFilteredSimpleOrderedColl
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(OrderedCollectionAddFilteredNullableSpanFormattableArray, ElementPredicate, ValueFormatString)
+           .AddFiltered
+               (OrderedCollectionAddFilteredNullableSpanFormattableArray
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -310,7 +344,10 @@ public class OrderedFromSpanFormattableSpanAddFilteredSimpleOrderedCollectionStr
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(OrderedCollectionAddFilteredSpanFormattableSpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFiltered
+               (OrderedCollectionAddFilteredSpanFormattableSpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -331,7 +368,10 @@ public class OrderedFromSpanFormattableNullableSpanAddFilteredSimpleOrderedColle
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(OrderedCollectionAddFilteredSpanFormattableNullableSpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFiltered
+               (OrderedCollectionAddFilteredSpanFormattableNullableSpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -352,7 +392,10 @@ public class OrderedFromNullableSpanFormattableSpanAddFilteredSimpleOrderedColle
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(OrderedCollectionAddFilteredNullableSpanFormattableSpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFiltered
+               (OrderedCollectionAddFilteredNullableSpanFormattableSpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -373,7 +416,10 @@ public class OrderedFromSpanFormattableReadOnlySpanAddFilteredSimpleOrderedColle
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered((ReadOnlySpan<TFmt>)OrderedCollectionAddFilteredSpanFormattableReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFiltered
+               ((ReadOnlySpan<TFmt>)OrderedCollectionAddFilteredSpanFormattableReadOnlySpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -394,8 +440,10 @@ public class OrderedFromSpanFormattableNullableReadOnlySpanAddFilteredSimpleOrde
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered((ReadOnlySpan<TFmt?>)OrderedCollectionAddFilteredSpanFormattableNullableReadOnlySpan.AsSpan(), ElementPredicate
-                              , ValueFormatString)
+           .AddFiltered
+               ((ReadOnlySpan<TFmt?>)OrderedCollectionAddFilteredSpanFormattableNullableReadOnlySpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -418,7 +466,8 @@ public class OrderedFromNullableSpanFormattableReadOnlySpanAddFilteredSimpleOrde
         tos.StartSimpleCollectionType(this)
            .AddFiltered
                ((ReadOnlySpan<TFmtStruct?>)OrderedCollectionAddFilteredNullableSpanFormattableReadOnlySpan.AsSpan()
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -439,7 +488,10 @@ public class OrderedFromSpanFormattableListAddFilteredSimpleOrderedCollectionStr
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(OrderedCollectionAddFilteredSpanFormattableList, ElementPredicate, ValueFormatString)
+           .AddFiltered
+               (OrderedCollectionAddFilteredSpanFormattableList
+               , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -460,7 +512,10 @@ public class OrderedFromNullableSpanFormattableListAddFilteredSimpleOrderedColle
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(OrderedCollectionAddFilteredNullableSpanFormattableList, ElementPredicate, ValueFormatString)
+           .AddFiltered
+               (OrderedCollectionAddFilteredNullableSpanFormattableList
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -481,7 +536,10 @@ public class OrderedFromSpanFormattableEnumerableAddFilteredSimpleOrderedCollect
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(OrderedCollectionAddFilteredSpanFormattableEnumerable, ElementPredicate, ValueFormatString)
+           .AddFilteredEnumerate
+               (OrderedCollectionAddFilteredSpanFormattableEnumerable
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -502,7 +560,10 @@ public class OrderedFromNullableSpanFormattableEnumerableAddFilteredSimpleOrdere
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(OrderedCollectionAddFilteredNullableSpanFormattableEnumerable, ElementPredicate, ValueFormatString)
+           .AddFilteredEnumerate
+               (OrderedCollectionAddFilteredNullableSpanFormattableEnumerable
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -523,7 +584,10 @@ public class OrderedFromSpanFormattableEnumeratorAddFilteredSimpleOrderedCollect
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(OrderedCollectionAddFilteredSpanFormattableEnumerator, ElementPredicate, ValueFormatString)
+           .AddFilteredEnumerate
+               (OrderedCollectionAddFilteredSpanFormattableEnumerator
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -544,7 +608,10 @@ public class OrderedFromNullableSpanFormattableEnumeratorAddFilteredSimpleOrdere
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(OrderedCollectionAddFilteredNullableSpanFormattableEnumerator, ElementPredicate, ValueFormatString)
+           .AddFilteredEnumerate
+               (OrderedCollectionAddFilteredNullableSpanFormattableEnumerator
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -565,8 +632,11 @@ public class OrderedFromCloakedBearerArrayRevealFilteredSimpleOrderedCollectionS
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(OrderedCollectionRevealFilteredCloakedBearerArray, ElementPredicate, ValueRevealer
-                         , ValueFormatString, FormattingFlags)
+           .RevealFiltered
+               (OrderedCollectionRevealFilteredCloakedBearerArray
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -586,8 +656,11 @@ public class OrderedFromNullableCloakedBearerArrayRevealFilteredSimpleOrderedCol
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(OrderedCollectionRevealFilteredNullableCloakedBearerArray, ElementPredicate, ValueRevealer
-                         , ValueFormatString, FormattingFlags)
+           .RevealFiltered
+               (OrderedCollectionRevealFilteredNullableCloakedBearerArray
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -608,8 +681,11 @@ public class OrderedFromCloakedBearerSpanRevealFilteredSimpleOrderedCollectionSt
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(OrderedCollectionRevealFilteredCloakedBearerSpan.AsSpan(), ElementPredicate, ValueRevealer
-                         , ValueFormatString, FormattingFlags)
+           .RevealFiltered
+               (OrderedCollectionRevealFilteredCloakedBearerSpan.AsSpan()
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -630,9 +706,11 @@ public class OrderedFromCloakedBearerNullableSpanRevealFilteredSimpleOrderedColl
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(OrderedCollectionRevealFilteredCloakedBearerNullableSpan.AsSpan()
-                         , ElementPredicate, ValueRevealer
-                         , ValueFormatString, FormattingFlags)
+           .RevealFiltered
+               (OrderedCollectionRevealFilteredCloakedBearerNullableSpan.AsSpan()
+               , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -652,8 +730,11 @@ public class OrderedFromNullableCloakedBearerSpanRevealFilteredSimpleOrderedColl
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(OrderedCollectionRevealFilteredNullableCloakedBearerSpan.AsSpan(), ElementPredicate, ValueRevealer
-                         , ValueFormatString, FormattingFlags)
+           .RevealFiltered
+               (OrderedCollectionRevealFilteredNullableCloakedBearerSpan.AsSpan()
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -674,8 +755,11 @@ public class OrderedFromCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedColl
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(OrderedCollectionRevealFilteredCloakedBearerReadOnlySpan.AsSpan(), ElementPredicate, ValueRevealer
-                         , ValueFormatString, FormattingFlags)
+           .RevealFiltered
+               (OrderedCollectionRevealFilteredCloakedBearerReadOnlySpan.AsSpan()
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -697,8 +781,11 @@ public class OrderedFromCloakedBearerNullableReadOnlySpanRevealFilteredSimpleOrd
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(OrderedCollectionRevealFilteredCloakedBearerNullableReadOnlySpan.AsSpan(), ElementPredicate, ValueRevealer
-                         , ValueFormatString, FormattingFlags)
+           .RevealFiltered
+               (OrderedCollectionRevealFilteredCloakedBearerNullableReadOnlySpan.AsSpan()
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -718,8 +805,11 @@ public class OrderedFromNullableCloakedBearerReadOnlySpanRevealFilteredSimpleOrd
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(OrderedCollectionRevealFilteredNullableCloakedBearerReadOnlySpan.AsSpan(), ElementPredicate, ValueRevealer
-                         , ValueFormatString, FormattingFlags)
+           .RevealFiltered
+               (OrderedCollectionRevealFilteredNullableCloakedBearerReadOnlySpan.AsSpan()
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -740,8 +830,11 @@ public class OrderedFromCloakedBearerListRevealFilteredSimpleOrderedCollectionSt
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(OrderedCollectionRevealFilteredCloakedBearerList, ElementPredicate, ValueRevealer
-                         , ValueFormatString, FormattingFlags)
+           .RevealFiltered
+               (OrderedCollectionRevealFilteredCloakedBearerList
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -761,8 +854,11 @@ public class OrderedFromNullableCloakedBearerListRevealFilteredSimpleOrderedColl
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(OrderedCollectionRevealFilteredNullableCloakedBearerList, ElementPredicate, ValueRevealer
-                         , ValueFormatString, FormattingFlags)
+           .RevealFiltered
+               (OrderedCollectionRevealFilteredNullableCloakedBearerList
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -783,8 +879,11 @@ public class OrderedFromCloakedBearerEnumerableRevealFilteredSimpleOrderedCollec
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate(OrderedCollectionRevealFilteredCloakedBearerEnumerable, ElementPredicate, ValueRevealer
-                                  , ValueFormatString, FormattingFlags)
+           .RevealFilteredEnumerate
+               (OrderedCollectionRevealFilteredCloakedBearerEnumerable
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -804,8 +903,11 @@ public class OrderedFromNullableCloakedBearerEnumerableRevealFilteredSimpleOrder
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate(OrderedCollectionRevealFilteredNullableCloakedBearerEnumerable, ElementPredicate, ValueRevealer
-                                  , ValueFormatString, FormattingFlags)
+           .RevealFilteredEnumerate
+               (OrderedCollectionRevealFilteredNullableCloakedBearerEnumerable
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -826,8 +928,11 @@ public class OrderedFromCloakedBearerEnumeratorRevealFilteredSimpleOrderedCollec
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate(OrderedCollectionRevealFilteredCloakedBearerEnumerator, ElementPredicate, ValueRevealer
-                                  , ValueFormatString, FormattingFlags)
+           .RevealFilteredEnumerate
+               (OrderedCollectionRevealFilteredCloakedBearerEnumerator
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -847,8 +952,11 @@ public class OrderedFromNullableCloakedBearerEnumeratorRevealFilteredSimpleOrder
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate(OrderedCollectionRevealFilteredNullableCloakedBearerEnumerator, ElementPredicate, ValueRevealer
-                                  , ValueFormatString, FormattingFlags)
+           .RevealFilteredEnumerate
+               (OrderedCollectionRevealFilteredNullableCloakedBearerEnumerator
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -869,8 +977,10 @@ public class OrderedFromStringBearerArrayRevealFilteredSimpleOrderedCollectionSt
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(OrderedCollectionRevealFilteredStringBearerArray, ElementPredicate
-                         , ValueFormatString, FormattingFlags)
+           .RevealFiltered
+               (OrderedCollectionRevealFilteredStringBearerArray
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -891,8 +1001,10 @@ public class OrderedFromNullableStringBearerArrayRevealFilteredSimpleOrderedColl
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(OrderedCollectionRevealFilteredNullableStringBearerArray, ElementPredicate
-                         , ValueFormatString, FormattingFlags)
+           .RevealFiltered
+               (OrderedCollectionRevealFilteredNullableStringBearerArray
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -912,8 +1024,10 @@ public class OrderedFromStringBearerSpanRevealFilteredSimpleOrderedCollectionStr
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(OrderedCollectionRevealFilteredStringBearerSpan.AsSpan(), ElementPredicate
-                         , ValueFormatString, FormattingFlags)
+           .RevealFiltered
+               (OrderedCollectionRevealFilteredStringBearerSpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -934,8 +1048,10 @@ public class OrderedFromStringBearerNullableSpanRevealFilteredSimpleOrderedColle
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(OrderedCollectionRevealFilteredStringBearerNullableSpan.AsSpan(), ElementPredicate
-                         , ValueFormatString, FormattingFlags)
+           .RevealFiltered
+               (OrderedCollectionRevealFilteredStringBearerNullableSpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -956,8 +1072,10 @@ public class OrderedFromNullableStringBearerSpanRevealFilteredSimpleOrderedColle
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(OrderedCollectionRevealFilteredNullableStringBearerSpan.AsSpan(), ElementPredicate
-                         , ValueFormatString, FormattingFlags)
+           .RevealFiltered
+               (OrderedCollectionRevealFilteredNullableStringBearerSpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -977,8 +1095,10 @@ public class OrderedFromStringBearerReadOnlySpanRevealFilteredSimpleOrderedColle
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered((ReadOnlySpan<TBearer>)OrderedCollectionRevealFilteredStringBearerReadOnlySpan.AsSpan(), ElementPredicate
-                         , ValueFormatString, FormattingFlags)
+           .RevealFiltered
+               ((ReadOnlySpan<TBearer>)OrderedCollectionRevealFilteredStringBearerReadOnlySpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1047,8 +1167,10 @@ public class OrderedFromStringBearerListRevealFilteredSimpleOrderedCollectionStr
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(OrderedCollectionRevealFilteredStringBearerList, ElementPredicate
-                         , ValueFormatString, FormattingFlags)
+           .RevealFiltered
+               (OrderedCollectionRevealFilteredStringBearerList
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1069,8 +1191,10 @@ public class OrderedFromNullableStringBearerListRevealFilteredSimpleOrderedColle
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFiltered(OrderedCollectionRevealFilteredNullableStringBearerList, ElementPredicate
-                         , ValueFormatString, FormattingFlags)
+           .RevealFiltered
+               (OrderedCollectionRevealFilteredNullableStringBearerList
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1115,8 +1239,10 @@ public class OrderedFromNullableStringBearerEnumerableRevealFilteredSimpleOrdere
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate(OrderedCollectionRevealFilteredNullableStringBearerEnumerable, ElementPredicate
-                                  , ValueFormatString, FormattingFlags)
+           .RevealFilteredEnumerate
+               (OrderedCollectionRevealFilteredNullableStringBearerEnumerable
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1137,8 +1263,10 @@ public class OrderedFromStringBearerEnumeratorRevealFilteredSimpleOrderedCollect
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate(OrderedCollectionRevealFilteredStringBearerEnumerator, ElementPredicate
-                                  , ValueFormatString, FormattingFlags)
+           .RevealFilteredEnumerate
+               (OrderedCollectionRevealFilteredStringBearerEnumerator
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1159,8 +1287,10 @@ public class OrderedFromNullableStringBearerEnumeratorRevealFilteredSimpleOrdere
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate(OrderedCollectionRevealFilteredNullableStringBearerEnumerator, ElementPredicate
-                                  , ValueFormatString, FormattingFlags)
+           .RevealFilteredEnumerate
+               (OrderedCollectionRevealFilteredNullableStringBearerEnumerator
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1181,7 +1311,10 @@ public class OrderedFromStringArrayAddFilteredSimpleOrderedCollectionStringBeare
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(OrderedCollectionAddFilteredStringArray, ElementPredicate, ValueFormatString)
+           .AddFiltered
+               (OrderedCollectionAddFilteredStringArray
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1202,7 +1335,10 @@ public class OrderedFromStringSpanAddFilteredSimpleOrderedCollectionStringBearer
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(OrderedCollectionAddFilteredStringSpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFiltered
+               (OrderedCollectionAddFilteredStringSpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1223,7 +1359,10 @@ public class OrderedFromStringNullableSpanAddFilteredSimpleOrderedCollectionStri
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredNullable(OrderedCollectionAddFilteredStringNullableSpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredNullable
+               (OrderedCollectionAddFilteredStringNullableSpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1244,7 +1383,10 @@ public class OrderedFromStringReadOnlySpanAddFilteredSimpleOrderedCollectionStri
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered((ReadOnlySpan<string>)OrderedCollectionAddFilteredStringReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFiltered
+               ((ReadOnlySpan<string>)OrderedCollectionAddFilteredStringReadOnlySpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1268,7 +1410,8 @@ public class OrderedFromStringNullableReadOnlySpanAddFilteredSimpleOrderedCollec
         tos.StartSimpleCollectionType(this)
            .AddFilteredNullable
                ((ReadOnlySpan<string?>)OrderedCollectionAddFilteredStringNullableReadOnlySpan.AsSpan()
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1290,7 +1433,10 @@ public class OrderedFromStringListAddFilteredSimpleOrderedCollectionStringBearer
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(OrderedCollectionAddFilteredStringList, ElementPredicate, ValueFormatString)
+           .AddFiltered
+               (OrderedCollectionAddFilteredStringList
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1311,7 +1457,10 @@ public class OrderedFromStringEnumerableAddFilteredSimpleOrderedCollectionString
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(OrderedCollectionAddFilteredStringEnumerable, ElementPredicate, ValueFormatString)
+           .AddFilteredEnumerate
+               (OrderedCollectionAddFilteredStringEnumerable
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1332,7 +1481,10 @@ public class OrderedFromStringEnumeratorAddFilteredSimpleOrderedCollectionString
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(OrderedCollectionAddFilteredStringEnumerator, ElementPredicate, ValueFormatString)
+           .AddFilteredEnumerate
+               (OrderedCollectionAddFilteredStringEnumerator
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1353,7 +1505,10 @@ public class OrderedFromCharSequenceArrayAddFilteredSimpleOrderedCollectionStrin
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredCharSeq(OrderedCollectionAddFilteredCharSequenceArray, ElementPredicate, ValueFormatString)
+           .AddFilteredCharSeq
+               (OrderedCollectionAddFilteredCharSequenceArray
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1374,7 +1529,10 @@ public class OrderedFromCharSequenceSpanAddFilteredSimpleOrderedCollectionString
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredCharSeq(OrderedCollectionAddFilteredCharSequenceSpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredCharSeq
+               (OrderedCollectionAddFilteredCharSequenceSpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1395,7 +1553,10 @@ public class OrderedFromCharSequenceNullableSpanAddFilteredSimpleOrderedCollecti
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredCharSeq(OrderedCollectionAddFilteredCharSequenceNullableSpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredCharSeq
+               (OrderedCollectionAddFilteredCharSequenceNullableSpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1418,7 +1579,8 @@ public class OrderedFromCharSequenceReadOnlySpanAddFilteredSimpleOrderedCollecti
         tos.StartSimpleCollectionType(this)
            .AddFilteredCharSeq
                ((ReadOnlySpan<TCharSeq>)OrderedCollectionAddFilteredCharSequenceReadOnlySpan.AsSpan()
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1441,7 +1603,8 @@ public class OrderedFromCharSequenceNullableReadOnlySpanAddFilteredSimpleOrdered
         tos.StartSimpleCollectionType(this)
            .AddFilteredCharSeq
                ((ReadOnlySpan<TCharSeq?>)OrderedCollectionAddFilteredCharSequenceNullableReadOnlySpan.AsSpan()
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1462,7 +1625,10 @@ public class OrderedFromCharSequenceListAddFilteredSimpleOrderedCollectionString
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredCharSeq(OrderedCollectionAddFilteredCharSequenceList, ElementPredicate, ValueFormatString)
+           .AddFilteredCharSeq
+               (OrderedCollectionAddFilteredCharSequenceList
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1483,7 +1649,10 @@ public class OrderedFromCharSequenceEnumerableAddFilteredSimpleOrderedCollection
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredCharSeqEnumerate(OrderedCollectionAddFilteredCharSequenceEnumerable, ElementPredicate, ValueFormatString)
+           .AddFilteredCharSeqEnumerate
+               (OrderedCollectionAddFilteredCharSequenceEnumerable
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1504,7 +1673,10 @@ public class OrderedFromCharSequenceEnumeratorAddFilteredSimpleOrderedCollection
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredCharSeqEnumerate(OrderedCollectionAddFilteredCharSequenceEnumerator, ElementPredicate, ValueFormatString)
+           .AddFilteredCharSeqEnumerate
+               (OrderedCollectionAddFilteredCharSequenceEnumerator
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1525,7 +1697,10 @@ public class OrderedFromStringBuilderArrayAddFilteredSimpleOrderedCollectionStri
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(OrderedCollectionAddFilteredStringBuilderArray, ElementPredicate, ValueFormatString)
+           .AddFiltered
+               (OrderedCollectionAddFilteredStringBuilderArray
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1546,7 +1721,10 @@ public class OrderedFromStringBuilderSpanAddFilteredSimpleOrderedCollectionStrin
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(OrderedCollectionAddFilteredStringBuilderSpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFiltered
+               (OrderedCollectionAddFilteredStringBuilderSpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1567,7 +1745,10 @@ public class OrderedFromStringBuilderNullableSpanAddFilteredSimpleOrderedCollect
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredNullable(OrderedCollectionAddFilteredStringBuilderNullableSpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredNullable
+               (OrderedCollectionAddFilteredStringBuilderNullableSpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1590,7 +1771,8 @@ public class OrderedFromStringBuilderReadOnlySpanAddFilteredSimpleOrderedCollect
         tos.StartSimpleCollectionType(this)
            .AddFiltered
                ((ReadOnlySpan<StringBuilder>)OrderedCollectionAddFilteredStringBuilderReadOnlySpan.AsSpan()
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1613,7 +1795,8 @@ public class OrderedFromStringBuilderNullableReadOnlySpanAddFilteredSimpleOrdere
         tos.StartSimpleCollectionType(this)
            .AddFilteredNullable
                ((ReadOnlySpan<StringBuilder?>)OrderedCollectionAddFilteredStringBuilderNullableReadOnlySpan.AsSpan()
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1634,7 +1817,10 @@ public class OrderedFromStringBuilderListAddFilteredSimpleOrderedCollectionStrin
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFiltered(OrderedCollectionAddFilteredStringBuilderList, ElementPredicate, ValueFormatString)
+           .AddFiltered
+               (OrderedCollectionAddFilteredStringBuilderList
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1655,7 +1841,10 @@ public class OrderedFromStringBuilderEnumerableAddFilteredSimpleOrderedCollectio
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(OrderedCollectionAddFilteredStringBuilderEnumerable, ElementPredicate, ValueFormatString)
+           .AddFilteredEnumerate
+               (OrderedCollectionAddFilteredStringBuilderEnumerable
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1676,7 +1865,10 @@ public class OrderedFromStringBuilderEnumeratorAddFilteredSimpleOrderedCollectio
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate(OrderedCollectionAddFilteredStringBuilderEnumerator, ElementPredicate, ValueFormatString)
+           .AddFilteredEnumerate
+               (OrderedCollectionAddFilteredStringBuilderEnumerator
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1697,7 +1889,10 @@ public class OrderedFromMatchArrayAddFilteredSimpleOrderedCollectionStringBearer
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredMatch(OrderedCollectionAddFilteredMatchArray, ElementPredicate, ValueFormatString)
+           .AddFilteredMatch
+               (OrderedCollectionAddFilteredMatchArray
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1718,7 +1913,10 @@ public class OrderedFromMatchSpanAddFilteredSimpleOrderedCollectionStringBearer<
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredMatch(OrderedCollectionAddFilteredMatchSpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredMatch
+               (OrderedCollectionAddFilteredMatchSpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1739,7 +1937,10 @@ public class OrderedFromMatchNullableSpanAddFilteredSimpleOrderedCollectionStrin
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredMatch(OrderedCollectionAddFilteredMatchNullableSpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredMatch
+               (OrderedCollectionAddFilteredMatchNullableSpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1760,7 +1961,10 @@ public class OrderedFromMatchReadOnlySpanAddFilteredSimpleOrderedCollectionStrin
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredMatch((ReadOnlySpan<TAny>)OrderedCollectionAddFilteredMatchReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredMatch
+               ((ReadOnlySpan<TAny>)OrderedCollectionAddFilteredMatchReadOnlySpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1781,8 +1985,10 @@ public class OrderedFromMatchNullableReadOnlySpanAddFilteredSimpleOrderedCollect
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredMatch((ReadOnlySpan<TAny?>)OrderedCollectionAddFilteredMatchNullableReadOnlySpan.AsSpan(), ElementPredicate
-                                   , ValueFormatString)
+           .AddFilteredMatch
+               ((ReadOnlySpan<TAny?>)OrderedCollectionAddFilteredMatchNullableReadOnlySpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1803,7 +2009,10 @@ public class OrderedFromMatchListAddFilteredSimpleOrderedCollectionStringBearer<
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredMatch(OrderedCollectionAddFilteredMatchList, ElementPredicate, ValueFormatString)
+           .AddFilteredMatch
+               (OrderedCollectionAddFilteredMatchList
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1824,7 +2033,10 @@ public class OrderedFromMatchEnumerableAddFilteredSimpleOrderedCollectionStringB
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredMatchEnumerate(OrderedCollectionAddFilteredMatchEnumerable, ElementPredicate, ValueFormatString)
+           .AddFilteredMatchEnumerate
+               (OrderedCollectionAddFilteredMatchEnumerable
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1845,7 +2057,10 @@ public class OrderedFromMatchEnumeratorAddFilteredSimpleOrderedCollectionStringB
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredMatchEnumerate(OrderedCollectionAddFilteredMatchEnumerator, ElementPredicate, ValueFormatString)
+           .AddFilteredMatchEnumerate
+               (OrderedCollectionAddFilteredMatchEnumerator
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1865,7 +2080,10 @@ public class OrderedFromObjectArrayAddFilteredSimpleOrderedCollectionStringBeare
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredObject(OrderedCollectionAddFilteredObjectArray, ElementPredicate, ValueFormatString)
+           .AddFilteredObject
+               (OrderedCollectionAddFilteredObjectArray
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1886,7 +2104,10 @@ public class OrderedFromObjectSpanAddFilteredSimpleOrderedCollectionStringBearer
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredObject(OrderedCollectionAddFilteredObjectSpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredObject
+               (OrderedCollectionAddFilteredObjectSpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1906,7 +2127,10 @@ public class OrderedFromObjectNullableSpanAddFilteredSimpleOrderedCollectionStri
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredObjectNullable(OrderedCollectionAddFilteredObjectNullableSpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredObjectNullable
+               (OrderedCollectionAddFilteredObjectNullableSpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1927,7 +2151,10 @@ public class OrderedFromObjectReadOnlySpanAddFilteredSimpleOrderedCollectionStri
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredObject((ReadOnlySpan<object>)OrderedCollectionAddFilteredObjectReadOnlySpan.AsSpan(), ElementPredicate, ValueFormatString)
+           .AddFilteredObject
+               ((ReadOnlySpan<object>)OrderedCollectionAddFilteredObjectReadOnlySpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1947,8 +2174,9 @@ public class OrderedFromObjectNullableReadOnlySpanAddFilteredSimpleOrderedCollec
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredObjectNullable((ReadOnlySpan<object?>)OrderedCollectionAddFilteredObjectNullableReadOnlySpan.AsSpan(), ElementPredicate
-                                    , ValueFormatString)
+           .AddFilteredObjectNullable
+               ((ReadOnlySpan<object?>)OrderedCollectionAddFilteredObjectNullableReadOnlySpan.AsSpan()
+              , ElementPredicate, ValueFormatString)
            .Complete();
 }
 
@@ -1968,7 +2196,10 @@ public class OrderedFromObjectListAddFilteredSimpleOrderedCollectionStringBearer
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredObject(OrderedCollectionAddFilteredObjectList, ElementPredicate, ValueFormatString)
+           .AddFilteredObject
+               (OrderedCollectionAddFilteredObjectList
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1988,7 +2219,10 @@ public class OrderedFromObjectEnumerableAddFilteredSimpleOrderedCollectionString
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredObjectEnumerate(OrderedCollectionAddFilteredObjectEnumerable, ElementPredicate, ValueFormatString)
+           .AddFilteredObjectEnumerate
+               (OrderedCollectionAddFilteredObjectEnumerable
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -2008,6 +2242,9 @@ public class OrderedFromObjectEnumeratorAddFilteredSimpleOrderedCollectionString
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredObjectEnumerate(OrderedCollectionAddFilteredObjectEnumerator, ElementPredicate, ValueFormatString)
+           .AddFilteredObjectEnumerate
+               (OrderedCollectionAddFilteredObjectEnumerator
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }

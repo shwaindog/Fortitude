@@ -758,8 +758,14 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return sb;
     }
 
-    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue>(ITypeMolderDieCast<TMold> typeMold
-      , Type keyedCollectionType, TKey key, TValue value, int retrieveCount, string? valueFormatString = null, string? keyFormatString = null
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue>(
+        ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType
+      , TKey key
+      , TValue value
+      , int retrieveCount
+      , string? valueFormatString = null
+      , string? keyFormatString = null
       , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
     {
@@ -785,8 +791,15 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return typeMold;
     }
 
-    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
-      , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler, string? keyFormatString = null
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(
+        ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType
+      , TKey key
+      , TValue? value
+      , int retrieveCount
+      , PalantírReveal<TVRevealBase> valueStyler
+      , string? keyFormatString = null
+      , string? valueFormatString = null
       , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
         where TValue : TVRevealBase?
@@ -803,7 +816,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             AddNextFieldSeparator(valueFlags);
             AppendFieldName(typeMold.Sb, "Value").FieldEnd(typeMold, this, valueFlags);
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { FormatFieldContents(typeMold.Master,  value, valueStyler, callerFormatFlags: valueFlags); }
+            else { FormatFieldContents(typeMold.Master,  value, valueStyler, valueFormatString, valueFlags); }
             StartComplexTypeClosing(typeMold);
             FinishComplexTypeClosing(typeMold);
         }
@@ -811,14 +824,21 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         {
             typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags, true).FieldEnd();
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else {FormatFieldContents(typeMold.Master,  value, valueStyler, callerFormatFlags: valueFlags); }
+            else {FormatFieldContents(typeMold.Master,  value, valueStyler, valueFormatString, valueFlags); }
         }
         return typeMold;
     }
 
-    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
-      , Type keyedCollectionType, TKey? key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler, FormatFlags valueFlags = DefaultCallerTypeFlags)
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
+        ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType
+      , TKey? key
+      , TValue? value
+      , int retrieveCount
+      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , string? valueFormatString = null
+      , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
         where TKey : TKRevealBase?
         where TValue : TVRevealBase?
@@ -837,7 +857,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             AddNextFieldSeparator(valueFlags);
             AppendFieldName(typeMold.Sb, "Value").FieldEnd(typeMold, this, valueFlags);
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { FormatFieldContents(typeMold.Master,  value, valueStyler, callerFormatFlags: valueFlags); }
+            else { FormatFieldContents(typeMold.Master,  value, valueStyler, valueFormatString, valueFlags); }
             StartComplexTypeClosing(typeMold);
             FinishComplexTypeClosing(typeMold);
         }
@@ -847,14 +867,21 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             else { FormatFieldName(typeMold.Master, key, keyStyler, callerFormatFlags: valueFlags); }
             typeMold.FieldEnd();
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { FormatFieldContents(typeMold.Master,  value, valueStyler, callerFormatFlags: valueFlags); }
+            else { FormatFieldContents(typeMold.Master,  value, valueStyler, valueFormatString, valueFlags); }
         }
         return typeMold;
     }
 
-    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
-      , Type keyedCollectionType, TKey? key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler, FormatFlags valueFlags = DefaultCallerTypeFlags)
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
+        ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType
+      , TKey? key
+      , TValue? value
+      , int retrieveCount
+      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , string? valueFormatString = null
+      , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
         where TKey : struct, TKRevealBase
         where TValue : TVRevealBase?
@@ -873,7 +900,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             AddNextFieldSeparator(valueFlags);
             AppendFieldName(typeMold.Sb, "Value").FieldEnd(typeMold, this, valueFlags);
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { FormatFieldContents(typeMold.Master,  value, valueStyler, callerFormatFlags: valueFlags); }
+            else { FormatFieldContents(typeMold.Master,  value, valueStyler, valueFormatString, valueFlags); }
             StartComplexTypeClosing(typeMold);
             FinishComplexTypeClosing(typeMold);
         }
@@ -884,14 +911,21 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             
             typeMold.FieldEnd();
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { FormatFieldContents(typeMold.Master,  value, valueStyler, callerFormatFlags: valueFlags); }
+            else { FormatFieldContents(typeMold.Master,  value, valueStyler, valueFormatString, valueFlags); }
         }
         return typeMold;
     }
 
-    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
-      , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler, FormatFlags valueFlags = DefaultCallerTypeFlags)
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
+        ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType
+      , TKey key
+      , TValue? value
+      , int retrieveCount
+      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , string? valueFormatString = null
+      , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
         where TKey : TKRevealBase?
         where TValue : struct, TVRevealBase
@@ -910,7 +944,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             AddNextFieldSeparator(valueFlags);
             AppendFieldName(typeMold.Sb, "Value").FieldEnd(typeMold, this, valueFlags);
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { FormatFieldContents(typeMold.Master, value.Value, valueStyler, callerFormatFlags: valueFlags); }
+            else { FormatFieldContents(typeMold.Master, value.Value, valueStyler, valueFormatString, valueFlags); }
             StartComplexTypeClosing(typeMold);
             FinishComplexTypeClosing(typeMold);
         }
@@ -920,14 +954,19 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             else { FormatFieldName(typeMold.Master, key, keyStyler, callerFormatFlags: valueFlags); }
             typeMold.FieldEnd();
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { FormatFieldContents(typeMold.Master,  value.Value, valueStyler, callerFormatFlags: valueFlags); }
+            else { FormatFieldContents(typeMold.Master,  value.Value, valueStyler, valueFormatString, valueFlags); }
         }
         return typeMold;
     }
 
-    public ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
+    public ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(
+        ITypeMolderDieCast<TMold> typeMold
       , Type keyedCollectionType, TKey key
-      , TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler, string? keyFormatString = null
+      , TValue? value
+      , int retrieveCount
+      , PalantírReveal<TVRevealBase> valueStyler
+      , string? keyFormatString = null
+      , string? valueFormatString = null
       , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
         where TValue : struct, TVRevealBase
@@ -944,7 +983,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             else { typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags); }
             AddNextFieldSeparator(valueFlags);
             AppendFieldName(typeMold.Sb, "Value").FieldEnd(typeMold, this, valueFlags);
-            if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
+            if (value == null) { AppendFormattedNull(typeMold.Sb, valueFormatString, valueFlags); }
             else { valueStyler(value.Value, typeMold.Master); }
             StartComplexTypeClosing(typeMold);
             FinishComplexTypeClosing(typeMold);
@@ -954,15 +993,22 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             if (key == null) { AppendFormattedNull(typeMold.Sb, keyFormatString, valueFlags, true); }
             else { typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags, true); }
             typeMold.FieldEnd();
-            if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
+            if (value == null) { AppendFormattedNull(typeMold.Sb, valueFormatString, valueFlags); }
             else { valueStyler(value.Value, typeMold.Master); }
         }
         return typeMold;
     }
 
-    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
-      , Type keyedCollectionType, TKey? key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler, FormatFlags valueFlags = DefaultCallerTypeFlags)
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
+        ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType
+      , TKey? key
+      , TValue? value
+      , int retrieveCount
+      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , string? valueFormatString = null
+      , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
         where TKey : struct, TKRevealBase
         where TValue : struct, TVRevealBase
@@ -981,7 +1027,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             AddNextFieldSeparator(valueFlags);
             AppendFieldName(typeMold.Sb, "Value").FieldEnd(typeMold, this, valueFlags);
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { FormatFieldContents(typeMold.Master,  value.Value, valueStyler, callerFormatFlags: valueFlags); }
+            else { FormatFieldContents(typeMold.Master,  value.Value, valueStyler, valueFormatString, valueFlags); }
             StartComplexTypeClosing(typeMold);
             FinishComplexTypeClosing(typeMold);
         }
@@ -991,13 +1037,13 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             else { FormatFieldName(typeMold.Master, key.Value, keyStyler, callerFormatFlags: valueFlags); }
             typeMold.FieldEnd();
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-            else { FormatFieldContents(typeMold.Master,  value.Value, valueStyler, callerFormatFlags: valueFlags); }
+            else { FormatFieldContents(typeMold.Master,  value.Value, valueStyler, valueFormatString, valueFlags); }
         }
         return typeMold;
     }
 
-    public virtual IStringBuilder AppendKeyedCollectionNextItem(IStringBuilder sb
-      , Type keyedCollectionType, Type keyType, Type valueType, int previousItemCount, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public virtual IStringBuilder AppendKeyedCollectionNextItem( IStringBuilder sb , Type keyedCollectionType , Type keyType, Type valueType
+      , int previousItemCount, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         GraphBuilder.AppendContent(Cma).Complete(formatFlags);
         return sb;

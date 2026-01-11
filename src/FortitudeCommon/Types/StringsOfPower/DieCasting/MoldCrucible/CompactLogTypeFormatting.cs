@@ -308,8 +308,14 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb;
     }
 
-    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
-      , TKey key, TValue value, int retrieveCount, string? valueFormatString = null, string? keyFormatString = null
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue>(
+        ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType
+      , TKey key
+      , TValue value
+      , int retrieveCount
+      , string? valueFormatString = null
+      , string? keyFormatString = null
       , FormatFlags valueFlags = DefaultCallerTypeFlags) where TMold : TypeMolder
     {
         typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", DefaultCallerTypeFlags, true).FieldEnd();
@@ -317,21 +323,39 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return typeMold;
     }
 
-    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
-      , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler, string? keyFormatString = null
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(
+        ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType
+      , TKey key
+      , TValue? value
+      , int retrieveCount
+      , PalantírReveal<TVRevealBase> valueStyler
+      , string? keyFormatString = null
+      , string? valueFormatString = null
       , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
         typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", DefaultCallerTypeFlags, true).FieldEnd();
+        
         if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-        else { valueStyler(value, typeMold.Master); }
+        else
+        {
+            FormatFieldContents(typeMold.Master, value, valueStyler, valueFormatString, valueFlags);
+        }
         return typeMold;
     }
 
-    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
-      , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler, string? keyFormatString = null
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(
+        ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType
+      , TKey key
+      , TValue? value
+      , int retrieveCount
+      , PalantírReveal<TVRevealBase> valueStyler
+      , string? keyFormatString = null
+      , string? valueFormatString = null
       , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
         where TValue : struct, TVRevealBase
@@ -339,13 +363,22 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     {
         typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", DefaultCallerTypeFlags, true).FieldEnd();
         if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-        else { valueStyler(value.Value, typeMold.Master); }
+        else { 
+            FormatFieldContents(typeMold.Master, value.Value, valueStyler, valueFormatString, valueFlags);
+        }
         return typeMold;
     }
 
-    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
-      , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler, FormatFlags valueFlags = DefaultCallerTypeFlags)
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
+        ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType
+      , TKey key
+      , TValue? value
+      , int retrieveCount
+      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , string? valueFormatString = null
+      , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
         where TKey : TKRevealBase?
         where TValue : TVRevealBase?
@@ -357,13 +390,23 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         else { keyStyler(key, typeMold.Master); }
         typeMold.FieldEnd();
         if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-        else { valueStyler(value, typeMold.Master); }
+        else
+        {
+            FormatFieldContents(typeMold.Master, value, valueStyler, valueFormatString, valueFlags);
+        }
         return typeMold;
     }
 
-    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
-      , Type keyedCollectionType, TKey? key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler, FormatFlags valueFlags = DefaultCallerTypeFlags)
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
+        ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType
+      , TKey? key
+      , TValue? value
+      , int retrieveCount
+      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , string? valueFormatString = null
+      , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
         where TKey : struct, TKRevealBase
         where TValue : TVRevealBase?
@@ -375,13 +418,23 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         else { keyStyler(key.Value, typeMold.Master); }
         typeMold.FieldEnd();
         if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-        else { valueStyler(value, typeMold.Master); }
+        else
+        {
+            FormatFieldContents(typeMold.Master, value, valueStyler, valueFormatString, valueFlags);
+        }
         return typeMold;
     }
 
-    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
-      , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler, FormatFlags valueFlags = DefaultCallerTypeFlags)
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
+        ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType
+      , TKey key
+      , TValue? value
+      , int retrieveCount
+      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , string? valueFormatString = null
+      , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
         where TKey : TKRevealBase?
         where TValue : struct, TVRevealBase
@@ -393,13 +446,23 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         else { keyStyler(key, typeMold.Master); }
         typeMold.FieldEnd();
         if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-        else { valueStyler(value.Value, typeMold.Master); }
+        else
+        {
+            FormatFieldContents(typeMold.Master, value.Value, valueStyler, valueFormatString, valueFlags);
+        }
         return typeMold;
     }
 
-    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
-      , Type keyedCollectionType, TKey? key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler, FormatFlags valueFlags = DefaultCallerTypeFlags)
+    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
+        ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType
+      , TKey? key
+      , TValue? value
+      , int retrieveCount
+      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , string? valueFormatString = null
+      , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
         where TKey : struct, TKRevealBase
         where TValue : struct, TVRevealBase
@@ -411,7 +474,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         else { keyStyler(key.Value, typeMold.Master); }
         typeMold.FieldEnd();
         if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-        else { valueStyler(value.Value, typeMold.Master); }
+        else
+        {
+            FormatFieldContents(typeMold.Master, value.Value, valueStyler, valueFormatString, valueFlags);
+        }
         return typeMold;
     }
 

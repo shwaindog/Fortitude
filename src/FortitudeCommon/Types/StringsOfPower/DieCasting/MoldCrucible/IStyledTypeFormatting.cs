@@ -65,50 +65,92 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
       , TKey key, TValue value, int retrieveCount, string? valueFormatString = null, string? keyFormatString = null
       , FormatFlags valueFlags = DefaultCallerTypeFlags) where TMold : TypeMolder;
 
-    ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
-      , TKey key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler, string? keyFormatString = null
-      , FormatFlags valueFlags = DefaultCallerTypeFlags)
+    ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(
+      ITypeMolderDieCast<TMold> typeMold
+    , Type keyedCollectionType
+    , TKey key
+    , TValue? value
+    , int retrieveCount
+    , PalantírReveal<TVRevealBase> valueStyler
+    , string? keyFormatString = null
+    , string? valueFormatString = null
+    , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder 
         where TValue : TVRevealBase?
         where TVRevealBase : notnull;
 
-    ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
-      , TKey key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler, string? keyFormatString = null
-      , FormatFlags valueFlags = DefaultCallerTypeFlags)
+    ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(
+      ITypeMolderDieCast<TMold> typeMold
+    , Type keyedCollectionType
+    , TKey key
+    , TValue? value
+    , int retrieveCount
+    , PalantírReveal<TVRevealBase> valueStyler
+    , string? keyFormatString = null
+    , string? valueFormatString = null
+    , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder 
         where TValue : struct, TVRevealBase
         where TVRevealBase : notnull;
 
-    ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
-    , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler
-    , PalantírReveal<TKRevealBase> keyStyler, FormatFlags valueFlags = DefaultCallerTypeFlags)
+    ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
+      ITypeMolderDieCast<TMold> typeMold
+    , Type keyedCollectionType
+    , TKey key
+    , TValue? value
+    , int retrieveCount
+    , PalantírReveal<TVRevealBase> valueStyler
+    , PalantírReveal<TKRevealBase> keyStyler
+    , string? valueFormatString = null
+    , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
         where TKey : TKRevealBase? 
         where TValue : TVRevealBase? 
         where TKRevealBase : notnull
         where TVRevealBase : notnull;
 
-    ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
-    , Type keyedCollectionType, TKey? key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler
-    , PalantírReveal<TKRevealBase> keyStyler, FormatFlags valueFlags = DefaultCallerTypeFlags)
+    ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
+      ITypeMolderDieCast<TMold> typeMold
+    , Type keyedCollectionType
+    , TKey? key
+    , TValue? value
+    , int retrieveCount
+    , PalantírReveal<TVRevealBase> valueStyler
+    , PalantírReveal<TKRevealBase> keyStyler
+    , string? valueFormatString = null
+    , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
         where TKey : struct, TKRevealBase 
         where TValue : TVRevealBase? 
         where TKRevealBase : notnull
         where TVRevealBase : notnull;
 
-    ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
-    , Type keyedCollectionType, TKey key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler
-    , PalantírReveal<TKRevealBase> keyStyler, FormatFlags valueFlags = DefaultCallerTypeFlags)
+    ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
+      ITypeMolderDieCast<TMold> typeMold
+    , Type keyedCollectionType
+    , TKey key
+    , TValue? value
+    , int retrieveCount
+    , PalantírReveal<TVRevealBase> valueStyler
+    , PalantírReveal<TKRevealBase> keyStyler
+    , string? valueFormatString = null
+    , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
         where TKey : TKRevealBase? 
         where TValue : struct, TVRevealBase 
         where TKRevealBase : notnull
         where TVRevealBase : notnull;
 
-    ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(ITypeMolderDieCast<TMold> typeMold
-    , Type keyedCollectionType, TKey? key, TValue? value, int retrieveCount, PalantírReveal<TVRevealBase> valueStyler
-    , PalantírReveal<TKRevealBase> keyStyler, FormatFlags valueFlags = DefaultCallerTypeFlags)
+    ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
+      ITypeMolderDieCast<TMold> typeMold
+    , Type keyedCollectionType
+    , TKey? key
+    , TValue? value
+    , int retrieveCount
+    , PalantírReveal<TVRevealBase> valueStyler
+    , PalantírReveal<TKRevealBase> keyStyler
+    , string? valueFormatString = null
+    , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
         where TKey : struct, TKRevealBase 
         where TValue : struct, TVRevealBase 

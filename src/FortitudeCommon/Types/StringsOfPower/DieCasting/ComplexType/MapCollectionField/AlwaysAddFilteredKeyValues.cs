@@ -197,27 +197,30 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase
         where TValue : TVFilterBase?, TVRevealBase?
         where TVRevealBase : notnull =>
-        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyFormatString, formatFlags);
+        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
     public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value
       , KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
       , PalantírReveal<TValue> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase
         where TValue : struct =>
-        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyFormatString, formatFlags);
+        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
     public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?
         where TValue : TVFilterBase?, TVRevealBase?
@@ -244,14 +247,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -260,6 +263,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
       , PalantírReveal<TValue> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?
         where TValue : struct
@@ -285,14 +289,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -301,6 +305,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?
         where TValue : TVFilterBase?, TVRevealBase?
@@ -327,14 +332,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -343,6 +348,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
       , PalantírReveal<TValue> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?
         where TValue : struct
@@ -368,14 +374,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -384,6 +390,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
       , PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?
         where TValue : TVFilterBase?, TVRevealBase?
@@ -412,14 +419,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     }
                     break;
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -428,6 +435,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
       , PalantírReveal<TValue> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?
         where TValue : struct
@@ -455,14 +463,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     }
                     break;
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -470,6 +478,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value
       , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate, PalantírReveal<TVRevealBase> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?
         where TValue : TVFilterBase?, TVRevealBase?
@@ -508,7 +517,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                         }
                         break;
                     }
-                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
+                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
                     if (filterResult is { KeepProcessing: false }) break;
                     skipCount = filterResult.SkipNextCount;
                     hasValue  = value.MoveNext();
@@ -517,7 +526,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -525,6 +534,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     (string fieldName, IEnumerator<KeyValuePair<TKey, TValue?>>? value
       , KeyValuePredicate<TKFilterBase, TValue?> filterPredicate, PalantírReveal<TValue> valueRevealer
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?
         where TValue : struct
@@ -562,7 +572,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                         }
                         break;
                     }
-                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString);
+                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
                     if (filterResult is { KeepProcessing: false }) break;
                     skipCount = filterResult.SkipNextCount;
                     hasValue  = value.MoveNext();
@@ -571,32 +581,44 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
-      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
+    public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>(
+        string fieldName
+      , IReadOnlyDictionary<TKey, TValue>? value
+      , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueRevealer
+      , PalantírReveal<TKRevealBase> keyRevealer
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase, TKRevealBase
         where TValue : TVFilterBase?, TVRevealBase?
         where TKRevealBase : notnull
         where TVRevealBase : notnull =>
-        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyRevealer, formatFlags);
+        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>
-    (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
-      , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
+    public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>(
+        string fieldName
+      , IReadOnlyDictionary<TKey, TValue?>? value
+      , KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
+      , PalantírReveal<TValue> valueRevealer
+      , PalantírReveal<TKRevealBase> keyRevealer
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase, TKRevealBase
         where TValue : struct
         where TKRevealBase : notnull =>
-        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyRevealer, formatFlags);
+        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
-    (string fieldName, KeyValuePair<TKey, TValue>[]? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
-      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
+    public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>(
+        string fieldName
+      , KeyValuePair<TKey, TValue>[]? value
+      , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueRevealer
+      , PalantírReveal<TKRevealBase> keyRevealer
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?, TKRevealBase?
         where TValue : TVFilterBase?, TVRevealBase?
@@ -624,20 +646,24 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered<TKey, TValue, TVFilterBase, TVRevealBase>
-    (string fieldName, KeyValuePair<TKey?, TValue>[]? value, KeyValuePredicate<TKey?, TVFilterBase> filterPredicate
-      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKey> keyRevealer
+    public TExt AlwaysAddFiltered<TKey, TValue, TVFilterBase, TVRevealBase>(
+        string fieldName
+      , KeyValuePair<TKey?, TValue>[]? value
+      , KeyValuePredicate<TKey?, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueRevealer
+      , PalantírReveal<TKey> keyRevealer
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : TVFilterBase?, TVRevealBase?
@@ -664,20 +690,24 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>
-    (string fieldName, KeyValuePair<TKey, TValue?>[]? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
-      , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
+    public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>(
+        string fieldName
+      , KeyValuePair<TKey, TValue?>[]? value
+      , KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
+      , PalantírReveal<TValue> valueRevealer
+      , PalantírReveal<TKRevealBase> keyRevealer
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?, TKRevealBase?
         where TValue : struct
@@ -704,20 +734,23 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered<TKey, TValue>
-    (string fieldName, KeyValuePair<TKey?, TValue?>[]? value, KeyValuePredicate<TKey?, TValue?> filterPredicate
-      , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKey> keyRevealer
+    public TExt AlwaysAddFiltered<TKey, TValue>(string fieldName
+      , KeyValuePair<TKey?, TValue?>[]? value
+      , KeyValuePredicate<TKey?, TValue?> filterPredicate
+      , PalantírReveal<TValue> valueRevealer
+      , PalantírReveal<TKey> keyRevealer
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : struct
@@ -743,20 +776,24 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>
-    (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
-      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
+    public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>(
+        string fieldName
+      , IReadOnlyList<KeyValuePair<TKey, TValue>>? value
+      , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueRevealer
+      , PalantírReveal<TKRevealBase> keyRevealer
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?, TKRevealBase?
         where TValue : TVFilterBase?, TVRevealBase?
@@ -784,20 +821,24 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered<TKey, TValue, TVFilterBase, TVRevealBase>
-    (string fieldName, IReadOnlyList<KeyValuePair<TKey?, TValue>>? value, KeyValuePredicate<TKey?, TVFilterBase> filterPredicate
-      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKey> keyRevealer
+    public TExt AlwaysAddFiltered<TKey, TValue, TVFilterBase, TVRevealBase>(
+        string fieldName
+      , IReadOnlyList<KeyValuePair<TKey?, TValue>>? value
+      , KeyValuePredicate<TKey?, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueRevealer
+      , PalantírReveal<TKey> keyRevealer
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : TVFilterBase?, TVRevealBase?
@@ -824,20 +865,24 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>
-    (string fieldName, IReadOnlyList<KeyValuePair<TKey, TValue?>>? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
-      , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
+    public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>(
+        string fieldName
+      , IReadOnlyList<KeyValuePair<TKey, TValue?>>? value
+      , KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
+      , PalantírReveal<TValue> valueRevealer
+      , PalantírReveal<TKRevealBase> keyRevealer
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?, TKRevealBase?
         where TValue : struct
@@ -864,20 +909,24 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFiltered<TKey, TValue>
-    (string fieldName, IReadOnlyList<KeyValuePair<TKey?, TValue?>>? value, KeyValuePredicate<TKey?, TValue?> filterPredicate
-      , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKey> keyRevealer
+    public TExt AlwaysAddFiltered<TKey, TValue>(
+        string fieldName
+      , IReadOnlyList<KeyValuePair<TKey?, TValue?>>? value
+      , KeyValuePredicate<TKey?, TValue?> filterPredicate
+      , PalantírReveal<TValue> valueRevealer
+      , PalantírReveal<TKey> keyRevealer
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : struct
@@ -903,20 +952,24 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
-    (string fieldName, IEnumerable<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
-      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
+    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>(
+        string fieldName
+      , IEnumerable<KeyValuePair<TKey, TValue>>? value
+      , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueRevealer
+      , PalantírReveal<TKRevealBase> keyRevealer
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?, TKRevealBase?
         where TValue : TVFilterBase?, TVRevealBase?
@@ -946,20 +999,24 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     }
                     break;
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TVFilterBase, TVRevealBase>
-    (string fieldName, IEnumerable<KeyValuePair<TKey?, TValue>>? value, KeyValuePredicate<TKey?, TVFilterBase> filterPredicate
-      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKey> keyRevealer
+    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TVFilterBase, TVRevealBase>(
+        string fieldName
+      , IEnumerable<KeyValuePair<TKey?, TValue>>? value
+      , KeyValuePredicate<TKey?, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueRevealer
+      , PalantírReveal<TKey> keyRevealer
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : TVFilterBase?, TVRevealBase?
@@ -988,20 +1045,24 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     }
                     break;
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TKRevealBase>
-    (string fieldName, IEnumerable<KeyValuePair<TKey, TValue?>>? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
-      , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
+    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TKRevealBase>(
+        string fieldName
+      , IEnumerable<KeyValuePair<TKey, TValue?>>? value
+      , KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
+      , PalantírReveal<TValue> valueRevealer
+      , PalantírReveal<TKRevealBase> keyRevealer
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?, TKRevealBase?
         where TValue : struct
@@ -1030,20 +1091,24 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     }
                     break;
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TKey, TValue>
-    (string fieldName, IEnumerable<KeyValuePair<TKey?, TValue?>>? value, KeyValuePredicate<TKey?, TValue?> filterPredicate
-      , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKey> keyRevealer
+    public TExt AlwaysAddFilteredEnumerate<TKey, TValue>(
+        string fieldName
+      , IEnumerable<KeyValuePair<TKey?, TValue?>>? value
+      , KeyValuePredicate<TKey?, TValue?> filterPredicate
+      , PalantírReveal<TValue> valueRevealer
+      , PalantírReveal<TKey> keyRevealer
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : struct
@@ -1071,20 +1136,24 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     }
                     break;
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
-    (string fieldName, IEnumerator<KeyValuePair<TKey, TValue>>? value, KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
-      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
+    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>(
+        string fieldName
+      , IEnumerator<KeyValuePair<TKey, TValue>>? value
+      , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueRevealer
+      , PalantírReveal<TKRevealBase> keyRevealer
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?, TKRevealBase?
         where TValue : TVFilterBase?, TVRevealBase?
@@ -1123,7 +1192,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                         }
                         break;
                     }
-                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
+                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
                     if (filterResult is { KeepProcessing: false }) break;
                     skipCount = filterResult.SkipNextCount;
                     hasValue  = value.MoveNext();
@@ -1132,13 +1201,17 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TVFilterBase, TVRevealBase>
-    (string fieldName, IEnumerator<KeyValuePair<TKey?, TValue>>? value, KeyValuePredicate<TKey?, TVFilterBase> filterPredicate
-      , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKey> keyRevealer
+    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TVFilterBase, TVRevealBase>(
+        string fieldName
+      , IEnumerator<KeyValuePair<TKey?, TValue>>? value
+      , KeyValuePredicate<TKey?, TVFilterBase> filterPredicate
+      , PalantírReveal<TVRevealBase> valueRevealer
+      , PalantírReveal<TKey> keyRevealer
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : TVFilterBase?, TVRevealBase?
@@ -1176,7 +1249,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                         }
                         break;
                     }
-                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
+                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
                     if (filterResult is { KeepProcessing: false }) break;
                     skipCount = filterResult.SkipNextCount;
                     hasValue  = value.MoveNext();
@@ -1185,13 +1258,17 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TKRevealBase>
-    (string fieldName, IEnumerator<KeyValuePair<TKey, TValue?>>? value, KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
-      , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer
+    public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TKRevealBase>(
+        string fieldName
+      , IEnumerator<KeyValuePair<TKey, TValue?>>? value
+      , KeyValuePredicate<TKFilterBase, TValue?> filterPredicate
+      , PalantírReveal<TValue> valueRevealer
+      , PalantírReveal<TKRevealBase> keyRevealer
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase?, TKRevealBase?
         where TValue : struct
@@ -1229,7 +1306,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                         }
                         break;
                     }
-                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
+                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
                     if (filterResult is { KeepProcessing: false }) break;
                     skipCount = filterResult.SkipNextCount;
                     hasValue  = value.MoveNext();
@@ -1238,13 +1315,16 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddFilteredEnumerate<TKey, TValue>
-    (string fieldName, IEnumerator<KeyValuePair<TKey?, TValue?>>? value, KeyValuePredicate<TKey?, TValue?> filterPredicate
-      , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKey> keyRevealer
+    public TExt AlwaysAddFilteredEnumerate<TKey, TValue>(string fieldName
+      , IEnumerator<KeyValuePair<TKey?, TValue?>>? value
+      , KeyValuePredicate<TKey?, TValue?> filterPredicate
+      , PalantírReveal<TValue> valueRevealer
+      , PalantírReveal<TKey> keyRevealer
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : struct
         where TValue : struct
@@ -1281,7 +1361,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                         }
                         break;
                     }
-                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer);
+                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
                     if (filterResult is { KeepProcessing: false }) break;
                     skipCount = filterResult.SkipNextCount;
                     hasValue  = value.MoveNext();
@@ -1290,7 +1370,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
         return stb.AddGoToNext();
     }
 }
