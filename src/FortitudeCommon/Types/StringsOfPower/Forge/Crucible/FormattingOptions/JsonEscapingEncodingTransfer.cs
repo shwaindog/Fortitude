@@ -540,9 +540,9 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
         return countAdded;
     }
 
-    public virtual int Transfer(ReadOnlySpan<char> source, IStringBuilder destSb, int destStartIndex = int.MaxValue)
+    public virtual int AppendTransfer(ReadOnlySpan<char> source, IStringBuilder destSb)
     {
-        return JsEscapingTransfer(source, 0, destSb, destStartIndex);
+        return JsEscapingTransfer(source, 0, destSb, destSb.Length);
     }
 
     public virtual int InsertTransfer(ReadOnlySpan<char> source, IStringBuilder destSb, int destStartIndex)
@@ -550,7 +550,12 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
         return JsEscapingTransfer(source, 0, destSb, destStartIndex, isInsert: true);
     }
 
-    public virtual int Transfer(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex
+    public virtual int OverwriteTransfer(ReadOnlySpan<char> source, IStringBuilder destSb, int destStartIndex)
+    {
+        return JsEscapingTransfer(source, 0, destSb, destStartIndex);
+    }
+
+    public virtual int OverwriteTransfer(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex
       , int maxTransferCount = int.MaxValue)
     {
         return JsEscapingTransfer(source, 0, destSpan, destStartIndex, maxTransferCount);
@@ -562,16 +567,34 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
         return JsEscapingTransfer(source, 0, destSpan, destStartIndex, preAppendDestSpanEnd: currentEndIndex, isInsert: true);
     }
 
-    public virtual int Transfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder destSb
-      , int destStartIndex = int.MaxValue, int maxTransferCount = int.MaxValue)
+    public virtual int AppendTransfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder destSb
+      , int maxTransferCount = int.MaxValue)
+    {
+        return JsEscapingTransfer(source, sourceFrom, destSb, destSb.Length, maxTransferCount);
+    }
+
+    public virtual int InsertTransfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder destSb
+      , int destStartIndex, int maxTransferCount = int.MaxValue)
+    {
+        return JsEscapingTransfer(source, sourceFrom, destSb, destStartIndex, maxTransferCount, true);
+    }
+
+    public virtual int OverwriteTransfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder destSb
+      , int destStartIndex, int maxTransferCount = int.MaxValue)
     {
         return JsEscapingTransfer(source, sourceFrom, destSb, destStartIndex, maxTransferCount);
     }
 
-    public virtual int Transfer(ReadOnlySpan<char> source, int sourceFrom, Span<char> destSpan, int destStartIndex
+    public virtual int OverwriteTransfer(ReadOnlySpan<char> source, int sourceFrom, Span<char> destSpan, int destStartIndex
       , int maxTransferCount = int.MaxValue)
     {
         return JsEscapingTransfer(source, sourceFrom, destSpan, destStartIndex, maxTransferCount);
+    }
+
+    public virtual int InsertTransfer(ReadOnlySpan<char> source, int sourceFrom, Span<char> destSpan, int destStartIndex
+      , int currentEndIndex, int maxTransferCount = int.MaxValue)
+    {
+        return JsEscapingTransfer(source, sourceFrom, destSpan, destStartIndex, maxTransferCount, currentEndIndex, true);
     }
 
     protected int CountEncodedChars(Rune toMap, Span<char> dummyBuffer)

@@ -39,7 +39,7 @@ public interface ITheOneString : IReusableObject<ITheOneString>
 
     TypeMolder? CurrentTypeBuilder { get; }
 
-    IStyledTypeFormatting CurrentStyledTypeFormatter { get; }
+    IStyledTypeFormatting CurrentStyledTypeFormatter { get; set; }
 
     ITheOneString ReInitialize(IStringBuilder usingStringBuilder, StringStyle buildStyle = StringStyle.CompactLog);
 
@@ -64,13 +64,15 @@ public interface ITheOneString : IReusableObject<ITheOneString>
     SimpleOrderedCollectionMold StartSimpleCollectionType<T>(T toStyle, CreateContext createContext = default);
 
     ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(Span<TElement> toStyle, CreateContext createContext = default);
-    
+
     ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(Span<TElement?> toStyle, CreateContext createContext = default)
         where TElement : struct;
-    
-    ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(ReadOnlySpan<TElement> toStyle, CreateContext createContext = default);
-    
-    ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(ReadOnlySpan<TElement?> toStyle, CreateContext createContext = default)
+
+    ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(ReadOnlySpan<TElement> toStyle
+      , CreateContext createContext = default);
+
+    ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(ReadOnlySpan<TElement?> toStyle
+      , CreateContext createContext = default)
         where TElement : struct;
 
     ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<T, TElement>(T toStyle, CreateContext createContext = default);
@@ -116,8 +118,8 @@ public interface ISecretStringOfPower : ITheOneString
     StateExtractStringRange RegisterVisitedInstanceAndConvert(object obj, bool isKeyName, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    bool RegisterVisitedCheckCanContinue<T>(T guest);
-    int  EnsureRegisteredVisited<T>(T guest);
+    bool RegisterVisitedCheckCanContinue<T>(T guest, FormatFlags formatFlags);
+    int  EnsureRegisteredVisited<T>(T guest, FormatFlags formatFlags);
 
     void TypeComplete(ITypeMolderDieCast completeType);
 
@@ -147,6 +149,8 @@ public readonly struct CallContextDisposable
             stringMaster.Settings.CopyFrom(toRestoreOnDispose);
             if (formattingState != null)
             {
+                stringMaster.CurrentStyledTypeFormatter = formattingState.Value.StyleFormatter;
+
                 stringMaster.GraphBuilder.GraphEncoder                   = formattingState.Value.GraphEncoder;
                 stringMaster.GraphBuilder.ParentGraphEncoder             = formattingState.Value.ParentGraphEncoder;
                 stringMaster.Settings.StyledTypeFormatter.ContentEncoder = formattingState.Value.StringEncoder;
@@ -172,21 +176,41 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     private MoldDieCastSettings? nextTypeAppendSettings;
 
-    protected List<GraphNodeVisit> OrderedObjectGraph = new(16);
+    protected readonly List<GraphNodeVisit> OrderedObjectGraph = new(16);
 
     protected IStringBuilder? Sb;
     private   CallerContext   callerContext;
 
-    private StyleOptions? settings = new(new StyleOptionsValue());
+    private StyleOptions?         settings = new(new StyleOptionsValue());
+    private GraphTrackingBuilder? graphBuilder;
 
     public TheOneString()
     {
-        Settings.Style = StringStyle.CompactLog;
+        if (DefaultSettings == null)
+        {
+            Settings.Style     = StringStyle.CompactLog;
+            Settings.Formatter = CurrentStyledTypeFormatter;
+        }
+        else
+        {
+            Settings.Values    = DefaultSettings.Values;
+            Settings.Formatter = CurrentStyledTypeFormatter;
+        }
     }
 
     public TheOneString(StringStyle withStyle)
     {
-        Settings.Style = withStyle;
+        if (DefaultSettings == null)
+        {
+            Settings.Style     = withStyle;
+            Settings.Formatter = CurrentStyledTypeFormatter;
+        }
+        else
+        {
+            Settings.Values    = DefaultSettings.Values;
+            Settings.Style     = withStyle;
+            Settings.Formatter = CurrentStyledTypeFormatter;
+        }
     }
 
     public TheOneString(TheOneString toClone)
@@ -196,8 +220,16 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         initialAppendSettings  = toClone.initialAppendSettings;
         nextTypeAppendSettings = toClone.nextTypeAppendSettings;
 
-        Settings.Style     = toClone.Style;
-        Settings.Formatter = CurrentStyledTypeFormatter;
+        if (DefaultSettings == null)
+        {
+            Settings.Style     = toClone.Style;
+            Settings.Formatter = toClone.Formatter;
+        }
+        else
+        {
+            Settings.Values    = DefaultSettings.Values;
+            Settings.Formatter = DefaultSettings.Formatter;
+        }
     }
 
     public TheOneString(ITheOneString toClone)
@@ -205,7 +237,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         Sb = BufferFactory();
         Sb.Append(toClone.WriteBuffer);
 
-        Settings.Style     = toClone.Style;
+        Settings.Values    = toClone.Settings.Values;
         Settings.Formatter = CurrentStyledTypeFormatter;
     }
 
@@ -215,8 +247,8 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         Sb = SourceStringBuilder();
 
         Settings.Style = buildStyle;
-        
-        
+
+
         ClearObjectVisitedGraph();
         Settings.Formatter = CurrentStyledTypeFormatter;
 
@@ -255,7 +287,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     }
 
 
-    public static StyleOptions DefaultSettings { get; set; } = new(new StyleOptionsValue());
+    public static StyleOptions? DefaultSettings { get; set; }
 
     public bool UseReferenceEqualsForVisited { get; set; }
 
@@ -281,7 +313,11 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         set => callerContext = value;
     }
 
-    public GraphTrackingBuilder GraphBuilder { get; set; } = new();
+    public GraphTrackingBuilder GraphBuilder
+    {
+        get => graphBuilder ??= Recycler.Borrow<GraphTrackingBuilder>().Initialize(Settings);
+        set => graphBuilder = value;
+    }
 
     public ICustomStringFormatter Formatter
     {
@@ -289,7 +325,11 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         set => Settings.Formatter = value;
     }
 
-    public IStyledTypeFormatting CurrentStyledTypeFormatter => (IStyledTypeFormatting)Formatter;
+    public IStyledTypeFormatting CurrentStyledTypeFormatter
+    {
+        get => (IStyledTypeFormatting)Formatter;
+        set => Formatter = value;
+    }
 
     public void SetCallerFormatFlags(FormatFlags callerContentHandler)
     {
@@ -309,15 +349,17 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     public ITheOneString ReInitialize(IStringBuilder usingStringBuilder, StringStyle buildStyle = StringStyle.CompactLog)
     {
         Sb?.DecrementRefCount();
-        Sb             = usingStringBuilder;
+
+        Sb = usingStringBuilder;
+
         Settings.Style = buildStyle;
 
         CallerContext = new CallerContext();
 
-        Settings.Formatter              = Settings.Formatter ?? this.ResolveStyleFormatter();
-        GraphBuilder.Reset();
-        
-        
+        Settings.Formatter = Settings.Formatter ?? this.ResolveStyleFormatter();
+        GraphBuilder.StateReset();
+
+
         ClearObjectVisitedGraph();
         Settings.Formatter = CurrentStyledTypeFormatter;
 
@@ -337,9 +379,9 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
         CallerContext = new CallerContext();
 
-        Settings.Formatter              = Settings.Formatter ?? this.ResolveStyleFormatter();
-        GraphBuilder.Reset();
-        
+        Settings.Formatter = Settings.Formatter ?? this.ResolveStyleFormatter();
+        GraphBuilder.StateReset();
+
         Settings.StyledTypeFormatter.GraphBuilder = GraphBuilder;
 
         return ClearVisitHistory();
@@ -358,9 +400,9 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
         CallerContext = new CallerContext();
 
-        Settings.Formatter              = Settings.Formatter ?? this.ResolveStyleFormatter();
-        GraphBuilder.Reset();
-        
+        Settings.Formatter = Settings.Formatter ?? this.ResolveStyleFormatter();
+        GraphBuilder.StateReset();
+
         Settings.StyledTypeFormatter.GraphBuilder = GraphBuilder;
 
         return ClearVisitHistory();
@@ -379,9 +421,9 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
         CallerContext = new CallerContext();
 
-        Settings.Formatter              = Settings.Formatter ?? this.ResolveStyleFormatter();
-        GraphBuilder.Reset();
-        
+        Settings.Formatter = Settings.Formatter ?? this.ResolveStyleFormatter();
+        GraphBuilder.StateReset();
+
         Settings.StyledTypeFormatter.GraphBuilder = GraphBuilder;
 
         return ClearVisitHistory();
@@ -394,7 +436,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         Sb ??= BufferFactory();
 
         CallerContext = new CallerContext();
-        GraphBuilder.Reset();
+        GraphBuilder.StateReset();
 
 
         return ClearVisitHistory();
@@ -416,7 +458,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var type           = obj.GetType();
-        var existingRefId  = SourceGraphVisitRefId(obj, type);
+        var existingRefId  = SourceGraphVisitRefId(obj, type, formatFlags);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
 
         return existingRefId > 0 || remainingDepth <= 0
@@ -424,34 +466,36 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
             : StartSimpleContentType(obj).AsValueMatch(obj, formatString, formatFlags).Complete();
     }
 
-    public bool RegisterVisitedCheckCanContinue<T>(T guest)
+    public bool RegisterVisitedCheckCanContinue<T>(T guest, FormatFlags formatFlags)
     {
         var type = guest?.GetType() ?? typeof(T);
 
-        var existingRefId = SourceGraphVisitRefId(guest, type);
+        var existingRefId = SourceGraphVisitRefId(guest, type, formatFlags);
         if (existingRefId > 0)
         {
-            StartComplexContentType(guest).AsStringOrNull("", "").Complete();
+            StartComplexContentType(guest, formatFlags).AsStringOrNull("", "").Complete();
             return false;
         }
 
         GraphNodeVisit newVisit;
+        var fmtState = new FormattingState
+            ((CurrentNode?.GraphDepth ?? -1) + 1
+           , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1, formatFlags
+           , IndentLevel, Settings.IndentSize, CurrentStyledTypeFormatter, GraphBuilder.GraphEncoder
+           , GraphBuilder.ParentGraphEncoder);
         if (type.IsValueType)
         {
             var storageContainer = Recycler.Borrow<RecyclableContainer<T>>().Initialize(guest);
 
-            newVisit = new GraphNodeVisit
-                (OrderedObjectGraph.Count, CurrentGraphNodeIndex, type, false, storageContainer, (CurrentNode?.GraphDepth ?? -1) + 1
-               , IndentLevel, Sb!.Length
-               , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1);
+            newVisit = new GraphNodeVisit(OrderedObjectGraph.Count, CurrentGraphNodeIndex, type, false
+                                        , storageContainer, Sb!.Length, fmtState);
 
             storageContainer.DecrementRefCount();
         }
         else
         {
-            newVisit = new GraphNodeVisit(OrderedObjectGraph.Count, CurrentGraphNodeIndex, type, false, guest, (CurrentNode?.GraphDepth ?? -1) + 1
-                                        , IndentLevel, Sb!.Length
-                                        , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1);
+            newVisit = new GraphNodeVisit(OrderedObjectGraph.Count, CurrentGraphNodeIndex, type, false
+                                        , guest, Sb!.Length, fmtState);
         }
 
         if (newVisit.ObjVisitIndex != OrderedObjectGraph.Count) throw new ArgumentException("ObjVisitIndex to be the size of OrderedObjectGraph");
@@ -462,30 +506,31 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         return true;
     }
 
-    public int EnsureRegisteredVisited<T>(T guest)
+    public int EnsureRegisteredVisited<T>(T guest, FormatFlags formatFlags)
     {
         var type = guest?.GetType() ?? typeof(T);
 
         var firstVisitedIndex = IndexOfInstanceVisitFromEnd(guest, type);
         if (firstVisitedIndex >= 0) { return firstVisitedIndex; }
         GraphNodeVisit newVisit;
+        var fmtState = new FormattingState
+            ((CurrentNode?.GraphDepth ?? -1) + 1
+           , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1, formatFlags
+           , IndentLevel, Settings.IndentSize, CurrentStyledTypeFormatter, GraphBuilder.GraphEncoder
+           , GraphBuilder.ParentGraphEncoder);
         if (type.IsValueType)
         {
             var storageContainer = Recycler.Borrow<RecyclableContainer<T>>().Initialize(guest);
 
-            newVisit = new GraphNodeVisit
-                (OrderedObjectGraph.Count, CurrentGraphNodeIndex, type, false, storageContainer, (CurrentNode?.GraphDepth ?? -1) + 1
-               , IndentLevel, Sb!.Length
-               , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1);
+            newVisit = new GraphNodeVisit(OrderedObjectGraph.Count, CurrentGraphNodeIndex, type, false
+                                        , storageContainer, Sb!.Length, fmtState);
 
             storageContainer.DecrementRefCount();
         }
         else
         {
-            newVisit = new GraphNodeVisit
-                (OrderedObjectGraph.Count, CurrentGraphNodeIndex, type, false, guest, (CurrentNode?.GraphDepth ?? -1) + 1
-               , IndentLevel, Sb!.Length
-               , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1);
+            newVisit = new GraphNodeVisit(OrderedObjectGraph.Count, CurrentGraphNodeIndex, type, false
+                                        , guest, Sb!.Length, fmtState);
         }
 
         if (newVisit.ObjVisitIndex != OrderedObjectGraph.Count) throw new ArgumentException("ObjVisitIndex to be the size of OrderedObjectGraph");
@@ -500,7 +545,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     {
         var visitType      = typeof(T);
         var actualType     = toStyle?.GetType() ?? visitType;
-        var existingRefId  = SourceGraphVisitRefId(toStyle, visitType);
+        var existingRefId  = SourceGraphVisitRefId(toStyle, visitType, createContext.FormatFlags);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(visitType, CurrentStyledTypeFormatter);
         var appendSettings = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, createContext.FormatFlags);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
@@ -508,7 +553,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
             Recycler.Borrow<KeyedCollectionMold>().InitializeKeyValueCollectionBuilder
                 (actualType, this, appendSettings, createContext.NameOverride
                , remainingDepth, typeFormatter, existingRefId, createContext.FormatFlags);
-        TypeStart(toStyle, keyedCollectionBuilder, actualType);
+        TypeStart(toStyle, keyedCollectionBuilder, actualType, createContext.FormatFlags);
         return keyedCollectionBuilder;
     }
 
@@ -518,7 +563,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var actualType = keyValueContainerInstance.GetType();
         if (!actualType.IsKeyedCollection()) { throw new ArgumentException("Expected keyValueContainerInstance to be a keyed collection type"); }
 
-        var existingRefId  = SourceGraphVisitRefId(keyValueContainerInstance, actualType);
+        var existingRefId  = SourceGraphVisitRefId(keyValueContainerInstance, actualType, createContext.FormatFlags);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
         var appendSettings = GetComplexTypeAppendSettings(keyValueContainerInstance, actualType, typeFormatter, createContext.FormatFlags);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
@@ -526,7 +571,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
             Recycler.Borrow<ExplicitKeyedCollectionMold<TKey, TValue>>().InitializeExplicitKeyValueCollectionBuilder
                 (actualType, this, appendSettings, createContext.NameOverride
                , remainingDepth, typeFormatter, existingRefId, createContext.FormatFlags);
-        TypeStart(keyValueContainerInstance, keyedCollectionBuilder, actualType);
+        TypeStart(keyValueContainerInstance, keyedCollectionBuilder, actualType, createContext.FormatFlags);
         return keyedCollectionBuilder;
     }
 
@@ -534,7 +579,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     {
         var visitType      = typeof(T);
         var actualType     = toStyle?.GetType() ?? visitType;
-        var existingRefId  = SourceGraphVisitRefId(toStyle, visitType);
+        var existingRefId  = SourceGraphVisitRefId(toStyle, visitType, createContext.FormatFlags);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(visitType, CurrentStyledTypeFormatter);
         var appendSettings = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, createContext.FormatFlags);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
@@ -542,7 +587,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
             Recycler.Borrow<SimpleOrderedCollectionMold>().InitializeSimpleOrderedCollectionBuilder
                 (actualType, this, appendSettings, createContext.NameOverride, remainingDepth
                , typeFormatter, existingRefId, createContext.FormatFlags);
-        TypeStart(toStyle, simpleOrderedCollectionBuilder, actualType);
+        TypeStart(toStyle, simpleOrderedCollectionBuilder, actualType, createContext.FormatFlags);
         return simpleOrderedCollectionBuilder;
     }
 
@@ -550,7 +595,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     {
         var visitType      = typeof(T);
         var actualType     = toStyle?.GetType() ?? visitType;
-        var existingRefId  = SourceGraphVisitRefId(toStyle, visitType);
+        var existingRefId  = SourceGraphVisitRefId(toStyle, visitType, createContext.FormatFlags);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(visitType, CurrentStyledTypeFormatter);
         var appendSettings = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, createContext.FormatFlags);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
@@ -558,11 +603,12 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
             Recycler.Borrow<ComplexOrderedCollectionMold>().InitializeComplexOrderedCollectionBuilder
                 (actualType, this, appendSettings, createContext.NameOverride, remainingDepth
                , typeFormatter, existingRefId, createContext.FormatFlags);
-        TypeStart(toStyle, complexOrderedCollectionBuilder, actualType);
+        TypeStart(toStyle, complexOrderedCollectionBuilder, actualType, createContext.FormatFlags);
         return complexOrderedCollectionBuilder;
     }
 
-    public ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(Span<TElement> toStyle, CreateContext createContext = default)
+    public ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(Span<TElement> toStyle
+      , CreateContext createContext = default)
     {
         var visitType      = typeof(Span<TElement>);
         var actualType     = visitType;
@@ -573,11 +619,12 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
             Recycler.Borrow<ExplicitOrderedCollectionMold<TElement>>().InitializeExplicitOrderedCollectionBuilder
                 (actualType, this, appendSettings, createContext.NameOverride, remainingDepth
                , typeFormatter, 0, createContext.FormatFlags);
-        TypeStart(toStyle, explicitOrderedCollectionBuilder, actualType);
+        TypeStart(visitType, explicitOrderedCollectionBuilder, createContext.FormatFlags);
         return explicitOrderedCollectionBuilder;
     }
 
-    public ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(Span<TElement?> toStyle, CreateContext createContext = default)
+    public ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(Span<TElement?> toStyle
+      , CreateContext createContext = default)
         where TElement : struct
     {
         var visitType      = typeof(Span<TElement?>);
@@ -589,7 +636,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
             Recycler.Borrow<ExplicitOrderedCollectionMold<TElement>>().InitializeExplicitOrderedCollectionBuilder
                 (actualType, this, appendSettings, createContext.NameOverride, remainingDepth
                , typeFormatter, 0, createContext.FormatFlags);
-        TypeStart(toStyle, explicitOrderedCollectionBuilder, actualType);
+        TypeStart(visitType, explicitOrderedCollectionBuilder, createContext.FormatFlags);
         return explicitOrderedCollectionBuilder;
     }
 
@@ -605,7 +652,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
             Recycler.Borrow<ExplicitOrderedCollectionMold<TElement>>().InitializeExplicitOrderedCollectionBuilder
                 (actualType, this, appendSettings, createContext.NameOverride, remainingDepth
                , typeFormatter, 0, createContext.FormatFlags);
-        TypeStart(toStyle, explicitOrderedCollectionBuilder, actualType);
+        TypeStart(visitType, explicitOrderedCollectionBuilder, createContext.FormatFlags);
         return explicitOrderedCollectionBuilder;
     }
 
@@ -622,7 +669,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
             Recycler.Borrow<ExplicitOrderedCollectionMold<TElement>>().InitializeExplicitOrderedCollectionBuilder
                 (actualType, this, appendSettings, createContext.NameOverride, remainingDepth
                , typeFormatter, 0, createContext.FormatFlags);
-        TypeStart(toStyle, explicitOrderedCollectionBuilder, actualType);
+        TypeStart(visitType, explicitOrderedCollectionBuilder, createContext.FormatFlags);
         return explicitOrderedCollectionBuilder;
     }
 
@@ -630,7 +677,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     {
         var visitType      = typeof(T);
         var actualType     = toStyle?.GetType() ?? visitType;
-        var existingRefId  = SourceGraphVisitRefId(toStyle, visitType);
+        var existingRefId  = SourceGraphVisitRefId(toStyle, visitType, createContext.FormatFlags);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
         var appendSettings = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, createContext.FormatFlags);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
@@ -638,7 +685,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
             Recycler.Borrow<ExplicitOrderedCollectionMold<TElement>>().InitializeExplicitOrderedCollectionBuilder
                 (actualType, this, appendSettings, createContext.NameOverride, remainingDepth
                , typeFormatter, existingRefId, createContext.FormatFlags);
-        TypeStart(toStyle, explicitOrderedCollectionBuilder, actualType);
+        TypeStart(toStyle, explicitOrderedCollectionBuilder, actualType, createContext.FormatFlags);
         return explicitOrderedCollectionBuilder;
     }
 
@@ -646,7 +693,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
       , CreateContext createContext = default)
     {
         var actualType     = collectionInstance.GetType();
-        var existingRefId  = SourceGraphVisitRefId(collectionInstance, actualType);
+        var existingRefId  = SourceGraphVisitRefId(collectionInstance, actualType, createContext.FormatFlags);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
         var appendSettings = GetComplexTypeAppendSettings(collectionInstance, actualType, typeFormatter, createContext.FormatFlags);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
@@ -654,7 +701,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
             Recycler.Borrow<ExplicitOrderedCollectionMold<TElement>>().InitializeExplicitOrderedCollectionBuilder
                 (actualType, this, appendSettings, createContext.NameOverride, remainingDepth
                , typeFormatter, existingRefId, createContext.FormatFlags);
-        TypeStart(collectionInstance, explicitOrderedCollectionBuilder, actualType);
+        TypeStart(collectionInstance, explicitOrderedCollectionBuilder, actualType, createContext.FormatFlags);
         return explicitOrderedCollectionBuilder;
     }
 
@@ -662,7 +709,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     {
         var visitType      = typeof(T);
         var actualType     = toStyle?.GetType() ?? visitType;
-        var existingRefId  = SourceGraphVisitRefId(toStyle, visitType);
+        var existingRefId  = SourceGraphVisitRefId(toStyle, visitType, createContext.FormatFlags);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
         var appendSettings = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, createContext.FormatFlags);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
@@ -670,7 +717,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
             Recycler.Borrow<ComplexPocoTypeMold>().InitializeComplexTypeBuilder
                 (actualType, this, appendSettings, createContext.NameOverride
                , remainingDepth, typeFormatter, existingRefId, createContext.FormatFlags);
-        TypeStart(toStyle, complexTypeBuilder, actualType);
+        TypeStart(toStyle, complexTypeBuilder, actualType, createContext.FormatFlags);
         return complexTypeBuilder;
     }
 
@@ -678,7 +725,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     {
         var visitType      = typeof(T);
         var actualType     = toStyle?.GetType() ?? visitType;
-        var existingRefId  = SourceGraphVisitRefId(toStyle, visitType);
+        var existingRefId  = SourceGraphVisitRefId(toStyle, visitType, createContext.FormatFlags);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(visitType, CurrentStyledTypeFormatter);
         var appendSettings = GetValueTypeAppendSettings(toStyle, actualType, typeFormatter, createContext.FormatFlags);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
@@ -686,7 +733,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
             Recycler.Borrow<SimpleContentTypeMold>().InitializeSimpleValueTypeBuilder
                 (actualType, this, appendSettings, createContext.NameOverride, remainingDepth
                , typeFormatter, existingRefId, createContext.FormatFlags);
-        TypeStart(toStyle, simpleValueBuilder, actualType);
+        TypeStart(toStyle, simpleValueBuilder, actualType, createContext.FormatFlags);
         return simpleValueBuilder;
     }
 
@@ -694,7 +741,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     {
         var visitType      = typeof(T);
         var actualType     = toStyle?.GetType() ?? visitType;
-        var existingRefId  = SourceGraphVisitRefId(toStyle, visitType);
+        var existingRefId  = SourceGraphVisitRefId(toStyle, visitType, createContext.FormatFlags);
         var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
         var appendSettings = GetValueTypeAppendSettings(toStyle, actualType, typeFormatter, createContext.FormatFlags);
         var remainingDepth = (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1;
@@ -702,7 +749,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
             Recycler.Borrow<ComplexContentTypeMold>().InitializeComplexValueTypeBuilder
                 (actualType, this, appendSettings, createContext.NameOverride, remainingDepth
                , typeFormatter, existingRefId, createContext.FormatFlags);
-        TypeStart(toStyle, complexContentBuilder, actualType);
+        TypeStart(toStyle, complexContentBuilder, actualType, createContext.FormatFlags);
         return complexContentBuilder;
     }
 
@@ -727,7 +774,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
       , IStyledTypeFormatting formatter, FormatFlags formatFlags)
     {
         var nextDieSettings = AppendSettings;
-        nextDieSettings.SkipTypeParts |= formatter.GetNextComplexTypePartFlags(this, forValue, actualType, formatFlags);
+        nextDieSettings.SkipTypeParts |= formatter.GetNextComplexTypePartFlags(this, actualType, formatFlags);
         return nextDieSettings;
     }
 
@@ -735,7 +782,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
       , IStyledTypeFormatting formatter, FormatFlags formatFlags)
     {
         var nextDieSettings = AppendSettings;
-        nextDieSettings.SkipTypeParts |= formatter.GetNextComplexTypePartFlags(this, forValue, actualType, formatFlags);
+        nextDieSettings.SkipTypeParts |= formatter.GetNextComplexTypePartFlags(this, actualType, formatFlags);
         return nextDieSettings;
     }
 
@@ -805,98 +852,63 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     protected int NextRefId() => NextObjVisitedRefId++;
 
-    protected void TypeStart<TElement>(Span<TElement> toStyle, TypeMolder newType, Type typeOfT)
+    protected void TypeStart(Type visitType, TypeMolder typeMold, FormatFlags formatFlags)
     {
-        GraphNodeVisit newVisit;
-            newVisit = new GraphNodeVisit
-                (OrderedObjectGraph.Count, CurrentGraphNodeIndex, typeof(Span<TElement>), newType.IsComplexType
-               , null, (CurrentNode?.GraphDepth ?? -1) + 1
-               , IndentLevel, Sb!.Length
-               , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1)
-                {
-                    TypeBuilderComponentAccess = ((ITypeBuilderComponentSource)newType).MoldState
-                };
+        var fmtState = new FormattingState
+            ((CurrentNode?.GraphDepth ?? -1) + 1
+           , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1, formatFlags
+           , IndentLevel, Settings.IndentSize, CurrentStyledTypeFormatter, GraphBuilder.GraphEncoder
+           , GraphBuilder.ParentGraphEncoder);
+        var newVisit = new GraphNodeVisit(OrderedObjectGraph.Count, CurrentGraphNodeIndex, visitType, typeMold.IsComplexType
+                                        , null, Sb!.Length, fmtState)
+        {
+            TypeBuilderComponentAccess = ((ITypeBuilderComponentSource)typeMold).MoldState
+        };
         if (newVisit.ObjVisitIndex != OrderedObjectGraph.Count) throw new ArgumentException("ObjVisitIndex to be the size of OrderedObjectGraph");
 
-        StartNewVisit(toStyle, newType, newVisit);
+        StartNewVisit(typeMold, newVisit);
     }
 
-    protected void TypeStart<TElement>(ReadOnlySpan<TElement> toStyle, TypeMolder newType, Type typeOfT)
+    protected void TypeStart<T>(T toStyle, TypeMolder typeMold, Type typeOfT, FormatFlags formatFlags)
     {
         GraphNodeVisit newVisit;
-            newVisit = new GraphNodeVisit
-                (OrderedObjectGraph.Count, CurrentGraphNodeIndex, typeof(ReadOnlySpan<TElement>), newType.IsComplexType
-               , null, (CurrentNode?.GraphDepth ?? -1) + 1
-               , IndentLevel, Sb!.Length
-               , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1)
-                {
-                    TypeBuilderComponentAccess = ((ITypeBuilderComponentSource)newType).MoldState
-                };
-        if (newVisit.ObjVisitIndex != OrderedObjectGraph.Count) throw new ArgumentException("ObjVisitIndex to be the size of OrderedObjectGraph");
-
-        StartNewVisit(toStyle, newType, newVisit);
-    }
-
-    protected void TypeStart<T>(T toStyle, TypeMolder newType, Type typeOfT)
-    {
-        GraphNodeVisit newVisit;
+        var fmtState = new FormattingState
+            ((CurrentNode?.GraphDepth ?? -1) + 1
+           , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1, formatFlags
+           , IndentLevel, Settings.IndentSize, CurrentStyledTypeFormatter, GraphBuilder.GraphEncoder
+           , GraphBuilder.ParentGraphEncoder);
         if (typeOfT.IsValueType)
         {
             var storageContainer = Recycler.Borrow<RecyclableContainer<T>>().Initialize(toStyle);
 
-            newVisit = new GraphNodeVisit
-                (OrderedObjectGraph.Count, CurrentGraphNodeIndex, typeof(T), false, storageContainer, (CurrentNode?.GraphDepth ?? -1) + 1
-               , IndentLevel, Sb!.Length
-               , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1);
+            newVisit = new GraphNodeVisit(OrderedObjectGraph.Count, CurrentGraphNodeIndex, typeof(T), false
+                                        , storageContainer, Sb!.Length, fmtState);
 
             storageContainer.DecrementRefCount();
         }
         else
         {
             newVisit = new GraphNodeVisit
-                (OrderedObjectGraph.Count, CurrentGraphNodeIndex, typeof(T), newType.IsComplexType
-               , typeOfT.IsValueType ? null : toStyle, (CurrentNode?.GraphDepth ?? -1) + 1
-               , IndentLevel, Sb!.Length
-               , (CurrentNode?.RemainingGraphDepth ?? Settings.DefaultGraphMaxDepth) - 1)
+                (OrderedObjectGraph.Count, CurrentGraphNodeIndex, typeof(T), typeMold.IsComplexType
+               , typeOfT.IsValueType ? null : toStyle, Sb!.Length, fmtState)
                 {
-                    TypeBuilderComponentAccess = ((ITypeBuilderComponentSource)newType).MoldState
+                    TypeBuilderComponentAccess = ((ITypeBuilderComponentSource)typeMold).MoldState
                 };
         }
         if (newVisit.ObjVisitIndex != OrderedObjectGraph.Count) throw new ArgumentException("ObjVisitIndex to be the size of OrderedObjectGraph");
 
-        StartNewVisit(toStyle, newType, newVisit);
+        StartNewVisit(typeMold, newVisit);
     }
 
-    private void StartNewVisit<TElement>(Span<TElement> toStyle, TypeMolder newType, GraphNodeVisit newVisit)
+    private void StartNewVisit(TypeMolder newType, GraphNodeVisit newVisit)
     {
-        newType.Start();
+        newType.StartTypeOpening();
         newVisit = newVisit.SetBufferFirstFieldStart(Sb!.Length);
 
         if (!IsExemptFromCircularRefNodeTracking(newType.TypeBeingBuilt)) OrderedObjectGraph.Add(newVisit);
 
-        CurrentGraphNodeIndex  = newVisit.ObjVisitIndex;
-        nextTypeAppendSettings = new MoldDieCastSettings(SkipTypeParts.None);
-    }
-
-    private void StartNewVisit<TElement>(ReadOnlySpan<TElement> toStyle, TypeMolder newType, GraphNodeVisit newVisit)
-    {
-        newType.Start();
-        newVisit = newVisit.SetBufferFirstFieldStart(Sb!.Length);
-
-        if (!IsExemptFromCircularRefNodeTracking(newType.TypeBeingBuilt)) OrderedObjectGraph.Add(newVisit);
-
-        CurrentGraphNodeIndex  = newVisit.ObjVisitIndex;
-        nextTypeAppendSettings = new MoldDieCastSettings(SkipTypeParts.None);
-    }
-
-    private void StartNewVisit<T>(T toStyle, TypeMolder newType, GraphNodeVisit newVisit)
-    {
-        newType.Start();
-        newVisit = newVisit.SetBufferFirstFieldStart(Sb!.Length);
-
-        if (!IsExemptFromCircularRefNodeTracking(newType.TypeBeingBuilt)) OrderedObjectGraph.Add(newVisit);
-
-        CurrentGraphNodeIndex  = newVisit.ObjVisitIndex;
+        CurrentGraphNodeIndex = newVisit.ObjVisitIndex;
+        newType.FinishTypeOpening();
         nextTypeAppendSettings = new MoldDieCastSettings(SkipTypeParts.None);
     }
 
@@ -917,9 +929,9 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         }
     }
 
-    private int SourceGraphVisitRefId<T>(T toStyle, Type type)
+    private int SourceGraphVisitRefId<T>(T toStyle, Type type, FormatFlags formatFlags)
     {
-        if (type.IsValueType || IsLastVisitedObject(toStyle)) return 0;
+        if (type.IsValueType || formatFlags.HasNoRevisitCheck() || IsLastVisitedObject(toStyle)) return 0;
         if (toStyle is object objToStyle)
         {
             for (var i = 0; i < OrderedObjectGraph.Count; i++)
@@ -939,9 +951,9 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         return 0;
     }
 
-    private int SourceGraphVisitRefId(object toStyleInstance, Type type)
+    private int SourceGraphVisitRefId(object toStyleInstance, Type type, FormatFlags formatFlags)
     {
-        if (type.IsValueType) return 0;
+        if (type.IsValueType || formatFlags.HasNoRevisitCheck()) return 0;
         for (var i = 0; i < OrderedObjectGraph.Count; i++)
         {
             var graphNodeVisit = OrderedObjectGraph[i];
@@ -971,14 +983,16 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     protected bool HasVisited<TVisited>(TVisited toCheck, Type checkType, GraphNodeVisit checkExisting)
     {
+        if (checkExisting.CreateWithFlags.HasNoRevisitCheck()) return false;
         var hasVisited = false;
         if (!checkType.IsValueType && toCheck is object checkObj)
         {
-            var checkRef = checkExisting.StylingObjInstance;
+            var checkRef = checkExisting.VisitedInstance;
+            if (checkRef == null) return false;
             hasVisited = UseReferenceEqualsForVisited ? ReferenceEquals(checkRef, toCheck) : Equals(checkRef, toCheck);
             if (hasVisited) hasVisited = !IsCallingAsBaseType(checkObj, checkType, checkExisting);
         }
-        else if (checkExisting.StylingObjInstance is RecyclableContainer<TVisited> structContainer) { hasVisited = structContainer.Equals(toCheck); }
+        else if (checkExisting.VisitedInstance is RecyclableContainer<TVisited> structContainer) { hasVisited = structContainer.Equals(toCheck); }
         return hasVisited;
     }
 
@@ -993,35 +1007,21 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     {
         var indexToInsertAt = forThisNode.CurrentBufferFirstFieldStart;
         var refId           = forThisNode.RefId;
-        var refDigitsCount =
-            refId switch
-            {
-                _ when refId < 10   => 1
-              , _ when refId < 100  => 2
-              , _ when refId < 1000 => 3
-              , _                   => 4
-            }; //
+        var fmtState        = forThisNode.FormattingState;
+        var formatter       = forThisNode.FormattingState.Formatter;
 
-        Span<char> idSpan = stackalloc char[refDigitsCount + 8];
-        idSpan.Append("\"$id\":\"");
-        var insert = idSpan[7..];
-        if (refId.TryFormat(insert, out _, ""))
+        var insertGraphBuilder =
+            Recycler.Borrow<GraphTrackingBuilder>()
+                    .InitializeInsertBuilder(WriteBuffer, fmtState.IndentLevel, fmtState.IndentChars, fmtState.GraphEncoder, fmtState.ParentEncoder);
+
+        var charsInserted = formatter.InsertInstanceReferenceId(insertGraphBuilder, refId, indexToInsertAt, fmtState.CreateWithFlags);
+
+        insertGraphBuilder.DecrementRefCount();
+        if (charsInserted == 0) return;
+        for (int i = graphNodeIndex; i < OrderedObjectGraph.Count; i++)
         {
-            idSpan.Append("\"");
-            var shiftBy = idSpan.Length;
-            Sb!.InsertAt(idSpan, indexToInsertAt, shiftBy);
-            shiftBy += CurrentStyledTypeFormatter.InsertFieldSeparatorAt(Sb!, indexToInsertAt + idSpan.Length, Settings
-                                                                       , forThisNode.IndentLevel + 1);
-            for (int i = graphNodeIndex; i < OrderedObjectGraph.Count; i++)
-            {
-                var shiftCharsNode = OrderedObjectGraph[i];
-                OrderedObjectGraph[i] = shiftCharsNode.ShiftTypeBufferIndex(shiftBy);
-            }
-        }
-        else
-        {
-            Debugger.Break();
-            Console.Out.WriteLine("Error could not add $ref:" + refId + " to existing object");
+            var shiftCharsNode = OrderedObjectGraph[i];
+            OrderedObjectGraph[i] = shiftCharsNode.ShiftTypeBufferIndex(charsInserted);
         }
     }
 
@@ -1030,7 +1030,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         for (var i = startToLast.ObjVisitIndex; i < OrderedObjectGraph.Count; i++)
         {
             var checkExisting  = OrderedObjectGraph[i];
-            var checkRef       = checkExisting.StylingObjInstance;
+            var checkRef       = checkExisting.VisitedInstance;
             var isSameInstance = UseReferenceEqualsForVisited ? ReferenceEquals(checkRef, objToStyle) : Equals(checkRef, objToStyle);
             if (isSameInstance)
             {
@@ -1082,6 +1082,18 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     public override string ToString() => WriteBuffer.ToString();
 
+    protected record struct FormattingState
+    (
+        int GraphDepth
+      , int RemainingGraphDepth
+      , FormatFlags CreateWithFlags
+      , int IndentLevel
+      , int IndentChars
+      , IStyledTypeFormatting Formatter
+      , IEncodingTransfer? GraphEncoder
+      , IEncodingTransfer? ParentEncoder
+    );
+
     protected record struct GraphNodeVisit
     {
         public int RefId { get; private init; }
@@ -1092,23 +1104,20 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
           , int ParentVisitIndex
           , Type VistedAsType
           , bool isComplexType
-          , object? StylingObjInstance
-          , int GraphDepth
-          , int IndentLevel
+          , object? VisitedInstance
           , int CurrentBufferTypeStart
-          , int RemainingGraphDepth)
+          , FormattingState FormattingState
+        )
         {
-            this.ObjVisitIndex      = ObjVisitIndex;
-            this.ParentVisitIndex   = ParentVisitIndex;
-            this.VistedAsType       = VistedAsType;
-            IsComplexType           = isComplexType;
-            this.StylingObjInstance = StylingObjInstance;
-            if (StylingObjInstance is IRecyclableObject recyclableObject) { recyclableObject.IncrementRefCount(); }
-            this.GraphDepth             = GraphDepth;
-            this.IndentLevel            = IndentLevel;
+            this.ObjVisitIndex    = ObjVisitIndex;
+            this.ParentVisitIndex = ParentVisitIndex;
+            this.VistedAsType     = VistedAsType;
+            IsValueTYpe           = VistedAsType.IsValueType;
+            IsComplexType         = isComplexType;
+            this.VisitedInstance  = VisitedInstance;
+            if (VisitedInstance is IRecyclableObject recyclableObject) { recyclableObject.IncrementRefCount(); }
             this.CurrentBufferTypeStart = CurrentBufferTypeStart;
-            this.RemainingGraphDepth    = RemainingGraphDepth;
-            IsValueTYpe                 = VistedAsType.IsValueType;
+            this.FormattingState        = FormattingState;
         }
 
         public ITypeMolderDieCast? TypeBuilderComponentAccess { get; init; }
@@ -1167,11 +1176,17 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         public int ParentVisitIndex { get; set; }
         public Type VistedAsType { get; set; }
         public bool IsComplexType { get; set; }
-        public object? StylingObjInstance { get; set; }
-        public int GraphDepth { get; set; }
-        public int IndentLevel { get; set; }
+        public object? VisitedInstance { get; set; }
         public int CurrentBufferTypeStart { get; set; }
-        public int RemainingGraphDepth { get; set; }
+        public FormattingState FormattingState { get; set; }
+        public int GraphDepth => FormattingState.GraphDepth;
+        public int IndentLevel => FormattingState.IndentLevel;
+        public int RemainingGraphDepth => FormattingState.RemainingGraphDepth;
+        public FormatFlags CreateWithFlags => FormattingState.CreateWithFlags;
+
+        public IStyledTypeFormatting? Formatter => FormattingState.Formatter;
+        public IEncodingTransfer? GraphEncoder => FormattingState.GraphEncoder;
+        public IEncodingTransfer? ParentEncoder => FormattingState.ParentEncoder;
 
         public void Reset()
         {
@@ -1179,34 +1194,33 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
             ParentVisitIndex = 0;
             VistedAsType     = typeof(GraphNodeVisit);
             IsComplexType    = false;
-            if (StylingObjInstance is IRecyclableObject recyclableObject) { recyclableObject.DecrementRefCount(); }
-            StylingObjInstance     = null;
-            GraphDepth             = 0;
-            IndentLevel            = 0;
+            if (VisitedInstance is IRecyclableObject recyclableObject) { recyclableObject.DecrementRefCount(); }
+            VisitedInstance        = null;
+            FormattingState        = default;
             CurrentBufferTypeStart = 0;
-            RemainingGraphDepth    = 0;
             IsValueTYpe            = false;
         }
 
+        // ReSharper disable ParameterHidesMember
+        // ReSharper disable InconsistentNaming
         public readonly void Deconstruct(out int ObjVisitIndex
-          , out int ParentVisitIndex
-          , out Type VistedAsType
-          , out bool IsComplexType
-          , out object? StylingObjInstance
-          , out int GraphDepth
-          , out int IndentLevel
-          , out int CurrentBufferTypeStart
-          , out int RemainingGraphDepth)
+              , out int ParentVisitIndex
+              , out Type VistedAsType
+              , out bool IsComplexType
+              , out object? StylingObjInstance
+              , out int CurrentBufferTypeStart
+              , out FormattingState FormattingState
+            )
+            // ReSharper restore ParameterHidesMember
+            // ReSharper restore InconsistentNaming
         {
             ObjVisitIndex          = this.ObjVisitIndex;
             ParentVisitIndex       = this.ParentVisitIndex;
             VistedAsType           = this.VistedAsType;
             IsComplexType          = this.IsComplexType;
-            StylingObjInstance     = this.StylingObjInstance;
-            GraphDepth             = this.GraphDepth;
-            IndentLevel            = this.IndentLevel;
+            StylingObjInstance     = this.VisitedInstance;
             CurrentBufferTypeStart = this.CurrentBufferTypeStart;
-            RemainingGraphDepth    = this.RemainingGraphDepth;
+            FormattingState        = this.FormattingState;
         }
     }
 }

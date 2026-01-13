@@ -682,6 +682,19 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
         set
         {
             values = value;
+            if (formatter != null)
+            {
+                if (value.Style.IsJson() && formatter.FormattingStyle.IsNotJson())
+                {
+                    formatter.DecrementRefCount();
+                    formatter = null;
+                }
+                else if (value.Style.IsLog() && formatter.FormattingStyle.IsNotNone())
+                {
+                    formatter.DecrementRefCount();
+                    formatter = null;
+                }
+            }
 
             value.MyObjInstance = this;
         }

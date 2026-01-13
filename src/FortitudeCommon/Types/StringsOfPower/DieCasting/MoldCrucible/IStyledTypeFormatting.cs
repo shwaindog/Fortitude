@@ -12,148 +12,146 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 public interface IStyledTypeFormatting : ICustomStringFormatter
 {
     string Name { get; }
-    
+
     public GraphTrackingBuilder GraphBuilder { get; set; }
 
     FormatFlags ResolveContentFormattingFlags<T>(IStringBuilder sb, T input, FormatFlags callerFormattingFlags
-    , string formatString = "", bool isFieldName = false);
-    
+      , string formatString = "", bool isFieldName = false);
+
     FormatFlags ResolveContentAsValueFormattingFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = ""
-    , FormatFlags callerFlags = DefaultCallerTypeFlags);
-    
+      , FormatFlags callerFlags = DefaultCallerTypeFlags);
+
     FormatFlags ResolveContentAsStringFormattingFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = ""
-    , FormatFlags callerFlags = DefaultCallerTypeFlags);
+      , FormatFlags callerFlags = DefaultCallerTypeFlags);
 
     ContentSeparatorRanges StartContentTypeOpening(ITypeMolderDieCast moldInternal, FormatFlags formatFlags = DefaultCallerTypeFlags);
     ContentSeparatorRanges FinishContentTypeOpening(ITypeMolderDieCast moldInternal, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    ContentSeparatorRanges StartContentTypeClosing(ITypeMolderDieCast moldInternal);
-    ContentSeparatorRanges FinishContentTypeClosing(ITypeMolderDieCast moldInternal);
+    ContentSeparatorRanges AppendContentTypeClosing(ITypeMolderDieCast moldInternal);
 
     ContentSeparatorRanges StartComplexTypeOpening(ITypeMolderDieCast moldInternal, FormatFlags formatFlags = DefaultCallerTypeFlags);
+
     ContentSeparatorRanges FinishComplexTypeOpening(ITypeMolderDieCast moldInternal, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    SeparatorPaddingRanges AppendFieldValueSeparator(ITypeMolderDieCast moldInternal, FormatFlags formatFlags = DefaultCallerTypeFlags);
-    
-    SkipTypeParts GetNextValueTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FormatFlags formatFlags);
-    SkipTypeParts GetNextComplexTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FormatFlags formatFlags);
-    SkipTypeParts GetNextValueTypePartFlags<TElement>(ITheOneString tos, Span<TElement> forValue, Type actualType, FormatFlags formatFlags);
-    SkipTypeParts GetNextValueTypePartFlags<TElement>(ITheOneString tos, ReadOnlySpan<TElement> forValue, Type actualType, FormatFlags formatFlags);
-    SkipTypeParts GetNextComplexTypePartFlags<TElement>(ITheOneString tos, Span<TElement> forValue, Type actualType, FormatFlags formatFlags);
-    SkipTypeParts GetNextComplexTypePartFlags<TElement>(ITheOneString tos, ReadOnlySpan<TElement> forValue, Type actualType, FormatFlags formatFlags);
+    SeparatorPaddingRanges AppendFieldValueSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    Range? AddNextFieldSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
+    SkipTypeParts          GetNextValueTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FormatFlags formatFlags);
+    SkipTypeParts          GetNextComplexTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FormatFlags formatFlags);
+    SkipTypeParts          GetNextValueTypePartFlags(ITheOneString tos, Type actualType, FormatFlags formatFlags);
+    SkipTypeParts          GetNextComplexTypePartFlags(ITheOneString tos, Type actualType, FormatFlags formatFlags);
+    int                    SizeToNextFieldSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
+    Range?                 AddToNextFieldSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
+    int                    SizeNextFieldPadding(FormatFlags formatFlags = DefaultCallerTypeFlags);
     ContentSeparatorRanges AddNextFieldPadding(FormatFlags formatFlags = DefaultCallerTypeFlags);
-    ContentSeparatorRanges AddNextFieldSeparatorAndPadding(FormatFlags formatFlags = DefaultCallerTypeFlags);
+    ContentSeparatorRanges AddToNextFieldSeparatorAndPadding(FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel);
+    int SizeFieldSeparatorAndPadding(FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    ContentSeparatorRanges StartComplexTypeClosing(ITypeMolderDieCast moldInternal);
-    ContentSeparatorRanges FinishComplexTypeClosing(ITypeMolderDieCast moldInternal);
+    ContentSeparatorRanges AppendComplexTypeClosing(ITypeMolderDieCast moldInternal);
 
     IStringBuilder AppendFormattedNull(IStringBuilder sb, string? formatString, FormatFlags formatFlags = DefaultCallerTypeFlags
-    , bool isFieldName = false);
+      , bool isFieldName = false);
 
     IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType, Type keyType, Type valueType
-    , FormatFlags formatFlags = DefaultCallerTypeFlags);
+      , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     IStringBuilder AppendKeyedCollectionEnd(IStringBuilder sb, Type keyedCollectionType
       , Type keyType, Type valueType, int totalItemCount
-    , FormatFlags formatFlags = DefaultCallerTypeFlags);
+      , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType
       , TKey key, TValue value, int retrieveCount, string? valueFormatString = null, string? keyFormatString = null
       , FormatFlags valueFlags = DefaultCallerTypeFlags) where TMold : TypeMolder;
 
     ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(
-      ITypeMolderDieCast<TMold> typeMold
-    , Type keyedCollectionType
-    , TKey key
-    , TValue? value
-    , int retrieveCount
-    , PalantírReveal<TVRevealBase> valueStyler
-    , string? keyFormatString = null
-    , string? valueFormatString = null
-    , FormatFlags valueFlags = DefaultCallerTypeFlags)
-        where TMold : TypeMolder 
+        ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType
+      , TKey key
+      , TValue? value
+      , int retrieveCount
+      , PalantírReveal<TVRevealBase> valueStyler
+      , string? keyFormatString = null
+      , string? valueFormatString = null
+      , FormatFlags valueFlags = DefaultCallerTypeFlags)
+        where TMold : TypeMolder
         where TValue : TVRevealBase?
         where TVRevealBase : notnull;
 
     ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(
-      ITypeMolderDieCast<TMold> typeMold
-    , Type keyedCollectionType
-    , TKey key
-    , TValue? value
-    , int retrieveCount
-    , PalantírReveal<TVRevealBase> valueStyler
-    , string? keyFormatString = null
-    , string? valueFormatString = null
-    , FormatFlags valueFlags = DefaultCallerTypeFlags)
-        where TMold : TypeMolder 
+        ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType
+      , TKey key
+      , TValue? value
+      , int retrieveCount
+      , PalantírReveal<TVRevealBase> valueStyler
+      , string? keyFormatString = null
+      , string? valueFormatString = null
+      , FormatFlags valueFlags = DefaultCallerTypeFlags)
+        where TMold : TypeMolder
         where TValue : struct, TVRevealBase
         where TVRevealBase : notnull;
 
     ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
-      ITypeMolderDieCast<TMold> typeMold
-    , Type keyedCollectionType
-    , TKey key
-    , TValue? value
-    , int retrieveCount
-    , PalantírReveal<TVRevealBase> valueStyler
-    , PalantírReveal<TKRevealBase> keyStyler
-    , string? valueFormatString = null
-    , FormatFlags valueFlags = DefaultCallerTypeFlags)
+        ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType
+      , TKey key
+      , TValue? value
+      , int retrieveCount
+      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , string? valueFormatString = null
+      , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
-        where TKey : TKRevealBase? 
-        where TValue : TVRevealBase? 
+        where TKey : TKRevealBase?
+        where TValue : TVRevealBase?
         where TKRevealBase : notnull
         where TVRevealBase : notnull;
 
     ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
-      ITypeMolderDieCast<TMold> typeMold
-    , Type keyedCollectionType
-    , TKey? key
-    , TValue? value
-    , int retrieveCount
-    , PalantírReveal<TVRevealBase> valueStyler
-    , PalantírReveal<TKRevealBase> keyStyler
-    , string? valueFormatString = null
-    , FormatFlags valueFlags = DefaultCallerTypeFlags)
+        ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType
+      , TKey? key
+      , TValue? value
+      , int retrieveCount
+      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , string? valueFormatString = null
+      , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
-        where TKey : struct, TKRevealBase 
-        where TValue : TVRevealBase? 
+        where TKey : struct, TKRevealBase
+        where TValue : TVRevealBase?
         where TKRevealBase : notnull
         where TVRevealBase : notnull;
 
     ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
-      ITypeMolderDieCast<TMold> typeMold
-    , Type keyedCollectionType
-    , TKey key
-    , TValue? value
-    , int retrieveCount
-    , PalantírReveal<TVRevealBase> valueStyler
-    , PalantírReveal<TKRevealBase> keyStyler
-    , string? valueFormatString = null
-    , FormatFlags valueFlags = DefaultCallerTypeFlags)
+        ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType
+      , TKey key
+      , TValue? value
+      , int retrieveCount
+      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , string? valueFormatString = null
+      , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
-        where TKey : TKRevealBase? 
-        where TValue : struct, TVRevealBase 
+        where TKey : TKRevealBase?
+        where TValue : struct, TVRevealBase
         where TKRevealBase : notnull
         where TVRevealBase : notnull;
 
     ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
-      ITypeMolderDieCast<TMold> typeMold
-    , Type keyedCollectionType
-    , TKey? key
-    , TValue? value
-    , int retrieveCount
-    , PalantírReveal<TVRevealBase> valueStyler
-    , PalantírReveal<TKRevealBase> keyStyler
-    , string? valueFormatString = null
-    , FormatFlags valueFlags = DefaultCallerTypeFlags)
+        ITypeMolderDieCast<TMold> typeMold
+      , Type keyedCollectionType
+      , TKey? key
+      , TValue? value
+      , int retrieveCount
+      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , string? valueFormatString = null
+      , FormatFlags valueFlags = DefaultCallerTypeFlags)
         where TMold : TypeMolder
-        where TKey : struct, TKRevealBase 
-        where TValue : struct, TVRevealBase 
+        where TKey : struct, TKRevealBase
+        where TValue : struct, TVRevealBase
         where TKRevealBase : notnull
         where TVRevealBase : notnull;
 
@@ -161,7 +159,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
       , Type keyType, Type valueType, int previousItemNumber, FormatFlags valueFlags = DefaultCallerTypeFlags);
 
     IStringBuilder FormatCollectionStart(ITypeMolderDieCast moldInternal, Type itemElementType, bool? hasItems, Type collectionType
-    , FormatFlags formatFlags = DefaultCallerTypeFlags);
+      , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     IStringBuilder CollectionNextItemFormat(IStringBuilder sb, bool item
       , int retrieveCount, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags);
@@ -170,18 +168,18 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
       , int retrieveCount, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     IStringBuilder CollectionNextItemFormat<TFmt>(IStringBuilder sb, TFmt item
-      , int retrieveCount, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
-      where TFmt: ISpanFormattable?;
+      , int retrieveCount, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TFmt : ISpanFormattable?;
 
     IStringBuilder CollectionNextItemFormat<TFmtStruct>(IStringBuilder sb, TFmtStruct? item
-      , int retrieveCount, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
-      where TFmtStruct: struct, ISpanFormattable;
+      , int retrieveCount, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TFmtStruct : struct, ISpanFormattable;
 
     IStringBuilder CollectionNextItemFormat<TCloaked, TCloakedBase>(ISecretStringOfPower tos, TCloaked? item
       , int retrieveCount, PalantírReveal<TCloakedBase> styler, string? formatString
-    , FormatFlags formatFlags = DefaultCallerTypeFlags)
-      where TCloaked : TCloakedBase?
-      where TCloakedBase : notnull;
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TCloaked : TCloakedBase?
+        where TCloakedBase : notnull;
 
     IStringBuilder CollectionNextItemFormat(IStringBuilder sb, string? item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
@@ -190,29 +188,33 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     IStringBuilder CollectionNextCharSeqFormat<TCharSeq>(IStringBuilder sb, TCharSeq item, int retrieveCount, string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)  where TCharSeq : ICharSequence?;
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence?;
 
     IStringBuilder CollectionNextItemFormat(IStringBuilder sb, StringBuilder? item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     IStringBuilder CollectionNextStringBearerFormat<TBearer>(ISecretStringOfPower tos, TBearer item, int retrieveCount, string? formatString
-    , FormatFlags formatFlags = DefaultCallerTypeFlags) 
-      where TBearer : IStringBearer?;
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TBearer : IStringBearer?;
 
     IStringBuilder FormatCollectionEnd(ITypeMolderDieCast moldInternal, int? resultsFoundCount, Type itemElementType, int? totalItemCount
-    , string? formatString, FormatFlags formatFlags = DefaultCallerTypeFlags);
+      , string? formatString, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     Range? AddCollectionElementSeparator(ITypeMolderDieCast moldInternal, Type elementType, int nextItemNumber
-    , FormatFlags formatFlags = DefaultCallerTypeFlags);
+      , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     ContentSeparatorRanges AddCollectionElementPadding(ITypeMolderDieCast moldInternal, Type elementType, int nextItemNumber
-    , FormatFlags formatFlags = DefaultCallerTypeFlags);
+      , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     ContentSeparatorRanges AddCollectionElementSeparatorAndPadding(ITypeMolderDieCast moldInternal, Type elementType, int nextItemNumber
-    , FormatFlags formatFlags = DefaultCallerTypeFlags);
-    
+      , FormatFlags formatFlags = DefaultCallerTypeFlags);
+
+    int SizeFormatFieldName(int sourceLength, FormatFlags formatFlags = DefaultCallerTypeFlags);
+
+    int InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, int refId, int indexToInsertAt, FormatFlags createTypeFlags);
+
     IStringBuilder AppendFieldName(IStringBuilder sb, ReadOnlySpan<char> fieldName);
-    
+
     IStringBuilder FormatFieldNameMatch<T>(IStringBuilder sb, T source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
@@ -223,7 +225,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     IStringBuilder FormatFieldName<TFmt>(IStringBuilder sb, TFmt source, string? callerFormatString = null
-    , FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?;
+      , FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?;
 
     IStringBuilder FormatFieldName<TFmtStruct>(IStringBuilder sb, TFmtStruct? source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -242,12 +244,12 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
       , string? formatString = null, int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     IStringBuilder FormatFieldName<TCloaked, TRevealBase>(ISecretStringOfPower tos, TCloaked value, PalantírReveal<TRevealBase> valueRevealer
-    , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
+      , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull;
 
     IStringBuilder FormatFieldName<TBearer>(ISecretStringOfPower tos, TBearer styledObj
-    , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?;
+      , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?;
 
     IStringBuilder FormatFieldContentsMatch<TAny>(IStringBuilder sb, TAny source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
@@ -256,17 +258,17 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     IStringBuilder FormatFieldContents(IStringBuilder sb, bool? source, string? formatString = null
-    , FormatFlags formatFlags = DefaultCallerTypeFlags);
+      , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     IStringBuilder FormatFieldContents<TFmt>(IStringBuilder sb, TFmt source, string? formatString = null
-    , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?;
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?;
 
     IStringBuilder FormatFieldContents<TFmtStruct>(IStringBuilder sb, TFmtStruct? source, string? formatString = null
-    , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable;
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable;
 
     IStringBuilder FormatFieldContents(IStringBuilder sb, ReadOnlySpan<char> source, int sourceFrom = 0
       , string? formatString = null, int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags);
-    
+
     IStringBuilder FormatFallbackFieldContents<TAny>(IStringBuilder sb, ReadOnlySpan<char> source, int sourceFrom = 0
       , string? formatString = null, int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
@@ -280,21 +282,20 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
       , int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     IStringBuilder FormatFieldContents<TCloaked, TRevealBase>(ISecretStringOfPower tos, TCloaked value, PalantírReveal<TRevealBase> valueRevealer
-    , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
+      , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull;
 
     IStringBuilder FormatFieldContents<TBearer>(ISecretStringOfPower tos, TBearer styledObj, string? callerFormatString = null
-    , FormatFlags callerFormatFlags = DefaultCallerTypeFlags) 
-      where TBearer : IStringBearer?;
+      , FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
+        where TBearer : IStringBearer?;
 }
 
 public static class StyleTypeFormattingExtensions
 {
-    
-    public static SeparatorPaddingRanges FieldEnd(this IStringBuilder _, ITypeMolderDieCast moldInternal, IStyledTypeFormatting stf
-    , FormatFlags formatFlags = DefaultCallerTypeFlags) => 
-      stf.AppendFieldValueSeparator(moldInternal, formatFlags);
+    public static SeparatorPaddingRanges FieldEnd(this IStringBuilder _, IStyledTypeFormatting stf
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
+        stf.AppendFieldValueSeparator(formatFlags);
 
 
     public static char RemoveLastWhiteSpacedCommaIfFound(this IStringBuilder sb)
@@ -307,10 +308,10 @@ public static class StyleTypeFormattingExtensions
         }
         if (sb[^2] == ',' && sb[^1] == ' ')
         {
-          sb.Length -= 2;
-          return sb[^1];
+            sb.Length -= 2;
+            return sb[^1];
         }
-        var i                                         = sb.Length - 1;
+        var i = sb.Length - 1;
         for (; i > 0 && sb[i] is ' ' or '\r' or '\n' or ','; i--)
             if (sb[i] == ',')
             {
@@ -320,21 +321,21 @@ public static class StyleTypeFormattingExtensions
         sb.Length = i + 1;
         return sb[^1];
     }
-    
+
     public static char RemoveLastWhiteSpacedCommaIfFound(this Span<char> destSpan, ref int destIndex)
     {
         if (destIndex < 2) return destIndex > 0 ? destSpan[0] : '\0';
-        if (destSpan[destIndex -1] == ',')
+        if (destSpan[destIndex - 1] == ',')
         {
             destIndex -= 1;
             return destSpan[destIndex - 1];
         }
         if (destSpan[destIndex - 2] == ',' && destSpan[destIndex - 1] == ' ')
         {
-          destIndex -= 2;
-          return destSpan[destIndex - 1];
+            destIndex -= 2;
+            return destSpan[destIndex - 1];
         }
-        var i   = destIndex - 1;
+        var i = destIndex - 1;
         for (; i > 0 && destSpan[i] is ' ' or '\r' or '\n' or ','; i--)
             if (destSpan[i] == ',')
             {

@@ -36,7 +36,7 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
 
     public int TotalCount { get; private set; }
 
-    public override void AppendOpening()
+    public override void AppendTypeOpeningToGraphFields()
     {
         if (CompAsOrderedCollection.CollectionInComplexType) { MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField); }
         else
@@ -48,13 +48,14 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
         }
     }
 
+    public override void CompleteTypeOpeningToTypeFields() { }
+
     public override void AppendClosing()
     {
         var formatter = MoldStateField.StyleFormatter;
         if (CompAsOrderedCollection.CollectionInComplexType)
         {
-            formatter.StartComplexTypeClosing(MoldStateField);
-            formatter.FinishComplexTypeClosing(MoldStateField);
+            formatter.AppendComplexTypeClosing(MoldStateField);
         }
         else
         {

@@ -181,6 +181,7 @@ public static class FieldContentHandlingExtensions
     public static bool ShouldDelimit(this FormatFlags flags)                       => (flags & EnsureFormattedDelimited) > 0;
     
     public static bool HasEachItemOnlyOneLineFlag(this FormatFlags flags)          => (flags & EachItemOnlyOneLine) > 0;
+    public static bool HasNoRevisitCheck(this FormatFlags flags)                   => (flags & NoRevisitCheck) > 0;
     public static bool HasSuppressTypeNamesFlag(this FormatFlags flags)            => (flags & LogSuppressTypeNames) > 0;
     public static bool DoesNotHaveLogSuppressTypeNamesFlag(this FormatFlags flags) => (flags & LogSuppressTypeNames) == 0;
     public static bool HasAsCollectionFlag(this FormatFlags flags)                 => (flags & AsCollection) > 0;

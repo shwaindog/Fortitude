@@ -558,7 +558,7 @@ public static class CharSpanExtensions
         var searchLength  = searchSpan.Length;
         int lastCharIndex = searchLength - findLength;
         int foundCount   = 0;
-        for (var i = 0; i < lastCharIndex; i++)
+        for (var i = 0; i <= lastCharIndex; i++)
         {
             var checkChar = searchSpan[i];
             if (checkChar == findSequence[0])

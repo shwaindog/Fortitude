@@ -24,7 +24,7 @@ public class CollectionBuilderCompAccess<TOCMold> : TypeMolderDieCast<TOCMold> w
         if (CollectionInComplexType)
         {
             StyleFormatter.AppendFieldName( Sb, "$values");
-            StyleFormatter.AppendFieldValueSeparator(this);
+            StyleFormatter.AppendFieldValueSeparator();
             if(hasAny == true)
                 StyleFormatter.FormatCollectionStart(this, elementType, hasAny, TypeBeingBuilt);
         }
@@ -32,7 +32,7 @@ public class CollectionBuilderCompAccess<TOCMold> : TypeMolderDieCast<TOCMold> w
 
     public bool ConditionalCollectionSuffix(Type elementType, int? count, string? formatString, FormatFlags formatFlags)
     {
-        if (StyleTypeBuilder is OrderedCollectionType.OrderedCollectionMold<TOCMold> ocMold)
+        if (StyleTypeBuilder is OrderedCollectionMold<TOCMold> ocMold)
         {
             ocMold.ResultCount = count ?? 0;
         }

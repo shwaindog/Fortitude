@@ -14,7 +14,7 @@ public abstract class TransitioningTypeMolder<TCurrent, TNext> : KnownTypeMolder
 {
     private bool hasTransitioned;
 
-    public override void AppendOpening()
+    public override void AppendTypeOpeningToGraphFields()
     {
         var formatter = MoldStateField.StyleFormatter;
         if (IsComplexType)
@@ -32,9 +32,9 @@ public abstract class TransitioningTypeMolder<TCurrent, TNext> : KnownTypeMolder
     public override void AppendClosing()
     {
         if (IsComplexType)
-            MoldStateField.StyleFormatter.StartComplexTypeClosing(MoldStateField);
+            MoldStateField.StyleFormatter.AppendComplexTypeClosing(MoldStateField);
         else
-            MoldStateField.StyleFormatter.StartContentTypeClosing(MoldStateField);
+            MoldStateField.StyleFormatter.AppendContentTypeClosing(MoldStateField);
     }
 
     public virtual TNext TransitionToNextMold()

@@ -18,7 +18,7 @@ public interface IStateTransitioningTransitioningKnownTypeMolder : IDisposable
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
       , FormatFlags createFormatFlags);
-    
+
     void Free();
 }
 
@@ -41,10 +41,10 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
-      , FormatFlags createFormatFlags )
+      , FormatFlags createFormatFlags)
     {
         InitializeStyledTypeBuilder(typeBeingBuilt, master, typeSettings, typeName, remainingGraphDepth
-                                 ,  typeFormatting,  existingRefId, createFormatFlags);
+                                  , typeFormatting, existingRefId, createFormatFlags);
 
         SourceBuilderComponentAccess();
     }
@@ -54,23 +54,31 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         MoldStateField = null!;
         ((IRecyclableObject)this).DecrementRefCount();
     }
-    
+
     protected ITypeMolderDieCast<TMold> State => MoldStateField ?? throw new NullReferenceException("Expected MoldState to be set");
 
-    ITypeMolderDieCast ITypeBuilderComponentSource.MoldState => MoldStateField ?? throw new NullReferenceException("Expected MoldState to be set");
+    ITypeMolderDieCast ITypeBuilderComponentSource.MoldState =>
+        MoldStateField ?? throw new NullReferenceException("Expected MoldState to be set");
 
-    ITypeMolderDieCast<TMold> ITypeBuilderComponentSource<TMold>.KnownTypeMoldState => MoldStateField ?? throw new NullReferenceException("Expected MoldState to be set");
+    ITypeMolderDieCast<TMold> ITypeBuilderComponentSource<TMold>.KnownTypeMoldState =>
+        MoldStateField ?? throw new NullReferenceException("Expected MoldState to be set");
 
-    public override void Start()
+    public override void StartTypeOpening()
     {
         if (!PortableState.AppenderSettings.SkipTypeParts.HasTypeStartFlag())
         {
-            AppendOpening();
+            AppendTypeOpeningToGraphFields();
             AppendGraphFields();
         }
     }
-    
-    public abstract void AppendOpening();
+
+    public override void FinishTypeOpening()
+    {
+        if (!PortableState.AppenderSettings.SkipTypeParts.HasTypeStartFlag()) { CompleteTypeOpeningToTypeFields(); }
+    }
+
+    public abstract void AppendTypeOpeningToGraphFields();
+    public virtual void CompleteTypeOpeningToTypeFields() { }
 
     public virtual void AppendClosing()
     {
@@ -81,14 +89,8 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
 
     public override StateExtractStringRange Complete()
     {
-        if (MoldStateField == null)
-        {
-            throw new NullReferenceException("Expected MoldState to be set");
-        }
-        if (!PortableState.AppenderSettings.SkipTypeParts.HasTypeEndFlag())
-        {
-            AppendClosing();
-        }
+        if (MoldStateField == null) { throw new NullReferenceException("Expected MoldState to be set"); }
+        if (!PortableState.AppenderSettings.SkipTypeParts.HasTypeEndFlag()) { AppendClosing(); }
         else
         {
             MoldStateField.StyleFormatter.GraphBuilder.RemoveLastSeparatorAndPadding();
@@ -96,10 +98,12 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         }
         var currentAppenderIndex = MoldStateField.Master.WriteBuffer.Length;
         var typeWriteRange       = new Range(Index.FromStart(StartIndex), Index.FromStart(currentAppenderIndex));
-        var result               = new StateExtractStringRange(TypeName ?? TypeBeingBuilt.CachedCSharpNameWithConstraints(), MoldStateField.Master, typeWriteRange);
+        var result =
+            new StateExtractStringRange(TypeName ??
+                                        TypeBeingBuilt.CachedCSharpNameWithConstraints(), MoldStateField.Master, typeWriteRange);
         PortableState.CompleteResult = result;
         MoldStateField.Master.TypeComplete(MoldStateField);
-        MoldStateField =  null!;
+        MoldStateField = null!;
         ((IRecyclableObject)this).DecrementRefCount();
         return result;
     }
@@ -114,11 +118,11 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         if (MoldStateField.RemainingGraphDepth <= 0)
         {
             MoldStateField.Sb.Append("\"$clipped\":\"maxDepth\"").Append(" ");
-            MoldStateField.SkipBody = true;
+            MoldStateField.SkipBody   = true;
             MoldStateField.SkipFields = true;
             return true;
         }
-        
+
         return false;
     }
 
@@ -126,7 +130,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
         MoldStateField = recycler.Borrow<TypeMolderDieCast<TMold>>()
-                             .Initialize((TMold)(ITypeBuilderComponentSource<TMold>)this, PortableState);
+                                 .Initialize((TMold)(ITypeBuilderComponentSource<TMold>)this, PortableState);
     }
 
     protected override void InheritedStateReset()
@@ -147,4 +151,3 @@ public abstract class TwoStateTransitioningKnownTypeMolder<TCurrentMold, TNextMo
 
     public TNextMold NextMold => ((IRecyclableObject)this).Recycler!.Borrow<TNextMold>().Initialize(this);
 }
-

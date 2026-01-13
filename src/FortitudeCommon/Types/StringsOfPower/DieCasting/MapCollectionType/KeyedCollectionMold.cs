@@ -34,12 +34,14 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
 
     public override bool IsComplexType => true;
     
-    public override void AppendOpening()
+    public override void AppendTypeOpeningToGraphFields()
     {
         var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!; 
         MoldStateField.StyleFormatter.AppendKeyedCollectionStart(MoldStateField.Sb, MoldStateField.TypeBeingBuilt, keyValueTypes.Value.Key, keyValueTypes.Value.Value);
     }
-    
+
+    public override void CompleteTypeOpeningToTypeFields() { }
+
     public override void AppendClosing()
     {
         var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!; 

@@ -129,7 +129,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         if (value == null)
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder.TransitionToNextMold();
-            StyleFormatter.GraphBuilder.StartNextContentSeparatorPaddingSequence(Sb, StyleFormatter, formatFlags, true);
+            StyleFormatter.GraphBuilder.StartNextContentSeparatorPaddingSequence(Sb, formatFlags, true);
             StyleFormatter.FormatFallbackFieldContents<TFmt>(Sb, defaultValue, 0, formatString, formatFlags: formatFlags);
             return StyleTypeBuilder.TransitionToNextMold();
         }
@@ -2931,7 +2931,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     
     
     public new ContentJoinTypeMold<TContentMold> WasSkipped<TCallerType>(Type? actualType, ReadOnlySpan<char> fieldName
-      , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
 
     {
         return StyleTypeBuilder.TransitionToNextMold();

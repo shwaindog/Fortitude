@@ -40,8 +40,6 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
       , int existingRefId
       , FormatFlags createFormatFlags )
     {
-        PortableState ??= new();
-        
         PortableState.TypeBeingBuilt      = typeBeingBuilt;
         PortableState.Master              = master;
         PortableState.TypeName            = typeName;
@@ -55,13 +53,14 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
         StartIndex = master.WriteBuffer.Length;
     }
 
-    protected MoldPortableState PortableState { get; set; } = null!;
+    protected MoldPortableState PortableState { get; set; } = new();
 
     public bool IsComplete => PortableState.CompleteResult != null;
 
     public int ExistingRefId => PortableState.ExistingRefId;
 
-    public abstract void Start();
+    public abstract void StartTypeOpening();
+    public abstract void FinishTypeOpening();
 
     public Type TypeBeingBuilt => PortableState.TypeBeingBuilt;
 
@@ -138,7 +137,7 @@ public static class StyledTypeBuilderExtensions
     {
         if (stb.StyleFormatter.GraphBuilder.HasCommitContent)
         {
-            stb.StyleFormatter.AddNextFieldSeparatorAndPadding().ToTypeBuilder(stb);
+            stb.StyleFormatter.AddToNextFieldSeparatorAndPadding().ToTypeBuilder(stb);
         }
         return stb.StyleTypeBuilder;
     }
@@ -317,7 +316,10 @@ public static class StyledTypeBuilderExtensions
             else
                 stb.StyleFormatter.FormatFieldContents(stb.Master, value, styler, formatString, formatFlags);
 
-            if (!stb.Settings.DisableCircularRefCheck && !typeof(TCloaked).IsValueType) { stb.Master.EnsureRegisteredVisited(value); }
+            if (!stb.Settings.DisableCircularRefCheck && !typeof(TCloaked).IsValueType)
+            {
+                stb.Master.EnsureRegisteredVisited(value, formatFlags);
+            }
         }
         else { 
             stb.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags, isKeyName);
@@ -352,7 +354,10 @@ public static class StyledTypeBuilderExtensions
             else
                 stb.StyleFormatter.FormatFieldContents(stb.Master, value.Value, styler, formatString, formatFlags);
 
-            if (!stb.Settings.DisableCircularRefCheck && !typeof(TCloakedStruct).IsValueType) { stb.Master.EnsureRegisteredVisited(value); }
+            if (!stb.Settings.DisableCircularRefCheck && !typeof(TCloakedStruct).IsValueType)
+            {
+                stb.Master.EnsureRegisteredVisited(value, formatFlags);
+            }
         }
         else { 
             stb.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags, isKeyName);
@@ -856,7 +861,8 @@ public static class StyledTypeBuilderExtensions
 
                 default:
                     var unKnownType = typeof(TValue);
-                    if (unKnownType.IsValueType || (!unKnownType.IsAnyTypeHoldingChars() || stb.Master.RegisterVisitedCheckCanContinue(value)))
+                    if (unKnownType.IsValueType || (!unKnownType.IsAnyTypeHoldingChars() || 
+                                                    stb.Master.RegisterVisitedCheckCanContinue(value, formatFlags)))
                     {
                         stb.StyleFormatter.CollectionNextItem(value, retrieveCount, stb.Sb, (FormatSwitches)formatFlags);
                     }
@@ -872,13 +878,13 @@ public static class StyledTypeBuilderExtensions
         where TExt : TypeMolder
     {
         stb.StyleFormatter.AppendFieldName(stb.Sb, fieldName);
-        stb.StyleFormatter.AppendFieldValueSeparator(stb);
+        stb.StyleFormatter.AppendFieldValueSeparator();
         return stb;
     }
 
     public static ITypeMolderDieCast<TExt> FieldEnd<TExt>(this ITypeMolderDieCast<TExt> stb) where TExt : TypeMolder
     {
-        stb.StyleFormatter.AppendFieldValueSeparator(stb);
+        stb.StyleFormatter.AppendFieldValueSeparator();
         return stb;
     }
 

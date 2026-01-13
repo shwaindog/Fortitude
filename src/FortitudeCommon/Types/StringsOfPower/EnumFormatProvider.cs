@@ -398,7 +398,7 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
         if (layout.Length == 0 && splitJoinRange.IsNoSplitJoin)
         {
             lastAdded = (formattingFlags.HasEncodeInnerContent() ? enumEncoder : joinEncoder)
-                .Transfer(vanillaEnumNames, rawSourceFrom, enumNextSpan, 0, rawCappedLength);
+                .OverwriteTransfer(vanillaEnumNames, rawSourceFrom, enumNextSpan, 0, rawCappedLength);
 
             enumNextSpan =  enumNextSpan[lastAdded..];
             charsAdded   += lastAdded;
@@ -423,14 +423,14 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
 
             padSize   = padSpan.PadAndAlign(splitJoinResultSpan, layout);
             padSize   = Math.Min(padSize, alignedLength);
-            lastAdded = PassThroughEncodingTransfer.Instance.Transfer(padSpan[..padSize], enumNextSpan, 0);
+            lastAdded = PassThroughEncodingTransfer.Instance.OverwriteTransfer(padSpan[..padSize], enumNextSpan, 0);
         }
         else
         {
             padSize   = padSpan.PadAndAlign(sourceInSpan, layout);
             padSize   = Math.Min(padSize, alignedLength);
             lastAdded = (formattingFlags.HasEncodeInnerContent() ? enumEncoder : joinEncoder)
-                .Transfer(padSpan[..padSize], enumNextSpan, 0);
+                .OverwriteTransfer(padSpan[..padSize], enumNextSpan, 0);
         }
 
         enumNextSpan =  enumNextSpan[lastAdded..];

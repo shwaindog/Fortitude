@@ -153,6 +153,31 @@ public interface IMutableStringBuilder<out T> where T : IStringBuilder, IMutable
     T   Insert(int atIndex, StringBuilder? value);
 
     T Insert(int index, string? value, int count);
+    
+    int  Overwrite(int atIndex, bool value);
+    int  Overwrite(int atIndex, byte value);
+    int  Overwrite(int atIndex, char value);
+    int  Overwrite(int atIndex, char[]? value);
+    int  Overwrite(int atIndex, decimal value);
+    int  Overwrite(int atIndex, double value);
+    int  Overwrite(int atIndex, short value);
+    int  Overwrite(int atIndex, int value);
+    int  Overwrite(int atIndex, long value);
+    int  Overwrite(int atIndex, object? value);
+    int  Overwrite(int atIndex, sbyte value);
+    int  Overwrite(int atIndex, float value);
+    int  Overwrite(int atIndex, string? value);
+    int  Overwrite(int atIndex, Span<char> value);
+    int  Overwrite(int atIndex, Span<char> value, int startIndex, int length);
+    int  Overwrite(int atIndex, ReadOnlySpan<char> value);
+    int  Overwrite(int atIndex, ReadOnlySpan<char> value, int startIndex, int length);
+    int  Overwrite(int atIndex, char[]? value, int startIndex, int length);
+    int  Overwrite(int atIndex, ushort value);
+    int  Overwrite(int atIndex, uint value);
+    int  Overwrite(int atIndex, ulong value);
+    int  Overwrite(int atIndex, ICharSequence? value);
+    int  Overwrite(int atIndex, StringBuilder? value);
+    int  Overwrite(int index, string? value, int count);
 
     T Remove(int startIndex, int length);
 

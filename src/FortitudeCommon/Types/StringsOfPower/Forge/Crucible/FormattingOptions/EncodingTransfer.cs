@@ -44,19 +44,26 @@ public interface IEncodingTransfer : IRecyclableObject
     int TransferSuffix(ReadOnlySpan<char> source, IStringBuilder destSb, bool encodeSuffix);
     int TransferSuffix(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex, bool encodeSuffix);
 
-    int Transfer(ReadOnlySpan<char> source, IStringBuilder destSb, int destStartIndex = int.MaxValue);
+    int AppendTransfer(ReadOnlySpan<char> source, IStringBuilder destSb);
     int InsertTransfer(ReadOnlySpan<char> source, IStringBuilder destSb, int destStartIndex);
+    int OverwriteTransfer(ReadOnlySpan<char> source, IStringBuilder destSb, int destStartIndex);
   
-    int Transfer(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex
+    int OverwriteTransfer(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex
       , int maxTransferCount = int.MaxValue);
 
     int InsertTransfer(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex, int currentEndIndex);
 
-    int Transfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder destSb
-    , int destStartIndex = int.MaxValue, int maxTransferCount = int.MaxValue);
+    int AppendTransfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder destSb, int maxTransferCount = int.MaxValue);
 
-    int Transfer(ReadOnlySpan<char> source, int sourceFrom, Span<char> destSpan, int destStartIndex
+    int OverwriteTransfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder destSb, int destStartIndex, int maxTransferCount = int.MaxValue);
+
+    int InsertTransfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder destSb, int destStartIndex, int maxTransferCount = int.MaxValue);
+
+    int OverwriteTransfer(ReadOnlySpan<char> source, int sourceFrom, Span<char> destSpan, int destStartIndex
       , int maxTransferCount = int.MaxValue);
+
+    int InsertTransfer(ReadOnlySpan<char> source, int sourceFrom, Span<char> destSpan, int destStartIndex
+    , int currentEndIndex, int maxTransferCount = int.MaxValue);
 
 
     int Transfer(StringBuilder source, IStringBuilder destSbb, int destStartIndex = int.MaxValue);

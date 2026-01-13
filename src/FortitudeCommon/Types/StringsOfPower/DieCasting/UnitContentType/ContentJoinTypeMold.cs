@@ -12,23 +12,26 @@ public class ContentJoinTypeMold<TMold> : KnownTypeMolder<ContentJoinTypeMold<TM
     
     public override bool IsComplexType => initialWasComplex;
 
-    public override void AppendOpening()
+    public override void AppendTypeOpeningToGraphFields()
     {
         throw new NotImplementedException("Should never be called!");
     }
-    
+
+    public override void CompleteTypeOpeningToTypeFields()
+    {
+        throw new NotImplementedException("Should never be called!");
+    }
+
     public override void AppendClosing()
     {
         var formatter = MoldStateField.StyleFormatter;
         if (IsComplexType)
         {
-            formatter.StartComplexTypeClosing(MoldStateField);
-            formatter.FinishComplexTypeClosing(MoldStateField);
+            formatter.AppendComplexTypeClosing(MoldStateField);
         }
         else
         {
-            formatter.StartContentTypeClosing(MoldStateField);
-            formatter.FinishContentTypeClosing(MoldStateField);
+            formatter.AppendContentTypeClosing(MoldStateField);
         }
     }
     

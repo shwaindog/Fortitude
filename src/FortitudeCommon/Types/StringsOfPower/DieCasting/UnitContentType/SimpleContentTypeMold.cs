@@ -32,14 +32,14 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold>
                              .InitializeValueBuilderCompAccess(this, PortableState, false);
     }
 
-    public override void AppendOpening()
+    public override void AppendTypeOpeningToGraphFields()
     {
         MoldStateField.StyleFormatter.StartContentTypeOpening(MoldStateField);
     }
 
     public override void AppendClosing()
     {
-        MoldStateField.StyleFormatter.StartContentTypeClosing(MoldStateField);
+        MoldStateField.StyleFormatter.AppendContentTypeClosing(MoldStateField);
     }
     
     public ContentJoinTypeMold<SimpleContentTypeMold> AsValue(bool value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null

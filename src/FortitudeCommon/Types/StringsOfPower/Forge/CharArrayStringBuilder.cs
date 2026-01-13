@@ -90,7 +90,14 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     public int Length
     {
         get => ca.Count;
-        set => ca.Count = value;
+        set
+        {
+            if (value >= ca.Capacity)
+            {
+                CharArray(value - ca.Length);
+            }
+            ca.Count = value;
+        }
     }
 
     public char this[int index]
@@ -688,8 +695,10 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         if (customStringFormatter != null)
         {
             var charArraySpan = ca.RemainingAsSpan();
-            ca.Length += customStringFormatter.ContentEncoder.Transfer(value, 0, charArraySpan
-                                                                     , 0, value.Length);
+            ca.Length +=
+                customStringFormatter
+                    .ContentEncoder
+                    .OverwriteTransfer(value, 0, charArraySpan, 0, value.Length);
             return this;
         }
         CharArray(value.Length).Add(value);
@@ -706,7 +715,10 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         {
             var charArraySpan = ca.RemainingAsSpan();
             if (noFormatStringFormatting)
-                ca.Length += customStringFormatter.ContentEncoder.Transfer(value, startIndex, charArraySpan, 0, cappedLength);
+                ca.Length +=
+                    customStringFormatter
+                        .ContentEncoder
+                        .OverwriteTransfer(value, startIndex, charArraySpan, 0, cappedLength);
             else
                 ca.Length += customStringFormatter.Format(value, startIndex, this, formatString
                                                         , cappedLength, formatFlags);
@@ -733,7 +745,10 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         {
             var charArraySpan = ca.RemainingAsSpan();
             if (noFormatStringFormatting)
-                ca.Length += customStringFormatter.ContentEncoder.Transfer(value, startIndex, charArraySpan, 0, cappedLength);
+                ca.Length +=
+                    customStringFormatter
+                        .ContentEncoder
+                        .OverwriteTransfer(value, startIndex, charArraySpan, 0, cappedLength);
             else
                 ca.Length += customStringFormatter.Format(value, startIndex, this, formatString
                                                         , cappedLength, formatFlags);
@@ -765,8 +780,10 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         if (customStringFormatter != null)
         {
             var charArraySpan = ca.RemainingAsSpan();
-            ca.Length += customStringFormatter.ContentEncoder.Transfer(value, 0, charArraySpan, 0
-                                                                     , value.Length);
+            ca.Length +=
+                customStringFormatter
+                    .ContentEncoder
+                    .OverwriteTransfer(value, 0, charArraySpan, 0, value.Length);
             return this;
         }
         CharArray(value.Length).Add(value);
@@ -782,7 +799,10 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         {
             var charArraySpan = ca.RemainingAsSpan();
             if (noFormatStringFormatting)
-                ca.Length += customStringFormatter.ContentEncoder.Transfer(value, startIndex, charArraySpan, 0, length);
+                ca.Length +=
+                    customStringFormatter
+                        .ContentEncoder
+                        .OverwriteTransfer(value, startIndex, charArraySpan, 0, length);
             else
                 ca.Length += customStringFormatter.Format(value, startIndex, this, formatString
                                                         , length, formatFlags);
@@ -803,7 +823,10 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         if (customStringFormatter != null)
         {
             var charArraySpan = ca.RemainingAsSpan();
-            ca.Length += customStringFormatter.ContentEncoder.Transfer(value, 0, charArraySpan, 0, value.Length);
+            ca.Length +=
+                customStringFormatter
+                    .ContentEncoder
+                    .OverwriteTransfer(value, 0, charArraySpan, 0, value.Length);
             return this;
         }
         CharArray(value.Length).Add(value);
@@ -819,7 +842,10 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         {
             var charArraySpan = ca.RemainingAsSpan();
             if (noFormatStringFormatting)
-                ca.Length += customStringFormatter.ContentEncoder.Transfer(value, startIndex, charArraySpan, 0, cappedLength);
+                ca.Length +=
+                    customStringFormatter
+                        .ContentEncoder
+                        .OverwriteTransfer(value, startIndex, charArraySpan, 0, cappedLength);
             else
                 ca.Length += customStringFormatter.Format(value, startIndex, this, formatString
                                                         , cappedLength, formatFlags);
@@ -844,7 +870,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
             var charArraySpan = ca.RemainingAsSpan();
             ca.Length += customStringFormatter
                          .ContentEncoder
-                         .Transfer(asSpan, 0, charArraySpan, 0, asSpan.Length);
+                         .OverwriteTransfer(asSpan, 0, charArraySpan, 0, asSpan.Length);
             return this;
         }
         CharArray(value.Length).Add(value);
@@ -861,9 +887,10 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         {
             var charArraySpan = ca.RemainingAsSpan();
             if (noFormatStringFormatting)
-                ca.Length += customStringFormatter
-                             .ContentEncoder
-                             .Transfer(asSpan, startIndex, charArraySpan, 0, cappedLength);
+                ca.Length +=
+                    customStringFormatter
+                        .ContentEncoder
+                        .OverwriteTransfer(asSpan, startIndex, charArraySpan, 0, cappedLength);
             else
                 customStringFormatter.Format(asSpan, startIndex, this, formatString, cappedLength, formatFlags);
             return this;
@@ -1362,6 +1389,215 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         return this;
     }
 
+    public int Overwrite(int atIndex, bool value)
+    {
+        // bool returns cached strings
+        return Overwrite(atIndex, value.ToString());
+    }
+
+    public int Overwrite(int atIndex, byte value)
+    {
+        Span<char> populated = stackalloc char[3];
+        if (value.TryFormat(populated, out var charsWritten, ReadOnlySpan<char>.Empty)) { populated = populated[..charsWritten]; }
+        return Overwrite(atIndex, populated);
+    }
+
+    public int Overwrite(int atIndex, char value)
+    {
+        if (atIndex < Length) { ca[atIndex] = value; }
+        else { ca.Add(value); }
+        return 1;
+    }
+
+    public int Overwrite(int atIndex, char[]? value)
+    {
+        return Overwrite(atIndex, value.AsSpan());
+    }
+
+    public int Overwrite(int atIndex, decimal value)
+    {
+        Span<char> populated = stackalloc char[30];
+        if (value.TryFormat(populated, out var charsWritten, ReadOnlySpan<char>.Empty)) { populated = populated[..charsWritten]; }
+        return Overwrite(atIndex, populated);
+    }
+
+    public int Overwrite(int atIndex, double value)
+    {
+        Span<char> populated = stackalloc char[24];
+        if (value.TryFormat(populated, out var charsWritten, ReadOnlySpan<char>.Empty)) { populated = populated[..charsWritten]; }
+        return Overwrite(atIndex, populated);
+    }
+
+    public int Overwrite(int atIndex, short value)
+    {
+        Span<char> populated = stackalloc char[6];
+        if (value.TryFormat(populated, out var charsWritten, ReadOnlySpan<char>.Empty)) { populated = populated[..charsWritten]; }
+        return Overwrite(atIndex, populated);
+    }
+
+    public int Overwrite(int atIndex, int value)
+    {
+        Span<char> populated = stackalloc char[11];
+        if (value.TryFormat(populated, out var charsWritten, ReadOnlySpan<char>.Empty)) { populated = populated[..charsWritten]; }
+        return Overwrite(atIndex, populated);
+    }
+
+    public int Overwrite(int atIndex, long value)
+    {
+        Span<char> populated = stackalloc char[20];
+        if (value.TryFormat(populated, out var charsWritten, ReadOnlySpan<char>.Empty)) { populated = populated[..charsWritten]; }
+        return Overwrite(atIndex, populated);
+    }
+
+    public int Overwrite(int atIndex, object? value)
+    {
+        // bool returns cached strings
+        return Overwrite(atIndex, value?.ToString() ?? "");
+    }
+
+    public int Overwrite(int atIndex, sbyte value)
+    {
+        Span<char> populated = stackalloc char[4];
+        if (value.TryFormat(populated, out var charsWritten, ReadOnlySpan<char>.Empty)) { populated = populated[..charsWritten]; }
+        return Overwrite(atIndex, populated);
+    }
+
+    public int Overwrite(int atIndex, float value)
+    {
+        Span<char> populated = stackalloc char[15];
+        if (value.TryFormat(populated, out var charsWritten, ReadOnlySpan<char>.Empty)) { populated = populated[..charsWritten]; }
+        return Overwrite(atIndex, populated);
+    }
+
+    public int Overwrite(int atIndex, string? value)
+    {
+        return Overwrite(atIndex, (value ?? "").AsSpan());
+    }
+
+    public int Overwrite(int atIndex, char[]? value, int startIndex, int length)
+    {
+        return Overwrite(atIndex, value.AsSpan(), startIndex, length);
+    }
+
+    public int Overwrite(int atIndex, ushort value)
+    {
+        Span<char> populated = stackalloc char[5];
+        if (value.TryFormat(populated, out var charsWritten, ReadOnlySpan<char>.Empty)) { populated = populated[..charsWritten]; }
+        return Overwrite(atIndex, populated);
+    }
+
+    public int Overwrite(int atIndex, uint value)
+    {
+        Span<char> populated = stackalloc char[10];
+        if (value.TryFormat(populated, out var charsWritten, ReadOnlySpan<char>.Empty)) { populated = populated[..charsWritten]; }
+        return Overwrite(atIndex, populated);
+    }
+
+    public int Overwrite(int atIndex, ulong value)
+    {
+        Span<char> populated = stackalloc char[19];
+        if (value.TryFormat(populated, out var charsWritten, ReadOnlySpan<char>.Empty)) { populated = populated[..charsWritten]; }
+        return Overwrite(atIndex, populated);
+    }
+
+    public int Overwrite(int atIndex, ICharSequence? value)
+    {
+        var sbLen = Length;
+        if (value == null) return 0;
+        var overWriteLen = value.Length;
+        if (atIndex < sbLen)
+        {
+            Length = Math.Max(Length, atIndex + overWriteLen);
+            for (int i = 0; i < overWriteLen && i < sbLen; i++) { ca[i + atIndex] = value[i]; }
+        }
+        else { ca.Add(value); }
+        return overWriteLen;
+    }
+
+    public int Overwrite(int atIndex, StringBuilder? value)
+    {
+        var sbLen = Length;
+        if (value == null) return 0;
+        var overWriteLen = value.Length;
+        if (atIndex < sbLen)
+        {
+            Length = Math.Max(sbLen, atIndex + overWriteLen);
+            for (int i = 0; i < overWriteLen && i < sbLen; i++) { ca[i + atIndex] = value[i]; }
+        }
+        else { ca.Add(value); }
+        return overWriteLen;
+    }
+
+    public int Overwrite(int atIndex, string? value, int count)
+    {
+        var sbLen = Length;
+        if (value == null) return 0;
+        var overWriteLen = Math.Min(count, value.Length);
+        if (atIndex < sbLen)
+        {
+            Length = Math.Max(sbLen, atIndex + overWriteLen);
+            for (int i = 0; i < overWriteLen && i < sbLen; i++) { ca[i + atIndex] = value[i]; }
+        }
+        else { ca.Add(value); }
+        return overWriteLen;
+    }
+
+    public int Overwrite(int atIndex, Span<char> value)
+    {
+        var sbLen        = Length;
+        var overWriteLen = value.Length;
+        if (atIndex < sbLen)
+        {
+            Length = Math.Max(sbLen, atIndex + overWriteLen);
+            for (int i = 0; i < overWriteLen && i < sbLen; i++) { ca[i + atIndex] = value[i]; }
+        }
+        else { ca.Add(value); }
+        return overWriteLen;
+    }
+
+    public int Overwrite(int atIndex, Span<char> value, int startIndex, int length)
+    {
+        var sbLen        = Length;
+        var cappedStart  = Math.Clamp(startIndex, 0, value.Length);
+        var overWriteLen = Math.Clamp(length, 0, value.Length - startIndex);
+        if (atIndex < sbLen)
+        {
+            Length = Math.Max(sbLen, atIndex + overWriteLen);
+            var destOffset = atIndex - cappedStart;
+            for (int i = cappedStart; i < overWriteLen && i < sbLen; i++) { ca[destOffset + i] = value[i]; }
+        }
+        else { ca.Add(value[cappedStart..]); }
+        return overWriteLen;
+    }
+
+    public int Overwrite(int atIndex, ReadOnlySpan<char> value)
+    {
+        var sbLen        = Length;
+        var overWriteLen = value.Length;
+        if (atIndex < sbLen)
+        {
+            Length = Math.Max(Length, atIndex + overWriteLen);
+            for (int i = 0; i < overWriteLen && i < sbLen; i++) { ca[i + atIndex] = value[i]; }
+        }
+        else { ca.Add(value); }
+        return overWriteLen;
+    }
+
+    public int Overwrite(int atIndex, ReadOnlySpan<char> value, int startIndex, int length)
+    {
+        var sbLen        = Length;
+        var cappedStart  = Math.Clamp(startIndex, 0, value.Length);
+        var overWriteLen = Math.Clamp(length, 0, value.Length - startIndex);
+        if (atIndex < sbLen)
+        {
+            Length = Math.Max(Length, atIndex + overWriteLen);
+            var destOffset = atIndex - cappedStart;
+            for (int i = cappedStart; i < overWriteLen && i < sbLen; i++) { ca[destOffset + i] = value[i]; }
+        }
+        else { ca.Add(value[cappedStart..]); }
+        return overWriteLen;
+    }
+
     public CharArrayStringBuilder Remove(int startIndex, int length)
     {
         ca.RemoveAt(startIndex, length);
@@ -1387,7 +1623,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
         var requiredIncreaseSize = count * Math.Max(0, (replace?.Length ?? 0) - find.Length);
         EnsureCapacity(requiredIncreaseSize);
-        
+
         var findSpan    = find.AsSpan();
         var replaceSpan = replace.AsSpan();
         ca.Replace(findSpan, replaceSpan);
@@ -1417,7 +1653,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
         var requiredIncreaseSize = count * Math.Max(0, replace.Length - find.Length);
         EnsureCapacity(requiredIncreaseSize);
-        
+
         var findSpan    = find.AsSpan();
         var replaceSpan = replace.AsSpan();
         ca.Replace(findSpan, replaceSpan, startIndex, length + requiredIncreaseSize);
@@ -1449,7 +1685,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
         var requiredIncreaseSize = count * Math.Max(0, replace.Length - find.Length);
         EnsureCapacity(requiredIncreaseSize);
-        
+
         ca.Replace(find, replace, startIndex, length + requiredIncreaseSize);
         return this;
     }
@@ -1465,7 +1701,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
         var requiredIncreaseSize = count * Math.Max(0, replace.Length - find.Length);
         EnsureCapacity(requiredIncreaseSize);
-        
+
         ca.Replace(find, replace, startIndex, length + requiredIncreaseSize);
         return this;
     }
@@ -1824,7 +2060,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<char> GetEnumerator() => ca.GetEnumerator();
-    
+
     public override void StateReset()
     {
         ca.Clear();

@@ -30,23 +30,34 @@ public class ContentTypeMold<TContentMold> : TransitioningTypeMolder<TContentMol
 
     public override bool IsComplexType => Msf.ValueInComplexType;
 
-    public override void Start()
+    public override void StartTypeOpening()
     {
         if (PortableState.AppenderSettings.SkipTypeParts.HasTypeStartFlag()) return;
-        AppendOpening();
+        AppendTypeOpeningToGraphFields();
     }
 
-    public override void AppendOpening()
+    public override void AppendTypeOpeningToGraphFields()
     {
         var formatter = MoldStateField!.StyleFormatter;
         if (IsComplexType)
         {
             formatter.StartComplexTypeOpening(MoldStateField);
-            formatter.FinishComplexTypeOpening(MoldStateField);
         }
         else
         {
             formatter.StartContentTypeOpening(MoldStateField);
+        }
+    }
+
+    public override void CompleteTypeOpeningToTypeFields()
+    {
+        var formatter = MoldStateField!.StyleFormatter;
+        if (IsComplexType)
+        {
+            formatter.FinishComplexTypeOpening(MoldStateField);
+        }
+        else
+        {
             formatter.FinishContentTypeOpening(MoldStateField);
         }
     }
@@ -56,13 +67,11 @@ public class ContentTypeMold<TContentMold> : TransitioningTypeMolder<TContentMol
         var formatter = MoldStateField!.StyleFormatter;
         if (IsComplexType)
         {
-            formatter.StartComplexTypeClosing(MoldStateField);
-            formatter.FinishComplexTypeClosing(MoldStateField);
+            formatter.AppendComplexTypeClosing(MoldStateField);
         }
         else
         {
-            formatter.StartContentTypeClosing(MoldStateField);
-            formatter.FinishContentTypeClosing(MoldStateField);
+            formatter.AppendContentTypeClosing(MoldStateField);
         }
     }
 

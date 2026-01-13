@@ -106,7 +106,7 @@ public readonly struct SplitJoinRange : ISpanFormattable
         var splitSpan           = splitChars[..splitLength];
         var splitOccurenceCount = -1;
         if (!IsNoSplitJoin) { splitOccurenceCount = original.SubSequenceOccurenceCount(splitSpan); }
-        if (IsNoSplitJoin || splitOccurenceCount < 1) { return contentEncoder.Transfer(original, bufferWritten, 0); }
+        if (IsNoSplitJoin || splitOccurenceCount < 1) { return contentEncoder.OverwriteTransfer(original, bufferWritten, 0); }
         Span<Range> splitRanges    = stackalloc Range[splitOccurenceCount + 1];
         var         numberOfRanges = original.Split(splitRanges, splitSpan);
         splitRanges = splitRanges[..numberOfRanges];
@@ -118,8 +118,8 @@ public readonly struct SplitJoinRange : ISpanFormattable
         for (int i = 0; i < splitRanges.Length; i++)
         {
             var toCopy = original[splitRanges[i]];
-            bufi += contentEncoder.Transfer(toCopy, bufferWritten, bufi);
-            if (i < splitRanges.Length - 1) { bufi += joinEncoder.Transfer(joinSpan, bufferWritten, bufi); }
+            bufi += contentEncoder.OverwriteTransfer(toCopy, bufferWritten, bufi);
+            if (i < splitRanges.Length - 1) { bufi += joinEncoder.OverwriteTransfer(joinSpan, bufferWritten, bufi); }
         }
         return bufi;
     }
@@ -129,7 +129,7 @@ public readonly struct SplitJoinRange : ISpanFormattable
         var splitSpan           = splitChars[..splitLength];
         var splitOccurenceCount = -1;
         if (!IsNoSplitJoin) { splitOccurenceCount = original.SubSequenceOccurenceCount(splitSpan); }
-        if (IsNoSplitJoin || splitOccurenceCount < 1) { return contentEncoder.Transfer(original, sb); }
+        if (IsNoSplitJoin || splitOccurenceCount < 1) { return contentEncoder.AppendTransfer(original, sb); }
         Span<Range> splitRanges    = stackalloc Range[splitOccurenceCount + 1];
         var         numberOfRanges = original.Split(splitRanges, splitSpan);
         splitRanges = splitRanges[..numberOfRanges];
@@ -141,8 +141,8 @@ public readonly struct SplitJoinRange : ISpanFormattable
         for (int i = 0; i < splitRanges.Length; i++)
         {
             var toCopy = original[splitRanges[i]];
-            bufi += contentEncoder.Transfer(toCopy, sb);
-            if (i < splitRanges.Length - 1) { bufi += joinEncoder.Transfer(joinSpan, sb); }
+            bufi += contentEncoder.AppendTransfer(toCopy, sb);
+            if (i < splitRanges.Length - 1) { bufi += joinEncoder.AppendTransfer(joinSpan, sb); }
         }
         return bufi;
     }

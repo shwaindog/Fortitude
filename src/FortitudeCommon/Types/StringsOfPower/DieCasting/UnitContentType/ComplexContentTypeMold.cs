@@ -33,7 +33,7 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold>
         return this;
     }
     
-    public override void AppendOpening()
+    public override void AppendTypeOpeningToGraphFields()
     {
       if (IsComplexType)
         MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField);
@@ -46,13 +46,11 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold>
       var formatter = MoldStateField.StyleFormatter;
       if (IsComplexType)
       {
-        formatter.StartComplexTypeClosing(MoldStateField);
-        formatter.FinishComplexTypeClosing(MoldStateField);
+        formatter.AppendComplexTypeClosing(MoldStateField);
       }
       else
       {
-        formatter.StartContentTypeClosing(MoldStateField);
-        formatter.FinishContentTypeClosing(MoldStateField);
+        formatter.AppendContentTypeClosing(MoldStateField);
       }
     }
     

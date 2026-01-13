@@ -31,14 +31,14 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
 
     public override bool IsComplexType => true;
 
-    public override void AppendOpening()
+    public override void AppendTypeOpeningToGraphFields()
     {
         State.StyleFormatter.StartComplexTypeOpening(State);
     }
     
     public override void AppendClosing()
     {
-        State.StyleFormatter.StartComplexTypeClosing(State);
+        State.StyleFormatter.AppendComplexTypeClosing(State);
     }
 
     public virtual void StartContent()
