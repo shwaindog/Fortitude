@@ -21,7 +21,7 @@ public partial class KeyedCollectionMold
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags);
         if (value != null)
         {
@@ -31,7 +31,7 @@ public partial class KeyedCollectionMold
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp = value[i];
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName, true).FieldEnd();
                 stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
@@ -46,7 +46,7 @@ public partial class KeyedCollectionMold
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
         if (value != null)
         {
@@ -56,7 +56,7 @@ public partial class KeyedCollectionMold
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp = value[i];
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName, true).FieldEnd();
                 stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
@@ -71,7 +71,7 @@ public partial class KeyedCollectionMold
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
         if (value != null)
         {
@@ -81,7 +81,7 @@ public partial class KeyedCollectionMold
             ItemCount = 0;
             foreach (var kvp in value)
             {
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName, true).FieldEnd();
                 stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
@@ -95,7 +95,7 @@ public partial class KeyedCollectionMold
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
@@ -107,7 +107,7 @@ public partial class KeyedCollectionMold
             while (hasValue)
             {
                 var kvp = value!.Current;
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName, true).FieldEnd();
                 stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString, formatFlags);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
@@ -144,7 +144,7 @@ public partial class KeyedCollectionMold
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.SkipField<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags);
         if (value != null)
         {
@@ -153,7 +153,7 @@ public partial class KeyedCollectionMold
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp = value[i];
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName, true).FieldEnd();
                 stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
@@ -169,7 +169,7 @@ public partial class KeyedCollectionMold
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TValue : struct
     {
-        if (stb.SkipField<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags);
         if (value != null)
         {
@@ -178,7 +178,7 @@ public partial class KeyedCollectionMold
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp = value[i];
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName, true).FieldEnd();
                 stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
@@ -195,7 +195,7 @@ public partial class KeyedCollectionMold
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IReadOnlyList<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags);
         if (value != null)
         {
@@ -204,7 +204,7 @@ public partial class KeyedCollectionMold
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp = value[i];
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName, true).FieldEnd();
                 stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
@@ -221,7 +221,7 @@ public partial class KeyedCollectionMold
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TValue : struct
     {
-        if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IReadOnlyList<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags);
         if (value != null)
         {
@@ -230,7 +230,7 @@ public partial class KeyedCollectionMold
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp = value[i];
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName, true).FieldEnd();
                 stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
@@ -248,7 +248,7 @@ public partial class KeyedCollectionMold
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
         if (value != null)
         {
@@ -257,7 +257,7 @@ public partial class KeyedCollectionMold
             ItemCount = 0;
             foreach (var kvp in value)
             {
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName, true).FieldEnd();
                 stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
@@ -273,7 +273,7 @@ public partial class KeyedCollectionMold
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TValue : struct
     {
-        if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags);
         if (value != null)
         {
@@ -282,7 +282,7 @@ public partial class KeyedCollectionMold
             ItemCount = 0;
             foreach (var kvp in value)
             {
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName, true).FieldEnd();
                 stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
@@ -299,7 +299,7 @@ public partial class KeyedCollectionMold
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
@@ -310,7 +310,7 @@ public partial class KeyedCollectionMold
             while (hasValue)
             {
                 var kvp = value!.Current;
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName, true).FieldEnd();
                 stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
@@ -327,7 +327,7 @@ public partial class KeyedCollectionMold
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TValue : struct
     {
-        if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
@@ -338,7 +338,7 @@ public partial class KeyedCollectionMold
             while (hasValue)
             {
                 var kvp = value!.Current;
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName, true).FieldEnd();
                 stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
@@ -402,7 +402,7 @@ public partial class KeyedCollectionMold
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.SkipField<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags);
         if (value != null)
         {
@@ -410,7 +410,7 @@ public partial class KeyedCollectionMold
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp = value[i];
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName).FieldEnd();
                 stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
@@ -429,7 +429,7 @@ public partial class KeyedCollectionMold
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.SkipField<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags);
         if (value != null)
         {
@@ -437,7 +437,7 @@ public partial class KeyedCollectionMold
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp = value[i];
-                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName).FieldEnd();
                 stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
@@ -456,7 +456,7 @@ public partial class KeyedCollectionMold
         where TValue : struct
         where TKRevealBase : notnull
     {
-        if (stb.SkipField<KeyValuePair<TKey, TValue?>[]>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<KeyValuePair<TKey, TValue?>[]>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<KeyValuePair<TKey, TValue?>[]>(value?.GetType(), "", formatFlags);
         if (value != null)
         {
@@ -464,7 +464,7 @@ public partial class KeyedCollectionMold
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp = value[i];
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName).FieldEnd();
                 stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
@@ -482,7 +482,7 @@ public partial class KeyedCollectionMold
         where TKey : struct
         where TValue : struct
     {
-        if (stb.SkipField<KeyValuePair<TKey, TValue?>[]>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<KeyValuePair<TKey, TValue?>[]>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<KeyValuePair<TKey, TValue?>[]>(value?.GetType(), "", formatFlags);
         if (value != null)
         {
@@ -490,7 +490,7 @@ public partial class KeyedCollectionMold
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp = value[i];
-                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName).FieldEnd();
                 stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
@@ -510,7 +510,7 @@ public partial class KeyedCollectionMold
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
         if (value != null)
         {
@@ -518,7 +518,7 @@ public partial class KeyedCollectionMold
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp = value[i];
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName).FieldEnd();
                 stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
@@ -537,7 +537,7 @@ public partial class KeyedCollectionMold
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
         if (value != null)
         {
@@ -545,7 +545,7 @@ public partial class KeyedCollectionMold
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp = value[i];
-                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName).FieldEnd();
                 stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
@@ -564,7 +564,7 @@ public partial class KeyedCollectionMold
         where TValue : struct
         where TKRevealBase : notnull
     {
-        if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
         if (value != null)
         {
@@ -572,7 +572,7 @@ public partial class KeyedCollectionMold
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp = value[i];
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName).FieldEnd();
                 stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
@@ -590,7 +590,7 @@ public partial class KeyedCollectionMold
         where TKey : struct
         where TValue : struct
     {
-        if (stb.SkipField<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
         if (value != null)
         {
@@ -598,7 +598,7 @@ public partial class KeyedCollectionMold
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp = value[i];
-                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName).FieldEnd();
                 stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, i);
             }
@@ -618,7 +618,7 @@ public partial class KeyedCollectionMold
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
         if (value != null)
         {
@@ -626,7 +626,7 @@ public partial class KeyedCollectionMold
             ItemCount = 0;
             foreach (var kvp in value)
             {
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName).FieldEnd();
                 stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
@@ -644,7 +644,7 @@ public partial class KeyedCollectionMold
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.SkipField<IEnumerable<KeyValuePair<TKey?, TValue>>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerable<KeyValuePair<TKey?, TValue>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<KeyValuePair<TKey?, TValue>>>(value?.GetType(), "", formatFlags);
         if (value != null)
         {
@@ -652,7 +652,7 @@ public partial class KeyedCollectionMold
             ItemCount = 0;
             foreach (var kvp in value)
             {
-                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName).FieldEnd();
                 stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
@@ -670,7 +670,7 @@ public partial class KeyedCollectionMold
         where TValue : struct
         where TKRevealBase : notnull
     {
-        if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags);
         if (value != null)
         {
@@ -678,7 +678,7 @@ public partial class KeyedCollectionMold
             ItemCount = 0;
             foreach (var kvp in value)
             {
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName).FieldEnd();
                 stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
@@ -695,7 +695,7 @@ public partial class KeyedCollectionMold
         where TKey : struct
         where TValue : struct
     {
-        if (stb.SkipField<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags);
         if (value != null)
         {
@@ -703,7 +703,7 @@ public partial class KeyedCollectionMold
             ItemCount = 0;
             foreach (var kvp in value)
             {
-                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName).FieldEnd();
                 stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
@@ -722,7 +722,7 @@ public partial class KeyedCollectionMold
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
@@ -732,7 +732,7 @@ public partial class KeyedCollectionMold
             while (hasValue)
             {
                 var kvp = value!.Current;
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName).FieldEnd();
                 stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
@@ -751,7 +751,7 @@ public partial class KeyedCollectionMold
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.SkipField<IEnumerator<KeyValuePair<TKey?, TValue>>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerator<KeyValuePair<TKey?, TValue>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey?, TValue>>>(value?.GetType(), "", formatFlags);
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
@@ -761,7 +761,7 @@ public partial class KeyedCollectionMold
             while (hasValue)
             {
                 var kvp = value!.Current;
-                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName).FieldEnd();
                 stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
@@ -780,7 +780,7 @@ public partial class KeyedCollectionMold
         where TValue : struct
         where TKRevealBase : notnull
     {
-        if (stb.SkipField<IEnumerator<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerator<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags);
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
@@ -790,7 +790,7 @@ public partial class KeyedCollectionMold
             while (hasValue)
             {
                 var kvp = value!.Current;
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName).FieldEnd();
                 stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
@@ -808,7 +808,7 @@ public partial class KeyedCollectionMold
             where TKey : struct
             where TValue : struct
     {
-        if (stb.SkipField<IEnumerator<KeyValuePair<TKey?, TValue?>>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerator<KeyValuePair<TKey?, TValue?>>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<KeyValuePair<TKey?, TValue?>>>(value?.GetType(), "", formatFlags);
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
@@ -818,7 +818,7 @@ public partial class KeyedCollectionMold
             while (hasValue)
             {
                 var kvp = value!.Current;
-                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, DefaultCallerTypeFlags, true).FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName).FieldEnd();
                 stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
                 hasValue = value.MoveNext();
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);

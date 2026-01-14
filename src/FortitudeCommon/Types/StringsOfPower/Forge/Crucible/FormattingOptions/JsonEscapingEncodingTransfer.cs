@@ -347,24 +347,25 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
 
     public int TransferSuffix(ReadOnlySpan<char> source, IStringBuilder destSb, bool encodeSuffix)
     {
+        var transferAmount = 0;
         if (!encodeSuffix)
         {
-            var i = source.Length - 1;
-
-            for (; i >= 0; i--)
-            {
-                var prevChar = source[i];
-                if (!prevChar.IsValidJsonTypeClosing()) break;
-            }
-            i += 1;
             if (source.Length > 0)
             {
+                var i = source.Length - 1;
+
+                for (; i >= 0; i--)
+                {
+                    var prevChar = source[i];
+                    if (!prevChar.IsValidJsonTypeClosing()) break;
+                    transferAmount++;
+                }
+                i += 1;
                 var encodedCount = UffixTransfer(source, 0, destSb, maxTransferCount: i);
-                var escapedChars = source.Length - i;
                 for (var j = i; j < source.Length; j++) { destSb.Append(source[j]); }
-                return encodedCount + escapedChars;
+                return encodedCount + transferAmount;
             }
-            return 0;
+            return transferAmount;
         }
         else { return UffixTransfer(source, 0, destSb); }
     }
@@ -885,7 +886,7 @@ public class JsonEscapingEncodingTransfer : RecyclableObject, IEncodingTransfer
             }
         }
         if (!isAppend && !isInsert) { sb.Length = Math.Max(originalLength, destStartIndex + countAdded); }
-        return sb.Length - originalLength;
+        return countAdded;
     }
 
     protected int JsEscapingTransfer(ReadOnlySpan<char> source, int sourceFrom, Span<char> destination

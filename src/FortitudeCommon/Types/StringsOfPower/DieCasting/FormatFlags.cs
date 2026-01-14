@@ -63,7 +63,8 @@ public enum FormatFlags : ulong
   , Exclude         = 0x10_00_00_00_00
   , OnlyInclude     = 0x20_00_00_00_00
   , InvertIncludeExclude = 0x40_00_00_00_00
-
+  , IsFieldName = 0x80_00_00_00_00
+    
   , LogSuppressTypeNames        = 0x00_01_00_00_00_00_00
   , AddTypeNameField            = 0x00_02_00_00_00_00_00
   , AddNamespace                = 0x00_04_00_00_00_00_00
@@ -80,12 +81,13 @@ public enum FormatFlags : ulong
   , PrettyWrapAtLineWidth       = 0x40_00_00_00_00_00_00
   , PrettyWrapAtContentWidth    = 0x80_00_00_00_00_00_00
 
-  , ViolationThrowsException = 0x01_00_00_00_00_00_00_00
-  , ViolationWritesAlert     = 0x02_00_00_00_00_00_00_00
-  , ViolationDebuggerBreak   = 0x04_00_00_00_00_00_00_00
-  , SuppressOpening          = 0x08_00_00_00_00_00_00_00
-  , SuppressClosing          = 0x10_00_00_00_00_00_00_00
-  , AsEmbeddedContent        = 0x18_00_01_00_00_00_00_00
+  , ViolationThrowsException   = 0x01_00_00_00_00_00_00_00
+  , ViolationWritesAlert       = 0x02_00_00_00_00_00_00_00
+  , ViolationDebuggerBreak     = 0x04_00_00_00_00_00_00_00
+  , SuppressOpening            = 0x08_00_00_00_00_00_00_00
+  , SuppressClosing            = 0x10_00_00_00_00_00_00_00
+  , AsEmbeddedContent          = 0x18_00_01_00_00_00_00_00  
+  , DisableFieldNameDelimiting = 0x20_00_00_00_00_00_00_00
 }
 
 public static class FieldContentHandlingExtensions
@@ -186,6 +188,10 @@ public static class FieldContentHandlingExtensions
     public static bool DoesNotHaveLogSuppressTypeNamesFlag(this FormatFlags flags) => (flags & LogSuppressTypeNames) == 0;
     public static bool HasAsCollectionFlag(this FormatFlags flags)                 => (flags & AsCollection) > 0;
     public static bool DoesNotHaveAsCollectionFlag(this FormatFlags flags)         => (flags & AsCollection) == 0;
+    public static bool HasIsFieldNameFlag(this FormatFlags flags)                  => (flags & IsFieldName) > 0;
+    public static bool DoesNotHaveIsFieldNameFlag(this FormatFlags flags)                  => (flags & IsFieldName) == 0;
+    public static bool HasDisableFieldNameDelimitingFlag(this FormatFlags flags)   => (flags & DisableFieldNameDelimiting) > 0;
+    public static bool DoesNotHaveDisableFieldNameDelimitingFlag(this FormatFlags flags)   => (flags & DisableFieldNameDelimiting) == 0;
     public static bool HasSuppressOpening(this FormatFlags flags)                  => (flags & SuppressOpening) > 0;
     public static bool DoesNotHaveSuppressOpening(this FormatFlags flags)          => (flags & SuppressOpening) == 0;
     public static bool HasSuppressClosing(this FormatFlags flags)                  => (flags & SuppressClosing) > 0;
@@ -217,4 +223,7 @@ public static class FieldContentHandlingExtensions
         }
         return existingStyle;
     }
+
+    public static FormatFlags MoldInheritFlags(this FormatFlags moldCreatedFlags) =>
+        moldCreatedFlags & (IsFieldName | DisableFieldNameDelimiting | OnOneLine | DisableAutoDelimiting | AsStringContent | AsValueContent);
 }

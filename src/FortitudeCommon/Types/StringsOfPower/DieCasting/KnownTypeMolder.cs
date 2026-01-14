@@ -78,7 +78,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
     }
 
     public abstract void AppendTypeOpeningToGraphFields();
-    public virtual void CompleteTypeOpeningToTypeFields() { }
+    public virtual  void CompleteTypeOpeningToTypeFields() { }
 
     public virtual void AppendClosing()
     {
@@ -110,16 +110,34 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
 
     protected bool AppendGraphFields()
     {
-        if (MoldStateField.StyleTypeBuilder.ExistingRefId != 0)
+        var msf         = MoldStateField;
+        var createFlags = msf.CreateMoldFormatFlags;
+        if (msf.StyleTypeBuilder.ExistingRefId != 0)
         {
-            MoldStateField.Sb.Append("\"$ref\":\"").Append(MoldStateField.StyleTypeBuilder.ExistingRefId).Append("\" ");
+            var charsWritten =
+                msf.StyleFormatter
+                   .AppendExistingReferenceId(msf, msf.StyleTypeBuilder.ExistingRefId, msf.WriteAsComplex, createFlags);
+            msf.WroteRefId = charsWritten > 0;
             return true;
         }
         if (MoldStateField.RemainingGraphDepth <= 0)
         {
-            MoldStateField.Sb.Append("\"$clipped\":\"maxDepth\"").Append(" ");
-            MoldStateField.SkipBody   = true;
-            MoldStateField.SkipFields = true;
+            var formatter = msf.StyleFormatter;
+
+            var charsWritten =
+                formatter
+                    .AppendInstanceInfoField(msf, "$clipped", "maxDepth", msf.WriteAsComplex, createFlags);
+            if (charsWritten > 0)
+            {
+                msf.WasDepthClipped = true;
+                msf.SkipBody        = true;
+                msf.SkipFields      = true;
+            }
+            else
+            {
+                msf.WasDepthClipped = true;
+                msf.SkipFields      = true;
+            }
             return true;
         }
 
@@ -129,8 +147,9 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
     protected virtual void SourceBuilderComponentAccess()
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
-        MoldStateField = recycler.Borrow<TypeMolderDieCast<TMold>>()
-                                 .Initialize((TMold)(ITypeBuilderComponentSource<TMold>)this, PortableState);
+        MoldStateField =
+            recycler.Borrow<TypeMolderDieCast<TMold>>()
+                    .Initialize((TMold)(ITypeBuilderComponentSource<TMold>)this, PortableState);
     }
 
     protected override void InheritedStateReset()

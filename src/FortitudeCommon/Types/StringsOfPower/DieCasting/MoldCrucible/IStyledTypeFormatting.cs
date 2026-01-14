@@ -49,8 +49,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     ContentSeparatorRanges AppendComplexTypeClosing(ITypeMolderDieCast moldInternal);
 
-    IStringBuilder AppendFormattedNull(IStringBuilder sb, string? formatString, FormatFlags formatFlags = DefaultCallerTypeFlags
-      , bool isFieldName = false);
+    IStringBuilder AppendFormattedNull(IStringBuilder sb, string? formatString, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType, Type keyType, Type valueType
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
@@ -211,9 +210,15 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     int SizeFormatFieldName(int sourceLength, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    int InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, int refId, int indexToInsertAt, FormatFlags createTypeFlags);
+    int InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, int refId, int indexToInsertAt, bool isComplex
+    , FormatFlags createTypeFlags, int currentEnd = -1, ITypeMolderDieCast? liveMoldInternal = null);
+    
+    int AppendExistingReferenceId(ITypeMolderDieCast moldInternal, int refId, bool isComplex, FormatFlags createTypeFlags);
 
-    IStringBuilder AppendFieldName(IStringBuilder sb, ReadOnlySpan<char> fieldName);
+    int AppendInstanceInfoField(ITypeMolderDieCast moldInternal, string fieldName, ReadOnlySpan<char> description
+    , bool isComplex, FormatFlags createTypeFlags);
+    
+    IStringBuilder AppendFieldName(IStringBuilder sb, ReadOnlySpan<char> fieldName, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     IStringBuilder FormatFieldNameMatch<T>(IStringBuilder sb, T source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags);

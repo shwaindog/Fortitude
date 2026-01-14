@@ -44,7 +44,8 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold>
     
     public ContentJoinTypeMold<SimpleContentTypeMold> AsValue(bool value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
-        Msf.FieldValueNext("", value, formatString ?? "", formatFlags);
+        Msf.FieldValueNext("", value, formatString ?? ""
+                         , formatFlags | Msf.CreateMoldFormatFlags );
     
     public ContentJoinTypeMold<SimpleContentTypeMold> AsValueOrNull(bool? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>

@@ -38,13 +38,13 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
 
     public override void AppendTypeOpeningToGraphFields()
     {
-        if (CompAsOrderedCollection.CollectionInComplexType) { MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField); }
+        if (CompAsOrderedCollection.WriteAsComplex) { MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField); }
         else
         {
             var elementType = MoldStateField.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
             MoldStateField.StyleFormatter.FormatCollectionStart
                 (MoldStateField, elementType!, true
-               , MoldStateField.TypeBeingBuilt, MoldStateField.CreateContentHandling);
+               , MoldStateField.TypeBeingBuilt, MoldStateField.CreateMoldFormatFlags);
         }
     }
 
@@ -53,14 +53,14 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
     public override void AppendClosing()
     {
         var formatter = MoldStateField.StyleFormatter;
-        if (CompAsOrderedCollection.CollectionInComplexType)
+        if (CompAsOrderedCollection.WriteAsComplex)
         {
             formatter.AppendComplexTypeClosing(MoldStateField);
         }
         else
         {
             var elementType = MoldStateField.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
-            formatter.FormatCollectionEnd(MoldStateField, ResultCount, elementType!, ResultCount, "", MoldStateField.CreateContentHandling);
+            formatter.FormatCollectionEnd(MoldStateField, ResultCount, elementType!, ResultCount, "", MoldStateField.CreateMoldFormatFlags);
         }
     }
 

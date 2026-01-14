@@ -28,7 +28,7 @@ public class ContentTypeMold<TContentMold> : TransitioningTypeMolder<TContentMol
 
     protected ContentTypeDieCast<TContentMold> Msf => (ContentTypeDieCast<TContentMold>)MoldStateField!;
 
-    public override bool IsComplexType => Msf.ValueInComplexType;
+    public override bool IsComplexType => Msf.WriteAsComplex;
 
     public override void StartTypeOpening()
     {

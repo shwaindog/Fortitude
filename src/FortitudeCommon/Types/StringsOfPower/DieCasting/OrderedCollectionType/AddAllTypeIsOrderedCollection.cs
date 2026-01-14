@@ -16,7 +16,7 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAll(bool[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<Memory<bool>>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<Memory<bool>>(value?.GetType(), "", formatFlags);
+        if (stb.HasSkipBody<Memory<bool>>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<Memory<bool>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(bool);
         stb.ConditionalCollectionPrefix(elementType, value?.Length > 0);
 
@@ -31,14 +31,14 @@ public partial class OrderedCollectionMold<TOCMold>
             }
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(bool?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<bool?[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<bool?[]>(value?.GetType(), "", formatFlags);
+        if (stb.HasSkipBody<bool?[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<bool?[]>(value?.GetType(), "", formatFlags);
         var elementType = typeof(bool?);
         stb.ConditionalCollectionPrefix(elementType, value?.Length > 0);
 
@@ -53,14 +53,14 @@ public partial class OrderedCollectionMold<TOCMold>
             }
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(Span<bool> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<Memory<bool>>(value.Length > 0 ? typeof(Span<bool>) : null, "", formatFlags))
+        if (stb.HasSkipBody<Memory<bool>>(value.Length > 0 ? typeof(Span<bool>) : null, "", formatFlags))
             return stb.WasSkipped<Memory<bool>>(value.Length > 0 ? typeof(Span<bool>) : null, "", formatFlags);
         var elementType = typeof(bool);
         stb.ConditionalCollectionPrefix(elementType, value.Length > 0);
@@ -76,14 +76,14 @@ public partial class OrderedCollectionMold<TOCMold>
             }
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(ReadOnlySpan<bool> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<ReadOnlyMemory<bool>>(value.Length > 0 ? typeof(ReadOnlySpan<bool>) : null, "", formatFlags))
+        if (stb.HasSkipBody<ReadOnlyMemory<bool>>(value.Length > 0 ? typeof(ReadOnlySpan<bool>) : null, "", formatFlags))
             return stb.WasSkipped<ReadOnlyMemory<bool>>(value.Length > 0 ? typeof(ReadOnlySpan<bool>) : null, "", formatFlags);
         var elementType = typeof(bool);
         stb.ConditionalCollectionPrefix(elementType, value.Length > 0);
@@ -99,14 +99,14 @@ public partial class OrderedCollectionMold<TOCMold>
             }
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(Span<bool?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<Memory<bool?>>(value.Length > 0 ? typeof(Span<bool?>) : null, "", formatFlags))
+        if (stb.HasSkipBody<Memory<bool?>>(value.Length > 0 ? typeof(Span<bool?>) : null, "", formatFlags))
             return stb.WasSkipped<Memory<bool?>>(value.Length > 0 ? typeof(Span<bool?>) : null, "", formatFlags);
         var elementType = typeof(bool?);
         stb.ConditionalCollectionPrefix(elementType, value.Length > 0);
@@ -121,14 +121,14 @@ public partial class OrderedCollectionMold<TOCMold>
             }
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(ReadOnlySpan<bool?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<ReadOnlyMemory<bool?>>(value.Length > 0 ? typeof(ReadOnlySpan<bool?>) : null, "", formatFlags))
+        if (stb.HasSkipBody<ReadOnlyMemory<bool?>>(value.Length > 0 ? typeof(ReadOnlySpan<bool?>) : null, "", formatFlags))
             return stb.WasSkipped<ReadOnlyMemory<bool?>>(value.Length > 0 ? typeof(ReadOnlySpan<bool?>) : null, "", formatFlags);
         var elementType = typeof(bool?);
         stb.ConditionalCollectionPrefix(elementType, value.Length > 0);
@@ -143,14 +143,14 @@ public partial class OrderedCollectionMold<TOCMold>
             }
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(IReadOnlyList<bool>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IReadOnlyList<bool>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IReadOnlyList<bool>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IReadOnlyList<bool>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(bool);
         stb.ConditionalCollectionPrefix(elementType, value?.Count > 0);
@@ -165,14 +165,14 @@ public partial class OrderedCollectionMold<TOCMold>
             }
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(IReadOnlyList<bool?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IReadOnlyList<bool?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IReadOnlyList<bool?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IReadOnlyList<bool?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(bool?);
         stb.ConditionalCollectionPrefix(elementType, value?.Count > 0);
@@ -187,14 +187,14 @@ public partial class OrderedCollectionMold<TOCMold>
             }
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate(IEnumerable<bool>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerable<bool>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerable<bool>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<bool>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(bool);
         var any         = false;
@@ -212,14 +212,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate(IEnumerable<bool?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerable<bool?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerable<bool?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<bool?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(bool);
         var any         = false;
@@ -237,14 +237,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate(IEnumerator<bool>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerator<bool>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerator<bool>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<bool>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(bool);
         var any         = false;
@@ -266,14 +266,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate(IEnumerator<bool?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerator<bool?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerator<bool?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<bool?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(bool);
         var any         = false;
@@ -295,14 +295,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll<TFmt>(TFmt?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
     {
-        if (stb.SkipField<TFmt?[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<TFmt?[]>(value?.GetType(), "", formatFlags);
+        if (stb.HasSkipBody<TFmt?[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<TFmt?[]>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TFmt);
         var any         = false;
         if (value != null)
@@ -320,14 +320,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? value?.Length : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll<TFmtStruct>(TFmtStruct?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
-        if (stb.SkipField<TFmtStruct?[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<TFmtStruct?[]>(value?.GetType(), "", formatFlags);
+        if (stb.HasSkipBody<TFmtStruct?[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<TFmtStruct?[]>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TFmtStruct?);
         var any         = false;
         if (value != null)
@@ -345,14 +345,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? value?.Length : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll<TFmt>(Span<TFmt> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
-        if (stb.SkipField<Memory<TFmt>>(value.Length > 0 ? typeof(Span<TFmt>) : null, "", formatFlags))
+        if (stb.HasSkipBody<Memory<TFmt>>(value.Length > 0 ? typeof(Span<TFmt>) : null, "", formatFlags))
             return stb.WasSkipped<Memory<TFmt>>(value.Length > 0 ? typeof(Span<TFmt>) : null, "", formatFlags);
         var elementType = typeof(TFmt);
         var any         = false;
@@ -371,14 +371,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll<TFmt>(ReadOnlySpan<TFmt> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
-        if (stb.SkipField<ReadOnlyMemory<TFmt>>(value.Length > 0 ? typeof(ReadOnlySpan<TFmt>) : null, "", formatFlags))
+        if (stb.HasSkipBody<ReadOnlyMemory<TFmt>>(value.Length > 0 ? typeof(ReadOnlySpan<TFmt>) : null, "", formatFlags))
             return stb.WasSkipped<ReadOnlyMemory<TFmt>>(value.Length > 0 ? typeof(ReadOnlySpan<TFmt>) : null, "", formatFlags);
         var elementType = typeof(TFmt);
         var any         = false;
@@ -397,14 +397,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll<TFmtStruct>(Span<TFmtStruct?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
-        if (stb.SkipField<Memory<TFmtStruct?>>(value.Length > 0 ? typeof(Span<TFmtStruct?>) : null, "", formatFlags))
+        if (stb.HasSkipBody<Memory<TFmtStruct?>>(value.Length > 0 ? typeof(Span<TFmtStruct?>) : null, "", formatFlags))
             return stb.WasSkipped<Memory<TFmtStruct?>>(value.Length > 0 ? typeof(Span<TFmtStruct?>) : null, "", formatFlags);
         var elementType = typeof(TFmtStruct?);
         var any         = false;
@@ -423,14 +423,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll<TFmtStruct>(ReadOnlySpan<TFmtStruct?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
-        if (stb.SkipField<ReadOnlyMemory<TFmtStruct?>>(value.Length > 0 ? typeof(ReadOnlySpan<TFmtStruct?>) : null, "", formatFlags))
+        if (stb.HasSkipBody<ReadOnlyMemory<TFmtStruct?>>(value.Length > 0 ? typeof(ReadOnlySpan<TFmtStruct?>) : null, "", formatFlags))
             return stb.WasSkipped<ReadOnlyMemory<TFmtStruct?>>(value.Length > 0 ? typeof(ReadOnlySpan<TFmtStruct?>) : null, "", formatFlags);
         var elementType = typeof(TFmtStruct?);
         var any         = false;
@@ -449,14 +449,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll<TFmt>(IReadOnlyList<TFmt?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
     {
-        if (stb.SkipField<IReadOnlyList<TFmt?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IReadOnlyList<TFmt?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IReadOnlyList<TFmt?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TFmt);
         var any         = false;
@@ -475,14 +475,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll<TFmtStruct>(IReadOnlyList<TFmtStruct?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
-        if (stb.SkipField<IReadOnlyList<TFmtStruct?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IReadOnlyList<TFmtStruct?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IReadOnlyList<TFmtStruct?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TFmtStruct?);
         var any         = false;
@@ -501,14 +501,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate<TFmt>(IEnumerable<TFmt?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
     {
-        if (stb.SkipField<IEnumerable<TFmt?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerable<TFmt?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<TFmt?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TFmt);
         var any         = false;
@@ -526,14 +526,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate<TFmtStruct>(IEnumerable<TFmtStruct?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
-        if (stb.SkipField<IEnumerable<TFmtStruct?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerable<TFmtStruct?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<TFmtStruct?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TFmtStruct?);
         var any         = false;
@@ -551,14 +551,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate<TFmt>(IEnumerator<TFmt?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
     {
-        if (stb.SkipField<IEnumerator<TFmt?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerator<TFmt?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<TFmt?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TFmt);
         var any         = false;
@@ -579,14 +579,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate<TFmtStruct>(IEnumerator<TFmtStruct?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
-        if (stb.SkipField<IEnumerator<TFmtStruct?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerator<TFmtStruct?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<TFmtStruct?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TFmtStruct?);
         var any         = false;
@@ -607,7 +607,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TCloaked, TRevealBase>(TCloaked?[]? value, PalantírReveal<TRevealBase> palantírReveal
@@ -615,7 +615,7 @@ public partial class OrderedCollectionMold<TOCMold>
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        if (stb.SkipField<TCloaked?[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<TCloaked?[]>(value?.GetType(), "", formatFlags);
+        if (stb.HasSkipBody<TCloaked?[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<TCloaked?[]>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TCloaked);
         var any         = false;
         if (value != null)
@@ -632,7 +632,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? value?.Length : null, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
 
@@ -640,7 +640,7 @@ public partial class OrderedCollectionMold<TOCMold>
         , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
-        if (stb.SkipField<TCloakedStruct?[]>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<TCloakedStruct?[]>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<TCloakedStruct?[]>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TCloakedStruct);
         var any         = false;
@@ -658,7 +658,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? value?.Length : null, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TCloaked, TRevealBase>(Span<TCloaked> value, PalantírReveal<TRevealBase> palantírReveal
@@ -666,7 +666,7 @@ public partial class OrderedCollectionMold<TOCMold>
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        if (stb.SkipField<Memory<TCloaked>>(value.Length > 0 ? typeof(Span<TCloaked>) : null, "", formatFlags))
+        if (stb.HasSkipBody<Memory<TCloaked>>(value.Length > 0 ? typeof(Span<TCloaked>) : null, "", formatFlags))
             return stb.WasSkipped<Memory<TCloaked>>(value.Length > 0 ? typeof(Span<TCloaked>) : null, "", formatFlags);
         var elementType = typeof(TCloaked);
         var any         = false;
@@ -684,14 +684,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TCloakedStruct>(Span<TCloakedStruct?> value, PalantírReveal<TCloakedStruct> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
-        if (stb.SkipField<Memory<TCloakedStruct>>(value.Length > 0 ? typeof(Span<TCloakedStruct>) : null, "", formatFlags))
+        if (stb.HasSkipBody<Memory<TCloakedStruct>>(value.Length > 0 ? typeof(Span<TCloakedStruct>) : null, "", formatFlags))
             return stb.WasSkipped<Memory<TCloakedStruct>>(value.Length > 0 ? typeof(Span<TCloakedStruct>) : null, "", formatFlags);
         var elementType = typeof(TCloakedStruct);
         var any         = false;
@@ -709,7 +709,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TCloaked, TRevealBase>(ReadOnlySpan<TCloaked> value, PalantírReveal<TRevealBase> palantírReveal
@@ -717,7 +717,7 @@ public partial class OrderedCollectionMold<TOCMold>
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        if (stb.SkipField<ReadOnlyMemory<TCloaked>>(value.Length > 0 ? typeof(ReadOnlySpan<TCloaked>) : null, "", formatFlags))
+        if (stb.HasSkipBody<ReadOnlyMemory<TCloaked>>(value.Length > 0 ? typeof(ReadOnlySpan<TCloaked>) : null, "", formatFlags))
             return stb.WasSkipped<ReadOnlyMemory<TCloaked>>(value.Length > 0 ? typeof(ReadOnlySpan<TCloaked>) : null, "", formatFlags);
         var elementType = typeof(TCloaked);
         var any         = false;
@@ -735,14 +735,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TCloakedStruct>(ReadOnlySpan<TCloakedStruct?> value, PalantírReveal<TCloakedStruct> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
-        if (stb.SkipField<ReadOnlyMemory<TCloakedStruct>>(value.Length > 0 ? typeof(ReadOnlySpan<TCloakedStruct>) : null, "", formatFlags))
+        if (stb.HasSkipBody<ReadOnlyMemory<TCloakedStruct>>(value.Length > 0 ? typeof(ReadOnlySpan<TCloakedStruct>) : null, "", formatFlags))
             return stb.WasSkipped<ReadOnlyMemory<TCloakedStruct>>(value.Length > 0 ? typeof(ReadOnlySpan<TCloakedStruct>) : null, "", formatFlags);
         var elementType = typeof(TCloakedStruct);
         var any         = false;
@@ -760,7 +760,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TCloaked, TRevealBase>(IReadOnlyList<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal
@@ -768,7 +768,7 @@ public partial class OrderedCollectionMold<TOCMold>
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        if (stb.SkipField<IReadOnlyList<TCloaked?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IReadOnlyList<TCloaked?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IReadOnlyList<TCloaked?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TCloaked);
         var any         = false;
@@ -786,14 +786,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TCloakedStruct>(IReadOnlyList<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
-        if (stb.SkipField<IReadOnlyList<TCloakedStruct?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IReadOnlyList<TCloakedStruct?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IReadOnlyList<TCloakedStruct?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TCloakedStruct);
         var any         = false;
@@ -811,7 +811,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAllEnumerate<TCloaked, TRevealBase>(IEnumerable<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal
@@ -819,7 +819,7 @@ public partial class OrderedCollectionMold<TOCMold>
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        if (stb.SkipField<IEnumerable<TCloaked?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerable<TCloaked?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<TCloaked?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TCloaked);
         var any         = false;
@@ -836,14 +836,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAllEnumerate<TCloakedStruct>(IEnumerable<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
-        if (stb.SkipField<IEnumerable<TCloakedStruct?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerable<TCloakedStruct?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<TCloakedStruct?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TCloakedStruct);
         var any         = false;
@@ -860,7 +860,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAllEnumerate<TCloaked, TRevealBase>(IEnumerator<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal
@@ -868,7 +868,7 @@ public partial class OrderedCollectionMold<TOCMold>
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        if (stb.SkipField<IEnumerator<TCloaked?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerator<TCloaked?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<TCloaked?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TCloaked);
         var any         = false;
@@ -888,14 +888,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAllEnumerate<TCloakedStruct>(IEnumerator<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
-        if (stb.SkipField<IEnumerator<TCloakedStruct?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerator<TCloakedStruct?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<TCloakedStruct?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TCloakedStruct);
         var any         = false;
@@ -915,13 +915,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TBearer>(TBearer[]? value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
-        if (stb.SkipField<TBearer[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<TBearer[]>(value?.GetType()
+        if (stb.HasSkipBody<TBearer[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<TBearer[]>(value?.GetType()
        , "", formatFlags);
         var elementType = typeof(TBearer);
         var any         = false;
@@ -939,13 +939,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Length, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TBearerStruct>(TBearerStruct?[]? value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
-        if (stb.SkipField<TBearerStruct[]>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<TBearerStruct[]>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<TBearerStruct[]>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TBearerStruct);
         var any         = false;
@@ -963,13 +963,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Length, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TBearer>(Span<TBearer> value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
-        if (stb.SkipField<Memory<TBearer>>(value.Length > 0 ? typeof(Span<TBearer>) : null, "", formatFlags))
+        if (stb.HasSkipBody<Memory<TBearer>>(value.Length > 0 ? typeof(Span<TBearer>) : null, "", formatFlags))
             return stb.WasSkipped<Memory<TBearer>>(value.Length > 0 ? typeof(Span<TBearer>) : null, "", formatFlags);
         var elementType = typeof(TBearer);
         var any         = false;
@@ -987,13 +987,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TBearerStruct>(Span<TBearerStruct?> value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
-        if (stb.SkipField<Memory<TBearerStruct?>>(value.Length > 0 ? typeof(Span<TBearerStruct?>) : null, "", formatFlags))
+        if (stb.HasSkipBody<Memory<TBearerStruct?>>(value.Length > 0 ? typeof(Span<TBearerStruct?>) : null, "", formatFlags))
             return stb.WasSkipped<Memory<TBearerStruct?>>(value.Length > 0 ? typeof(Span<TBearerStruct?>) : null, "", formatFlags);
         var elementType = typeof(TBearerStruct);
         var any         = false;
@@ -1011,13 +1011,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TBearer>(ReadOnlySpan<TBearer> value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
-        if (stb.SkipField<ReadOnlyMemory<TBearer?>>(value.Length > 0 ? typeof(ReadOnlySpan<TBearer?>) : null, "", formatFlags))
+        if (stb.HasSkipBody<ReadOnlyMemory<TBearer?>>(value.Length > 0 ? typeof(ReadOnlySpan<TBearer?>) : null, "", formatFlags))
             return stb.WasSkipped<ReadOnlyMemory<TBearer?>>(value.Length > 0 ? typeof(ReadOnlySpan<TBearer?>) : null, "", formatFlags);
         var elementType = typeof(TBearer);
         var any         = false;
@@ -1035,14 +1035,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TBearerStruct>(ReadOnlySpan<TBearerStruct?> value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
-        if (stb.SkipField<ReadOnlyMemory<TBearerStruct?>>(value.Length > 0 ? typeof(ReadOnlySpan<TBearerStruct?>) : null, "", formatFlags))
+        if (stb.HasSkipBody<ReadOnlyMemory<TBearerStruct?>>(value.Length > 0 ? typeof(ReadOnlySpan<TBearerStruct?>) : null, "", formatFlags))
             return stb.WasSkipped<ReadOnlyMemory<TBearerStruct?>>(value.Length > 0 ? typeof(ReadOnlySpan<TBearerStruct?>) : null, "", formatFlags);
         var elementType = typeof(TBearerStruct);
         var any         = false;
@@ -1060,13 +1060,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TBearer>(IReadOnlyList<TBearer>? value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
-        if (stb.SkipField<IReadOnlyList<TBearer?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IReadOnlyList<TBearer?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IReadOnlyList<TBearer?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TBearer);
         var any         = false;
@@ -1084,14 +1084,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TBearerStruct>(IReadOnlyList<TBearerStruct?>? value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
-        if (stb.SkipField<IReadOnlyList<TBearerStruct?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IReadOnlyList<TBearerStruct?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IReadOnlyList<TBearerStruct?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TBearerStruct);
         var any         = false;
@@ -1109,14 +1109,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAllEnumerate<TBearer>(IEnumerable<TBearer>? value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
-        if (stb.SkipField<IEnumerable<TBearer?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerable<TBearer?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<TBearer?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TBearer);
         var any         = false;
@@ -1133,14 +1133,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAllEnumerate<TBearerStruct>(IEnumerable<TBearerStruct?>? value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
-        if (stb.SkipField<IEnumerable<TBearerStruct>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerable<TBearerStruct>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<TBearerStruct>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TBearerStruct);
         var any         = false;
@@ -1157,14 +1157,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAllEnumerate<TBearer>(IEnumerator<TBearer>? value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
-        if (stb.SkipField<IEnumerator<TBearer?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerator<TBearer?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<TBearer?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TBearer);
         var any         = false;
@@ -1185,14 +1185,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAllEnumerate<TBearerStruct>(IEnumerator<TBearerStruct?>? value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
-        if (stb.SkipField<IEnumerable<TBearerStruct?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerable<TBearerStruct?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<TBearerStruct?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TBearerStruct);
         var any         = false;
@@ -1213,13 +1213,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, "", formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(string?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<string?[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<string?[]>(value?.GetType(), "", formatFlags);
+        if (stb.HasSkipBody<string?[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<string?[]>(value?.GetType(), "", formatFlags);
         var elementType = typeof(string);
         var any         = false;
         if (value != null)
@@ -1237,13 +1237,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? value?.Length : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(Span<string> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<Memory<string>>(value.Length > 0 ? typeof(Span<string>) : null, "", formatFlags))
+        if (stb.HasSkipBody<Memory<string>>(value.Length > 0 ? typeof(Span<string>) : null, "", formatFlags))
             return stb.WasSkipped<Memory<string>>(value.Length > 0 ? typeof(Span<string>) : null, "", formatFlags);
         var elementType = typeof(string);
         var any         = false;
@@ -1262,13 +1262,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllNullable(Span<string?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<Memory<string?>>(value.Length > 0 ? typeof(Span<string?>) : null, "", formatFlags))
+        if (stb.HasSkipBody<Memory<string?>>(value.Length > 0 ? typeof(Span<string?>) : null, "", formatFlags))
             return stb.WasSkipped<Memory<string?>>(value.Length > 0 ? typeof(Span<string?>) : null, "", formatFlags);
         var elementType = typeof(string);
         var any         = false;
@@ -1287,13 +1287,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(ReadOnlySpan<string> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<ReadOnlyMemory<string>>(value.Length > 0 ? typeof(ReadOnlySpan<string>) : null, "", formatFlags))
+        if (stb.HasSkipBody<ReadOnlyMemory<string>>(value.Length > 0 ? typeof(ReadOnlySpan<string>) : null, "", formatFlags))
             return stb.WasSkipped<ReadOnlyMemory<string>>(value.Length > 0 ? typeof(ReadOnlySpan<string>) : null, "", formatFlags);
         var elementType = typeof(string);
         var any         = false;
@@ -1312,13 +1312,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllNullable(ReadOnlySpan<string?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<ReadOnlyMemory<string?>>(value.Length > 0 ? typeof(ReadOnlySpan<string?>) : null, "", formatFlags))
+        if (stb.HasSkipBody<ReadOnlyMemory<string?>>(value.Length > 0 ? typeof(ReadOnlySpan<string?>) : null, "", formatFlags))
             return stb.WasSkipped<ReadOnlyMemory<string?>>(value.Length > 0 ? typeof(ReadOnlySpan<string?>) : null, "", formatFlags);
         var elementType = typeof(string);
         var any         = false;
@@ -1337,13 +1337,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(IReadOnlyList<string?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IReadOnlyList<string?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IReadOnlyList<string?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IReadOnlyList<string?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(string);
         var any         = false;
@@ -1362,13 +1362,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate(IEnumerable<string?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerable<string?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerable<string?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<string?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(string);
         var any         = false;
@@ -1386,13 +1386,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate(IEnumerator<string?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerator<string?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerator<string?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<string?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(string);
         var any         = false;
@@ -1414,14 +1414,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllCharSeq<TCharSeq>(TCharSeq?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence
     {
-        if (stb.SkipField<TCharSeq?[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<TCharSeq?[]>(value?.GetType(), "", formatFlags);
+        if (stb.HasSkipBody<TCharSeq?[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<TCharSeq?[]>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TCharSeq);
         var any         = false;
         if (value != null)
@@ -1439,14 +1439,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? value?.Length : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllCharSeq<TCharSeq>(Span<TCharSeq> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence?
     {
-        if (stb.SkipField<Memory<TCharSeq>>(value.Length > 0 ? typeof(Span<TCharSeq>) : null, "", formatFlags))
+        if (stb.HasSkipBody<Memory<TCharSeq>>(value.Length > 0 ? typeof(Span<TCharSeq>) : null, "", formatFlags))
             return stb.WasSkipped<Memory<TCharSeq>>(value.Length > 0 ? typeof(Span<TCharSeq>) : null, "", formatFlags);
         var elementType = typeof(TCharSeq);
         var any         = false;
@@ -1465,7 +1465,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllCharSeq<TCharSeq>(ReadOnlySpan<TCharSeq> value
@@ -1473,7 +1473,7 @@ public partial class OrderedCollectionMold<TOCMold>
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence?
     {
-        if (stb.SkipField<ReadOnlyMemory<TCharSeq>>(value.Length > 0 ? typeof(ReadOnlySpan<TCharSeq>) : null, "", formatFlags))
+        if (stb.HasSkipBody<ReadOnlyMemory<TCharSeq>>(value.Length > 0 ? typeof(ReadOnlySpan<TCharSeq>) : null, "", formatFlags))
             return stb.WasSkipped<ReadOnlyMemory<TCharSeq>>(value.Length > 0 ? typeof(ReadOnlySpan<TCharSeq>) : null, "", formatFlags);
         var elementType = typeof(TCharSeq);
         var any         = false;
@@ -1492,7 +1492,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllCharSeq<TCharSeq>(IReadOnlyList<TCharSeq?>? value
@@ -1500,7 +1500,7 @@ public partial class OrderedCollectionMold<TOCMold>
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence
     {
-        if (stb.SkipField<IReadOnlyList<TCharSeq?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IReadOnlyList<TCharSeq?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IReadOnlyList<TCharSeq?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TCharSeq);
         var any         = false;
@@ -1519,7 +1519,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllCharSeqEnumerate<TCharSeq>(IEnumerable<TCharSeq?>? value
@@ -1527,7 +1527,7 @@ public partial class OrderedCollectionMold<TOCMold>
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence
     {
-        if (stb.SkipField<IEnumerable<TCharSeq?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerable<TCharSeq?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<TCharSeq?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TCharSeq);
         var any         = false;
@@ -1545,7 +1545,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllCharSeqEnumerate<TCharSeq>(IEnumerator<TCharSeq?>? value
@@ -1553,7 +1553,7 @@ public partial class OrderedCollectionMold<TOCMold>
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence
     {
-        if (stb.SkipField<IEnumerator<TCharSeq?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerator<TCharSeq?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<TCharSeq?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TCharSeq);
         var any         = false;
@@ -1575,13 +1575,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(StringBuilder?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerator<StringBuilder?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerator<StringBuilder?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<StringBuilder?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
@@ -1600,13 +1600,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? value?.Length : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(Span<StringBuilder> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<Memory<StringBuilder>>(value.Length > 0 ? typeof(Span<StringBuilder>) : null, "", formatFlags))
+        if (stb.HasSkipBody<Memory<StringBuilder>>(value.Length > 0 ? typeof(Span<StringBuilder>) : null, "", formatFlags))
             return stb.WasSkipped<Memory<StringBuilder>>(value.Length > 0 ? typeof(Span<StringBuilder>) : null, "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
@@ -1625,13 +1625,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllNullable(Span<StringBuilder?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<Memory<StringBuilder?>>(value.Length > 0 ? typeof(Span<StringBuilder?>) : null, "", formatFlags))
+        if (stb.HasSkipBody<Memory<StringBuilder?>>(value.Length > 0 ? typeof(Span<StringBuilder?>) : null, "", formatFlags))
             return stb.WasSkipped<Memory<StringBuilder?>>(value.Length > 0 ? typeof(Span<StringBuilder?>) : null, "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
@@ -1650,13 +1650,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(ReadOnlySpan<StringBuilder> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<ReadOnlyMemory<StringBuilder>>(value.Length > 0 ? typeof(ReadOnlySpan<StringBuilder>) : null, "", formatFlags))
+        if (stb.HasSkipBody<ReadOnlyMemory<StringBuilder>>(value.Length > 0 ? typeof(ReadOnlySpan<StringBuilder>) : null, "", formatFlags))
             return stb.WasSkipped<ReadOnlyMemory<StringBuilder>>(value.Length > 0 ? typeof(ReadOnlySpan<StringBuilder>) : null, "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
@@ -1675,14 +1675,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllNullable(ReadOnlySpan<StringBuilder?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<ReadOnlyMemory<StringBuilder?>>(value.Length > 0 ? typeof(ReadOnlySpan<StringBuilder?>) : null, "", formatFlags))
+        if (stb.HasSkipBody<ReadOnlyMemory<StringBuilder?>>(value.Length > 0 ? typeof(ReadOnlySpan<StringBuilder?>) : null, "", formatFlags))
             return stb.WasSkipped<ReadOnlyMemory<StringBuilder?>>(value.Length > 0 ? typeof(ReadOnlySpan<StringBuilder?>) : null, "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
@@ -1701,13 +1701,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(IReadOnlyList<StringBuilder?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IReadOnlyList<StringBuilder?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IReadOnlyList<StringBuilder?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IReadOnlyList<StringBuilder?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
@@ -1726,14 +1726,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate(IEnumerable<StringBuilder?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerable<StringBuilder?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerable<StringBuilder?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<StringBuilder?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
@@ -1751,14 +1751,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate(IEnumerator<StringBuilder?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerator<StringBuilder?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerator<StringBuilder?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<StringBuilder?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
@@ -1780,13 +1780,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllMatch<TAny>(TAny[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<TAny[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<TAny[]>(value?.GetType(), "", formatFlags);
+        if (stb.HasSkipBody<TAny[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<TAny[]>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TAny);
         var any         = false;
         if (value != null)
@@ -1804,13 +1804,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllMatch<TAny>(Span<TAny> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<Memory<TAny>>(value.Length > 0 ? typeof(Span<TAny?>) : null, "", formatFlags))
+        if (stb.HasSkipBody<Memory<TAny>>(value.Length > 0 ? typeof(Span<TAny?>) : null, "", formatFlags))
             return stb.WasSkipped<Memory<TAny>>(value.Length > 0 ? typeof(Span<TAny?>) : null, "", formatFlags);
         var elementType = typeof(TAny);
         var any         = false;
@@ -1829,13 +1829,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllMatch<TAny>(ReadOnlySpan<TAny> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<ReadOnlyMemory<TAny>>(value.Length > 0 ? typeof(ReadOnlySpan<TAny>) : null, "", formatFlags))
+        if (stb.HasSkipBody<ReadOnlyMemory<TAny>>(value.Length > 0 ? typeof(ReadOnlySpan<TAny>) : null, "", formatFlags))
             return stb.WasSkipped<ReadOnlyMemory<TAny>>(value.Length > 0 ? typeof(ReadOnlySpan<TAny>) : null, "", formatFlags);
         var elementType = typeof(TAny);
         var any         = false;
@@ -1854,13 +1854,13 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllMatch<TAny>(IReadOnlyList<TAny>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IReadOnlyList<TAny>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IReadOnlyList<TAny>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IReadOnlyList<TAny>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TAny);
         var any         = false;
@@ -1879,14 +1879,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllMatchEnumerate<TAny>(IEnumerable<TAny>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerable<TAny>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerable<TAny>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<TAny>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TAny);
         var any         = false;
@@ -1904,14 +1904,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllMatchEnumerate<TAny>(IEnumerator<TAny>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerator<TAny>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerator<TAny>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<TAny>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(TAny);
         var any         = false;
@@ -1933,14 +1933,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString]
     public TOCMold AddAllObject(object?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<object?[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<object?[]>(value?.GetType(), "", formatFlags);
+        if (stb.HasSkipBody<object?[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<object?[]>(value?.GetType(), "", formatFlags);
         var elementType = typeof(object);
         var any         = false;
         if (value != null)
@@ -1958,14 +1958,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? value?.Length : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString]
     public TOCMold AddAllObject(Span<object> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<Memory<object>>(value.Length > 0 ? typeof(Span<object>) : null, "", formatFlags))
+        if (stb.HasSkipBody<Memory<object>>(value.Length > 0 ? typeof(Span<object>) : null, "", formatFlags))
             return stb.WasSkipped<Memory<object>>(value.Length > 0 ? typeof(Span<object>) : null, "", formatFlags);
         var elementType = typeof(object);
         var any         = false;
@@ -1984,14 +1984,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString]
     public TOCMold AddAllObjectNullable(Span<object?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<Memory<object?>>(value.Length > 0 ? typeof(Span<object?>) : null, "", formatFlags))
+        if (stb.HasSkipBody<Memory<object?>>(value.Length > 0 ? typeof(Span<object?>) : null, "", formatFlags))
             return stb.WasSkipped<Memory<object?>>(value.Length > 0 ? typeof(Span<object?>) : null, "", formatFlags);
         var elementType = typeof(object);
         var any         = false;
@@ -2010,14 +2010,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString]
     public TOCMold AddAllObject(ReadOnlySpan<object> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<ReadOnlyMemory<object>>(value.Length > 0 ? typeof(ReadOnlySpan<object>) : null, "", formatFlags))
+        if (stb.HasSkipBody<ReadOnlyMemory<object>>(value.Length > 0 ? typeof(ReadOnlySpan<object>) : null, "", formatFlags))
             return stb.WasSkipped<ReadOnlyMemory<object>>(value.Length > 0 ? typeof(ReadOnlySpan<object>) : null, "", formatFlags);
         var elementType = typeof(object);
         var any         = false;
@@ -2036,14 +2036,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString]
     public TOCMold AddAllObjectNullable(ReadOnlySpan<object?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<ReadOnlyMemory<object?>>(value.Length > 0 ? typeof(ReadOnlySpan<object?>) : null, "", formatFlags))
+        if (stb.HasSkipBody<ReadOnlyMemory<object?>>(value.Length > 0 ? typeof(ReadOnlySpan<object?>) : null, "", formatFlags))
             return stb.WasSkipped<ReadOnlyMemory<object?>>(value.Length > 0 ? typeof(ReadOnlySpan<object?>) : null, "", formatFlags);
         var elementType = typeof(object);
         var any         = false;
@@ -2062,14 +2062,14 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString]
     public TOCMold AddAllObject(IReadOnlyList<object?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IReadOnlyList<object?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IReadOnlyList<object?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IReadOnlyList<object?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(object);
         var any         = false;
@@ -2088,7 +2088,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString]
@@ -2096,7 +2096,7 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerable<object?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerable<object?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerable<object?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(object);
         var any         = false;
@@ -2114,7 +2114,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString]
@@ -2122,7 +2122,7 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerator<object?>>(value?.GetType(), "", formatFlags))
+        if (stb.HasSkipBody<IEnumerator<object?>>(value?.GetType(), "", formatFlags))
             return stb.WasSkipped<IEnumerator<object?>>(value?.GetType(), "", formatFlags);
         var elementType = typeof(object);
         var any         = false;
@@ -2144,6 +2144,6 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.CollectionInComplexType ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 }

@@ -517,7 +517,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerator<bool>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<bool>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<bool>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
@@ -541,7 +541,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerator<bool?>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<bool?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<bool?>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
@@ -566,7 +566,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable
     {
-        if (stb.SkipField<IEnumerator<TFmt?>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<TFmt?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<TFmt?>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
@@ -591,7 +591,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
     {
-        if (stb.SkipField<IEnumerator<TFmtStruct?>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<TFmtStruct?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<TFmtStruct?>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
@@ -617,7 +617,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        if (stb.SkipField<IEnumerator<TCloaked?>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<TCloaked?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<TCloaked?>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
@@ -641,7 +641,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
-        if (stb.SkipField<IEnumerator<TCloakedStruct?>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<TCloakedStruct?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<TCloakedStruct?>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
@@ -666,7 +666,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer
     {
-        if (stb.SkipField<IEnumerator<TBearer?>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<TBearer?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<TBearer?>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
@@ -691,7 +691,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
-        if (stb.SkipField<IEnumerator<TBearerStruct?>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<TBearerStruct?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<TBearerStruct?>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
@@ -715,7 +715,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerator<string?>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<string?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<string?>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
@@ -739,7 +739,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence
     {
-        if (stb.SkipField<IEnumerator<TCharSeq?>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<TCharSeq?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<TCharSeq?>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
@@ -763,7 +763,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerator<StringBuilder?>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<StringBuilder?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<StringBuilder?>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
@@ -787,7 +787,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerator<TAny>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<TAny>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<TAny?>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;

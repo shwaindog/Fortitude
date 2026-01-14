@@ -252,8 +252,8 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         if (IsDoubleQuoteEnclosed(justAppended))
         {
             sb[fromIndex] = DblQtChar;
-            var addedChars = ContentEncoder.OverwriteTransfer(justAppended, 1, sb, fromIndex, justAppended.Length - 2);
-            sb[fromIndex + addedChars] = DblQtChar;
+            var addedChars = ContentEncoder.OverwriteTransfer(justAppended, 1,sb, fromIndex + 1, justAppended.Length - 2);
+            sb[fromIndex + 1 + addedChars] = DblQtChar;
             return addedChars + 2;
         }
         if (JsonOptions.WrapValuesInQuotes)
