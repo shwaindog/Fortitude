@@ -919,7 +919,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             StartComplexTypeOpening(typeMold, valueFlags);
             FinishComplexTypeOpening(typeMold, valueFlags);
             AppendFieldName(typeMold.Sb, "Key").FieldEnd( this, valueFlags);
-            typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "",  valueFlags, true);
+            typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "",  valueFlags);
             AddToNextFieldSeparator(valueFlags);
             AppendFieldName(typeMold.Sb, "Value").FieldEnd( this, valueFlags);
             typeMold.AppendMatchFormattedOrNull(value, valueFormatString ?? "", valueFlags);
@@ -927,7 +927,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         }
         else
         {
-            typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags | NoRevisitCheck | IsFieldName, true)
+            typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags | NoRevisitCheck | IsFieldName)
                     .FieldEnd();
             typeMold.AppendMatchFormattedOrNull(value, valueFormatString ?? "", valueFlags);
         }
@@ -955,7 +955,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             StartComplexTypeOpening(typeMold, valueFlags);
             FinishComplexTypeOpening(typeMold, valueFlags);
             AppendFieldName(typeMold.Sb, "Key").FieldEnd( this, valueFlags);
-            typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", DefaultCallerTypeFlags, true);
+            typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "");
             AddToNextFieldSeparator(valueFlags);
             AppendFieldName(typeMold.Sb, "Value").FieldEnd( this, valueFlags);
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
@@ -964,7 +964,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         }
         else
         {
-            typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags | NoRevisitCheck | IsFieldName, true).FieldEnd();
+            typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags | NoRevisitCheck | IsFieldName).FieldEnd();
             if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
             else {FormatFieldContents(typeMold.Master,  value, valueStyler, valueFormatString, valueFlags); }
         }
@@ -1129,7 +1129,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         else
         {
             if (key == null) { AppendFormattedNull(typeMold.Sb, keyFormatString, valueFlags | IsFieldName); }
-            else { typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags | NoRevisitCheck | IsFieldName, true); }
+            else { typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags | NoRevisitCheck | IsFieldName); }
             typeMold.FieldEnd();
             if (value == null) { AppendFormattedNull(typeMold.Sb, valueFormatString, valueFlags); }
             else { FormatFieldContents(typeMold.Master, value.Value, valueStyler, valueFormatString, valueFlags); }

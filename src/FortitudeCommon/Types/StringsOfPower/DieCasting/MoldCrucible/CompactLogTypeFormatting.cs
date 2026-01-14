@@ -327,7 +327,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
       , string? keyFormatString = null
       , FormatFlags valueFlags = DefaultCallerTypeFlags) where TMold : TypeMolder
     {
-        typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", DefaultCallerTypeFlags, true).FieldEnd();
+        typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags | IsFieldName).FieldEnd();
         typeMold.AppendMatchFormattedOrNull(value, valueFormatString ?? "", valueFlags);
         return typeMold;
     }
@@ -346,7 +346,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", DefaultCallerTypeFlags, true).FieldEnd();
+        typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags | IsFieldName).FieldEnd();
 
         if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
         else { FormatFieldContents(typeMold.Master, value, valueStyler, valueFormatString, valueFlags); }
@@ -367,7 +367,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         where TValue : struct, TVRevealBase
         where TVRevealBase : notnull
     {
-        typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", DefaultCallerTypeFlags, true).FieldEnd();
+        typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags | IsFieldName).FieldEnd();
         if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
         else { FormatFieldContents(typeMold.Master, value.Value, valueStyler, valueFormatString, valueFlags); }
         return typeMold;

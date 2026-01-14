@@ -621,20 +621,20 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static ITypeMolderDieCast<TExt> AppendMatchField<TExt, TAny>(this ITypeMolderDieCast<TExt> stb
-      , ReadOnlySpan<char> fieldName, TAny value, string formatString, FormatFlags formatFlags = DefaultCallerTypeFlags
-      , bool isKeyName = false) where TExt : TypeMolder
+      , ReadOnlySpan<char> fieldName, TAny value, string formatString, FormatFlags formatFlags = DefaultCallerTypeFlags) 
+        where TExt : TypeMolder
     {
         if (stb.HasSkipField<TAny>(value?.GetType(), fieldName, formatFlags)) return stb;
         var callContext = stb.Master.ResolveContextForCallerFlags(formatFlags);
         if (callContext.ShouldSkip) return stb;
 
         stb.FieldNameJoin(fieldName);
-        if (!callContext.HasFormatChange) return stb.AppendMatchFormattedOrNull(value, formatString, formatFlags, isKeyName);
-        using (callContext) { return stb.AppendMatchFormattedOrNull(value, formatString, formatFlags, isKeyName); }
+        if (!callContext.HasFormatChange) return stb.AppendMatchFormattedOrNull(value, formatString, formatFlags);
+        using (callContext) { return stb.AppendMatchFormattedOrNull(value, formatString, formatFlags); }
     }
 
     public static ITypeMolderDieCast<TExt> AppendMatchFormattedOrNull<TValue, TExt>(this ITypeMolderDieCast<TExt> stb
-      , TValue value, string formatString, FormatFlags formatFlags = DefaultCallerTypeFlags, bool isKeyName = false) where TExt : TypeMolder
+      , TValue value, string formatString, FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder
     {
         var sb = stb.Sb;
         if (value != null)
@@ -737,14 +737,14 @@ public static class StyledTypeBuilderExtensions
 
                 default:
                     var unknownType = value.GetType();
-                    if (isKeyName)
+                    if (formatFlags.HasIsFieldNameFlag())
                         stb.StyleFormatter.FormatFieldNameMatch(stb.Sb, value, formatString, formatFlags);
                     else
                     {
                         if (unknownType.IsValueType || stb.Master.IsLastVisitedObject(value))
                             stb.StyleFormatter.FormatFieldContentsMatch(stb.Sb, value, formatString, formatFlags);
                         else
-                            stb.Master.RegisterVisitedInstanceAndConvert(value, isKeyName, formatString, formatFlags);
+                            stb.Master.RegisterVisitedInstanceAndConvert(value, formatString, formatFlags);
                     }
                     break;
             }
@@ -754,8 +754,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static IStringBuilder AppendFormattedCollectionItemMatchOrNull<TValue, TExt>(this ITypeMolderDieCast<TExt> stb
-      , TValue value, int retrieveCount, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
-      , bool isKeyName = false) where TExt : TypeMolder
+      , TValue value, int retrieveCount, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder
     {
         var sb = stb.Sb;
         if (value != null)
