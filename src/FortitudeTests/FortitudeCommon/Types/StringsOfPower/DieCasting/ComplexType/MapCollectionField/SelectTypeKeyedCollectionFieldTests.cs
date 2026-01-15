@@ -6,7 +6,7 @@ using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpecta
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.MapCollectionField;
 
-public abstract class SelectTypeKeyedCollectionFieldTests : CommonExpectationTestBase
+public abstract class SelectTypeKeyedCollectionFieldTests : CommonScaffoldExpectationTestBase
 {
     public override string TestsCommonDescription => "Complex Keyed Collection Type Field";
     

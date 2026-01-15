@@ -51,12 +51,22 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         return GraphBuilder.Complete(formatFlags);
     }
 
-    public override SeparatorPaddingRanges AppendFieldValueSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-        GraphBuilder
-            .AppendSeparator(Cln)
-            .AppendPadding(Spc)
-            .Complete(formatFlags)
-            .SeparatorPaddingRange!.Value;
+    public override int SizeNextFieldPadding(FormatFlags formatFlags = DefaultCallerTypeFlags)
+    {
+        if (formatFlags.HasNoFieldPaddingFlag()) return 0;
+        var nextPaddingSize = 0;
+        if (formatFlags.UseMainFieldPadding() && formatFlags.CanAddNewLine())
+        {
+            nextPaddingSize =  GraphBuilder.GraphEncoder.CalculateEncodedLength(StyleOptions.NewLineStyle);
+            nextPaddingSize += StyleOptions.IndentRepeat(GraphBuilder.IndentLevel);
+        }
+        else
+        {
+            nextPaddingSize =  GraphBuilder.GraphEncoder.CalculateEncodedLength(StyleOptions.AlternateFieldPadding);
+        }
+        return nextPaddingSize;
+    }
+
     
     public override ContentSeparatorRanges AddNextFieldPadding(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {

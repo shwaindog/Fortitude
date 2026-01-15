@@ -13,7 +13,7 @@ public class OrderedBranchNode<TChild> : OrderedParentNode<TChild>, IChildNode
 
     public OrderedBranchNode()
     {
-        NodeType             = NodeType.RootNode;
+        NodeType             = NodeType.BranchNode;
         BranchNodeInstanceId = Interlocked.Increment(ref branchNodeInstanceId);
     }
 
@@ -39,5 +39,6 @@ public class OrderedBranchNode<TChild> : OrderedParentNode<TChild>, IChildNode
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(BranchNodeInstanceId), BranchNodeInstanceId)
            .AddBaseRevealStateFields(this)
+           .Field.WhenNonNullReveal(nameof(Parent), Parent)
            .Complete();
 }

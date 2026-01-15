@@ -5,9 +5,16 @@ using FortitudeCommon.Extensions;
 
 namespace FortitudeCommon.DataStructures.MemoryPools;
 
-public class RecyclableContainer<T> : RecyclableObject, IEquatable<T>, IEquatable<RecyclableContainer<T>>
+public interface IRecyclableStructContainer : IRecyclableObject
+{
+    Type StoredType { get; }
+}
+
+public class RecyclableContainer<T> : RecyclableObject, IRecyclableStructContainer, IEquatable<T>, IEquatable<RecyclableContainer<T>>
 {
     public T StoredValue { get; set; } = default!;
+
+    public Type StoredType => typeof(T);
 
     public RecyclableContainer<T> Initialize(T storedValue)
     {

@@ -665,17 +665,17 @@ public partial class ValueRevealerDictTestData
                         {
                          ComplexStructContentAsValueSpanFormattable<decimal> {
                          SpanFormattableComplexStructContentAsValue: 3.142 }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=
-                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/,
+                                http://first-value.com/,
                          ComplexStructContentAsValueSpanFormattable<decimal> {
                          SpanFormattableComplexStructContentAsValue: 2.718 }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=
-                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/,
+                               http://second-value.com/,
                          ComplexStructContentAsValueSpanFormattable<decimal> {
                          SpanFormattableComplexStructContentAsValue: 31.416 }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=
-                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/,
+                                http://third-value.com/,
                          ComplexStructContentAsValueSpanFormattable<decimal> {
                          SpanFormattableComplexStructContentAsValue: 27.183 }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=
-                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://fourth-value.com/ 
-                        }
+                               http://fourth-value.com/
+                         }
                         """.RemoveLineEndings()
                     }
                    ,
@@ -683,10 +683,10 @@ public partial class ValueRevealerDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                        "3.142":{"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":"http://first-value.com/"},
-                        "2.718":{"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":"http://second-value.com/"},
-                        "31.416":{"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":"http://third-value.com/"},
-                        "27.183":{"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":"http://fourth-value.com/"}
+                        "3.142":"       http://first-value.com/",
+                        "2.718":"      http://second-value.com/",
+                        "31.416":"       http://third-value.com/",
+                        "27.183":"      http://fourth-value.com/"
                         }
                         """.RemoveLineEndings()
                     }
@@ -697,16 +697,16 @@ public partial class ValueRevealerDictTestData
                         {
                           ComplexStructContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexStructContentAsValue: 3.142
-                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/,
+                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=        http://first-value.com/,
                           ComplexStructContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexStructContentAsValue: 2.718
-                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/,
+                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=       http://second-value.com/,
                           ComplexStructContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexStructContentAsValue: 31.416
-                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/,
+                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=        http://third-value.com/,
                           ComplexStructContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexStructContentAsValue: 27.183
-                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://fourth-value.com/
+                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=       http://fourth-value.com/
                         }
                         """.Dos2Unix()
                     }
@@ -715,18 +715,10 @@ public partial class ValueRevealerDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                       , """
                         {
-                          "3.142": {
-                            "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": "http://first-value.com/"
-                          },
-                          "2.718": {
-                            "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": "http://second-value.com/"
-                          },
-                          "31.416": {
-                            "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": "http://third-value.com/"
-                          },
-                          "27.183": {
-                            "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": "http://fourth-value.com/"
-                          }
+                          "3.142": "       http://first-value.com/",
+                          "2.718": "      http://second-value.com/",
+                          "31.416": "       http://third-value.com/",
+                          "27.183": "      http://fourth-value.com/"
                         }
                         """.Dos2Unix()
                     }
@@ -740,13 +732,13 @@ public partial class ValueRevealerDictTestData
                       , """
                         {
                          null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=
-                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/,
+                                http://first-value.com/,
                          ComplexStructContentAsValueSpanFormattable<decimal> {
                          SpanFormattableComplexStructContentAsValue: 2.718 }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=
-                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/,
+                               http://second-value.com/,
                          ComplexStructContentAsValueSpanFormattable<decimal> {
                          SpanFormattableComplexStructContentAsValue: 31.416 }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=
-                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/,
+                                http://third-value.com/,
                          ComplexStructContentAsValueSpanFormattable<decimal> {
                          SpanFormattableComplexStructContentAsValue: 27.183 }: null,
                          null: null 
@@ -758,9 +750,9 @@ public partial class ValueRevealerDictTestData
                         new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                        "null":{"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":"http://first-value.com/"},
-                        "2.718":{"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":"http://second-value.com/"},
-                        "31.416":{"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":"http://third-value.com/"},
+                        "null":"       http://first-value.com/",
+                        "2.718":"      http://second-value.com/",
+                        "31.416":"       http://third-value.com/",
                         "27.183":null,
                         "null":null
                         }
@@ -771,13 +763,13 @@ public partial class ValueRevealerDictTestData
                         new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                       , """
                         {
-                          null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/,
+                          null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=        http://first-value.com/,
                           ComplexStructContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexStructContentAsValue: 2.718
-                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/,
+                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=       http://second-value.com/,
                           ComplexStructContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexStructContentAsValue: 31.416
-                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/,
+                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=        http://third-value.com/,
                           ComplexStructContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexStructContentAsValue: 27.183
                           }: null,
@@ -790,15 +782,9 @@ public partial class ValueRevealerDictTestData
                         new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                       , """
                         {
-                          "null": {
-                            "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": "http://first-value.com/"
-                          },
-                          "2.718": {
-                            "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": "http://second-value.com/"
-                          },
-                          "31.416": {
-                            "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": "http://third-value.com/"
-                          },
+                          "null": "       http://first-value.com/",
+                          "2.718": "      http://second-value.com/",
+                          "31.416": "       http://third-value.com/",
                           "27.183": null,
                           "null": null
                         }
@@ -815,17 +801,17 @@ public partial class ValueRevealerDictTestData
                         {
                          ComplexContentAsValueSpanFormattable<decimal> {
                          SpanFormattableComplexContentAsValue: 3.142 }: FieldSpanFormattableAlwaysAddStringBearer<Uri>=
-                         ComplexTypeFieldAlwaysAddSpanFormattable: http://first-value.com/,
+                                http://first-value.com/,
                          ComplexContentAsValueSpanFormattable<decimal> {
                          SpanFormattableComplexContentAsValue: 2.718 }: FieldSpanFormattableAlwaysAddStringBearer<Uri>=
-                         ComplexTypeFieldAlwaysAddSpanFormattable: http://second-value.com/,
+                               http://second-value.com/,
                          ComplexContentAsValueSpanFormattable<decimal> {
                          SpanFormattableComplexContentAsValue: 31.416 }: FieldSpanFormattableAlwaysAddStringBearer<Uri>=
-                         ComplexTypeFieldAlwaysAddSpanFormattable: http://third-value.com/,
+                                http://third-value.com/,
                          ComplexContentAsValueSpanFormattable<decimal> {
                          SpanFormattableComplexContentAsValue: 27.183 }: FieldSpanFormattableAlwaysAddStringBearer<Uri>=
-                         ComplexTypeFieldAlwaysAddSpanFormattable: http://fourth-value.com/ 
-                        }
+                               http://fourth-value.com/
+                         }
                         """.RemoveLineEndings()
                     }
                    ,
@@ -833,10 +819,10 @@ public partial class ValueRevealerDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                        "3.142":{"ComplexTypeFieldAlwaysAddSpanFormattable":"http://first-value.com/"},
-                        "2.718":{"ComplexTypeFieldAlwaysAddSpanFormattable":"http://second-value.com/"},
-                        "31.416":{"ComplexTypeFieldAlwaysAddSpanFormattable":"http://third-value.com/"},
-                        "27.183":{"ComplexTypeFieldAlwaysAddSpanFormattable":"http://fourth-value.com/"}
+                        "3.142":"       http://first-value.com/",
+                        "2.718":"      http://second-value.com/",
+                        "31.416":"       http://third-value.com/",
+                        "27.183":"      http://fourth-value.com/"
                         }
                         """.RemoveLineEndings()
                     }
@@ -847,16 +833,16 @@ public partial class ValueRevealerDictTestData
                         {
                           ComplexContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexContentAsValue: 3.142
-                          }: FieldSpanFormattableAlwaysAddStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattable: http://first-value.com/,
+                          }: FieldSpanFormattableAlwaysAddStringBearer<Uri>=        http://first-value.com/,
                           ComplexContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexContentAsValue: 2.718
-                          }: FieldSpanFormattableAlwaysAddStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattable: http://second-value.com/,
+                          }: FieldSpanFormattableAlwaysAddStringBearer<Uri>=       http://second-value.com/,
                           ComplexContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexContentAsValue: 31.416
-                          }: FieldSpanFormattableAlwaysAddStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattable: http://third-value.com/,
+                          }: FieldSpanFormattableAlwaysAddStringBearer<Uri>=        http://third-value.com/,
                           ComplexContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexContentAsValue: 27.183
-                          }: FieldSpanFormattableAlwaysAddStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattable: http://fourth-value.com/
+                          }: FieldSpanFormattableAlwaysAddStringBearer<Uri>=       http://fourth-value.com/
                         }
                         """.Dos2Unix()
                     }
@@ -865,18 +851,10 @@ public partial class ValueRevealerDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                       , """
                         {
-                          "3.142": {
-                            "ComplexTypeFieldAlwaysAddSpanFormattable": "http://first-value.com/"
-                          },
-                          "2.718": {
-                            "ComplexTypeFieldAlwaysAddSpanFormattable": "http://second-value.com/"
-                          },
-                          "31.416": {
-                            "ComplexTypeFieldAlwaysAddSpanFormattable": "http://third-value.com/"
-                          },
-                          "27.183": {
-                            "ComplexTypeFieldAlwaysAddSpanFormattable": "http://fourth-value.com/"
-                          }
+                          "3.142": "       http://first-value.com/",
+                          "2.718": "      http://second-value.com/",
+                          "31.416": "       http://third-value.com/",
+                          "27.183": "      http://fourth-value.com/"
                         }
                         """.Dos2Unix()
                     }
@@ -890,13 +868,13 @@ public partial class ValueRevealerDictTestData
                       , """
                         {
                          null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=
-                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/,
+                                http://first-value.com/,
                          ComplexContentAsValueSpanFormattable<decimal> {
                          SpanFormattableComplexContentAsValue: 2.718 }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=
-                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/,
+                               http://second-value.com/,
                          ComplexContentAsValueSpanFormattable<decimal> {
                          SpanFormattableComplexContentAsValue: 31.416 }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=
-                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/,
+                                http://third-value.com/,
                          ComplexContentAsValueSpanFormattable<decimal> {
                          SpanFormattableComplexContentAsValue: 27.183 }: null,
                          null: null 
@@ -908,9 +886,9 @@ public partial class ValueRevealerDictTestData
                         new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactJson)
                       , """
                         {
-                        "null":{"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":"http://first-value.com/"},
-                        "2.718":{"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":"http://second-value.com/"},
-                        "31.416":{"ComplexTypeFieldAlwaysAddSpanFormattableFromStruct":"http://third-value.com/"},
+                        "null":"       http://first-value.com/",
+                        "2.718":"      http://second-value.com/",
+                        "31.416":"       http://third-value.com/",
                         "27.183":null,
                         "null":null
                         }
@@ -921,13 +899,13 @@ public partial class ValueRevealerDictTestData
                         new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                       , """
                         {
-                          null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/,
+                          null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=        http://first-value.com/,
                           ComplexContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexContentAsValue: 2.718
-                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/,
+                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=       http://second-value.com/,
                           ComplexContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexContentAsValue: 31.416
-                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>= ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/,
+                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=        http://third-value.com/,
                           ComplexContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexContentAsValue: 27.183
                           }: null,
@@ -940,15 +918,9 @@ public partial class ValueRevealerDictTestData
                         new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyJson)
                       , """
                         {
-                          "null": {
-                            "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": "http://first-value.com/"
-                          },
-                          "2.718": {
-                            "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": "http://second-value.com/"
-                          },
-                          "31.416": {
-                            "ComplexTypeFieldAlwaysAddSpanFormattableFromStruct": "http://third-value.com/"
-                          },
+                          "null": "       http://first-value.com/",
+                          "2.718": "      http://second-value.com/",
+                          "31.416": "       http://third-value.com/",
                           "27.183": null,
                           "null": null
                         }

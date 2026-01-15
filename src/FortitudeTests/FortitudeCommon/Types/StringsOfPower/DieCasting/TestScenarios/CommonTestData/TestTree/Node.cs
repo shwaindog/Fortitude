@@ -20,6 +20,7 @@ public interface INode : IEquatable<INode>, IStringBearer
     string Name { get; set; }
     int GlobalNodeInstanceId { get; }
     NodeType NodeType { get; }
+    int CalcDepthToRoot(IList<INode> visited);
 
     int DepthToRoot { get; }
 }
@@ -85,14 +86,14 @@ public abstract class Node : INode
 
     public override string ToString() => "toS-" + this.DefaultToString();
 
-    protected int CalcDepthToRoot(IList<INode> visited)
+    public int CalcDepthToRoot(IList<INode> visited)
     {
         if (NodeType == NodeType.RootNode) return 0;
         if (this is IChildNode child)
         {
-            if (visited.Contains(child)) return int.MinValue;
+            if (visited.Contains(child)) { return int.MinValue; }
             visited.Add(this);
-            return (child.Parent?.DepthToRoot ?? -1) + 1;
+            return (child.Parent?.CalcDepthToRoot(visited) ?? -1) + 1;
         }
         throw new InvalidOperationException("Expected either a root or child node");
     }

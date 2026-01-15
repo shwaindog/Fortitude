@@ -14,7 +14,8 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
 
     public ComplexPocoTypeMold InitializeComplexTypeBuilder
     (
-        Type typeBeingBuilt
+        object instanceOrContainer
+      , Type typeBeingBuilt
       , TheOneString owning
       , MoldDieCastSettings appendSettings
       , string? typeName
@@ -23,7 +24,7 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
       , int existingRefId
       , FormatFlags createFormatFlags )
     {
-        InitializeMultiValueTypeBuilder(typeBeingBuilt, owning, appendSettings, typeName, remainingGraphDepth
+        InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, owning, appendSettings, typeName, remainingGraphDepth
                                       , typeFormatting, existingRefId, createFormatFlags);
 
         return this;

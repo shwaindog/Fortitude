@@ -15,7 +15,8 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
 
     public ExplicitKeyedCollectionMold<TKey, TValue> InitializeExplicitKeyValueCollectionBuilder
     (
-        Type typeBeingBuilt
+        object instanceOrContainer
+      , Type typeBeingBuilt
       , ISecretStringOfPower vesselOfStringOfPower
       , MoldDieCastSettings appendSettings
       , string? typeName
@@ -24,7 +25,7 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
       , int existingRefId
       , FormatFlags createFormatFlags )
     {
-        InitializeMultiValueTypeBuilder(typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName, remainingGraphDepth
+        InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName, remainingGraphDepth
                                       , typeFormatting, existingRefId, createFormatFlags);
 
         stb = MoldStateField;

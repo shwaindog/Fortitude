@@ -11,6 +11,7 @@ using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Scenarios.CompareToSystemTextJson.TypePermutation;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType.FixtureScaffolding;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification.CollectionItemResult;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 // ReSharper disable UseUtf8StringLiteral
 // ReSharper disable FormatStringProblem
@@ -472,10 +473,11 @@ public class TestDictionaries
     ];
     
     public static readonly PalantírReveal<ComplexStructContentAsValueSpanFormattable<decimal>> StructBearerDecimal_Reveal_N3     = 
-        (msfc, tos) => tos.StartSimpleContentType(msfc).RevealAsValue(msfc, "N3");
+        (msfc, tos) => tos.StartSimpleContentType(msfc).AsValue(msfc.SpanFormattableComplexStructContentAsValue, "N3");
     
     public static readonly PalantírReveal<FieldSpanFormattableAlwaysAddStructStringBearer<Uri>>        StructBearer_Reveal_Pad30     = 
-        (msfc, tos) => tos.StartSimpleContentType(msfc).RevealAsValue(msfc, "{0,30}");
+        (msfc, tos) => tos.StartSimpleContentType(msfc)
+                          .AsValue(msfc.ComplexTypeFieldAlwaysAddSpanFormattableFromStruct, "{0,30}");
 
     public static readonly List<KeyValuePair<ComplexStructContentAsValueSpanFormattable<decimal>
       , FieldSpanFormattableAlwaysAddStructStringBearer<Uri>?>> StructBearerToNullComplexStructBearerMap =
@@ -562,10 +564,10 @@ public class TestDictionaries
     ];
     
     public static readonly PalantírReveal<ComplexContentAsValueSpanFormattable<decimal>> ClassBearerDecimal_Reveal_N3 = 
-        (msfc, tos) => tos.StartSimpleContentType(msfc).RevealAsValue(msfc, "N3");
+        (msfc, tos) => tos.StartSimpleContentType(msfc).AsValue(msfc.SpanFormattableComplexContentAsValue, "N3");
     
     public static readonly PalantírReveal<FieldSpanFormattableAlwaysAddStringBearer<Uri>> ClassBearer_Reveal_Pad30 = 
-        (msfc, tos) => tos.StartSimpleContentType(msfc).RevealAsValue(msfc, "{0,30}");
+        (msfc, tos) => tos.StartSimpleContentType(msfc).AsValue(msfc.ComplexTypeFieldAlwaysAddSpanFormattable, "{0,30}");
 
     public static readonly List<KeyValuePair<ComplexContentAsValueSpanFormattable<decimal>
       , FieldSpanFormattableAlwaysAddStructStringBearer<Uri>?>> ClassBearerToNullStructComplexBearerMap =

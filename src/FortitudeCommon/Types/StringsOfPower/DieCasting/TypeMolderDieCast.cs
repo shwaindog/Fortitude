@@ -50,6 +50,8 @@ public interface ITypeMolderDieCast : IRecyclableObject, ITransferState
     
     bool IsEmpty { get; set; }
     bool WasDepthClipped { get; set; }
+    
+    bool BuildingInstanceEquals<T>(T check);
 
     bool HasSkipBody<TCallerType>(Type? actualType, ReadOnlySpan<char> fieldName
       , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags);
@@ -247,6 +249,8 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
     {
         return StyleTypeBuilder;
     }
+    
+    public bool BuildingInstanceEquals<T>(T check) => StyleTypeBuilder.BuildingInstanceEquals(check);
 
     public StyleOptions Settings => typeBuilderState.Master.Settings;
 

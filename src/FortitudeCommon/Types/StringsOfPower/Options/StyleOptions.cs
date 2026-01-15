@@ -705,16 +705,13 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
         get => values.Style;
         set
         {
-            values.Style = value;
+            if (value == values.Style) return;
             if (formatter != null)
             {
-                if (value.IsJson() && formatter.FormattingStyle.IsNotJson()
-                 || value.IsLog() && formatter.FormattingStyle.IsNone())
-                {
-                    formatter.DecrementRefCount();
-                    formatter = null;
-                }
+                formatter.DecrementRefCount();
+                formatter = null;
             }
+            values.Style = value;
         }
     }
 

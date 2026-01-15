@@ -10,7 +10,7 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.UnitField;
 
-public abstract class SelectTypeFieldTests : CommonExpectationTestBase
+public abstract class SelectTypeFieldTests : CommonScaffoldExpectationTestBase
 {
     public override string TestsCommonDescription => "Complex Type Single Value Field";
     

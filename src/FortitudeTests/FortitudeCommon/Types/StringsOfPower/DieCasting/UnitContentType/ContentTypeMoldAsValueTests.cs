@@ -9,7 +9,7 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 
-public abstract class ContentTypeMoldAsValueTests : CommonExpectationTestBase
+public abstract class ContentTypeMoldAsValueTests : CommonScaffoldExpectationTestBase
 {
     public override string TestsCommonDescription => "Unit Content AsValue";
     

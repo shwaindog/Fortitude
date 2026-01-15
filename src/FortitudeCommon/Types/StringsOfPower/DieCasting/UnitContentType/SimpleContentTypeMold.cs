@@ -10,7 +10,8 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold>
 {
     public SimpleContentTypeMold InitializeSimpleValueTypeBuilder
         (
-            Type typeBeingBuilt
+            object instanceOrContainer
+          , Type typeBeingBuilt
           , ISecretStringOfPower master
           , MoldDieCastSettings typeSettings
           , string? typeName
@@ -19,7 +20,7 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold>
           , int existingRefId
           , FormatFlags createFormatFlags)
     {
-        InitializeContentTypeBuilder(typeBeingBuilt, master, typeSettings, typeName
+        InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
                                  , remainingGraphDepth, typeFormatting,  existingRefId, createFormatFlags);
 
         return this;

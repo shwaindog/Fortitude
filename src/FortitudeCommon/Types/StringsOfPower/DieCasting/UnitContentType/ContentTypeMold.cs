@@ -11,7 +11,8 @@ public class ContentTypeMold<TContentMold> : TransitioningTypeMolder<TContentMol
 {
     public ContentTypeMold<TContentMold> InitializeContentTypeBuilder
     (
-        Type typeBeingBuilt
+        object instanceOrContainer
+      , Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
       , string? typeName
@@ -20,7 +21,7 @@ public class ContentTypeMold<TContentMold> : TransitioningTypeMolder<TContentMol
       , int existingRefId
       , FormatFlags createFormatFlags)
     {
-        Initialize(typeBeingBuilt, master, typeSettings, typeName
+        Initialize(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
                  , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
 
         return this;

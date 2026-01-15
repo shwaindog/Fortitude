@@ -6,7 +6,7 @@ using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpecta
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 
-public abstract class KeyedCollectionMoldTests : CommonExpectationTestBase
+public abstract class KeyedCollectionMoldTests : CommonScaffoldExpectationTestBase
 {
     
     public override string TestsCommonDescription => "Keyed Collection Type";

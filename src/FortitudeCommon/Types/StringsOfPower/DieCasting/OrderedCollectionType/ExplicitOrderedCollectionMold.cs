@@ -12,7 +12,8 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
     protected static readonly Type TypeOfElement = typeof(TElement);
 
     public ExplicitOrderedCollectionMold<TElement> InitializeExplicitOrderedCollectionBuilder(
-        Type typeBeingBuilt
+        object instanceOrContainer
+      , Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
       , string? typeName
@@ -21,7 +22,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
       , int existingRefId
       , FormatFlags createFormatFlags )
     {
-        InitializeOrderedCollectionBuilder(typeBeingBuilt, master, typeSettings, typeName
+        InitializeOrderedCollectionBuilder(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
                                          , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
 
         return this;

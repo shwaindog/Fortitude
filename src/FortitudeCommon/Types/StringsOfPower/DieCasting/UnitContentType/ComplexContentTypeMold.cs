@@ -18,7 +18,8 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold>
 
     public ComplexContentTypeMold InitializeComplexValueTypeBuilder
     (
-        Type typeBeingBuilt
+        object instanceOrContainer
+      , Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
       , string? typeName
@@ -27,7 +28,7 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold>
       , int existingRefId
       , FormatFlags createFormatFlags )
     {
-        InitializeContentTypeBuilder(typeBeingBuilt, master, typeSettings, typeName
+        InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
                                  , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
 
         return this;

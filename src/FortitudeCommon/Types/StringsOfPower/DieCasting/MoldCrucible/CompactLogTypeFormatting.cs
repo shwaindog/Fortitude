@@ -105,7 +105,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
     public SkipTypeParts GetNextValueTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FormatFlags formatFlags)
     {
-        var isLastType = tos.IsLastVisitedObject(forValue);
+        var isLastType = tos.IsLastVisitedAsThisType(forValue);
         if (forValue is ISpanFormattable || isLastType) { return SkipTypeParts.TypeStart | SkipTypeParts.TypeName | SkipTypeParts.TypeEnd; }
         return SkipTypeParts.None;
     }
@@ -118,7 +118,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
     public SkipTypeParts GetNextComplexTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FormatFlags formatFlags)
     {
-        var isLastType = tos.IsLastVisitedObject(forValue);
+        var isLastType = tos.IsLastVisitedAsThisType(forValue);
         var skipParts  = SkipTypeParts.None;
         if (isLastType) { skipParts = SkipTypeParts.TypeStart | SkipTypeParts.TypeName | SkipTypeParts.TypeEnd; }
         skipParts |= formatFlags.HasSuppressOpening() ? SkipTypeParts.TypeStart : SkipTypeParts.None;
@@ -240,7 +240,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return GraphBuilder.Complete(formatFlags);
     }
 
-    public int SizeFieldSeparatorAndPadding(FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public virtual int SizeFieldSeparatorAndPadding(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         return SizeToNextFieldSeparator(formatFlags) + SizeNextFieldPadding(formatFlags);
     }
@@ -501,8 +501,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         }
         insertSize += SizeFormatFieldName(3, createTypeFlags);
         insertSize += SizeFieldValueSeparator(createTypeFlags);
-        insertSize += refDigitsCount; // bound by DblQt
-        insertSize += !isComplex ? SizeFieldSeparatorAndPadding(createTypeFlags) : 1;
+        insertSize += refDigitsCount; 
+        insertSize += isComplex ? SizeFieldSeparatorAndPadding(createTypeFlags) : 0;
 
         insertBuilder.StartInsertAt(indexToInsertAt, insertSize);
         

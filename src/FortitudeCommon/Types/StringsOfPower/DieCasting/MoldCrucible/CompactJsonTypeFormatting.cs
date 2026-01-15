@@ -430,7 +430,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     public virtual int SizeFormatFieldName(int sourceLength, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var size                                                           = 0;
-        if (!formatFlags.DoesNotHaveDisableFieldNameDelimitingFlag()) size = 2 * GraphBuilder.GraphEncoder.CalculateEncodedLength(DblQt);
+        if (formatFlags.DoesNotHaveDisableFieldNameDelimitingFlag()) size = 2 * GraphBuilder.GraphEncoder.CalculateEncodedLength(DblQt);
         size += sourceLength;
         return size;
     }

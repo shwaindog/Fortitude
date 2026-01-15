@@ -10,7 +10,8 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 public interface IStateTransitioningTransitioningKnownTypeMolder : IDisposable
 {
     void Initialize(
-        Type typeBeingBuilt
+        object instanceOrContainer
+      , Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
       , string? typeName
@@ -34,7 +35,8 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
     protected ITypeMolderDieCast<TMold> MoldStateField = null!;
 
     public void Initialize(
-        Type typeBeingBuilt
+        object instanceOrContainer
+      , Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
       , string? typeName
@@ -43,7 +45,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
       , int existingRefId
       , FormatFlags createFormatFlags)
     {
-        InitializeStyledTypeBuilder(typeBeingBuilt, master, typeSettings, typeName, remainingGraphDepth
+        InitializeStyledTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName, remainingGraphDepth
                                   , typeFormatting, existingRefId, createFormatFlags);
 
         SourceBuilderComponentAccess();

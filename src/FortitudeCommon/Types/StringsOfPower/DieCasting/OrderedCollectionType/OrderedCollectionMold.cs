@@ -11,7 +11,8 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
     private CollectionBuilderCompAccess<TOCMold> stb = null!;
 
     public OrderedCollectionMold<TOCMold> InitializeOrderedCollectionBuilder(
-        Type typeBeingBuilt
+        object instanceOrContainer
+      , Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
       , string? typeName
@@ -20,7 +21,7 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
       , int existingRefId
       , FormatFlags createFormatFlags)
     {
-        Initialize(typeBeingBuilt, master, typeSettings, typeName
+        Initialize(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
                  , remainingGraphDepth, typeFormatting, existingRefId
                  , createFormatFlags | AsCollection);
 
@@ -70,7 +71,8 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
 public class SimpleOrderedCollectionMold : OrderedCollectionType.OrderedCollectionMold<SimpleOrderedCollectionMold>
 {
     public SimpleOrderedCollectionMold InitializeSimpleOrderedCollectionBuilder(
-        Type typeBeingBuilt
+        object instanceOrContainer
+      , Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
       , string? typeName
@@ -80,7 +82,7 @@ public class SimpleOrderedCollectionMold : OrderedCollectionType.OrderedCollecti
       , FormatFlags createFormatFlags)
     {
         InitializeOrderedCollectionBuilder
-            (typeBeingBuilt, master, typeSettings, typeName
+            (instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
            , remainingGraphDepth, typeFormatting, existingRefId
            , createFormatFlags | AsCollection);
 
@@ -102,7 +104,8 @@ public class ComplexOrderedCollectionMold : OrderedCollectionType.OrderedCollect
 
     public ComplexOrderedCollectionMold InitializeComplexOrderedCollectionBuilder
     (
-        Type typeBeingBuilt
+        object instanceOrContainer
+      , Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
       , string? typeName
@@ -112,7 +115,7 @@ public class ComplexOrderedCollectionMold : OrderedCollectionType.OrderedCollect
       , FormatFlags createFormatFlags)
     {
         InitializeOrderedCollectionBuilder
-            (typeBeingBuilt, master, typeSettings, typeName
+            (instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
            , remainingGraphDepth, typeFormatting, existingRefId
            , createFormatFlags | AsCollection);
 

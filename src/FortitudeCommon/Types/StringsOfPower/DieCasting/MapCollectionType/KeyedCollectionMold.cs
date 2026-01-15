@@ -15,7 +15,8 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
 
     public KeyedCollectionMold InitializeKeyValueCollectionBuilder 
     (
-        Type typeBeingBuilt
+        object instanceOrContainer
+      , Type typeBeingBuilt
       , ISecretStringOfPower vesselOfStringOfPower
       , MoldDieCastSettings appendSettings
       , string? typeName
@@ -24,7 +25,7 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
       , int existingRefId
       , FormatFlags createFormatFlags )
     {
-        InitializeMultiValueTypeBuilder(typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName
+        InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName
                                       , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
 
         stb = MoldStateField;

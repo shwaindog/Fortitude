@@ -31,7 +31,8 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
     protected int StartIndex;
 
     protected void InitializeStyledTypeBuilder(
-        Type typeBeingBuilt
+        object instanceOrContainer
+      , Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
       , string? typeName
@@ -40,6 +41,7 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
       , int existingRefId
       , FormatFlags createFormatFlags )
     {
+        PortableState.InstanceOrContainer = instanceOrContainer;
         PortableState.TypeBeingBuilt      = typeBeingBuilt;
         PortableState.Master              = master;
         PortableState.TypeName            = typeName;
@@ -61,6 +63,8 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
 
     public abstract void StartTypeOpening();
     public abstract void FinishTypeOpening();
+
+    public bool BuildingInstanceEquals<T>(T check) => PortableState.InstanceOrContainer.Equals(check);
 
     public Type TypeBeingBuilt => PortableState.TypeBeingBuilt;
 
@@ -86,6 +90,10 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
         PortableState.AppenderSettings = default;
         PortableState.CompleteResult   = null;
         PortableState.ExistingRefId    = 0;
+        if (PortableState.InstanceOrContainer is IRecyclableStructContainer recyclableStructContainer)
+        {
+            recyclableStructContainer.DecrementRefCount();
+        }
 
         StartIndex = -1;
 
@@ -96,6 +104,7 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
     {
         public MoldDieCastSettings AppenderSettings;
 
+        public object InstanceOrContainer { get; set; } = null!;
         public Type TypeBeingBuilt { get; set; } = null!;
         public string? TypeName { get; set; }
 
@@ -139,7 +148,7 @@ public static class StyledTypeBuilderExtensions
     {
         if (stb.StyleFormatter.GraphBuilder.HasCommitContent)
         {
-            stb.StyleFormatter.AddToNextFieldSeparatorAndPadding().ToTypeBuilder(stb);
+            stb.StyleFormatter.AddToNextFieldSeparatorAndPadding();
         }
         return stb.StyleTypeBuilder;
     }
@@ -317,10 +326,10 @@ public static class StyledTypeBuilderExtensions
             else
                 stb.StyleFormatter.FormatFieldContents(stb.Master, value, styler, formatString, formatFlags);
 
-            if (!stb.Settings.DisableCircularRefCheck && !typeof(TCloaked).IsValueType)
-            {
-                stb.Master.EnsureRegisteredVisited(value, formatFlags);
-            }
+            // if (!stb.Settings.DisableCircularRefCheck && !typeof(TCloaked).IsValueType)
+            // {
+            //     stb.Master.EnsureRegisteredVisited(value, formatFlags);
+            // }
         }
         else { 
             stb.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
@@ -741,7 +750,7 @@ public static class StyledTypeBuilderExtensions
                         stb.StyleFormatter.FormatFieldNameMatch(stb.Sb, value, formatString, formatFlags);
                     else
                     {
-                        if (unknownType.IsValueType || stb.Master.IsLastVisitedObject(value))
+                        if (unknownType.IsValueType || stb.Master.IsLastVisitedAsThisType(value))
                             stb.StyleFormatter.FormatFieldContentsMatch(stb.Sb, value, formatString, formatFlags);
                         else
                             stb.Master.RegisterVisitedInstanceAndConvert(value, formatString, formatFlags);
