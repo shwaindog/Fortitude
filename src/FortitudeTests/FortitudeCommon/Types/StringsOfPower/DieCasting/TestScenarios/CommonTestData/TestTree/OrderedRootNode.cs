@@ -8,33 +8,37 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestSce
 
 public class OrderedRootNode : OrderedParentNode<IChildNode?>
 {
-    private static int rootNodeInstanceId;
+
+    public static void ResetRootInstanceIds()
+    {
+        RootNodeInstanceId = 0;
+    }
 
     public OrderedRootNode()
     {
         NodeType           = NodeType.RootNode;
-        RootNodeInstanceId = Interlocked.Increment(ref rootNodeInstanceId);
+        RootInstanceId = Interlocked.Increment(ref RootNodeInstanceId);
     }
 
     public OrderedRootNode(List<IChildNode?> childNodes) : this()
     {
         ChildNodes         = childNodes;
-        RootNodeInstanceId = Interlocked.Increment(ref rootNodeInstanceId);
+        RootInstanceId = Interlocked.Increment(ref RootNodeInstanceId);
     }
 
     public OrderedRootNode(List<IChildNode?> childNodes, string name, int? instId = null) : base(childNodes, name, instId)
     {
         NodeType           = NodeType.RootNode;
-        RootNodeInstanceId = Interlocked.Increment(ref rootNodeInstanceId);
+        RootInstanceId = Interlocked.Increment(ref RootNodeInstanceId);
     }
 
-    public int RootNodeInstanceId { get; }
+    public int RootInstanceId { get; }
 
     public override int DepthToRoot => 0;
     
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysAdd(nameof(RootNodeInstanceId), RootNodeInstanceId)
+           .Field.AlwaysAdd(nameof(RootInstanceId), RootInstanceId)
            .AddBaseRevealStateFields(this)
            .Complete();
 }

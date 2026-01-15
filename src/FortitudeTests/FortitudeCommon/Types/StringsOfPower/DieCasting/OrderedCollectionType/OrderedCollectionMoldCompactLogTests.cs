@@ -109,7 +109,7 @@ public class OrderedCollectionMoldCompactLogTests : OrderedCollectionMoldTests
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
-        const string compactLogTemplate = "({0}){1}";
+        const string compactLogTemplate = "({0}) {1}";
 
         var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
         if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))

@@ -27,7 +27,18 @@ public interface INode : IEquatable<INode>, IStringBearer
 
 public abstract class Node : INode
 {
-    private static int globalNodeInstanceId;
+    private static   int globalNodeInstanceId;
+    protected static int BranchNodeInstanceId;
+    protected static int RootNodeInstanceId;
+    protected static int LeafNodeInstanceId;
+
+    public static void ResetInstanceIds()
+    {
+        globalNodeInstanceId = 0;
+        BranchNodeInstanceId = 0;
+        RootNodeInstanceId   = 0;
+        LeafNodeInstanceId   = 0;
+    }
 
     public Node()
     {

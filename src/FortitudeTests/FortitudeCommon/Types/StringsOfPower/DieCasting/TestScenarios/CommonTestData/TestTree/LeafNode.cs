@@ -8,13 +8,17 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestSce
 
 public class LeafNode : Node, IChildNode
 {
-    private static int leafNodeInstanceId;
+
+    public static void ResetRootInstanceIds()
+    {
+        LeafNodeInstanceId = 0;
+    }
 
     public LeafNode()
     {
         NodeType = NodeType.RootNode;
 
-        LeafNodeInstanceId = Interlocked.Increment(ref leafNodeInstanceId);
+        LeafInstanceId = Interlocked.Increment(ref LeafNodeInstanceId);
     }
 
     public LeafNode(IReadOnlyParentNode? parent = null)
@@ -22,7 +26,7 @@ public class LeafNode : Node, IChildNode
         NodeType = NodeType.LeafNode;
         Parent   = parent;
 
-        LeafNodeInstanceId = Interlocked.Increment(ref leafNodeInstanceId);
+        LeafInstanceId = Interlocked.Increment(ref LeafNodeInstanceId);
     }
 
     public LeafNode(string name, int? instId = null, IReadOnlyParentNode? parent = null) : base(name, instId)
@@ -30,16 +34,16 @@ public class LeafNode : Node, IChildNode
         NodeType = NodeType.LeafNode;
         Parent   = parent;
 
-        LeafNodeInstanceId = Interlocked.Increment(ref leafNodeInstanceId);
+        LeafInstanceId = Interlocked.Increment(ref LeafNodeInstanceId);
     }
 
     public IReadOnlyParentNode? Parent { get; set; }
 
-    public int LeafNodeInstanceId { get; }
+    public int LeafInstanceId { get; }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysAdd(nameof(LeafNodeInstanceId), LeafNodeInstanceId)
+           .Field.AlwaysAdd(nameof(LeafInstanceId), LeafInstanceId)
            .AddBaseRevealStateFields(this)
            .Complete();
 }

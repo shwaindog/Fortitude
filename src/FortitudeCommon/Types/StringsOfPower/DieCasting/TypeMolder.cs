@@ -750,7 +750,7 @@ public static class StyledTypeBuilderExtensions
                         stb.StyleFormatter.FormatFieldNameMatch(stb.Sb, value, formatString, formatFlags);
                     else
                     {
-                        if (unknownType.IsValueType || stb.Master.IsLastVisitedAsThisType(value))
+                        if (unknownType.IsValueType || stb.Master.WasThisLastVisitedAsAMoreDerivedType(value))
                             stb.StyleFormatter.FormatFieldContentsMatch(stb.Sb, value, formatString, formatFlags);
                         else
                             stb.Master.RegisterVisitedInstanceAndConvert(value, formatString, formatFlags);

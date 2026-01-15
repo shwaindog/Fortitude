@@ -376,6 +376,7 @@ public class GraphTrackingBuilder : RecyclableObject
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public char RemoveLastSeparatorAndPadding()
     {
+        if (sb == null!) return '\0';
         var lastRange        = LastContentSeparatorPaddingRanges;
         var penUltimateRange = PenUltimateContentSeparatorPaddingRanges;
         int sepPaddingLen;

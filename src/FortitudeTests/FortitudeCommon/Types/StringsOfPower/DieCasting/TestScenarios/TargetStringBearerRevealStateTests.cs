@@ -6,7 +6,7 @@ using FortitudeCommon.Logging.Config.LoggersHierarchy.ActivationProfiles;
 using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Types.StringsOfPower;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios;
 
 [TestClass]
 public class TargetStringBearerRevealStateTests

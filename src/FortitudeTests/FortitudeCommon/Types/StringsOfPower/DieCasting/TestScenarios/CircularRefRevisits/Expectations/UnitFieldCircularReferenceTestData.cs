@@ -15,35 +15,8 @@ public static class UnitFieldCircularReferenceTestData
 {
     private static PositionUpdatingList<ISingleFieldExpectation>? circularReferenceExpectations;
 
-    public static OrderedBranchNode<IChildNode> SelfReferencing
-    {
-        get
-        {
-            var selfReferencing        = new OrderedBranchNode<IChildNode>();
-            selfReferencing.Parent = selfReferencing;
-            return selfReferencing;
-        }
-    }
     
-    public static OrderedBranchNode<IChildNode> DualReferencingPair
-    {
-        get
-        {
-            var child               = new OrderedBranchNode<IChildNode>();
-            var dualReferencingPair = new OrderedBranchNode<IChildNode>([child]);
-            return dualReferencingPair;
-        }
-    }
     
-    public static BinaryBranchNode<LeafNode> SecondFieldSame
-    {
-        get
-        {
-            var child               = new LeafNode("SameChild");
-            var secondFieldSame = new BinaryBranchNode<LeafNode>("SameOnLeftAndRight", child, child );
-            return secondFieldSame;
-        }
-    }
     
     public static BinaryBranchNode<BinaryBranchNode<LeafNode>> SeparateObjectsShareSame
     {
@@ -62,25 +35,7 @@ public static class UnitFieldCircularReferenceTestData
     public static PositionUpdatingList<ISingleFieldExpectation> CiruclarReferenceExpectations => circularReferenceExpectations ??=
         new PositionUpdatingList<ISingleFieldExpectation>(typeof(UnitFieldCircularReferenceTestData))
         {
-            // Version and Version?  (Class)
-            new FieldExpect<OrderedBranchNode<IChildNode>>(SelfReferencing)
-            {
-                { new EK(IsContentType | AcceptsSpanFormattable | DefaultTreatedAsValueOut, CompactLog | Pretty), "0.0" }
-              , { new EK(IsContentType | AcceptsSpanFormattable), "\"0.0\"" }
-               ,
-                {
-                    new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         , CompactLog | Pretty)
-                  , "0.0"
-                }
-               ,
-                {
-                    new EK(AcceptsSpanFormattable | AlwaysWrites | NonDefaultWrites | NonNullWrites | NonNullAndPopulatedWrites
-                         , Json | Compact | Pretty)
-                  , "\"0.0\""
-                }
-            }
-          , new FieldExpect<Version>(null, "{0}", true, new Version())
+            new FieldExpect<Version>(null, "{0}", true, new Version())
             {
                 { new EK(IsContentType | CallsViaMatch | DefaultBecomesNull), "null" }
                ,

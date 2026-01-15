@@ -88,7 +88,7 @@ public interface ITheOneString : IReusableObject<ITheOneString>
 
     CallContextDisposable ResolveContextForCallerFlags(FormatFlags contentFlags);
 
-    bool IsLastVisitedAsThisType<TVisited>(TVisited checkIsLastVisited);
+    bool WasThisLastVisitedAsAMoreDerivedType<TVisited>(TVisited checkIsLastVisited);
 
     // IStyleTypeBuilder AutoType<T>();
 
@@ -992,7 +992,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         return hasVisited;
     }
 
-    public bool IsLastVisitedAsThisType<TVisited>(TVisited checkIsLastVisited)
+    public bool WasThisLastVisitedAsAMoreDerivedType<TVisited>(TVisited checkIsLastVisited)
     {
         if (OrderedObjectGraph.Count == 0 || checkIsLastVisited == null) return false;
         var graphNodeVisit = OrderedObjectGraph[^1];
@@ -1055,7 +1055,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var isSameInstance = UseReferenceEqualsForVisited ? ReferenceEquals(checkRef, objToStyle) : Equals(checkRef, objToStyle);
         if (isSameInstance)
         {
-            if (checkVisit.VistedAsType == objAsType || checkVisit.VistedAsType.IsAssignableTo(objAsType)) { return true; }
+            if (objAsType != checkVisit.VistedAsType && checkVisit.VistedAsType.IsAssignableTo(objAsType)) { return true; }
         }
         return false;
     }

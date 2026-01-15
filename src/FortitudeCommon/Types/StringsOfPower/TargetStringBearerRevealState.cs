@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using System.Reflection.Emit;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
+using static System.Reflection.BindingFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower;
 
@@ -12,7 +13,9 @@ public static class TargetStringBearerRevealState
 {
     private static ConcurrentDictionary<Type, Delegate> nonVirtualToString = new();
 
-    private static readonly Type TheOneStringType = typeof(ITheOneString);
+    private static readonly Type       TheOneStringType = typeof(ITheOneString);
+
+    private static MethodInfo? noOpGenericMethodInfo;
 
     public static void CallBaseStyledToString<T, TRevealBase>(T baseHasStyledToString, ITheOneString stsa)
         where T : TRevealBase 
@@ -70,8 +73,7 @@ public static class TargetStringBearerRevealState
         var baseTypeCustomStyler = typeof(PalantírReveal<>).MakeGenericType(baseType);
         if (methodToCall == null || methodToCall.IsAbstract)
         {
-            var myType         = typeof(TargetStringBearerRevealState);
-            methodToCall = myType.GetMethod(nameof(NoOpBaseDoesntSupportStyledToString), [baseType, TheOneStringType]);
+            methodToCall = NoOpGenericMethodInfo;
             var genericMethod        = methodToCall!.MakeGenericMethod(baseType);
             return GetNonVirtualDispatchStyledToString(baseType, genericMethod, baseTypeCustomStyler);
         }
@@ -80,6 +82,25 @@ public static class TargetStringBearerRevealState
         return methodInvoker;
     }
 
+    private static MethodInfo NoOpGenericMethodInfo
+    {
+        get
+        {
+            if (noOpGenericMethodInfo != null) return noOpGenericMethodInfo;
+            var allMethods = typeof(TargetStringBearerRevealState).GetMethods(Static | NonPublic);
+            for (var i = 0; i < allMethods.Length; i++)
+            {
+                var methodInfo = allMethods[i];
+                Console.Out.WriteLine(methodInfo.Name);
+                if (!methodInfo.IsGenericMethodDefinition) continue;
+                if (!methodInfo.Name.StartsWith(nameof(NoOpBaseDoesntSupportStyledToString))) continue;
+                noOpGenericMethodInfo = methodInfo;
+                break;
+            }
+            return noOpGenericMethodInfo ?? throw new InvalidOperationException("Could not find the generic definition for " 
+                                                                              + nameof(NoOpBaseDoesntSupportStyledToString)) ;
+        }
+    }
 
     // Created with help from https://blog.adamfurmanek.pl/2020/01/11/net-inside-out-part-14-calling-virtual-method-without-dynamic-dispatch/index.html
     // Full credit and thanks for posting 

@@ -119,7 +119,7 @@ public class SelectTypeCollectionFieldCompactLogTests : SelectTypeCollectionFiel
                 var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
 
                 nextExpect.Append(propertyName).Append(": (");
-                orderedListExpectation.CollectionCallType.AppendShortNameInCSharpFormat(nextExpect).Append(")");
+                orderedListExpectation.CollectionCallType.AppendShortNameInCSharpFormat(nextExpect).Append(") ");
                 nextExpect.Append(expectValue);
                 expectValue.DecrementRefCount();
                 expectValue = nextExpect;
@@ -142,7 +142,7 @@ public class SelectTypeCollectionFieldCompactLogTests : SelectTypeCollectionFiel
     protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
-        var compactLogTemplate = className.IsNotEmpty() ? "({0}){1}" : "{1}";
+        var compactLogTemplate = className.IsNotEmpty() ? "({0}) {1}" : "{1}";
 
         var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
         if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))

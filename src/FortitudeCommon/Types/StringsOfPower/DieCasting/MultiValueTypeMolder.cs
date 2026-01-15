@@ -50,13 +50,17 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
 
     public TExt AddBaseRevealStateFields<T>(T thisType) where T : IStringBearer
     {
-        var msf = MoldStateField;
+        var msf              = MoldStateField;
+        var markPreBodyStart = msf.Sb.Length;
         if (msf.SkipBody) return msf.StyleTypeBuilder;
         msf.Master.AddBaseFieldsStart();
         TargetStringBearerRevealState.CallBaseStyledToStringIfSupported(thisType, msf.Master);
-        msf.StyleFormatter.GraphBuilder.StartNextContentSeparatorPaddingSequence(msf.Sb, FormatFlags.DefaultCallerTypeFlags);
-        msf.StyleFormatter.AddToNextFieldSeparatorAndPadding();
-        
+        if (msf.Sb.Length > markPreBodyStart)
+        {
+            msf.StyleFormatter.GraphBuilder.StartNextContentSeparatorPaddingSequence(msf.Sb, FormatFlags.DefaultCallerTypeFlags);
+            msf.StyleFormatter.AddToNextFieldSeparatorAndPadding();
+        }
+
         return Me;
     }
 }

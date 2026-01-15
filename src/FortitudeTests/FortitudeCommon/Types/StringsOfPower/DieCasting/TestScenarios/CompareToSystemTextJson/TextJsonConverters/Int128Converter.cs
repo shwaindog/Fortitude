@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 using FortitudeCommon.Extensions;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TextJsonConverters;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CompareToSystemTextJson.TextJsonConverters;
 
 public class Int128Converter : JsonConverter<Int128>
 {

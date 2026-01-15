@@ -2,7 +2,7 @@
 using System.Text;
 using System.Text.Encodings.Web;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TextJsonConverters;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CompareToSystemTextJson.TextJsonConverters;
 
 public class MinimalTextJsonEncoder : JavaScriptEncoder
 {

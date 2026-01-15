@@ -105,7 +105,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
     public SkipTypeParts GetNextValueTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FormatFlags formatFlags)
     {
-        var isLastType = tos.IsLastVisitedAsThisType(forValue);
+        var isLastType = tos.WasThisLastVisitedAsAMoreDerivedType(forValue);
         if (forValue is ISpanFormattable || isLastType) { return SkipTypeParts.TypeStart | SkipTypeParts.TypeName | SkipTypeParts.TypeEnd; }
         return SkipTypeParts.None;
     }
@@ -118,7 +118,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
     public SkipTypeParts GetNextComplexTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FormatFlags formatFlags)
     {
-        var isLastType = tos.IsLastVisitedAsThisType(forValue);
+        var isLastType = tos.WasThisLastVisitedAsAMoreDerivedType(forValue);
         var skipParts  = SkipTypeParts.None;
         if (isLastType) { skipParts = SkipTypeParts.TypeStart | SkipTypeParts.TypeName | SkipTypeParts.TypeEnd; }
         skipParts |= formatFlags.HasSuppressOpening() ? SkipTypeParts.TypeStart : SkipTypeParts.None;
@@ -1007,7 +1007,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         {
             sb.Append(RndBrktOpn);
             collectionType.AppendShortNameInCSharpFormat(sb);
-            sb.Append(RndBrktCls);
+            sb.Append(RndBrktCls).Append(Spc);
         }
         CollectionStart(itemElementType, sb, hasItems.Value, (FormatSwitches)formatFlags);
         if (hasItems == true)

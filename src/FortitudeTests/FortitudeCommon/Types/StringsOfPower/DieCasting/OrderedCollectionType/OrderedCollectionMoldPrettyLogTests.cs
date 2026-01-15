@@ -108,7 +108,7 @@ public class OrderedCollectionMoldPrettyLogTests : OrderedCollectionMoldTests
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
-        const string prettyLogTemplate = "({0}){1}";
+        const string prettyLogTemplate = "({0}) {1}";
 
         var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
         if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))
