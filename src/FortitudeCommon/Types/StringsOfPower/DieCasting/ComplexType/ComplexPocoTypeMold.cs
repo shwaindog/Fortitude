@@ -1,13 +1,12 @@
 ﻿using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.CollectionField;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.KeyedCollectionField;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType;
 
 
 public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
 {
-    private SelectTypeKeyedCollectionField<ComplexPocoTypeMold>? addKeyCollectionField;
+    private MapCollectionField.SelectTypeKeyedCollectionField<ComplexPocoTypeMold>? addKeyCollectionField;
 
     private SelectTypeCollectionField<ComplexPocoTypeMold>? addCollectionField;
 
@@ -15,7 +14,8 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
 
     public ComplexPocoTypeMold InitializeComplexTypeBuilder
     (
-        Type typeBeingBuilt
+        object instanceOrContainer
+      , Type typeBeingBuilt
       , TheOneString owning
       , MoldDieCastSettings appendSettings
       , string? typeName
@@ -24,7 +24,7 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
       , int existingRefId
       , FormatFlags createFormatFlags )
     {
-        InitializeMultiValueTypeBuilder(typeBeingBuilt, owning, appendSettings, typeName, remainingGraphDepth
+        InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, owning, appendSettings, typeName, remainingGraphDepth
                                       , typeFormatting, existingRefId, createFormatFlags);
 
         return this;
@@ -32,23 +32,23 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
 
     public override bool IsComplexType => true;
 
-    public override void AppendOpening()
+    public override void AppendTypeOpeningToGraphFields()
     {
-        State.StyleFormatter.AppendComplexTypeOpening(State);
+        State.StyleFormatter.StartComplexTypeOpening(State);
     }
     
     public override void AppendClosing()
     {
-        State.StyleFormatter.AppendTypeClosing(State);
+        State.StyleFormatter.AppendComplexTypeClosing(State);
     }
 
     public virtual void StartContent()
     {
     }
 
-    public SelectTypeKeyedCollectionField<ComplexPocoTypeMold> KeyedCollectionField
+    public MapCollectionField.SelectTypeKeyedCollectionField<ComplexPocoTypeMold> KeyedCollectionField
     {
-        get => addKeyCollectionField ??= State.Recycler.Borrow<SelectTypeKeyedCollectionField<ComplexPocoTypeMold>>().Initialize(State);
+        get => addKeyCollectionField ??= State.Recycler.Borrow<MapCollectionField.SelectTypeKeyedCollectionField<ComplexPocoTypeMold>>().Initialize(State);
         protected set => addKeyCollectionField = value;
     }
 

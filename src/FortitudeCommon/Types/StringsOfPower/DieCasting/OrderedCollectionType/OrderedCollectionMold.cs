@@ -1,8 +1,9 @@
 ﻿using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
-namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
+namespace FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 
 public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
     where TOCMold : TypeMolder
@@ -10,7 +11,8 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
     private CollectionBuilderCompAccess<TOCMold> stb = null!;
 
     public OrderedCollectionMold<TOCMold> InitializeOrderedCollectionBuilder(
-        Type typeBeingBuilt
+        object instanceOrContainer
+      , Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
       , string? typeName
@@ -19,7 +21,7 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
       , int existingRefId
       , FormatFlags createFormatFlags)
     {
-        Initialize(typeBeingBuilt, master, typeSettings, typeName
+        Initialize(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
                  , remainingGraphDepth, typeFormatting, existingRefId
                  , createFormatFlags | AsCollection);
 
@@ -35,35 +37,42 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
 
     public int TotalCount { get; private set; }
 
-    public override void AppendOpening()
+    public override void AppendTypeOpeningToGraphFields()
     {
-        if (CompAsOrderedCollection.CollectionInComplexType) { MoldStateField.StyleFormatter.AppendComplexTypeOpening(MoldStateField); }
+        if (CompAsOrderedCollection.WriteAsComplex) { MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField); }
         else
         {
             var elementType = MoldStateField.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
             MoldStateField.StyleFormatter.FormatCollectionStart
                 (MoldStateField, elementType!, true
-               , MoldStateField.TypeBeingBuilt, MoldStateField.CreateContentHandling);
+               , MoldStateField.TypeBeingBuilt, MoldStateField.CreateMoldFormatFlags);
         }
     }
 
+    public override void CompleteTypeOpeningToTypeFields() { }
+
     public override void AppendClosing()
     {
-        if (CompAsOrderedCollection.CollectionInComplexType) { MoldStateField.StyleFormatter.AppendTypeClosing(MoldStateField); }
+        var formatter = MoldStateField.StyleFormatter;
+        if (CompAsOrderedCollection.WriteAsComplex)
+        {
+            formatter.AppendComplexTypeClosing(MoldStateField);
+        }
         else
         {
             var elementType = MoldStateField.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
-            MoldStateField.StyleFormatter.FormatCollectionEnd(MoldStateField, ResultCount, elementType!, ResultCount, "", MoldStateField.CreateContentHandling);
+            formatter.FormatCollectionEnd(MoldStateField, ResultCount, elementType!, ResultCount, "", MoldStateField.CreateMoldFormatFlags);
         }
     }
 
     protected virtual CollectionBuilderCompAccess<TOCMold> CompAsOrderedCollection => (CollectionBuilderCompAccess<TOCMold>)MoldStateField;
 }
 
-public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCollectionMold>
+public class SimpleOrderedCollectionMold : OrderedCollectionType.OrderedCollectionMold<SimpleOrderedCollectionMold>
 {
     public SimpleOrderedCollectionMold InitializeSimpleOrderedCollectionBuilder(
-        Type typeBeingBuilt
+        object instanceOrContainer
+      , Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
       , string? typeName
@@ -73,7 +82,7 @@ public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCo
       , FormatFlags createFormatFlags)
     {
         InitializeOrderedCollectionBuilder
-            (typeBeingBuilt, master, typeSettings, typeName
+            (instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
            , remainingGraphDepth, typeFormatting, existingRefId
            , createFormatFlags | AsCollection);
 
@@ -88,14 +97,15 @@ public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCo
     }
 }
 
-public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrderedCollectionMold>
+public class ComplexOrderedCollectionMold : OrderedCollectionType.OrderedCollectionMold<ComplexOrderedCollectionMold>
 {
     private ComplexType.CollectionField.SelectTypeCollectionField<ComplexOrderedCollectionMold>? logOnlyInternalCollectionField;
     private ComplexType.UnitField.SelectTypeField<ComplexOrderedCollectionMold>?                 logOnlyInternalField;
 
     public ComplexOrderedCollectionMold InitializeComplexOrderedCollectionBuilder
     (
-        Type typeBeingBuilt
+        object instanceOrContainer
+      , Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
       , string? typeName
@@ -105,7 +115,7 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
       , FormatFlags createFormatFlags)
     {
         InitializeOrderedCollectionBuilder
-            (typeBeingBuilt, master, typeSettings, typeName
+            (instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
            , remainingGraphDepth, typeFormatting, existingRefId
            , createFormatFlags | AsCollection);
 

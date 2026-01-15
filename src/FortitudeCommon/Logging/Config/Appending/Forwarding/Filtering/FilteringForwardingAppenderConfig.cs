@@ -109,7 +109,7 @@ public class FilteringForwardingAppenderConfig : ForwardingAppenderConfig, IMuta
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .AddBaseStyledToStringFields(this)
+           .AddBaseRevealStateFields(this)
            .Field.AlwaysReveal(nameof(When), When)
            .Complete();
 }

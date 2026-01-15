@@ -1027,7 +1027,7 @@ public class PQPublishableTickInstant : PQReusableMessage, IPQPublishableTickIns
         tos.StartComplexType(this)
             .Field.AlwaysReveal(nameof(PQSourceTickerInfo), PQSourceTickerInfo)
             .Field.AlwaysAdd(nameof(PQSequenceId), PQSequenceId)
-            .AddBaseStyledToStringFields(this)
+            .AddBaseRevealStateFields(this)
             .Field.AlwaysAdd(nameof(FeedSyncStatus), FeedSyncStatus)
             .Field.WhenNonDefaultAdd(nameof(LastPublicationTime), LastPublicationTime, DateTime.MinValue, "{0:O}")
             .Field.WhenNonDefaultAdd(nameof(IsFeedSyncStatusUpdated), IsFeedSyncStatusUpdated)

@@ -29,7 +29,8 @@ public class FieldKeyValueDictionaryAlwaysAddAllStringBearer<TKey, TValue> :
            .KeyedCollectionField.AlwaysAddAll
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllDictionary)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllDictionary
-              , ValueFormatString, KeyFormatString)
+              , ValueFormatString
+              , KeyFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -51,7 +52,8 @@ public class FieldKeyValueArrayAlwaysAddAllStringBearer<TKey, TValue> : Formatte
            .KeyedCollectionField.AlwaysAddAll
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllArray)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllArray?.ToArray()
-              , ValueFormatString, KeyFormatString)
+              , ValueFormatString
+              , KeyFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -74,7 +76,8 @@ public class FieldKeyValueListAlwaysAddAllStringBearer<TKey, TValue> :
            .KeyedCollectionField.AlwaysAddAll
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllList)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllList
-              , ValueFormatString, KeyFormatString)
+              , ValueFormatString
+              , KeyFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -97,7 +100,8 @@ public class FieldKeyValueEnumerableAlwaysAddAllStringBearer<TKey, TValue> :
            .KeyedCollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerable)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerable
-              , ValueFormatString, KeyFormatString)
+              , ValueFormatString
+              , KeyFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -135,12 +139,13 @@ public class FieldKeyValueEnumeratorAlwaysAddAllStringBearer<TKey, TValue> :
            .KeyedCollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerator)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerator
-              , ValueFormatString, KeyFormatString)
+              , ValueFormatString
+              , KeyFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsDictionary | AlwaysWrites | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer | SupportsKeyFormatString)]
+                | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
 public class FieldKeyValueRevealerDictionaryAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> :
     FormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, TVRevealBase>
     where TKey : notnull
@@ -160,12 +165,14 @@ public class FieldKeyValueRevealerDictionaryAlwaysAddAllStringBearer<TKey, TValu
            .KeyedCollectionField.AlwaysAddAll
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllDictionaryValueRevealerKeyFormatString)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllDictionaryValueRevealerKeyFormatString
-              , ValueRevealer, KeyFormatString)
+              , ValueRevealer
+              , KeyFormatString
+              ,ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsDictionary | AlwaysWrites | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyFormatString)]
+                | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
 public class FieldKeyStructValueRevealerDictionaryAlwaysAddAllStringBearer<TKey, TValue> :
     FormattedKeyStructValueRevealerFieldMoldScaffold<TKey, TValue>
     where TKey : notnull
@@ -184,12 +191,14 @@ public class FieldKeyStructValueRevealerDictionaryAlwaysAddAllStringBearer<TKey,
            .KeyedCollectionField.AlwaysAddAll
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllDictionaryStructValueRevealerKeyFormatString)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllDictionaryStructValueRevealerKeyFormatString
-              , ValueRevealer, KeyFormatString)
+              , ValueRevealer
+              , KeyFormatString
+               ,ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsArray | AlwaysWrites | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer | SupportsKeyFormatString)]
+                | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
 public class FieldKeyValueRevealerArrayAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> :
     FormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, TVRevealBase>
     where TKey : notnull
@@ -209,12 +218,14 @@ public class FieldKeyValueRevealerArrayAlwaysAddAllStringBearer<TKey, TValue, TV
            .KeyedCollectionField.AlwaysAddAll
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayValueRevealerKeyFormatString)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayValueRevealerKeyFormatString
-              , ValueRevealer, KeyFormatString)
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsArray | AlwaysWrites | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyFormatString)]
+                | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
 public class FieldKeyStructValueRevealerArrayAlwaysAddAllStringBearer<TKey, TValue> :
     FormattedKeyStructValueRevealerFieldMoldScaffold<TKey, TValue>
     where TKey : notnull
@@ -233,12 +244,14 @@ public class FieldKeyStructValueRevealerArrayAlwaysAddAllStringBearer<TKey, TVal
            .KeyedCollectionField.AlwaysAddAll
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayStructValueRevealerKeyFormatString)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayStructValueRevealerKeyFormatString
-              , ValueRevealer, KeyFormatString)
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsList | AlwaysWrites | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer | SupportsKeyFormatString)]
+                | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
 public class FieldKeyValueRevealerListAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> :
     FormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, TVRevealBase>
     where TKey : notnull
@@ -258,12 +271,14 @@ public class FieldKeyValueRevealerListAlwaysAddAllStringBearer<TKey, TValue, TVR
            .KeyedCollectionField.AlwaysAddAll
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllListValueRevealerKeyFormatStrings)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllListValueRevealerKeyFormatStrings
-              , ValueRevealer, KeyFormatString)
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsList | AlwaysWrites | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyFormatString)]
+                | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
 public class FieldKeyStructValueRevealerListAlwaysAddAllStringBearer<TKey, TValue> :
     FormattedKeyStructValueRevealerFieldMoldScaffold<TKey, TValue>
     where TKey : notnull
@@ -282,12 +297,14 @@ public class FieldKeyStructValueRevealerListAlwaysAddAllStringBearer<TKey, TValu
            .KeyedCollectionField.AlwaysAddAll
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllListValueRevealerKeyFormatStrings)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllListValueRevealerKeyFormatStrings
-              , ValueRevealer, KeyFormatString)
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsEnumerable | AlwaysWrites | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer | SupportsKeyFormatString)]
+                | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
 public class FieldKeyValueRevealerEnumerableAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> :
     FormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, TVRevealBase>
     where TKey : notnull
@@ -307,12 +324,14 @@ public class FieldKeyValueRevealerEnumerableAlwaysAddAllStringBearer<TKey, TValu
            .KeyedCollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerableValueRevealerKeyFormatString)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerableValueRevealerKeyFormatString
-              , ValueRevealer, KeyFormatString)
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsEnumerable | AlwaysWrites | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyFormatString)]
+                | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
 public class FieldKeyStructValueRevealerEnumerableAlwaysAddAllStringBearer<TKey, TValue> :
     FormattedKeyStructValueRevealerFieldMoldScaffold<TKey, TValue>
     where TKey : notnull
@@ -331,12 +350,14 @@ public class FieldKeyStructValueRevealerEnumerableAlwaysAddAllStringBearer<TKey,
            .KeyedCollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerableValueRevealerKeyFormatString)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerableValueRevealerKeyFormatString
-              , ValueRevealer, KeyFormatString)
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsEnumerator | AlwaysWrites | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer | SupportsKeyFormatString)]
+                | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
 public class FieldKeyValueRevealerEnumeratorAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> :
     FormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, TVRevealBase>
     where TKey : notnull
@@ -371,12 +392,14 @@ public class FieldKeyValueRevealerEnumeratorAlwaysAddAllStringBearer<TKey, TValu
            .KeyedCollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorValueRevealerKeyFormatString)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorValueRevealerKeyFormatString
-              , ValueRevealer, KeyFormatString)
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsEnumerator | AlwaysWrites | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyFormatString)]
+                | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
 public class FieldKeyStructValueRevealerEnumeratorAlwaysAddAllStringBearer<TKey, TValue> :
     FormattedKeyStructValueRevealerFieldMoldScaffold<TKey, TValue>
     where TKey : notnull
@@ -410,13 +433,15 @@ public class FieldKeyStructValueRevealerEnumeratorAlwaysAddAllStringBearer<TKey,
            .KeyedCollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorValueRevealerKeyFormatString)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorValueRevealerKeyFormatString
-              , ValueRevealer, KeyFormatString)
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsDictionary | AlwaysWrites | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class FieldKeyRevealerValueRevealerDictionaryAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> :
     KeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKRevealBase, TVRevealBase>
     where TKey : TKRevealBase 
@@ -437,12 +462,14 @@ public class FieldKeyRevealerValueRevealerDictionaryAlwaysAddAllStringBearer<TKe
            .KeyedCollectionField.AlwaysAddAll
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllDictionaryBothRevealers)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllDictionaryBothRevealers
-              , ValueRevealer, KeyRevealer)
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsDictionary | AlwaysWrites | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class FieldKeyRevealerStructValueRevealerDictionaryAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase> :
     KeyRevealerStructValueRevealerFieldMoldScaffold<TKey, TValue, TKRevealBase>
     where TKey : TKRevealBase 
@@ -462,12 +489,14 @@ public class FieldKeyRevealerStructValueRevealerDictionaryAlwaysAddAllStringBear
            .KeyedCollectionField.AlwaysAddAll
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllDictionaryBothRevealers)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllDictionaryBothRevealers
-              , ValueRevealer, KeyRevealer)
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsArray | AlwaysWrites | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class FieldKeyRevealerValueRevealerArrayAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> :
     KeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKRevealBase, TVRevealBase>
     where TKey : TKRevealBase? 
@@ -488,12 +517,14 @@ public class FieldKeyRevealerValueRevealerArrayAlwaysAddAllStringBearer<TKey, TV
            .KeyedCollectionField.AlwaysAddAll
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayBothRevealers)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayBothRevealers
-              , ValueRevealer, KeyRevealer)
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsArray | AlwaysWrites | AcceptsAnyExceptNullableStruct | KeyNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class FieldStructKeyRevealerValueRevealerArrayAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> :
     StructKeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TVRevealBase>
     where TKey : struct 
@@ -513,12 +544,14 @@ public class FieldStructKeyRevealerValueRevealerArrayAlwaysAddAllStringBearer<TK
            .KeyedCollectionField.AlwaysAddAll
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayBothRevealers)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayBothRevealers
-              , ValueRevealer, KeyRevealer)
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsArray | AlwaysWrites | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class FieldKeyRevealerStructValueRevealerArrayAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase> :
     KeyRevealerStructValueRevealerFieldMoldScaffold<TKey, TValue, TKRevealBase>
     where TKey : TKRevealBase 
@@ -538,12 +571,14 @@ public class FieldKeyRevealerStructValueRevealerArrayAlwaysAddAllStringBearer<TK
            .KeyedCollectionField.AlwaysAddAll
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayBothRevealersStruct)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayBothRevealersStruct
-              , ValueRevealer, KeyRevealer)
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsArray | AlwaysWrites | AcceptsNullableStruct | KeyNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class FieldStructKeyRevealerStructValueRevealerArrayAlwaysAddAllStringBearer<TKey, TValue> :
     StructKeyRevealerStructValueRevealerFieldMoldScaffold<TKey, TValue>
     where TKey : struct 
@@ -562,12 +597,14 @@ public class FieldStructKeyRevealerStructValueRevealerArrayAlwaysAddAllStringBea
            .KeyedCollectionField.AlwaysAddAll
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayBothStructRevealers)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllArrayBothStructRevealers
-              , ValueRevealer, KeyRevealer)
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsList | AlwaysWrites | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class FieldKeyRevealerValueRevealerListAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> :
     KeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKRevealBase, TVRevealBase>
     where TKey : TKRevealBase? 
@@ -588,12 +625,14 @@ public class FieldKeyRevealerValueRevealerListAlwaysAddAllStringBearer<TKey, TVa
            .KeyedCollectionField.AlwaysAddAll
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllListBothRevealers)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllListBothRevealers
-              , ValueRevealer, KeyRevealer)
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsList | AlwaysWrites | AcceptsAnyExceptNullableStruct | KeyNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class FieldStructKeyRevealerValueRevealerListAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> :
     StructKeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TVRevealBase>
     where TKey : struct 
@@ -613,12 +652,14 @@ public class FieldStructKeyRevealerValueRevealerListAlwaysAddAllStringBearer<TKe
            .KeyedCollectionField.AlwaysAddAll
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllListBothRevealersStructKey)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllListBothRevealersStructKey
-              , ValueRevealer, KeyRevealer)
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsList | AlwaysWrites | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class FieldKeyRevealerStructValueRevealerListAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase> :
     KeyRevealerStructValueRevealerFieldMoldScaffold<TKey, TValue, TKRevealBase>
     where TKey : TKRevealBase? 
@@ -638,12 +679,14 @@ public class FieldKeyRevealerStructValueRevealerListAlwaysAddAllStringBearer<TKe
            .KeyedCollectionField.AlwaysAddAll
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllListBothRevealersStruct)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllListBothRevealersStruct
-              , ValueRevealer, KeyRevealer)
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsList | AlwaysWrites | AcceptsNullableStruct | KeyNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class FieldStructKeyRevealerStructValueRevealerListAlwaysAddAllStringBearer<TKey, TValue> :
     StructKeyRevealerStructValueRevealerFieldMoldScaffold<TKey, TValue>
     where TKey : struct 
@@ -662,12 +705,14 @@ public class FieldStructKeyRevealerStructValueRevealerListAlwaysAddAllStringBear
            .KeyedCollectionField.AlwaysAddAll
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllListBothRevealersStruct)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllListBothRevealersStruct
-              , ValueRevealer, KeyRevealer)
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsEnumerable | AlwaysWrites | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class FieldKeyRevealerValueRevealerEnumerableAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> :
     KeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKRevealBase, TVRevealBase>
     where TKey : TKRevealBase? 
@@ -688,12 +733,14 @@ public class FieldKeyRevealerValueRevealerEnumerableAlwaysAddAllStringBearer<TKe
            .KeyedCollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerableBothRevealers)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerableBothRevealers
-              , ValueRevealer, KeyRevealer)
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsEnumerable | AlwaysWrites | AcceptsAnyExceptNullableStruct | KeyNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class FieldStructKeyRevealerValueRevealerEnumerableAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> :
     StructKeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TVRevealBase>
     where TKey : struct 
@@ -713,12 +760,14 @@ public class FieldStructKeyRevealerValueRevealerEnumerableAlwaysAddAllStringBear
            .KeyedCollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerableBothRevealers)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerableBothRevealers
-              , ValueRevealer, KeyRevealer)
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsEnumerable | AlwaysWrites | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class FieldKeyRevealerStructValueRevealerEnumerableAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase> :
     KeyRevealerStructValueRevealerFieldMoldScaffold<TKey, TValue, TKRevealBase>
     where TKey : TKRevealBase? 
@@ -738,12 +787,14 @@ public class FieldKeyRevealerStructValueRevealerEnumerableAlwaysAddAllStringBear
            .KeyedCollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerableBothRevealersStruct)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerableBothRevealersStruct
-              , ValueRevealer, KeyRevealer)
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsEnumerable | AlwaysWrites | AcceptsNullableStruct | KeyNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class FieldStructKeyRevealerStructValueRevealerEnumerableAlwaysAddAllStringBearer<TKey, TValue> :
     StructKeyRevealerStructValueRevealerFieldMoldScaffold<TKey, TValue>
     where TKey : struct 
@@ -762,12 +813,14 @@ public class FieldStructKeyRevealerStructValueRevealerEnumerableAlwaysAddAllStri
            .KeyedCollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerableBothStructRevealers)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumerableBothStructRevealers
-              , ValueRevealer, KeyRevealer)
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsEnumerator | AlwaysWrites | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class FieldKeyRevealerValueRevealerEnumeratorAlwaysAddAllStringBearer<TKey, TValue, TKRevealBase, TVRevealBase> :
     KeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKRevealBase, TVRevealBase>
     where TKey : TKRevealBase? 
@@ -803,12 +856,14 @@ public class FieldKeyRevealerValueRevealerEnumeratorAlwaysAddAllStringBearer<TKe
            .KeyedCollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorBothRevealers)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorBothRevealers
-              , ValueRevealer, KeyRevealer)
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsEnumerator | AlwaysWrites | AcceptsAnyExceptNullableStruct | KeyNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class FieldStructKeyRevealerValueRevealerEnumeratorAlwaysAddAllStringBearer<TKey, TValue, TVRevealBase> :
     StructKeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TVRevealBase>
     where TKey : struct 
@@ -843,12 +898,14 @@ public class FieldStructKeyRevealerValueRevealerEnumeratorAlwaysAddAllStringBear
            .KeyedCollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorBothRevealersKeyStruct)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorBothRevealersKeyStruct
-              , ValueRevealer, KeyRevealer)
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsEnumerator | AlwaysWrites | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class FieldKeyRevealerStructValueRevealerEnumeratorAlwaysAddAllStringBearer<TKey, TValue, TKRevealer> :
     KeyRevealerStructValueRevealerFieldMoldScaffold<TKey, TValue, TKRevealer>
     where TKey : TKRevealer?
@@ -883,12 +940,14 @@ public class FieldKeyRevealerStructValueRevealerEnumeratorAlwaysAddAllStringBear
            .KeyedCollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorBothRevealersStruct)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorBothRevealersStruct
-              , ValueRevealer, KeyRevealer)
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | KeyValueCardinality | AcceptsEnumerator | AlwaysWrites | AcceptsNullableStruct
-                | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer)]
+                | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class FieldStructKeyRevealerStructValueRevealerEnumeratorAlwaysAddAllStringBearer<TKey, TValue> :
     StructKeyRevealerStructValueRevealerFieldMoldScaffold<TKey, TValue>
     where TKey : struct 
@@ -922,6 +981,8 @@ public class FieldStructKeyRevealerStructValueRevealerEnumeratorAlwaysAddAllStri
            .KeyedCollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorBothStructRevealers)
               , ComplexTypeKeyedCollectionFieldAlwaysAddAllEnumeratorBothStructRevealers
-              , ValueRevealer, KeyRevealer)
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }

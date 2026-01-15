@@ -14,11 +14,14 @@ public class TypeGeneratePartAttribute(ScaffoldingStringBuilderInvokeFlags flags
     public ScaffoldingStringBuilderInvokeFlags ScaffoldingFlags { get; } = flags;
 }
 
-public interface ISinglePropertyTestStringBearer : IStringBearer
+public interface ISupportFormattingFlags
+{
+    [JsonIgnore] FormatFlags FormattingFlags { get; set; }
+}
+
+public interface ISinglePropertyTestStringBearer : IStringBearer, ISupportFormattingFlags
 {
     [JsonIgnore] string PropertyName { get; }
-    
-    [JsonIgnore] FormatFlags FormattingFlags { get; set; }
 }
 
 public interface IMoldSupportedValue<TValue> : ISinglePropertyTestStringBearer
@@ -103,7 +106,7 @@ public interface ISupportsKeyRevealer<TRevealBase> : ISupportsUnknownKeyRevealer
     [JsonIgnore] PalantírReveal<TRevealBase> KeyRevealer { get; set; }
 }
 
-public interface IUnknownPalantirRevealerFactory : ISinglePropertyTestStringBearer
+public interface IUnknownPalantirRevealerFactory
 {   
     [JsonIgnore] Delegate CreateRevealerDelegate { get; }
 }

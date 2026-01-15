@@ -150,7 +150,7 @@ public class FormattingAppenderConfig : AppenderDefinitionConfig, IMutableFormat
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .AddBaseStyledToStringFields(this)
+           .AddBaseRevealStateFields(this)
            .Field.AlwaysAdd(nameof(LogEntryFormatLayout), LogEntryFormatLayout)
            .Field.WhenNonNullOrDefaultReveal(nameof(InheritsFrom), InheritsFrom)
            .Complete();

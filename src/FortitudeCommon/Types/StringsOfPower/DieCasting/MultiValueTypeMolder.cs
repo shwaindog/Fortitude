@@ -13,7 +13,8 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
     
     protected void InitializeMultiValueTypeBuilder
     (
-        Type typeBeingBuilt
+        object instanceOrContainer
+      , Type typeBeingBuilt
       , ISecretStringOfPower vesselOfStringOfPower
       , MoldDieCastSettings appendSettings
       , string? typeName
@@ -22,7 +23,7 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
       , int existingRefId
       , FormatFlags createFormatFlags )
     {
-        Initialize(typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName
+        Initialize(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName
                                        , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
     }
 
@@ -47,11 +48,14 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
         base.InheritedStateReset();
     }
 
-    public TExt AddBaseStyledToStringFields<T>(T thisType) where T : IStringBearer
+    public TExt AddBaseRevealStateFields<T>(T thisType) where T : IStringBearer
     {
-        if (MoldStateField.SkipBody) return MoldStateField.StyleTypeBuilder;
-        MoldStateField.Master.AddBaseFieldsStart();
-        TargetStringBearerRevealState.CallBaseStyledToStringIfSupported(thisType, MoldStateField.Master);
+        var msf = MoldStateField;
+        if (msf.SkipBody) return msf.StyleTypeBuilder;
+        msf.Master.AddBaseFieldsStart();
+        TargetStringBearerRevealState.CallBaseStyledToStringIfSupported(thisType, msf.Master);
+        msf.StyleFormatter.GraphBuilder.StartNextContentSeparatorPaddingSequence(msf.Sb, FormatFlags.DefaultCallerTypeFlags);
+        msf.StyleFormatter.AddToNextFieldSeparatorAndPadding();
         
         return Me;
     }

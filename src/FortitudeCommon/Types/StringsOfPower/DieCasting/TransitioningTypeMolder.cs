@@ -14,20 +14,27 @@ public abstract class TransitioningTypeMolder<TCurrent, TNext> : KnownTypeMolder
 {
     private bool hasTransitioned;
 
-    public override void AppendOpening()
+    public override void AppendTypeOpeningToGraphFields()
     {
+        var formatter = MoldStateField.StyleFormatter;
         if (IsComplexType)
-            MoldStateField.StyleFormatter.AppendComplexTypeOpening(MoldStateField);
+        {
+            formatter.StartComplexTypeOpening(MoldStateField);
+            formatter.FinishComplexTypeOpening(MoldStateField);
+        }
         else
-            MoldStateField.StyleFormatter.AppendValueTypeOpening(MoldStateField);
+        {
+            formatter.StartContentTypeOpening(MoldStateField);
+            formatter.FinishContentTypeOpening(MoldStateField);
+        }
     }
 
     public override void AppendClosing()
     {
         if (IsComplexType)
-            MoldStateField.StyleFormatter.AppendTypeClosing(MoldStateField);
+            MoldStateField.StyleFormatter.AppendComplexTypeClosing(MoldStateField);
         else
-            MoldStateField.StyleFormatter.AppendValueTypeClosing(MoldStateField);
+            MoldStateField.StyleFormatter.AppendContentTypeClosing(MoldStateField);
     }
 
     public virtual TNext TransitionToNextMold()

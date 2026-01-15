@@ -56,6 +56,7 @@ public class CloakedBearerExpect<TChildScaffoldType, TChildScaffold> : FieldExpe
         var expectValue = FieldValueExpectation.GetExpectedOutputFor(sbFactory, condition, tos, formatString);
         if (!expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue) && Input != null)
         {
+            expectValue.DecrementRefCount();
             expectValue = WhenValueExpectedOutput
                 (sbFactory, tos, (Input?.GetType() ?? typeof(TChildScaffoldType)).CachedCSharpNameNoConstraints()
                , $"CloakedRevealer{RevealerScaffold.PropertyName}", condition, FieldValueExpectation);

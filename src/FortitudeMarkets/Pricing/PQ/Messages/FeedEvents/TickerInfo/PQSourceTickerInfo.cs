@@ -887,7 +887,7 @@ public class PQSourceTickerInfo : PQPricingInstrumentId, IPQSourceTickerInfo
 
     public override StateExtractStringRange RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
-            .AddBaseStyledToStringFields(this)
+            .AddBaseRevealStateFields(this)
             .Field.AlwaysAdd(nameof(RoundingPrecision), RoundingPrecision)
             .Field.AlwaysAdd(nameof(Pip), Pip)
             .Field.AlwaysAdd(nameof(MinSubmitSize), MinSubmitSize)

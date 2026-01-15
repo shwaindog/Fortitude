@@ -62,15 +62,15 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             : stb.WasSkipped<Memory<TCloakedStruct?>>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedRevealAll<TBearer>(ReadOnlySpan<char> fieldName, Span<TBearer> value
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer? =>
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer? =>
         value is { Length: > 0 }
-            ? AlwaysRevealAll(fieldName, value, formatFlags)
+            ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped<Memory<TBearer>>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedRevealAll<TBearerStruct>(ReadOnlySpan<char> fieldName, Span<TBearerStruct?> value
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer =>
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer =>
         value is { Length: > 0 }
-            ? AlwaysRevealAll(fieldName, value, formatFlags)
+            ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped<Memory<TBearerStruct?>>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, Span<string> value
@@ -174,15 +174,15 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             : stb.WasSkipped<Memory<TCloakedStruct?>>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedRevealAll<TBearer>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer> value
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer? =>
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer? =>
         value is { Length: > 0 }
-            ? AlwaysRevealAll(fieldName, value, formatFlags)
+            ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped<Memory<TBearer>>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedRevealAll<TBearerStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearerStruct?> value
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer =>
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer =>
         value is { Length: > 0 }
-            ? AlwaysRevealAll(fieldName, value, formatFlags)
+            ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped<Memory<TBearerStruct?>>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<string> value
@@ -269,30 +269,30 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenPopulatedRevealAll<TCloaked, TRevealBase>
     (string fieldName, TCloaked?[]? value, PalantírReveal<TRevealBase> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull =>
         value is { Length: > 0 }
-            ? AlwaysRevealAll(fieldName, value, palantírReveal, formatFlags)
+            ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped<TCloaked?[]>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedRevealAll<TCloakedStruct>
     (string fieldName, TCloakedStruct?[]? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
         value is { Length: > 0 }
-            ? AlwaysRevealAll(fieldName, value, palantírReveal, formatFlags)
+            ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped<TCloakedStruct?[]>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedRevealAll<TBearer>(string fieldName, TBearer?[]? value
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer =>
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer =>
         value is { Length: > 0 }
-            ? AlwaysRevealAll(fieldName, value, formatFlags)
+            ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped<TBearer?[]>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedRevealAll<TBearerStruct>(string fieldName, TBearerStruct?[]? value
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer =>
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer =>
         value is { Length: > 0 }
-            ? AlwaysRevealAll(fieldName, value, formatFlags)
+            ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped<TBearerStruct?[]>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedAddAll(string fieldName, string?[]? value
@@ -359,32 +359,32 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenPopulatedRevealAll<TCloaked, TRevealBase>
     (string fieldName, IReadOnlyList<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull =>
         value is { Count: > 0 }
-            ? AlwaysRevealAll(fieldName, value, palantírReveal, formatFlags)
+            ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped<IReadOnlyList<TCloaked?>>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedRevealAll<TCloakedStruct>
     (string fieldName, IReadOnlyList<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
+      , string? formatString = null , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
         value is { Count: > 0 }
-            ? AlwaysRevealAll(fieldName, value, palantírReveal, formatFlags)
+            ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped<IReadOnlyList<TCloakedStruct?>>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedRevealAll<TBearer>(string fieldName, IReadOnlyList<TBearer?>? value
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer =>
         value is { Count: > 0 }
-            ? AlwaysRevealAll(fieldName, value, formatFlags)
+            ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped<IReadOnlyList<TBearer?>>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedRevealAll<TBearerStruct>(string fieldName, IReadOnlyList<TBearerStruct?>? value
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer =>
         value is { Count: > 0 }
-            ? AlwaysRevealAll(fieldName, value, formatFlags)
+            ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped<IReadOnlyList<TBearerStruct?>>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedAddAll(string fieldName, IReadOnlyList<string?>? value
@@ -451,32 +451,32 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenPopulatedRevealAllEnumerate<TCloaked, TRevealBase>
     (string fieldName, IEnumerable<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull =>
         (value?.Any() ?? false)
-            ? AlwaysRevealAllEnumerate(fieldName, value, palantírReveal, formatFlags)
+            ? AlwaysRevealAllEnumerate(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped<IEnumerable<TCloaked?>>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedRevealAllEnumerate<TCloakedStruct>
     (string fieldName, IEnumerable<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
         (value?.Any() ?? false)
-            ? AlwaysRevealAllEnumerate(fieldName, value, palantírReveal, formatFlags)
+            ? AlwaysRevealAllEnumerate(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped<IEnumerable<TCloakedStruct?>>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedRevealAllEnumerate<TBearer>(string fieldName, IEnumerable<TBearer?>? value
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer =>
         (value?.Any() ?? false)
-            ? AlwaysRevealAllEnumerate(fieldName, value, formatFlags)
+            ? AlwaysRevealAllEnumerate(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped<IEnumerable<TBearer?>>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedRevealAllEnumerate<TBearerStruct>(string fieldName, IEnumerable<TBearerStruct?>? value
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer =>
         (value?.Any() ?? false)
-            ? AlwaysRevealAllEnumerate(fieldName, value, formatFlags)
+            ? AlwaysRevealAllEnumerate(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped<IEnumerable<TBearerStruct?>>(null, fieldName, formatFlags);
 
     public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerable<string?>? value
@@ -517,7 +517,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerator<bool>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<bool>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<bool>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
@@ -541,7 +541,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerator<bool?>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<bool?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<bool?>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
@@ -566,7 +566,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable
     {
-        if (stb.SkipField<IEnumerator<TFmt?>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<TFmt?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<TFmt?>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
@@ -591,7 +591,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
     {
-        if (stb.SkipField<IEnumerator<TFmtStruct?>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<TFmtStruct?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<TFmtStruct?>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
@@ -613,11 +613,11 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenPopulatedRevealAllEnumerate<TCloaked, TRevealBase>
     (string fieldName, IEnumerator<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        if (stb.SkipField<IEnumerator<TCloaked?>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<TCloaked?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<TCloaked?>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
@@ -627,7 +627,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             var eoctb = stb.Master.StartExplicitCollectionType<TCloaked>(value!);
             while (hasValue)
             {
-                eoctb.AddElementAndGoToNextElement(value!.Current, palantírReveal, formatFlags);
+                eoctb.AddElementAndGoToNextElement(value!.Current, palantírReveal, formatString, formatFlags);
                 hasValue = value.MoveNext();
             }
             eoctb.AppendCollectionComplete();
@@ -638,10 +638,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenPopulatedRevealAllEnumerate<TCloakedStruct>
     (string fieldName, IEnumerator<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
-        if (stb.SkipField<IEnumerator<TCloakedStruct?>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<TCloakedStruct?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<TCloakedStruct?>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
@@ -651,7 +651,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             var eoctb = stb.Master.StartExplicitCollectionType<TCloakedStruct>(value!);
             while (hasValue)
             {
-                eoctb.AddElementAndGoToNextElement(value!.Current, palantírReveal, formatFlags);
+                eoctb.AddElementAndGoToNextElement(value!.Current, palantírReveal, formatString, formatFlags);
                 hasValue = value.MoveNext();
             }
             eoctb.AppendCollectionComplete();
@@ -660,11 +660,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedRevealAllEnumerate<TBearer>(string fieldName, IEnumerator<TBearer?>? value
+    public TExt WhenPopulatedRevealAllEnumerate<TBearer>(string fieldName
+      , IEnumerator<TBearer?>? value
+      , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer
     {
-        if (stb.SkipField<IEnumerator<TBearer?>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<TBearer?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<TBearer?>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
@@ -674,7 +676,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             var eoctb = stb.Master.StartExplicitCollectionType<TBearer>(value!);
             while (hasValue)
             {
-                eoctb.AddBearerElementAndGoToNextElement(value!.Current);
+                eoctb.AddBearerElementAndGoToNextElement(value!.Current, formatString, formatFlags);
                 hasValue = value.MoveNext();
             }
             eoctb.AppendCollectionComplete();
@@ -683,11 +685,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.StyleTypeBuilder;
     }
 
-    public TExt WhenPopulatedRevealAllEnumerate<TBearerStruct>(string fieldName, IEnumerator<TBearerStruct?>? value
+    public TExt WhenPopulatedRevealAllEnumerate<TBearerStruct>(string fieldName
+      , IEnumerator<TBearerStruct?>? value
+      , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
-        if (stb.SkipField<IEnumerator<TBearerStruct?>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<TBearerStruct?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<TBearerStruct?>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
@@ -697,7 +701,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             var eoctb = stb.Master.StartExplicitCollectionType<TBearerStruct>(value!);
             while (hasValue)
             {
-                eoctb.AddBearerElementAndGoToNextElement(value!.Current);
+                eoctb.AddBearerElementAndGoToNextElement(value!.Current, formatString, formatFlags);
                 hasValue = value.MoveNext();
             }
             eoctb.AppendCollectionComplete();
@@ -711,7 +715,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerator<string?>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<string?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<string?>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
@@ -735,7 +739,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence
     {
-        if (stb.SkipField<IEnumerator<TCharSeq?>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<TCharSeq?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<TCharSeq?>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
@@ -759,7 +763,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerator<StringBuilder?>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<StringBuilder?>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<StringBuilder?>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
@@ -783,7 +787,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipField<IEnumerator<TAny>>(value?.GetType(), fieldName, formatFlags))
+        if (stb.HasSkipField<IEnumerator<TAny>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IEnumerator<TAny?>>(null, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;

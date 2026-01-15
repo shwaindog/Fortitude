@@ -154,6 +154,9 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     private MutableString ShouldThrow() =>
         !ThrowOnMutateAttempt ? this : throw new ModifyFrozenObjectAttempt("Attempted to modify a frozen MutableString");
 
+    private int ShouldThrowOrZero() =>
+        !ThrowOnMutateAttempt ? 0 : throw new ModifyFrozenObjectAttempt("Attempted to modify a frozen MutableString");
+
     IStringBuilder IMutableStringBuilder<IStringBuilder>.Append(ICharSequence? value, ICustomStringFormatter? customStringFormatter) =>
         Append(value, customStringFormatter);
 
@@ -1006,7 +1009,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (value == null) return this;
         if (customStringFormatter != null)
         {
-            customStringFormatter.ContentEncoder.Transfer(value.AsSpan(), this);
+            customStringFormatter.ContentEncoder.AppendTransfer(value.AsSpan(), this);
             return this;
         }
         sb.Append(value);
@@ -1022,7 +1025,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (customStringFormatter != null)
         {
             if (noFormatStringFormatting)
-                customStringFormatter.ContentEncoder.Transfer(value, this);
+                customStringFormatter.ContentEncoder.AppendTransfer(value, this);
             else
                 customStringFormatter.Format(value.AsSpan(), 0, this, formatString, length, formatFlags);
             return this;
@@ -1051,7 +1054,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (customStringFormatter != null)
         {
             if (noFormatStringFormatting)
-                customStringFormatter.ContentEncoder.Transfer(value, this);
+                customStringFormatter.ContentEncoder.AppendTransfer(value, this);
             else
                 customStringFormatter.Format(value.AsSpan(), 0, this, formatString, length, formatFlags);
             return this;
@@ -1083,7 +1086,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (IsFrozen) return ShouldThrow();
         if (customStringFormatter != null)
         {
-            customStringFormatter.ContentEncoder.Transfer(value, this);
+            customStringFormatter.ContentEncoder.AppendTransfer(value, this);
             return this;
         }
         sb.Append(value);
@@ -1098,7 +1101,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (customStringFormatter != null)
         {
             if (noFormatStringFormatting)
-                customStringFormatter.ContentEncoder.Transfer(value, this);
+                customStringFormatter.ContentEncoder.AppendTransfer(value, this);
             else
                 customStringFormatter.Format(value, startIndex, this, formatString, length, formatFlags);
             return this;
@@ -1124,7 +1127,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (IsFrozen) return ShouldThrow();
         if (customStringFormatter != null)
         {
-            customStringFormatter.ContentEncoder.Transfer(value, this);
+            customStringFormatter.ContentEncoder.AppendTransfer(value, this);
             return this;
         }
         sb.Append(value);
@@ -1139,7 +1142,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (customStringFormatter != null)
         {
             if (noFormatStringFormatting)
-                customStringFormatter.ContentEncoder.Transfer(value, this);
+                customStringFormatter.ContentEncoder.AppendTransfer(value, this);
             else
                 customStringFormatter.Format(value, startIndex, this, formatString, length, formatFlags);
             return this;
@@ -1169,7 +1172,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (IsFrozen) return ShouldThrow();
         if (customStringFormatter != null)
         {
-            customStringFormatter.ContentEncoder.Transfer(value.Span, this);
+            customStringFormatter.ContentEncoder.AppendTransfer(value.Span, this);
             return this;
         }
         sb.Append(value);
@@ -1185,7 +1188,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         if (customStringFormatter != null)
         {
             if (noFormatStringFormatting)
-                customStringFormatter.ContentEncoder.Transfer(asSpan, this);
+                customStringFormatter.ContentEncoder.AppendTransfer(asSpan, this);
             else
                 customStringFormatter.Format(asSpan, startIndex, this, formatString, length, formatFlags);
             return this;
@@ -1643,6 +1646,321 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
         sb.Insert(atIndex, value[cappedFrom..cappedEnd]);
         return this;
+    }
+
+    public int Overwrite(int atIndex, bool value)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        // bool returns cached strings
+        return Overwrite(atIndex, value.ToString());
+    }
+
+    public int Overwrite(int atIndex, byte value)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        Span<char> populated = stackalloc char[3];
+        if (value.TryFormat(populated, out var charsWritten, ReadOnlySpan<char>.Empty))
+        {
+            populated = populated[..charsWritten];
+        }
+        return Overwrite(atIndex, populated);
+    }
+
+    public int Overwrite(int atIndex, char value)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        if (atIndex < sb.Length)
+        {
+            sb[atIndex] = value;
+        }
+        else
+        {
+            sb.Append(value);
+        }
+        return 1;
+    }
+
+    public int Overwrite(int atIndex, char[]? value)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        return Overwrite(atIndex, value.AsSpan());
+    }
+
+    public int Overwrite(int atIndex, decimal value)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        Span<char> populated = stackalloc char[30];
+        if (value.TryFormat(populated, out var charsWritten, ReadOnlySpan<char>.Empty))
+        {
+            populated = populated[..charsWritten];
+        }
+        return Overwrite(atIndex, populated);
+    }
+
+    public int Overwrite(int atIndex, double value)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        Span<char> populated = stackalloc char[24];
+        if (value.TryFormat(populated, out var charsWritten, ReadOnlySpan<char>.Empty))
+        {
+            populated = populated[..charsWritten];
+        }
+        return Overwrite(atIndex, populated);
+    }
+
+    public int Overwrite(int atIndex, short value)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        Span<char> populated = stackalloc char[6];
+        if (value.TryFormat(populated, out var charsWritten, ReadOnlySpan<char>.Empty))
+        {
+            populated = populated[..charsWritten];
+        }
+        return Overwrite(atIndex, populated);
+    }
+
+    public int Overwrite(int atIndex, int value)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        Span<char> populated = stackalloc char[11];
+        if (value.TryFormat(populated, out var charsWritten, ReadOnlySpan<char>.Empty))
+        {
+            populated = populated[..charsWritten];
+        }
+        return Overwrite(atIndex, populated);
+    }
+
+    public int Overwrite(int atIndex, long value)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        Span<char> populated = stackalloc char[20];
+        if (value.TryFormat(populated, out var charsWritten, ReadOnlySpan<char>.Empty))
+        {
+            populated = populated[..charsWritten];
+        }
+        return Overwrite(atIndex, populated);
+    }
+
+    public int Overwrite(int atIndex, object? value)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        // bool returns cached strings
+        return Overwrite(atIndex, value?.ToString() ?? "");
+    }
+
+    public int Overwrite(int atIndex, sbyte value)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        Span<char> populated = stackalloc char[4];
+        if (value.TryFormat(populated, out var charsWritten, ReadOnlySpan<char>.Empty))
+        {
+            populated = populated[..charsWritten];
+        }
+        return Overwrite(atIndex, populated);
+    }
+
+    public int Overwrite(int atIndex, float value)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        Span<char> populated = stackalloc char[15];
+        if (value.TryFormat(populated, out var charsWritten, ReadOnlySpan<char>.Empty))
+        {
+            populated = populated[..charsWritten];
+        }
+        return Overwrite(atIndex, populated);
+    }
+
+    public int Overwrite(int atIndex, string? value)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        return Overwrite(atIndex, (value ?? "").AsSpan());
+    }
+
+    public int Overwrite(int atIndex, char[]? value, int startIndex, int length)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        return Overwrite(atIndex, value.AsSpan(), startIndex, length);
+    }
+
+    public int Overwrite(int atIndex, ushort value)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        Span<char> populated = stackalloc char[5];
+        if (value.TryFormat(populated, out var charsWritten, ReadOnlySpan<char>.Empty))
+        {
+            populated = populated[..charsWritten];
+        }
+        return Overwrite(atIndex, populated);
+    }
+
+    public int Overwrite(int atIndex, uint value)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        Span<char> populated = stackalloc char[10];
+        if (value.TryFormat(populated, out var charsWritten, ReadOnlySpan<char>.Empty))
+        {
+            populated = populated[..charsWritten];
+        }
+        return Overwrite(atIndex, populated);
+    }
+
+    public int Overwrite(int atIndex, ulong value)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        Span<char> populated = stackalloc char[19];
+        if (value.TryFormat(populated, out var charsWritten, ReadOnlySpan<char>.Empty))
+        {
+            populated = populated[..charsWritten];
+        }
+        return Overwrite(atIndex, populated);
+    }
+
+    public int Overwrite(int atIndex, ICharSequence? value)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        var sbLen        = sb.Length;
+        if (value == null) return 0;
+        var overWriteLen = value.Length;
+        if (atIndex < sbLen)
+        {
+            sb.Length = Math.Max(sb.Length, atIndex + overWriteLen);
+            for (int i = 0; i < overWriteLen && i < sbLen; i++)
+            {
+                sb[i + atIndex] = value[i];
+            }
+        }
+        else
+        {
+            sb.Append(value);
+        }
+        return overWriteLen;
+    }
+
+    public int Overwrite(int atIndex, StringBuilder? value)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        var sbLen        = sb.Length;
+        if (value == null) return 0;
+        var overWriteLen = value.Length;
+        if (atIndex < sbLen)
+        {
+            sb.Length = Math.Max(sb.Length, atIndex + overWriteLen);
+            for (int i = 0; i < overWriteLen && i < sbLen; i++)
+            {
+                sb[i + atIndex] = value[i];
+            }
+        }
+        else
+        {
+            sb.Append(value);
+        }
+        return overWriteLen;
+    }
+
+    public int Overwrite(int atIndex, string? value, int count)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        var sbLen        = sb.Length;
+        if (value == null) return 0;
+        var overWriteLen = Math.Min(count, value.Length);
+        if (atIndex < sbLen)
+        {
+            sb.Length = Math.Max(sb.Length, atIndex + overWriteLen);
+            for (int i = 0; i < overWriteLen && i < sbLen; i++)
+            {
+                sb[i + atIndex] = value[i];
+            }
+        }
+        else
+        {
+            sb.Append(value);
+        }
+        return overWriteLen;
+    }
+
+    public int Overwrite(int atIndex, Span<char> value)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        var sbLen        = sb.Length;
+        var overWriteLen = value.Length;
+        if (atIndex < sbLen)
+        {
+            sb.Length = Math.Max(sb.Length, atIndex + overWriteLen);
+            for (int i = 0; i < overWriteLen && i < sbLen; i++)
+            {
+                sb[i + atIndex] = value[i];
+            }
+        }
+        else
+        {
+            sb.Append(value);
+        }
+        return overWriteLen;
+    }
+
+    public int Overwrite(int atIndex, Span<char> value, int startIndex, int length)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        var sbLen        = sb.Length;
+        var cappedStart  = Math.Clamp(startIndex, 0, value.Length);
+        var overWriteLen = Math.Clamp(length, 0, value.Length - startIndex);
+        if (atIndex < sbLen)
+        {
+            sb.Length = Math.Max(sb.Length, atIndex + overWriteLen);
+            var destOffset = atIndex - cappedStart;
+            for (int i = cappedStart; i < overWriteLen && i < sbLen; i++)
+            {
+                sb[destOffset + i] = value[i];
+            }
+            
+        }
+        else
+        {
+            sb.Append(value[cappedStart..]);
+        }
+        return overWriteLen;
+    }
+
+    public int Overwrite(int atIndex, ReadOnlySpan<char> value)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        var sbLen        = sb.Length;
+        var overWriteLen = value.Length;
+        if (atIndex < sbLen)
+        {
+            sb.Length = Math.Max(sb.Length, atIndex + overWriteLen);
+            for (int i = 0; i < overWriteLen && i < sbLen; i++)
+            {
+                sb[i + atIndex] = value[i];
+            }
+        }
+        else
+        {
+            sb.Append(value);
+        }
+        return overWriteLen;
+    }
+
+    public int Overwrite(int atIndex, ReadOnlySpan<char> value, int startIndex, int length)
+    {
+        if (IsFrozen) return ShouldThrowOrZero();
+        var sbLen        = sb.Length;
+        var cappedStart  = Math.Clamp(startIndex, 0, value.Length);
+        var overWriteLen = Math.Clamp(length, 0, value.Length - startIndex);
+        if (atIndex < sbLen)
+        {
+            sb.Length = Math.Max(sb.Length, atIndex + overWriteLen);
+            var destOffset = atIndex - cappedStart;
+            for (int i = cappedStart; i < overWriteLen && i < sbLen; i++)
+            {
+                sb[destOffset + i] = value[i];
+            }
+        }
+        else
+        {
+            sb.Append(value[cappedStart..]);
+        }
+        return overWriteLen;
     }
 
     public MutableString Remove(int startIndex, int length)

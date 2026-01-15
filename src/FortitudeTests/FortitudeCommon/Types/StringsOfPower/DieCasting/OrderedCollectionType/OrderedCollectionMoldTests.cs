@@ -6,7 +6,7 @@ using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpecta
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 
-public abstract class OrderedCollectionMoldTests : CommonExpectationTestBase
+public abstract class OrderedCollectionMoldTests : CommonScaffoldExpectationTestBase
 {
     public override string TestsCommonDescription => "Ordered Collection Type";
     

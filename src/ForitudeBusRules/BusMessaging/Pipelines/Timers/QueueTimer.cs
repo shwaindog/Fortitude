@@ -231,7 +231,7 @@ public class QueueTimer : Rule, IQueueTimer
 
     public override StateExtractStringRange RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
-            .AddBaseStyledToStringFields(this)
+            .AddBaseRevealStateFields(this)
             .Field.AlwaysAdd(nameof(isClosing), isClosing)
             .Complete();
     

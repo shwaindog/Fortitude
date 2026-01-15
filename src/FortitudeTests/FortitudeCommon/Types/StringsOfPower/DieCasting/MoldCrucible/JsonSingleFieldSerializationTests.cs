@@ -9,6 +9,7 @@ using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TextJsonConverters;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Scenarios.CompareToSystemTextJson.TypePermutation;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 

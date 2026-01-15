@@ -38,7 +38,11 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
     public int Count
     {
         get => length;
-        set => length = value;
+        set
+        {
+            if (value > Capacity) { throw new ArgumentException("Can not set the length beyond the end of the backingArray"); }
+            length = value;
+        }
     }
 
     public int Length
@@ -366,10 +370,12 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
 
     public void Insert(int index, char item)
     {
-        var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + 1);
-        for (int i = cappedLengthEnd; i > index && i > 0; i--) { backingArray[i] = backingArray![i - 1]; }
         if (index < backingArray!.Length)
         {
+            var indexShift      = index + 1;
+            if(indexShift < backingArray.Length)
+                backingArray[indexShift] = backingArray![index];
+
             backingArray[index] = item;
             length++;
         }
@@ -377,148 +383,172 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
 
     public void Insert(int index, string item)
     {
-        var itemLen         = item.Length;
-        var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length - 1);
-        for (int i = cappedLengthEnd; i >= index && i >= 0; i--) { backingArray[i+itemLen] = backingArray![i]; }
-        if (index < backingArray!.Length)
+        var itemLen         = Math.Min(item.Length, RemainingCapacity);
+        if (index < backingArray!.Length && itemLen > 0)
         {
-            var stopLen = Math.Min(RemainingCapacity, itemLen);
-            int j       = index;
-            for (int i = 0; i < stopLen; i++) { backingArray[j++] = item[i]; }
-            length += stopLen;
+            var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen - 1);
+            var indexShift      = index + itemLen;
+            for (int i = cappedLengthEnd; i >= indexShift && i >= itemLen; i--) { backingArray[i] = backingArray![i - itemLen]; }
+            
+            int j = index;
+            for (int i = 0; i < itemLen; i++) { backingArray[j++] = item[i]; }
+            length += itemLen;
         }
     }
 
     public void Insert(int index, string item, int itemMaxLen)
     {
-        var itemLen         = Math.Min(item.Length, itemMaxLen);
-        var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen);
-        for (int i = cappedLengthEnd; i > index && i > 0; i--) { backingArray[i] = backingArray![i - itemLen]; }
-        if (index < backingArray!.Length)
+        var itemLen         = Math.Min(Math.Min(item.Length, itemMaxLen), RemainingCapacity);
+        if (index < backingArray!.Length && itemLen > 0)
         {
-            var stopIndex = Math.Min(RemainingCapacity, itemLen);
-            for (int i = 0; i < stopIndex; i++) { backingArray[length++] = item[i]; }
-            length += stopIndex;
+            var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen - 1);
+            var indexShift      = index + itemLen;
+            for (int i = cappedLengthEnd; i >= indexShift && i >= itemLen; i--) { backingArray[i] = backingArray![i - itemLen]; }
+
+            var at = index;
+            for (int i = 0; i < itemLen; i++) { backingArray[at++] = item[i]; }
+            length += itemLen;
         }
     }
 
     public void Insert(int index, ReadOnlySpan<char> item)
     {
-        var itemLen         = item.Length;
-        var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen);
-        for (int i = cappedLengthEnd; i > index && i > 0; i--) { backingArray[i] = backingArray![i - itemLen]; }
-        if (index < backingArray!.Length)
+        var itemLen         = Math.Min(item.Length, RemainingCapacity);
+        if (index < backingArray!.Length && itemLen > 0)
         {
-            var stopIndex = Math.Min(RemainingCapacity, item.Length);
-            for (int i = 0; i < stopIndex; i++) { backingArray[length++] = item[i]; }
-            length += stopIndex;
+            var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen - 1);
+            var indexShift      = index + itemLen;
+            for (int i = cappedLengthEnd; i >= indexShift && i >= itemLen; i--) { backingArray[i] = backingArray![i - itemLen]; }
+
+            var at = index;
+            for (int i = 0; i < itemLen; i++) { backingArray[at++] = item[i]; }
+            length += itemLen;
         }
     }
 
     public void Insert(int index, ReadOnlySpan<char> item, int fromIndex, int itemMaxCopy)
     {
-        var itemLen         = Math.Min(item.Length - fromIndex, itemMaxCopy);
-        var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen);
-        for (int i = cappedLengthEnd; i > index && i > 0; i--) { backingArray[i] = backingArray![i - itemLen]; }
-        if (index < backingArray!.Length)
+        var itemLen         = Math.Min(Math.Min(item.Length - fromIndex, itemMaxCopy), RemainingCapacity);
+        if (index < backingArray!.Length && itemLen > 0)
         {
-            var stopIndex = Math.Min(RemainingCapacity, itemLen);
-            for (int i = fromIndex; i < stopIndex; i++) { backingArray[length++] = item[i]; }
-            length += stopIndex;
+            var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen - 1);
+            var indexShift      = index + itemLen;
+            for (int i = cappedLengthEnd; i >= indexShift && i >= itemLen; i--) { backingArray[i] = backingArray![i - itemLen]; }
+
+            var at = index;
+            for (int i = fromIndex; i < itemLen; i++) { backingArray[at++] = item[i]; }
+            length += itemLen;
         }
     }
 
     public void Insert(int index, Span<char> item)
     {
-        var itemLen         = item.Length;
-        var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen);
-        for (int i = cappedLengthEnd; i > index && i > 0; i--) { backingArray[i] = backingArray![i - itemLen]; }
-        if (index < backingArray!.Length)
+        var itemLen         = Math.Min(item.Length, RemainingCapacity);
+        if (index < backingArray!.Length && itemLen > 0)
         {
-            var stopIndex = Math.Min(RemainingCapacity, item.Length);
-            for (int i = 0; i < stopIndex; i++) { backingArray[length++] = item[i]; }
-            length += stopIndex;
+            var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen - 1);
+            var indexShift      = index + itemLen;
+            for (int i = cappedLengthEnd; i >= indexShift && i >= itemLen; i--) { backingArray[i] = backingArray![i - itemLen]; }
+
+            var at = index;
+            for (int i = 0; i < itemLen; i++) { backingArray[at++] = item[i]; }
+            length += itemLen;
         }
     }
 
     public void Insert(int index, Span<char> item, int fromIndex, int itemMaxCopy)
     {
-        var itemLen         = Math.Min(item.Length - fromIndex, itemMaxCopy);
-        var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen);
-        for (int i = cappedLengthEnd; i > index && i > 0; i--) { backingArray[i] = backingArray![i - itemLen]; }
-        if (index < backingArray!.Length)
+        var itemLen         = Math.Min(Math.Min(item.Length - fromIndex, itemMaxCopy), RemainingCapacity);
+        if (index < backingArray!.Length && itemLen > 0)
         {
-            var stopIndex = Math.Min(RemainingCapacity, itemLen);
-            for (int i = fromIndex; i < stopIndex; i++) { backingArray[length++] = item[i]; }
-            length += stopIndex;
+            var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen - 1);
+            var indexShift      = index + itemLen;
+            for (int i = cappedLengthEnd; i >= indexShift && i >= itemLen; i--) { backingArray[i] = backingArray![i - itemLen]; }
+
+            var at = index;
+
+            var cappedFrom = Math.Clamp(fromIndex, 0, item.Length);
+
+            for (int i = cappedFrom; i < cappedFrom + itemLen; i++) { backingArray[at++] = item[i]; }
+            length += itemLen;
         }
     }
 
     public void Insert(int index, char[] item)
     {
-        var itemLen         = item.Length;
-        var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen);
-        for (int i = cappedLengthEnd; i > index && i > 0; i--) { backingArray[i] = backingArray![i - itemLen]; }
-        if (index < backingArray!.Length)
+        var itemLen         = Math.Min(item.Length, RemainingCapacity);
+        if (index < backingArray!.Length && itemLen > 0)
         {
-            var stopIndex = Math.Min(RemainingCapacity, item.Length);
-            for (int i = 0; i < stopIndex; i++) { backingArray[length++] = item[i]; }
-            length += stopIndex;
+            var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen - 1);
+            var indexShift      = index + itemLen;
+            for (int i = cappedLengthEnd; i >= indexShift && i >= itemLen; i--) { backingArray[i] = backingArray![i - itemLen]; }
+
+            var at = index;
+            for (int i = 0; i < itemLen; i++) { backingArray[at++] = item[i]; }
+            length += itemLen;
         }
     }
 
     public void Insert(int index, char[] item, int fromIndex, int itemMaxCopy)
     {
-        if (index < backingArray!.Length)
+        var itemLen = Math.Min(Math.Min(item.Length - fromIndex, itemMaxCopy), RemainingCapacity);
+        if (index < backingArray!.Length && itemLen > 0)
         {
-            var itemLen         = Math.Min(item.Length - fromIndex, itemMaxCopy);
-            var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen);
-            for (int i = cappedLengthEnd; i > index && i > 0; i--) { backingArray[i] = backingArray![i - itemLen]; }
-            var stopIndex = Math.Min(RemainingCapacity, itemLen);
-            for (int i = fromIndex; i < stopIndex; i++) { backingArray[index++] = item[i]; }
-            length = cappedLengthEnd + 1;
+            var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen - 1);
+            var indexShift      = index + itemLen;
+            for (int i = cappedLengthEnd; i >= indexShift && i >= itemLen; i--) { backingArray[i] = backingArray![i - itemLen]; }
+
+            var at = index;
+            for (int i = fromIndex; i < itemLen; i++) { backingArray[at++] = item[i]; }
+            length += itemLen;
         }
     }
 
     public void Insert(int index, ICharSequence item)
     {
-        if (index < backingArray!.Length)
+        var itemLen = Math.Min(RemainingCapacity, item.Length);
+        if (index < backingArray!.Length && itemLen > 0)
         {
-            var itemLen         = item.Length;
-            var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen);
-            for (int i = cappedLengthEnd; i > index && i > 0; i--) { backingArray[i] = backingArray![i - itemLen]; }
-            var stopIndex = Math.Min(RemainingCapacity, item.Length);
-            for (int i = 0; i < stopIndex; i++) { backingArray[index++] = item[i]; }
-            length = cappedLengthEnd + 1;
+            var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen - 1);
+            var indexShift      = index + itemLen;
+            for (int i = cappedLengthEnd; i >= indexShift && i >= itemLen; i--) { backingArray[i] = backingArray![i - itemLen]; }
+
+            var at = index;
+            for (int i = 0; i < itemLen; i++) { backingArray[at++] = item[i]; }
+            length += itemLen;
         }
     }
 
     public void Insert(int index, ICharSequence item, int fromIndex, int itemMaxCopy)
     {
-        if (index < backingArray!.Length)
+        var itemLen = Math.Min(Math.Min(item.Length - fromIndex, itemMaxCopy), RemainingCapacity);
+        if (index < backingArray!.Length && itemLen > 0)
         {
-            var itemLen         = Math.Min(item.Length - fromIndex, itemMaxCopy);
-            var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen);
+            var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen - 1);
+            var indexShift      = index + itemLen;
 
-            for (int i = cappedLengthEnd; i >= index + itemLen && i - itemLen > 0; i--) backingArray[i] = backingArray![i - itemLen];
+            for (int i = cappedLengthEnd; i >= indexShift && i - itemLen >= 0; i--) backingArray[i] = backingArray![i - itemLen];
 
-            var stopIndex = Math.Min(RemainingCapacity, itemLen);
+            var at = index;
 
-            for (int i = fromIndex; i < stopIndex; i++) backingArray[index++] = item[i];
-            length = cappedLengthEnd + 1;
+            for (int i = fromIndex; i < itemLen; i++) backingArray[at++] = item[i];
+            length += itemLen;
         }
     }
 
     public void Insert(int index, StringBuilder item)
     {
-        var itemLen         = item.Length;
-        var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen);
-        for (int i = cappedLengthEnd; i > index && i > 0; i--) { backingArray[i] = backingArray![i - itemLen]; }
-        if (index < backingArray!.Length)
+        var itemLen = Math.Min(item.Length, RemainingCapacity);
+        if (index < backingArray!.Length && itemLen > 0)
         {
-            var stopIndex = Math.Min(RemainingCapacity, item.Length);
-            for (int i = 0; i < stopIndex; i++) { backingArray[index++] = item[i]; }
-            length = cappedLengthEnd;
+            var cappedLengthEnd = Math.Min(backingArray!.Length - 1, length + itemLen - 1);
+            var indexShift      = index + itemLen;
+            for (int i = cappedLengthEnd; i >= indexShift && i >= itemLen; i--) { backingArray[i] = backingArray![i - itemLen]; }
+
+            var at = index;
+
+            for (int i = 0; i < itemLen; i++) { backingArray[at++] = item[i]; }
+            length += itemLen;
         }
     }
 
@@ -582,7 +612,7 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
 
     public void Replace(ReadOnlySpan<char> find, ReadOnlySpan<char> replace, int startIndex, int searchLength)
     {
-        var cappedLength = Math.Clamp(searchLength,  0, length - startIndex);
+        var cappedLength = Math.Clamp(searchLength, 0, length - startIndex);
         if (startIndex >= 0 && startIndex < length)
         {
             var arraySpan = backingArray.AsSpan();
@@ -602,7 +632,7 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
 
     public void Replace(ICharSequence find, ICharSequence replace, int startIndex, int searchLength)
     {
-        var cappedLength = Math.Clamp(searchLength,  0, length - startIndex);
+        var cappedLength = Math.Clamp(searchLength, 0, length - startIndex);
         if (startIndex >= 0 && startIndex < length)
         {
             var arraySpan = backingArray.AsSpan();
@@ -622,7 +652,7 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
 
     public void Replace(StringBuilder find, StringBuilder replace, int startIndex, int searchLength)
     {
-        var cappedLength = Math.Clamp(searchLength,  0, length - startIndex);
+        var cappedLength = Math.Clamp(searchLength, 0, length - startIndex);
         if (startIndex >= 0 && startIndex < length)
         {
             var arraySpan = backingArray.AsSpan();
@@ -877,7 +907,7 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
     {
         return
             tos.StartComplexContentType(this)
-                .AsStringOrNull(nameof(backingArray), backingArray, 0, length).Complete();
+               .AsStringOrNull(nameof(backingArray), backingArray, 0, length).Complete();
     }
 
     public override string ToString() => new(WrittenAsSpan());

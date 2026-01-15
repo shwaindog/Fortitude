@@ -1,7 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Scenarios.CompareToSystemTextJson.TypePermutation;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData;
 
 public class MyOtherTypeClass(string data)
 {
@@ -34,7 +34,6 @@ public readonly struct MyOtherTypeStruct(string data)
     public override bool Equals(object? obj)
     {
         if (obj is null) return false;
-        if (ReferenceEquals(this, obj)) return true;
         if (obj.GetType() != GetType()) return false;
         return Equals((MyOtherTypeStruct)obj);
     }

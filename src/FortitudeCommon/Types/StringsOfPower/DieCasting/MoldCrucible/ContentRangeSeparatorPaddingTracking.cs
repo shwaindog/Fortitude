@@ -83,15 +83,14 @@ public struct ContentSeparatorPaddingRangeTracking
 public static class ContentSeparatorPaddingRangeTrackingExtensions
 {
     public static ContentSeparatorRanges ToContentSeparatorFromEndRanges
-        (this ContentSeparatorPaddingRangeTracking tracking, IStringBuilder sb, FormatFlags formatFlags)
+        (this ContentSeparatorPaddingRangeTracking tracking, int atIndex, FormatFlags formatFlags)
     {
-        var sbLength = sb.Length;
 
         Range? contentRange = null;
         if (tracking.HasContent)
         {
-            var contentStartIndexFromEnd = new Index(Math.Abs(sbLength - tracking.FromStartContentStart.Value), true);
-            var contentEndIndexFromEnd   = new Index(Math.Abs(sbLength - tracking.FromStartContentEnd.Value), true);
+            var contentStartIndexFromEnd = new Index(Math.Abs(atIndex - tracking.FromStartContentStart!.Value), true);
+            var contentEndIndexFromEnd   = new Index(Math.Abs(atIndex - tracking.FromStartContentEnd!.Value), true);
             if (contentEndIndexFromEnd.Value < contentStartIndexFromEnd.Value ||
                 (tracking.AllowEmptyContent && contentEndIndexFromEnd.Value == contentStartIndexFromEnd.Value))
                 contentRange = new Range(contentStartIndexFromEnd, contentEndIndexFromEnd);
@@ -99,8 +98,8 @@ public static class ContentSeparatorPaddingRangeTrackingExtensions
         Range? separatorRange = null;
         if (tracking.HasSeparator)
         {
-            var separatorStartIndexFromEnd = new Index(Math.Abs(sbLength - tracking.FromStartContentEnd.Value), true);
-            var separatorEndIndexFromEnd   = new Index(Math.Abs(sbLength - tracking.FromStartSeparatorEnd.Value), true);
+            var separatorStartIndexFromEnd = new Index(Math.Abs(atIndex - tracking.FromStartContentEnd!.Value), true);
+            var separatorEndIndexFromEnd   = new Index(Math.Abs(atIndex - tracking.FromStartSeparatorEnd!.Value), true);
             if (separatorEndIndexFromEnd.Value < separatorStartIndexFromEnd.Value)
                 separatorRange = new Range(separatorStartIndexFromEnd, separatorEndIndexFromEnd);
         }
@@ -108,8 +107,8 @@ public static class ContentSeparatorPaddingRangeTrackingExtensions
         if (tracking.HasPadding)
         {
             var sepEndOrContentEnd       = tracking.FromStartSeparatorEnd ?? tracking.FromStartContentEnd;
-            var paddingStartIndexFromEnd = new Index(Math.Abs(sbLength - sepEndOrContentEnd!.Value), true);
-            var paddingEndIndexFromEnd   = new Index(Math.Abs(sbLength - tracking.FromStartPaddingEnd.Value), true);
+            var paddingStartIndexFromEnd = new Index(Math.Abs(atIndex - sepEndOrContentEnd!.Value), true);
+            var paddingEndIndexFromEnd   = new Index(Math.Abs(atIndex - tracking.FromStartPaddingEnd!.Value), true);
             if (paddingEndIndexFromEnd.Value < paddingStartIndexFromEnd.Value)
                 paddingRange = new Range(paddingStartIndexFromEnd, paddingEndIndexFromEnd);
         }

@@ -1,7 +1,9 @@
-﻿using FortitudeCommon.Extensions;
+﻿using System.Diagnostics.CodeAnalysis;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
-namespace FortitudeCommon.Types.StringsOfPower.DieCasting.KeyedCollectionType;
+namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 
 public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<ExplicitKeyedCollectionMold<TKey, TValue>>
 {
@@ -13,7 +15,8 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
 
     public ExplicitKeyedCollectionMold<TKey, TValue> InitializeExplicitKeyValueCollectionBuilder
     (
-        Type typeBeingBuilt
+        object instanceOrContainer
+      , Type typeBeingBuilt
       , ISecretStringOfPower vesselOfStringOfPower
       , MoldDieCastSettings appendSettings
       , string? typeName
@@ -22,7 +25,7 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
       , int existingRefId
       , FormatFlags createFormatFlags )
     {
-        InitializeMultiValueTypeBuilder(typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName, remainingGraphDepth
+        InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName, remainingGraphDepth
                                       , typeFormatting, existingRefId, createFormatFlags);
 
         stb = MoldStateField;
@@ -32,13 +35,15 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
 
     public override bool IsComplexType => true;
 
-    public override void AppendOpening()
+    public override void AppendTypeOpeningToGraphFields()
     {
         var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!;
         var typeFormattingFlags = stb.AppendSettings.SkipTypeParts.ToFormattingFlags();
         MoldStateField.StyleFormatter.AppendKeyedCollectionStart(MoldStateField.Sb, MoldStateField.TypeBeingBuilt, keyValueTypes.Value.Key
                                                            , keyValueTypes.Value.Value, typeFormattingFlags);
     }
+
+    public override void CompleteTypeOpeningToTypeFields() { }
 
     public override void AppendClosing()
     {
@@ -53,188 +58,255 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
         base.InheritedStateReset();
     }
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry(TKey key, TValue? value, string? valueFormatString = null
-      , string? keyFormatString = null)
+    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry(
+        TKey key
+      , TValue? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return this;
         stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++, valueFormatString, keyFormatString);
         return this;
     }
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TVRevealBase>(TK? key, TV? value
-      , PalantírReveal<TVRevealBase> valueStyler, string? keyFormatString = null) 
+    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TVRevealBase>(
+        TK? key
+      , TV? value
+      , PalantírReveal<TVRevealBase> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TK : TKey? 
         where TV : TValue?, TVRevealBase?
         where TVRevealBase : notnull
     {
         if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++,  valueStyler, keyFormatString);
+        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++,  valueStyler, keyFormatString, valueFormatString, formatFlags);
         return this;
     }
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TVRevealBase>(TK? key, TV? value
-      , PalantírReveal<TVRevealBase> valueStyler, string? keyFormatString = null) 
+    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TVRevealBase>(
+        TK? key
+      , TV? value
+      , PalantírReveal<TVRevealBase> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TK : struct, TKey 
         where TV : TValue?, TVRevealBase?
         where TVRevealBase : notnull
     {
         if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++,  valueStyler, keyFormatString);
+        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++,  valueStyler, keyFormatString, valueFormatString, formatFlags);
         return this;
     }
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TVRevealBase>(TK? key, TV? value
-      , PalantírReveal<TVRevealBase> valueStyler, string? keyFormatString = null) 
+    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TVRevealBase>(
+        TK? key
+      , TV? value
+      , PalantírReveal<TVRevealBase> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TK : TKey? 
         where TV : struct, TValue, TVRevealBase
         where TVRevealBase : notnull
     {
         if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++,  valueStyler, keyFormatString);
+        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++,  valueStyler, keyFormatString, valueFormatString, formatFlags);
         return this;
     }
 
     public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TKRevealBase, TVRevealBase>(TK? key, TV? value
       , PalantírReveal<TVRevealBase> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler) 
+      , PalantírReveal<TKRevealBase> keyStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TK : TKey?, TKRevealBase? 
         where TV : TValue?, TVRevealBase?
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
         if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++, valueStyler, keyStyler);
+        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++, valueStyler, keyStyler, valueFormatString, formatFlags);
         return this;
     }
 
     public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TKRevealBase, TVRevealBase>(TK? key, TV? value
       , PalantírReveal<TVRevealBase> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler) 
+      , PalantírReveal<TKRevealBase> keyStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TK : TKey?, TKRevealBase? 
         where TV : struct, TValue, TVRevealBase
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
         if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++, valueStyler, keyStyler);
+        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++, valueStyler, keyStyler, valueFormatString, formatFlags);
         return this;
     }
 
     public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TKRevealBase, TVRevealBase>(TK? key, TV value
       , PalantírReveal<TVRevealBase> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler) 
+      , PalantírReveal<TKRevealBase> keyStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TK : struct, TKey, TKRevealBase 
         where TV : TValue?, TVRevealBase?
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
         if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++, valueStyler, keyStyler);
+        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++, valueStyler, keyStyler, valueFormatString, formatFlags);
         return this;
     }
 
     public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TKRevealBase, TVRevealBase>(TK? key, TV? value
       , PalantírReveal<TVRevealBase> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler) 
+      , PalantírReveal<TKRevealBase> keyStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TK : struct, TKey, TKRevealBase 
         where TV : struct, TValue, TVRevealBase
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
         if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++, valueStyler, keyStyler);
+        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++, valueStyler, keyStyler, valueFormatString, formatFlags);
         return this;
     }
 
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry(TKey key, TValue? value, string? valueFormatString = null
-      , string? keyFormatString = null)
+    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry(
+        TKey key
+      , TValue? value
+      , string? valueFormatString = null
+      , string? keyFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         AddKeyValueMatchEntry(key, value, valueFormatString, keyFormatString);
         return AppendNextKeyedCollectionEntrySeparator();
     }
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TVRevealBase>(TK? key, TV? value
-      , PalantírReveal<TVRevealBase> valueStyler, string? keyFormatString = null) 
+    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TVRevealBase>(
+        TK? key
+      , TV? value
+      , PalantírReveal<TVRevealBase> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TK : TKey? 
         where TV : TValue?, TVRevealBase?
         where TVRevealBase : notnull
     {
         if (stb.SkipBody) return this;
-        AddKeyValueMatchEntry(key, value, valueStyler, keyFormatString);
+        AddKeyValueMatchEntry(key, value, valueStyler, keyFormatString, valueFormatString, formatFlags);
         return AppendNextKeyedCollectionEntrySeparator();
     }
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TVRevealBase>(TK? key, TV? value
-      , PalantírReveal<TVRevealBase> valueStyler, string? keyFormatString = null) 
+    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TVRevealBase>(
+        TK? key
+      , TV? value
+      , PalantírReveal<TVRevealBase> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TK : struct, TKey 
         where TV : TValue?, TVRevealBase?
         where TVRevealBase : notnull
     {
         if (stb.SkipBody) return this;
-        AddKeyValueMatchEntry(key, value, valueStyler, keyFormatString);
+        AddKeyValueMatchEntry(key, value, valueStyler, keyFormatString, valueFormatString, formatFlags);
         return AppendNextKeyedCollectionEntrySeparator();
     }
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TVRevealBase>(TK? key, TV? value
-      , PalantírReveal<TVRevealBase> valueStyler, string? keyFormatString = null) 
+    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TVRevealBase>(
+        TK? key
+      , TV? value
+      , PalantírReveal<TVRevealBase> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
+        ) 
         where TK : TKey? 
         where TV : struct, TValue, TVRevealBase
         where TVRevealBase : notnull
     {
         if (stb.SkipBody) return this;
-        AddKeyValueMatchEntry(key, value, valueStyler, keyFormatString);
+        AddKeyValueMatchEntry(key, value, valueStyler, keyFormatString, valueFormatString, formatFlags);
         return AppendNextKeyedCollectionEntrySeparator();
     }
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TKRevealBase, TVRevealBase>(TK? key, TV? value
-      , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKRevealBase> keyStyler) 
+    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TKRevealBase, TVRevealBase>(
+        TK? key
+      , TV? value
+      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TK : TKey?, TKRevealBase?
         where TV : TValue?, TVRevealBase?
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        AddKeyValueMatchEntry(key, value, valueStyler, keyStyler);
+        AddKeyValueMatchEntry(key, value, valueStyler, keyStyler, valueFormatString, formatFlags);
         return AppendNextKeyedCollectionEntrySeparator();
     }
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TKRevealBase, TVRevealBase>(TK? key, TV value
-      , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKRevealBase> keyStyler) 
+    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TKRevealBase, TVRevealBase>(
+        TK? key
+      , TV value
+      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TK : struct, TKey, TKRevealBase
         where TV : TValue?, TVRevealBase?
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        AddKeyValueMatchEntry(key, value, valueStyler, keyStyler);
+        AddKeyValueMatchEntry(key, value, valueStyler, keyStyler, valueFormatString, formatFlags);
         return AppendNextKeyedCollectionEntrySeparator();
     }
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TKRevealBase, TVRevealBase>(TK? key, TV? value
-      , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKRevealBase> keyStyler) 
+    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TKRevealBase, TVRevealBase>(
+        TK? key
+      , TV? value
+      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TK : TKey?, TKRevealBase?
         where TV : struct, TValue, TVRevealBase
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        AddKeyValueMatchEntry(key, value, valueStyler, keyStyler);
+        AddKeyValueMatchEntry(key, value, valueStyler, keyStyler, valueFormatString, formatFlags);
         return AppendNextKeyedCollectionEntrySeparator();
     }
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TKRevealBase, TVRevealBase>(TK? key, TV? value
-      , PalantírReveal<TVRevealBase> valueStyler, PalantírReveal<TKRevealBase> keyStyler) 
+    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TKRevealBase, TVRevealBase>(
+        TK? key
+      , TV? value
+      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TK : struct, TKey, TKRevealBase
         where TV : struct, TValue, TVRevealBase
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        AddKeyValueMatchEntry(key, value, valueStyler, keyStyler);
+        AddKeyValueMatchEntry(key, value, valueStyler, keyStyler, valueFormatString, formatFlags);
         return AppendNextKeyedCollectionEntrySeparator();
     }
 
     public ExplicitKeyedCollectionMold<TKey, TValue> AppendNextKeyedCollectionEntrySeparator()
     {
         if (stb.SkipBody) return this;
-        stb.StyleFormatter.AddNextFieldSeparatorAndPadding();
+        stb.StyleFormatter.AddToNextFieldSeparatorAndPadding();
         return this;
     }
     

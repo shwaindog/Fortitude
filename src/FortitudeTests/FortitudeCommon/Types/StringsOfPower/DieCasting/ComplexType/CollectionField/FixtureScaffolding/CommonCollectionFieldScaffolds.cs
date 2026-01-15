@@ -22,7 +22,7 @@ public abstract class FormattedEnumeratorFieldMoldScaffold<TValue, TCollection> 
 { }
 
 public abstract class RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase, TCollection> 
-    : MoldScaffoldBase<TCollection>, ISupportsValueRevealer<TRevealBase>
+    : FormattedMoldScaffold<TCollection>, ISupportsValueRevealer<TRevealBase>
     where TCollection : IEnumerable<TCloaked>?
     where TRevealBase : notnull
 {
@@ -36,8 +36,7 @@ public abstract class RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase,
 }
 
 public abstract class RevealerEnumeratorFieldMoldScaffold<TCloaked, TRevealBase, TCollection> : 
-    MoldScaffoldBase<TCollection>
-  , ISupportsValueRevealer<TRevealBase>
+    FormattedMoldScaffold<TCollection>, ISupportsValueRevealer<TRevealBase>
     where TCollection : IEnumerator<TCloaked>?
     where TRevealBase : notnull
 {
@@ -130,7 +129,7 @@ public abstract class FormattedFilteredEnumeratorFieldMoldScaffold<TValue, TColl
 
 public abstract class FormattedFilteredEnumeratorFieldMoldScaffold<TValue, TValueFilterBase, TCollection> : 
     FormattedEnumeratorFieldMoldScaffold<TValue, TCollection>, ISupportsOrderedCollectionPredicate<TValueFilterBase>
-    where TValue : TValueFilterBase
+    where TValue : TValueFilterBase?
     where TCollection : IEnumerator<TValue>
 {
     public OrderedCollectionPredicate<TValueFilterBase> ElementPredicate { get; set; } = 

@@ -122,7 +122,7 @@ public class ConsoleAppenderConfig : BufferingFormatAppenderConfig, IMutableCons
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .AddBaseStyledToStringFields(this)
+           .AddBaseRevealStateFields(this)
            .Field.AlwaysAdd(nameof(DisableColoredConsole), DisableColoredConsole)
            .Complete();
 }

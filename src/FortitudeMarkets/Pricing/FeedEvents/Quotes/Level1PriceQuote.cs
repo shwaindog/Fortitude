@@ -273,7 +273,7 @@ public class Level1PriceQuote : TickInstant, IMutableLevel1Quote, ICloneable<Lev
 
     public override StateExtractStringRange RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
-            .AddBaseStyledToStringFields(this)
+            .AddBaseRevealStateFields(this)
             .Field.AlwaysAdd(nameof(SourceBidTime), SourceBidTime, "O")
             .Field.AlwaysAdd(nameof(ValidFrom), ValidFrom, "O")
             .Field.AlwaysAdd(nameof(ValidTo), ValidTo, "O")
@@ -621,7 +621,7 @@ public class PublishableLevel1PriceQuote : PublishableTickInstant, IMutablePubli
 
     public override StateExtractStringRange RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
-            .AddBaseStyledToStringFields(this)
+            .AddBaseRevealStateFields(this)
             .Field.AlwaysReveal(nameof(QuoteContainer), QuoteContainer)
             .Field.AlwaysReveal(nameof(ConflatedTicksCandle), ConflatedTicksCandle)
             .Field.AlwaysAdd(nameof(QuoteBehavior), QuoteBehavior)

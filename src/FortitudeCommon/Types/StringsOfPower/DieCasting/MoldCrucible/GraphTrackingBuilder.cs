@@ -3,16 +3,52 @@
 
 using System.Runtime.CompilerServices;
 using FortitudeCommon.DataStructures.MemoryPools;
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
+using FortitudeCommon.Types.StringsOfPower.Options;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
-public class GraphTrackingBuilder
+public class GraphTrackingBuilder : RecyclableObject
 {
     private ContentSeparatorPaddingRangeTracking currentSectionRanges;
 
-    private Stack<ContentSeparatorPaddingRangeTracking> rangeHistory = new();
+    private StyleOptions? styleOptions;
+
+    private int overWriteIndex       = -1;
+    private int overWriteEndIndex    = -1;
+    private int overWriteIndentLevel = -1;
+    private int overWriteIndentSize  = -1;
+
+    public GraphTrackingBuilder Initialize(StyleOptions options)
+    {
+        styleOptions = options;
+        ((IRecyclableObject)options).IncrementRefCount();
+
+        return this;
+    }
+
+    public GraphTrackingBuilder InitializeInsertBuilder(IStringBuilder writeBuffer, int indentLevel, int indentChars
+      , IEncodingTransfer? overrideGraphEncoder, IEncodingTransfer? overrideParentGraphEncoder)
+    {
+        sb                   = writeBuffer;
+        graphEncoder         = overrideGraphEncoder;
+        parentGraphEncoder   = overrideParentGraphEncoder;
+        overWriteIndentLevel = indentLevel;
+        overWriteIndentSize  = indentChars;
+        return this;
+    }
+
+    public GraphTrackingBuilder StartInsertAt(int insertAt, int insertShiftAmount)
+    {
+        overWriteIndex    = insertAt;
+        overWriteEndIndex = insertAt + insertShiftAmount;
+
+        sb.ShiftRightAt(insertAt, insertShiftAmount);
+
+        return this;
+    }
 
     public ContentSeparatorPaddingRangeTracking CurrentSectionRanges
     {
@@ -22,71 +58,84 @@ public class GraphTrackingBuilder
 
     public ContentSeparatorRanges SnapshotLastAppendSequence(FormatFlags formatFlags)
     {
-        var checkAnyRanges        = CurrentSectionRanges.ToContentSeparatorFromEndRanges(sb, formatFlags);
+        var checkAnyRanges = CurrentSectionRanges.ToContentSeparatorFromEndRanges(IsInOverwriteMode ? overWriteIndex : sb.Length, formatFlags);
         if (checkAnyRanges.ContentRange != null || checkAnyRanges.SeparatorPaddingRange != null)
         {
             PenUltimateContentSeparatorPaddingRanges = LastContentSeparatorPaddingRanges;
             LastContentSeparatorPaddingRanges        = checkAnyRanges;
         }
-        AllowEmptyContent                        = false;
+        AllowEmptyContent = false;
         ResetCurrent(FormatFlags.DefaultCallerTypeFlags);
         return LastContentSeparatorPaddingRanges;
     }
+
+    private bool IsInOverwriteMode => overWriteIndex >= 0 && overWriteIndex < overWriteEndIndex;
 
     public ContentSeparatorRanges LastContentSeparatorPaddingRanges { get; set; }
 
     public ContentSeparatorRanges? PenUltimateContentSeparatorPaddingRanges { get; set; }
 
-    public void Reset()
+    public int IndentLevel
+    {
+        get => styleOptions?.IndentLevel ?? overWriteIndentLevel;
+        set
+        {
+            if (styleOptions != null) { styleOptions.IndentLevel = value; }
+            overWriteIndentLevel = value;
+        }
+    }
+
+    public int IndentSize => styleOptions?.IndentSize ?? overWriteIndentSize;
+
+    public override void StateReset()
     {
         if (graphEncoder is not PassThroughEncodingTransfer)
         {
             graphEncoder?.DecrementRefCount();
-            graphEncoder = Recycler.ThreadStaticRecycler.Borrow<PassThroughEncodingTransfer>();
+            graphEncoder = null;
         }
         if (parentGraphEncoder is not PassThroughEncodingTransfer)
         {
             parentGraphEncoder?.DecrementRefCount();
-            parentGraphEncoder = null!;
+            parentGraphEncoder = null;
         }
-        LastContentSeparatorPaddingRanges        = default;
-        
+        LastContentSeparatorPaddingRanges = default;
+
+        sb = null!;
+
         PenUltimateContentSeparatorPaddingRanges = null;
     }
 
     public IEncodingTransfer GraphEncoder
     {
-        get => graphEncoder;
+        get => graphEncoder ??= Recycler.Borrow<PassThroughEncodingTransfer>();
         set
         {
-            if (ReferenceEquals(parentGraphEncoder, value)  && ReferenceEquals(graphEncoder, value)) return;
-            if (parentGraphEncoder != null && !ReferenceEquals(parentGraphEncoder, graphEncoder))
-            {
-                parentGraphEncoder.DecrementRefCount();
-            }
+            if (ReferenceEquals(parentGraphEncoder, value) && ReferenceEquals(graphEncoder, value)) return;
+            if (parentGraphEncoder != null && !ReferenceEquals(parentGraphEncoder, graphEncoder)) { parentGraphEncoder.DecrementRefCount(); }
             parentGraphEncoder = graphEncoder;
-            if (parentGraphEncoder != null && !ReferenceEquals(graphEncoder, value))
-            {
-                parentGraphEncoder.DecrementRefCount();
-            }
-            graphEncoder       = value;
+            if (parentGraphEncoder != null && !ReferenceEquals(graphEncoder, value)) { parentGraphEncoder.DecrementRefCount(); }
+            graphEncoder = value;
         }
     }
 
+    public override IRecycler Recycler => base.Recycler ?? DataStructures.MemoryPools.Recycler.ThreadStaticRecycler;
+
     public IEncodingTransfer ParentGraphEncoder
     {
-        get => parentGraphEncoder ??= Recycler.ThreadStaticRecycler.Borrow<PassThroughEncodingTransfer>();
+        get => parentGraphEncoder ??= Recycler.Borrow<PassThroughEncodingTransfer>();
         set => parentGraphEncoder = value;
     }
 
     private IStringBuilder sb = null!;
 
-    private IStyledTypeFormatting styledFormatting = null!;
-    private IEncodingTransfer     graphEncoder     = Recycler.ThreadStaticRecycler.Borrow<PassThroughEncodingTransfer>();
+    private IEncodingTransfer?    graphEncoder;
     private IEncodingTransfer?    parentGraphEncoder;
 
     public bool HasCommitContent => CurrentSectionRanges.HasContent;
-    
+
+    public IStringBuilder Sb => sb;
+
     private bool AllowEmptyContent
     {
         get => currentSectionRanges.AllowEmptyContent;
@@ -96,8 +145,8 @@ public class GraphTrackingBuilder
     public void ResetCurrent(FormatFlags formatFlags, bool allowEmptyContent = false)
     {
         currentSectionRanges.Reset();
-        currentSectionRanges.StartedWithFormatFlags       = formatFlags;
-        currentSectionRanges.AllowEmptyContent = allowEmptyContent;
+        currentSectionRanges.StartedWithFormatFlags = formatFlags;
+        currentSectionRanges.AllowEmptyContent      = allowEmptyContent;
     }
 
     public void AddHighWaterMark()
@@ -112,19 +161,18 @@ public class GraphTrackingBuilder
         LastContentSeparatorPaddingRanges        = highWaterMark;
     }
 
-    public GraphTrackingBuilder StartNextContentSeparatorPaddingSequence(IStringBuilder writeBuffer
-      , IStyledTypeFormatting styledTypeFormatting, FormatFlags formatFlags,  bool allowEmptyContent = false)
+    public GraphTrackingBuilder StartNextContentSeparatorPaddingSequence(IStringBuilder writeBuffer, FormatFlags formatFlags
+      , bool allowEmptyContent = false)
     {
-        sb               = writeBuffer;
-        styledFormatting = styledTypeFormatting;
-        
+        sb = writeBuffer;
+
         ResetCurrent(formatFlags, allowEmptyContent);
         return MarkContentStart();
     }
 
     public GraphTrackingBuilder MarkContentStart(int atIndex = -1)
     {
-        currentSectionRanges.FromStartContentStart = atIndex < 0 ? sb.Length : atIndex;
+        currentSectionRanges.FromStartContentStart = IsInOverwriteMode ? overWriteIndex : atIndex < 0 ? sb.Length : atIndex;
         return this;
     }
 
@@ -134,81 +182,107 @@ public class GraphTrackingBuilder
         return this;
     }
 
-    public GraphTrackingBuilder StartAppendParentContent(string content, IStringBuilder writeBuffer, IStyledTypeFormatting styledTypeFormatting
-      , FormatFlags formatFlags,  bool allowEmptyContent = false)
+    public GraphTrackingBuilder StartAppendParentContent(string content, IStringBuilder writeBuffer
+      , FormatFlags formatFlags, bool allowEmptyContent = false)
     {
-        sb               = writeBuffer;
-        styledFormatting = styledTypeFormatting;
+        sb = writeBuffer;
+
         ResetCurrent(formatFlags, allowEmptyContent);
         MarkContentStart();
-        ParentGraphEncoder.Transfer(content, sb);
+        if (IsInOverwriteMode)
+            overWriteIndex += ParentGraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
+        else ParentGraphEncoder.AppendTransfer(content, sb);
         return MarkContentEnd();
     }
 
     public GraphTrackingBuilder StartAppendContent(string content, IStringBuilder writeBuffer, IStyledTypeFormatting styledTypeFormatting
-      , FormatFlags formatFlags,  bool allowEmptyContent = false)
+      , FormatFlags formatFlags, bool allowEmptyContent = false)
     {
-        sb               = writeBuffer;
-        styledFormatting = styledTypeFormatting;
+        sb = writeBuffer;
+
         ResetCurrent(formatFlags, allowEmptyContent);
         MarkContentStart();
-        GraphEncoder.Transfer(content, sb);
+        
+        if (IsInOverwriteMode)
+            overWriteIndex += GraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
+        else GraphEncoder.AppendTransfer(content, sb);
         return MarkContentEnd();
     }
 
     public GraphTrackingBuilder StartAppendDelimiter(string content, IStringBuilder writeBuffer, IStyledTypeFormatting styledTypeFormatting
       , FormatFlags formatFlags, bool allowEmptyContent = false) =>
-        StartAppendParentContent(content, writeBuffer, styledTypeFormatting, formatFlags, allowEmptyContent);
+        StartAppendParentContent(content, writeBuffer, formatFlags, allowEmptyContent);
 
     public GraphTrackingBuilder StartAppendContent(ReadOnlySpan<char> content, IStringBuilder writeBuffer
-      , IStyledTypeFormatting styledTypeFormatting, FormatFlags formatFlags,  bool allowEmptyContent = false)
+      , IStyledTypeFormatting styledTypeFormatting, FormatFlags formatFlags, bool allowEmptyContent = false)
     {
-        sb               = writeBuffer;
-        styledFormatting = styledTypeFormatting;
+        sb = writeBuffer;
+
         ResetCurrent(formatFlags, allowEmptyContent);
         MarkContentStart();
-        GraphEncoder.Transfer(content, sb);
+        
+        if (IsInOverwriteMode)
+            overWriteIndex += GraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
+        else GraphEncoder.AppendTransfer(content, sb);
         return MarkContentEnd();
     }
-    
+
     public GraphTrackingBuilder AppendContent(ReadOnlySpan<char> content)
     {
-        GraphEncoder.Transfer(content, sb);
+        
+        if (IsInOverwriteMode)
+            overWriteIndex += GraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
+        else GraphEncoder.AppendTransfer(content, sb);
         return MarkContentEnd();
     }
-    
+
     public GraphTrackingBuilder AppendDelimiter(ReadOnlySpan<char> content)
     {
-        ParentGraphEncoder.Transfer(content, sb);
+        if (IsInOverwriteMode)
+            overWriteIndex += ParentGraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
+        else ParentGraphEncoder.AppendTransfer(content, sb);
         return MarkContentEnd();
     }
-    
+
     public GraphTrackingBuilder AppendContent(string content)
     {
         if (currentSectionRanges is { FromStartContentStart: null }) { MarkContentStart(); }
-        GraphEncoder.Transfer(content, sb);
+        
+        if (IsInOverwriteMode)
+            overWriteIndex += GraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
+        else GraphEncoder.AppendTransfer(content, sb);
         return MarkContentEnd();
     }
-    
+
     public GraphTrackingBuilder AppendParentContent(string content)
     {
         if (currentSectionRanges is { FromStartContentStart: null }) { MarkContentStart(); }
-        ParentGraphEncoder.Transfer(content, sb);
+        
+        if (IsInOverwriteMode)
+            overWriteIndex += ParentGraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
+        else ParentGraphEncoder.AppendTransfer(content, sb);
         return MarkContentEnd();
     }
 
     public GraphTrackingBuilder AppendContent(char toRepeat, int repeatTimes)
     {
         if (currentSectionRanges is { FromStartContentStart: null }) { MarkContentStart(); }
-        sb.Append(toRepeat, repeatTimes);
+        if (repeatTimes > 0)
+        {
+            Span<char> chars = stackalloc char[repeatTimes];
+            chars.OverWriteRepatAt(0, toRepeat, repeatTimes);
+            if (IsInOverwriteMode)
+                overWriteIndex += GraphEncoder.OverwriteTransfer(chars, sb, overWriteIndex);
+            else GraphEncoder.AppendTransfer(chars, sb);
+        }
         return MarkContentEnd();
     }
 
     public ContentSeparatorRanges StartAppendContentAndComplete(string content, IStringBuilder writeBuffer
-      , IStyledTypeFormatting styledTypeFormatting, FormatFlags formatFlags,  bool allowEmptyContent = false)
+      , FormatFlags formatFlags, bool allowEmptyContent = false)
     {
-        sb               = writeBuffer;
-        styledFormatting = styledTypeFormatting;
+        sb = writeBuffer;
+
         ResetCurrent(formatFlags, allowEmptyContent);
         MarkContentStart();
         AppendContent(content);
@@ -223,7 +297,10 @@ public class GraphTrackingBuilder
             MarkSeparatorEnd();
         }
         else if (currentSectionRanges is { FromStartSeparatorEnd: null }) { MarkSeparatorEnd(); }
-        GraphEncoder.Transfer(padding, sb);
+        
+        if (IsInOverwriteMode)
+            overWriteIndex += GraphEncoder.OverwriteTransfer(padding, sb, overWriteIndex);
+        else GraphEncoder.AppendTransfer(padding, sb);
         return TagPaddingEnd();
     }
 
@@ -235,44 +312,57 @@ public class GraphTrackingBuilder
             MarkSeparatorEnd();
         }
         else if (currentSectionRanges is { FromStartSeparatorEnd: null }) { MarkSeparatorEnd(); }
-        sb.Append(toRepeat, repeatTimes);
+        if (repeatTimes > 0)
+        {
+            Span<char> chars = stackalloc char[repeatTimes];
+            chars.OverWriteRepatAt(0, toRepeat, repeatTimes);
+            if (IsInOverwriteMode)
+                overWriteIndex += GraphEncoder.OverwriteTransfer(chars, sb, overWriteIndex);
+            else GraphEncoder.AppendTransfer(chars, sb);
+        }
         return TagPaddingEnd();
     }
 
     public GraphTrackingBuilder AppendSeparator(string separator)
     {
         if (currentSectionRanges is { FromStartContentEnd: null }) { MarkContentEnd(); }
-        GraphEncoder.Transfer(separator, sb);
+        
+        if (IsInOverwriteMode)
+            overWriteIndex += GraphEncoder.OverwriteTransfer(separator, sb, overWriteIndex);
+        else GraphEncoder.AppendTransfer(separator, sb);
         return MarkSeparatorEnd();
     }
 
     public ContentSeparatorRanges AppendPaddingAndComplete(string content, FormatFlags formatFlags)
     {
-        GraphEncoder.Transfer(content, sb);
+        
+        if (IsInOverwriteMode)
+            overWriteIndex += GraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
+        else GraphEncoder.AppendTransfer(content, sb);
         return Complete(formatFlags);
     }
 
     public GraphTrackingBuilder MarkSeparatorEnd()
     {
-        currentSectionRanges.FromStartSeparatorEnd = sb.Length;
+        currentSectionRanges.FromStartSeparatorEnd = IsInOverwriteMode ? overWriteIndex : sb.Length;
         return this;
     }
 
     protected GraphTrackingBuilder TagPaddingEnd()
     {
-        currentSectionRanges.FromStartPaddingEnd = sb.Length;
+        currentSectionRanges.FromStartPaddingEnd = IsInOverwriteMode ? overWriteIndex : sb.Length;
         return this;
     }
 
     public ContentSeparatorRanges ContentEndToRanges(FormatFlags formatFlags)
     {
-        currentSectionRanges.FromStartSeparatorEnd = sb.Length;
-        return currentSectionRanges.ToContentSeparatorFromEndRanges(sb, formatFlags);
+        currentSectionRanges.FromStartSeparatorEnd = IsInOverwriteMode ? overWriteIndex : sb.Length;
+        return currentSectionRanges.ToContentSeparatorFromEndRanges(IsInOverwriteMode ? overWriteIndex : sb.Length, formatFlags);
     }
 
     public GraphTrackingBuilder MarkPaddingEnd(int atIndex = -1)
     {
-        currentSectionRanges.FromStartPaddingEnd = atIndex < 0 ? sb.Length : atIndex;
+        currentSectionRanges.FromStartPaddingEnd = IsInOverwriteMode ? overWriteIndex : atIndex < 0 ? sb.Length : atIndex;
         return this;
     }
 
@@ -293,21 +383,44 @@ public class GraphTrackingBuilder
         {
             if (lastRange.ContentRange == null && penUltimateRange != null)
             {
-                sepPaddingLen =  penUltimateRange?.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
-                sb.Length     -= sepPaddingLen;
+                sepPaddingLen =  penUltimateRange.Value.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
+                if (sepPaddingLen > 0)
+                {
+                    if (IsInOverwriteMode)
+                    {
+                        overWriteIndex -= sepPaddingLen;
+                    }
+                    else sb.Length -= sepPaddingLen;
+                }
             }
             AddHighWaterMark();
-            return (sb?.Length ?? 0) > 0 ? sb![^1] : '\0';
+            return sb.Length > 0 
+                ? ( IsInOverwriteMode ? sb[overWriteIndex -1] : sb[^1]) : '\0';
         }
-        sepPaddingLen = lastRange.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
-        sb.Length -= sepPaddingLen;
+        sepPaddingLen =  lastRange.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
+        if (sepPaddingLen > 0)
+        {
+            if (IsInOverwriteMode)
+            {
+                overWriteIndex -= sepPaddingLen;
+            }
+            else sb.Length -= sepPaddingLen;
+        }
         if (lastRange.ContentRange == null && penUltimateRange != null)
         {
-            sepPaddingLen =  penUltimateRange?.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
-            sb.Length     -= sepPaddingLen;
+            sepPaddingLen =  penUltimateRange.Value.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
+            if (sepPaddingLen > 0)
+            {
+                if (IsInOverwriteMode)
+                {
+                    overWriteIndex -= sepPaddingLen;
+                }
+                else sb.Length -= sepPaddingLen;
+            }
         }
         AddHighWaterMark();
-        return (sb?.Length ?? 0) > 0 ? sb![^1] : '\0';
+        return  sb.Length > 0 
+            ? ( IsInOverwriteMode ? sb[Math.Max(0, overWriteIndex -1)] : sb[^1]) : '\0';
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -321,17 +434,38 @@ public class GraphTrackingBuilder
             if (lastRange.ContentRange == null && penUltimateRange != null)
             {
                 sepPaddingLen =  lastRange.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
-                destIndex     -= sepPaddingLen;
+                if (sepPaddingLen > 0)
+                {
+                    if (IsInOverwriteMode)
+                    {
+                        overWriteIndex -= sepPaddingLen;
+                    }
+                    else destIndex -= sepPaddingLen;
+                }
             }
-            return destIndex > 0 ? destSpan[destIndex - 1] : '\0';
+            return destIndex > 0 ? ( IsInOverwriteMode ? destSpan[Math.Max(0, overWriteIndex -1)] : destSpan[destIndex - 1]) : '\0';
         }
-        sepPaddingLen = lastRange.SeparatorPaddingRange?.Length(destIndex) ?? 0;
-        destIndex -= sepPaddingLen;
+        sepPaddingLen =  lastRange.SeparatorPaddingRange?.Length(destIndex) ?? 0;
+        if (sepPaddingLen > 0)
+        {
+            if (IsInOverwriteMode)
+            {
+                overWriteIndex -= sepPaddingLen;
+            }
+            else destIndex -= sepPaddingLen;
+        }
         if (lastRange.ContentRange == null && penUltimateRange != null)
         {
             sepPaddingLen =  lastRange.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
-            destIndex     -= sepPaddingLen;
+            if (sepPaddingLen > 0)
+            {
+                if (IsInOverwriteMode)
+                {
+                    overWriteIndex -= sepPaddingLen;
+                }
+                else destIndex -= sepPaddingLen;
+            }
         }
-        return destIndex > 0 ? destSpan[destIndex - 1] : '\0';
+        return destIndex > 0 ? ( IsInOverwriteMode ? destSpan[Math.Max(0, overWriteIndex -1)] : destSpan[destIndex - 1]) : '\0';
     }
 }

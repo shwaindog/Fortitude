@@ -299,7 +299,7 @@ public class DictionaryExpect<TKey, TValue, TKFilterBase, TVFilterBase, TKSubLis
 
         var acceptsNullables = scaffoldEntry.ScaffoldingFlags.HasAcceptsNullables();
 
-        if (createdStringBearer is IMoldSupportedValue<List<KeyValuePair< TKey, TValue>>> nullArrayMold)
+        if (createdStringBearer is IMoldSupportedValue<List<KeyValuePair< TKey, TValue>>?> nullArrayMold)
             nullArrayMold.Value = Input;
 
         if (HasRestrictingSubListFilter && createdStringBearer is ISupportsSubsetDisplayKeys<TKSubListDerived> supportsSettingSubListFilter)

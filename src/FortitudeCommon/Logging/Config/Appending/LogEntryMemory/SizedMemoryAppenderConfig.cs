@@ -99,6 +99,6 @@ internal class SizedMemoryAppenderConfig : AppenderDefinitionConfig, ISizedMemor
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .AddBaseStyledToStringFields(this)
+           .AddBaseRevealStateFields(this)
            .Field.AlwaysAdd(nameof(MemorySize), MemorySize);
 }

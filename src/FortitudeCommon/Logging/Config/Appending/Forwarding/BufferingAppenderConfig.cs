@@ -128,7 +128,7 @@ public class BufferingAppenderConfig : QueueingAppenderConfig, IMutableBuffering
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .AddBaseStyledToStringFields(this)
+           .AddBaseRevealStateFields(this)
            .Field.AlwaysAdd(nameof(MaxBufferTimeMs), MaxBufferTimeMs)
            .Field.AlwaysAdd(nameof(FlushLogLevel), FlushLogLevel)
            .Complete();

@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using FortitudeCommon.Extensions;
 
-namespace FortitudeCommon.Types.StringsOfPower.DieCasting.KeyedCollectionType;
+namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 
 public static class KeyedCollectionGenericAddAllInvoker
 {

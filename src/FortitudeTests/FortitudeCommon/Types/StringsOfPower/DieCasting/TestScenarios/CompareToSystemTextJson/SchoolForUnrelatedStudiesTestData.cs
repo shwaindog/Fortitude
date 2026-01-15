@@ -663,7 +663,7 @@ public class Student : EducationAttendee
         tos.StartComplexType(this)
             .Field.AlwaysAddCharSeq(nameof(StudentNumber), StudentNumber)
             .KeyedCollectionField.AlwaysAddAll(nameof(Enrollments), Enrollments)
-            .AddBaseStyledToStringFields(this)
+            .AddBaseRevealStateFields(this)
             .Complete();
 
     public override string ToString() => $"{base.ToString()}, {nameof(StudentNumber)}: {StudentNumber}, {nameof(Enrollments)}: {Enrollments}";
@@ -679,7 +679,7 @@ public class CourseDeliverer : EducationAttendee
         tos.StartComplexType(this)
             .CollectionField.AlwaysAddAllEnumerate(nameof(EmployeeId), EmployeeId)
             .KeyedCollectionField.AlwaysAddAll(nameof(CurrentCourses), CurrentCourses)
-            .AddBaseStyledToStringFields(this);
+            .AddBaseRevealStateFields(this);
 
     public override string ToString() =>
         $"{base.ToString()}, {nameof(EmployeeId)}: {EmployeeId}, {nameof(CurrentCourses)}.Count: {CurrentCourses.Count}";
@@ -702,7 +702,7 @@ public class AccredittedInstructor : CourseDeliverer
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .KeyedCollectionField.AlwaysAddAll(nameof(SubjectMaxEntitledGradingLevel), SubjectMaxEntitledGradingLevel)
-            .AddBaseStyledToStringFields(this)
+            .AddBaseRevealStateFields(this)
             .Complete();
 
     public override string ToString() => $"{base.ToString()}, {nameof(SubjectMaxEntitledGradingLevel)}: {SubjectMaxEntitledGradingLevel}";
@@ -737,7 +737,7 @@ public class Lecturer(string officeAddress) : CourseDeliverer
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(OfficeAddress), OfficeAddress)
             .KeyedCollectionField.AlwaysAddAll(nameof(TeachingSubjects), TeachingSubjects)
-            .AddBaseStyledToStringFields(this)
+            .AddBaseRevealStateFields(this)
             .Complete();
 
 
@@ -758,7 +758,7 @@ public class TradesInstructor(string tradeSkill) : AccredittedInstructor
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(TradeSkill), TradeSkill)
             .CollectionField.AlwaysAddAll(nameof(RecentAccreditations), RecentAccreditations)
-            .AddBaseStyledToStringFields(this)
+            .AddBaseRevealStateFields(this)
             .Complete();
 
     public override string ToString() =>
@@ -790,7 +790,7 @@ public record ArtsSubject(string SubjectName) : CourseSubject(SubjectName)
         tos.StartComplexType(this)
             .Field.AlwaysReveal(nameof(ManagingArtsFaculty), ManagingArtsFaculty)
             .Field.AlwaysReveal(nameof(SubjectOwner), SubjectOwner)
-            .AddBaseStyledToStringFields(this)
+            .AddBaseRevealStateFields(this)
             .Complete();
 
     public override string ToString() =>
@@ -805,7 +805,7 @@ public record EngineeringSubject(string SubjectName) : CourseSubject(SubjectName
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .CollectionField.WhenPopulatedRevealAll(nameof(RequiredPrerequisiteSubjects), RequiredPrerequisiteSubjects)
-            .AddBaseStyledToStringFields(this)
+            .AddBaseRevealStateFields(this)
             .Complete();
 
     public override string ToString() =>
@@ -827,7 +827,7 @@ public record TradesSubject(string SubjectName) : CourseSubject(SubjectName)
             .Field.AlwaysReveal(nameof(RequiredAttendeeLicense), RequiredAttendeeLicense)
             .Field.AlwaysReveal(nameof(RequiredTeacherLicense), RequiredTeacherLicense)
             .Field.AlwaysReveal(nameof(SubjectOwner), SubjectOwner)
-            .AddBaseStyledToStringFields(this)
+            .AddBaseRevealStateFields(this)
             .Complete();
 
     public override string ToString() =>
@@ -880,7 +880,7 @@ public class ArtsFaculty : Faculty
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(FacultyType), FacultyType)
-            .AddBaseStyledToStringFields(this)
+            .AddBaseRevealStateFields(this)
             .Complete();
 
     public override string ToString() =>
@@ -902,7 +902,7 @@ public class TradeSkills : Faculty
             .Field.AlwaysAdd(nameof(FacultyType), FacultyType)
             .CollectionField.WhenPopulatedRevealAll(nameof(BoardOfFaculty), BoardOfFaculty)
             .KeyedCollectionField.AlwaysAddAll(nameof(CurrentStudents), CurrentStudents)
-            .AddBaseStyledToStringFields(this)
+            .AddBaseRevealStateFields(this)
             .Complete();
 
     public override string ToString() => $"{nameof(CurrentStudents)}: {CurrentStudents}, {nameof(BoardOfFaculty)}: {BoardOfFaculty}";
@@ -920,7 +920,7 @@ public class Engineering : Faculty
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(FacultyType), FacultyType)
             .Field.AlwaysAdd(nameof(MajorOfFaculty), MajorOfFaculty)
-            .AddBaseStyledToStringFields(this)
+            .AddBaseRevealStateFields(this)
             .Complete();
 
     public override string ToString() => $"{nameof(MajorOfFaculty)}: {MajorOfFaculty}, {nameof(DeanOfFaculty)}.FirstName: {DeanOfFaculty.FirstName}";
@@ -986,7 +986,7 @@ public class HighVoltageElectriciansLicense : License
         tos.StartComplexType(this)
             .Field.WhenNonDefaultAdd(nameof(Issued), Issued)
             .Field.AlwaysAdd(nameof(GradeOfAccess), GradeOfAccess)
-            .AddBaseStyledToStringFields(this);
+            .AddBaseRevealStateFields(this);
 
     public override string ToString() =>
         $"{base.ToString()}, {nameof(Issued)}: {Issued}, {nameof(GradeOfAccess)}: {GradeOfAccess}, " +
@@ -1018,7 +1018,7 @@ public class HighPressureHydraulicsLicense : License
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .KeyedCollectionField.WhenNonNullAddAll(nameof(LicenseDetails), LicenseDetails)
-            .AddBaseStyledToStringFields(this)
+            .AddBaseRevealStateFields(this)
             .Complete();
 
     public override string ToString() => $"{base.ToString()}, {nameof(LicenseDetails)}: {LicenseDetails}";
@@ -1048,7 +1048,7 @@ public class MotorbikeLicense : License
         tos.StartComplexType(this)
             .Field.AlwaysAddObject(nameof(PowerToWeightLimit), PowerToWeightLimit)
             .Field.AlwaysAdd(nameof(LicensePlate), LicensePlate)
-            .AddBaseStyledToStringFields(this);
+            .AddBaseRevealStateFields(this);
 
     public override string ToString() =>
         $"{base.ToString()}, {nameof(PowerToWeightLimit)}: {PowerToWeightLimit}, {nameof(LicensePlate)}: {LicensePlate}";
@@ -1068,7 +1068,7 @@ public class AutomobileLicense : License
             .Field.WhenNonDefaultAdd(nameof(Manual), Manual)
             .CollectionField.AlwaysRevealAll(nameof(CurrentRestrictions), CurrentRestrictions, Restrictions.Styler)
             .KeyedCollectionField.AlwaysAddAll(nameof(Citations), Citations, null, "givenOn_{0:yyyyMMdd}")
-            .AddBaseStyledToStringFields(this);
+            .AddBaseRevealStateFields(this);
 
     public override string ToString() =>
         $"{base.ToString()}, {nameof(Manual)}: {Manual}, {nameof(CurrentRestrictions)}: {CurrentRestrictions}, {nameof(Citations)}: {Citations}";

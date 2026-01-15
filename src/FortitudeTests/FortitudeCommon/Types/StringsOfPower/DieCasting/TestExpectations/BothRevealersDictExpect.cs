@@ -360,7 +360,7 @@ public class BothRevealersDictExpect<TKey, TValue, TKFilterBase, TVFilterBase, T
     {
         var createdStringBearer = CreateNewStringBearer(scaffoldEntry);
 
-        if (createdStringBearer is IMoldSupportedValue<List<KeyValuePair<TKey, TValue>>> nullArrayMold) nullArrayMold.Value = Input;
+        if (createdStringBearer is IMoldSupportedValue<List<KeyValuePair<TKey, TValue>>?> nullArrayMold) nullArrayMold.Value = Input;
 
         if (HasRestrictingSubListFilter && createdStringBearer is ISupportsSubsetDisplayKeys<TKSubListDerived> supportsSettingSubListFilter)
             supportsSettingSubListFilter.DisplayKeys = KeySubListPredicate!;

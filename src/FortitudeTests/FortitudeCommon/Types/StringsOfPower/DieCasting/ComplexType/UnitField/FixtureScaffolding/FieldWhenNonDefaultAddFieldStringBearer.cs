@@ -131,18 +131,19 @@ public class FieldNullableCloakedBearerWhenNonDefaultStringBearer<TCloakedStruct
 }
 
 [TypeGeneratePart(IsComplexType | SingleValueCardinality | NonDefaultWrites | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
-public class FieldStringBearerWhenNonDefaultStringBearer<TBearer> : ProxyFormattedMoldScaffold<TBearer?>
-  , IMoldSupportedDefaultValue<TBearer?>
-    where TBearer : IStringBearer
+public class FieldStringBearerWhenNonDefaultStringBearer<TBearer> : ProxyFormattedMoldScaffold<TBearer>
+  , IMoldSupportedDefaultValue<TBearer>
+    where TBearer : IStringBearer?
 {
-    public TBearer? ComplexTypeFieldWhenNonDefaultStringBearerAs
+    public TBearer ComplexTypeFieldWhenNonDefaultStringBearerAs
     {
         get => Value;
         set => Value = value;
     }
 
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonDefaultStringBearerAs);
-    public TBearer? DefaultValue { get; set; }
+
+    public TBearer DefaultValue { get; set; } = default!;
 
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>

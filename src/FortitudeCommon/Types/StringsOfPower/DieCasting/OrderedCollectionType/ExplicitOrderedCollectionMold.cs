@@ -3,16 +3,17 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
-namespace FortitudeCommon.Types.StringsOfPower.DieCasting.TypeOrderedCollection;
+namespace FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 
-public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<ExplicitOrderedCollectionMold<TElement>>
+public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.OrderedCollectionMold<ExplicitOrderedCollectionMold<TElement>>
 {
     public override bool IsComplexType => false;
     
     protected static readonly Type TypeOfElement = typeof(TElement);
 
     public ExplicitOrderedCollectionMold<TElement> InitializeExplicitOrderedCollectionBuilder(
-        Type typeBeingBuilt
+        object instanceOrContainer
+      , Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
       , string? typeName
@@ -21,7 +22,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
       , int existingRefId
       , FormatFlags createFormatFlags )
     {
-        InitializeOrderedCollectionBuilder(typeBeingBuilt, master, typeSettings, typeName
+        InitializeOrderedCollectionBuilder(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
                                          , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
 
         return this;
@@ -92,7 +93,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
     }
 
     public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement<TCloaked, TRevealBase>(TCloaked? element
-      , PalantírReveal<TRevealBase> palantírReveal, FormatFlags formatFlags = DefaultCallerTypeFlags) 
+      , PalantírReveal<TRevealBase> palantírReveal, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -107,12 +108,14 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection.Master, element, ++ResultCount, palantírReveal);
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection.Master, element, ++ResultCount
+                                                                      , palantírReveal, formatString, formatFlags);
         return AppendNextCollectionItemSeparator();
     }
 
     public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement<TCloakedStruct>(TCloakedStruct? element
-      , PalantírReveal<TCloakedStruct> palantírReveal, FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
+      , PalantírReveal<TCloakedStruct> palantírReveal, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
+        where TCloakedStruct : struct
     {
         if (CompAsOrderedCollection.SkipBody) return this;
         if (element is null)
@@ -125,12 +128,14 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection.Master, element.Value, ++ResultCount, palantírReveal);
+        CompAsOrderedCollection.StyleFormatter
+                               .CollectionNextItemFormat(CompAsOrderedCollection.Master, element.Value, ++ResultCount
+                                                       , palantírReveal, formatString, formatFlags);
         return AppendNextCollectionItemSeparator();
     }
 
     public ExplicitOrderedCollectionMold<TElement> AddBearerElementAndGoToNextElement<TBearer>(TBearer element
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?, TElement?
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?, TElement?
     {
         if (CompAsOrderedCollection.SkipBody) return this;
         if (element == null)
@@ -143,12 +148,14 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextStringBearerFormat(CompAsOrderedCollection.Master, element, ++ResultCount);
+        CompAsOrderedCollection.StyleFormatter
+                               .CollectionNextStringBearerFormat(CompAsOrderedCollection.Master, element, ++ResultCount
+                                                               , formatString, formatFlags);
         return AppendNextCollectionItemSeparator();
     }
 
     public ExplicitOrderedCollectionMold<TElement> AddBearerElementAndGoToNextElement<TBearerStruct>(TBearerStruct? element
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, TElement, IStringBearer
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, TElement, IStringBearer
     {
         if (CompAsOrderedCollection.SkipBody) return this;
         if (element == null)
@@ -161,7 +168,9 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextStringBearerFormat(CompAsOrderedCollection.Master, element.Value, ++ResultCount);
+        CompAsOrderedCollection.StyleFormatter
+                               .CollectionNextStringBearerFormat(CompAsOrderedCollection.Master, element.Value
+                                                               , ++ResultCount, formatString, formatFlags);
         return AppendNextCollectionItemSeparator();
     }
 

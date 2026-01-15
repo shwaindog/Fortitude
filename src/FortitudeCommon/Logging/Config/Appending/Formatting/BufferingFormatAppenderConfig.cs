@@ -211,7 +211,7 @@ public class BufferingFormatAppenderConfig : FormattingAppenderConfig, IMutableB
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .AddBaseStyledToStringFields(this)
+           .AddBaseRevealStateFields(this)
            .Field.AlwaysAdd(nameof(CharBufferSize), CharBufferSize)
            .Field.AlwaysReveal(nameof(FlushConfig), FlushConfig)
            .Complete();

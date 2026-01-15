@@ -1,6 +1,6 @@
 ﻿using FortitudeCommon.DataStructures.MemoryPools;
 
-namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.KeyedCollectionField;
+namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.MapCollectionField;
 
 public partial class SelectTypeKeyedCollectionField<TExt> : RecyclableObject
     where TExt : TypeMolder

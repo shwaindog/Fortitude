@@ -602,7 +602,7 @@ public class PQPricingInstrumentId : PQSourceTickerId, IPQPricingInstrumentId
 
     public override StateExtractStringRange RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
-            .AddBaseStyledToStringFields(this)
+            .AddBaseRevealStateFields(this)
             .Field.AlwaysReveal(nameof(CoveringPeriod), CoveringPeriod, DiscreetTimePeriod.Styler)
             .Field.AlwaysAdd(nameof(InstrumentType), InstrumentType)
             .Field.AlwaysReveal(nameof(MarketClassification), MarketClassification, MarketClassification.Styler)

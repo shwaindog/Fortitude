@@ -10,7 +10,8 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold>
 {
     public SimpleContentTypeMold InitializeSimpleValueTypeBuilder
         (
-            Type typeBeingBuilt
+            object instanceOrContainer
+          , Type typeBeingBuilt
           , ISecretStringOfPower master
           , MoldDieCastSettings typeSettings
           , string? typeName
@@ -19,7 +20,7 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold>
           , int existingRefId
           , FormatFlags createFormatFlags)
     {
-        InitializeContentTypeBuilder(typeBeingBuilt, master, typeSettings, typeName
+        InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
                                  , remainingGraphDepth, typeFormatting,  existingRefId, createFormatFlags);
 
         return this;
@@ -32,19 +33,20 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold>
                              .InitializeValueBuilderCompAccess(this, PortableState, false);
     }
 
-    public override void AppendOpening()
+    public override void AppendTypeOpeningToGraphFields()
     {
-        MoldStateField.StyleFormatter.AppendValueTypeOpening(MoldStateField);
+        MoldStateField.StyleFormatter.StartContentTypeOpening(MoldStateField);
     }
 
     public override void AppendClosing()
     {
-        MoldStateField.StyleFormatter.AppendValueTypeClosing(MoldStateField);
+        MoldStateField.StyleFormatter.AppendContentTypeClosing(MoldStateField);
     }
     
     public ContentJoinTypeMold<SimpleContentTypeMold> AsValue(bool value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
-        Msf.FieldValueNext("", value, formatString ?? "", formatFlags);
+        Msf.FieldValueNext("", value, formatString ?? ""
+                         , formatFlags | Msf.CreateMoldFormatFlags );
     
     public ContentJoinTypeMold<SimpleContentTypeMold> AsValueOrNull(bool? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>

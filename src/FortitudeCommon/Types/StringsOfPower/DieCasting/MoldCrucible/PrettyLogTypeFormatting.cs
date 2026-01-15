@@ -22,20 +22,20 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
 
     public override string Name => nameof(CompactJsonTypeFormatting);
 
-    public override ContentSeparatorRanges AppendComplexTypeOpening(ITypeMolderDieCast moldInternal
+    public override ContentSeparatorRanges StartComplexTypeOpening(ITypeMolderDieCast moldInternal
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var sb              = moldInternal.Sb;
         var alternativeName = moldInternal.TypeName;
         var buildingType    = moldInternal.TypeBeingBuilt;
 
-        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         if (alternativeName != null)
             sb.Append(alternativeName);
         else
             buildingType.AppendShortNameInCSharpFormat(sb);
         sb.Append(Spc);
-        StyleOptions.IndentLevel++;
+        GraphBuilder.IndentLevel++;
         GraphBuilder.AppendContent(BrcOpn);
         if (formatFlags.CanAddNewLine())
         {
@@ -44,20 +44,29 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
             {
                 GraphBuilder
                     .AppendPadding
-                        (StyleOptions.IndentChar, StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+                        (StyleOptions.IndentChar, StyleOptions.IndentRepeat(GraphBuilder.IndentLevel));
             }
         }
 
         return GraphBuilder.Complete(formatFlags);
     }
 
-    public override SeparatorPaddingRanges AppendFieldValueSeparator(ITypeMolderDieCast moldInternal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-        GraphBuilder
-            .AppendSeparator(Cln)
-            .AppendPadding(Spc)
-            .Complete(formatFlags)
-            .SeparatorPaddingRange!.Value;
+    public override int SizeNextFieldPadding(FormatFlags formatFlags = DefaultCallerTypeFlags)
+    {
+        if (formatFlags.HasNoFieldPaddingFlag()) return 0;
+        var nextPaddingSize = 0;
+        if (formatFlags.UseMainFieldPadding() && formatFlags.CanAddNewLine())
+        {
+            nextPaddingSize =  GraphBuilder.GraphEncoder.CalculateEncodedLength(StyleOptions.NewLineStyle);
+            nextPaddingSize += StyleOptions.IndentRepeat(GraphBuilder.IndentLevel);
+        }
+        else
+        {
+            nextPaddingSize =  GraphBuilder.GraphEncoder.CalculateEncodedLength(StyleOptions.AlternateFieldPadding);
+        }
+        return nextPaddingSize;
+    }
+
     
     public override ContentSeparatorRanges AddNextFieldPadding(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -65,7 +74,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         if (formatFlags.UseMainFieldPadding() && formatFlags.CanAddNewLine())
         {
             GraphBuilder.AppendPadding(StyleOptions.NewLineStyle);
-            GraphBuilder.AppendPadding(StyleOptions.IndentChar, StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+            GraphBuilder.AppendPadding(StyleOptions.IndentChar, StyleOptions.IndentRepeat(GraphBuilder.IndentLevel));
         }
         else
         {
@@ -74,34 +83,21 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         return GraphBuilder.Complete(formatFlags);
     }
 
-    public override int InsertFieldSeparatorAt(IStringBuilder sb, int atIndex, StyleOptions options, int indentLevel)
-    {
-        var nlPadding      = options.IndentSize * indentLevel;
-        var bufferSize     = nlPadding + 1 + options.NewLineStyle.Length;
-        var nextFieldStart = stackalloc char[bufferSize].ResetMemory();
-        nextFieldStart[0] = ',';
-        nextFieldStart.Append(options.NewLineStyle);
-        var spacesFrom                                                  = nextFieldStart.PopulatedLength();
-        for (var i = spacesFrom; i < bufferSize; i++) nextFieldStart[i] = ' ';
-        sb.InsertAt(nextFieldStart, atIndex);
-        return bufferSize;
-    }
-
-    public override ContentSeparatorRanges AppendTypeClosing(ITypeMolderDieCast moldInternal)
+    public override ContentSeparatorRanges AppendComplexTypeClosing(ITypeMolderDieCast moldInternal)
     {
         var sb = moldInternal.Sb;
 
         var previousContentPadSpacing = GraphBuilder.LastContentSeparatorPaddingRanges;
         var lastNonWhiteSpace         = GraphBuilder.RemoveLastSeparatorAndPadding();
-        StyleOptions.IndentLevel--;
+        GraphBuilder.IndentLevel--;
 
-        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         if (lastNonWhiteSpace != BrcOpnChar && previousContentPadSpacing.PreviousFormatFlags.CanAddNewLine())
         {
             GraphBuilder.AppendContent(StyleOptions.NewLineStyle);
             if (!previousContentPadSpacing.PreviousFormatFlags.HasNoWhitespacesToNextFlag())
             {
-                GraphBuilder.AppendContent(StyleOptions.IndentChar, StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+                GraphBuilder.AppendContent(StyleOptions.IndentChar, StyleOptions.IndentRepeat(GraphBuilder.IndentLevel));
             }
         }
         GraphBuilder.AppendContent(BrcCls);
@@ -111,7 +107,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     public override IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType
       , Type keyType, Type valueType, FormatFlags callerFormattingFlags = DefaultCallerTypeFlags)
     {
-        StyleOptions.IndentLevel++;
+        GraphBuilder.IndentLevel++;
         base.AppendKeyedCollectionStart(sb, keyedCollectionType, keyType, valueType, callerFormattingFlags);
         GraphBuilder.Complete(callerFormattingFlags);
         return sb;
@@ -121,7 +117,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
       , Type keyType, Type valueType, int totalItemCount, FormatFlags callerFormattingFlags = DefaultCallerTypeFlags)
     {
         var lastNonWhiteSpace         = GraphBuilder.RemoveLastSeparatorAndPadding();
-        StyleOptions.IndentLevel--;
+        GraphBuilder.IndentLevel--;
 
         if (callerFormattingFlags.UseMainFieldPadding())
         {
@@ -131,7 +127,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
 
                 if (!callerFormattingFlags.HasNoWhitespacesToNextFlag())
                 {
-                    GraphBuilder.AppendContent(StyleOptions.IndentChar, StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+                    GraphBuilder.AppendContent(StyleOptions.IndentChar, StyleOptions.IndentRepeat(GraphBuilder.IndentLevel));
                 }
             }
         }
@@ -147,7 +143,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
       , bool? hasItems, Type collectionType, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var sb = moldInternal.Sb;
-        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags);
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         if (!hasItems.HasValue)
         {
             GraphBuilder.MarkContentEnd();
@@ -163,7 +159,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
             GraphBuilder.AppendContent(DblQt);
             return sb;
         }
-        StyleOptions.IndentLevel++;
+        GraphBuilder.IndentLevel++;
 
         base.FormatCollectionStart(moldInternal, itemElementType, hasItems, collectionType, formatFlags);
         return sb;
@@ -176,7 +172,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         if (formatFlags.UseMainItemPadding())
         {
             GraphBuilder.AppendPadding(StyleOptions.NewLineStyle);
-            GraphBuilder.AppendPadding(StyleOptions.IndentChar, StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+            GraphBuilder.AppendPadding(StyleOptions.IndentChar, StyleOptions.IndentRepeat(GraphBuilder.IndentLevel));
         }
         else
         {
@@ -193,7 +189,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         if (fmtFlgs.UseMainFieldPadding())
         {
             GraphBuilder.AppendPadding(StyleOptions.NewLineStyle);
-            GraphBuilder.AppendPadding(StyleOptions.IndentChar, StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+            GraphBuilder.AppendPadding(StyleOptions.IndentChar, StyleOptions.IndentRepeat(GraphBuilder.IndentLevel));
         }
         else
         {
@@ -212,7 +208,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         if (fmtFlgs.UseMainFieldPadding())
         {
             charsAdded += destSpan.OverWriteAt(atIndex, StyleOptions.NewLineStyle);
-            charsAdded += destSpan.OverWriteRepatAt(atIndex + charsAdded, StyleOptions.IndentChar, StyleOptions.IndentRepeat(StyleOptions.IndentLevel));
+            charsAdded += destSpan.OverWriteRepatAt(atIndex + charsAdded, StyleOptions.IndentChar, StyleOptions.IndentRepeat(GraphBuilder.IndentLevel));
         }
         else
         {
@@ -230,7 +226,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         {
             if (StyleOptions.NullWritesEmpty)
             {
-                GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, DefaultCallerTypeFlags);
+                GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
                 CollectionStart(itemElementType, sb, false, (FormatSwitches)formatFlags);
                 CollectionEnd(itemElementType, sb, 0, (FormatSwitches)formatFlags);
                 GraphBuilder.Complete(formatFlags);
@@ -240,7 +236,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         }
         CharSpanCollectionScratchBuffer?.DecrementRefCount();
         CharSpanCollectionScratchBuffer = null;
-        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags, true);
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, formatFlags, true);
         var prevFmtFlags = GraphBuilder.LastContentSeparatorPaddingRanges.PreviousFormatFlags;
 
         // Log always shows each collection and field name
@@ -255,9 +251,9 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
             return sb;
         }
         GraphBuilder.RemoveLastSeparatorAndPadding();
-        StyleOptions.IndentLevel--;
+        GraphBuilder.IndentLevel--;
     
-        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, this, formatFlags, true);
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, formatFlags, true);
         if (totalItemCount > 0)
         {
             AddCollectionElementPadding(moldInternal, itemElementType, totalItemCount.Value, formatFlags);
@@ -289,13 +285,13 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         {
             if (prevFmtFlags.DoesNotHaveAsValueContentFlag() || prevFmtFlags.HasAsStringContentFlag())
             {
-                charsAdded += GraphBuilder.GraphEncoder.Transfer(DblQt, destSpan, destIndex);
+                charsAdded += GraphBuilder.GraphEncoder.OverwriteTransfer(DblQt, destSpan, destIndex);
             }
             GraphBuilder.MarkContentEnd(destIndex + charsAdded);
             return charsAdded;
         }
         GraphBuilder.RemoveLastSeparatorAndPadding(destSpan, ref destIndex);
-        StyleOptions.IndentLevel--;
+        GraphBuilder.IndentLevel--;
     
         GraphBuilder.ResetCurrent(prevFmtFlags, true);
         GraphBuilder.MarkContentStart();

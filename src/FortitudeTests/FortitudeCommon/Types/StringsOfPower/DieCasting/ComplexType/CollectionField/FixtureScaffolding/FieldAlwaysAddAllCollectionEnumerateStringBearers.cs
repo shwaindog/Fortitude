@@ -26,7 +26,8 @@ public class FieldBoolEnumerableAlwaysAddAllStringBearer : FormattedCollectionFi
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolEnumerable)
-              , ComplexTypeCollectionFieldAlwaysAddAllBoolEnumerable, ValueFormatString)
+              , ComplexTypeCollectionFieldAlwaysAddAllBoolEnumerable
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -46,7 +47,8 @@ public class FieldNullableBoolEnumerableAlwaysAddAllStringBearer : FormattedColl
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerable)
-              , ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerable, ValueFormatString)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerable
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -67,7 +69,8 @@ public class FieldSpanFormattableEnumerableAlwaysAddAllStringBearer<TFmt> : Form
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableEnumerable)
-              , ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableEnumerable, ValueFormatString)
+              , ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableEnumerable
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -89,12 +92,13 @@ public class FieldNullableSpanFormattableEnumerableAlwaysAddAllStringBearer<TFmt
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableEnumerable)
-              , ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableEnumerable, ValueFormatString)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableEnumerable
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerable | AlwaysWrites | AcceptsAnyExceptNullableStruct |
-                  SupportsValueRevealer)]
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerable | AlwaysWrites | AcceptsAnyExceptNullableStruct 
+                 | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldCloakedBearerEnumerableAlwaysAddAllStringBearer<TCloaked, TRevealBase> :
     RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase, IEnumerable<TCloaked>?>
     where TCloaked : TRevealBase
@@ -112,12 +116,14 @@ public class FieldCloakedBearerEnumerableAlwaysAddAllStringBearer<TCloaked, TRev
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerEnumerable)
-              , ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerEnumerable, ValueRevealer)
+              , ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerEnumerable
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerable | AlwaysWrites | AcceptsAnyNullableStruct |
-                  SupportsValueRevealer)]
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerable | AlwaysWrites | AcceptsAnyNullableStruct 
+                 | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldNullableCloakedBearerEnumerableAlwaysAddAllStringBearer<TCloakedStruct> :
     RevealerCollectionFieldMoldScaffold<TCloakedStruct?, TCloakedStruct, IEnumerable<TCloakedStruct?>?>
     where TCloakedStruct : struct
@@ -134,12 +140,15 @@ public class FieldNullableCloakedBearerEnumerableAlwaysAddAllStringBearer<TCloak
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerEnumerable)
-              , ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerEnumerable, ValueRevealer)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerEnumerable
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerable | AlwaysWrites | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
-public class FieldStringBearerEnumerableAlwaysAddAllStringBearer<TBearer> : CollectionFieldMoldScaffold<TBearer, IEnumerable<TBearer>>
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerable | AlwaysWrites | AcceptsTypeAllButNullableStruct 
+                | AcceptsStringBearer | SupportsValueFormatString)]
+public class FieldStringBearerEnumerableAlwaysAddAllStringBearer<TBearer> : FormattedCollectionFieldMoldScaffold<TBearer, IEnumerable<TBearer>>
     where TBearer : IStringBearer
 {
     public IEnumerable<TBearer>? ComplexTypeCollectionFieldAlwaysAddAllStringBearerEnumerable
@@ -154,12 +163,14 @@ public class FieldStringBearerEnumerableAlwaysAddAllStringBearer<TBearer> : Coll
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerEnumerable)
-              , ComplexTypeCollectionFieldAlwaysAddAllStringBearerEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringBearerEnumerable
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerable | AlwaysWrites | AcceptsNullableStruct | AcceptsStringBearer)]
-public class FieldNullableStringBearerEnumerableAlwaysAddAllStringBearer<TBearerStruct> : CollectionFieldMoldScaffold<TBearerStruct?,
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerable | AlwaysWrites | AcceptsNullableStruct 
+                | AcceptsStringBearer | SupportsValueFormatString)]
+public class FieldNullableStringBearerEnumerableAlwaysAddAllStringBearer<TBearerStruct> : FormattedCollectionFieldMoldScaffold<TBearerStruct?,
     IEnumerable<TBearerStruct?>>
     where TBearerStruct : struct, IStringBearer
 {
@@ -175,7 +186,8 @@ public class FieldNullableStringBearerEnumerableAlwaysAddAllStringBearer<TBearer
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerEnumerable)
-              , ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerEnumerable)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerEnumerable
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -196,7 +208,8 @@ public class FieldStringEnumerableAlwaysAddAllStringBearer : FormattedCollection
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringEnumerable)
-              , ComplexTypeCollectionFieldAlwaysAddAllStringEnumerable, ValueFormatString)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringEnumerable
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -217,7 +230,8 @@ public class FieldCharSequenceEnumerableAlwaysAddAllStringBearer<TCharSeq> : For
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllCharSeqEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceEnumerable)
-              , ComplexTypeCollectionFieldAlwaysAddAllCharSequenceEnumerable, ValueFormatString)
+              , ComplexTypeCollectionFieldAlwaysAddAllCharSequenceEnumerable
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -238,7 +252,8 @@ public class FieldStringBuilderEnumerableAlwaysAddAllStringBearer : FormattedCol
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderEnumerable)
-              , ComplexTypeCollectionFieldAlwaysAddAllStringBuilderEnumerable, ValueFormatString)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringBuilderEnumerable
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -258,7 +273,8 @@ public class FieldMatchEnumerableAlwaysAddAllStringBearer<TAny> : FormattedColle
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllMatchEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerable)
-              , ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerable, ValueFormatString)
+              , ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerable
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -278,7 +294,8 @@ public class FieldObjectEnumerableAlwaysAddAllStringBearer : FormattedCollection
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllObjectEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectEnumerable)
-              , ComplexTypeCollectionFieldAlwaysAddAllObjectEnumerable, ValueFormatString)
+              , ComplexTypeCollectionFieldAlwaysAddAllObjectEnumerable
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -297,7 +314,8 @@ public class FieldBoolEnumeratorAlwaysAddAllStringBearer : FormattedEnumeratorFi
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolEnumerator)
-              , ComplexTypeCollectionFieldAlwaysAddAllBoolEnumerator, ValueFormatString)
+              , ComplexTypeCollectionFieldAlwaysAddAllBoolEnumerator
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -317,7 +335,8 @@ public class FieldNullableBoolEnumeratorAlwaysAddAllStringBearer : FormattedEnum
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerator)
-              , ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerator, ValueFormatString)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerator
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -338,7 +357,8 @@ public class FieldSpanFormattableEnumeratorAlwaysAddAllStringBearer<TFmt> : Form
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableEnumerator)
-              , ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableEnumerator, ValueFormatString)
+              , ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableEnumerator
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -360,12 +380,13 @@ public class FieldNullableSpanFormattableEnumeratorAlwaysAddAllStringBearer<TFmt
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableEnumerator)
-              , ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableEnumerator, ValueFormatString)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableEnumerator
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerator | AlwaysWrites | AcceptsAnyExceptNullableStruct |
-                  SupportsValueRevealer)]
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerator | AlwaysWrites | AcceptsAnyExceptNullableStruct 
+                 | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldCloakedBearerEnumeratorAlwaysAddAllStringBearer<TCloaked, TRevealBase> :
     RevealerEnumeratorFieldMoldScaffold<TCloaked, TRevealBase, IEnumerator<TCloaked>?>
     where TCloaked : TRevealBase
@@ -383,12 +404,14 @@ public class FieldCloakedBearerEnumeratorAlwaysAddAllStringBearer<TCloaked, TRev
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerEnumerator)
-              , ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerEnumerator, ValueRevealer)
+              , ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerEnumerator
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerator | AlwaysWrites | AcceptsAnyNullableStruct |
-                  SupportsValueRevealer)]
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerator | AlwaysWrites | AcceptsAnyNullableStruct 
+                 | SupportsValueRevealer | SupportsValueFormatString )]
 public class FieldNullableCloakedBearerEnumeratorAlwaysAddAllStringBearer<TCloakedStruct> :
     RevealerEnumeratorFieldMoldScaffold<TCloakedStruct?, TCloakedStruct, IEnumerator<TCloakedStruct?>?>
     where TCloakedStruct : struct
@@ -405,12 +428,15 @@ public class FieldNullableCloakedBearerEnumeratorAlwaysAddAllStringBearer<TCloak
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerEnumerator)
-              , ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerEnumerator, ValueRevealer)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerEnumerator
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerator | AlwaysWrites | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
-public class FieldStringBearerEnumeratorAlwaysAddAllStringBearer<TBearer> : EnumeratorFieldMoldScaffold<TBearer, IEnumerator<TBearer>>
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerator | AlwaysWrites | AcceptsTypeAllButNullableStruct 
+                | AcceptsStringBearer | SupportsValueFormatString)]
+public class FieldStringBearerEnumeratorAlwaysAddAllStringBearer<TBearer> : FormattedEnumeratorFieldMoldScaffold<TBearer, IEnumerator<TBearer>>
     where TBearer : IStringBearer
 {
     public IEnumerator<TBearer>? ComplexTypeCollectionFieldAlwaysAddAllStringBearerEnumerator
@@ -425,12 +451,14 @@ public class FieldStringBearerEnumeratorAlwaysAddAllStringBearer<TBearer> : Enum
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerEnumerator)
-              , ComplexTypeCollectionFieldAlwaysAddAllStringBearerEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringBearerEnumerator
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerator | AlwaysWrites | AcceptsNullableStruct | AcceptsStringBearer)]
-public class FieldNullableStringBearerEnumeratorAlwaysAddAllStringBearer<TBearerStruct> : EnumeratorFieldMoldScaffold<TBearerStruct?,
+[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerator | AlwaysWrites | AcceptsNullableStruct | AcceptsStringBearer
+                     | SupportsValueFormatString)]
+public class FieldNullableStringBearerEnumeratorAlwaysAddAllStringBearer<TBearerStruct> : FormattedEnumeratorFieldMoldScaffold<TBearerStruct?,
     IEnumerator<TBearerStruct?>>
     where TBearerStruct : struct, IStringBearer
 {
@@ -446,7 +474,8 @@ public class FieldNullableStringBearerEnumeratorAlwaysAddAllStringBearer<TBearer
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerEnumerator)
-              , ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerEnumerator)
+              , ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerEnumerator
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -467,7 +496,8 @@ public class FieldStringEnumeratorAlwaysAddAllStringBearer : FormattedEnumerator
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringEnumerator)
-              , ComplexTypeCollectionFieldAlwaysAddAllStringEnumerator, ValueFormatString)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringEnumerator
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -488,7 +518,8 @@ public class FieldCharSequenceEnumeratorAlwaysAddAllStringBearer<TCharSeq> : For
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllCharSeqEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceEnumerator)
-              , ComplexTypeCollectionFieldAlwaysAddAllCharSequenceEnumerator, ValueFormatString)
+              , ComplexTypeCollectionFieldAlwaysAddAllCharSequenceEnumerator
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -509,7 +540,8 @@ public class FieldStringBuilderEnumeratorAlwaysAddAllStringBearer : FormattedEnu
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderEnumerator)
-              , ComplexTypeCollectionFieldAlwaysAddAllStringBuilderEnumerator, ValueFormatString)
+              , ComplexTypeCollectionFieldAlwaysAddAllStringBuilderEnumerator
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -529,7 +561,8 @@ public class FieldMatchEnumeratorAlwaysAddAllStringBearer<TAny> : FormattedEnume
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllMatchEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerator)
-              , ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerator, ValueFormatString)
+              , ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerator
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -550,6 +583,7 @@ public class FieldObjectEnumeratorAlwaysAddAllStringBearer : FormattedEnumerator
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllObjectEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectEnumerator)
-              , ComplexTypeCollectionFieldAlwaysAddAllObjectEnumerator, ValueFormatString)
+              , ComplexTypeCollectionFieldAlwaysAddAllObjectEnumerator
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }

@@ -242,5 +242,5 @@ public class FileAppenderConfig : BufferingFormatAppenderConfig, IMutableFileApp
            .Field.AlwaysAdd(nameof(FileName), FileName)
            .Field.AlwaysAdd(nameof(FilePath), FilePath)
            .Field.WhenNonDefaultAdd(nameof(CloseDelayMs), CloseDelayMs, 2_000u)
-           .AddBaseStyledToStringFields(this).Complete();
+           .AddBaseRevealStateFields(this).Complete();
 }

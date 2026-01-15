@@ -59,5 +59,5 @@ public class NullAppenderConfig : AppenderDefinitionConfig, INullAppenderConfig
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .AddBaseStyledToStringFields(this).Complete();
+           .AddBaseRevealStateFields(this).Complete();
 }

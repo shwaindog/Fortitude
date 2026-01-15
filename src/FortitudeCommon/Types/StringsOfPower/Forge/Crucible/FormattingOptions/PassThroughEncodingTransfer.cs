@@ -184,8 +184,7 @@ public class PassThroughEncodingTransfer : RecyclableObject, IEncodingTransfer
       , int maxTransferCount = Int32.MaxValue) => 
         CalculateEncodedLength(source, sourceFrom, cappedLength);
 
-    public virtual int Transfer(ReadOnlySpan<char> source, IStringBuilder destSb
-      , int destStartIndex = int.MaxValue)
+    public virtual int AppendTransfer(ReadOnlySpan<char> source, IStringBuilder destSb)
     {
         var preAppendLength = destSb.Length;
         
@@ -198,24 +197,29 @@ public class PassThroughEncodingTransfer : RecyclableObject, IEncodingTransfer
 
     public virtual int InsertTransfer(ReadOnlySpan<char> source, IStringBuilder destSb, int destStartIndex)
     {
-        var preAppendLength = destSb.Length;
         destSb.EnsureCapacity(source.Length);
-        destSb.InsertAt(source, destStartIndex);
-        return destSb.Length - preAppendLength;
+        destSb.Insert(destStartIndex, source);
+        return source.Length;
     }
 
-    public virtual int Transfer(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex
+    public virtual int OverwriteTransfer(ReadOnlySpan<char> source, IStringBuilder destSb, int destStartIndex)
+    {
+        destSb.EnsureCapacity(source.Length);
+        return destSb.Overwrite(destStartIndex, source);
+    }
+
+    public virtual int OverwriteTransfer(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex
       , int maxTransferCount = int.MaxValue) =>
-        Transfer(source, 0, destSpan, destStartIndex, maxTransferCount);
+        OverwriteTransfer(source, 0, destSpan, destStartIndex, maxTransferCount);
 
     public virtual int InsertTransfer(ReadOnlySpan<char> source, Span<char> destSpan, int destStartIndex
        ,int currentEndIndex)
     {
         destSpan.ShiftByAmount(destStartIndex, currentEndIndex, source.Length);
-        return Transfer(source, 0, destSpan, destStartIndex, source.Length);
+        return OverwriteTransfer(source, 0, destSpan, destStartIndex, source.Length);
     }
 
-    public virtual int Transfer(ReadOnlySpan<char> source, int sourceFrom, Span<char> destSpan
+    public virtual int OverwriteTransfer(ReadOnlySpan<char> source, int sourceFrom, Span<char> destSpan
       , int destStartIndex, int maxTransferCount = int.MaxValue)
     {
         var cappedFrom   = Math.Clamp(sourceFrom, 0, source.Length);
@@ -225,8 +229,18 @@ public class PassThroughEncodingTransfer : RecyclableObject, IEncodingTransfer
         return cappedLength;
     }
 
-    public virtual int Transfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder destSb
-      , int destStartIndex = int.MaxValue, int maxTransferCount = int.MaxValue)
+    public virtual int InsertTransfer(ReadOnlySpan<char> source, int sourceFrom, Span<char> destSpan
+      , int destStartIndex, int currentEndIndex, int maxTransferCount = int.MaxValue)
+    {
+        var cappedFrom   = Math.Clamp(sourceFrom, 0, source.Length);
+        var cappedLength = Math.Clamp(maxTransferCount, 0, source.Length - cappedFrom);
+        
+        for (var i = 0; i < cappedLength; i++) destSpan[i + destStartIndex] = source[cappedFrom + i];
+        return cappedLength;
+    }
+
+    public virtual int AppendTransfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder destSb
+      , int maxTransferCount = int.MaxValue)
     {
         var cappedFrom   = Math.Clamp(sourceFrom, 0, source.Length);
         var cappedLength = Math.Clamp(maxTransferCount, 0, source.Length - cappedFrom);
@@ -235,6 +249,29 @@ public class PassThroughEncodingTransfer : RecyclableObject, IEncodingTransfer
         
         destSb.Append(source, cappedFrom, cappedLength);
         return cappedLength;
+    }
+
+    public virtual int InsertTransfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder destSb
+      , int destStartIndex, int maxTransferCount = int.MaxValue)
+    {
+        var cappedFrom   = Math.Clamp(sourceFrom, 0, source.Length);
+        var cappedLength = Math.Clamp(maxTransferCount, 0, source.Length - cappedFrom);
+        
+        destSb.EnsureCapacity(cappedLength);
+        
+        destSb.Insert(destStartIndex, source, cappedFrom, cappedLength);
+        return cappedLength;
+    }
+
+    public virtual int OverwriteTransfer(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder destSb
+      , int destStartIndex, int maxTransferCount = int.MaxValue)
+    {
+        var cappedFrom   = Math.Clamp(sourceFrom, 0, source.Length);
+        var cappedLength = Math.Clamp(maxTransferCount, 0, source.Length - cappedFrom);
+        
+        destSb.EnsureCapacity(cappedLength);
+        
+        return destSb.Overwrite(destStartIndex, source, cappedFrom, cappedLength);
     }
 
     public virtual int Transfer(ICustomStringFormatter stringFormatter, char[] source, IStringBuilder destSb, int destStartIndex = int.MaxValue)

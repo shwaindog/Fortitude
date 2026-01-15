@@ -28,7 +28,9 @@ public class FieldBoolEnumerableWhenPopulatedWithFilterStringBearer : FormattedF
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilterEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolEnumerable)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolEnumerable, ElementPredicate, ValueFormatString)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolEnumerable
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -49,7 +51,9 @@ public class FieldNullableBoolEnumerableWhenPopulatedWithFilterStringBearer : Fo
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilterEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolEnumerable)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolEnumerable, ElementPredicate, ValueFormatString)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolEnumerable
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -73,7 +77,8 @@ public class FieldSpanFormattableEnumerableWhenPopulatedWithFilterStringBearer<T
            .WhenPopulatedWithFilterEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableEnumerable
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -96,12 +101,13 @@ public class FieldNullableSpanFormattableEnumerableWhenPopulatedWithFilterString
            .CollectionField.WhenPopulatedWithFilterEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableEnumerable
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerable | NonNullAndPopulatedWrites | FilterPredicate
-                | AcceptsAnyExceptNullableStruct | SupportsValueRevealer)]
+                | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldCloakedBearerEnumerableWhenPopulatedWithFilterStringBearer<TCloaked, TFilterBase, TRevealBase> : 
     RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TFilterBase, TRevealBase, IEnumerable<TCloaked>?>
     where TCloaked : TRevealBase, TFilterBase
@@ -120,12 +126,13 @@ public class FieldCloakedBearerEnumerableWhenPopulatedWithFilterStringBearer<TCl
            .CollectionField.AlwaysRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerEnumerable, ElementPredicate
-              , ValueRevealer)
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerable | NonNullAndPopulatedWrites | FilterPredicate
-                | AcceptsAnyNullableStruct | SupportsValueRevealer)]
+                | AcceptsAnyNullableStruct | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldNullableCloakedBearerEnumerableWhenPopulatedWithFilterStringBearer<TCloakedStruct> :
     RevealerFilteredCollectionFieldMoldScaffold<TCloakedStruct?, TCloakedStruct?, TCloakedStruct, IEnumerable<TCloakedStruct?>?>
     where TCloakedStruct : struct
@@ -143,14 +150,16 @@ public class FieldNullableCloakedBearerEnumerableWhenPopulatedWithFilterStringBe
            .CollectionField.AlwaysRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerEnumerable
-              , ElementPredicate, ValueRevealer)
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerable | NonNullAndPopulatedWrites | FilterPredicate
-                | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
+                | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldStringBearerEnumerableWhenPopulatedWithFilterStringBearer<TBearer, TBearerBase>
-    : FilteredCollectionFieldMoldScaffold<TBearer, TBearerBase, IEnumerable<TBearer>>
+    : FormattedFilteredCollectionFieldMoldScaffold<TBearer, TBearerBase, IEnumerable<TBearer>>
     where TBearer : IStringBearer, TBearerBase
 {
     public IEnumerable<TBearer?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerEnumerable
@@ -165,14 +174,16 @@ public class FieldStringBearerEnumerableWhenPopulatedWithFilterStringBearer<TBea
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerEnumerable)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerEnumerable, ElementPredicate)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerEnumerable
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerable | NonNullAndPopulatedWrites | FilterPredicate | AcceptsNullableStruct
-                | AcceptsStringBearer)]
+                | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldNullableStringBearerEnumerableWhenPopulatedWithFilterStringBearer<TBearerStruct>
-    : FilteredCollectionFieldMoldScaffold<TBearerStruct?, IEnumerable<TBearerStruct?>>
+    : FormattedFilteredCollectionFieldMoldScaffold<TBearerStruct?, IEnumerable<TBearerStruct?>>
     where TBearerStruct : struct, IStringBearer
 {
     public IEnumerable<TBearerStruct?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerEnumerable
@@ -187,7 +198,9 @@ public class FieldNullableStringBearerEnumerableWhenPopulatedWithFilterStringBea
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerEnumerable)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerEnumerable, ElementPredicate)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerEnumerable
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -209,7 +222,8 @@ public class FieldStringEnumerableWhenPopulatedWithFilterStringBearer : Formatte
            .CollectionField.WhenPopulatedWithFilterEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringEnumerable
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -233,7 +247,8 @@ public class FieldCharSequenceEnumerableWhenPopulatedWithFilterStringBearer<TCha
            .CollectionField.WhenPopulatedWithFilterCharSeqEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceEnumerable
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -255,7 +270,8 @@ public class FieldStringBuilderEnumerableWhenPopulatedWithFilterStringBearer
            .CollectionField.WhenPopulatedWithFilterEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderEnumerable
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -278,7 +294,8 @@ public class FieldMatchEnumerableWhenPopulatedWithFilterStringBearer<TAny, TAnyB
            .CollectionField.WhenPopulatedWithFilterMatchEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchEnumerable
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -300,7 +317,8 @@ public class FieldObjectEnumerableWhenPopulatedWithFilterStringBearer : Formatte
            .CollectionField.WhenPopulatedWithFilterObjectEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectEnumerable
-              , ElementPredicate, ValueFormatString);
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags);
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerator | NonNullAndPopulatedWrites | FilterPredicate | AcceptsStruct
@@ -320,7 +338,9 @@ public class FieldBoolEnumeratorWhenPopulatedWithFilterStringBearer : FormattedF
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilterEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolEnumerator)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolEnumerator, ElementPredicate)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolEnumerator
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -341,7 +361,9 @@ public class FieldNullableBoolEnumeratorWhenPopulatedWithFilterStringBearer : Fo
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilterEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolEnumerator)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolEnumerator, ElementPredicate)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolEnumerator
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -365,7 +387,8 @@ public class FieldSpanFormattableEnumeratorWhenPopulatedWithFilterStringBearer<T
            .WhenPopulatedWithFilterEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableEnumerator
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -388,12 +411,13 @@ public class FieldNullableSpanFormattableEnumeratorWhenPopulatedWithFilterString
            .CollectionField.WhenPopulatedWithFilterEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableEnumerator
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerator | NonNullAndPopulatedWrites | FilterPredicate
-                | AcceptsAnyExceptNullableStruct | SupportsValueRevealer)]
+                | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldCloakedBearerEnumeratorWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TRevealBase> : 
     RevealerFilteredEnumeratorFieldMoldScaffold<TCloaked, TCloakedFilterBase, TRevealBase, IEnumerator<TCloaked>?>
     where TCloaked : TRevealBase, TCloakedFilterBase
@@ -412,12 +436,13 @@ public class FieldCloakedBearerEnumeratorWhenPopulatedWithFilterStringBearer<TCl
            .CollectionField.AlwaysRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerEnumerator, ElementPredicate
-              , ValueRevealer)
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerator | NonNullAndPopulatedWrites | FilterPredicate
-                | AcceptsAnyNullableStruct | SupportsValueRevealer)]
+                | AcceptsAnyNullableStruct | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldNullableCloakedBearerEnumeratorWhenPopulatedWithFilterStringBearer<TCloakedStruct> :
     RevealerFilteredEnumeratorFieldMoldScaffold<TCloakedStruct?, TCloakedStruct?, TCloakedStruct, IEnumerator<TCloakedStruct?>?>
     where TCloakedStruct : struct
@@ -435,14 +460,16 @@ public class FieldNullableCloakedBearerEnumeratorWhenPopulatedWithFilterStringBe
            .CollectionField.AlwaysRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerEnumerator
-              , ElementPredicate, ValueRevealer)
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerator | NonNullAndPopulatedWrites | FilterPredicate
-                | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
+                | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldStringBearerEnumeratorWhenPopulatedWithFilterStringBearer<TBearer, TBearerBase>
-    : FilteredEnumeratorFieldMoldScaffold<TBearer, TBearerBase, IEnumerator<TBearer>>
+    : FormattedFilteredEnumeratorFieldMoldScaffold<TBearer, TBearerBase, IEnumerator<TBearer>>
     where TBearer : IStringBearer, TBearerBase
 {
     public IEnumerator<TBearer?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerEnumerator
@@ -457,14 +484,16 @@ public class FieldStringBearerEnumeratorWhenPopulatedWithFilterStringBearer<TBea
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerEnumerator)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerEnumerator, ElementPredicate)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerEnumerator
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerator | NonNullAndPopulatedWrites | FilterPredicate | AcceptsNullableStruct
-                | AcceptsStringBearer)]
+                | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldNullableStringBearerEnumeratorWhenPopulatedWithFilterStringBearer<TBearerStruct>
-    : FilteredEnumeratorFieldMoldScaffold<TBearerStruct?, IEnumerator<TBearerStruct?>>
+    : FormattedFilteredEnumeratorFieldMoldScaffold<TBearerStruct?, IEnumerator<TBearerStruct?>>
     where TBearerStruct : struct, IStringBearer
 {
     public IEnumerator<TBearerStruct?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerEnumerator
@@ -479,7 +508,9 @@ public class FieldNullableStringBearerEnumeratorWhenPopulatedWithFilterStringBea
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerEnumerator)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerEnumerator, ElementPredicate)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerEnumerator
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -501,7 +532,8 @@ public class FieldStringEnumeratorWhenPopulatedWithFilterStringBearer : Formatte
            .CollectionField.WhenPopulatedWithFilterEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringEnumerator
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -524,7 +556,8 @@ public class FieldCharSequenceEnumeratorWhenPopulatedWithFilterStringBearer<TCha
            .CollectionField.WhenPopulatedWithFilterCharSeqEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceEnumerator
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -546,7 +579,8 @@ public class FieldStringBuilderEnumeratorWhenPopulatedWithFilterStringBearer
            .CollectionField.WhenPopulatedWithFilterEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderEnumerator
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -569,7 +603,8 @@ public class FieldMatchEnumeratorWhenPopulatedWithFilterStringBearer<TAny, TAnyB
            .CollectionField.WhenPopulatedWithFilterMatchEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchEnumerator
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -591,5 +626,6 @@ public class FieldObjectEnumeratorWhenPopulatedWithFilterStringBearer : Formatte
            .CollectionField.WhenPopulatedWithFilterObjectEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectEnumerator
-              , ElementPredicate, ValueFormatString);
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags);
 }

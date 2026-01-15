@@ -27,7 +27,8 @@ public class FieldBoolSpanWhenPopulatedWithFilterStringBearer : FormattedFiltere
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolSpan)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolSpan.AsSpan()
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -49,7 +50,8 @@ public class FieldNullableBoolSpanWhenPopulatedWithFilterStringBearer : Formatte
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolSpan)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolSpan.AsSpan()
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -72,7 +74,8 @@ public class FieldSpanFormattableSpanWhenPopulatedWithFilterStringBearer<TFmt, T
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableSpan)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableSpan.AsSpan()
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -95,7 +98,8 @@ public class FieldSpanFormattableNullableClassSpanWhenPopulatedWithFilterStringB
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableNullableSpan)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableNullableSpan.AsSpan()
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -118,12 +122,13 @@ public class FieldNullableSpanFormattableSpanWhenPopulatedWithFilterStringBearer
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableSpan)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableSpan.AsSpan()
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | FilterPredicate 
-        | AcceptsTypeAllButNullableStruct | SupportsValueRevealer)]
+        | AcceptsTypeAllButNullableStruct | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldCloakedBearerSpanWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : 
     RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealBase, TCloaked[]?>
     where TCloaked : TCloakedRevealBase?, TCloakedFilterBase?
@@ -142,12 +147,14 @@ public class FieldCloakedBearerSpanWhenPopulatedWithFilterStringBearer<TCloaked,
            .CollectionField.WhenPopulatedWithFilterReveal
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerSpan)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerSpan.AsSpan()
-              , ElementPredicate, ValueRevealer)
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | FilterPredicate 
-                | AcceptsAnyNullableClass | SupportsValueRevealer)]
+                | AcceptsAnyNullableClass | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldCloakedBearerNullableClassSpanWhenPopulatedWithFilterStringBearer<TCloaked, TCloakedFilterBase, TCloakedRevealBase> : 
   RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TCloakedRevealBase, TCloaked[]>
     where TCloaked : class?, TCloakedRevealBase?, TCloakedFilterBase?
@@ -166,12 +173,14 @@ public class FieldCloakedBearerNullableClassSpanWhenPopulatedWithFilterStringBea
            .CollectionField.WhenPopulatedWithFilterReveal
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerNullableSpan)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerNullableSpan.AsSpan()
-              , ElementPredicate, ValueRevealer)
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | FilterPredicate 
-                | AcceptsAnyNullableStruct | SupportsValueRevealer)]
+                | AcceptsAnyNullableStruct | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldNullableCloakedBearerSpanWhenPopulatedWithFilterStringBearer<TCloakedStruct> : 
     RevealerFilteredCollectionFieldMoldScaffold<TCloakedStruct?, TCloakedStruct?, TCloakedStruct, TCloakedStruct?[]?> where TCloakedStruct : struct
 {
@@ -188,14 +197,16 @@ public class FieldNullableCloakedBearerSpanWhenPopulatedWithFilterStringBearer<T
            .CollectionField.WhenPopulatedWithFilterReveal
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerSpan)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerSpan.AsSpan()
-              , ElementPredicate, ValueRevealer)
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | FilterPredicate 
-                | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
+                | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldStringBearerSpanWhenPopulatedWithFilterStringBearer<TBearer, TBearerBase>
-    : FilteredCollectionFieldMoldScaffold<TBearer, TBearerBase?, TBearer[]>
+    : FormattedFilteredCollectionFieldMoldScaffold<TBearer, TBearerBase?, TBearer[]>
     where TBearer : IStringBearer?, TBearerBase?
 {
     public TBearer[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerSpan
@@ -210,14 +221,16 @@ public class FieldStringBearerSpanWhenPopulatedWithFilterStringBearer<TBearer, T
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilterReveal
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerSpan)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerSpan.AsSpan(), ElementPredicate)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerSpan.AsSpan()
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | FilterPredicate 
-                | AcceptsNullableClass | AcceptsStringBearer)]
+                | AcceptsNullableClass | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldStringBearerNullableClassSpanWhenPopulatedWithFilterStringBearer<TBearer, TBearerBase>
-    : FilteredCollectionFieldMoldScaffold<TBearer, TBearerBase, TBearer[]>
+    : FormattedFilteredCollectionFieldMoldScaffold<TBearer, TBearerBase, TBearer[]>
     where TBearer : class, IStringBearer, TBearerBase
 {
     public TBearer?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerNullableSpan
@@ -233,14 +246,15 @@ public class FieldStringBearerNullableClassSpanWhenPopulatedWithFilterStringBear
            .CollectionField.WhenPopulatedWithFilterReveal
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerNullableSpan)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerNullableSpan.AsSpan()
-              , ElementPredicate)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | FilterPredicate 
-                | AcceptsNullableStruct | AcceptsStringBearer)]
+                | AcceptsNullableStruct | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldNullableStringBearerSpanWhenPopulatedWithFilterStringBearer<TBearerStruct>
-    : FilteredCollectionFieldMoldScaffold<TBearerStruct?, TBearerStruct?[]>
+    : FormattedFilteredCollectionFieldMoldScaffold<TBearerStruct?, TBearerStruct?[]>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerSpan
@@ -256,7 +270,8 @@ public class FieldNullableStringBearerSpanWhenPopulatedWithFilterStringBearer<TB
            .CollectionField.WhenPopulatedWithFilterReveal
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerSpan)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerSpan.AsSpan()
-              , ElementPredicate)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -278,7 +293,8 @@ public class FieldStringSpanWhenPopulatedWithFilterStringBearer : FormattedFilte
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringSpan)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringSpan.AsSpan()
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -301,7 +317,8 @@ public class FieldStringNullableSpanWhenPopulatedWithFilterStringBearer : Format
            .WhenPopulatedWithFilterNullable
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringSpan)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringSpan.AsSpan()
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -324,7 +341,8 @@ public class FieldCharSequenceSpanWhenPopulatedWithFilterStringBearer<TCharSeq, 
            .CollectionField.WhenPopulatedWithFilterCharSeq
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceSpan)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceSpan.AsSpan()
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -347,7 +365,8 @@ public class FieldCharSequenceNullableSpanWhenPopulatedWithFilterStringBearer<TC
            .CollectionField.WhenPopulatedWithFilterCharSeq
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCharSequenceSpan)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCharSequenceSpan.AsSpan()
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -369,7 +388,8 @@ public class FieldStringBuilderSpanWhenPopulatedWithFilterStringBearer : Formatt
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderSpan)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderSpan.AsSpan()
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -391,7 +411,8 @@ public class FieldStringBuilderNullableSpanWhenPopulatedWithFilterStringBearer
            .CollectionField.WhenPopulatedWithFilterNullable
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBuilderSpan)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBuilderSpan.AsSpan()
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -414,7 +435,8 @@ public class FieldMatchSpanWhenPopulatedWithFilterStringBearer<TAny, TAnyFilterB
            .CollectionField.WhenPopulatedWithFilterMatch
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchSpan)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchSpan.AsSpan()
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -436,7 +458,8 @@ public class FieldObjectSpanWhenPopulatedWithFilterStringBearer : FormattedFilte
            .CollectionField.WhenPopulatedWithFilterObject
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectSpan)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectSpan.AsSpan()
-              , ElementPredicate, ValueFormatString);
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags);
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | FilterPredicate 
@@ -457,7 +480,8 @@ public class FieldNullableObjectSpanWhenPopulatedWithFilterStringBearer : Format
            .CollectionField.WhenPopulatedWithFilterObjectNullable
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableObjectSpan)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableObjectSpan.AsSpan()
-              , ElementPredicate, ValueFormatString);
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags);
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites | FilterPredicate 
@@ -478,7 +502,8 @@ public class FieldBoolReadOnlySpanWhenPopulatedWithFilterStringBearer : Formatte
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolReadOnlySpan)
               , (ReadOnlySpan<bool>)ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolReadOnlySpan
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -500,7 +525,8 @@ public class FieldNullableBoolReadOnlySpanWhenPopulatedWithFilterStringBearer : 
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolReadOnlySpan)
               , (ReadOnlySpan<bool?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolReadOnlySpan
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -523,7 +549,8 @@ public class FieldSpanFormattableReadOnlySpanWhenPopulatedWithFilterStringBearer
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableReadOnlySpan)
               , (ReadOnlySpan<TFmt>)ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableReadOnlySpan
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -546,7 +573,8 @@ public class FieldSpanFormattableNullableClassReadOnlySpanWhenPopulatedWithFilte
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableNullableReadOnlySpan)
               , (ReadOnlySpan<TFmt?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableNullableReadOnlySpan
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -569,12 +597,13 @@ public class FieldNullableSpanFormattableReadOnlySpanWhenPopulatedWithFilterStri
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableReadOnlySpan)
               , (ReadOnlySpan<TFmtStruct?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableReadOnlySpan
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites | FilterPredicate 
-                | AcceptsTypeAllButNullableStruct | SupportsValueRevealer)]
+                | AcceptsTypeAllButNullableStruct | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldCloakedBearerReadOnlySpanWhenPopulatedWithFilterStringBearer<TCloaked, TFilterBase, TRevealBase>
     : RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TFilterBase, TRevealBase, TCloaked[]?>
     where TCloaked : TRevealBase?, TFilterBase?
@@ -593,12 +622,14 @@ public class FieldCloakedBearerReadOnlySpanWhenPopulatedWithFilterStringBearer<T
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerReadOnlySpan)
               , (ReadOnlySpan<TCloaked>)ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerReadOnlySpan
-              , ElementPredicate, ValueRevealer)
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites | FilterPredicate 
-                | AcceptsAnyNullableClass | SupportsValueRevealer)]
+                | AcceptsAnyNullableClass | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldCloakedBearerNullableClassReadOnlySpanWhenPopulatedWithFilterStringBearer<TCloaked, TFilterBase, TRevealBase> : 
     RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TFilterBase, TRevealBase, TCloaked[]>
     where TCloaked : class, TRevealBase, TFilterBase
@@ -617,12 +648,14 @@ public class FieldCloakedBearerNullableClassReadOnlySpanWhenPopulatedWithFilterS
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerNullableReadOnlySpan)
               , (ReadOnlySpan<TCloaked?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerNullableReadOnlySpan
-              , ElementPredicate, ValueRevealer)
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites | FilterPredicate 
-                | AcceptsAnyNullableStruct | SupportsValueRevealer)]
+                | AcceptsAnyNullableStruct | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldNullableCloakedBearerReadOnlySpanWhenPopulatedWithFilterStringBearer<TCloakedStruct> : 
     RevealerFilteredCollectionFieldMoldScaffold<TCloakedStruct?, TCloakedStruct?, TCloakedStruct, TCloakedStruct?[]?>
        where TCloakedStruct : struct
@@ -640,14 +673,16 @@ public class FieldNullableCloakedBearerReadOnlySpanWhenPopulatedWithFilterString
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerReadOnlySpan)
               , (ReadOnlySpan<TCloakedStruct?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerReadOnlySpan
-              , ElementPredicate, ValueRevealer)
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites | FilterPredicate 
-                | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
+                | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldStringBearerReadOnlySpanWhenPopulatedWithFilterStringBearer<TBearer, TBearerBase>
-    : FilteredCollectionFieldMoldScaffold<TBearer, TBearerBase?, TBearer[]>
+    : FormattedFilteredCollectionFieldMoldScaffold<TBearer, TBearerBase?, TBearer[]>
     where TBearer : IStringBearer?, TBearerBase?
 {
     public TBearer[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerReadOnlySpan
@@ -663,14 +698,15 @@ public class FieldStringBearerReadOnlySpanWhenPopulatedWithFilterStringBearer<TB
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerReadOnlySpan)
               , (ReadOnlySpan<TBearer>)ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerReadOnlySpan
-              , ElementPredicate)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites | FilterPredicate 
-                | AcceptsNullableClass | AcceptsStringBearer)]
+                | AcceptsNullableClass | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldStringBearerNullableClassReadOnlySpanWhenPopulatedWithFilterStringBearer<TBearer, TBearerBase>
-    : FilteredCollectionFieldMoldScaffold<TBearer, TBearerBase, TBearer[]>
+    : FormattedFilteredCollectionFieldMoldScaffold<TBearer, TBearerBase, TBearer[]>
     where TBearer : class, IStringBearer, TBearerBase
 {
     public TBearer?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerNullableReadOnlySpan
@@ -686,14 +722,15 @@ public class FieldStringBearerNullableClassReadOnlySpanWhenPopulatedWithFilterSt
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerNullableReadOnlySpan)
               , (ReadOnlySpan<TBearer?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerNullableReadOnlySpan
-              , ElementPredicate)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites | FilterPredicate 
-                | AcceptsNullableStruct | AcceptsStringBearer)]
+                | AcceptsNullableStruct | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldNullableStringBearerReadOnlySpanWhenPopulatedWithFilterStringBearer<TBearerStruct>
-    : FilteredCollectionFieldMoldScaffold<TBearerStruct?, TBearerStruct?[]>
+    : FormattedFilteredCollectionFieldMoldScaffold<TBearerStruct?, TBearerStruct?[]>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerReadOnlySpan
@@ -709,7 +746,8 @@ public class FieldNullableStringBearerReadOnlySpanWhenPopulatedWithFilterStringB
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerReadOnlySpan),
                 (ReadOnlySpan<TBearerStruct?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerReadOnlySpan
-              , ElementPredicate)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -731,7 +769,8 @@ public class FieldStringReadOnlySpanWhenPopulatedWithFilterStringBearer : Format
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringReadOnlySpan)
               , (ReadOnlySpan<string>)ComplexTypeCollectionFieldWhenPopulatedWithFilterStringReadOnlySpan.AsSpan()
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -753,7 +792,8 @@ public class FieldStringNullableReadOnlySpanWhenPopulatedWithFilterStringBearer
            .CollectionField.WhenPopulatedWithFilterNullable
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringReadOnlySpan),
                 (ReadOnlySpan<string?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringReadOnlySpan
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -776,7 +816,8 @@ public class FieldCharSequenceReadOnlySpanWhenPopulatedWithFilterStringBearer<TC
            .CollectionField.WhenPopulatedWithFilterCharSeq
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceReadOnlySpan)
               , (ReadOnlySpan<TCharSeq>)ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceReadOnlySpan
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -799,7 +840,8 @@ public class FieldCharSequenceNullableReadOnlySpanWhenPopulatedWithFilterStringB
            .CollectionField.WhenPopulatedWithFilterCharSeq
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCharSequenceReadOnlySpan),
                 (ReadOnlySpan<TCharSeq?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCharSequenceReadOnlySpan
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -821,7 +863,8 @@ public class FieldStringBuilderReadOnlySpanWhenPopulatedWithFilterStringBearer
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderReadOnlySpan)
               , (ReadOnlySpan<StringBuilder>)ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderReadOnlySpan
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -843,7 +886,8 @@ public class FieldStringBuilderNullableReadOnlySpanWhenPopulatedWithFilterString
            .CollectionField.WhenPopulatedWithFilterNullable
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBuilderReadOnlySpan)
               , (ReadOnlySpan<StringBuilder?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBuilderReadOnlySpan
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -866,7 +910,8 @@ public class FieldMatchReadOnlySpanWhenPopulatedWithFilterStringBearer<TAny, TAn
            .CollectionField.WhenPopulatedWithFilterMatch
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchReadOnlySpan)
               , (ReadOnlySpan<TAny>)ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchReadOnlySpan
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -887,7 +932,8 @@ public class FieldObjectReadOnlySpanWhenPopulatedWithFilterStringBearer : Format
            .CollectionField.WhenPopulatedWithFilterObject
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectReadOnlySpan)
               , (ReadOnlySpan<object>)ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectReadOnlySpan
-              , ElementPredicate, ValueFormatString);
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags);
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites | FilterPredicate 
@@ -908,7 +954,8 @@ public class FieldNullableObjectReadOnlySpanWhenPopulatedWithFilterStringBearer
            .CollectionField.WhenPopulatedWithFilterObjectNullable
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableObjectReadOnlySpan)
               , (ReadOnlySpan<object?>)ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableObjectReadOnlySpan
-              , ElementPredicate, ValueFormatString);
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags);
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | NonNullAndPopulatedWrites | FilterPredicate | AcceptsStruct
@@ -928,7 +975,9 @@ public class FieldBoolArrayWhenPopulatedWithFilterStringBearer : FormattedFilter
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolArray)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolArray, ElementPredicate, ValueFormatString)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolArray
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -949,7 +998,9 @@ public class FieldNullableBoolArrayWhenPopulatedWithFilterStringBearer : Formatt
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolArray)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolArray, ElementPredicate, ValueFormatString)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolArray
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -972,7 +1023,8 @@ public class FieldSpanFormattableArrayWhenPopulatedWithFilterStringBearer<TFmt, 
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableArray)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableArray
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -995,15 +1047,16 @@ public class FieldNullableSpanFormattableArrayWhenPopulatedWithFilterStringBeare
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableArray)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableArray
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | NonNullAndPopulatedWrites | FilterPredicate 
-                | AcceptsAnyExceptNullableStruct | SupportsValueRevealer)]
+                | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldCloakedBearerArrayWhenPopulatedWithFilterStringBearer<TCloaked, TFilterBase, TRevealBase> : 
     RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TFilterBase, TRevealBase, TCloaked[]?>
-       where TCloaked : TRevealBase, TFilterBase
+       where TCloaked : TRevealBase?, TFilterBase?
        where TRevealBase : notnull
 {
     public TCloaked[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerArray
@@ -1016,15 +1069,17 @@ public class FieldCloakedBearerArrayWhenPopulatedWithFilterStringBearer<TCloaked
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered
+           .CollectionField.WhenPopulatedWithFilterReveal
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerArray)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerArray, ElementPredicate
-              , ValueRevealer)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerArray
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | NonNullAndPopulatedWrites | FilterPredicate | AcceptsAnyNullableStruct 
-                 | SupportsValueRevealer)]
+                 | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldNullableCloakedBearerArrayWhenPopulatedWithFilterStringBearer<TCloakedStruct> : 
     RevealerFilteredCollectionFieldMoldScaffold<TCloakedStruct?, TCloakedStruct?, TCloakedStruct, TCloakedStruct?[]?>
     where TCloakedStruct : struct
@@ -1039,18 +1094,20 @@ public class FieldNullableCloakedBearerArrayWhenPopulatedWithFilterStringBearer<
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered
+           .CollectionField.WhenPopulatedWithFilterReveal
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerArray)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerArray
-              , ElementPredicate, ValueRevealer)
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | NonNullAndPopulatedWrites | FilterPredicate 
-                | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
+                | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldStringBearerArrayWhenPopulatedWithFilterStringBearer<TBearer, TBearerBase>
-    : FilteredCollectionFieldMoldScaffold<TBearer, TBearerBase, TBearer[]>
-    where TBearer : IStringBearer, TBearerBase
+    : FormattedFilteredCollectionFieldMoldScaffold<TBearer, TBearerBase, TBearer[]>
+    where TBearer : IStringBearer?, TBearerBase?
 {
     public TBearer?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerArray
     {
@@ -1062,16 +1119,18 @@ public class FieldStringBearerArrayWhenPopulatedWithFilterStringBearer<TBearer, 
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered
+           .CollectionField.WhenPopulatedWithFilterReveal
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerArray)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerArray, ElementPredicate)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerArray
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | NonNullAndPopulatedWrites | FilterPredicate | AcceptsNullableStruct 
-                | AcceptsStringBearer)]
+                | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldNullableStringBearerArrayWhenPopulatedWithFilterStringBearer<TBearerStruct>
-    : FilteredCollectionFieldMoldScaffold<TBearerStruct?, TBearerStruct?[]>
+    : FormattedFilteredCollectionFieldMoldScaffold<TBearerStruct?, TBearerStruct?[]>
     where TBearerStruct : struct, IStringBearer
 {
     public TBearerStruct?[]? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerArray
@@ -1084,10 +1143,11 @@ public class FieldNullableStringBearerArrayWhenPopulatedWithFilterStringBearer<T
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered
+           .CollectionField.WhenPopulatedWithFilterReveal
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerArray)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerArray
-              , ElementPredicate)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1109,7 +1169,8 @@ public class FieldStringArrayWhenPopulatedWithFilterStringBearer : FormattedFilt
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringArray)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringArray
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1132,7 +1193,8 @@ public class FieldCharSequenceArrayWhenPopulatedWithFilterStringBearer<TCharSeq,
            .CollectionField.WhenPopulatedWithFilterCharSeq
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceArray)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceArray
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1155,7 +1217,8 @@ public class FieldStringBuilderArrayWhenPopulatedWithFilterStringBearer
            .WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderArray)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderArray
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1179,7 +1242,8 @@ public class FieldMatchArrayWhenPopulatedWithFilterStringBearer<TAny, TAnyFilter
            .WhenPopulatedWithFilterMatch
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchArray)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchArray
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1200,7 +1264,9 @@ public class FieldObjectArrayWhenPopulatedWithFilterStringBearer
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilterObject
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectArray)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectArray, ElementPredicate, ValueFormatString);
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectArray
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags);
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsList | NonNullAndPopulatedWrites | FilterPredicate | AcceptsStruct
@@ -1220,7 +1286,9 @@ public class FieldBoolListWhenPopulatedWithFilterStringBearer : FormattedFiltere
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolList, ElementPredicate, ValueFormatString)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolList
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1241,7 +1309,9 @@ public class FieldNullableBoolListWhenPopulatedWithFilterStringBearer : Formatte
         tos.StartComplexType(this)
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolList, ElementPredicate, ValueFormatString)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolList
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1265,7 +1335,8 @@ public class FieldSpanFormattableListWhenPopulatedWithFilterStringBearer<TFmt, T
            .WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableList)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterSpanFormattableList
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1288,12 +1359,13 @@ public class FieldNullableSpanFormattableListWhenPopulatedWithFilterStringBearer
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableList)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableList
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsList | NonNullAndPopulatedWrites | FilterPredicate
-                | AcceptsAnyExceptNullableStruct | SupportsValueRevealer)]
+                | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldCloakedBearerListWhenPopulatedWithFilterStringBearer<TCloaked, TFilterBase, TRevealBase> : 
     RevealerFilteredCollectionFieldMoldScaffold<TCloaked?, TFilterBase?, TRevealBase, IReadOnlyList<TCloaked?>?>
        where TCloaked : TRevealBase, TFilterBase
@@ -1309,15 +1381,16 @@ public class FieldCloakedBearerListWhenPopulatedWithFilterStringBearer<TCloaked,
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered
+           .CollectionField.WhenPopulatedWithFilterReveal
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerList)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterCloakedBearerList, ElementPredicate
-              , ValueRevealer)
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsList | NonNullAndPopulatedWrites | FilterPredicate | AcceptsAnyNullableStruct 
-                | SupportsValueRevealer)]
+                | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldNullableCloakedBearerListWhenPopulatedWithFilterStringBearer<TCloakedStruct> : 
   RevealerFilteredCollectionFieldMoldScaffold<TCloakedStruct?, TCloakedStruct?, TCloakedStruct, IReadOnlyList<TCloakedStruct?>?>
    where TCloakedStruct : struct
@@ -1332,20 +1405,22 @@ public class FieldNullableCloakedBearerListWhenPopulatedWithFilterStringBearer<T
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered
+           .CollectionField.WhenPopulatedWithFilterReveal
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerList)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableCloakedBearerList
-              , ElementPredicate, ValueRevealer)
+              , ElementPredicate
+              , ValueRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsList | NonNullAndPopulatedWrites | FilterPredicate 
-                | AcceptsTypeAllButNullableStruct | AcceptsStringBearer)]
+                | AcceptsTypeAllButNullableStruct | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldStringBearerListWhenPopulatedWithFilterStringBearer<TBearer, TBearerBase>
-    : FilteredCollectionFieldMoldScaffold<TBearer, TBearerBase, IReadOnlyList<TBearer>>
-    where TBearer : IStringBearer, TBearerBase
+    : FormattedFilteredCollectionFieldMoldScaffold<TBearer, TBearerBase, IReadOnlyList<TBearer>>
+    where TBearer : IStringBearer?, TBearerBase?
 {
-    public IReadOnlyList<TBearer?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerList
+    public IReadOnlyList<TBearer>? ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerList
     {
         get => Value;
         set => Value = value!;
@@ -1355,16 +1430,18 @@ public class FieldStringBearerListWhenPopulatedWithFilterStringBearer<TBearer, T
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered
+           .CollectionField.WhenPopulatedWithFilterReveal
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerList, ElementPredicate)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBearerList
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsList | NonNullAndPopulatedWrites | FilterPredicate | AcceptsNullableStruct
-                     | AcceptsStringBearer)]
+                     | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldNullableStringBearerListWhenPopulatedWithFilterStringBearer<TBearerStruct>
-    : FilteredCollectionFieldMoldScaffold<TBearerStruct?, IReadOnlyList<TBearerStruct?>>
+    : FormattedFilteredCollectionFieldMoldScaffold<TBearerStruct?, IReadOnlyList<TBearerStruct?>>
     where TBearerStruct : struct, IStringBearer
 {
     public IReadOnlyList<TBearerStruct?>? ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerList
@@ -1377,9 +1454,11 @@ public class FieldNullableStringBearerListWhenPopulatedWithFilterStringBearer<TB
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealFiltered
+           .CollectionField.WhenPopulatedWithFilterReveal
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerList)
-              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerList, ElementPredicate)
+              , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableStringBearerList
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1401,7 +1480,8 @@ public class FieldStringListWhenPopulatedWithFilterStringBearer : FormattedFilte
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringList)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringList
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1424,7 +1504,8 @@ public class FieldCharSequenceListWhenPopulatedWithFilterStringBearer<TCharSeq, 
            .CollectionField.WhenPopulatedWithFilterCharSeq
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceList)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceList
-              , ElementPredicate!, ValueFormatString)
+              , ElementPredicate!
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1446,7 +1527,8 @@ public class FieldStringBuilderListWhenPopulatedWithFilterStringBearer
            .CollectionField.WhenPopulatedWithFilter
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderList)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderList
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1469,7 +1551,8 @@ public class FieldMatchListWhenPopulatedWithFilterStringBearer<TAny, TAnyFilterB
            .CollectionField.WhenPopulatedWithFilterMatch
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchList)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchList
-              , ElementPredicate, ValueFormatString)
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1491,5 +1574,6 @@ public class FieldObjectListWhenPopulatedWithFilterStringBearer : FormattedFilte
            .CollectionField.WhenPopulatedWithFilterObject
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectList)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectList
-              , ElementPredicate, ValueFormatString);
+              , ElementPredicate
+              , ValueFormatString, FormattingFlags);
 }

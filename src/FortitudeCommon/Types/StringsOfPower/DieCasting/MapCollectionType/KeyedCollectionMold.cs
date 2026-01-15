@@ -4,7 +4,7 @@
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
-namespace FortitudeCommon.Types.StringsOfPower.DieCasting.KeyedCollectionType;
+namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 
 
 public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionMold>
@@ -15,7 +15,8 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
 
     public KeyedCollectionMold InitializeKeyValueCollectionBuilder 
     (
-        Type typeBeingBuilt
+        object instanceOrContainer
+      , Type typeBeingBuilt
       , ISecretStringOfPower vesselOfStringOfPower
       , MoldDieCastSettings appendSettings
       , string? typeName
@@ -24,7 +25,7 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
       , int existingRefId
       , FormatFlags createFormatFlags )
     {
-        InitializeMultiValueTypeBuilder(typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName
+        InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName
                                       , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
 
         stb = MoldStateField;
@@ -34,12 +35,14 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
 
     public override bool IsComplexType => true;
     
-    public override void AppendOpening()
+    public override void AppendTypeOpeningToGraphFields()
     {
         var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!; 
         MoldStateField.StyleFormatter.AppendKeyedCollectionStart(MoldStateField.Sb, MoldStateField.TypeBeingBuilt, keyValueTypes.Value.Key, keyValueTypes.Value.Value);
     }
-    
+
+    public override void CompleteTypeOpeningToTypeFields() { }
+
     public override void AppendClosing()
     {
         var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!; 

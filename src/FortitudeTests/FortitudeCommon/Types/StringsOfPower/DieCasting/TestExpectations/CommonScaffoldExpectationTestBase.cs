@@ -4,12 +4,7 @@
 using System.Globalization;
 using System.Reflection;
 using FortitudeCommon.DataStructures.MemoryPools;
-using FortitudeCommon.DataStructures.MemoryPools.Buffers;
-using FortitudeCommon.DataStructures.MemoryPools.Buffers.ByteBuffers;
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Logging.Config.ExampleConfig;
-using FortitudeCommon.Logging.Core;
-using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
@@ -24,68 +19,14 @@ public enum StringBuilderType
   , CharArrayStringBuilder
 }
 
-public abstract class CommonExpectationTestBase
+public abstract class CommonScaffoldExpectationTestBase : CommonExpectationBase
 {
     protected static IReadOnlyList<ScaffoldingPartEntry> ScafReg = ScaffoldingRegistry.AllScaffoldingTypes;
-
-    protected static IVersatileFLogger Logger       = null!;
-    private static   Recycler          recycler     = null!;
-    private static   ITheOneString     theOneString = null!;
-
-    private static StringBuilderType lastRetrievedStringBuilderType = StringBuilderType.CharArrayStringBuilder;
-
-    public static void AllDerivedShouldCallThisInClassInitialize(TestContext testContext)
-    {
-        if (Logger == null!)
-        {
-            FLogConfigExamples.SyncColoredTestConsoleExample.LoadExampleAsCurrentContext();
-
-            Logger = FLog.FLoggerForType.As<IVersatileFLogger>();
-        }
-        var bufferSize = 256;
-        recycler = new Recycler($"Base2SizingArrayPool({bufferSize})")
-                   .RegisterFactory(() => new RecyclingCharArray(bufferSize))
-                   .RegisterFactory(() => new RecyclingByteArray(bufferSize))
-                   .RegisterFactory(() => new MutableString(bufferSize));
-        theOneString = new TheOneString().ReInitialize(new CharArrayStringBuilder());
-
-        theOneString.Settings.NewLineStyle = "\n";
-    }
-
-
+    
     public static string GenerateScaffoldExpectationTestName(MethodInfo methodInfo, object[] data)
     {
         return $"{methodInfo.Name}_{(((IFormatExpectation)data[0]).ShortTestName)}_{((ScaffoldingPartEntry)data[1]).Name}";
     }
-
-    private IStringBuilder GetComparisonBuilder(IStringBuilder subjectOneStringWriteBuffer)
-    {
-        if (subjectOneStringWriteBuffer is CharArrayStringBuilder) { return recycler.Borrow<MutableString>(); }
-        return recycler.Borrow<CharArrayStringBuilder>();
-    }
-
-    private IStringBuilder SourceTheOnStringStringBuilder(StringBuilderType usingStringBuilder)
-    {
-        if (usingStringBuilder is StringBuilderType.Alternating)
-        {
-            if (lastRetrievedStringBuilderType is StringBuilderType.CharArrayStringBuilder)
-            {
-                lastRetrievedStringBuilderType = StringBuilderType.MutableString;
-                return recycler.Borrow<MutableString>();
-            }
-            lastRetrievedStringBuilderType = StringBuilderType.CharArrayStringBuilder;
-            return recycler.Borrow<CharArrayStringBuilder>();
-        }
-        if (usingStringBuilder is StringBuilderType.Both or StringBuilderType.MutableString)
-        {
-            lastRetrievedStringBuilderType = StringBuilderType.MutableString;
-            return recycler.Borrow<MutableString>();
-        }
-        lastRetrievedStringBuilderType = StringBuilderType.CharArrayStringBuilder;
-        return recycler.Borrow<CharArrayStringBuilder>();
-    }
-
-    public abstract string TestsCommonDescription { get; }
 
     public abstract StringStyle TestStyle { get; }
 
@@ -125,7 +66,7 @@ public abstract class CommonExpectationTestBase
 
         var sb = SourceTheOnStringStringBuilder(usingStringBuilder);
 
-        theOneString.ReInitialize(sb, TestStyle);
+        TheOneString.ReInitialize(sb, TestStyle);
 
         Logger.InfoAppend("To Debug Test past the following code into ")?
               .Append(GetType().Name).Append(".").Append(nameof(RunExecuteIndividualScaffoldExpectation)).AppendLine("\n")
@@ -137,26 +78,26 @@ public abstract class CommonExpectationTestBase
               .Append(", ")
               .Append(nameof(StringBuilderType))
               .Append(".")
-              .Append(lastRetrievedStringBuilderType)
+              .Append(LastRetrievedStringBuilderType)
               .FinalAppend(");");
 
         if (formatExpectation is IComplexFieldFormatExpectation complexFieldExpectation)
         {
             complexFieldExpectation.WhenValueExpectedOutput = BuildExpectedChildOutput;
         }
-        var stringBearer                = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall, theOneString.Settings);
-        var resultWithVisibleWhiteSpace = recycler.Borrow<CharArrayStringBuilder>();
-        stringBearer.RevealState(theOneString);
-        theOneString.WriteBuffer.CopyAndMakeWhiteSpaceVisible(resultWithVisibleWhiteSpace);
-        var buildExpectedWithVisibleWhiteSpace = recycler.Borrow<CharArrayStringBuilder>();
+        var stringBearer                = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall, TheOneString.Settings);
+        var resultWithVisibleWhiteSpace = Recycler.Borrow<CharArrayStringBuilder>();
+        stringBearer.RevealState(TheOneString);
+        TheOneString.WriteBuffer.CopyAndMakeWhiteSpaceVisible(resultWithVisibleWhiteSpace);
+        var buildExpectedWithVisibleWhiteSpace = Recycler.Borrow<CharArrayStringBuilder>();
         var buildExpectedOutput =
             BuildExpectedRootOutput
-                (recycler, theOneString, stringBearer.GetType().CachedCSharpNameNoConstraints()
+                (Recycler, TheOneString, stringBearer.GetType().CachedCSharpNameNoConstraints()
                , ((ISinglePropertyTestStringBearer)stringBearer).PropertyName
                , scaffoldingToCall.ScaffoldingFlags
                , formatExpectation);
         buildExpectedOutput.CopyAndMakeWhiteSpaceVisible(buildExpectedWithVisibleWhiteSpace);
-        if (!theOneString.WriteBuffer.SequenceMatches(buildExpectedOutput))
+        if (!TheOneString.WriteBuffer.SequenceMatches(buildExpectedOutput))
         {
             Logger.ErrorAppend("Result Did not match Expected - ")?.AppendLine()
                   .Append(resultWithVisibleWhiteSpace).AppendLine()
@@ -177,7 +118,7 @@ public abstract class CommonExpectationTestBase
         buildExpectedWithVisibleWhiteSpace.DecrementRefCount();
         if (usingStringBuilder == StringBuilderType.Both)
         {
-            var toCall = lastRetrievedStringBuilderType == StringBuilderType.MutableString
+            var toCall = LastRetrievedStringBuilderType == StringBuilderType.MutableString
                 ? StringBuilderType.CharArrayStringBuilder
                 : StringBuilderType.MutableString;
             ExecuteTestScaffoldingWithExpectation(formatExpectation, scaffoldingToCall, toCall);

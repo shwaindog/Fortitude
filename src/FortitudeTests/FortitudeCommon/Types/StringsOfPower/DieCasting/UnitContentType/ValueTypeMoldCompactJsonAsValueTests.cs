@@ -16,7 +16,7 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.UnitCon
 
 [NoMatchingProductionClass]
 [TestClass]
-public class ContentTypeMoldTestsCompactJsonAsValueTests : ContentTypeMoldCompactLogAsValueTests
+public class ContentTypeMoldTestsCompactJsonAsValueTests : ContentTypeMoldAsValueTests
 {
     public override StringStyle TestStyle => Compact | Json;
     
@@ -90,7 +90,7 @@ public class ContentTypeMoldTestsCompactJsonAsValueTests : ContentTypeMoldCompac
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(StringBearerTestData.AllStringBearerExpectations[49], ScaffoldingRegistry.AllScaffoldingTypes[1274]);
+        ExecuteIndividualScaffoldExpectation(EnumTestData.EnumExpectations[25], ScaffoldingRegistry.AllScaffoldingTypes[1264], StringBuilderType.MutableString);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName

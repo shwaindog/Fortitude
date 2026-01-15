@@ -11,7 +11,8 @@ public class ContentTypeMold<TContentMold> : TransitioningTypeMolder<TContentMol
 {
     public ContentTypeMold<TContentMold> InitializeContentTypeBuilder
     (
-        Type typeBeingBuilt
+        object instanceOrContainer
+      , Type typeBeingBuilt
       , ISecretStringOfPower master
       , MoldDieCastSettings typeSettings
       , string? typeName
@@ -20,7 +21,7 @@ public class ContentTypeMold<TContentMold> : TransitioningTypeMolder<TContentMol
       , int existingRefId
       , FormatFlags createFormatFlags)
     {
-        Initialize(typeBeingBuilt, master, typeSettings, typeName
+        Initialize(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
                  , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
 
         return this;
@@ -28,28 +29,51 @@ public class ContentTypeMold<TContentMold> : TransitioningTypeMolder<TContentMol
 
     protected ContentTypeDieCast<TContentMold> Msf => (ContentTypeDieCast<TContentMold>)MoldStateField!;
 
-    public override bool IsComplexType => Msf.ValueInComplexType;
+    public override bool IsComplexType => Msf.WriteAsComplex;
 
-    public override void Start()
+    public override void StartTypeOpening()
     {
         if (PortableState.AppenderSettings.SkipTypeParts.HasTypeStartFlag()) return;
-        AppendOpening();
+        AppendTypeOpeningToGraphFields();
     }
 
-    public override void AppendOpening()
+    public override void AppendTypeOpeningToGraphFields()
     {
+        var formatter = MoldStateField!.StyleFormatter;
         if (IsComplexType)
-            MoldStateField!.StyleFormatter.AppendComplexTypeOpening(MoldStateField);
+        {
+            formatter.StartComplexTypeOpening(MoldStateField);
+        }
         else
-            MoldStateField!.StyleFormatter.AppendValueTypeOpening(MoldStateField);
+        {
+            formatter.StartContentTypeOpening(MoldStateField);
+        }
+    }
+
+    public override void CompleteTypeOpeningToTypeFields()
+    {
+        var formatter = MoldStateField!.StyleFormatter;
+        if (IsComplexType)
+        {
+            formatter.FinishComplexTypeOpening(MoldStateField);
+        }
+        else
+        {
+            formatter.FinishContentTypeOpening(MoldStateField);
+        }
     }
 
     public override void AppendClosing()
     {
+        var formatter = MoldStateField!.StyleFormatter;
         if (IsComplexType)
-            MoldStateField!.StyleFormatter.AppendTypeClosing(MoldStateField);
+        {
+            formatter.AppendComplexTypeClosing(MoldStateField);
+        }
         else
-            MoldStateField!.StyleFormatter.AppendValueTypeClosing(MoldStateField);
+        {
+            formatter.AppendContentTypeClosing(MoldStateField);
+        }
     }
 
     public IScopeDelimitedStringBuilder StartDelimitedStringBuilder() => Msf.StartDelimitedStringBuilder();

@@ -1,6 +1,6 @@
 ﻿using FortitudeCommon.Extensions;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Scenarios.CompareToSystemTextJson.TypePermutation;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData;
 
 public class MySpanFormattableClass(string? data, bool sameAsToString = false) : ISpanFormattable
 {

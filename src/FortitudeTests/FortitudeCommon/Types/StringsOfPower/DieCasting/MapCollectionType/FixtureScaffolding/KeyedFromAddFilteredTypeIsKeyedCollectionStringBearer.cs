@@ -29,7 +29,9 @@ public class KeyedFromDictionaryKeyValueAddFilteredStringBearer<TKey, TValue, TK
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothFormatStrings
-              , KeyValuePredicate, ValueFormatString, KeyFormatString)
+              , KeyValuePredicate
+              , ValueFormatString
+              , KeyFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -52,7 +54,9 @@ public class KeyedFromArrayKeyValueAddFilteredStringBearer<TKey, TValue, TKFilte
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothFormatStrings
-              , KeyValuePredicate, ValueFormatString, KeyFormatString)
+              , KeyValuePredicate
+              , ValueFormatString
+              , KeyFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -75,7 +79,9 @@ public class KeyedFromListKeyValueAddFilteredStringBearer<TKey, TValue, TKFilter
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothFormatStrings
-              , KeyValuePredicate, ValueFormatString, KeyFormatString)
+              , KeyValuePredicate
+              , ValueFormatString
+              , KeyFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -98,7 +104,9 @@ public class KeyedFromEnumerableKeyValueAddFilteredStringBearer<TKey, TValue, TK
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothFormatStrings
-              , KeyValuePredicate, ValueFormatString, KeyFormatString)
+              , KeyValuePredicate
+              , ValueFormatString
+              , KeyFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -136,12 +144,14 @@ public class KeyedFromEnumeratorKeyValueAddFilteredStringBearer<TKey, TValue, TK
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothFormatStrings
-              , KeyValuePredicate, ValueFormatString, KeyFormatString)
+              , KeyValuePredicate
+              , ValueFormatString
+              , KeyFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsDictionary  | FilterPredicate | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer | SupportsKeyFormatString)]
+                | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
 public class KeyedFromDictionaryKeyValueRevealerAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase> :
     FilteredFormattedKeyValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     where TKey : TKFilterBase
@@ -160,12 +170,15 @@ public class KeyedFromDictionaryKeyValueRevealerAddFilteredStringBearer<TKey, TV
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryValueRevealerKeyFormatString
-              , KeyValuePredicate, ValueRevealer, KeyFormatString)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsDictionary  | FilterPredicate | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyFormatString)]
+                | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
 public class KeyedFromDictionaryKeyStructValueRevealerAddFilteredStringBearer<TKey, TValue, TKFilterBase> :
     FilteredFormattedKeyStructValueRevealerMoldScaffold<TKey, TValue, TKFilterBase>
     where TKey : TKFilterBase
@@ -183,12 +196,15 @@ public class KeyedFromDictionaryKeyStructValueRevealerAddFilteredStringBearer<TK
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryValueRevealerKeyFormatString
-              , KeyValuePredicate, ValueRevealer, KeyFormatString)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsArray  | FilterPredicate | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer | SupportsKeyFormatString)]
+                | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
 public class KeyedFromArrayKeyValueRevealerAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase> :
     FilteredFormattedKeyValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     where TKey : TKFilterBase
@@ -207,12 +223,15 @@ public class KeyedFromArrayKeyValueRevealerAddFilteredStringBearer<TKey, TValue,
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayValueRevealerKeyFormatString
-              , KeyValuePredicate, ValueRevealer, KeyFormatString)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsArray  | FilterPredicate | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyFormatString)]
+                | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
 public class KeyedFromArrayKeyStructValueRevealerAddFilteredStringBearer<TKey, TValue, TKFilterBase> :
     FilteredFormattedKeyStructValueRevealerMoldScaffold<TKey, TValue, TKFilterBase>
     where TKey : TKFilterBase
@@ -230,12 +249,15 @@ public class KeyedFromArrayKeyStructValueRevealerAddFilteredStringBearer<TKey, T
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayValueRevealerKeyFormatString
-              , KeyValuePredicate, ValueRevealer, KeyFormatString)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsList  | FilterPredicate | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer | SupportsKeyFormatString)]
+                | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
 public class KeyedFromListKeyValueRevealerAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     : FilteredFormattedKeyValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     where TKey : notnull, TKFilterBase
@@ -254,12 +276,15 @@ public class KeyedFromListKeyValueRevealerAddFilteredStringBearer<TKey, TValue, 
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredListValueRevealerKeyFormatString
-              , KeyValuePredicate, ValueRevealer, KeyFormatString)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsList  | FilterPredicate | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyFormatString)]
+                | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
 public class KeyedFromListKeyStructValueRevealerAddFilteredStringBearer<TKey, TValue, TKFilterBase>
     : FilteredFormattedKeyStructValueRevealerMoldScaffold<TKey, TValue, TKFilterBase>
     where TKey : notnull, TKFilterBase
@@ -277,12 +302,15 @@ public class KeyedFromListKeyStructValueRevealerAddFilteredStringBearer<TKey, TV
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredListValueRevealerKeyFormatString
-              , KeyValuePredicate, ValueRevealer, KeyFormatString)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsEnumerable  | FilterPredicate | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer | SupportsKeyFormatString)]
+                | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
 public class KeyedFromEnumerableKeyValueRevealerAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     : FilteredFormattedKeyValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     where TKey : notnull, TKFilterBase
@@ -301,12 +329,15 @@ public class KeyedFromEnumerableKeyValueRevealerAddFilteredStringBearer<TKey, TV
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableValueRevealerKeyFormatString
-              , KeyValuePredicate, ValueRevealer, KeyFormatString)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsEnumerable  | FilterPredicate | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyFormatString)]
+                | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
 public class KeyedFromEnumerableKeyStructValueRevealerAddFilteredStringBearer<TKey, TValue, TKFilterBase>
     : FilteredFormattedKeyStructValueRevealerMoldScaffold<TKey, TValue, TKFilterBase>
     where TKey : notnull, TKFilterBase
@@ -324,12 +355,15 @@ public class KeyedFromEnumerableKeyStructValueRevealerAddFilteredStringBearer<TK
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableValueRevealerKeyFormatString
-              , KeyValuePredicate, ValueRevealer, KeyFormatString)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsEnumerator  | FilterPredicate | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer | SupportsKeyFormatString)]
+                | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
 public class KeyedFromEnumeratorKeyValueRevealerAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     : FilteredFormattedKeyValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     where TKey : notnull, TKFilterBase
@@ -363,12 +397,15 @@ public class KeyedFromEnumeratorKeyValueRevealerAddFilteredStringBearer<TKey, TV
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorValueRevealerKeyFormatString
-              , KeyValuePredicate, ValueRevealer, KeyFormatString)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsEnumerator  | FilterPredicate | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyFormatString)]
+                | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
 public class KeyedFromEnumeratorKeyStructValueRevealerAddFilteredStringBearer<TKey, TValue, TKFilterBase>
     : FilteredFormattedKeyStructValueRevealerMoldScaffold<TKey, TValue, TKFilterBase>
     where TKey : notnull, TKFilterBase
@@ -401,12 +438,15 @@ public class KeyedFromEnumeratorKeyStructValueRevealerAddFilteredStringBearer<TK
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorValueRevealerKeyFormatString
-              , KeyValuePredicate, ValueRevealer, KeyFormatString)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsDictionary  | FilterPredicate | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class KeyedFromDictionaryKeyRevealerValueRevealerAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     : FilteredKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     where TKey : TKFilterBase, TKRevealBase
@@ -426,12 +466,15 @@ public class KeyedFromDictionaryKeyRevealerValueRevealerAddFilteredStringBearer<
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothRevealers
-              , KeyValuePredicate, ValueRevealer, KeyRevealer)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsDictionary  | FilterPredicate | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class KeyedFromDictionaryKeyRevealerStructValueRevealerAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase>
     : FilteredKeyRevealerStructValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TKRevealBase>
     where TKey : TKFilterBase, TKRevealBase
@@ -450,12 +493,15 @@ public class KeyedFromDictionaryKeyRevealerStructValueRevealerAddFilteredStringB
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothRevealers
-              , KeyValuePredicate, ValueRevealer, KeyRevealer)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsArray  | FilterPredicate | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class KeyedFromArrayKeyRevealerValueRevealerAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     : FilteredKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     where TKey : TKFilterBase, TKRevealBase
@@ -475,12 +521,15 @@ public class KeyedFromArrayKeyRevealerValueRevealerAddFilteredStringBearer<TKey,
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers
-              , KeyValuePredicate, ValueRevealer, KeyRevealer)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsArray  | FilterPredicate | AcceptsAnyExceptNullableStruct
-               | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer)]
+               | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class KeyedFromArrayStructKeyRevealerValueRevealerAddFilteredStringBearer<TKey, TValue, TVFilterBase, TVRevealBase>
     : FilteredStructKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TVFilterBase, TVRevealBase>
     where TKey : struct
@@ -499,12 +548,15 @@ public class KeyedFromArrayStructKeyRevealerValueRevealerAddFilteredStringBearer
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers
-              , KeyValuePredicate, ValueRevealer, KeyRevealer)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsArray  | FilterPredicate | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class KeyedFromArrayKeyRevealerStructValueRevealerAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase>
     : FilteredKeyRevealerStructValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TKRevealBase>
     where TKey : TKFilterBase, TKRevealBase
@@ -523,12 +575,15 @@ public class KeyedFromArrayKeyRevealerStructValueRevealerAddFilteredStringBearer
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers
-              , KeyValuePredicate, ValueRevealer, KeyRevealer)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsArray  | FilterPredicate | AcceptsNullableStruct
-               | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer)]
+               | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class KeyedFromArrayStructKeyRevealerStructValueRevealerAddFilteredStringBearer<TKey, TValue>
     : FilteredKeyRevealerStructValueRevealerMoldScaffold<TKey, TValue>
     where TKey : struct
@@ -546,12 +601,15 @@ public class KeyedFromArrayStructKeyRevealerStructValueRevealerAddFilteredString
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers
-              , KeyValuePredicate, ValueRevealer, KeyRevealer)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsList  | FilterPredicate | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class KeyedFromListKeyRevealerValueRevealerAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     : FilteredKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     where TKey : TKFilterBase, TKRevealBase
@@ -571,12 +629,15 @@ public class KeyedFromListKeyRevealerValueRevealerAddFilteredStringBearer<TKey, 
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers
-              , KeyValuePredicate, ValueRevealer, KeyRevealer)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsList  | FilterPredicate | AcceptsAnyExceptNullableStruct
-                | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer)]
+                | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class KeyedFromListStructKeyRevealerValueRevealerAddFilteredStringBearer<TKey, TValue, TVFilterBase, TVRevealBase>
     : FilteredStructKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TVFilterBase, TVRevealBase>
     where TKey : struct
@@ -595,12 +656,15 @@ public class KeyedFromListStructKeyRevealerValueRevealerAddFilteredStringBearer<
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers
-              , KeyValuePredicate, ValueRevealer, KeyRevealer)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsList  | FilterPredicate | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class KeyedFromListKeyRevealerStructValueRevealerAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase>
     : FilteredKeyRevealerStructValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TKRevealBase>
     where TKey : TKFilterBase, TKRevealBase
@@ -619,12 +683,15 @@ public class KeyedFromListKeyRevealerStructValueRevealerAddFilteredStringBearer<
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers
-              , KeyValuePredicate, ValueRevealer, KeyRevealer)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsList  | FilterPredicate | AcceptsNullableStruct
-               | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer)]
+               | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class KeyedFromListStructKeyRevealerStructValueRevealerAddFilteredStringBearer<TKey, TValue>
     : FilteredKeyRevealerStructValueRevealerMoldScaffold<TKey, TValue>
     where TKey : struct
@@ -642,12 +709,15 @@ public class KeyedFromListStructKeyRevealerStructValueRevealerAddFilteredStringB
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers
-              , KeyValuePredicate, ValueRevealer, KeyRevealer)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsEnumerable  | FilterPredicate | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class KeyedFromEnumerableKeyRevealerValueRevealerAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     : FilteredKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     where TKey : TKFilterBase, TKRevealBase
@@ -667,12 +737,15 @@ public class KeyedFromEnumerableKeyRevealerValueRevealerAddFilteredStringBearer<
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers
-              , KeyValuePredicate, ValueRevealer, KeyRevealer)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsEnumerable  | FilterPredicate | AcceptsAnyExceptNullableStruct
-                | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer)]
+                | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class KeyedFromEnumerableStructKeyRevealerValueRevealerAddFilteredStringBearer<TKey, TValue, TVFilterBase, TVRevealBase>
     : FilteredStructKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TVFilterBase, TVRevealBase>
     where TKey : struct
@@ -691,12 +764,15 @@ public class KeyedFromEnumerableStructKeyRevealerValueRevealerAddFilteredStringB
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers
-              , KeyValuePredicate, ValueRevealer, KeyRevealer)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsEnumerable  | FilterPredicate | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class KeyedFromEnumerableKeyRevealerStructValueRevealerAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase>
     : FilteredKeyRevealerStructValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TKRevealBase>
     where TKey : TKFilterBase, TKRevealBase
@@ -715,12 +791,15 @@ public class KeyedFromEnumerableKeyRevealerStructValueRevealerAddFilteredStringB
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers
-              , KeyValuePredicate, ValueRevealer, KeyRevealer)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsEnumerable  | FilterPredicate | AcceptsNullableStruct
-                | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer)]
+                | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class KeyedFromEnumerableStructKeyRevealerStructValueRevealerAddFilteredStringBearer<TKey, TValue>
     : FilteredKeyRevealerStructValueRevealerMoldScaffold<TKey, TValue>
     where TKey : struct
@@ -738,12 +817,15 @@ public class KeyedFromEnumerableStructKeyRevealerStructValueRevealerAddFilteredS
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers
-              , KeyValuePredicate, ValueRevealer, KeyRevealer)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsEnumerator  | FilterPredicate | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class KeyedFromEnumeratorKeyRevealerValueRevealerAddFilteredStringBearer<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     : FilteredKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
     where TKey : TKFilterBase, TKRevealBase
@@ -778,12 +860,15 @@ public class KeyedFromEnumeratorKeyRevealerValueRevealerAddFilteredStringBearer<
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers
-              , KeyValuePredicate, ValueRevealer, KeyRevealer)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsEnumerator  | FilterPredicate | AcceptsAnyExceptNullableStruct
-               | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer)]
+               | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class KeyedFromEnumeratorStructKeyRevealerValueRevealerAddFilteredStringBearer<TKey, TValue, TVFilterBase, TVRevealBase>
     : FilteredStructKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TVFilterBase, TVRevealBase>
     where TKey : struct
@@ -817,12 +902,15 @@ public class KeyedFromEnumeratorStructKeyRevealerValueRevealerAddFilteredStringB
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers
-              , KeyValuePredicate, ValueRevealer, KeyRevealer)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsEnumerator  | FilterPredicate | AcceptsNullableStruct
-                | SupportsValueRevealer | SupportsKeyRevealer)]
+                | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class KeyedFromEnumeratorKeyRevealerStructValueRevealerAddFilteredStringBearer<TKey, TValue, TKFilterBase, TKRevealBase>
     : FilteredKeyRevealerStructValueRevealerMoldScaffold<TKey, TValue, TKFilterBase, TKRevealBase>
     where TKey : TKFilterBase, TKRevealBase
@@ -856,12 +944,15 @@ public class KeyedFromEnumeratorKeyRevealerStructValueRevealerAddFilteredStringB
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers
-              , KeyValuePredicate, ValueRevealer, KeyRevealer)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsKeyedCollectionType | KeyValueCardinality | AcceptsEnumerator  | FilterPredicate | AcceptsNullableStruct
-               | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer)]
+               | KeyNullableStruct | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
 public class KeyedFromEnumeratorStructKeyRevealerStructValueRevealerAddFilteredStringBearer<TKey, TValue>
     : FilteredKeyRevealerStructValueRevealerMoldScaffold<TKey, TValue>
     where TKey : struct
@@ -894,6 +985,9 @@ public class KeyedFromEnumeratorStructKeyRevealerStructValueRevealerAddFilteredS
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers
-              , KeyValuePredicate, ValueRevealer, KeyRevealer)
+              , KeyValuePredicate
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
            .Complete();
 }
