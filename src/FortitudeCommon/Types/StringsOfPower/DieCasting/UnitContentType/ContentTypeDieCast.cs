@@ -27,6 +27,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     private void FinishUsingStringBuilder(IScopeDelimitedStringBuilder finishedBuilding)
     {
         if (Style.IsJson()) finishedBuilding.Append(DblQt);
+        StyleFormatter.GraphBuilder.MarkContentEnd();
     }
 
     private Action<IScopeDelimitedStringBuilder>? OnFinishedWithStringBuilder { get; set; }
@@ -35,6 +36,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
 
     public IScopeDelimitedStringBuilder StartDelimitedStringBuilder()
     {
+        StyleFormatter.GraphBuilder.StartNextContentSeparatorPaddingSequence(Sb, DefaultCallerTypeFlags, true);
         if (Style.IsJson()) Sb.Append(DblQt);
         var scopedSb = (IScopeDelimitedStringBuilder)Sb;
         scopedSb.OnScopeEndedAction = OnFinishedWithStringBuilder;

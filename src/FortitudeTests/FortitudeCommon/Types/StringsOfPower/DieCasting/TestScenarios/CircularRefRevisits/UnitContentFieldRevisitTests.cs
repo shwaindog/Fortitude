@@ -9,6 +9,7 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CircularRefRevisits;
 
+[NoMatchingProductionClass]
 [TestClass]
 public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
 {
