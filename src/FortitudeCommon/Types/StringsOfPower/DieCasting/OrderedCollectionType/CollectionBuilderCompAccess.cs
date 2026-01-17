@@ -9,17 +9,21 @@ public class CollectionBuilderCompAccess<TOCMold> : TypeMolderDieCast<TOCMold> w
 {
 
     public CollectionBuilderCompAccess<TOCMold> InitializeOrderCollectionComponentAccess
-        (TOCMold externalTypeBuilder, TypeMolder.MoldPortableState typeBuilderPortableState, bool isComplex)
+        (TOCMold externalTypeBuilder, TypeMolder.MoldPortableState typeBuilderPortableState, WriteMethodType writeMethod)
     {
-        var shouldBeComplex = typeBuilderPortableState.ExistingRefId > 0 || isComplex && typeBuilderPortableState.Master.Style.IsLog();
-        Initialize(externalTypeBuilder, typeBuilderPortableState, shouldBeComplex);
+        writeMethod = typeBuilderPortableState.ExistingRefId > 0 
+                   || writeMethod.SupportsMultipleFields() && typeBuilderPortableState.Master.Style.IsLog()
+                      ? writeMethod
+                      : writeMethod.ToNoFieldEquivalent();
+        
+        Initialize(externalTypeBuilder, typeBuilderPortableState, writeMethod);
         
         return this;
     }
     
     public void ConditionalCollectionPrefix(Type elementType, bool? hasAny)
     {
-        if (WriteAsComplex)
+        if (SupportsMultipleFields)
         {
             StyleFormatter.AppendFieldName( Sb, "$values");
             StyleFormatter.AppendFieldValueSeparator();
@@ -34,7 +38,7 @@ public class CollectionBuilderCompAccess<TOCMold> : TypeMolderDieCast<TOCMold> w
         {
             ocMold.ResultCount = count ?? 0;
         }
-        if (WriteAsComplex)
+        if (SupportsMultipleFields)
         {
             if (!count.HasValue)
             {

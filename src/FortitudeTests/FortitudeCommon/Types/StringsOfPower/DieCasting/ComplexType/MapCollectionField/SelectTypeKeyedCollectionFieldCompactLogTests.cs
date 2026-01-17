@@ -79,14 +79,14 @@ public class SelectTypeKeyedCollectionFieldCompactLogTests : SelectTypeKeyedColl
         (IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
-    [TestMethod] 
+    // [TestMethod] 
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
         ExecuteIndividualScaffoldExpectation(BothRevealersDictTestData.AllBothRevealersUnfilteredDictExpectations[2], ScaffoldingRegistry.AllScaffoldingTypes[636]);
     }
 
-    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
         const string compactLogTemplate = "{0} {{{1}{2}{1}}}";
@@ -115,15 +115,15 @@ public class SelectTypeKeyedCollectionFieldCompactLogTests : SelectTypeKeyedColl
         }
         else { expectValue.Clear(); }
         var fmtExpect = sbFactory.Borrow<CharArrayStringBuilder>();
-        fmtExpect.AppendFormat(compactLogTemplate, className, maybePadding,  expectValue);
+        fmtExpect.AppendFormat(compactLogTemplate, className?.CachedCSharpNameNoConstraints() ?? "", maybePadding,  expectValue);
         expectValue.DecrementRefCount();
         return fmtExpect;
     }
     
-    protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
-        var compactLogTemplate = className.IsNotEmpty() ? "({0}){1}" : "{1}";
+        var compactLogTemplate = className != null ? "({0}){1}" : "{1}";
 
         var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
         if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))

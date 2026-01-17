@@ -180,16 +180,20 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     {
         var sb = moldInternal.Sb;
 
-        var alternativeName = moldInternal.TypeName;
-        var buildingType    = moldInternal.TypeBeingBuilt;
+        var alternativeName   = moldInternal.TypeName;
+        var buildingType      = moldInternal.TypeBeingBuilt;
+        var buildTypeFullName = buildingType.FullName ?? "";
 
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
-        if (!moldInternal.AppendSettings.SkipTypeParts.HasTypeNameFlag())
+        
+        if (moldInternal.AppendSettings.SkipTypeParts.HasTypeStartFlag()) return GraphBuilder.Complete(formatFlags);
+        if (!moldInternal.AppendSettings.SkipTypeParts.HasTypeNameFlag() &&
+            (formatFlags.DoesNotHaveLogSuppressTypeNamesFlag() &&
+            (formatFlags.HasAddTypeNameFieldFlag() ||
+             !StyleOptions.LogSuppressDisplayTypeNames.Any(s => buildTypeFullName.StartsWith(s)))))
         {
-            if (alternativeName != null)
-                sb.Append(alternativeName);
-            else
-                buildingType.AppendShortNameInCSharpFormat(sb);
+            if (alternativeName.IsNotNullOrEmpty()) { sb.Append(alternativeName); }
+            else { buildingType.AppendShortNameInCSharpFormat(sb); }
             sb.Append(Spc);
         }
         return GraphBuilder
@@ -483,7 +487,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
     public virtual int SizeFormatFieldName(int sourceLength, FormatFlags formatFlags = DefaultCallerTypeFlags) => sourceLength;
 
-    public virtual int InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, int refId, int indexToInsertAt, bool isComplex
+    public virtual int InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, int refId, int indexToInsertAt, WriteMethodType writeMethod
       , FormatFlags createTypeFlags, int currentEnd = -1, ITypeMolderDieCast? liveMoldInternal = null)
     {
         var sb              = insertBuilder.Sb;
@@ -494,22 +498,66 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var toRestore  = GraphBuilder;
         GraphBuilder = insertBuilder;
         
-        var insertSize = 0;
-        if (!isComplex)
+        var alreadySupportsMultipleFields = writeMethod.SupportsMultipleFields();
+        var needsBracesWrap               = false;
+        var prefixInsertSize                    = 0;
+        var suffixInsertSize                    = 0;
+        
+        // first entry spot maybe removed if empty so backtrack to open add one;
+        var isEmpty    = indexToInsertAt - SizeNextFieldPadding(createTypeFlags) + 1 == currentEnd;
+        if (!alreadySupportsMultipleFields)
         {
-            insertSize += 2;
+            needsBracesWrap = writeMethod == WriteMethodType.RawContent;
+            if (needsBracesWrap)
+            {
+                prefixInsertSize += 1; // Open Brace Only close in done later
+                GraphBuilder.IndentLevel++;
+                prefixInsertSize += SizeNextFieldPadding(createTypeFlags);
+                // insert $id added below
+                prefixInsertSize += SizeFieldSeparatorAndPadding(createTypeFlags);
+                prefixInsertSize += SizeFormatFieldName("$values".Length, createTypeFlags); 
+                prefixInsertSize += SizeFieldValueSeparator(createTypeFlags);
+            }
+            else
+            {
+                prefixInsertSize += 2;
+                isEmpty    =  true;
+            }
         }
-        insertSize += SizeFormatFieldName(3, createTypeFlags);
-        insertSize += SizeFieldValueSeparator(createTypeFlags);
-        insertSize += refDigitsCount; 
-        insertSize += isComplex ? SizeFieldSeparatorAndPadding(createTypeFlags) : 0;
-
-        insertBuilder.StartInsertAt(indexToInsertAt, insertSize);
+        else if (isEmpty)
+        {
+            indexToInsertAt -= SizeNextFieldPadding(createTypeFlags);
+            prefixInsertSize      += SizeNextFieldPadding(createTypeFlags);
+            GraphBuilder.IndentLevel--;
+            // after inserted
+            prefixInsertSize      += SizeNextFieldPadding(createTypeFlags);
+            GraphBuilder.IndentLevel++;
+        }
+        else
+        {
+            // after inserted
+            prefixInsertSize += SizeFieldSeparatorAndPadding(createTypeFlags);;
+        }
+        prefixInsertSize += SizeFormatFieldName("$id".Length, createTypeFlags);
+        prefixInsertSize += SizeFieldValueSeparator(createTypeFlags);
+        prefixInsertSize += refDigitsCount;
+        
+        insertBuilder.StartInsertAt(indexToInsertAt, prefixInsertSize);
         
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
-        if (!isComplex)
+        if (!alreadySupportsMultipleFields)
         {
-            GraphBuilder.AppendContent(RndBrktOpn);
+            if (needsBracesWrap)
+            {
+                GraphBuilder.AppendContent(BrcOpn);
+                AddNextFieldPadding(createTypeFlags);
+                
+            }
+            else { GraphBuilder.AppendContent(RndBrktOpn); }
+        }
+        else if (isEmpty)
+        {
+            AddNextFieldPadding(createTypeFlags);
         }
         GraphBuilder.AppendContent("$id");
         AppendFieldValueSeparator();
@@ -524,7 +572,28 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             Debugger.Break();
             GraphBuilder.AppendContent(refId.ToString());
         }
-        if (!isComplex) { GraphBuilder.AppendContent(RndBrktCls); }
+        if (!alreadySupportsMultipleFields)
+        {
+            if (needsBracesWrap)
+            {
+                AddToNextFieldSeparatorAndPadding(createTypeFlags);
+                GraphBuilder.AppendContent("$values");
+                AppendFieldValueSeparator();
+                GraphBuilder.IndentLevel--;
+                suffixInsertSize += SizeNextFieldPadding(createTypeFlags);
+                suffixInsertSize += 1; // close Brace
+        
+                insertBuilder.StartInsertAt(currentEnd + prefixInsertSize, suffixInsertSize);
+                AddNextFieldPadding(createTypeFlags);
+                GraphBuilder.AppendContent(BrcCls);
+            }
+            else { GraphBuilder.AppendContent(RndBrktCls);}
+        }
+        else if(isEmpty)
+        {
+            GraphBuilder.IndentLevel--;
+            AddNextFieldPadding(createTypeFlags);
+        }
         else
         {
             AddToNextFieldSeparatorAndPadding(createTypeFlags);
@@ -533,14 +602,15 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.Length - preAppendLength;
     }
 
-    public virtual int AppendExistingReferenceId(ITypeMolderDieCast moldInternal, int refId, bool isComplex, FormatFlags createTypeFlags)
+    public virtual int AppendExistingReferenceId(ITypeMolderDieCast moldInternal, int refId, WriteMethodType writeMethod, FormatFlags createTypeFlags)
     {
         var sb = moldInternal.Sb;
 
         var preAppendLength = sb.Length;
         
+        var alreadySupportsMultipleFields = writeMethod.SupportsMultipleFields(); 
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, createTypeFlags);
-        if (!isComplex)
+        if (!alreadySupportsMultipleFields)
         {
             GraphBuilder.AppendContent(RndBrktOpn);
         }
@@ -548,7 +618,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         AppendFieldValueSeparator();
         FormatFieldContents(sb, refId, "", createTypeFlags);
         
-        if (!isComplex) { GraphBuilder.AppendContent(RndBrktCls); }
+        if (!alreadySupportsMultipleFields) { GraphBuilder.AppendContent(RndBrktCls); }
         else { 
             moldInternal.IsEmpty = false;
             AddToNextFieldSeparatorAndPadding(createTypeFlags); 
@@ -557,13 +627,14 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     }
 
     public virtual int AppendInstanceInfoField(ITypeMolderDieCast moldInternal, string fieldName, ReadOnlySpan<char> description
-      , bool isComplex, FormatFlags createTypeFlags)
+      , WriteMethodType writeMethod, FormatFlags createTypeFlags)
     {
         if (createTypeFlags.HasNoRevisitCheck()) return 0; // fieldNames are marked with this and
         var sb = moldInternal.Sb;
         
-        var preAppendLength = sb.Length;
-        if (!isComplex)
+        var alreadySupportsMultipleFields = writeMethod.SupportsMultipleFields(); 
+        var preAppendLength               = sb.Length;
+        if (!alreadySupportsMultipleFields)
         {
             if (sb[^1] == RndBrktClsChar)
             {
@@ -580,7 +651,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         AppendFieldValueSeparator();
         FormatFieldContents(sb, description, 0,"\"{0}\"", formatFlags: createTypeFlags);
 
-        if (!isComplex)
+        if (!alreadySupportsMultipleFields)
         {
             GraphBuilder.StartAppendContentAndComplete(RndBrktCls, sb, DefaultCallerTypeFlags);
         }

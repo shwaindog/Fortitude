@@ -19,28 +19,24 @@ public class ContentTypeMold<TContentMold> : TransitioningTypeMolder<TContentMol
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
+      , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
         Initialize(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
-                 , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
+                 , remainingGraphDepth, typeFormatting, existingRefId, writeMethodType, createFormatFlags);
 
         return this;
     }
 
     protected ContentTypeDieCast<TContentMold> Msf => (ContentTypeDieCast<TContentMold>)MoldStateField!;
 
-    public override bool IsComplexType => Msf.WriteAsComplex;
+    public override bool IsComplexType => Msf.SupportsMultipleFields;
 
-    public override void StartTypeOpening()
-    {
-        if (PortableState.AppenderSettings.SkipTypeParts.HasTypeStartFlag()) return;
-        AppendTypeOpeningToGraphFields();
-    }
 
-    public override void AppendTypeOpeningToGraphFields()
+    public override void StartFormattingTypeOpening()
     {
         var formatter = MoldStateField!.StyleFormatter;
-        if (IsComplexType)
+        if (Msf.SupportsMultipleFields)
         {
             formatter.StartComplexTypeOpening(MoldStateField);
         }

@@ -20,10 +20,11 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
+      , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
         InitializeOrderedCollectionBuilder(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
-                                         , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
+                                         , remainingGraphDepth, typeFormatting, existingRefId, writeMethodType, createFormatFlags);
 
         return this;
     }
@@ -254,11 +255,11 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
 
     public StateExtractStringRange AppendCollectionComplete() => Complete();
 
-    protected override void SourceBuilderComponentAccess()
+    protected override void SourceBuilderComponentAccess(WriteMethodType writeMethod)
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
         MoldStateField = recycler.Borrow<CollectionBuilderCompAccess<ExplicitOrderedCollectionMold<TElement>>>()
-                             .InitializeOrderCollectionComponentAccess(this, PortableState, false);
+                             .InitializeOrderCollectionComponentAccess(this, PortableState, writeMethod);
     }
     
     protected override CollectionBuilderCompAccess<ExplicitOrderedCollectionMold<TElement>> CompAsOrderedCollection =>  

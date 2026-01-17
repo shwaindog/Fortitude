@@ -101,8 +101,8 @@ public class OneOffTimerUpdateTests
         Assert.AreEqual(2, borrowCallBackRunInfo.RefCount);
         Assert.AreEqual(false, borrowed.IsInRecycler);
         Assert.AreEqual(false, borrowCallBackRunInfo.IsInRecycler);
-        Assert.AreEqual(1, borrowed.DecrementRefCount());
-        Assert.AreEqual(1, borrowed.RefCount);
+        Assert.AreEqual(0, borrowed.DecrementRefCount());
+        Assert.AreEqual(1, borrowed.RefCount); // in recycler it is set back to 1.
         Assert.AreEqual(1, borrowCallBackRunInfo.RefCount);
         Assert.AreEqual(true, borrowed.IsInRecycler);
         Assert.AreEqual(true, borrowCallBackRunInfo.IsInRecycler);

@@ -2347,6 +2347,8 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
 
         public int DecrementRefCount() => ms.DecrementRefCount();
 
+        public int NonRecyclingDecrementRefCount() => ms.NonRecyclingDecrementRefCount();
+
         public bool EquivalentTo(string other) => ms.EquivalentTo(other);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

@@ -85,7 +85,7 @@ public class SelectTypeFieldCompactJsonTests : SelectTypeFieldTests
     public void CompactJsonNullStringBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
-    [TestMethod]
+    // [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
@@ -93,7 +93,7 @@ public class SelectTypeFieldCompactJsonTests : SelectTypeFieldTests
                                            , StringBuilderType.MutableString);
     }
 
-    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
         const string compactJsonTemplate = "{{{0}}}";

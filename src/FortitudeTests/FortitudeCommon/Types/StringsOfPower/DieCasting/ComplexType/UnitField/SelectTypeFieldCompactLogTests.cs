@@ -94,17 +94,20 @@ public class SelectTypeFieldCompactLogTests : SelectTypeFieldTests
     public void CompactLogNullStringBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
-    [TestMethod]
+    // [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
         ExecuteIndividualScaffoldExpectation(StringBuilderTestData.AllStringBuilderExpectations[16], ScaffoldingRegistry.AllScaffoldingTypes[889]);
     }
 
-    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
-        const string compactLogTemplate = "{0} {{{1}{2}{1}}}";
+        var compactLogTemplate = 
+            IsLogIgnoredTypeName(tos.Settings, className)
+                ? "{{{1}{2}{1}}}"
+                : "{0} {{{1}{2}{1}}}";
 
         var maybePadding = "";
         var expectValue  = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
@@ -118,7 +121,7 @@ public class SelectTypeFieldCompactLogTests : SelectTypeFieldTests
         }
         else { expectValue.Clear(); }
         var fmtExpect = sbFactory.Borrow<CharArrayStringBuilder>();
-        fmtExpect.AppendFormat(compactLogTemplate, className, maybePadding, expectValue);
+        fmtExpect.AppendFormat(compactLogTemplate, className?.CachedCSharpNameNoConstraints() ?? "", maybePadding, expectValue);
         expectValue.DecrementRefCount();
         return fmtExpect;
     }

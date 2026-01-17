@@ -89,7 +89,7 @@ public class ContentTypeMoldTestsCompactJsonAsStringTests : ContentTypeMoldAsStr
     public void CompactJsonNullStringBearerAsString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)=> 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
     
-    [TestMethod]
+    // [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
@@ -97,7 +97,7 @@ public class ContentTypeMoldTestsCompactJsonAsStringTests : ContentTypeMoldAsStr
                                            , StringBuilderType.CharArrayStringBuilder);
     }
 
-    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
     {
         var compactJsonTemplate =
@@ -118,7 +118,7 @@ public class ContentTypeMoldTestsCompactJsonAsStringTests : ContentTypeMoldAsStr
         return fmtExpect;
     }
     
-    protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
         string compactJsonTemplate = 

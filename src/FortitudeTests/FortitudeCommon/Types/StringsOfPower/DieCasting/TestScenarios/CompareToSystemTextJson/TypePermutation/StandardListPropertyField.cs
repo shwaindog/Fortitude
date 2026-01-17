@@ -11,7 +11,7 @@ using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenari
 
 // ReSharper disable MemberCanBePrivate.Global
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Scenarios.CompareToSystemTextJson.TypePermutation;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CompareToSystemTextJson.TypePermutation;
 
 public class StandardListPropertyFieldClass : IStringBearer
 {

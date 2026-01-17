@@ -26,7 +26,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionType<bool>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -46,7 +46,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionTypeOfNullable<bool>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -68,7 +68,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionType<TFmt>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -90,7 +90,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionTypeOfNullable<TFmtStruct>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -114,7 +114,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionType<TCloaked>(collectionType, formatFlags).RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -136,7 +136,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionTypeOfNullable<TCloakedStruct>(collectionType, formatFlags).RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -158,7 +158,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).RevealFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionType<TBearer>(collectionType, formatFlags).RevealFiltered(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -179,7 +179,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).RevealFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionTypeOfNullable<TBearerStruct>(collectionType, formatFlags).RevealFiltered(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -199,7 +199,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionType<string>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -219,7 +219,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).AddFilteredNullable(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionType<string?>(collectionType, formatFlags).AddFilteredNullable(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -240,7 +240,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).AddFilteredCharSeq(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionType<TCharSeq>(collectionType, formatFlags).AddFilteredCharSeq(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -260,7 +260,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionType<StringBuilder>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -281,7 +281,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).AddFilteredNullable(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionType<StringBuilder?>(collectionType, formatFlags).AddFilteredNullable(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -303,7 +303,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).AddFilteredMatch(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionType<TAny>(collectionType, formatFlags).AddFilteredMatch(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -335,7 +335,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionType<bool>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -355,7 +355,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionTypeOfNullable<bool>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -377,7 +377,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionType<TFmt>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -399,7 +399,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionTypeOfNullable<TFmtStruct>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -423,7 +423,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionType<TCloaked>(collectionType, formatFlags).RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -446,7 +446,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionTypeOfNullable<TCloakedStruct>(collectionType, formatFlags).RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -467,7 +467,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).RevealFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionType<TBearer>(collectionType, formatFlags).RevealFiltered(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -489,7 +489,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).RevealFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionTypeOfNullable<TBearerStruct>(collectionType, formatFlags).RevealFiltered(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -509,7 +509,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionType<string>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -530,7 +530,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).AddFilteredNullable(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionType<string?>(collectionType, formatFlags).AddFilteredNullable(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -552,7 +552,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).AddFilteredCharSeq(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionType<TCharSeq>(collectionType, formatFlags).AddFilteredCharSeq(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -574,7 +574,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionType<StringBuilder>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -596,7 +596,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).AddFilteredNullable(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionType<StringBuilder?>(collectionType, formatFlags).AddFilteredNullable(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 
@@ -618,7 +618,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.AddGoToNext();
         }
 
-        stb.Master.StartExplicitCollectionType(value).AddFilteredMatch(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master.StartExplicitCollectionType<TAny>(collectionType, formatFlags).AddFilteredMatch(value, filterPredicate, formatString, formatFlags).Complete();
         return stb.AddGoToNext();
     }
 

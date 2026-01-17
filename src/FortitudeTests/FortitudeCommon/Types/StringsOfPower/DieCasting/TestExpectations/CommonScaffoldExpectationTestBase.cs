@@ -30,10 +30,10 @@ public abstract class CommonScaffoldExpectationTestBase : CommonExpectationBase
 
     public abstract StringStyle TestStyle { get; }
 
-    protected abstract IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
+    protected abstract IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation);
 
-    protected virtual IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
+    protected virtual IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, Type className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) =>
         BuildExpectedRootOutput(sbFactory, tos, className, propertyName, condition, expectation);
 
@@ -92,7 +92,7 @@ public abstract class CommonScaffoldExpectationTestBase : CommonExpectationBase
         var buildExpectedWithVisibleWhiteSpace = Recycler.Borrow<CharArrayStringBuilder>();
         var buildExpectedOutput =
             BuildExpectedRootOutput
-                (Recycler, TheOneString, stringBearer.GetType().CachedCSharpNameNoConstraints()
+                (Recycler, TheOneString, stringBearer.GetType()
                , ((ISinglePropertyTestStringBearer)stringBearer).PropertyName
                , scaffoldingToCall.ScaffoldingFlags
                , formatExpectation);

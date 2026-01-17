@@ -44,7 +44,7 @@ public class GraphTrackingBuilder : RecyclableObject
     {
         overWriteIndex    = insertAt;
         overWriteEndIndex = insertAt + insertShiftAmount;
-
+        sb.EnsureCapacity(insertShiftAmount);
         sb.ShiftRightAt(insertAt, insertShiftAmount);
 
         return this;
@@ -58,7 +58,7 @@ public class GraphTrackingBuilder : RecyclableObject
 
     public ContentSeparatorRanges SnapshotLastAppendSequence(FormatFlags formatFlags)
     {
-        var checkAnyRanges = CurrentSectionRanges.ToContentSeparatorFromEndRanges(IsInOverwriteMode ? overWriteIndex : sb.Length, formatFlags);
+        var checkAnyRanges = CurrentSectionRanges.ToContentSeparatorFromEndRanges(IsInModifyOverwriteMode ? overWriteIndex : sb.Length, formatFlags);
         if (checkAnyRanges.ContentRange != null || checkAnyRanges.SeparatorPaddingRange != null)
         {
             PenUltimateContentSeparatorPaddingRanges = LastContentSeparatorPaddingRanges;
@@ -69,7 +69,8 @@ public class GraphTrackingBuilder : RecyclableObject
         return LastContentSeparatorPaddingRanges;
     }
 
-    private bool IsInOverwriteMode => overWriteIndex >= 0 && overWriteIndex < overWriteEndIndex;
+    private bool IsInModifyOverwriteMode => overWriteIndex >= 0 && overWriteIndex < overWriteEndIndex;
+    private bool IsInMarkOverwriteMode => overWriteIndex >= 0 && overWriteIndex <= overWriteEndIndex;
 
     public ContentSeparatorRanges LastContentSeparatorPaddingRanges { get; set; }
 
@@ -89,6 +90,10 @@ public class GraphTrackingBuilder : RecyclableObject
 
     public override void StateReset()
     {
+        overWriteIndex       = -1;
+        overWriteEndIndex    = -1;
+        overWriteIndentLevel = -1;
+        overWriteIndentSize  = -1;
         if (graphEncoder is not PassThroughEncodingTransfer)
         {
             graphEncoder?.DecrementRefCount();
@@ -129,8 +134,8 @@ public class GraphTrackingBuilder : RecyclableObject
 
     private IStringBuilder sb = null!;
 
-    private IEncodingTransfer?    graphEncoder;
-    private IEncodingTransfer?    parentGraphEncoder;
+    private IEncodingTransfer? graphEncoder;
+    private IEncodingTransfer? parentGraphEncoder;
 
     public bool HasCommitContent => CurrentSectionRanges.HasContent;
 
@@ -172,13 +177,13 @@ public class GraphTrackingBuilder : RecyclableObject
 
     public GraphTrackingBuilder MarkContentStart(int atIndex = -1)
     {
-        currentSectionRanges.FromStartContentStart = IsInOverwriteMode ? overWriteIndex : atIndex < 0 ? sb.Length : atIndex;
+        currentSectionRanges.FromStartContentStart = IsInMarkOverwriteMode ? overWriteIndex : atIndex < 0 ? sb.Length : atIndex;
         return this;
     }
 
     public GraphTrackingBuilder MarkContentEnd(int atIndex = -1)
     {
-        currentSectionRanges.FromStartContentEnd = atIndex < 0 ? sb.Length : atIndex;
+        currentSectionRanges.FromStartContentEnd = IsInMarkOverwriteMode ? overWriteIndex : atIndex < 0 ? sb.Length : atIndex;
         return this;
     }
 
@@ -189,9 +194,10 @@ public class GraphTrackingBuilder : RecyclableObject
 
         ResetCurrent(formatFlags, allowEmptyContent);
         MarkContentStart();
-        if (IsInOverwriteMode)
+        if (IsInModifyOverwriteMode)
             overWriteIndex += ParentGraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
-        else ParentGraphEncoder.AppendTransfer(content, sb);
+        else
+            ParentGraphEncoder.AppendTransfer(content, sb);
         return MarkContentEnd();
     }
 
@@ -202,10 +208,11 @@ public class GraphTrackingBuilder : RecyclableObject
 
         ResetCurrent(formatFlags, allowEmptyContent);
         MarkContentStart();
-        
-        if (IsInOverwriteMode)
+
+        if (IsInModifyOverwriteMode)
             overWriteIndex += GraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
-        else GraphEncoder.AppendTransfer(content, sb);
+        else
+            GraphEncoder.AppendTransfer(content, sb);
         return MarkContentEnd();
     }
 
@@ -220,47 +227,51 @@ public class GraphTrackingBuilder : RecyclableObject
 
         ResetCurrent(formatFlags, allowEmptyContent);
         MarkContentStart();
-        
-        if (IsInOverwriteMode)
+
+        if (IsInModifyOverwriteMode)
             overWriteIndex += GraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
-        else GraphEncoder.AppendTransfer(content, sb);
+        else
+            GraphEncoder.AppendTransfer(content, sb);
         return MarkContentEnd();
     }
 
     public GraphTrackingBuilder AppendContent(ReadOnlySpan<char> content)
     {
-        
-        if (IsInOverwriteMode)
+        if (IsInModifyOverwriteMode)
             overWriteIndex += GraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
-        else GraphEncoder.AppendTransfer(content, sb);
+        else
+            GraphEncoder.AppendTransfer(content, sb);
         return MarkContentEnd();
     }
 
     public GraphTrackingBuilder AppendDelimiter(ReadOnlySpan<char> content)
     {
-        if (IsInOverwriteMode)
+        if (IsInModifyOverwriteMode)
             overWriteIndex += ParentGraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
-        else ParentGraphEncoder.AppendTransfer(content, sb);
+        else
+            ParentGraphEncoder.AppendTransfer(content, sb);
         return MarkContentEnd();
     }
 
     public GraphTrackingBuilder AppendContent(string content)
     {
         if (currentSectionRanges is { FromStartContentStart: null }) { MarkContentStart(); }
-        
-        if (IsInOverwriteMode)
+
+        if (IsInModifyOverwriteMode)
             overWriteIndex += GraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
-        else GraphEncoder.AppendTransfer(content, sb);
+        else
+            GraphEncoder.AppendTransfer(content, sb);
         return MarkContentEnd();
     }
 
     public GraphTrackingBuilder AppendParentContent(string content)
     {
         if (currentSectionRanges is { FromStartContentStart: null }) { MarkContentStart(); }
-        
-        if (IsInOverwriteMode)
+
+        if (IsInModifyOverwriteMode)
             overWriteIndex += ParentGraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
-        else ParentGraphEncoder.AppendTransfer(content, sb);
+        else
+            ParentGraphEncoder.AppendTransfer(content, sb);
         return MarkContentEnd();
     }
 
@@ -271,9 +282,10 @@ public class GraphTrackingBuilder : RecyclableObject
         {
             Span<char> chars = stackalloc char[repeatTimes];
             chars.OverWriteRepatAt(0, toRepeat, repeatTimes);
-            if (IsInOverwriteMode)
+            if (IsInModifyOverwriteMode)
                 overWriteIndex += GraphEncoder.OverwriteTransfer(chars, sb, overWriteIndex);
-            else GraphEncoder.AppendTransfer(chars, sb);
+            else
+                GraphEncoder.AppendTransfer(chars, sb);
         }
         return MarkContentEnd();
     }
@@ -297,10 +309,11 @@ public class GraphTrackingBuilder : RecyclableObject
             MarkSeparatorEnd();
         }
         else if (currentSectionRanges is { FromStartSeparatorEnd: null }) { MarkSeparatorEnd(); }
-        
-        if (IsInOverwriteMode)
+
+        if (IsInModifyOverwriteMode)
             overWriteIndex += GraphEncoder.OverwriteTransfer(padding, sb, overWriteIndex);
-        else GraphEncoder.AppendTransfer(padding, sb);
+        else
+            GraphEncoder.AppendTransfer(padding, sb);
         return TagPaddingEnd();
     }
 
@@ -316,9 +329,10 @@ public class GraphTrackingBuilder : RecyclableObject
         {
             Span<char> chars = stackalloc char[repeatTimes];
             chars.OverWriteRepatAt(0, toRepeat, repeatTimes);
-            if (IsInOverwriteMode)
+            if (IsInModifyOverwriteMode)
                 overWriteIndex += GraphEncoder.OverwriteTransfer(chars, sb, overWriteIndex);
-            else GraphEncoder.AppendTransfer(chars, sb);
+            else
+                GraphEncoder.AppendTransfer(chars, sb);
         }
         return TagPaddingEnd();
     }
@@ -326,49 +340,50 @@ public class GraphTrackingBuilder : RecyclableObject
     public GraphTrackingBuilder AppendSeparator(string separator)
     {
         if (currentSectionRanges is { FromStartContentEnd: null }) { MarkContentEnd(); }
-        
-        if (IsInOverwriteMode)
+
+        if (IsInModifyOverwriteMode)
             overWriteIndex += GraphEncoder.OverwriteTransfer(separator, sb, overWriteIndex);
-        else GraphEncoder.AppendTransfer(separator, sb);
+        else
+            GraphEncoder.AppendTransfer(separator, sb);
         return MarkSeparatorEnd();
     }
 
     public ContentSeparatorRanges AppendPaddingAndComplete(string content, FormatFlags formatFlags)
     {
-        
-        if (IsInOverwriteMode)
+        if (IsInModifyOverwriteMode)
             overWriteIndex += GraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
-        else GraphEncoder.AppendTransfer(content, sb);
+        else
+            GraphEncoder.AppendTransfer(content, sb);
         return Complete(formatFlags);
     }
 
     public GraphTrackingBuilder MarkSeparatorEnd()
     {
-        currentSectionRanges.FromStartSeparatorEnd = IsInOverwriteMode ? overWriteIndex : sb.Length;
+        currentSectionRanges.FromStartSeparatorEnd = IsInMarkOverwriteMode ? overWriteIndex : sb.Length;
         return this;
     }
 
     protected GraphTrackingBuilder TagPaddingEnd()
     {
-        currentSectionRanges.FromStartPaddingEnd = IsInOverwriteMode ? overWriteIndex : sb.Length;
+        currentSectionRanges.FromStartPaddingEnd = IsInMarkOverwriteMode ? overWriteIndex : sb.Length;
         return this;
     }
 
     public ContentSeparatorRanges ContentEndToRanges(FormatFlags formatFlags)
     {
-        currentSectionRanges.FromStartSeparatorEnd = IsInOverwriteMode ? overWriteIndex : sb.Length;
-        return currentSectionRanges.ToContentSeparatorFromEndRanges(IsInOverwriteMode ? overWriteIndex : sb.Length, formatFlags);
+        currentSectionRanges.FromStartSeparatorEnd = IsInMarkOverwriteMode ? overWriteIndex : sb.Length;
+        return currentSectionRanges.ToContentSeparatorFromEndRanges(IsInModifyOverwriteMode ? overWriteIndex : sb.Length, formatFlags);
     }
 
     public GraphTrackingBuilder MarkPaddingEnd(int atIndex = -1)
     {
-        currentSectionRanges.FromStartPaddingEnd = IsInOverwriteMode ? overWriteIndex : atIndex < 0 ? sb.Length : atIndex;
+        currentSectionRanges.FromStartPaddingEnd = IsInMarkOverwriteMode ? overWriteIndex : atIndex < 0 ? sb.Length : atIndex;
         return this;
     }
 
     public ContentSeparatorRanges Complete(FormatFlags formatFlags)
     {
-        currentSectionRanges.FromStartPaddingEnd = sb.Length;
+        currentSectionRanges.FromStartPaddingEnd = IsInMarkOverwriteMode ? overWriteIndex : sb.Length;
 
         return SnapshotLastAppendSequence(formatFlags);
     }
@@ -384,44 +399,40 @@ public class GraphTrackingBuilder : RecyclableObject
         {
             if (lastRange.ContentRange == null && penUltimateRange != null)
             {
-                sepPaddingLen =  penUltimateRange.Value.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
+                sepPaddingLen = penUltimateRange.Value.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
                 if (sepPaddingLen > 0)
                 {
-                    if (IsInOverwriteMode)
-                    {
-                        overWriteIndex -= sepPaddingLen;
-                    }
-                    else sb.Length -= sepPaddingLen;
+                    if (IsInModifyOverwriteMode) { overWriteIndex -= sepPaddingLen; }
+                    else
+                        sb.Length -= sepPaddingLen;
                 }
             }
             AddHighWaterMark();
-            return sb.Length > 0 
-                ? ( IsInOverwriteMode ? sb[overWriteIndex -1] : sb[^1]) : '\0';
+            return sb.Length > 0
+                ? (IsInModifyOverwriteMode ? sb[overWriteIndex - 1] : sb[^1])
+                : '\0';
         }
-        sepPaddingLen =  lastRange.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
+        sepPaddingLen = lastRange.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
         if (sepPaddingLen > 0)
         {
-            if (IsInOverwriteMode)
-            {
-                overWriteIndex -= sepPaddingLen;
-            }
-            else sb.Length -= sepPaddingLen;
+            if (IsInModifyOverwriteMode) { overWriteIndex -= sepPaddingLen; }
+            else
+                sb.Length -= sepPaddingLen;
         }
         if (lastRange.ContentRange == null && penUltimateRange != null)
         {
-            sepPaddingLen =  penUltimateRange.Value.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
+            sepPaddingLen = penUltimateRange.Value.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
             if (sepPaddingLen > 0)
             {
-                if (IsInOverwriteMode)
-                {
-                    overWriteIndex -= sepPaddingLen;
-                }
-                else sb.Length -= sepPaddingLen;
+                if (IsInModifyOverwriteMode) { overWriteIndex -= sepPaddingLen; }
+                else
+                    sb.Length -= sepPaddingLen;
             }
         }
         AddHighWaterMark();
-        return  sb.Length > 0 
-            ? ( IsInOverwriteMode ? sb[Math.Max(0, overWriteIndex -1)] : sb[^1]) : '\0';
+        return sb.Length > 0
+            ? (IsInModifyOverwriteMode ? sb[Math.Max(0, overWriteIndex - 1)] : sb[^1])
+            : '\0';
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -434,39 +445,33 @@ public class GraphTrackingBuilder : RecyclableObject
         {
             if (lastRange.ContentRange == null && penUltimateRange != null)
             {
-                sepPaddingLen =  lastRange.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
+                sepPaddingLen = lastRange.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
                 if (sepPaddingLen > 0)
                 {
-                    if (IsInOverwriteMode)
-                    {
-                        overWriteIndex -= sepPaddingLen;
-                    }
-                    else destIndex -= sepPaddingLen;
+                    if (IsInModifyOverwriteMode) { overWriteIndex -= sepPaddingLen; }
+                    else
+                        destIndex -= sepPaddingLen;
                 }
             }
-            return destIndex > 0 ? ( IsInOverwriteMode ? destSpan[Math.Max(0, overWriteIndex -1)] : destSpan[destIndex - 1]) : '\0';
+            return destIndex > 0 ? (IsInModifyOverwriteMode ? destSpan[Math.Max(0, overWriteIndex - 1)] : destSpan[destIndex - 1]) : '\0';
         }
-        sepPaddingLen =  lastRange.SeparatorPaddingRange?.Length(destIndex) ?? 0;
+        sepPaddingLen = lastRange.SeparatorPaddingRange?.Length(destIndex) ?? 0;
         if (sepPaddingLen > 0)
         {
-            if (IsInOverwriteMode)
-            {
-                overWriteIndex -= sepPaddingLen;
-            }
-            else destIndex -= sepPaddingLen;
+            if (IsInModifyOverwriteMode) { overWriteIndex -= sepPaddingLen; }
+            else
+                destIndex -= sepPaddingLen;
         }
         if (lastRange.ContentRange == null && penUltimateRange != null)
         {
-            sepPaddingLen =  lastRange.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
+            sepPaddingLen = lastRange.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
             if (sepPaddingLen > 0)
             {
-                if (IsInOverwriteMode)
-                {
-                    overWriteIndex -= sepPaddingLen;
-                }
-                else destIndex -= sepPaddingLen;
+                if (IsInModifyOverwriteMode) { overWriteIndex -= sepPaddingLen; }
+                else
+                    destIndex -= sepPaddingLen;
             }
         }
-        return destIndex > 0 ? ( IsInOverwriteMode ? destSpan[Math.Max(0, overWriteIndex -1)] : destSpan[destIndex - 1]) : '\0';
+        return destIndex > 0 ? (IsInModifyOverwriteMode ? destSpan[Math.Max(0, overWriteIndex - 1)] : destSpan[destIndex - 1]) : '\0';
     }
 }

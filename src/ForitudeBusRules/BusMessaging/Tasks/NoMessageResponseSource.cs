@@ -46,6 +46,8 @@ public class NoMessageResponseSource : IAsyncResponseSource
 
     public int DecrementRefCount() => 0;
 
+    public int NonRecyclingDecrementRefCount() => 0;
+
     public int IncrementRefCount() => 0;
 
     public bool Recycle() => false;

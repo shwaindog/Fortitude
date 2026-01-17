@@ -61,7 +61,7 @@ public class StringBearerExpect<TInput, TDefault> : FieldExpect<TInput, TDefault
         if (!expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue) && Input != null)
         {
             expectValue = WhenValueExpectedOutput
-                (sbFactory, tos, (Input?.GetType() ?? typeof(TInput)).CachedCSharpNameNoConstraints(), ((ISinglePropertyTestStringBearer)Input!).PropertyName, condition
+                (sbFactory, tos, (Input?.GetType() ?? typeof(TInput)), ((ISinglePropertyTestStringBearer)Input!).PropertyName, condition
                , FieldValueExpectation);
         }
         return expectValue;

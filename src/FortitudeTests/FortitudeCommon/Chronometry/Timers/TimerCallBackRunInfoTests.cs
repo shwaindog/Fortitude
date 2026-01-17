@@ -97,8 +97,8 @@ public class TimerCallBackRunInfoTests
         var borrowedTimerCallbackRunInfo = recycler.Borrow<ConcreteTimerCallbackRunInfo>();
         Assert.AreEqual(1, borrowedTimerCallbackRunInfo.RefCount);
         Assert.AreEqual(false, borrowedTimerCallbackRunInfo.IsInRecycler);
-        Assert.AreEqual(1, borrowedTimerCallbackRunInfo.DecrementRefCount());
-        Assert.AreEqual(1, borrowedTimerCallbackRunInfo.RefCount);
+        Assert.AreEqual(0, borrowedTimerCallbackRunInfo.DecrementRefCount());
+        Assert.AreEqual(1, borrowedTimerCallbackRunInfo.RefCount); // in the recycler it is set back to 1
         Assert.AreEqual(true, borrowedTimerCallbackRunInfo.IsInRecycler);
     }
 

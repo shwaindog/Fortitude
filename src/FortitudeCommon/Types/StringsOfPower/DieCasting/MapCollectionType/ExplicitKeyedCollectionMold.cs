@@ -23,10 +23,11 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
+      , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
         InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName, remainingGraphDepth
-                                      , typeFormatting, existingRefId, createFormatFlags);
+                                      , typeFormatting, existingRefId, writeMethodType, createFormatFlags);
 
         stb = MoldStateField;
 
@@ -35,7 +36,7 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
 
     public override bool IsComplexType => true;
 
-    public override void AppendTypeOpeningToGraphFields()
+    public override void StartFormattingTypeOpening()
     {
         var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!;
         var typeFormattingFlags = stb.AppendSettings.SkipTypeParts.ToFormattingFlags();

@@ -96,7 +96,7 @@ public class SelectTypeCollectionFieldCompactJsonTests : SelectTypeCollectionFie
     public void FilteredCompactJsonStringBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
     
-    [TestMethod]
+    // [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
@@ -104,7 +104,7 @@ public class SelectTypeCollectionFieldCompactJsonTests : SelectTypeCollectionFie
                                            , StringBuilderType.MutableString);
     }
 
-    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory,  ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory,  ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
         const string compactLogTemplate = "{{{0}}}";
@@ -125,7 +125,7 @@ public class SelectTypeCollectionFieldCompactJsonTests : SelectTypeCollectionFie
         return fmtSb;
     }
     
-    protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
         var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);

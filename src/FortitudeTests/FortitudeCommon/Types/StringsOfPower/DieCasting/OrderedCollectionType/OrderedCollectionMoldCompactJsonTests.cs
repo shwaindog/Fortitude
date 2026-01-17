@@ -97,14 +97,15 @@ public class OrderedCollectionMoldCompactJsonTests : OrderedCollectionMoldTests
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     
-    [TestMethod]
+    // [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(BoolCollectionsTestData.AllBoolCollectionExpectations[3], ScaffoldingRegistry.AllScaffoldingTypes[1014], StringBuilderType.CharArrayStringBuilder);
+        ExecuteIndividualScaffoldExpectation(BoolCollectionsTestData.AllBoolCollectionExpectations[2], ScaffoldingRegistry.AllScaffoldingTypes[1020]
+                                           , StringBuilderType.MutableString);
     }
 
-    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
         var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
@@ -115,7 +116,7 @@ public class OrderedCollectionMoldCompactJsonTests : OrderedCollectionMoldTests
         return expectValue;
     }
     
-    protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
         var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);

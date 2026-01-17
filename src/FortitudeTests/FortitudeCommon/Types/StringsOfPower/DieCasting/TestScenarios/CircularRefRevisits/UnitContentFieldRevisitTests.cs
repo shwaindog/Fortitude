@@ -1,8 +1,11 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Net;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CircularRefRevisits.FixtureScaffolding;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData.TestTree;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations.ScaffoldingStringBuilderInvokeFlags;
@@ -13,13 +16,11 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestSce
 [TestClass]
 public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
 {
-    private static InputBearerExpect<OrderedBranchNode<IChildNode>>? selfReferencingExpect;
-    private static InputBearerExpect<OrderedBranchNode<IChildNode>>? dualReferencingPairExpect;
-    private static InputBearerExpect<BinaryBranchNode<LeafNode>>?    secondFieldSameExpect;
-    private static InputBearerExpect<OrderedBranchNode<LeafNode>>?   allThreeFieldsSameExpect;
-    
+    private static InputBearerExpect<TwoSpanFormattableFields<IPAddress>>? twoSameIpAddressFieldsDefaultRevisitSettingsExpect;
+    private static InputBearerExpect<TwoSpanFormattableFields<IPAddress>>? twoIpAddressShowSpanFormattableClassInstanceIdsFieldsExpect;
+
     [ClassInitialize]
-    public static void EnsureBaseClassInitialized(TestContext testContext) => 
+    public static void EnsureBaseClassInitialized(TestContext testContext) =>
         AllDerivedShouldCallThisInClassInitialize(testContext);
 
     public override string TestsCommonDescription => "Unit field revisits";
@@ -30,157 +31,30 @@ public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
         Node.ResetInstanceIds();
     }
 
-    public static OrderedBranchNode<IChildNode> SelfReferencing
+    public static TwoSpanFormattableFields<IPAddress> TwoIpAddressFields
     {
         get
         {
-            var selfReferencing        = new OrderedBranchNode<IChildNode>();
-            selfReferencing.Parent = selfReferencing;
-            return selfReferencing;
+            var loopbackAddress        = IPAddress.Loopback;
+            var twoSameIpAddressFields = new TwoSpanFormattableFields<IPAddress>(loopbackAddress, loopbackAddress);
+            return twoSameIpAddressFields;
         }
     }
 
-    public static InputBearerExpect<OrderedBranchNode<IChildNode>> SelfReferencingExpect
+    public static InputBearerExpect<TwoSpanFormattableFields<IPAddress>> TwoIpAddressFieldsWithDefaultRevisitSettingsExpect
     {
         get
         {
-            return selfReferencingExpect ??=
-                new InputBearerExpect<OrderedBranchNode<IChildNode>>(SelfReferencing)
-                {
-                    { new EK( AlwaysWrites | AcceptsStringBearer, CompactLog)
-                      , """
-                        OrderedBranchNode<IChildNode> 
-                        {
-                         $id: 1,
-                         BranchInstanceId: 1,
-                         Name: "OrderedBranchNode`1_1",
-                         GlobalNodeInstanceId: 1,
-                         NodeType: NodeType.BranchNode,
-                         DepthToRoot: -2147483647,
-                         ChildNodes: null,
-                         Parent: OrderedBranchNode<IChildNode>
-                         {
-                         $ref: 1
-                         }
-                         }
-                        """.RemoveLineEndings()
-                    }
-                   , { new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
-                       , """
-                         OrderedBranchNode<IChildNode> {
-                           $id: 1,
-                           BranchInstanceId: 1,
-                           Name: "OrderedBranchNode`1_1",
-                           GlobalNodeInstanceId: 1,
-                           NodeType: NodeType.BranchNode,
-                           DepthToRoot: -2147483647,
-                           ChildNodes: null,
-                           Parent: OrderedBranchNode<IChildNode> {
-                             $ref: 1
-                           }
-                         }
-                         """.Dos2Unix()
-                    }
-                   , { new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
-                      , """ 
-                        {
-                        "$id":"1",
-                        "BranchInstanceId":1,
-                        "Name":"OrderedBranchNode`1_1",
-                        "GlobalNodeInstanceId":1,
-                        "NodeType":"BranchNode",
-                        "DepthToRoot":-2147483647,
-                        "ChildNodes":null,
-                        "Parent":{
-                        "$ref":"1"
-                        }
-                        }
-                        """.RemoveLineEndings()
-                    }
-                   , { new EK(AlwaysWrites | AcceptsStringBearer, PrettyJson)
-                       , """ 
-                         {
-                           "$id": "1",
-                           "BranchInstanceId": 1,
-                           "Name": "OrderedBranchNode`1_1",
-                           "GlobalNodeInstanceId": 1,
-                           "NodeType": "BranchNode",
-                           "DepthToRoot": -2147483647,
-                           "ChildNodes": null,
-                           "Parent": {
-                             "$ref": "1"
-                           }
-                         }
-                         """.Dos2Unix()
-                    }
-                };
-        }
-    }
-
-    [TestMethod]
-    public void SelfReferencingTreeBranchClassCompactLogFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectation(SelfReferencingExpect, CompactLog);
-    }
-
-    [TestMethod]
-    public void SelfReferencingTreeBranchClassCompactJsonFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectation(SelfReferencingExpect, CompactJson);
-    }
-
-    [TestMethod]
-    public void SelfReferencingTreeBranchClassPrettyLogFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectation(SelfReferencingExpect, PrettyLog);
-    }
-
-    [TestMethod]
-    public void SelfReferencingTreeBranchClassPrettyJsonFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectation(SelfReferencingExpect, PrettyJson);
-    }
-    
-    public static OrderedBranchNode<IChildNode> DualReferencingPair
-    {
-        get
-        {
-            var child               = new OrderedBranchNode<IChildNode>();
-            var dualReferencingPair = new OrderedBranchNode<IChildNode>([child]);
-            return dualReferencingPair;
-        }
-    }
-
-    public static InputBearerExpect<OrderedBranchNode<IChildNode>> DualReferencingPairExpect
-    {
-        get
-        {
-            return dualReferencingPairExpect ??=
-                new InputBearerExpect<OrderedBranchNode<IChildNode>>(DualReferencingPair)
+            return twoSameIpAddressFieldsDefaultRevisitSettingsExpect ??=
+                new InputBearerExpect<TwoSpanFormattableFields<IPAddress>>(TwoIpAddressFields)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        OrderedBranchNode<IChildNode>
+                        TwoSpanFormattableFields<IPAddress>
                          {
-                         $id: 1,
-                         BranchInstanceId: 2,
-                         Name: "OrderedBranchNode`1_2",
-                         GlobalNodeInstanceId: 2,
-                         NodeType: NodeType.BranchNode,
-                         ChildNodes: (List<IChildNode>) [
-                         OrderedBranchNode<IChildNode> {
-                         BranchInstanceId: 1,
-                         Name: "OrderedBranchNode`1_1",
-                         GlobalNodeInstanceId: 1,
-                         NodeType: NodeType.BranchNode,
-                         DepthToRoot: 1,
-                         ChildNodes: null,
-                         Parent: OrderedBranchNode<IChildNode> {
-                         $ref: 1
-                         }
-                         }
-                         ]
+                         FirstSpanFormattableField: 127.0.0.1,
+                         SecondSpanFormattableField: 127.0.0.1
                          }
                         """.RemoveLineEndings()
                     }
@@ -188,79 +62,29 @@ public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        OrderedBranchNode<IChildNode> {
-                          $id: 1,
-                          BranchInstanceId: 2,
-                          Name: "OrderedBranchNode`1_2",
-                          GlobalNodeInstanceId: 2,
-                          NodeType: NodeType.BranchNode,
-                          ChildNodes: (List<IChildNode>) [
-                            OrderedBranchNode<IChildNode> {
-                              BranchInstanceId: 1,
-                              Name: "OrderedBranchNode`1_1",
-                              GlobalNodeInstanceId: 1,
-                              NodeType: NodeType.BranchNode,
-                              DepthToRoot: 1,
-                              ChildNodes: null,
-                              Parent: OrderedBranchNode<IChildNode> {
-                                $ref: 1
-                              }
-                            }
-                          ]
+                        TwoSpanFormattableFields<IPAddress> {
+                          FirstSpanFormattableField: 127.0.0.1,
+                          SecondSpanFormattableField: 127.0.0.1
                         }
                         """.Dos2Unix()
                     }
                    ,
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
-                      , """
+                      , """ 
                         {
-                        "$id":"1",
-                        "BranchInstanceId":2,
-                        "Name":"OrderedBranchNode`1_2",
-                        "GlobalNodeInstanceId":2,
-                        "NodeType":"BranchNode",
-                        "ChildNodes":
-                        [
-                        {
-                        "BranchInstanceId":1,
-                        "Name":"OrderedBranchNode`1_1",
-                        "GlobalNodeInstanceId":1,
-                        "NodeType":"BranchNode",
-                        "DepthToRoot":1,
-                        "ChildNodes":null,
-                        "Parent":
-                        {
-                        "$ref":"1"
-                        }
-                        }
-                        ]
+                        "FirstSpanFormattableField":"127.0.0.1",
+                        "SecondSpanFormattableField":"127.0.0.1"
                         }
                         """.RemoveLineEndings()
                     }
                    ,
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyJson)
-                      , """
+                      , """ 
                         {
-                          "$id": "1",
-                          "BranchInstanceId": 2,
-                          "Name": "OrderedBranchNode`1_2",
-                          "GlobalNodeInstanceId": 2,
-                          "NodeType": "BranchNode",
-                          "ChildNodes": [
-                            {
-                              "BranchInstanceId": 1,
-                              "Name": "OrderedBranchNode`1_1",
-                              "GlobalNodeInstanceId": 1,
-                              "NodeType": "BranchNode",
-                              "DepthToRoot": 1,
-                              "ChildNodes": null,
-                              "Parent": {
-                                "$ref": "1"
-                              }
-                            }
-                          ]
+                          "FirstSpanFormattableField": "127.0.0.1",
+                          "SecondSpanFormattableField": "127.0.0.1"
                         }
                         """.Dos2Unix()
                     }
@@ -269,65 +93,47 @@ public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
     }
 
     [TestMethod]
-    public void DualReferencingPairTreeBranchClassCompactLogFormatTest()
+    public void TwoIpAddressFieldsWithDefaultRevisitSettingsCompactLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(DualReferencingPairExpect, CompactLog);
+        ExecuteIndividualScaffoldExpectation(TwoIpAddressFieldsWithDefaultRevisitSettingsExpect, CompactLog);
     }
 
     [TestMethod]
-    public void DualReferencingPairTreeBranchClassCompactJsonFormatTest()
+    public void TwoIpAddressFieldsWithDefaultRevisitSettingsCompactJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(DualReferencingPairExpect, CompactJson);
+        ExecuteIndividualScaffoldExpectation(TwoIpAddressFieldsWithDefaultRevisitSettingsExpect, CompactJson);
     }
 
     [TestMethod]
-    public void DualReferencingPairTreeBranchClassPrettyLogFormatTest()
+    public void TwoIpAddressFieldsWithDefaultRevisitSettingsPrettyLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(DualReferencingPairExpect, PrettyLog);
+        ExecuteIndividualScaffoldExpectation(TwoIpAddressFieldsWithDefaultRevisitSettingsExpect, PrettyLog);
     }
 
     [TestMethod]
-    public void DualReferencingPairTreeBranchClassPrettyJsonFormatTest()
+    public void TwoIpAddressFieldsWithDefaultRevisitSettingsPrettyJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(DualReferencingPairExpect, PrettyJson);
+        ExecuteIndividualScaffoldExpectation(TwoIpAddressFieldsWithDefaultRevisitSettingsExpect, PrettyJson);
     }
-    
-    
-    public static BinaryBranchNode<LeafNode> SecondFieldSame
+
+    public static InputBearerExpect<TwoSpanFormattableFields<IPAddress>> TwoIpAddressShowSpanFormattableClassInstanceIdsFieldsExpect
     {
         get
         {
-            var child           = new LeafNode("SameChild");
-            var secondFieldSame = new BinaryBranchNode<LeafNode>("SameOnLeftAndRight", child, child );
-            return secondFieldSame;
-        }
-    }
-
-    public static InputBearerExpect<BinaryBranchNode<LeafNode>> SecondFieldSameExpect
-    {
-        get
-        {
-            return secondFieldSameExpect ??=
-                new InputBearerExpect<BinaryBranchNode<LeafNode>>(SecondFieldSame)
+            return twoIpAddressShowSpanFormattableClassInstanceIdsFieldsExpect ??=
+                new InputBearerExpect<TwoSpanFormattableFields<IPAddress>>(TwoIpAddressFields)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        BinaryBranchNode<LeafNode>
+                        TwoSpanFormattableFields<IPAddress>
                          {
-                         Name: "SameOnLeftAndRight",
-                         GlobalNodeInstanceId: 2,
-                         NodeType: NodeType.BranchNode,
-                         Left: LeafNode
+                         FirstSpanFormattableField:
                          {
                          $id: 1,
-                         LeafInstanceId: 1,
-                         Name: "SameChild",
-                         GlobalNodeInstanceId: 1,
-                         NodeType: NodeType.LeafNode,
-                         DepthToRoot: 1
+                         $values: 127.0.0.1
                          },
-                         Right: LeafNode
+                         SecondSpanFormattableField:
                          {
                          $ref: 1
                          }
@@ -338,19 +144,12 @@ public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        BinaryBranchNode<LeafNode> {
-                          Name: "SameOnLeftAndRight",
-                          GlobalNodeInstanceId: 2,
-                          NodeType: NodeType.BranchNode,
-                          Left: LeafNode {
+                        TwoSpanFormattableFields<IPAddress> {
+                          FirstSpanFormattableField: {
                             $id: 1,
-                            LeafInstanceId: 1,
-                            Name: "SameChild",
-                            GlobalNodeInstanceId: 1,
-                            NodeType: NodeType.LeafNode,
-                            DepthToRoot: 1
+                            $values: 127.0.0.1
                           },
-                          Right: LeafNode {
+                          SecondSpanFormattableField: {
                             $ref: 1
                           }
                         }
@@ -361,19 +160,11 @@ public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
                       , """
                         {
-                        "Name":"SameOnLeftAndRight",
-                        "GlobalNodeInstanceId":2,
-                        "NodeType":"BranchNode",
-                        "Left":
-                        {
+                        "FirstSpanFormattableField":{
                         "$id":"1",
-                        "LeafInstanceId":1,
-                        "Name":"SameChild",
-                        "GlobalNodeInstanceId":1,
-                        "NodeType":"LeafNode",
-                        "DepthToRoot":1
+                        "$values":"127.0.0.1"
                         },
-                        "Right":
+                        "SecondSpanFormattableField":
                         {
                         "$ref":"1"
                         }
@@ -383,20 +174,13 @@ public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
                    ,
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyJson)
-                      , """
+                      , """ 
                         {
-                          "Name": "SameOnLeftAndRight",
-                          "GlobalNodeInstanceId": 2,
-                          "NodeType": "BranchNode",
-                          "Left": {
+                          "FirstSpanFormattableField": {
                             "$id": "1",
-                            "LeafInstanceId": 1,
-                            "Name": "SameChild",
-                            "GlobalNodeInstanceId": 1,
-                            "NodeType": "LeafNode",
-                            "DepthToRoot": 1
+                            "$values": "127.0.0.1"
                           },
-                          "Right": {
+                          "SecondSpanFormattableField": {
                             "$ref": "1"
                           }
                         }
@@ -407,188 +191,46 @@ public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
     }
 
     [TestMethod]
-    public void SecondFieldSameTreeBranchClassCompactLogFormatTest()
+    public void TwoIpAddressFieldsWithShowSpanFormattableClassRevisitSettingsCompactLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(SecondFieldSameExpect, CompactLog);
+        ExecuteIndividualScaffoldExpectationWithOptions
+            (TwoIpAddressShowSpanFormattableClassInstanceIdsFieldsExpect
+           , new StyleOptions(CompactLog)
+             {
+                 MarkRevisitedSpanFormattableClassInstances = true
+             });
     }
 
     [TestMethod]
-    public void SecondFieldSameTreeBranchClassCompactJsonFormatTest()
+    public void TwoIpAddressFieldsWithShowSpanFormattableClassRevisitSettingsCompactJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(SecondFieldSameExpect, CompactJson);
+        ExecuteIndividualScaffoldExpectationWithOptions
+            (TwoIpAddressShowSpanFormattableClassInstanceIdsFieldsExpect
+           , new StyleOptions(CompactJson)
+             {
+                 MarkRevisitedSpanFormattableClassInstances = true
+             });
     }
 
     [TestMethod]
-    public void SecondFieldSameTreeBranchClassPrettyLogFormatTest()
+    public void TwoIpAddressFieldsWithShowSpanFormattableClassRevisitSettingsPrettyLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(SecondFieldSameExpect, PrettyLog);
+        ExecuteIndividualScaffoldExpectationWithOptions
+            (TwoIpAddressShowSpanFormattableClassInstanceIdsFieldsExpect
+           , new StyleOptions(PrettyLog)
+             {
+                 MarkRevisitedSpanFormattableClassInstances = true
+             });
     }
 
     [TestMethod]
-    public void SecondFieldSameTreeBranchClassPrettyJsonFormatTest()
+    public void TwoIpAddressFieldsWithShowSpanFormattableClassRevisitSettingsPrettyJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(SecondFieldSameExpect, PrettyJson);
+        ExecuteIndividualScaffoldExpectationWithOptions
+            (TwoIpAddressShowSpanFormattableClassInstanceIdsFieldsExpect
+           , new StyleOptions(PrettyJson)
+             {
+                 MarkRevisitedSpanFormattableClassInstances = true
+             });
     }
-
-    public static OrderedBranchNode<LeafNode> AllThreeFieldsSame
-    {
-        get
-        {
-            var child           = new LeafNode("AllThreeFieldsSame");
-            var allThreeFieldsSame = new OrderedBranchNode<LeafNode>([child, child, child], "AllThreeFieldsSame");
-            return allThreeFieldsSame;
-        }
-    }
-
-    public static InputBearerExpect<OrderedBranchNode<LeafNode>> AllThreeFieldsSameExpect
-    {
-        get
-        {
-            return allThreeFieldsSameExpect ??=
-                new InputBearerExpect<OrderedBranchNode<LeafNode>>(AllThreeFieldsSame)
-                {
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
-                      , """
-                        OrderedBranchNode<LeafNode>
-                         {
-                         BranchInstanceId: 1,
-                         Name: "AllThreeFieldsSame",
-                         GlobalNodeInstanceId: 2,
-                         NodeType: NodeType.BranchNode,
-                         ChildNodes: (List<LeafNode>)
-                         [
-                         LeafNode
-                         {
-                         $id: 1,
-                         LeafInstanceId: 1,
-                         Name: "AllThreeFieldsSame",
-                         GlobalNodeInstanceId: 1,
-                         NodeType: NodeType.LeafNode,
-                         DepthToRoot: 1
-                         },
-                         LeafNode
-                         {
-                         $ref: 1
-                         },
-                         LeafNode
-                         {
-                         $ref: 1
-                         }
-                         ]
-                         }
-                        """.RemoveLineEndings()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
-                      , """
-                        OrderedBranchNode<LeafNode> {
-                          BranchInstanceId: 1,
-                          Name: "AllThreeFieldsSame",
-                          GlobalNodeInstanceId: 2,
-                          NodeType: NodeType.BranchNode,
-                          ChildNodes: (List<LeafNode>) [
-                            LeafNode {
-                              $id: 1,
-                              LeafInstanceId: 1,
-                              Name: "AllThreeFieldsSame",
-                              GlobalNodeInstanceId: 1,
-                              NodeType: NodeType.LeafNode,
-                              DepthToRoot: 1
-                            },
-                            LeafNode {
-                              $ref: 1
-                            },
-                            LeafNode {
-                              $ref: 1
-                            }
-                          ]
-                        }
-                        """.Dos2Unix()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
-                      , """
-                        {
-                        "BranchInstanceId":1,
-                        "Name":"AllThreeFieldsSame",
-                        "GlobalNodeInstanceId":2,
-                        "NodeType":"BranchNode",
-                        "ChildNodes":[
-                        {
-                        "$id":"1",
-                        "LeafInstanceId":1,
-                        "Name":"AllThreeFieldsSame",
-                        "GlobalNodeInstanceId":1,
-                        "NodeType":"LeafNode",
-                        "DepthToRoot":1
-                        },
-                        {
-                        "$ref":"1"
-                        },
-                        {
-                        "$ref":"1"
-                        }
-                        ]
-                        }
-                        """.RemoveLineEndings()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, PrettyJson)
-                      , """
-                        {
-                          "BranchInstanceId": 1,
-                          "Name": "AllThreeFieldsSame",
-                          "GlobalNodeInstanceId": 2,
-                          "NodeType": "BranchNode",
-                          "ChildNodes": [
-                            {
-                              "$id": "1",
-                              "LeafInstanceId": 1,
-                              "Name": "AllThreeFieldsSame",
-                              "GlobalNodeInstanceId": 1,
-                              "NodeType": "LeafNode",
-                              "DepthToRoot": 1
-                            },
-                            {
-                              "$ref": "1"
-                            },
-                            {
-                              "$ref": "1"
-                            }
-                          ]
-                        }
-                        """.Dos2Unix()
-                    }
-                };
-        }
-    }
-
-    [TestMethod]
-    public void AllThreeFieldsSameTreeBranchClassCompactLogFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectation(AllThreeFieldsSameExpect, CompactLog);
-    }
-
-    [TestMethod]
-    public void AllThreeFieldsSameTreeBranchClassCompactJsonFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectation(AllThreeFieldsSameExpect, CompactJson);
-    }
-
-    [TestMethod]
-    public void AllThreeFieldsSameTreeBranchClassPrettyLogFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectation(AllThreeFieldsSameExpect, PrettyLog);
-    }
-
-    [TestMethod]
-    public void AllThreeFieldsSameTreeBranchClassPrettyJsonFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectation(AllThreeFieldsSameExpect, PrettyJson);
-    }
-
 }

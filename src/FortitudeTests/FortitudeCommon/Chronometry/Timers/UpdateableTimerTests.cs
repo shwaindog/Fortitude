@@ -82,31 +82,31 @@ public class UpdateableTimerTests
         Assert.AreEqual(true, stateWaitUpdate.IsFinished);
 
         Assert.AreEqual(1, nullStateWaitCallbackCounter);
-        Assert.AreEqual(1, statelessWaitUpdate.DecrementRefCount());
+        Assert.AreEqual(0, statelessWaitUpdate.DecrementRefCount());
         statelessWaitUpdate = updateableTimer.RunIn(TimeSpan.FromMilliseconds(20), waitCallback);
         waitCallbackResetEvent.WaitOne(1_000);
         Assert.AreEqual(2, nullStateWaitCallbackCounter);
         Assert.AreEqual(1, statelessWaitUpdate.RefCount);
         Assert.AreEqual(true, statelessWaitUpdate.IsFinished);
-        Assert.AreEqual(1, statelessWaitUpdate.DecrementRefCount());
+        Assert.AreEqual(0, statelessWaitUpdate.DecrementRefCount());
 
         Assert.AreEqual(1, actionCallbackCounter);
-        Assert.AreEqual(1, actionCallbackUpdate.DecrementRefCount());
+        Assert.AreEqual(0, actionCallbackUpdate.DecrementRefCount());
         actionCallbackUpdate = updateableTimer.RunIn(TimeSpan.FromMilliseconds(20), actionCallback);
         actionCallbackResetEvent.WaitOne(1_000);
         Assert.AreEqual(2, actionCallbackCounter);
         Assert.AreEqual(1, actionCallbackUpdate.RefCount);
         Assert.AreEqual(true, actionCallbackUpdate.IsFinished);
-        Assert.AreEqual(1, actionCallbackUpdate.DecrementRefCount());
+        Assert.AreEqual(0, actionCallbackUpdate.DecrementRefCount());
 
         Assert.AreEqual(1, nonNullStateWaitCallbackCounter);
-        Assert.AreEqual(1, stateWaitUpdate.DecrementRefCount());
+        Assert.AreEqual(0, stateWaitUpdate.DecrementRefCount());
         stateWaitUpdate = updateableTimer.RunIn(TimeSpan.FromMilliseconds(20), new object(), waitCallback);
         waitCallbackResetEvent.WaitOne(1_000);
         Assert.AreEqual(2, nonNullStateWaitCallbackCounter);
         Assert.AreEqual(1, stateWaitUpdate.RefCount);
         Assert.AreEqual(true, stateWaitUpdate.IsFinished);
-        Assert.AreEqual(1, stateWaitUpdate.DecrementRefCount());
+        Assert.AreEqual(0, stateWaitUpdate.DecrementRefCount());
     }
 
 
@@ -160,7 +160,7 @@ public class UpdateableTimerTests
         Assert.AreEqual(lastNullStateCounter, nullStateWaitCallbackCounter);
         Thread.Sleep(intervalMs * 2);
         Assert.AreEqual(lastNullStateCounter, nullStateWaitCallbackCounter);
-        Assert.AreEqual(1, statelessWaitUpdate.DecrementRefCount());
+        Assert.AreEqual(0, statelessWaitUpdate.DecrementRefCount());
     }
 
     [TestMethod]
@@ -213,7 +213,7 @@ public class UpdateableTimerTests
         Assert.AreEqual(lastNullStateCounter, actionCallbackCounter);
         Thread.Sleep(intervalMs * 2);
         Assert.AreEqual(lastNullStateCounter, actionCallbackCounter);
-        Assert.AreEqual(1, actionUpdate.DecrementRefCount());
+        Assert.AreEqual(0, actionUpdate.DecrementRefCount());
     }
 
     [TestMethod]
@@ -266,7 +266,7 @@ public class UpdateableTimerTests
         Assert.AreEqual(lastNullStateCounter, nonNullStateWaitCallbackCounter);
         Thread.Sleep(intervalMs * 2);
         Assert.AreEqual(lastNullStateCounter, nonNullStateWaitCallbackCounter);
-        Assert.AreEqual(1, statefulTimerUpdate.DecrementRefCount());
+        Assert.AreEqual(0, statefulTimerUpdate.DecrementRefCount());
     }
 
 

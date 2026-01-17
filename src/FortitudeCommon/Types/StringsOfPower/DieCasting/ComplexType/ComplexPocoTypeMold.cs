@@ -22,17 +22,18 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
+      , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
         InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, owning, appendSettings, typeName, remainingGraphDepth
-                                      , typeFormatting, existingRefId, createFormatFlags);
+                                      , typeFormatting, existingRefId, writeMethodType, createFormatFlags);
 
         return this;
     }
 
     public override bool IsComplexType => true;
 
-    public override void AppendTypeOpeningToGraphFields()
+    public override void StartFormattingTypeOpening()
     {
         State.StyleFormatter.StartComplexTypeOpening(State);
     }

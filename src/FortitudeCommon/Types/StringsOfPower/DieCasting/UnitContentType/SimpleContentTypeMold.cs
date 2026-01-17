@@ -18,22 +18,23 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold>
           , int remainingGraphDepth
           , IStyledTypeFormatting typeFormatting  
           , int existingRefId
+          , WriteMethodType writeMethodType  
           , FormatFlags createFormatFlags)
     {
         InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
-                                 , remainingGraphDepth, typeFormatting,  existingRefId, createFormatFlags);
+                                 , remainingGraphDepth, typeFormatting,  existingRefId, writeMethodType, createFormatFlags);
 
         return this;
     }
 
-    protected override void SourceBuilderComponentAccess()
+    protected override void SourceBuilderComponentAccess(WriteMethodType writeMethod)
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
         MoldStateField = recycler.Borrow<ContentTypeDieCast<SimpleContentTypeMold>>()
-                             .InitializeValueBuilderCompAccess(this, PortableState, false);
+                             .InitializeValueBuilderCompAccess(this, PortableState, writeMethod);
     }
 
-    public override void AppendTypeOpeningToGraphFields()
+    public override void StartFormattingTypeOpening()
     {
         MoldStateField.StyleFormatter.StartContentTypeOpening(MoldStateField);
     }

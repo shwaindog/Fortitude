@@ -14,7 +14,7 @@ public abstract class TransitioningTypeMolder<TCurrent, TNext> : KnownTypeMolder
 {
     private bool hasTransitioned;
 
-    public override void AppendTypeOpeningToGraphFields()
+    public override void StartFormattingTypeOpening()
     {
         var formatter = MoldStateField.StyleFormatter;
         if (IsComplexType)
@@ -77,7 +77,7 @@ public abstract class TransitioningTypeMolder<TCurrent, TNext> : KnownTypeMolder
     {
         if (source == null) return TransitionToNextMold();
         PortableState = ((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.PortableState;
-        SourceBuilderComponentAccess();
+        SourceBuilderComponentAccess(((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.WriteMethod);
         MoldStateField.CopyFrom(source.MoldStateField, copyMergeFlags);
         return TransitionToNextMold();
     }

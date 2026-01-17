@@ -9,6 +9,7 @@ using FortitudeCommon.Logging.Core;
 using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower.Options;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
 
@@ -66,4 +67,9 @@ public abstract class CommonExpectationBase
     }
 
     public abstract string TestsCommonDescription { get; }
+
+    public bool IsLogIgnoredTypeName(StyleOptions styleOptions, Type? checkIsAutoIgnore)
+    {
+        return styleOptions.LogSuppressDisplayTypeNames.Any(s => checkIsAutoIgnore != null && checkIsAutoIgnore.FullName!.StartsWith(s));
+    }
 }

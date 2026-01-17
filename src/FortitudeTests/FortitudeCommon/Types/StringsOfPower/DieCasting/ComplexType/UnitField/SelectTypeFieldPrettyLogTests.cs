@@ -86,17 +86,21 @@ public class SelectTypeFieldPrettyLogTests : SelectTypeFieldTests
     public void PrettyLogNullStringBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
-    [TestMethod] 
+    // [TestMethod] 
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(StringBearerTestData.AllStringBearerExpectations[43], ScaffoldingRegistry.AllScaffoldingTypes[892]);
+        ExecuteIndividualScaffoldExpectation(DecimalNumberTestData.DecimalNumberExpectations[73]
+                                           , ScaffoldingRegistry.AllScaffoldingTypes[889], StringBuilderType.CharArrayStringBuilder);
     }
 
-    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
-        const string prettyLogTemplate = "{0} {{{1}{2}{3}{1}}}";
+        var prettyLogTemplate = 
+            IsLogIgnoredTypeName(tos.Settings, className)
+                ? "{{{1}{2}{3}{1}}}"
+                : "{0} {{{1}{2}{3}{1}}}";
 
         var maybeNewLine = "";
         var maybeIndent  = "";
@@ -115,15 +119,18 @@ public class SelectTypeFieldPrettyLogTests : SelectTypeFieldTests
         else { expectValue.Clear(); }
 
         var fmtExpect = sbFactory.Borrow<CharArrayStringBuilder>();
-        fmtExpect.AppendFormat(prettyLogTemplate, className, maybeNewLine, maybeIndent, expectValue);
+        fmtExpect.AppendFormat(prettyLogTemplate, className?.CachedCSharpNameNoConstraints() ?? "", maybeNewLine, maybeIndent, expectValue);
         expectValue.DecrementRefCount();
         return fmtExpect;
     }
     
-    protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
-        const string prettyLogTemplate = "{0} {{{1}{2}{2}{3}{1}{2}}}";
+        var prettyLogTemplate = 
+            IsLogIgnoredTypeName(tos.Settings, className)
+                ? "{{{1}{2}{2}{3}{1}{2}}}"
+                : "{0} {{{1}{2}{2}{3}{1}{2}}}";
 
         var maybeNewLine = "";
         var maybeIndent  = "";
@@ -142,7 +149,7 @@ public class SelectTypeFieldPrettyLogTests : SelectTypeFieldTests
         else { expectValue.Clear(); }
 
         var fmtExpect = sbFactory.Borrow<CharArrayStringBuilder>();
-        fmtExpect.AppendFormat(prettyLogTemplate, className, maybeNewLine, maybeIndent, expectValue);
+        fmtExpect.AppendFormat(prettyLogTemplate, className?.CachedCSharpNameNoConstraints() ?? "", maybeNewLine, maybeIndent, expectValue);
         expectValue.DecrementRefCount();
         return fmtExpect;
     }

@@ -44,6 +44,7 @@ public class BinaryBranchNode<TChild> : OrderedParentNode<TChild>, IChildNode
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
+           // to skip over a base RevealState cast derived type to that as AddBaseRevealStateFields will then go to it's base type
            .AddBaseRevealStateFields((OrderedParentNode<TChild>)this)
            .Field.WhenNonNullReveal(nameof(Left), Left)
            .Field.WhenNonNullReveal(nameof(Right), Right)

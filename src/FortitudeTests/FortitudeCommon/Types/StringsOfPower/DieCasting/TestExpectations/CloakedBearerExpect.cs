@@ -14,7 +14,7 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
 
 
-public delegate IStringBuilder BuildExpectedOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
+public delegate IStringBuilder BuildExpectedOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
   , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation);
 
 public class CloakedBearerExpect<TChildScaffoldType, TChildScaffold> : FieldExpect<TChildScaffoldType>, IComplexFieldFormatExpectation
@@ -58,7 +58,7 @@ public class CloakedBearerExpect<TChildScaffoldType, TChildScaffold> : FieldExpe
         {
             expectValue.DecrementRefCount();
             expectValue = WhenValueExpectedOutput
-                (sbFactory, tos, (Input?.GetType() ?? typeof(TChildScaffoldType)).CachedCSharpNameNoConstraints()
+                (sbFactory, tos, (Input?.GetType() ?? typeof(TChildScaffoldType))
                , $"CloakedRevealer{RevealerScaffold.PropertyName}", condition, FieldValueExpectation);
         }
         return expectValue;

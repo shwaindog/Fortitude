@@ -21,10 +21,11 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
+      , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
         Initialize(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName
-                                       , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
+                                       , remainingGraphDepth, typeFormatting, existingRefId, writeMethodType, createFormatFlags);
     }
 
 

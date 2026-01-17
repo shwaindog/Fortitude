@@ -88,6 +88,8 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     private bool?     disableCircularRefCheck;
     private bool?     charSArraysAsString;
     private bool?     circularRefUsesRefEquals;
+    private bool?     markRevisitedSpanFormattableClassInstances;
+    private bool?     includeSpanFormattableContentsOnRevisits;
     private string?   newLineStyle;
     private int?      prettyCollectionsColumnCountWrap;
     private int?      defaultGraphMaxDepth;
@@ -633,6 +635,18 @@ public struct StyleOptionsValue : IJsonFormattingOptions
         set => defaultGraphMaxDepth = value;
     }
 
+    public bool MarkRevisitedSpanFormattableClassInstances
+    {
+        readonly get => markRevisitedSpanFormattableClassInstances ?? fallbackOptions?.Values.MarkRevisitedSpanFormattableClassInstances ?? false;
+        set => markRevisitedSpanFormattableClassInstances = value;
+    }
+
+    public bool IncludeSpanFormattableContentsOnRevisits
+    {
+        readonly get => includeSpanFormattableContentsOnRevisits ?? fallbackOptions?.Values.IncludeSpanFormattableContentsOnRevisits ?? false;
+        set => includeSpanFormattableContentsOnRevisits = value;
+    }
+
     public StyleOptions? DefaultOptions
     {
         get => fallbackOptions;
@@ -1099,6 +1113,18 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
     {
         get => values.DefaultGraphMaxDepth;
         set => values.DefaultGraphMaxDepth = value;
+    }
+
+    public bool MarkRevisitedSpanFormattableClassInstances
+    {
+        get => values.MarkRevisitedSpanFormattableClassInstances;
+        set => values.MarkRevisitedSpanFormattableClassInstances = value;
+    }
+
+    public bool IncludeSpanFormattableContentsOnRevisits
+    {
+        get => values.IncludeSpanFormattableContentsOnRevisits;
+        set => values.IncludeSpanFormattableContentsOnRevisits = value;
     }
 
     public ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags)

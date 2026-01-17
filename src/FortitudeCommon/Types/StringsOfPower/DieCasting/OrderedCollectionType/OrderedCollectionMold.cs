@@ -1,6 +1,5 @@
 ﻿using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
@@ -19,10 +18,11 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
+      , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
         Initialize(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
-                 , remainingGraphDepth, typeFormatting, existingRefId
+                 , remainingGraphDepth, typeFormatting, existingRefId, writeMethodType
                  , createFormatFlags | AsCollection);
 
         stb = CompAsOrderedCollection;
@@ -37,9 +37,9 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
 
     public int TotalCount { get; private set; }
 
-    public override void AppendTypeOpeningToGraphFields()
+    public override void StartFormattingTypeOpening()
     {
-        if (CompAsOrderedCollection.WriteAsComplex) { MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField); }
+        if (CompAsOrderedCollection.SupportsMultipleFields) { MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField); }
         else
         {
             var elementType = MoldStateField.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
@@ -54,7 +54,7 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
     public override void AppendClosing()
     {
         var formatter = MoldStateField.StyleFormatter;
-        if (CompAsOrderedCollection.WriteAsComplex)
+        if (CompAsOrderedCollection.SupportsMultipleFields)
         {
             formatter.AppendComplexTypeClosing(MoldStateField);
         }
@@ -68,7 +68,7 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
     protected virtual CollectionBuilderCompAccess<TOCMold> CompAsOrderedCollection => (CollectionBuilderCompAccess<TOCMold>)MoldStateField;
 }
 
-public class SimpleOrderedCollectionMold : OrderedCollectionType.OrderedCollectionMold<SimpleOrderedCollectionMold>
+public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCollectionMold>
 {
     public SimpleOrderedCollectionMold InitializeSimpleOrderedCollectionBuilder(
         object instanceOrContainer
@@ -79,25 +79,26 @@ public class SimpleOrderedCollectionMold : OrderedCollectionType.OrderedCollecti
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
+      , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
         InitializeOrderedCollectionBuilder
             (instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
-           , remainingGraphDepth, typeFormatting, existingRefId
+           , remainingGraphDepth, typeFormatting, existingRefId, writeMethodType
            , createFormatFlags | AsCollection);
 
         return this;
     }
 
-    protected override void SourceBuilderComponentAccess()
+    protected override void SourceBuilderComponentAccess(WriteMethodType writeMethod)
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
         MoldStateField = recycler.Borrow<CollectionBuilderCompAccess<SimpleOrderedCollectionMold>>()
-                                 .InitializeOrderCollectionComponentAccess(this, PortableState, false);
+                                 .InitializeOrderCollectionComponentAccess(this, PortableState, writeMethod);
     }
 }
 
-public class ComplexOrderedCollectionMold : OrderedCollectionType.OrderedCollectionMold<ComplexOrderedCollectionMold>
+public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrderedCollectionMold>
 {
     private ComplexType.CollectionField.SelectTypeCollectionField<ComplexOrderedCollectionMold>? logOnlyInternalCollectionField;
     private ComplexType.UnitField.SelectTypeField<ComplexOrderedCollectionMold>?                 logOnlyInternalField;
@@ -112,23 +113,23 @@ public class ComplexOrderedCollectionMold : OrderedCollectionType.OrderedCollect
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting
       , int existingRefId
+      , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
         InitializeOrderedCollectionBuilder
             (instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
-           , remainingGraphDepth, typeFormatting, existingRefId
-           , createFormatFlags | AsCollection);
+           , remainingGraphDepth, typeFormatting, existingRefId, writeMethodType, createFormatFlags | AsCollection);
 
         return this;
     }
 
     public override bool IsComplexType => true;
 
-    protected override void SourceBuilderComponentAccess()
+    protected override void SourceBuilderComponentAccess(WriteMethodType writeMethod)
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
         MoldStateField = recycler.Borrow<CollectionBuilderCompAccess<ComplexOrderedCollectionMold>>()
-                                 .InitializeOrderCollectionComponentAccess(this, PortableState, true);
+                                 .InitializeOrderCollectionComponentAccess(this, PortableState, writeMethod);
     }
 
     public ComplexType.UnitField.SelectTypeField<ComplexOrderedCollectionMold> LogOnlyField =>

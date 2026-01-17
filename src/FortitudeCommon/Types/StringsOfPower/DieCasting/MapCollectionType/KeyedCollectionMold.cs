@@ -23,10 +23,11 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
       , int remainingGraphDepth
       , IStyledTypeFormatting typeFormatting  
       , int existingRefId
+      , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
         InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName
-                                      , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
+                                      , remainingGraphDepth, typeFormatting, existingRefId, writeMethodType, createFormatFlags);
 
         stb = MoldStateField;
 
@@ -35,7 +36,7 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
 
     public override bool IsComplexType => true;
     
-    public override void AppendTypeOpeningToGraphFields()
+    public override void StartFormattingTypeOpening()
     {
         var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!; 
         MoldStateField.StyleFormatter.AppendKeyedCollectionStart(MoldStateField.Sb, MoldStateField.TypeBeingBuilt, keyValueTypes.Value.Key, keyValueTypes.Value.Value);

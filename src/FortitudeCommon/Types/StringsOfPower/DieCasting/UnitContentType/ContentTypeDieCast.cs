@@ -15,9 +15,13 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     public const string DblQt = "\"";
 
     public ContentTypeDieCast<TContentMold> InitializeValueBuilderCompAccess
-        (TContentMold externalTypeBuilder, TypeMolder.MoldPortableState typeBuilderPortableState, bool isComplex)
+        (TContentMold externalTypeBuilder, TypeMolder.MoldPortableState typeBuilderPortableState, WriteMethodType writeMethod  )
     {
-        Initialize(externalTypeBuilder, typeBuilderPortableState, isComplex && typeBuilderPortableState.Master.Style.IsLog());
+        writeMethod = writeMethod.SupportsMultipleFields() && typeBuilderPortableState.Master.Style.IsLog()
+            ? writeMethod
+            : writeMethod.ToNoFieldEquivalent();
+        
+        Initialize(externalTypeBuilder, typeBuilderPortableState, writeMethod);
 
         OnFinishedWithStringBuilder = FinishUsingStringBuilder;
 
@@ -52,7 +56,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
 
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
 
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinValue(value, formatString, formatFlags); }
@@ -99,7 +103,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags));
         
         if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinWithDefaultValue(value, defaultValue, formatString, formatFlags); }
@@ -156,7 +160,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags));
 
         if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinValue(value, formatString, formatFlags); }
@@ -200,7 +204,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         formatFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags));
 
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinWithDefaultValue(value, defaultValue, formatString, formatFlags); }
@@ -256,7 +260,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         formatFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags));
 
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinValue(value, formatString, formatFlags); }
@@ -304,7 +308,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             return WasSkipped<TCloaked?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
         if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinValue(value, palantírReveal, formatString, formatFlags); }
@@ -355,7 +359,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         if (callContext.ShouldSkip || HasSkipBody<TCloakedStruct?>(value?.GetType(), nonJsonfieldName, formatFlags))
             return WasSkipped<TCloakedStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { JoinValueJoin(value, palantírReveal, formatString, formatFlags); }
@@ -407,7 +411,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             return WasSkipped<TCloaked?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
         if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, formatString, formatFlags); }
@@ -467,7 +471,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         if (callContext.ShouldSkip || HasSkipBody<TCloakedStruct?>(value?.GetType(), nonJsonfieldName, formatFlags))
             return WasSkipped<TCloakedStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, formatFlags, formatString); }
@@ -525,7 +529,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             return WasSkipped<TBearer?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
         if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinWithDefaultValue(value, defaultValue, formatFlags, formatString); }
@@ -573,7 +577,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         if (callContext.ShouldSkip || HasSkipBody<TBearerStruct?>(value?.GetType(), nonJsonfieldName, formatFlags))
             return WasSkipped<TBearerStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinWithDefaultValue(value, defaultValue, formatFlags, formatString); }
@@ -623,7 +627,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             return WasSkipped<TBearer?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
         if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinValue(value, formatFlags, formatString); }
@@ -669,7 +673,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         if (callContext.ShouldSkip || HasSkipBody<TBearerStruct?>(value?.GetType(), nonJsonfieldName, formatFlags))
             return WasSkipped<TBearerStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinValue(value, formatFlags, formatString); }
@@ -714,7 +718,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         if (callContext.ShouldSkip || HasSkipBody<Memory<char>?>(value.Length > 0 ? typeof(Span<char>) : null, nonJsonfieldName, formatFlags))
             return WasSkipped<Memory<char>?>(value.Length > 0 ? typeof(Span<char>) : null, nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "Span", formatFlags);
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinWithDefaultValue(value, fallbackValue, formatString, formatFlags); }
@@ -767,7 +771,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
                                                    : null, nonJsonfieldName, formatFlags))
             return WasSkipped<ReadOnlyMemory<char>?>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "ReadOnlySpan", formatFlags);
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinWithDefaultValue(value, fallbackValue, formatString, formatFlags); }
@@ -822,7 +826,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             HasSkipBody<ReadOnlyMemory<char>?>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, nonJsonfieldName, formatFlags))
             return WasSkipped<ReadOnlyMemory<char>?>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "ReadOnlySpan", formatFlags);
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinValue(value, formatString, formatFlags); }
@@ -868,7 +872,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         if (callContext.ShouldSkip || HasSkipBody<string?>(value?.GetType(), nonJsonfieldName, formatFlags))
             return WasSkipped<string?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags); }
@@ -928,7 +932,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         if (callContext.ShouldSkip || HasSkipBody<ReadOnlyMemory<char>?>(value?.GetType(), "", formatFlags))
             return WasSkipped<ReadOnlyMemory<char>?>(value?.GetType(), "", formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinValue(value, startIndex, length, formatString, formatFlags); }
@@ -1000,7 +1004,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         if (callContext.ShouldSkip || HasSkipBody<char[]?>(value?.GetType(), nonJsonfieldName, formatFlags))
             return WasSkipped<char[]?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags); }
@@ -1061,7 +1065,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         if (callContext.ShouldSkip || HasSkipBody<char[]?>(value?.GetType(), nonJsonfieldName, formatFlags))
             return WasSkipped<char[]?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinValue(value, startIndex, length, formatString, formatFlags); }
@@ -1134,7 +1138,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         if (callContext.ShouldSkip || HasSkipBody<TCharSeq?>(value?.GetType(), nonJsonfieldName, formatFlags))
             return WasSkipped<TCharSeq?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, formatFlags); }
@@ -1211,7 +1215,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         if (callContext.ShouldSkip || HasSkipBody<TCharSeq?>(value?.GetType(), nonJsonfieldName, formatFlags))
             return WasSkipped<TCharSeq?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinValue(value, startIndex, length, formatString, formatFlags); }
@@ -1288,7 +1292,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         if (callContext.ShouldSkip || HasSkipBody<StringBuilder?>(value?.GetType(), nonJsonfieldName, formatFlags))
             return WasSkipped<StringBuilder?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, formatFlags); }
@@ -1362,7 +1366,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         if (callContext.ShouldSkip || HasSkipBody<StringBuilder?>(value?.GetType(), nonJsonfieldName, formatFlags))
             return WasSkipped<StringBuilder?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinValue(value, startIndex, length, formatString, formatFlags); }
@@ -1441,7 +1445,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         formatFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags));
         if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedValueMatchJoinValue(value, formatString, formatFlags); }
@@ -1489,7 +1493,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         formatFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags));
         if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinValueMatchWithDefaultValue(value, defaultValue, formatString, formatFlags); }
@@ -1543,7 +1547,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         formatFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
 
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
@@ -1605,7 +1609,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags));
 
         if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
@@ -1675,7 +1679,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
 
         if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
@@ -1739,7 +1743,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         formatFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags));
 
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
@@ -1804,7 +1808,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         formatFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
 
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
@@ -1869,7 +1873,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             return WasSkipped<TCloaked?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
         if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext)
@@ -1944,7 +1948,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             return WasSkipped<TCloaked?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
         if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinString(value, palantírReveal, formatString, formatFlags, addStartDblQt, addEndDblQt); }
@@ -2012,7 +2016,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             return WasSkipped<TCloakedStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
 
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext)
@@ -2088,7 +2092,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             return WasSkipped<TCloakedStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
 
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinString(value, palantírReveal, formatString, formatFlags, addStartDblQt, addEndDblQt); }
@@ -2153,7 +2157,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             return WasSkipped<TBearer?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
         if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinStringWithDefault(value, defaultValue, formatFlags, formatString, addStartDblQt, addEndDblQt); }
@@ -2222,7 +2226,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         if (callContext.ShouldSkip || HasSkipBody<TBearerStruct?>(value?.GetType(), nonJsonfieldName, formatFlags))
             return WasSkipped<TBearerStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinStringWithDefault(value, defaultValue, formatFlags, formatString, addStartDblQt, addEndDblQt); }
@@ -2287,7 +2291,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             return WasSkipped<TBearer?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
         if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinString(value, formatFlags, formatString, addStartDblQt, addEndDblQt); }
@@ -2346,7 +2350,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             return WasSkipped<TBearerStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
         formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
 
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinString(value, formatFlags, formatString, addStartDblQt, addEndDblQt); }
@@ -2404,7 +2408,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         formatFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, "Span", StyleFormatter.ResolveContentAsStringFormattingFlags("Span", "", formatString, formatFlags));
 
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
@@ -2464,7 +2468,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         formatFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, "Span", StyleFormatter.ResolveContentAsStringFormattingFlags("Span", defaultValue, formatString, formatFlags));
 
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
@@ -2526,7 +2530,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         formatFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, "ReadOnlySpan", StyleFormatter.ResolveContentAsStringFormattingFlags("ReadOnlySpan", "", formatString, formatFlags));
 
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
@@ -2585,7 +2589,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         formatFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
 
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt); }
@@ -2668,7 +2672,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         formatFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags));
 
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext)
@@ -2740,7 +2744,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         formatFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
 
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt); }
@@ -2823,7 +2827,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         formatFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags));
 
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext)
@@ -2897,7 +2901,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         formatFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags));
 
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext)
@@ -2983,7 +2987,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         formatFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
 
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt); }
@@ -3070,7 +3074,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         formatFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags));
 
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext)
@@ -3143,7 +3147,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         formatFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
 
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt); }
@@ -3228,7 +3232,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         formatFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
         if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinStringMatchJoin(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
@@ -3287,7 +3291,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         formatFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags));
         if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (WriteAsComplex && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
         if (callContext.HasFormatChange)
         {
             using (callContext) { VettedJoinStringMatchWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
@@ -3359,7 +3363,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
 
     public ContentJoinTypeMold<TContentMold> ConditionalValueTypeSuffix()
     {
-        if (WriteAsComplex)
+        if (SupportsMultipleFields)
         {
             this.AddGoToNext();
             return StyleTypeBuilder.TransitionToNextMold();
@@ -3380,7 +3384,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     {
         if (source == null) return this;
         base.CopyFrom(source, copyMergeFlags);
-        if (source is ContentTypeDieCast<TContentMold> valueTypeDieCast) { WriteAsComplex = valueTypeDieCast.WriteAsComplex; }
+        if (source is ContentTypeDieCast<TContentMold> valueTypeDieCast) { WriteMethod = valueTypeDieCast.WriteMethod; }
 
         return this;
     }

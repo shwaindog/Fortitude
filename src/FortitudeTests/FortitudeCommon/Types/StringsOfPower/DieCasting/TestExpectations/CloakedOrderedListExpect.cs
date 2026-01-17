@@ -68,7 +68,7 @@ public class NullStructCloakedOrderedListExpect<TChildScaffoldListElement>
              && !expectValue.SequenceMatches("null") && !expectValue.SequenceMatches(""))
         {
             expectValue = WhenValueExpectedOutput
-                (sbFactory, tos, (calledValueType ?? typeof(TChildScaffoldListElement)).CachedCSharpNameNoConstraints()
+                (sbFactory, tos, (calledValueType ?? typeof(TChildScaffoldListElement))
                , RevealerScaffold.PropertyName, condition, FieldValueExpectation);
         }
         return expectValue;
@@ -222,7 +222,7 @@ public class CloakedOrderedListExpect<TChildScaffoldListElement, TFilterBase, TR
          && !expectValue.SequenceMatches("null") && !expectValue.SequenceMatches(""))
         {
             expectValue = WhenValueExpectedOutput
-                (sbFactory, tos, (calledValueType ?? typeof(TChildScaffoldListElement)).CachedCSharpNameNoConstraints()
+                (sbFactory, tos, (calledValueType ?? typeof(TChildScaffoldListElement))
                , RevealerScaffold?.PropertyName ?? "NoRevealerScaffold", condition, FieldValueExpectation);
         }
         return expectValue;

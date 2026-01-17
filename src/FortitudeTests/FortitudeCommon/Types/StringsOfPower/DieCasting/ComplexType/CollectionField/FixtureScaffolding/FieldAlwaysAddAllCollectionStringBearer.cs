@@ -333,29 +333,6 @@ public class FieldCharSequenceSpanAlwaysAddAllStringBearer<TCharSeq> : Formatted
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsCharSequence
-                | AcceptsNullableClass | SupportsValueFormatString)]
-public class FieldCharSequenceNullableSpanAlwaysAddAllStringBearer<TCharSeq> : FormattedCollectionFieldMoldScaffold<TCharSeq?, TCharSeq?[]>
-   where TCharSeq : ICharSequence
-{
-    public TCharSeq?[]? ComplexTypeCollectionFieldAlwaysAddAllCharSequenceNullableSpan
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceNullableSpan);
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllCharSeqNullable
-               (nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceNullableSpan)
-              , ComplexTypeCollectionFieldAlwaysAddAllCharSequenceNullableSpan.AsSpan()
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-
-}
-
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | AcceptsStringBuilder
                | AcceptsClass | SupportsValueFormatString)]
 public class FieldStringBuilderSpanAlwaysAddAllStringBearer : FormattedCollectionFieldMoldScaffold<StringBuilder, StringBuilder[]>
@@ -792,28 +769,6 @@ public class FieldCharSequenceReadOnlySpanAlwaysAddAllStringBearer<TCharSeq> : F
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsCharSequence
-                | AcceptsNullableClass | SupportsValueFormatString)]
-public class FieldCharSequenceNullableReadOnlySpanAlwaysAddAllStringBearer<TCharSeq> : FormattedCollectionFieldMoldScaffold<TCharSeq?, TCharSeq?[]>
-    where TCharSeq : ICharSequence
-{
-    public TCharSeq?[]? ComplexTypeCollectionFieldAlwaysAddAllCharSequenceNullableSpan
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceNullableSpan);
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllCharSeq
-               (nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceNullableSpan)
-              , (ReadOnlySpan<TCharSeq?>)ComplexTypeCollectionFieldAlwaysAddAllCharSequenceNullableSpan
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-
-}
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | AcceptsStringBuilder
                 | AcceptsClass | SupportsValueFormatString)]
