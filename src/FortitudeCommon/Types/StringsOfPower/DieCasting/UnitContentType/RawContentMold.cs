@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 
@@ -15,13 +16,13 @@ public class RawContentMold : KnownTypeMolder<RawContentMold>
       , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
+      , VisitResult moldGraphVisit
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
         Initialize(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
-                 , remainingGraphDepth, typeFormatting, existingRefId, writeMethodType, createFormatFlags);
+                 , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
 
         return this;
     }

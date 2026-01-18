@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using FortitudeCommon.Types.StringsOfPower.Options;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
@@ -19,13 +20,13 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
       , MoldDieCastSettings appendSettings
       , string? typeName
       , int remainingGraphDepth
+      , VisitResult moldGraphVisit
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
         Initialize(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName
-                                       , remainingGraphDepth, typeFormatting, existingRefId, writeMethodType, createFormatFlags);
+                                       , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
     }
 
 

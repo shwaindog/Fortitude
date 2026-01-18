@@ -3,6 +3,7 @@
 
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 
@@ -17,13 +18,13 @@ public class ContentTypeMold<TContentMold> : TransitioningTypeMolder<TContentMol
       , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
+      , VisitResult moldGraphVisit
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
         Initialize(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
-                 , remainingGraphDepth, typeFormatting, existingRefId, writeMethodType, createFormatFlags);
+                 , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
 
         return this;
     }

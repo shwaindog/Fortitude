@@ -6,6 +6,7 @@ using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.TypeMoldFlags;
 using KeyedCollectionMold = FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType.KeyedCollectionMold;
@@ -77,6 +78,7 @@ public interface ITypeMolderDieCast : IRecyclableObject, ITransferState
     public int IncrementIndent();
 
     public void UnSetIgnoreFlag(SkipTypeParts flagToUnset);
+    void        SetUntrackedVisit();
 
     new IRecycler Recycler { get; }
 }
@@ -155,9 +157,9 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
                      || typeof(MultiValueTypeMolder<TExt>).IsAssignableFrom(typeOfTExt);
 
         var fmtFlags = typeBuilderPortableState.CreateFormatFlags;
-        var hasRefId = typeBuilderState.ExistingRefId > 0;
-        SkipBody   = hasRefId && fmtFlags.DoesNotHaveIsFieldNameFlag();
-        SkipFields = hasRefId || (Style.IsJson() && !hasJsonFields);
+        var hasBeenVisitedBefore = typeBuilderState.MoldGraphVisit.HasExistingInstanceId;
+        SkipBody   = hasBeenVisitedBefore && fmtFlags.DoesNotHaveIsFieldNameFlag();
+        SkipFields = hasBeenVisitedBefore || (Style.IsJson() && !hasJsonFields);
 
         WriteMethod = writeMethod;
         return this;
@@ -176,7 +178,7 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
 
     public int RemainingGraphDepth { get; set; }
 
-    public int InstanceReferenceId => typeBuilderState.ExistingRefId;
+    public int InstanceReferenceId => typeBuilderState.MoldGraphVisit.InstanceId;
     //
     // public bool WriteAsAttribute
     // {
@@ -289,6 +291,11 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
     public StringStyle Style => Settings.Style;
 
     public IStringBuilder Sb => typeBuilderState.Master.WriteBuffer;
+
+    public void SetUntrackedVisit()
+    {
+        typeBuilderState.MoldGraphVisit = VisitResult.Empty;
+    }
 
     public ITheOneString Complete()
     {

@@ -17,7 +17,8 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestSce
 public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
 {
     private static InputBearerExpect<TwoSpanFormattableFields<IPAddress>>? twoSameIpAddressFieldsDefaultRevisitSettingsExpect;
-    private static InputBearerExpect<TwoSpanFormattableFields<IPAddress>>? twoIpAddressShowSpanFormattableClassInstanceIdsFieldsExpect;
+    private static InputBearerExpect<TwoSpanFormattableFields<IPAddress>>? twoIpAddressFieldsShowRevisitInstanceIdsOnlyExpect;
+    private static InputBearerExpect<TwoSpanFormattableFields<IPAddress>>? twoIpAddressFieldsShowRevisitsAndValuesExpect;
 
     [ClassInitialize]
     public static void EnsureBaseClassInitialized(TestContext testContext) =>
@@ -116,11 +117,11 @@ public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
         ExecuteIndividualScaffoldExpectation(TwoIpAddressFieldsWithDefaultRevisitSettingsExpect, PrettyJson);
     }
 
-    public static InputBearerExpect<TwoSpanFormattableFields<IPAddress>> TwoIpAddressShowSpanFormattableClassInstanceIdsFieldsExpect
+    public static InputBearerExpect<TwoSpanFormattableFields<IPAddress>> TwoIpAddressFieldsShowRevisitInstanceIdsOnlyExpect
     {
         get
         {
-            return twoIpAddressShowSpanFormattableClassInstanceIdsFieldsExpect ??=
+            return twoIpAddressFieldsShowRevisitInstanceIdsOnlyExpect ??=
                 new InputBearerExpect<TwoSpanFormattableFields<IPAddress>>(TwoIpAddressFields)
                 {
                     {
@@ -191,10 +192,10 @@ public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
     }
 
     [TestMethod]
-    public void TwoIpAddressFieldsWithShowSpanFormattableClassRevisitSettingsCompactLogFormatTest()
+    public void TwoIpAddressFieldsShowRevisitInstanceIdsOnlyExpectCompactLogFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoIpAddressShowSpanFormattableClassInstanceIdsFieldsExpect
+            (TwoIpAddressFieldsShowRevisitInstanceIdsOnlyExpect
            , new StyleOptions(CompactLog)
              {
                  MarkRevisitedSpanFormattableClassInstances = true
@@ -202,10 +203,10 @@ public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
     }
 
     [TestMethod]
-    public void TwoIpAddressFieldsWithShowSpanFormattableClassRevisitSettingsCompactJsonFormatTest()
+    public void TwoIpAddressFieldsShowRevisitInstanceIdsOnlyExpectCompactJsonFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoIpAddressShowSpanFormattableClassInstanceIdsFieldsExpect
+            (TwoIpAddressFieldsShowRevisitInstanceIdsOnlyExpect
            , new StyleOptions(CompactJson)
              {
                  MarkRevisitedSpanFormattableClassInstances = true
@@ -213,10 +214,10 @@ public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
     }
 
     [TestMethod]
-    public void TwoIpAddressFieldsWithShowSpanFormattableClassRevisitSettingsPrettyLogFormatTest()
+    public void TwoIpAddressFieldsShowRevisitInstanceIdsOnlyExpectPrettyLogFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoIpAddressShowSpanFormattableClassInstanceIdsFieldsExpect
+            (TwoIpAddressFieldsShowRevisitInstanceIdsOnlyExpect
            , new StyleOptions(PrettyLog)
              {
                  MarkRevisitedSpanFormattableClassInstances = true
@@ -224,13 +225,139 @@ public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
     }
 
     [TestMethod]
-    public void TwoIpAddressFieldsWithShowSpanFormattableClassRevisitSettingsPrettyJsonFormatTest()
+    public void TwoIpAddressFieldsShowRevisitInstanceIdsOnlyExpectPrettyJsonFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoIpAddressShowSpanFormattableClassInstanceIdsFieldsExpect
+            (TwoIpAddressFieldsShowRevisitInstanceIdsOnlyExpect
            , new StyleOptions(PrettyJson)
              {
                  MarkRevisitedSpanFormattableClassInstances = true
+             });
+    }
+    
+    public static InputBearerExpect<TwoSpanFormattableFields<IPAddress>> TwoIpAddressFieldsShowRevisitsAndValuesExpect
+    {
+        get
+        {
+            return twoIpAddressFieldsShowRevisitsAndValuesExpect ??=
+                new InputBearerExpect<TwoSpanFormattableFields<IPAddress>>(TwoIpAddressFields)
+                {
+                    {
+                        new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
+                      , """
+                        TwoSpanFormattableFields<IPAddress>
+                         {
+                         FirstSpanFormattableField:
+                         {
+                         $id: 1,
+                         $values: 127.0.0.1
+                         },
+                         SecondSpanFormattableField:
+                         {
+                         $ref: 1,
+                         $values: 127.0.0.1
+                         }
+                         }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
+                      , """
+                        TwoSpanFormattableFields<IPAddress> {
+                          FirstSpanFormattableField: {
+                            $id: 1,
+                            $values: 127.0.0.1
+                          },
+                          SecondSpanFormattableField: {
+                            $ref: 1,
+                            $values: 127.0.0.1
+                          }
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
+                      , """
+                        {
+                        "FirstSpanFormattableField":{
+                        "$id":"1",
+                        "$values":"127.0.0.1"
+                        },
+                        "SecondSpanFormattableField":
+                        {
+                        "$ref":"1",
+                        "$values":"127.0.0.1"
+                        }
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AlwaysWrites | AcceptsStringBearer, PrettyJson)
+                      , """ 
+                        {
+                          "FirstSpanFormattableField": {
+                            "$id": "1",
+                            "$values": "127.0.0.1"
+                          },
+                          "SecondSpanFormattableField": {
+                            "$ref": "1",
+                            "$values": "127.0.0.1"
+                          }
+                        }
+                        """.Dos2Unix()
+                    }
+                };
+        }
+    }
+
+    [TestMethod]
+    public void TwoIpAddressFieldsShowRevisitsAndValuesCompactLogFormatTest()
+    {
+        ExecuteIndividualScaffoldExpectationWithOptions
+            (TwoIpAddressFieldsShowRevisitsAndValuesExpect
+           , new StyleOptions(CompactLog)
+             {
+                 MarkRevisitedSpanFormattableClassInstances = true
+                , IncludeSpanFormattableContentsOnRevisits = true 
+             });
+    }
+
+    [TestMethod]
+    public void TwoIpAddressFieldsShowRevisitsAndValuesCompactJsonFormatTest()
+    {
+        ExecuteIndividualScaffoldExpectationWithOptions
+            (TwoIpAddressFieldsShowRevisitsAndValuesExpect
+           , new StyleOptions(CompactJson)
+             {
+                 MarkRevisitedSpanFormattableClassInstances = true
+               , IncludeSpanFormattableContentsOnRevisits   = true 
+             });
+    }
+
+    [TestMethod]
+    public void TwoIpAddressFieldsShowRevisitsAndValuesPrettyLogFormatTest()
+    {
+        ExecuteIndividualScaffoldExpectationWithOptions
+            (TwoIpAddressFieldsShowRevisitsAndValuesExpect
+           , new StyleOptions(PrettyLog)
+             {
+                 MarkRevisitedSpanFormattableClassInstances = true
+               , IncludeSpanFormattableContentsOnRevisits   = true 
+             });
+    }
+
+    [TestMethod]
+    public void TwoIpAddressFieldsShowRevisitsAndValuesPrettyJsonFormatTest()
+    {
+        ExecuteIndividualScaffoldExpectationWithOptions
+            (TwoIpAddressFieldsShowRevisitsAndValuesExpect
+           , new StyleOptions(PrettyJson)
+             {
+                 MarkRevisitedSpanFormattableClassInstances = true
+               , IncludeSpanFormattableContentsOnRevisits   = true 
              });
     }
 }

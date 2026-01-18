@@ -1,5 +1,6 @@
 ﻿using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
@@ -16,13 +17,13 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
       , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
+      , VisitResult moldGraphVisit
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
         Initialize(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
-                 , remainingGraphDepth, typeFormatting, existingRefId, writeMethodType
+                 , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType
                  , createFormatFlags | AsCollection);
 
         stb = CompAsOrderedCollection;
@@ -77,14 +78,14 @@ public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCo
       , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
+      , VisitResult moldGraphVisit
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
         InitializeOrderedCollectionBuilder
             (instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
-           , remainingGraphDepth, typeFormatting, existingRefId, writeMethodType
+           , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType
            , createFormatFlags | AsCollection);
 
         return this;
@@ -111,14 +112,14 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
       , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
+      , VisitResult moldGraphVisit
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
         InitializeOrderedCollectionBuilder
             (instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
-           , remainingGraphDepth, typeFormatting, existingRefId, writeMethodType, createFormatFlags | AsCollection);
+           , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags | AsCollection);
 
         return this;
     }

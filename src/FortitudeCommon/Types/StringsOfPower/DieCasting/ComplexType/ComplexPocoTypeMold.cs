@@ -1,5 +1,6 @@
 ﻿using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.CollectionField;
+using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType;
 
@@ -20,13 +21,13 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
       , MoldDieCastSettings appendSettings
       , string? typeName
       , int remainingGraphDepth
+      , VisitResult moldGraphVisit
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
         InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, owning, appendSettings, typeName, remainingGraphDepth
-                                      , typeFormatting, existingRefId, writeMethodType, createFormatFlags);
+                                      , moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
 
         return this;
     }

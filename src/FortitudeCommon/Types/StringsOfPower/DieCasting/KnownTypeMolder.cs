@@ -4,6 +4,7 @@
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 
@@ -16,8 +17,8 @@ public interface IStateTransitioningTransitioningKnownTypeMolder : IDisposable
       , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
+      , VisitResult moldGraphVisit
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags);
 
@@ -42,13 +43,13 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
       , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
+      , VisitResult moldGraphVisit
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
         InitializeStyledTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName, remainingGraphDepth
-                                  , typeFormatting, existingRefId, createFormatFlags);
+                                  , moldGraphVisit, typeFormatting, createFormatFlags);
 
         SourceBuilderComponentAccess(writeMethodType);
     }
@@ -114,11 +115,11 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
     {
         var msf         = MoldStateField;
         var createFlags = msf.CreateMoldFormatFlags;
-        if (msf.StyleTypeBuilder.ExistingRefId != 0)
+        if (msf.StyleTypeBuilder.RevisitedInstanceId != 0)
         {
             var charsWritten =
                 msf.StyleFormatter
-                   .AppendExistingReferenceId(msf, msf.StyleTypeBuilder.ExistingRefId, msf.WriteMethod, createFlags);
+                   .AppendExistingReferenceId(msf, msf.StyleTypeBuilder.RevisitedInstanceId, msf.WriteMethod, createFlags);
             msf.WroteRefId = charsWritten > 0;
             return true;
         }

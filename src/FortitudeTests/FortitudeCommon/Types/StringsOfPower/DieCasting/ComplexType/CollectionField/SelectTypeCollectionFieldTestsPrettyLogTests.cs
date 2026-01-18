@@ -136,10 +136,7 @@ public class SelectTypeCollectionFieldPrettyLogTests : SelectTypeCollectionField
             maybeIndent  = "  ";
             if (!expectValue.SequenceMatches("null")
              && expectation is IOrderedListExpect orderedListExpectation
-             && (orderedListExpectation.ElementCallType.IsEnumOrNullable()
-                // || !(IsLogIgnoredTypeName(tos.Settings, orderedListExpectation.CollectionCallType)
-                //     && IsLogIgnoredTypeName(tos.Settings, orderedListExpectation.ElementCallType))
-                ))
+             && (orderedListExpectation.ElementCallType.IsEnumOrNullable() ))
             {
                 var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
                 nextExpect.Append(propertyName).Append(": (");

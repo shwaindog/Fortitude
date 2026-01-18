@@ -6,6 +6,7 @@ using System.Text;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.UnitField;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
@@ -24,13 +25,13 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold>
       , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
+      , VisitResult moldGraphVisit
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
         InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
-                                 , remainingGraphDepth, typeFormatting, existingRefId, writeMethodType, createFormatFlags);
+                                 , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
 
         return this;
     }

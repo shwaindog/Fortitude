@@ -2,6 +2,7 @@
 using System.Text;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
@@ -16,13 +17,13 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold>
           , MoldDieCastSettings typeSettings
           , string? typeName
           , int remainingGraphDepth
+          , VisitResult moldGraphVisit
           , IStyledTypeFormatting typeFormatting  
-          , int existingRefId
           , WriteMethodType writeMethodType  
           , FormatFlags createFormatFlags)
     {
         InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
-                                 , remainingGraphDepth, typeFormatting,  existingRefId, writeMethodType, createFormatFlags);
+                                 , remainingGraphDepth,  moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
 
         return this;
     }

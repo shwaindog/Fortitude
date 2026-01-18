@@ -333,10 +333,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         if (!alreadySupportsMultipleFields)
         {
             AddToNextFieldSeparatorAndPadding(createTypeFlags);
-            if (!createTypeFlags.HasDisableAutoDelimiting()) GraphBuilder.AppendDelimiter(DblQt);
-            GraphBuilder.AppendContent("$values");
-            if (!createTypeFlags.HasDisableAutoDelimiting()) GraphBuilder.AppendDelimiter(DblQt);
-            AppendFieldValueSeparator();
+            AppendInstanceValuesFieldName(typeof(object), createTypeFlags);
             if (currentEnd >= 0)
             {
                 GraphBuilder.IndentLevel--;
@@ -358,6 +355,16 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         }
         GraphBuilder = toRestore;
         return sb.Length - preAppendLength;
+    }
+
+    public int AppendInstanceValuesFieldName(Type forType, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    {
+        var preAppendLength = GraphBuilder.Sb.Length;
+        if (!formatFlags.HasDisableAutoDelimiting()) GraphBuilder.AppendDelimiter(DblQt);
+        GraphBuilder.AppendContent("$values");
+        if (!formatFlags.HasDisableAutoDelimiting()) GraphBuilder.AppendDelimiter(DblQt);
+        AppendFieldValueSeparator();
+        return GraphBuilder.Sb.Length - preAppendLength;
     }
 
     public virtual int AppendExistingReferenceId(ITypeMolderDieCast moldInternal, int refId, WriteMethodType writeMethod, FormatFlags createTypeFlags)

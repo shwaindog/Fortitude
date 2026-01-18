@@ -215,6 +215,8 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     
     int AppendExistingReferenceId(ITypeMolderDieCast moldInternal, int refId, WriteMethodType writeMethod, FormatFlags createTypeFlags);
 
+    int AppendInstanceValuesFieldName(Type forType, FormatFlags formatFlags = DefaultCallerTypeFlags);
+
     int AppendInstanceInfoField(ITypeMolderDieCast moldInternal, string fieldName, ReadOnlySpan<char> description
     , WriteMethodType writeMethod, FormatFlags createTypeFlags);
     

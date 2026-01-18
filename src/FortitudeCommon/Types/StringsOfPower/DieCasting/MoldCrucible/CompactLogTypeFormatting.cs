@@ -577,8 +577,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             if (needsBracesWrap)
             {
                 AddToNextFieldSeparatorAndPadding(createTypeFlags);
-                GraphBuilder.AppendContent("$values");
-                AppendFieldValueSeparator();
+                AppendInstanceValuesFieldName(typeof(object), createTypeFlags);
                 GraphBuilder.IndentLevel--;
                 suffixInsertSize += SizeNextFieldPadding(createTypeFlags);
                 suffixInsertSize += 1; // close Brace
@@ -600,6 +599,14 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         }
         GraphBuilder = toRestore;
         return sb.Length - preAppendLength;
+    }
+
+    public int AppendInstanceValuesFieldName(Type forType, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    {
+        var preAppendLength = GraphBuilder.Sb.Length;
+        GraphBuilder.AppendContent("$values");
+        AppendFieldValueSeparator();
+        return GraphBuilder.Sb.Length - preAppendLength;
     }
 
     public virtual int AppendExistingReferenceId(ITypeMolderDieCast moldInternal, int refId, WriteMethodType writeMethod, FormatFlags createTypeFlags)

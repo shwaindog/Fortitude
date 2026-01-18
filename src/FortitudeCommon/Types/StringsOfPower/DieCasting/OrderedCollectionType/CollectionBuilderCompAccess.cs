@@ -11,7 +11,7 @@ public class CollectionBuilderCompAccess<TOCMold> : TypeMolderDieCast<TOCMold> w
     public CollectionBuilderCompAccess<TOCMold> InitializeOrderCollectionComponentAccess
         (TOCMold externalTypeBuilder, TypeMolder.MoldPortableState typeBuilderPortableState, WriteMethodType writeMethod)
     {
-        writeMethod = typeBuilderPortableState.ExistingRefId > 0 
+        writeMethod = typeBuilderPortableState.MoldGraphVisit.HasExistingInstanceId 
                    || writeMethod.SupportsMultipleFields() && typeBuilderPortableState.Master.Style.IsLog()
                       ? writeMethod
                       : writeMethod.ToNoFieldEquivalent();

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
@@ -21,13 +22,13 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
       , MoldDieCastSettings appendSettings
       , string? typeName
       , int remainingGraphDepth
+      , VisitResult moldGraphVisit
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
         InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName, remainingGraphDepth
-                                      , typeFormatting, existingRefId, writeMethodType, createFormatFlags);
+                                      , moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
 
         stb = MoldStateField;
 
