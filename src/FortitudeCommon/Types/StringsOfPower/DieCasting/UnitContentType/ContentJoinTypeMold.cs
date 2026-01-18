@@ -12,7 +12,7 @@ public class ContentJoinTypeMold<TMold> : KnownTypeMolder<ContentJoinTypeMold<TM
     
     public override bool IsComplexType => initialWasComplex;
 
-    public override void AppendTypeOpeningToGraphFields()
+    public override void StartFormattingTypeOpening()
     {
         throw new NotImplementedException("Should never be called!");
     }
@@ -48,7 +48,7 @@ public class ContentJoinTypeMold<TMold> : KnownTypeMolder<ContentJoinTypeMold<TM
     public ContentJoinTypeMold<TMold> CopyFrom(TMold source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         PortableState = ((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.PortableState;
-        SourceBuilderComponentAccess();
+        SourceBuilderComponentAccess(((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.WriteMethod);
         
         MoldStateField.CopyFrom(((ITypeBuilderComponentSource)source).MoldState, copyMergeFlags);
         initialWasComplex = source.IsComplexType;

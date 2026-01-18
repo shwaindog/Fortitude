@@ -8,6 +8,17 @@ public interface ITransferState
     ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags);
 }
 
+public interface IStructTransferState<T> where T : struct
+{
+    T CopyFrom(T source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
+}
+
+public interface INullableStructTransferState<T> where T : struct
+{
+    T CopyFrom(T? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
+    T CopyFrom(T source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);
+}
+
 public interface ITransferState<T> : ITransferState where T : class
 {
     T CopyFrom(T source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default);

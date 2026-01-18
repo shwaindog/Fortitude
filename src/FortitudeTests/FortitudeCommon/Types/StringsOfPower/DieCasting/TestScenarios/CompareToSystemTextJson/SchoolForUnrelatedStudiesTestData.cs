@@ -17,7 +17,7 @@ using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpecta
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 // ReSharper disable ConvertToPrimaryConstructor
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Scenarios.CompareToSystemTextJson;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CompareToSystemTextJson;
 
 [NoMatchingProductionClass]
 public class SchoolForUnrelatedStudiesTestData

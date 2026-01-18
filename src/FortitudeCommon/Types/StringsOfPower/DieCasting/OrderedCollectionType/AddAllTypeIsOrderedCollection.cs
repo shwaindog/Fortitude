@@ -31,7 +31,7 @@ public partial class OrderedCollectionMold<TOCMold>
             }
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(bool?[]? value
@@ -53,7 +53,7 @@ public partial class OrderedCollectionMold<TOCMold>
             }
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(Span<bool> value
@@ -76,7 +76,7 @@ public partial class OrderedCollectionMold<TOCMold>
             }
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(ReadOnlySpan<bool> value
@@ -99,7 +99,7 @@ public partial class OrderedCollectionMold<TOCMold>
             }
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(Span<bool?> value
@@ -121,7 +121,7 @@ public partial class OrderedCollectionMold<TOCMold>
             }
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(ReadOnlySpan<bool?> value
@@ -143,7 +143,7 @@ public partial class OrderedCollectionMold<TOCMold>
             }
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(IReadOnlyList<bool>? value
@@ -165,7 +165,7 @@ public partial class OrderedCollectionMold<TOCMold>
             }
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(IReadOnlyList<bool?>? value
@@ -187,7 +187,7 @@ public partial class OrderedCollectionMold<TOCMold>
             }
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate(IEnumerable<bool>? value
@@ -212,7 +212,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate(IEnumerable<bool?>? value
@@ -237,7 +237,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate(IEnumerator<bool>? value
@@ -266,7 +266,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate(IEnumerator<bool?>? value
@@ -295,7 +295,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll<TFmt>(TFmt?[]? value
@@ -320,7 +320,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? value?.Length : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll<TFmtStruct>(TFmtStruct?[]? value
@@ -345,7 +345,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? value?.Length : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll<TFmt>(Span<TFmt> value
@@ -371,7 +371,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll<TFmt>(ReadOnlySpan<TFmt> value
@@ -397,7 +397,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll<TFmtStruct>(Span<TFmtStruct?> value
@@ -423,7 +423,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll<TFmtStruct>(ReadOnlySpan<TFmtStruct?> value
@@ -449,7 +449,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll<TFmt>(IReadOnlyList<TFmt?>? value
@@ -475,7 +475,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll<TFmtStruct>(IReadOnlyList<TFmtStruct?>? value
@@ -501,7 +501,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate<TFmt>(IEnumerable<TFmt?>? value
@@ -526,7 +526,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate<TFmtStruct>(IEnumerable<TFmtStruct?>? value
@@ -551,7 +551,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate<TFmt>(IEnumerator<TFmt?>? value
@@ -579,7 +579,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate<TFmtStruct>(IEnumerator<TFmtStruct?>? value
@@ -607,7 +607,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TCloaked, TRevealBase>(TCloaked?[]? value, PalantírReveal<TRevealBase> palantírReveal
@@ -632,7 +632,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? value?.Length : null, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
 
@@ -658,7 +658,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? value?.Length : null, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TCloaked, TRevealBase>(Span<TCloaked> value, PalantírReveal<TRevealBase> palantírReveal
@@ -684,7 +684,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TCloakedStruct>(Span<TCloakedStruct?> value, PalantírReveal<TCloakedStruct> palantírReveal
@@ -709,7 +709,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TCloaked, TRevealBase>(ReadOnlySpan<TCloaked> value, PalantírReveal<TRevealBase> palantírReveal
@@ -735,7 +735,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TCloakedStruct>(ReadOnlySpan<TCloakedStruct?> value, PalantírReveal<TCloakedStruct> palantírReveal
@@ -760,7 +760,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TCloaked, TRevealBase>(IReadOnlyList<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal
@@ -786,7 +786,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TCloakedStruct>(IReadOnlyList<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal
@@ -811,7 +811,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAllEnumerate<TCloaked, TRevealBase>(IEnumerable<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal
@@ -836,7 +836,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAllEnumerate<TCloakedStruct>(IEnumerable<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal
@@ -860,7 +860,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAllEnumerate<TCloaked, TRevealBase>(IEnumerator<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal
@@ -888,7 +888,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAllEnumerate<TCloakedStruct>(IEnumerator<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal
@@ -915,7 +915,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TBearer>(TBearer[]? value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -939,7 +939,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Length, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TBearerStruct>(TBearerStruct?[]? value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -963,7 +963,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Length, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TBearer>(Span<TBearer> value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -987,7 +987,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TBearerStruct>(Span<TBearerStruct?> value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1011,7 +1011,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TBearer>(ReadOnlySpan<TBearer> value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1035,7 +1035,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TBearerStruct>(ReadOnlySpan<TBearerStruct?> value, string? formatString = null
@@ -1060,7 +1060,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TBearer>(IReadOnlyList<TBearer>? value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1084,7 +1084,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAll<TBearerStruct>(IReadOnlyList<TBearerStruct?>? value, string? formatString = null
@@ -1109,7 +1109,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAllEnumerate<TBearer>(IEnumerable<TBearer>? value, string? formatString = null
@@ -1133,7 +1133,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAllEnumerate<TBearerStruct>(IEnumerable<TBearerStruct?>? value, string? formatString = null
@@ -1157,7 +1157,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAllEnumerate<TBearer>(IEnumerator<TBearer>? value, string? formatString = null
@@ -1185,7 +1185,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold RevealAllEnumerate<TBearerStruct>(IEnumerator<TBearerStruct?>? value, string? formatString = null
@@ -1213,7 +1213,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, "", formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(string?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -1237,7 +1237,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? value?.Length : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(Span<string> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -1262,7 +1262,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllNullable(Span<string?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -1287,7 +1287,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(ReadOnlySpan<string> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -1312,7 +1312,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllNullable(ReadOnlySpan<string?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -1337,7 +1337,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(IReadOnlyList<string?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -1362,7 +1362,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate(IEnumerable<string?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -1386,7 +1386,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate(IEnumerator<string?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -1414,7 +1414,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllCharSeq<TCharSeq>(TCharSeq?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -1439,7 +1439,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? value?.Length : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllCharSeq<TCharSeq>(Span<TCharSeq> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -1465,7 +1465,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllCharSeq<TCharSeq>(ReadOnlySpan<TCharSeq> value
@@ -1492,7 +1492,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllCharSeq<TCharSeq>(IReadOnlyList<TCharSeq?>? value
@@ -1519,7 +1519,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllCharSeqEnumerate<TCharSeq>(IEnumerable<TCharSeq?>? value
@@ -1545,7 +1545,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllCharSeqEnumerate<TCharSeq>(IEnumerator<TCharSeq?>? value
@@ -1575,7 +1575,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(StringBuilder?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -1600,7 +1600,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? value?.Length : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(Span<StringBuilder> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -1625,7 +1625,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllNullable(Span<StringBuilder?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -1650,7 +1650,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(ReadOnlySpan<StringBuilder> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -1675,7 +1675,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllNullable(ReadOnlySpan<StringBuilder?> value
@@ -1701,7 +1701,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAll(IReadOnlyList<StringBuilder?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -1726,7 +1726,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate(IEnumerable<StringBuilder?>? value
@@ -1751,7 +1751,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllEnumerate(IEnumerator<StringBuilder?>? value
@@ -1780,7 +1780,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllMatch<TAny>(TAny[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -1804,7 +1804,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllMatch<TAny>(Span<TAny> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -1829,7 +1829,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllMatch<TAny>(ReadOnlySpan<TAny> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -1854,7 +1854,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllMatch<TAny>(IReadOnlyList<TAny>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -1879,7 +1879,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllMatchEnumerate<TAny>(IEnumerable<TAny>? value
@@ -1904,7 +1904,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     public TOCMold AddAllMatchEnumerate<TAny>(IEnumerator<TAny>? value
@@ -1933,7 +1933,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString]
@@ -1958,7 +1958,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? value?.Length : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString]
@@ -1984,7 +1984,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString]
@@ -2010,7 +2010,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString]
@@ -2036,7 +2036,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString]
@@ -2062,7 +2062,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value.Length, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString]
@@ -2088,7 +2088,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, value?.Count, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString]
@@ -2114,7 +2114,7 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 
     [CallsObjectToString]
@@ -2144,6 +2144,6 @@ public partial class OrderedCollectionMold<TOCMold>
             if (!any) stb.ConditionalCollectionPrefix(elementType, false);
         }
         stb.ConditionalCollectionSuffix(elementType, any ? itemCount : null, formatString, formatFlags);
-        return stb.WriteAsComplex ? stb.AddGoToNext() : stb.StyleTypeBuilder;
+        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.StyleTypeBuilder;
     }
 }

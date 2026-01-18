@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
@@ -18,12 +19,13 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
       , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
+      , VisitResult moldGraphVisit
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId
+      , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
         InitializeOrderedCollectionBuilder(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
-                                         , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
+                                         , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
 
         return this;
     }
@@ -254,11 +256,11 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
 
     public StateExtractStringRange AppendCollectionComplete() => Complete();
 
-    protected override void SourceBuilderComponentAccess()
+    protected override void SourceBuilderComponentAccess(WriteMethodType writeMethod)
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
         MoldStateField = recycler.Borrow<CollectionBuilderCompAccess<ExplicitOrderedCollectionMold<TElement>>>()
-                             .InitializeOrderCollectionComponentAccess(this, PortableState, false);
+                             .InitializeOrderCollectionComponentAccess(this, PortableState, writeMethod);
     }
     
     protected override CollectionBuilderCompAccess<ExplicitOrderedCollectionMold<TElement>> CompAsOrderedCollection =>  

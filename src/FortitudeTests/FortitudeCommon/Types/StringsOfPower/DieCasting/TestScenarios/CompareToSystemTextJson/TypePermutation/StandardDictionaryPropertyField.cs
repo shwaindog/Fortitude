@@ -1,6 +1,4 @@
-﻿using FortitudeCommon.Types.StringsOfPower.Forge;
-
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Scenarios.CompareToSystemTextJson.TypePermutation;
+﻿namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CompareToSystemTextJson.TypePermutation;
 
 public class StandardDictionaryPropertyField
 {

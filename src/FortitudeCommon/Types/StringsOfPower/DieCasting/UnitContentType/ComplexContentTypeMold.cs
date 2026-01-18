@@ -6,6 +6,7 @@ using System.Text;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.UnitField;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
@@ -24,17 +25,18 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold>
       , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
+      , VisitResult moldGraphVisit
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId
+      , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
         InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
-                                 , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
+                                 , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
 
         return this;
     }
     
-    public override void AppendTypeOpeningToGraphFields()
+    public override void StartFormattingTypeOpening()
     {
       if (IsComplexType)
         MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField);
@@ -57,11 +59,11 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold>
     
     public override bool IsComplexType => Msf.IsLog;
 
-    protected override void SourceBuilderComponentAccess()
+    protected override void SourceBuilderComponentAccess(WriteMethodType writeMethod)
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
         MoldStateField = recycler.Borrow<ContentTypeDieCast<ComplexContentTypeMold>>()
-                             .InitializeValueBuilderCompAccess(this, PortableState, PortableState.Master.Style.IsLog());
+                             .InitializeValueBuilderCompAccess(this, PortableState, writeMethod);
     }
     
     public SelectTypeField<ComplexContentTypeMold> LogOnlyField =>

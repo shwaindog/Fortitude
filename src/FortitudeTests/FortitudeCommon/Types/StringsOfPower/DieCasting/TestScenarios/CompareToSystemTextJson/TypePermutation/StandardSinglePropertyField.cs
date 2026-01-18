@@ -12,7 +12,7 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 // ReSharper disable PreferConcreteValueOverDefault
 // A Single Property or Field becomes SingPropield
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Scenarios.CompareToSystemTextJson.TypePermutation;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CompareToSystemTextJson.TypePermutation;
 
 public class StandardSinglePropertyFieldClass : IStringBearer
 {

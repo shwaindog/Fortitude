@@ -86,14 +86,15 @@ public class ContentTypeMoldTestsCompactJsonAsValueTests : ContentTypeMoldAsValu
     public void CompactJsonNullStringBearerAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)=> 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
     
-    [TestMethod]
+    // [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(EnumTestData.EnumExpectations[25], ScaffoldingRegistry.AllScaffoldingTypes[1264], StringBuilderType.MutableString);
+        ExecuteIndividualScaffoldExpectation(UnsignedIntegerTestData.UnsignedIntegerExpectations[2]
+                                           , ScaffoldingRegistry.AllScaffoldingTypes[1356], StringBuilderType.MutableString);
     }
 
-    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
         var compactJsonTemplate = expectation.GetType().ExtendsGenericBaseType(typeof(NullableStringBearerExpect<>))
@@ -111,7 +112,7 @@ public class ContentTypeMoldTestsCompactJsonAsValueTests : ContentTypeMoldAsValu
         return fmtExpect;
     }
     
-    protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
         const string compactJsonTemplate = "{{\"{0}\":{1}}}";

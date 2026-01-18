@@ -1325,7 +1325,7 @@ public class OrderedFromCharSequenceArrayAddAllSimpleOrderedCollectionStringBear
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsCharSequence
                 | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceSpanAddAllSimpleOrderedCollectionStringBearer<TCharSeq> : FormattedCollectionMoldScaffold<TCharSeq, TCharSeq[]>
-    where TCharSeq : ICharSequence
+    where TCharSeq : ICharSequence?
 {
     public TCharSeq[]? OrderedCollectionAddAllCharSequenceSpan
     {
@@ -1342,32 +1342,11 @@ public class OrderedFromCharSequenceSpanAddAllSimpleOrderedCollectionStringBeare
            .Complete();
 }
 
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsCharSequence
-                | AcceptsNullableClass | SupportsValueFormatString)]
-public class OrderedFromCharSequenceNullableSpanAddAllSimpleOrderedCollectionStringBearer<TCharSeq> :
-    FormattedCollectionMoldScaffold<TCharSeq?, TCharSeq?[]>
-    where TCharSeq : ICharSequence
-{
-    public TCharSeq?[]? OrderedCollectionAddAllCharSequenceNullableSpan
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddAllCharSequenceNullableSpan);
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddAllCharSeq(OrderedCollectionAddAllCharSequenceNullableSpan.AsSpan()
-                        , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsCharSequence
                 | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TCharSeq> :
     FormattedCollectionMoldScaffold<TCharSeq, TCharSeq[]>
-    where TCharSeq : ICharSequence
+    where TCharSeq : ICharSequence?
 {
     public TCharSeq[]? OrderedCollectionAddAllCharSequenceReadOnlySpan
     {
@@ -1380,26 +1359,6 @@ public class OrderedFromCharSequenceReadOnlySpanAddAllSimpleOrderedCollectionStr
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddAllCharSeq((ReadOnlySpan<TCharSeq>)OrderedCollectionAddAllCharSequenceReadOnlySpan.AsSpan()
-                        , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan
-                | AcceptsNullableClass | AcceptsCharSequence | SupportsValueFormatString)]
-public class OrderedFromCharSequenceNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TCharSeq>
-    : FormattedCollectionMoldScaffold<TCharSeq?, TCharSeq?[]> where TCharSeq : ICharSequence
-{
-    public TCharSeq?[]? OrderedCollectionAddAllCharSequenceNullableReadOnlySpan
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddAllCharSequenceNullableReadOnlySpan);
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddAllCharSeq((ReadOnlySpan<TCharSeq?>)OrderedCollectionAddAllCharSequenceNullableReadOnlySpan.AsSpan()
                         , ValueFormatString, FormattingFlags)
            .Complete();
 }

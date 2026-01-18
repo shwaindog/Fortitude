@@ -10,11 +10,29 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExp
 
 public abstract class CommonStyleExpectationTestBase : CommonExpectationBase
 {
+    
+    protected StyleOptions? NextTestStyleOptions { get; set; }
+    
     protected void ExecuteIndividualScaffoldExpectation(IInputBearerFormatExpectation formatExpectation, StringStyle stringStyle
       , StringBuilderType usingStringBuilder = StringBuilderType.Alternating)
     {
         Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
         ExecuteStringStyleTestFormatExpectation(formatExpectation, stringStyle, usingStringBuilder);
+    }
+    
+    protected void ExecuteIndividualScaffoldExpectationWithOptions(IInputBearerFormatExpectation formatExpectation
+      , StyleOptions usingStyleOptions, StringBuilderType usingStringBuilder = StringBuilderType.Alternating)
+    {
+        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+        try
+        {
+            NextTestStyleOptions = usingStyleOptions;
+            ExecuteStringStyleTestFormatExpectation(formatExpectation, usingStyleOptions.Style, usingStringBuilder);
+        }
+        finally
+        {
+            NextTestStyleOptions = null;
+        }
     }
 
     protected void ExecuteStringStyleTestFormatExpectation(IInputBearerFormatExpectation formatExpectation, StringStyle stringStyle
@@ -29,9 +47,19 @@ public abstract class CommonStyleExpectationTestBase : CommonExpectationBase
               .Append(formatExpectation.ToString())
               .FinalAppend("");
 
-        var sb = SourceTheOnStringStringBuilder(usingStringBuilder);
+        IStringBuilder sb;
 
-        TheOneString.ReInitialize(sb, stringStyle);
+        if (NextTestStyleOptions == null)
+        {
+            sb = SourceTheOnStringStringBuilder(usingStringBuilder);
+            TheOneString.ReInitialize(sb, stringStyle);
+        }
+        else
+        {
+            NextTestStyleOptions.NewLineStyle = "\n";
+            TheOneString.ClearAndReinitialize(NextTestStyleOptions);
+            sb = TheOneString.WriteBuffer;
+        }
 
         var stringBearer                = formatExpectation.TestStringBearer;
         var resultWithVisibleWhiteSpace = Recycler.Borrow<CharArrayStringBuilder>();
@@ -40,7 +68,7 @@ public abstract class CommonStyleExpectationTestBase : CommonExpectationBase
         var buildExpectedWithVisibleWhiteSpace = Recycler.Borrow<CharArrayStringBuilder>();
         var buildExpectedOutput                = formatExpectation.GetExpectedOutputFor(Recycler, stringStyle);
         buildExpectedOutput.CopyAndMakeWhiteSpaceVisible(buildExpectedWithVisibleWhiteSpace);
-        if (!TheOneString.WriteBuffer.SequenceMatches(buildExpectedOutput))
+        if (!sb.SequenceMatches(buildExpectedOutput))
         {
             Logger.ErrorAppend("Result Did not match Expected - ")?.AppendLine()
                   .Append(resultWithVisibleWhiteSpace).AppendLine()

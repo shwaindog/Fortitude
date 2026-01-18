@@ -18,95 +18,113 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Complex
 public class SelectTypeCollectionFieldPrettyLogTests : SelectTypeCollectionFieldTests
 {
     public override StringStyle TestStyle => Pretty | Log;
-    
+
     [ClassInitialize]
-    public static void EnsureBaseClassInitialized(TestContext testContext) => 
+    public static void EnsureBaseClassInitialized(TestContext testContext) =>
         AllDerivedShouldCallThisInClassInitialize(testContext);
 
-    public static string CreateDataDrivenTestName(MethodInfo methodInfo, object[] data) => 
+    public static string CreateDataDrivenTestName(MethodInfo methodInfo, object[] data) =>
         GenerateScaffoldExpectationTestName(methodInfo, data);
-    
+
     [TestMethod]
-    [DynamicData(nameof(UnfilteredBooleanCollectionsExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredPrettyLogBoolCollections(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(UnfilteredBooleanCollectionsExpect), typeof(SelectTypeCollectionFieldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredPrettyLogBoolCollections(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(FilteredBooleanCollectionsExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredPrettyLogBoolCollections(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(FilteredBooleanCollectionsExpect), typeof(SelectTypeCollectionFieldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredPrettyLogBoolCollections(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(UnfilteredFmtCollectionsExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredPrettyLogFmtList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(UnfilteredFmtCollectionsExpect), typeof(SelectTypeCollectionFieldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredPrettyLogFmtList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(FilteredFmtCollectionsExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredPrettyLogFmtList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(FilteredFmtCollectionsExpect), typeof(SelectTypeCollectionFieldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredPrettyLogFmtList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(UnfilteredStringCollectionExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredPrettyLogStringList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(UnfilteredStringCollectionExpect), typeof(SelectTypeCollectionFieldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredPrettyLogStringList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(FilteredStringCollectionExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredPrettyLogStringList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(FilteredStringCollectionExpect), typeof(SelectTypeCollectionFieldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredPrettyLogStringList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(UnfilteredCharSequenceCollectionExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredPrettyLogCharSequenceList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(UnfilteredCharSequenceCollectionExpect), typeof(SelectTypeCollectionFieldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredPrettyLogCharSequenceList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(FilteredCharSequenceCollectionExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredPrettyLogCharSequenceList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(FilteredCharSequenceCollectionExpect), typeof(SelectTypeCollectionFieldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredPrettyLogCharSequenceList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(UnfilteredStringBuilderCollectionExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredPrettyLogStringBuilderList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(UnfilteredStringBuilderCollectionExpect), typeof(SelectTypeCollectionFieldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredPrettyLogStringBuilderList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(FilteredStringBuilderCollectionExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredPrettyLogStringBuilderList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(FilteredStringBuilderCollectionExpect), typeof(SelectTypeCollectionFieldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredPrettyLogStringBuilderList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(UnfilteredCloakedBearerCollectionExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredPrettyLogCloakedBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(UnfilteredCloakedBearerCollectionExpect), typeof(SelectTypeCollectionFieldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredPrettyLogCloakedBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(FilteredCloakedBearerCollectionExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredPrettyLogCloakedBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(FilteredCloakedBearerCollectionExpect), typeof(SelectTypeCollectionFieldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredPrettyLogCloakedBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(UnfilteredStringBearerCollectionExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredPrettyLogStringBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(UnfilteredStringBearerCollectionExpect), typeof(SelectTypeCollectionFieldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredPrettyLogStringBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(FilteredStringBearerCollectionExpect), typeof(SelectTypeCollectionFieldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredPrettyLogStringBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(FilteredStringBearerCollectionExpect), typeof(SelectTypeCollectionFieldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredPrettyLogStringBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
-    
+
     [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(StringBearerCollectionsTestData.AllStringBearerCollectionExpectations[9], ScaffoldingRegistry.AllScaffoldingTypes[139]);
+        ExecuteIndividualScaffoldExpectation(CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations[9]
+                                           , ScaffoldingRegistry.AllScaffoldingTypes[75], StringBuilderType.CharArrayStringBuilder);
     }
 
-    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
-      , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
+    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
+      , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
     {
-        const string compactLogTemplate = "{0} {{{1}{2}{3}{1}}}";
+        var compactLogTemplate =
+            IsLogIgnoredTypeName(tos.Settings, className)
+                ? "{{{1}{2}{3}{1}}}"
+                : "{0} {{{1}{2}{3}{1}}}";
 
 
         var maybeNewLine = "";
@@ -118,12 +136,12 @@ public class SelectTypeCollectionFieldPrettyLogTests : SelectTypeCollectionField
             maybeIndent  = "  ";
             if (!expectValue.SequenceMatches("null")
              && expectation is IOrderedListExpect orderedListExpectation
-             && orderedListExpectation.ElementCallType.IsEnumOrNullable())
+             && (orderedListExpectation.ElementCallType.IsEnumOrNullable() ))
             {
                 var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
                 nextExpect.Append(propertyName).Append(": (");
-                orderedListExpectation.CollectionCallType.AppendShortNameInCSharpFormat(nextExpect).Append(")")
-                                      .Append(expectValue.IndentSubsequentLines());
+                orderedListExpectation.CollectionCallType.AppendShortNameInCSharpFormat(nextExpect).Append(") ");
+                nextExpect.Append(expectValue.IndentSubsequentLines());
                 expectValue.DecrementRefCount();
                 expectValue = nextExpect;
             }
@@ -140,23 +158,27 @@ public class SelectTypeCollectionFieldPrettyLogTests : SelectTypeCollectionField
         else { expectValue.Clear(); }
 
         var fmtExpect = sbFactory.Borrow<CharArrayStringBuilder>();
-        fmtExpect.AppendFormat(compactLogTemplate, className, maybeNewLine, maybeIndent, expectValue);
+        fmtExpect.AppendFormat(compactLogTemplate, className?.CachedCSharpNameNoConstraints() ?? "", maybeNewLine, maybeIndent, expectValue);
         expectValue.DecrementRefCount();
         return fmtExpect;
     }
-    
-    protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
-      , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
+
+    protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
+      , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
     {
-        var compactLogTemplate = className.IsNotEmpty() ? "({0}){1}" : "{1}";
+        var maybeElementType = className?.GetIterableElementType();
+        var compactLogTemplate =
+            className != null
+            && (!IsLogIgnoredTypeName(tos.Settings, className) 
+         || (maybeElementType != null 
+         || !IsLogIgnoredTypeName(tos.Settings, maybeElementType!.IfNullableGetUnderlyingTypeOrThis())))
+                ? "({0}) {1}"
+                : "{1}";
 
         var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
-        if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))
-        {
-            expectValue.Clear();
-        }
+        if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue)) { expectValue.Clear(); }
         var fmtExpect = sbFactory.Borrow<CharArrayStringBuilder>();
-        fmtExpect.AppendFormat(compactLogTemplate, className, expectValue);
+        fmtExpect.AppendFormat(compactLogTemplate, className?.ShortNameInCSharpFormat() ?? "", expectValue);
         expectValue.DecrementRefCount();
         return fmtExpect;
     }

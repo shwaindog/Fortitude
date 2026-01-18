@@ -21,8 +21,8 @@ public static class SingleMessageBuildingValues
         "The quick brown fox jumps over the lazy dog.The quick brown fox jumps over the lazy dog.The quick brown fox jumps over the lazy " +
         "dog.The quick brown fox jumps over the lazy dog.The quick brown fox jumps over the lazy dog.The quick brown fox jumps over the lazy dog.";
 
-    public const string TimeSpanStylerComplexAsString = "TimeSpan { Seconds: 42, Milliseconds: 242, Microseconds: 424 }";
-    public const string TimeSpanSpanFormatAsString    = "TimeSpan { 42.242424 }";
+    public const string TimeSpanStylerComplexAsString = "{ Seconds: 42, Milliseconds: 242, Microseconds: 424 }";
+    public const string TimeSpanSpanFormatAsString    = "{ 42.242424 }";
 
     public const double ToFormatNumber = Math.PI;
 

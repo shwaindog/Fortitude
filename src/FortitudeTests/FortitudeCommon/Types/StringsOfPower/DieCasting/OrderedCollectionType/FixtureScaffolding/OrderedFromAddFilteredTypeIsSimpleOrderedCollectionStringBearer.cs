@@ -1536,35 +1536,11 @@ public class OrderedFromCharSequenceSpanAddFilteredSimpleOrderedCollectionString
            .Complete();
 }
 
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate
-                | AcceptsCharSequence | AcceptsNullableClass | SupportsValueFormatString)]
-public class OrderedFromCharSequenceNullableSpanAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> :
-    FormattedFilteredCollectionMoldScaffold<TCharSeq, TCharSeqBase, TCharSeq[]>
-    where TCharSeq : ICharSequence, TCharSeqBase
-{
-    public TCharSeq?[]? OrderedCollectionAddFilteredCharSequenceNullableSpan
-    {
-        get => Value;
-        set => Value = value!;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddFilteredCharSequenceNullableSpan);
-
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddFilteredCharSeq
-               (OrderedCollectionAddFilteredCharSequenceNullableSpan.AsSpan()
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate
                 | AcceptsCharSequence | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> :
     FormattedFilteredCollectionMoldScaffold<TCharSeq, TCharSeqBase, TCharSeq[]>
-    where TCharSeq : ICharSequence, TCharSeqBase
+    where TCharSeq : ICharSequence?, TCharSeqBase?
 {
     public TCharSeq[]? OrderedCollectionAddFilteredCharSequenceReadOnlySpan
     {
@@ -1579,30 +1555,6 @@ public class OrderedFromCharSequenceReadOnlySpanAddFilteredSimpleOrderedCollecti
         tos.StartSimpleCollectionType(this)
            .AddFilteredCharSeq
                ((ReadOnlySpan<TCharSeq>)OrderedCollectionAddFilteredCharSequenceReadOnlySpan.AsSpan()
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate
-                | AcceptsCharSequence | AcceptsNullableClass | SupportsValueFormatString)]
-public class OrderedFromCharSequenceNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> :
-    FormattedFilteredCollectionMoldScaffold<TCharSeq, TCharSeqBase, TCharSeq[]>
-    where TCharSeq : ICharSequence, TCharSeqBase
-{
-    public TCharSeq?[]? OrderedCollectionAddFilteredCharSequenceNullableReadOnlySpan
-    {
-        get => Value;
-        set => Value = value!;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddFilteredCharSequenceNullableReadOnlySpan);
-
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddFilteredCharSeq
-               ((ReadOnlySpan<TCharSeq?>)OrderedCollectionAddFilteredCharSequenceNullableReadOnlySpan.AsSpan()
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
            .Complete();

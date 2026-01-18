@@ -327,29 +327,6 @@ public class FieldCharSequenceSpanWhenPopulatedAddAllStringBearer<TCharSeq> : Fo
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | AcceptsCharSequence 
-                | AcceptsNullableClass | SupportsValueFormatString)]
-public class FieldCharSequenceNullableSpanWhenPopulatedAddAllStringBearer<TCharSeq> : FormattedCollectionFieldMoldScaffold<TCharSeq?, TCharSeq?[]>
-   where TCharSeq : ICharSequence
-{
-    public TCharSeq?[]? ComplexTypeCollectionFieldWhenPopulatedAddAllCharSequenceNullableSpan
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllCharSequenceNullableSpan);
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllCharSeq
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllCharSequenceNullableSpan)
-              , ComplexTypeCollectionFieldWhenPopulatedAddAllCharSequenceNullableSpan.AsSpan()
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-
-}
-
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | NonNullAndPopulatedWrites | AcceptsStringBuilder 
                 | AcceptsClass | SupportsValueFormatString)]
 public class FieldStringBuilderSpanWhenPopulatedAddAllStringBearer : FormattedCollectionFieldMoldScaffold<StringBuilder, StringBuilder[]>
@@ -781,28 +758,6 @@ public class FieldCharSequenceReadOnlySpanWhenPopulatedAddAllStringBearer<TCharS
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites | AcceptsCharSequence 
-                | AcceptsNullableClass | SupportsValueFormatString)]
-public class FieldCharSequenceNullableReadOnlySpanWhenPopulatedAddAllStringBearer<TCharSeq> : FormattedCollectionFieldMoldScaffold<TCharSeq?, TCharSeq?[]>
-    where TCharSeq : ICharSequence
-{
-    public TCharSeq?[]? ComplexTypeCollectionFieldWhenPopulatedAddAllCharSequenceNullableSpan
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllCharSequenceNullableSpan);
-
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllCharSeq
-               (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllCharSequenceNullableSpan)
-              , (ReadOnlySpan<TCharSeq?>)ComplexTypeCollectionFieldWhenPopulatedAddAllCharSequenceNullableSpan
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-
-}
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | NonNullAndPopulatedWrites | AcceptsStringBuilder 
                 | AcceptsClass | SupportsValueFormatString)]

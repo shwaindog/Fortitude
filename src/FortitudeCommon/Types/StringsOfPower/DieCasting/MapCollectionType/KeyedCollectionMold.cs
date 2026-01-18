@@ -3,6 +3,7 @@
 
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 
@@ -21,12 +22,13 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
       , MoldDieCastSettings appendSettings
       , string? typeName
       , int remainingGraphDepth
-      , IStyledTypeFormatting typeFormatting  
-      , int existingRefId
+      , VisitResult moldGraphVisit
+      , IStyledTypeFormatting typeFormatting
+      , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
         InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName
-                                      , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
+                                      , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
 
         stb = MoldStateField;
 
@@ -35,7 +37,7 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
 
     public override bool IsComplexType => true;
     
-    public override void AppendTypeOpeningToGraphFields()
+    public override void StartFormattingTypeOpening()
     {
         var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!; 
         MoldStateField.StyleFormatter.AppendKeyedCollectionStart(MoldStateField.Sb, MoldStateField.TypeBeingBuilt, keyValueTypes.Value.Key, keyValueTypes.Value.Value);

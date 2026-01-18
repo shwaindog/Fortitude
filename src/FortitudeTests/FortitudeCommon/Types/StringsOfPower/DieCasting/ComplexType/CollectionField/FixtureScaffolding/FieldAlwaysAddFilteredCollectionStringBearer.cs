@@ -362,32 +362,6 @@ public class FieldCharSequenceSpanAlwaysAddFilteredStringBearer<TCharSeq, TCharS
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsCharSequence 
-                | AcceptsNullableClass | SupportsValueFormatString)]
-public class FieldCharSequenceNullableSpanAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
-    : FormattedFilteredCollectionFieldMoldScaffold<TCharSeq?, TCharSeq?[]>
-    where TCharSeq : ICharSequence, TCharSeqFilterBase
-{
-    public TCharSeq?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableCharSequenceSpan
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCharSequenceSpan);
-
-    
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .CollectionField.AlwaysAddFilteredCharSeq
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCharSequenceSpan)
-              , ComplexTypeCollectionFieldAlwaysAddFilteredNullableCharSequenceSpan.AsSpan()
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-
-}
-
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsSpan | AlwaysWrites | FilterPredicate | AcceptsStringBuilder 
                 | AcceptsClass | SupportsValueFormatString)]
 public class FieldStringBuilderSpanAlwaysAddFilteredStringBearer : FormattedFilteredCollectionFieldMoldScaffold<StringBuilder, StringBuilder[]>
@@ -868,31 +842,6 @@ public class FieldCharSequenceReadOnlySpanAlwaysAddFilteredStringBearer<TCharSeq
 
 }
 
-[TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
-                | AcceptsNullableClass | AcceptsCharSequence | SupportsValueFormatString)]
-public class FieldCharSequenceNullableReadOnlySpanAlwaysAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
-    : FormattedFilteredCollectionFieldMoldScaffold<TCharSeq?, TCharSeq?[]>
-    where TCharSeq : ICharSequence, TCharSeqFilterBase
-{
-    public TCharSeq?[]? ComplexTypeCollectionFieldAlwaysAddFilteredNullableCharSequenceReadOnlySpan
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCharSequenceReadOnlySpan);
-
-    
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .CollectionField.AlwaysAddFilteredCharSeq
-               (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCharSequenceReadOnlySpan),
-                (ReadOnlySpan<TCharSeq?>)ComplexTypeCollectionFieldAlwaysAddFilteredNullableCharSequenceReadOnlySpan
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-
-}
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AlwaysWrites | FilterPredicate 
                 | AcceptsClass | AcceptsStringBuilder | SupportsValueFormatString)]

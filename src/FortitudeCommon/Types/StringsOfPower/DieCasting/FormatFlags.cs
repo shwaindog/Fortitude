@@ -182,22 +182,24 @@ public static class FieldContentHandlingExtensions
     public static bool HasDisableAutoDelimiting(this FormatFlags flags)            => (flags & DisableAutoDelimiting) > 0;
     public static bool ShouldDelimit(this FormatFlags flags)                       => (flags & EnsureFormattedDelimited) > 0;
     
-    public static bool HasEachItemOnlyOneLineFlag(this FormatFlags flags)          => (flags & EachItemOnlyOneLine) > 0;
-    public static bool HasNoRevisitCheck(this FormatFlags flags)                   => (flags & NoRevisitCheck) > 0;
-    public static bool HasSuppressTypeNamesFlag(this FormatFlags flags)            => (flags & LogSuppressTypeNames) > 0;
-    public static bool DoesNotHaveLogSuppressTypeNamesFlag(this FormatFlags flags) => (flags & LogSuppressTypeNames) == 0;
-    public static bool HasAsCollectionFlag(this FormatFlags flags)                 => (flags & AsCollection) > 0;
-    public static bool DoesNotHaveAsCollectionFlag(this FormatFlags flags)         => (flags & AsCollection) == 0;
-    public static bool HasIsFieldNameFlag(this FormatFlags flags)                  => (flags & IsFieldName) > 0;
-    public static bool DoesNotHaveIsFieldNameFlag(this FormatFlags flags)                  => (flags & IsFieldName) == 0;
-    public static bool HasDisableFieldNameDelimitingFlag(this FormatFlags flags)   => (flags & DisableFieldNameDelimiting) > 0;
-    public static bool DoesNotHaveDisableFieldNameDelimitingFlag(this FormatFlags flags)   => (flags & DisableFieldNameDelimiting) == 0;
-    public static bool HasSuppressOpening(this FormatFlags flags)                  => (flags & SuppressOpening) > 0;
-    public static bool DoesNotHaveSuppressOpening(this FormatFlags flags)          => (flags & SuppressOpening) == 0;
-    public static bool HasSuppressClosing(this FormatFlags flags)                  => (flags & SuppressClosing) > 0;
-    public static bool DoesNotHaveSuppressClosing(this FormatFlags flags)          => (flags & SuppressClosing) == 0;
-    public static bool HasAsEmbeddedContentFlags(this FormatFlags flags)           => (flags & AsEmbeddedContent) == AsEmbeddedContent;
-    public static bool DoesNotHaveAsEmbeddedContentFlags(this FormatFlags flags)   => (flags & AsEmbeddedContent) != AsEmbeddedContent;
+    public static bool HasEachItemOnlyOneLineFlag(this FormatFlags flags)                => (flags & EachItemOnlyOneLine) > 0;
+    public static bool HasNoRevisitCheck(this FormatFlags flags)                         => (flags & NoRevisitCheck) > 0;
+    public static bool HasSuppressTypeNamesFlag(this FormatFlags flags)                  => (flags & LogSuppressTypeNames) > 0;
+    public static bool DoesNotHaveLogSuppressTypeNamesFlag(this FormatFlags flags)       => (flags & LogSuppressTypeNames) == 0;
+    public static bool HasAddTypeNameFieldFlag(this FormatFlags flags)                   => (flags & AddTypeNameField) > 0;
+    public static bool DoesNotHaveAddTypeNameFieldFlag(this FormatFlags flags)           => (flags & AddTypeNameField) == 0;
+    public static bool HasAsCollectionFlag(this FormatFlags flags)                       => (flags & AsCollection) > 0;
+    public static bool DoesNotHaveAsCollectionFlag(this FormatFlags flags)               => (flags & AsCollection) == 0;
+    public static bool HasIsFieldNameFlag(this FormatFlags flags)                        => (flags & IsFieldName) > 0;
+    public static bool DoesNotHaveIsFieldNameFlag(this FormatFlags flags)                => (flags & IsFieldName) == 0;
+    public static bool HasDisableFieldNameDelimitingFlag(this FormatFlags flags)         => (flags & DisableFieldNameDelimiting) > 0;
+    public static bool DoesNotHaveDisableFieldNameDelimitingFlag(this FormatFlags flags) => (flags & DisableFieldNameDelimiting) == 0;
+    public static bool HasSuppressOpening(this FormatFlags flags)                        => (flags & SuppressOpening) > 0;
+    public static bool DoesNotHaveSuppressOpening(this FormatFlags flags)                => (flags & SuppressOpening) == 0;
+    public static bool HasSuppressClosing(this FormatFlags flags)                        => (flags & SuppressClosing) > 0;
+    public static bool DoesNotHaveSuppressClosing(this FormatFlags flags)                => (flags & SuppressClosing) == 0;
+    public static bool HasAsEmbeddedContentFlags(this FormatFlags flags)                 => (flags & AsEmbeddedContent) == AsEmbeddedContent;
+    public static bool DoesNotHaveAsEmbeddedContentFlags(this FormatFlags flags)         => (flags & AsEmbeddedContent) != AsEmbeddedContent;
 
     public static StringStyle UpdateStringStyle(this FormatFlags flags, StringStyle existingStyle)
     {

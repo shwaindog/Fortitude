@@ -4,6 +4,7 @@
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 
@@ -16,8 +17,9 @@ public interface IStateTransitioningTransitioningKnownTypeMolder : IDisposable
       , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
+      , VisitResult moldGraphVisit
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId
+      , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags);
 
     void Free();
@@ -41,14 +43,15 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
       , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
+      , VisitResult moldGraphVisit
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId
+      , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
         InitializeStyledTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName, remainingGraphDepth
-                                  , typeFormatting, existingRefId, createFormatFlags);
+                                  , moldGraphVisit, typeFormatting, createFormatFlags);
 
-        SourceBuilderComponentAccess();
+        SourceBuilderComponentAccess(writeMethodType);
     }
 
     void IStateTransitioningTransitioningKnownTypeMolder.Free()
@@ -67,11 +70,9 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
 
     public override void StartTypeOpening()
     {
-        if (!PortableState.AppenderSettings.SkipTypeParts.HasTypeStartFlag())
-        {
-            AppendTypeOpeningToGraphFields();
-            AppendGraphFields();
-        }
+        if (PortableState.AppenderSettings.SkipTypeParts.HasTypeStartFlag()) return;
+        StartFormattingTypeOpening();
+        AppendGraphFields();
     }
 
     public override void FinishTypeOpening()
@@ -79,7 +80,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         if (!PortableState.AppenderSettings.SkipTypeParts.HasTypeStartFlag()) { CompleteTypeOpeningToTypeFields(); }
     }
 
-    public abstract void AppendTypeOpeningToGraphFields();
+    public abstract void StartFormattingTypeOpening();
     public virtual  void CompleteTypeOpeningToTypeFields() { }
 
     public virtual void AppendClosing()
@@ -114,11 +115,11 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
     {
         var msf         = MoldStateField;
         var createFlags = msf.CreateMoldFormatFlags;
-        if (msf.StyleTypeBuilder.ExistingRefId != 0)
+        if (msf.StyleTypeBuilder.RevisitedInstanceId != 0)
         {
             var charsWritten =
                 msf.StyleFormatter
-                   .AppendExistingReferenceId(msf, msf.StyleTypeBuilder.ExistingRefId, msf.WriteAsComplex, createFlags);
+                   .AppendExistingReferenceId(msf, msf.StyleTypeBuilder.RevisitedInstanceId, msf.WriteMethod, createFlags);
             msf.WroteRefId = charsWritten > 0;
             return true;
         }
@@ -128,7 +129,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
 
             var charsWritten =
                 formatter
-                    .AppendInstanceInfoField(msf, "$clipped", "maxDepth", msf.WriteAsComplex, createFlags);
+                    .AppendInstanceInfoField(msf, "$clipped", "maxDepth", msf.WriteMethod, createFlags);
             if (charsWritten > 0)
             {
                 msf.WasDepthClipped = true;
@@ -146,12 +147,12 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         return false;
     }
 
-    protected virtual void SourceBuilderComponentAccess()
+    protected virtual void SourceBuilderComponentAccess(WriteMethodType writeMethodType)
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
         MoldStateField =
             recycler.Borrow<TypeMolderDieCast<TMold>>()
-                    .Initialize((TMold)(ITypeBuilderComponentSource<TMold>)this, PortableState);
+                    .Initialize((TMold)(ITypeBuilderComponentSource<TMold>)this, PortableState, writeMethodType);
     }
 
     protected override void InheritedStateReset()

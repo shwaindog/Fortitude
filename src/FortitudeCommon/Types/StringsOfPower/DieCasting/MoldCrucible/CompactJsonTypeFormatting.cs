@@ -248,7 +248,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return sb;
     }
 
-    public virtual int InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, int refId, int indexToInsertAt, bool isComplex
+    public virtual int InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, int refId, int indexToInsertAt, WriteMethodType writeMethod
       , FormatFlags createTypeFlags, int currentEnd = -1, ITypeMolderDieCast? liveMoldInternal = null)
     {
         if (createTypeFlags.HasNoRevisitCheck()) return 0;
@@ -261,28 +261,53 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         var toRestore  = GraphBuilder;
         GraphBuilder = insertBuilder;
         
-        var insertSize = 0;
-        if (!isComplex)
+        var prefixInsertSize = 0;
+        
+        var alreadySupportsMultipleFields = writeMethod.SupportsMultipleFields(); 
+        // first entry spot maybe removed if empty so backtrack to open add one;
+        var firstFieldPad = SizeNextFieldPadding(createTypeFlags);
+        var isEmpty      = indexToInsertAt - firstFieldPad + 1 == currentEnd;
+        if (!alreadySupportsMultipleFields)
         {
             if (liveMoldInternal != null)
             {
-                liveMoldInternal.WriteAsComplex = true;
+                liveMoldInternal.WriteMethod = writeMethod.ToMultiFieldEquivalent();
             }
-            insertSize += 1; // {
+            isEmpty = true;
+            prefixInsertSize += 1; // {
             GraphBuilder.IndentLevel++;
-            insertSize += SizeNextFieldPadding(createTypeFlags);
-            insertSize += SizeFormatFieldName("$values".Length, createTypeFlags);
-            insertSize += SizeFieldValueSeparator(createTypeFlags);
+            prefixInsertSize      += SizeNextFieldPadding(createTypeFlags);
+            // after inserted $id
+            prefixInsertSize += SizeFieldSeparatorAndPadding(createTypeFlags);
+            prefixInsertSize += SizeFormatFieldName("$values".Length, createTypeFlags);
+            prefixInsertSize += SizeFieldValueSeparator(createTypeFlags);
         }
-        insertSize += SizeFormatFieldName(3, createTypeFlags);
-        insertSize += SizeFieldValueSeparator(createTypeFlags);
-        insertSize += refDigitsCount + (!createTypeFlags.HasDisableAutoDelimiting() ? 2 : 0); // bound by DblQt
-        insertSize += SizeFieldSeparatorAndPadding(createTypeFlags);
-        
-        insertBuilder.StartInsertAt(indexToInsertAt, insertSize);
-        if (!isComplex)
+        else if (isEmpty)
+        {
+            indexToInsertAt -= firstFieldPad;
+            prefixInsertSize      += firstFieldPad;
+            GraphBuilder.IndentLevel--;
+            // after inserted
+            prefixInsertSize      += SizeNextFieldPadding(createTypeFlags);
+            GraphBuilder.IndentLevel++;
+        }
+        else
+        {
+            // after inserted
+            prefixInsertSize += SizeFieldSeparatorAndPadding(createTypeFlags);;
+        }
+        prefixInsertSize += SizeFormatFieldName(3, createTypeFlags);
+        prefixInsertSize += SizeFieldValueSeparator(createTypeFlags);
+        prefixInsertSize += refDigitsCount + (!createTypeFlags.HasDisableAutoDelimiting() ? 2 : 0); // bound by DblQt
+
+        insertBuilder.StartInsertAt(indexToInsertAt, prefixInsertSize);
+        if (!alreadySupportsMultipleFields)
         {
             GraphBuilder.AppendContent(BrcOpn);
+            AddNextFieldPadding(createTypeFlags);
+        }
+        else if (isEmpty)
+        {
             AddNextFieldPadding(createTypeFlags);
         }
         if (!createTypeFlags.HasDisableAutoDelimiting()) GraphBuilder.AppendDelimiter(DblQt);
@@ -305,36 +330,53 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
             GraphBuilder.AppendContent(refId.ToString());
         }
         if (!createTypeFlags.HasDisableAutoDelimiting()) GraphBuilder.AppendDelimiter(DblQt);
-        AddToNextFieldSeparatorAndPadding(createTypeFlags);
-        if (!isComplex)
+        if (!alreadySupportsMultipleFields)
         {
-            if (!createTypeFlags.HasDisableAutoDelimiting()) GraphBuilder.AppendDelimiter(DblQt);
-            GraphBuilder.AppendContent("$values");
-            if (!createTypeFlags.HasDisableAutoDelimiting()) GraphBuilder.AppendDelimiter(DblQt);
-            AppendFieldValueSeparator();
+            AddToNextFieldSeparatorAndPadding(createTypeFlags);
+            AppendInstanceValuesFieldName(typeof(object), createTypeFlags);
             if (currentEnd >= 0)
             {
                 GraphBuilder.IndentLevel--;
-                var closedComplex = SizeNextFieldPadding(createTypeFlags);
-                closedComplex += 1; // }
-                insertBuilder.StartInsertAt(currentEnd + insertSize, closedComplex);
-                AddToNextFieldSeparatorAndPadding(createTypeFlags);
+                var suffixInsertSize =  SizeNextFieldPadding(createTypeFlags);
+                suffixInsertSize += 1; // }
+                insertBuilder.StartInsertAt(currentEnd + prefixInsertSize, suffixInsertSize);
+                AddNextFieldPadding(createTypeFlags);
                 GraphBuilder.AppendContent(BrcCls);
             }
+        }
+        else if(isEmpty)
+        {
+            GraphBuilder.IndentLevel--;
+            AddNextFieldPadding(createTypeFlags);
+        }
+        else 
+        {
+            AddToNextFieldSeparatorAndPadding(createTypeFlags);
         }
         GraphBuilder = toRestore;
         return sb.Length - preAppendLength;
     }
 
-    public virtual int AppendExistingReferenceId(ITypeMolderDieCast moldInternal, int refId, bool isComplex, FormatFlags createTypeFlags)
+    public int AppendInstanceValuesFieldName(Type forType, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    {
+        var preAppendLength = GraphBuilder.Sb.Length;
+        if (!formatFlags.HasDisableAutoDelimiting()) GraphBuilder.AppendDelimiter(DblQt);
+        GraphBuilder.AppendContent("$values");
+        if (!formatFlags.HasDisableAutoDelimiting()) GraphBuilder.AppendDelimiter(DblQt);
+        AppendFieldValueSeparator();
+        return GraphBuilder.Sb.Length - preAppendLength;
+    }
+
+    public virtual int AppendExistingReferenceId(ITypeMolderDieCast moldInternal, int refId, WriteMethodType writeMethod, FormatFlags createTypeFlags)
     {
         if (createTypeFlags.HasNoRevisitCheck() || createTypeFlags.HasIsFieldNameFlag()) return 0;
         var sb = moldInternal.Sb;
         
-        var preAppendLength = sb.Length;
-        if (!isComplex)
+        var alreadySupportsMultipleFields = writeMethod.SupportsMultipleFields(); 
+        var preAppendLength               = sb.Length;
+        if (!alreadySupportsMultipleFields)
         {
-            moldInternal.WriteAsComplex = true;
+            moldInternal.WriteMethod = writeMethod.ToMultiFieldEquivalent();
             StartComplexTypeOpening(moldInternal, createTypeFlags);
             FinishComplexTypeOpening(moldInternal, createTypeFlags);
         }
@@ -347,15 +389,16 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
     }
 
     public virtual int AppendInstanceInfoField(ITypeMolderDieCast moldInternal, string fieldName, ReadOnlySpan<char> description
-      , bool isComplex, FormatFlags createTypeFlags)
+      , WriteMethodType writeMethod, FormatFlags createTypeFlags)
     {
         if (createTypeFlags.HasIsFieldNameFlag()) return 0; // fieldNames are marked with this and
         var sb = moldInternal.Sb;
         
-        var preAppendLength = sb.Length;
-        if (!isComplex)
+        var alreadySupportsMultipleFields = writeMethod.SupportsMultipleFields(); 
+        var preAppendLength               = sb.Length;
+        if (!alreadySupportsMultipleFields)
         {
-            moldInternal.WriteAsComplex = true;
+            moldInternal.WriteMethod = writeMethod.ToMultiFieldEquivalent();
             StartComplexTypeOpening(moldInternal, createTypeFlags);
             FinishComplexTypeOpening(moldInternal, createTypeFlags);
         }

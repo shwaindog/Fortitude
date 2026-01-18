@@ -7,15 +7,15 @@ using FortitudeCommon.Logging.Core.LoggerViews;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using FortitudeCommon.Types.StringsOfPower.Options;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestData.TextJsonConverters;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Scenarios.CompareToSystemTextJson.TypePermutation;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CompareToSystemTextJson.TextJsonConverters;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CompareToSystemTextJson.TypePermutation;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CompareToSystemTextJson;
 
 [TestClass]
 [NoMatchingProductionClass]
-public class JsonFieldArraySerializationTests
+public class JsonSingleFieldSerializationTests
 {
     private JsonSerializerOptions jsonMatchOneStringSerializerOptions = null!;
 
@@ -65,102 +65,135 @@ public class JsonFieldArraySerializationTests
     }
 
     [TestMethod]
-    public void ArrayFieldsAddAlwaysTheOneStringJsonCompactMatchesTextJsonSerialize()
+    public void SingleFieldsAddAlwaysTheOneStringJsonCompactMatchesTextJsonSerialize()
     {
-        var arrayPropertyFieldClass = new StandardArrayPropertyFieldClass();
+        var singlePropertyFieldClass = new StandardSinglePropertyFieldClass();
 
-        jsonMatchOneStringSerializerOptions.Encoder                = new MinimalTextJsonEncoder();
-        var textJsonStringify = JsonSerializer.Serialize(arrayPropertyFieldClass, jsonMatchOneStringSerializerOptions);
+        var textJsonStringify = JsonSerializer.Serialize(singlePropertyFieldClass, jsonMatchOneStringSerializerOptions);
 
         logger.WrnApnd("Json Serializer")?.Args("\n");
         logger.InfApnd(textJsonStringify)?.Args("\n");
 
         var styledStringBuilder = new TheOneString();
         styledStringBuilder.ClearAndReinitialize(new StyleOptions
+        {
+            Style                          = StringStyle.Json | StringStyle.Compact
+          , JsonEncodingTransferType       = JsonEncodingTransferType.UniCdEscCtrlCharsDblQtAndNonAscii
+          , WriteKeyValuePairsAsCollection = true
+        });
+        singlePropertyFieldClass.RevealState(styledStringBuilder);
+        var oneStringify = styledStringBuilder.WriteBuffer.ToString();
+
+        logger.ErrApnd("TheOneString")?.Args("\n");
+        logger.WrnApnd(oneStringify)?.Args("\n");
+
+        oneStringify.Should().BeEquivalentTo(textJsonStringify);
+    }
+
+    [TestMethod]
+    public void AllDefaultSingleFieldsAddAlwaysTheOneStringJsonCompactMatchesTextJsonSerialize()
+    {
+        var singlePropertyFieldClass = new StandardSinglePropertyFieldClass();
+        singlePropertyFieldClass.InitializeAllDefault();
+
+        var textJsonStringify = JsonSerializer.Serialize(singlePropertyFieldClass, jsonMatchOneStringSerializerOptions);
+
+        logger.WrnApnd("Json Serializer")?.Args("\n");
+        logger.InfApnd(textJsonStringify)?.Args("\n");
+
+        var styledStringBuilder = new TheOneString();
+        styledStringBuilder.ClearAndReinitialize(new StyleOptions
+        {
+            Style                          = StringStyle.Json | StringStyle.Compact
+          , JsonEncodingTransferType       = JsonEncodingTransferType.UniCdEscCtrlCharsDblQtAndNonAscii
+          , WriteKeyValuePairsAsCollection = true
+        });
+        singlePropertyFieldClass.RevealState(styledStringBuilder);
+        var oneStringify = styledStringBuilder.WriteBuffer.ToString();
+
+        logger.ErrApnd("TheOneString")?.Args("\n");
+        logger.WrnApnd(oneStringify)?.Args("\n");
+
+        oneStringify.Should().BeEquivalentTo(textJsonStringify);
+    }
+
+    [TestMethod]
+    public void AllDefaultSingleFieldsWhenNonNullTheOneStringJsonCompactMatchesTextJsonSerialize()
+    {
+        var singlePropertyFieldClass = new StandardSinglePropertyFieldClass();
+        singlePropertyFieldClass.InitializeAllDefault();
+        singlePropertyFieldClass.TestFieldRevealMode = TestFieldRevealMode.WhenNonNull;
+        
+        jsonMatchOneStringSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        
+        var textJsonStringify = JsonSerializer.Serialize(singlePropertyFieldClass, jsonMatchOneStringSerializerOptions);
+
+        logger.WrnApnd("Json Serializer")?.Args("\n");
+        logger.InfApnd(textJsonStringify)?.Args("\n");
+
+        var styledStringBuilder = new TheOneString();
+        styledStringBuilder.ClearAndReinitialize(new StyleOptions
+        {
+            Style                          = StringStyle.Json | StringStyle.Compact
+          , JsonEncodingTransferType       = JsonEncodingTransferType.UniCdEscCtrlCharsDblQtAndNonAscii
+          , WriteKeyValuePairsAsCollection = true
+        });
+        singlePropertyFieldClass.RevealState(styledStringBuilder);
+        var oneStringify = styledStringBuilder.WriteBuffer.ToString();
+
+        logger.ErrApnd("TheOneString")?.Args("\n");
+        logger.WrnApnd(oneStringify)?.Args("\n");
+
+        oneStringify.Should().BeEquivalentTo(textJsonStringify);
+    }
+
+    [TestMethod]
+    public void SingleFieldsWhenNonNullTheOneStringJsonCompactMatchesTextJsonSerialize()
+    {
+        var singlePropertyFieldClass = new StandardSinglePropertyFieldClass();
+        
+        singlePropertyFieldClass.TestFieldRevealMode = TestFieldRevealMode.WhenNonNull;
+        var theOneString = new TheOneString();
+        theOneString.ClearAndReinitialize(new StyleOptions
         {
             Style                          = StringStyle.Json | StringStyle.Compact
           , JsonEncodingTransferType       = JsonEncodingTransferType.BkSlEscCtrlCharsDblQtAndBkSlOnly
           , WriteKeyValuePairsAsCollection = true
         });
-        arrayPropertyFieldClass.RevealState(styledStringBuilder);
-        var oneStringify = styledStringBuilder.WriteBuffer.ToString();
-
-        logger.ErrApnd("TheOneString")?.Args("\n");
-        logger.WrnApnd(oneStringify)?.Args("\n");
-
-        oneStringify.Should().BeEquivalentTo(textJsonStringify);
-    }
-
-    [TestMethod]
-    public void AllDefaultArrayFieldsAlwaysAddAllTheOneStringJsonCompactMatchesTextJsonSerialize()
-    {
-        var arrayPropertyFieldClass = new StandardArrayPropertyFieldClass();
-        arrayPropertyFieldClass.InitializeAllNull();
-
-        var textJsonStringify = JsonSerializer.Serialize(arrayPropertyFieldClass, jsonMatchOneStringSerializerOptions);
-
-        logger.WrnApnd("Json Serializer")?.Args("\n");
-        logger.InfApnd(textJsonStringify)?.Args("\n");
-
-        var styledStringBuilder = new TheOneString();
-        styledStringBuilder.ClearAndReinitialize(new StyleOptions
-        {
-            Style                          = StringStyle.Json | StringStyle.Compact
-          , JsonEncodingTransferType       = JsonEncodingTransferType.UniCdEscCtrlCharsDblQtAndNonAscii
-          , WriteKeyValuePairsAsCollection = true
-        });
-        arrayPropertyFieldClass.RevealState(styledStringBuilder);
-        var oneStringify = styledStringBuilder.WriteBuffer.ToString();
-
-        logger.ErrApnd("TheOneString")?.Args("\n");
-        logger.WrnApnd(oneStringify)?.Args("\n");
-
-        oneStringify.Should().BeEquivalentTo(textJsonStringify);
-    }
-
-    [TestMethod]
-    public void AllDefaultArrayFieldsWhenPopulatedTheOneStringJsonCompactMatchesTextJsonSerialize()
-    {
-        var arrayPropertyFieldClass = new StandardArrayPropertyFieldClass();
-        arrayPropertyFieldClass.InitializeAllNull();
-        arrayPropertyFieldClass.TestCollectionFieldRevealMode = TestCollectionFieldRevealMode.WhenPopulated;
+        singlePropertyFieldClass.RevealState(theOneString);
         
-        jsonMatchOneStringSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
+        jsonMatchOneStringSerializerOptions.Encoder                = new MinimalTextJsonEncoder();
+        jsonMatchOneStringSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         
-        var textJsonStringify = JsonSerializer.Serialize(arrayPropertyFieldClass, jsonMatchOneStringSerializerOptions);
+        var singlePropertyFieldClassStringified = theOneString.WriteBuffer.ToString();
+        
+        logger.TrcApnd("Original Json String")?.Args("\n");
+        logger.DbgApnd("\n")?.Args(singlePropertyFieldClassStringified, "\n");
 
+        var jsonStringPropertyClassStringified =
+            JsonSerializer.Serialize
+                (singlePropertyFieldClass, jsonMatchOneStringSerializerOptions);
         logger.WrnApnd("Json Serializer")?.Args("\n");
-        logger.InfApnd(textJsonStringify)?.Args("\n");
-
-        var styledStringBuilder = new TheOneString();
-        styledStringBuilder.ClearAndReinitialize(new StyleOptions
-        {
-            Style                          = StringStyle.Json | StringStyle.Compact
-          , JsonEncodingTransferType       = JsonEncodingTransferType.UniCdEscCtrlCharsDblQtAndNonAscii
-          , WriteKeyValuePairsAsCollection = true
-        });
-        arrayPropertyFieldClass.RevealState(styledStringBuilder);
-        var oneStringify = styledStringBuilder.WriteBuffer.ToString();
+        logger.InfApnd("\n")?.Args(jsonStringPropertyClassStringified, "\n");
 
         logger.ErrApnd("TheOneString")?.Args("\n");
-        logger.WrnApnd(oneStringify)?.Args("\n");
+        logger.WrnApnd("\n")?.Args(singlePropertyFieldClassStringified, "\n");
 
-        oneStringify.Should().BeEquivalentTo(textJsonStringify);
+        singlePropertyFieldClassStringified.Should().BeEquivalentTo(jsonStringPropertyClassStringified);
     }
 
     [TestMethod]
-    public void ArrayFieldsAlwaysAddAllTheOneStringJsonPrettyMatchesTextJsonSerialize()
+    public void SingleFieldsAddAlwaysTheOneStringJsonPrettyMatchesTextJsonSerialize()
     {
-        var arrayPropertyFieldClass = new StandardArrayPropertyFieldClass();
+        var singlePropertyFieldClass = new StandardSinglePropertyFieldClass();
 
-        jsonMatchOneStringSerializerOptions.WriteIndented = true;
-        jsonMatchOneStringSerializerOptions.Encoder       = new MinimalTextJsonEncoder();
+        jsonMatchOneStringSerializerOptions.WriteIndented          = true;
 
-        arrayPropertyFieldClass.TestCollectionFieldRevealMode = TestCollectionFieldRevealMode.AlwaysAddAll;
+        singlePropertyFieldClass.TestFieldRevealMode = TestFieldRevealMode.AlwaysAll;
         
         var textJsonStringify =
             JsonSerializer.Serialize
-                (arrayPropertyFieldClass, jsonMatchOneStringSerializerOptions);
+                (singlePropertyFieldClass, jsonMatchOneStringSerializerOptions);
 
         logger.WrnApnd("Json Serializer")?.Args("\n");
         logger.InfApnd("\n")?.Args(textJsonStringify, "\n");
@@ -169,10 +202,10 @@ public class JsonFieldArraySerializationTests
         styledStringBuilder.ClearAndReinitialize(new StyleOptions
         {
             Style = StringStyle.Json | StringStyle.Pretty
-          , JsonEncodingTransferType       = JsonEncodingTransferType.BkSlEscCtrlCharsDblQtAndBkSlOnly
+          , JsonEncodingTransferType       = JsonEncodingTransferType.UniCdEscCtrlCharsDblQtAndNonAscii
           , WriteKeyValuePairsAsCollection = true
         });
-        arrayPropertyFieldClass.RevealState(styledStringBuilder);
+        singlePropertyFieldClass.RevealState(styledStringBuilder);
         var oneStringify = styledStringBuilder.WriteBuffer.ToString();
 
         logger.ErrApnd("TheOneString")?.Args("\n");
@@ -182,11 +215,11 @@ public class JsonFieldArraySerializationTests
     }
 
     [TestMethod]
-    public void ArrayFieldsWhenNonDefaultTheOneStringJsonPrettyMatchesTextJsonSerialize()
+    public void SingleFieldsWhenNonDefaultTheOneStringJsonPrettyMatchesTextJsonSerialize()
     {
-        var arrayPropertyFieldClass = new StandardArrayPropertyFieldClass();
+        var singlePropertyFieldClass = new StandardSinglePropertyFieldClass();
         
-        arrayPropertyFieldClass.TestCollectionFieldRevealMode = TestCollectionFieldRevealMode.WhenPopulated;
+        singlePropertyFieldClass.TestFieldRevealMode = TestFieldRevealMode.WhenNonDefault;
         var theOneString = new TheOneString();
         theOneString.ClearAndReinitialize(new StyleOptions
         {
@@ -194,7 +227,7 @@ public class JsonFieldArraySerializationTests
           , JsonEncodingTransferType       = JsonEncodingTransferType.BkSlEscCtrlCharsDblQtAndBkSlOnly
           , WriteKeyValuePairsAsCollection = true
         });
-        arrayPropertyFieldClass.RevealState(theOneString);
+        singlePropertyFieldClass.RevealState(theOneString);
         
         jsonMatchOneStringSerializerOptions.WriteIndented          = true;
         jsonMatchOneStringSerializerOptions.Encoder                = new MinimalTextJsonEncoder();
@@ -207,7 +240,7 @@ public class JsonFieldArraySerializationTests
 
         var jsonStringPropertyClassStringified =
             JsonSerializer.Serialize
-                (arrayPropertyFieldClass, jsonMatchOneStringSerializerOptions);
+                (singlePropertyFieldClass, jsonMatchOneStringSerializerOptions);
         logger.WrnApnd("Json Serializer")?.Args("\n");
         logger.InfApnd("\n")?.Args(jsonStringPropertyClassStringified, "\n");
 
@@ -218,14 +251,44 @@ public class JsonFieldArraySerializationTests
     }
 
     [TestMethod]
+    public void AllDefaultSingleFieldsWhenNonNullTheOneStringJsonPrettyMatchesTextJsonSerialize()
+    {
+        var singlePropertyFieldClass = new StandardSinglePropertyFieldClass();
+        singlePropertyFieldClass.InitializeAllDefault();
+        singlePropertyFieldClass.TestFieldRevealMode = TestFieldRevealMode.WhenNonNull;
+        var theOneString = new TheOneString();
+        theOneString.ClearAndReinitialize(new StyleOptions
+        {
+            Style                          = StringStyle.Json | StringStyle.Pretty
+          , JsonEncodingTransferType       = JsonEncodingTransferType.BkSlEscCtrlCharsDblQtAndBkSlOnly
+          , WriteKeyValuePairsAsCollection = true
+        });
+        singlePropertyFieldClass.RevealState(theOneString);
+        
+        jsonMatchOneStringSerializerOptions.WriteIndented          = true;
+        jsonMatchOneStringSerializerOptions.Encoder                = new MinimalTextJsonEncoder();
+        jsonMatchOneStringSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        
+        var textJsonStringify = JsonSerializer.Serialize(singlePropertyFieldClass, jsonMatchOneStringSerializerOptions);
+
+        logger.WrnApnd("Json Serializer")?.Args("\n");
+        logger.InfApnd(textJsonStringify)?.Args("\n");
+
+        var oneStringify = theOneString.WriteBuffer.ToString();
+        logger.ErrApnd("TheOneString")?.Args("\n");
+        logger.WrnApnd(oneStringify)?.Args("\n");
+
+        oneStringify.Should().BeEquivalentTo(textJsonStringify);
+    }
+
+    [TestMethod]
     public void JsonStringAddAlwaysDefaultEscapingTheOneStringJsonCompactMatchesTextJsonSerialize()
     {
-        var arrayPropertyFieldClass = new StandardArrayPropertyFieldClass();
+        var singlePropertyFieldClass = new StandardSinglePropertyFieldClass();
         
-        jsonMatchOneStringSerializerOptions.Encoder = new MinimalTextJsonEncoder();
         var singlePropertyFieldClassStringified =
             JsonSerializer.Serialize
-                (arrayPropertyFieldClass, jsonMatchOneStringSerializerOptions);
+                (singlePropertyFieldClass, jsonMatchOneStringSerializerOptions);
         logger.TrcApnd("Original Json String")?.Args("\n");
         logger.DbgApnd("\n")?.Args(singlePropertyFieldClassStringified, "\n");
 
@@ -239,8 +302,8 @@ public class JsonFieldArraySerializationTests
         var theOneString = new TheOneString();
         theOneString.ClearAndReinitialize(new StyleOptions
         {
-            Style                          = StringStyle.Json | StringStyle.Compact
-          , JsonEncodingTransferType       = JsonEncodingTransferType.BkSlEscCtrlCharsDblQtAndBkSlOnly
+            Style = StringStyle.Json | StringStyle.Compact
+
           , WriteKeyValuePairsAsCollection = true
         });
         jsonStringPropertyClass.RevealState(theOneString);
@@ -255,7 +318,7 @@ public class JsonFieldArraySerializationTests
     [TestMethod]
     public void JsonStringMinimalEscapingAddAlwaysTheOneStringJsonCompactMatchesTextJsonSerialize()
     {
-        var arrayPropertyFieldClass = new StandardArrayPropertyFieldClass();
+        var singlePropertyFieldClass = new StandardSinglePropertyFieldClass();
         
         var theOneString = new TheOneString();
         theOneString.ClearAndReinitialize(new StyleOptions
@@ -264,7 +327,7 @@ public class JsonFieldArraySerializationTests
           , JsonEncodingTransferType       = JsonEncodingTransferType.BkSlEscCtrlCharsDblQtAndBkSlOnly
           , WriteKeyValuePairsAsCollection = true
         });
-        arrayPropertyFieldClass.RevealState(theOneString);
+        singlePropertyFieldClass.RevealState(theOneString);
         
         jsonMatchOneStringSerializerOptions.Encoder = new MinimalTextJsonEncoder();
         var singlePropertyFieldClassStringified = theOneString.WriteBuffer.ToString();

@@ -25,16 +25,26 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     public override ContentSeparatorRanges StartComplexTypeOpening(ITypeMolderDieCast moldInternal
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb              = moldInternal.Sb;
-        var alternativeName = moldInternal.TypeName;
-        var buildingType    = moldInternal.TypeBeingBuilt;
+        var sb                = moldInternal.Sb;
+        var alternativeName   = moldInternal.TypeName;
+        var buildingType      = moldInternal.TypeBeingBuilt;
+        var buildTypeFullName = buildingType.FullName ?? "";
 
         GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
-        if (alternativeName != null)
-            sb.Append(alternativeName);
-        else
-            buildingType.AppendShortNameInCSharpFormat(sb);
-        sb.Append(Spc);
+
+        if (moldInternal.AppendSettings.SkipTypeParts.HasTypeStartFlag()) return GraphBuilder.Complete(formatFlags);
+        
+        if (!moldInternal.AppendSettings.SkipTypeParts.HasTypeNameFlag() &&
+            (formatFlags.DoesNotHaveLogSuppressTypeNamesFlag() 
+           && (formatFlags.HasAddTypeNameFieldFlag() 
+             || !StyleOptions.LogSuppressDisplayTypeNames.Any(s => buildTypeFullName.StartsWith(s)))))
+        {
+            if (alternativeName != null)
+                sb.Append(alternativeName);
+            else
+                buildingType.AppendShortNameInCSharpFormat(sb);
+            sb.Append(Spc);
+        }
         GraphBuilder.IndentLevel++;
         GraphBuilder.AppendContent(BrcOpn);
         if (formatFlags.CanAddNewLine())

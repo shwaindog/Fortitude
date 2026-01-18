@@ -9,35 +9,39 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestSce
 public class OrderedBranchNode<TChild> : OrderedParentNode<TChild>, IChildNode
     where TChild : class?, IChildNode?
 {
-    private static int branchNodeInstanceId;
+
+    public static void ResetBranchInstanceIds()
+    {
+        BranchNodeInstanceId = 0;
+    }
 
     public OrderedBranchNode()
     {
         NodeType             = NodeType.BranchNode;
-        BranchNodeInstanceId = Interlocked.Increment(ref branchNodeInstanceId);
+        BranchInstanceId = Interlocked.Increment(ref BranchNodeInstanceId);
     }
 
     public OrderedBranchNode(List<TChild> childNodes, IReadOnlyParentNode? parent = null) : base(childNodes)
     {
         NodeType             = NodeType.BranchNode;
-        BranchNodeInstanceId = Interlocked.Increment(ref branchNodeInstanceId);
+        BranchInstanceId = Interlocked.Increment(ref BranchNodeInstanceId);
     }
 
-    public OrderedBranchNode(List<TChild> childNodes, string name, IReadOnlyParentNode? parent, int? instId = null) : base(childNodes, name, instId)
+    public OrderedBranchNode(List<TChild> childNodes, string name, IReadOnlyParentNode? parent = null, int? instId = null) : base(childNodes, name, instId)
     {
         NodeType = NodeType.BranchNode;
         Parent   = parent;
 
-        BranchNodeInstanceId = Interlocked.Increment(ref branchNodeInstanceId);
+        BranchInstanceId = Interlocked.Increment(ref BranchNodeInstanceId);
     }
 
     public IReadOnlyParentNode? Parent { get; set; }
 
-    public int BranchNodeInstanceId { get; }
+    public int BranchInstanceId { get; }
 
     public override StateExtractStringRange RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysAdd(nameof(BranchNodeInstanceId), BranchNodeInstanceId)
+           .Field.AlwaysAdd(nameof(BranchInstanceId), BranchInstanceId)
            .AddBaseRevealStateFields(this)
            .Field.WhenNonNullReveal(nameof(Parent), Parent)
            .Complete();

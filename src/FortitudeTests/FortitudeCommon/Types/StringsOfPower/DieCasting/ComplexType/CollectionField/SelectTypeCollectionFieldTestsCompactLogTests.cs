@@ -96,14 +96,14 @@ public class SelectTypeCollectionFieldCompactLogTests : SelectTypeCollectionFiel
     public void FilteredCompactLogStringBearerList(IOrderedListExpect formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
     
-    [TestMethod]
+    // [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
         ExecuteIndividualScaffoldExpectation(CharSequenceCollectionsTestData.AllCharSequenceCollectionExpectations[7], ScaffoldingRegistry.AllScaffoldingTypes[39]);
     }
 
-    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
         const string compactLogTemplate = "{0} {{{1}{2}{1}}}";
@@ -119,7 +119,7 @@ public class SelectTypeCollectionFieldCompactLogTests : SelectTypeCollectionFiel
                 var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
 
                 nextExpect.Append(propertyName).Append(": (");
-                orderedListExpectation.CollectionCallType.AppendShortNameInCSharpFormat(nextExpect).Append(")");
+                orderedListExpectation.CollectionCallType.AppendShortNameInCSharpFormat(nextExpect).Append(") ");
                 nextExpect.Append(expectValue);
                 expectValue.DecrementRefCount();
                 expectValue = nextExpect;
@@ -134,15 +134,15 @@ public class SelectTypeCollectionFieldCompactLogTests : SelectTypeCollectionFiel
         }
         else { expectValue.Clear(); }
         var fmtExpect = sbFactory.Borrow<CharArrayStringBuilder>();
-        fmtExpect.AppendFormat(compactLogTemplate, className, maybePadding, expectValue);
+        fmtExpect.AppendFormat(compactLogTemplate, className?.CachedCSharpNameNoConstraints() ?? "", maybePadding, expectValue);
         expectValue.DecrementRefCount();
         return fmtExpect;
     }
     
-    protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, string className, string propertyName
+    protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
-        var compactLogTemplate = className.IsNotEmpty() ? "({0}){1}" : "{1}";
+        var compactLogTemplate = className != null ? "({0}) {1}" : "{1}";
 
         var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
         if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))
@@ -150,7 +150,7 @@ public class SelectTypeCollectionFieldCompactLogTests : SelectTypeCollectionFiel
             expectValue.Clear();
         }
         var fmtExpect = sbFactory.Borrow<CharArrayStringBuilder>();
-        fmtExpect.AppendFormat(compactLogTemplate, className, expectValue);
+        fmtExpect.AppendFormat(compactLogTemplate, className?.CachedCSharpNameNoConstraints() ?? "", expectValue);
         expectValue.DecrementRefCount();
         return fmtExpect;
     }

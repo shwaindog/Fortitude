@@ -37,6 +37,7 @@ public interface IRecyclableObject : IUsesRecycler, IResetable
     [JsonIgnore] bool IsInRecycler { get; set; }
 
     int  DecrementRefCount();
+    int  NonRecyclingDecrementRefCount();
     int  IncrementRefCount();
     bool Recycle();
 }
@@ -67,8 +68,19 @@ public class RecyclableObject : UsesRecycler, IRecyclableObject
 
     public virtual int DecrementRefCount()
     {
-        if (!IsInRecycler && Interlocked.Decrement(ref refCount) <= 0 && AutoRecycleAtRefCountZero) Recycle();
-        return refCount;
+        var count = 0;
+        if (!IsInRecycler && (count = Interlocked.Decrement(ref refCount)) <= 0 && AutoRecycleAtRefCountZero) Recycle();
+        return count;
+    }
+
+    public virtual int NonRecyclingDecrementRefCount()
+    {
+        var wouldHaveBeenCount = 0;
+        if (!IsInRecycler && (wouldHaveBeenCount = Interlocked.Decrement(ref refCount)) <= 0)
+        {
+            Interlocked.Increment(ref refCount);
+        }
+        return wouldHaveBeenCount;
     }
 
     public virtual int IncrementRefCount() => Interlocked.Increment(ref refCount);
@@ -129,6 +141,15 @@ public class ExplicitRecyclableObject : ExplicitUsesRecycler, IRecyclableObject
     int IRecyclableObject.DecrementRefCount()
     {
         if (!MeRecyclable.IsInRecycler && Interlocked.Decrement(ref refCount) <= 0 && MeRecyclable.AutoRecycleAtRefCountZero) MeRecyclable.Recycle();
+        return refCount;
+    }
+
+    int IRecyclableObject.NonRecyclingDecrementRefCount()
+    {
+        if (!MeRecyclable.IsInRecycler && Interlocked.Decrement(ref refCount) <= 0)
+        {
+            Interlocked.Increment(ref refCount);
+        }
         return refCount;
     }
 

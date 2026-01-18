@@ -3,6 +3,7 @@
 
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 
@@ -17,30 +18,26 @@ public class ContentTypeMold<TContentMold> : TransitioningTypeMolder<TContentMol
       , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
+      , VisitResult moldGraphVisit
       , IStyledTypeFormatting typeFormatting
-      , int existingRefId
+      , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
         Initialize(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
-                 , remainingGraphDepth, typeFormatting, existingRefId, createFormatFlags);
+                 , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
 
         return this;
     }
 
     protected ContentTypeDieCast<TContentMold> Msf => (ContentTypeDieCast<TContentMold>)MoldStateField!;
 
-    public override bool IsComplexType => Msf.WriteAsComplex;
+    public override bool IsComplexType => Msf.SupportsMultipleFields;
 
-    public override void StartTypeOpening()
-    {
-        if (PortableState.AppenderSettings.SkipTypeParts.HasTypeStartFlag()) return;
-        AppendTypeOpeningToGraphFields();
-    }
 
-    public override void AppendTypeOpeningToGraphFields()
+    public override void StartFormattingTypeOpening()
     {
         var formatter = MoldStateField!.StyleFormatter;
-        if (IsComplexType)
+        if (Msf.SupportsMultipleFields)
         {
             formatter.StartComplexTypeOpening(MoldStateField);
         }
