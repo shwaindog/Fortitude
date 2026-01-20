@@ -18,14 +18,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         for (var i = 0; i < selectKeys.Length; i++)
         {
             var key = selectKeys[i];
@@ -47,14 +47,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         for (var i = 0; i < selectKeys.Length; i++)
         {
             var key = selectKeys[i];
@@ -76,14 +76,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         for (var i = 0; i < selectKeys.Length; i++)
         {
             var key = selectKeys[i];
@@ -105,14 +105,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         for (var i = 0; i < selectKeys.Count; i++)
         {
             var key = selectKeys[i];
@@ -134,14 +134,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         foreach (var key in selectKeys)
         {
             if (!value.TryGetValue(key, out var keyValue)) continue;
@@ -162,7 +162,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         var hasValue = selectKeys.MoveNext();
         if (value == null)
@@ -170,7 +170,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         while (hasValue)
         {
             var key = selectKeys.Current;
@@ -200,14 +200,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         for (var i = 0; i < selectKeys.Length; i++)
         {
             var key = selectKeys[i];
@@ -231,14 +231,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         for (var i = 0; i < selectKeys.Length; i++)
         {
             var key = selectKeys[i];
@@ -263,14 +263,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         for (var i = 0; i < selectKeys.Length; i++)
         {
             var key = selectKeys[i];
@@ -293,14 +293,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         for (var i = 0; i < selectKeys.Length; i++)
         {
             var key = selectKeys[i];
@@ -325,14 +325,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         for (var i = 0; i < selectKeys.Length; i++)
         {
             var key = selectKeys[i];
@@ -356,14 +356,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         for (var i = 0; i < selectKeys.Length; i++)
         {
             var key = selectKeys[i];
@@ -388,14 +388,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         for (var i = 0; i < selectKeys.Count; i++)
         {
             var key = selectKeys[i];
@@ -419,14 +419,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         for (var i = 0; i < selectKeys.Count; i++)
         {
             var key = selectKeys[i];
@@ -451,14 +451,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         foreach (var key in selectKeys)
         {
             if (!value.TryGetValue(key, out var keyValue)) continue;
@@ -481,14 +481,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         foreach (var key in selectKeys)
         {
             if (!value.TryGetValue(key, out var keyValue)) continue;
@@ -512,7 +512,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
@@ -520,7 +520,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             return stb.AddGoToNext();
         }
         var hasValue = selectKeys?.MoveNext() ?? false;
-        var ekcm     = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm     = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         while (hasValue)
         {
             var key = selectKeys!.Current;
@@ -549,7 +549,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         var hasValue = selectKeys.MoveNext();
         if (value == null)
@@ -557,7 +557,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         while (hasValue)
         {
             var key = selectKeys.Current;
@@ -589,14 +589,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         for (var i = 0; i < selectKeys.Length; i++)
         {
             var key = selectKeys[i];
@@ -622,14 +622,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         for (var i = 0; i < selectKeys.Length; i++)
         {
             var key = selectKeys[i];
@@ -656,14 +656,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         for (var i = 0; i < selectKeys.Length; i++)
         {
             var key = selectKeys[i];
@@ -689,14 +689,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         for (var i = 0; i < selectKeys.Length; i++)
         {
             var key = selectKeys[i];
@@ -723,14 +723,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         for (var i = 0; i < selectKeys.Length; i++)
         {
             var key = selectKeys[i];
@@ -756,14 +756,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         for (var i = 0; i < selectKeys.Length; i++)
         {
             var key = selectKeys[i];
@@ -790,14 +790,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         for (var i = 0; i < selectKeys.Count; i++)
         {
             var key = selectKeys[i];
@@ -823,14 +823,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         for (var i = 0; i < selectKeys.Count; i++)
         {
             var key = selectKeys[i];
@@ -857,14 +857,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         foreach (var key in selectKeys)
         {
             if (!value.TryGetValue(key, out var keyValue)) continue;
@@ -889,14 +889,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         foreach (var key in selectKeys)
         {
             if (!value.TryGetValue(key, out var keyValue)) continue;
@@ -922,7 +922,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
@@ -931,7 +931,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         }
         var hasValue = selectKeys?.MoveNext() ?? false;
         
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         while (hasValue)
         {
             var key = selectKeys!.Current;
@@ -962,7 +962,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags))
             return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
-        formatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         stb.FieldNameJoin(fieldName);
         var hasValue = selectKeys.MoveNext();
         if (value == null)
@@ -970,7 +970,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
             return stb.AddGoToNext();
         }
-        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, formatFlags);
+        var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         while (hasValue)
         {
             var key = selectKeys.Current;

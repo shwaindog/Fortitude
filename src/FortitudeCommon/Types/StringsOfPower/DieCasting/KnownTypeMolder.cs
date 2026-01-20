@@ -14,7 +14,6 @@ public interface IStateTransitioningTransitioningKnownTypeMolder : IDisposable
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
-      , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
@@ -40,7 +39,6 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
-      , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
@@ -48,7 +46,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
-        InitializeStyledTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName, remainingGraphDepth
+        InitializeStyledTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeName, remainingGraphDepth
                                   , moldGraphVisit, typeFormatting, createFormatFlags);
 
         SourceBuilderComponentAccess(writeMethodType);
@@ -70,14 +68,15 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
 
     public override void StartTypeOpening()
     {
-        if (PortableState.AppenderSettings.SkipTypeParts.HasTypeStartFlag()) return;
+        if (PortableState.CreateFormatFlags.HasSuppressOpening()) return;
         StartFormattingTypeOpening();
         AppendGraphFields();
     }
 
     public override void FinishTypeOpening()
     {
-        if (!PortableState.AppenderSettings.SkipTypeParts.HasTypeStartFlag()) { CompleteTypeOpeningToTypeFields(); }
+        if (PortableState.CreateFormatFlags.HasSuppressOpening()) return;
+        CompleteTypeOpeningToTypeFields();
     }
 
     public abstract void StartFormattingTypeOpening();
@@ -93,7 +92,10 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
     public override StateExtractStringRange Complete()
     {
         if (MoldStateField == null) { throw new NullReferenceException("Expected MoldState to be set"); }
-        if (!PortableState.AppenderSettings.SkipTypeParts.HasTypeEndFlag()) { AppendClosing(); }
+        if (PortableState.CreateFormatFlags.DoesNotHaveSuppressClosing())
+        {
+            AppendClosing();
+        }
         else
         {
             MoldStateField.StyleFormatter.GraphBuilder.RemoveLastSeparatorAndPadding();

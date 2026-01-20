@@ -15,7 +15,6 @@ public class ContentTypeMold<TContentMold> : TransitioningTypeMolder<TContentMol
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
-      , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
@@ -23,7 +22,7 @@ public class ContentTypeMold<TContentMold> : TransitioningTypeMolder<TContentMol
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
-        Initialize(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
+        Initialize(instanceOrContainer, typeBeingBuilt, master, typeName
                  , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
 
         return this;

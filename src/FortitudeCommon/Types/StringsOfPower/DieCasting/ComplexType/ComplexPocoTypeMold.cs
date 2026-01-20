@@ -18,7 +18,6 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
         object instanceOrContainer
       , Type typeBeingBuilt
       , TheOneString owning
-      , MoldDieCastSettings appendSettings
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
@@ -26,7 +25,7 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
-        InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, owning, appendSettings, typeName, remainingGraphDepth
+        InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, owning, typeName, remainingGraphDepth
                                       , moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
 
         return this;

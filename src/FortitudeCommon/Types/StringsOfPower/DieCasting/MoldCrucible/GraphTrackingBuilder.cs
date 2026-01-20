@@ -117,9 +117,15 @@ public class GraphTrackingBuilder : RecyclableObject
         set
         {
             if (ReferenceEquals(parentGraphEncoder, value) && ReferenceEquals(graphEncoder, value)) return;
-            if (parentGraphEncoder != null && !ReferenceEquals(parentGraphEncoder, graphEncoder)) { parentGraphEncoder.DecrementRefCount(); }
+            if (graphEncoder != null && !ReferenceEquals(graphEncoder, value) && !ReferenceEquals(parentGraphEncoder, value))
+            {
+                value.IncrementRefCount();
+            }
+            if (parentGraphEncoder != null && !ReferenceEquals(parentGraphEncoder, graphEncoder) && !ReferenceEquals(parentGraphEncoder, value))
+            {
+                parentGraphEncoder.DecrementRefCount();
+            }
             parentGraphEncoder = graphEncoder;
-            if (parentGraphEncoder != null && !ReferenceEquals(graphEncoder, value)) { parentGraphEncoder.DecrementRefCount(); }
             graphEncoder = value;
         }
     }
@@ -351,9 +357,9 @@ public class GraphTrackingBuilder : RecyclableObject
     public ContentSeparatorRanges AppendPaddingAndComplete(string content, FormatFlags formatFlags)
     {
         if (IsInModifyOverwriteMode)
-            overWriteIndex += GraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
+            overWriteIndex += ParentGraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
         else
-            GraphEncoder.AppendTransfer(content, sb);
+            ParentGraphEncoder.AppendTransfer(content, sb);
         return Complete(formatFlags);
     }
 

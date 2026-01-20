@@ -7,11 +7,11 @@ using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenari
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations.ScaffoldingStringBuilderInvokeFlags;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CircularRefRevisits;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CircularRefRevisits.UnitFieldContentRevisitTests;
 
 [NoMatchingProductionClass]
 [TestClass]
-public class TreeNodeUnitContentFieldRevisitTests : CommonStyleExpectationTestBase
+public class TreeNodeUnitFieldRevisitTests : CommonStyleExpectationTestBase
 {
     private static InputBearerExpect<OrderedBranchNode<IChildNode>>?      selfReferencingExpect;
     private static InputBearerExpect<OrderedBranchNode<IChildNode>>?      dualReferencingPairExpect;

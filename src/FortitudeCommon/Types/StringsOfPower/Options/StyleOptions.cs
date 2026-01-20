@@ -37,6 +37,9 @@ public struct StyleOptionsValue : IJsonFormattingOptions
 
     public const string DefaultLogInnerDblQtReplacementOpenChars  = ""; //  considered  "\u201C";  “
     public const string DefaultLogInnerDblQtReplacementCloseChars = ""; //  considered  "\u201D";  ”
+    
+    public const int DefaultInstanceTrackingDebuggerBreakOnRevisitCount = 64; 
+    public const int DefaultInstanceTrackingThrowExceededRevisitCount = 65; 
 
     public static readonly string[] DefaultLogSuppressNames = [
         "System"
@@ -88,8 +91,17 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     private bool?     disableCircularRefCheck;
     private bool?     charSArraysAsString;
     private bool?     circularRefUsesRefEquals;
-    private bool?     markRevisitedSpanFormattableClassInstances;
-    private bool?     includeSpanFormattableContentsOnRevisits;
+    private bool?     instanceMarkingMarkInstanceIdOnFirstVisit;
+    private bool?     instanceMarkingIncludeSpanFormattableContents;
+    private bool?     instanceMarkingMarkVirtualMemoryAddress;
+    private bool?     instanceMarkingMarkRevisitCount;
+    private bool?     instanceMarkingDisabled;
+    private bool?     instanceTrackingDisabled;
+    private bool?     instanceTrackingIncludeAllExemptClassInstances;
+    private bool?     instancesTrackingIncludeSpanFormattableClasses;
+    private bool?     instancesTrackingAsStringClassesAreExempt;
+    private int?     instancesTrackingDebuggerBreakOnRevisitCount;
+    private int?     instancesTrackingThrowOnRevisitCount;
     private string?   newLineStyle;
     private int?      prettyCollectionsColumnCountWrap;
     private int?      defaultGraphMaxDepth;
@@ -635,16 +647,77 @@ public struct StyleOptionsValue : IJsonFormattingOptions
         set => defaultGraphMaxDepth = value;
     }
 
-    public bool MarkRevisitedSpanFormattableClassInstances
+    public bool InstanceMarkingMarkInstanceIdOnFirstVisit
     {
-        readonly get => markRevisitedSpanFormattableClassInstances ?? fallbackOptions?.Values.MarkRevisitedSpanFormattableClassInstances ?? false;
-        set => markRevisitedSpanFormattableClassInstances = value;
+        readonly get => instanceMarkingMarkInstanceIdOnFirstVisit ?? fallbackOptions?.Values.InstanceMarkingMarkInstanceIdOnFirstVisit ?? false;
+        set => instanceMarkingMarkInstanceIdOnFirstVisit = value;
     }
 
-    public bool IncludeSpanFormattableContentsOnRevisits
+    public bool InstanceMarkingMarkVirtualMemoryAddress
     {
-        readonly get => includeSpanFormattableContentsOnRevisits ?? fallbackOptions?.Values.IncludeSpanFormattableContentsOnRevisits ?? false;
-        set => includeSpanFormattableContentsOnRevisits = value;
+        readonly get => instanceMarkingMarkVirtualMemoryAddress ?? fallbackOptions?.Values.InstanceMarkingMarkVirtualMemoryAddress ?? false;
+        set => instanceMarkingMarkVirtualMemoryAddress = value;
+    }
+
+    public bool InstanceMarkingMarkRevisitCount
+    {
+        readonly get => instanceMarkingMarkRevisitCount ?? fallbackOptions?.Values.InstanceMarkingMarkRevisitCount ?? false;
+        set => instanceMarkingMarkRevisitCount = value;
+    }
+
+    public bool InstanceMarkingIncludeSpanFormattableContents
+    {
+        readonly get => instanceMarkingIncludeSpanFormattableContents ?? fallbackOptions?.Values.InstanceMarkingIncludeSpanFormattableContents ?? false;
+        set => instanceMarkingIncludeSpanFormattableContents = value;
+    }
+
+    public bool InstanceMarkingDisabled
+    {
+        readonly get => instanceMarkingDisabled ?? fallbackOptions?.Values.InstanceMarkingDisabled ?? false;
+        set => instanceMarkingDisabled = value;
+    }
+
+    public bool InstanceTrackingDisabled
+    {
+        readonly get => instanceTrackingDisabled ?? fallbackOptions?.Values.InstanceTrackingDisabled ?? false;
+        set => instanceTrackingDisabled = value;
+    }
+
+    public bool InstanceTrackingIncludeAllExemptClassInstances
+    {
+        readonly get => instanceTrackingIncludeAllExemptClassInstances ?? fallbackOptions?.Values.InstanceTrackingIncludeAllExemptClassInstances ?? false;
+        set => instanceTrackingIncludeAllExemptClassInstances = value;
+    }
+
+    public bool InstancesTrackingAsStringClassesAreExempt
+    {
+        readonly get => instancesTrackingAsStringClassesAreExempt ?? fallbackOptions?.Values.InstancesTrackingAsStringClassesAreExempt ?? false;
+        set => instancesTrackingAsStringClassesAreExempt = value;
+    }
+
+    public bool InstanceTrackingIncludeSpanFormattableClasses
+    {
+        readonly get => InstanceTrackingIncludeAllExemptClassInstances ||
+            (instancesTrackingIncludeSpanFormattableClasses ?? fallbackOptions?.Values.InstanceTrackingIncludeSpanFormattableClasses ?? false);
+        set => instancesTrackingIncludeSpanFormattableClasses = value;
+    }
+
+    public int InstancesTrackingDebuggerBreakOnRevisitCount
+    {
+        readonly get => 
+            instancesTrackingDebuggerBreakOnRevisitCount 
+         ?? fallbackOptions?.Values.InstancesTrackingDebuggerBreakOnRevisitCount 
+         ?? DefaultInstanceTrackingDebuggerBreakOnRevisitCount;
+        set => instancesTrackingDebuggerBreakOnRevisitCount = value;
+    }
+
+    public int InstancesTrackingThrowOnRevisitCount
+    {
+        readonly get => 
+            instancesTrackingThrowOnRevisitCount 
+         ?? fallbackOptions?.Values.InstancesTrackingThrowOnRevisitCount 
+         ?? DefaultInstanceTrackingDebuggerBreakOnRevisitCount;
+        set => instancesTrackingThrowOnRevisitCount = value;
     }
 
     public StyleOptions? DefaultOptions
@@ -1115,16 +1188,70 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
         set => values.DefaultGraphMaxDepth = value;
     }
 
-    public bool MarkRevisitedSpanFormattableClassInstances
+    public bool InstanceMarkingMarkInstanceIdOnFirstVisit
     {
-        get => values.MarkRevisitedSpanFormattableClassInstances;
-        set => values.MarkRevisitedSpanFormattableClassInstances = value;
+        get => values.InstanceMarkingMarkInstanceIdOnFirstVisit;
+        set => values.InstanceMarkingMarkInstanceIdOnFirstVisit = value;
     }
 
-    public bool IncludeSpanFormattableContentsOnRevisits
+    public bool InstanceMarkingMarkVirtualMemoryAddress
     {
-        get => values.IncludeSpanFormattableContentsOnRevisits;
-        set => values.IncludeSpanFormattableContentsOnRevisits = value;
+        get => values.InstanceMarkingMarkVirtualMemoryAddress;
+        set => values.InstanceMarkingMarkVirtualMemoryAddress = value;
+    }
+
+    public bool InstanceMarkingMarkRevisitCount
+    {
+        get => values.InstanceMarkingMarkRevisitCount;
+        set => values.InstanceMarkingMarkRevisitCount = value;
+    }
+
+    public bool InstanceMarkingIncludeSpanFormattableContents
+    {
+        get => values.InstanceMarkingIncludeSpanFormattableContents;
+        set => values.InstanceMarkingIncludeSpanFormattableContents = value;
+    }
+
+    public bool InstanceMarkingDisabled
+    {
+        get => values.InstanceMarkingDisabled;
+        set => values.InstanceMarkingDisabled = value;
+    }
+
+    public bool InstanceTrackingDisabled
+    {
+        get => values.InstanceTrackingDisabled;
+        set => values.InstanceTrackingDisabled = value;
+    }
+
+    public bool InstanceTrackingIncludeAllExemptClassInstances
+    {
+        get => values.InstanceTrackingIncludeAllExemptClassInstances;
+        set => values.InstanceTrackingIncludeAllExemptClassInstances = value;
+    }
+
+    public bool InstancesTrackingAsStringClassesAreExempt
+    {
+        get => values.InstancesTrackingAsStringClassesAreExempt;
+        set => values.InstancesTrackingAsStringClassesAreExempt = value;
+    }
+
+    public bool InstanceTrackingIncludeSpanFormattableClasses
+    {
+        get => values.InstanceTrackingIncludeSpanFormattableClasses;
+        set => values.InstanceTrackingIncludeSpanFormattableClasses = value;
+    }
+
+    public int InstancesTrackingDebuggerBreakOnRevisitCount
+    {
+        get => values.InstancesTrackingDebuggerBreakOnRevisitCount;
+        set => values.InstancesTrackingDebuggerBreakOnRevisitCount = value;
+    }
+
+    public int InstancesTrackingThrowOnRevisitCount
+    {
+        get => values.InstancesTrackingThrowOnRevisitCount;
+        set => values.InstancesTrackingThrowOnRevisitCount = value;
     }
 
     public ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags)

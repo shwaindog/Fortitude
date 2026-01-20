@@ -36,7 +36,6 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
-      , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
       , VisitResult visitResult
@@ -49,7 +48,6 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
         PortableState.TypeName            = typeName;
         PortableState.RemainingGraphDepth = remainingGraphDepth;
         PortableState.TypeFormatting      = typeFormatting;
-        PortableState.AppenderSettings    = typeSettings;
         PortableState.CompleteResult      = null;
         PortableState.MoldGraphVisit      = visitResult;
         PortableState.CreateFormatFlags   = createFormatFlags;
@@ -90,11 +88,11 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
 
     protected override void InheritedStateReset()
     {
-        PortableState.Master           = null!;
-        PortableState.TypeName         = null!;
-        PortableState.AppenderSettings = default;
-        PortableState.CompleteResult   = null;
-        PortableState.MoldGraphVisit   = VisitResult.Empty;
+        PortableState.Master            = null!;
+        PortableState.TypeName          = null!;
+        PortableState.CompleteResult    = null;
+        PortableState.CreateFormatFlags = DefaultCallerTypeFlags;
+        PortableState.MoldGraphVisit    = VisitResult.Empty;
         if (PortableState.InstanceOrContainer is IRecyclableStructContainer recyclableStructContainer)
         {
             recyclableStructContainer.DecrementRefCount();
@@ -107,8 +105,6 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
 
     public class MoldPortableState
     {
-        public MoldDieCastSettings AppenderSettings;
-
         public object InstanceOrContainer { get; set; } = null!;
         public Type TypeBeingBuilt { get; set; } = null!;
         public string? TypeName { get; set; }
@@ -238,17 +234,26 @@ public static class StyledTypeBuilderExtensions
         if (callContext.ShouldSkip) return mdc;
 
         mdc.FieldNameJoin(fieldName);
-        if (!callContext.HasFormatChange) return mdc.AppendFormatted(value, formatString, formatFlags);
-        using (callContext) { return mdc.AppendFormatted(value, formatString, formatFlags); }
+        if (!callContext.HasFormatChange) return mdc.AppendFormattedOrNull(value, formatString, formatFlags);
+        using (callContext) { return mdc.AppendFormattedOrNull(value, formatString, formatFlags); }
     }
 
-    public static ITypeMolderDieCast<TExt> AppendFormatted<TExt, TFmt>
+    public static ITypeMolderDieCast<TExt> AppendFormattedOrNull<TExt, TFmt>
     (this ITypeMolderDieCast<TExt> mdc, TFmt? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder where TFmt : ISpanFormattable?
     {
         formatFlags = mdc.StyleFormatter.ResolveContentFormattingFlags(mdc.Sb, value, formatFlags, formatString);
-        if (!formatFlags.HasNoRevisitCheck() && mdc.Settings.MarkRevisitedSpanFormattableClassInstances && value != null && !typeof(TFmt).IsValueType)
+        
+        if (value == null)
+        {
+            if (!formatFlags.HasNullBecomesEmptyFlag())
+            {
+                mdc.StyleFormatter.AppendFormattedNull(mdc.Sb, formatString, formatFlags);
+            }
+            return mdc;
+        }
+        if (!formatFlags.HasNoRevisitCheck() && mdc.Settings.InstanceTrackingIncludeSpanFormattableClasses && !typeof(TFmt).IsValueType)
         {
             mdc.AppendFormattedWithRefenceTracking(value, formatString, formatFlags);
             return mdc;
@@ -275,11 +280,11 @@ public static class StyledTypeBuilderExtensions
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable?
     {
-        if (!formatFlags.HasNoRevisitCheck() && mdc.Settings.MarkRevisitedSpanFormattableClassInstances && value != null && !typeof(TFmt).IsValueType)
+        if (!formatFlags.HasNoRevisitCheck() && mdc.Settings.InstanceTrackingIncludeSpanFormattableClasses && value != null && !typeof(TFmt).IsValueType)
         {
             var preAppendLength      = mdc.Sb.Length;
             var registeredForRevisit = mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, formatFlags);
-            if (!registeredForRevisit.ShouldSuppressBody || mdc.Settings.IncludeSpanFormattableContentsOnRevisits)
+            if (!registeredForRevisit.ShouldSuppressBody || mdc.Settings.InstanceMarkingIncludeSpanFormattableContents)
             {
                 if (registeredForRevisit.ShouldSuppressBody) mdc.StyleFormatter.AppendInstanceValuesFieldName(typeof(TFmt), formatFlags);
                 mdc.AppendFormattedNoReferenceTracking(value, formatString, formatFlags);
@@ -299,7 +304,7 @@ public static class StyledTypeBuilderExtensions
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
     {
         formatFlags = mdc.StyleFormatter.ResolveContentFormattingFlags(mdc.Sb, value, formatFlags, formatString);
-        if (!formatFlags.HasNoRevisitCheck() && mdc.Settings.MarkRevisitedSpanFormattableClassInstances && !typeof(TFmt).IsValueType)
+        if (!formatFlags.HasNoRevisitCheck() && mdc.Settings.InstanceTrackingIncludeSpanFormattableClasses && !typeof(TFmt).IsValueType)
         {
             return mdc.AppendFormattedWithRefenceTracking(value, formatString, formatFlags);
         }
@@ -687,36 +692,36 @@ public static class StyledTypeBuilderExtensions
             switch (value)
             {
                 case bool valueBool:           mdc.AppendFormatted(valueBool, formatString, formatFlags); break;
-                case byte valueByte:           mdc.AppendFormatted(valueByte, formatString, formatFlags); break;
-                case sbyte valueSByte:         mdc.AppendFormatted(valueSByte, formatString, formatFlags); break;
-                case char valueChar:           mdc.AppendFormatted(valueChar, formatString, formatFlags); break;
-                case short valueShort:         mdc.AppendFormatted(valueShort, formatString, formatFlags); break;
-                case ushort valueUShort:       mdc.AppendFormatted(valueUShort, formatString, formatFlags); break;
-                case Half valueHalfFloat:      mdc.AppendFormatted(valueHalfFloat, formatString, formatFlags); break;
-                case int valueInt:             mdc.AppendFormatted(valueInt, formatString, formatFlags); break;
-                case uint valueUInt:           mdc.AppendFormatted(valueUInt, formatString, formatFlags); break;
-                case nint valueUInt:           mdc.AppendFormatted(valueUInt, formatString, formatFlags); break;
-                case float valueFloat:         mdc.AppendFormatted(valueFloat, formatString, formatFlags); break;
-                case long valueLong:           mdc.AppendFormatted(valueLong, formatString, formatFlags); break;
-                case ulong valueULong:         mdc.AppendFormatted(valueULong, formatString, formatFlags); break;
-                case double valueDouble:       mdc.AppendFormatted(valueDouble, formatString, formatFlags); break;
-                case decimal valueDecimal:     mdc.AppendFormatted(valueDecimal, formatString, formatFlags); break;
-                case Int128 veryLongInt:       mdc.AppendFormatted(veryLongInt, formatString, formatFlags); break;
-                case UInt128 veryLongUInt:     mdc.AppendFormatted(veryLongUInt, formatString, formatFlags); break;
-                case BigInteger veryLongInt:   mdc.AppendFormatted(veryLongInt, formatString, formatFlags); break;
-                case Complex veryLongInt:      mdc.AppendFormatted(veryLongInt, formatString, formatFlags); break;
-                case DateTime valueDateTime:   mdc.AppendFormatted(valueDateTime, formatString, formatFlags); break;
-                case DateOnly valueDateOnly:   mdc.AppendFormatted(valueDateOnly, formatString, formatFlags); break;
-                case TimeSpan valueTimeSpan:   mdc.AppendFormatted(valueTimeSpan, formatString, formatFlags); break;
-                case TimeOnly valueTimeOnly:   mdc.AppendFormatted(valueTimeOnly, formatString, formatFlags); break;
-                case Rune valueRune:           mdc.AppendFormatted(valueRune, formatString, formatFlags); break;
-                case Guid valueGuid:           mdc.AppendFormatted(valueGuid, formatString, formatFlags); break;
-                case IPNetwork valueIpNetwork: mdc.AppendFormatted(valueIpNetwork, formatString, formatFlags); break;
+                case byte valueByte:           mdc.AppendFormattedOrNull(valueByte, formatString, formatFlags); break;
+                case sbyte valueSByte:         mdc.AppendFormattedOrNull(valueSByte, formatString, formatFlags); break;
+                case char valueChar:           mdc.AppendFormattedOrNull(valueChar, formatString, formatFlags); break;
+                case short valueShort:         mdc.AppendFormattedOrNull(valueShort, formatString, formatFlags); break;
+                case ushort valueUShort:       mdc.AppendFormattedOrNull(valueUShort, formatString, formatFlags); break;
+                case Half valueHalfFloat:      mdc.AppendFormattedOrNull(valueHalfFloat, formatString, formatFlags); break;
+                case int valueInt:             mdc.AppendFormattedOrNull(valueInt, formatString, formatFlags); break;
+                case uint valueUInt:           mdc.AppendFormattedOrNull(valueUInt, formatString, formatFlags); break;
+                case nint valueUInt:           mdc.AppendFormattedOrNull(valueUInt, formatString, formatFlags); break;
+                case float valueFloat:         mdc.AppendFormattedOrNull(valueFloat, formatString, formatFlags); break;
+                case long valueLong:           mdc.AppendFormattedOrNull(valueLong, formatString, formatFlags); break;
+                case ulong valueULong:         mdc.AppendFormattedOrNull(valueULong, formatString, formatFlags); break;
+                case double valueDouble:       mdc.AppendFormattedOrNull(valueDouble, formatString, formatFlags); break;
+                case decimal valueDecimal:     mdc.AppendFormattedOrNull(valueDecimal, formatString, formatFlags); break;
+                case Int128 veryLongInt:       mdc.AppendFormattedOrNull(veryLongInt, formatString, formatFlags); break;
+                case UInt128 veryLongUInt:     mdc.AppendFormattedOrNull(veryLongUInt, formatString, formatFlags); break;
+                case BigInteger veryLongInt:   mdc.AppendFormattedOrNull(veryLongInt, formatString, formatFlags); break;
+                case Complex veryLongInt:      mdc.AppendFormattedOrNull(veryLongInt, formatString, formatFlags); break;
+                case DateTime valueDateTime:   mdc.AppendFormattedOrNull(valueDateTime, formatString, formatFlags); break;
+                case DateOnly valueDateOnly:   mdc.AppendFormattedOrNull(valueDateOnly, formatString, formatFlags); break;
+                case TimeSpan valueTimeSpan:   mdc.AppendFormattedOrNull(valueTimeSpan, formatString, formatFlags); break;
+                case TimeOnly valueTimeOnly:   mdc.AppendFormattedOrNull(valueTimeOnly, formatString, formatFlags); break;
+                case Rune valueRune:           mdc.AppendFormattedOrNull(valueRune, formatString, formatFlags); break;
+                case Guid valueGuid:           mdc.AppendFormattedOrNull(valueGuid, formatString, formatFlags); break;
+                case IPNetwork valueIpNetwork: mdc.AppendFormattedOrNull(valueIpNetwork, formatString, formatFlags); break;
                 case char[] valueCharArray:    mdc.AppendFormattedOrNull(valueCharArray, formatString, formatFlags: formatFlags); break;
                 case string valueString:       mdc.AppendFormattedOrNull(valueString, formatString, formatFlags: formatFlags); break;
-                case Version valueVersion:     mdc.AppendFormatted(valueVersion, formatString, formatFlags); break;
-                case IPAddress valueIpAddress: mdc.AppendFormatted(valueIpAddress, formatString, formatFlags); break;
-                case Uri valueUri:             mdc.AppendFormatted(valueUri, formatString, formatFlags); break;
+                case Version valueVersion:     mdc.AppendFormattedOrNull(valueVersion, formatString, formatFlags); break;
+                case IPAddress valueIpAddress: mdc.AppendFormattedOrNull(valueIpAddress, formatString, formatFlags); break;
+                case Uri valueUri:             mdc.AppendFormattedOrNull(valueUri, formatString, formatFlags); break;
                 case Enum:
                 case ISpanFormattable:
                     var actualValueType = value.GetType();
@@ -783,7 +788,7 @@ public static class StyledTypeBuilderExtensions
                         mdc.StyleFormatter.FormatFieldNameMatch(mdc.Sb, value, formatString, formatFlags);
                     else
                     {
-                        if (unknownType.IsValueType || mdc.Master.WasThisLastVisitedAsAMoreDerivedType(value))
+                        if (unknownType.IsValueType || mdc.Master.IsCallerSameInstanceAndMoreDerived(value))
                             mdc.StyleFormatter.FormatFieldContentsMatch(mdc.Sb, value, formatString, formatFlags);
                         else
                             mdc.Master.RegisterVisitedInstanceAndConvert(value, formatString, formatFlags);
@@ -900,14 +905,16 @@ public static class StyledTypeBuilderExtensions
                     if (unKnownType.IsValueType || (!unKnownType.IsAnyTypeHoldingChars()))
                     {
                         formatFlags = mdc.StyleFormatter.ResolveContentFormattingFlags(mdc.Sb, value, formatFlags, formatString);
+                        bool isSpanFormattableType = unKnownType.IsSpanFormattableCached();
                         if (!formatFlags.HasNoRevisitCheck()
                          && !typeof(TValue).IsValueType
-                         && (!unKnownType.IsSpanFormattableCached() 
-                          || mdc.Settings.MarkRevisitedSpanFormattableClassInstances))
+                         && (!isSpanFormattableType
+                          || mdc.Settings.InstanceTrackingIncludeSpanFormattableClasses))
                         {
                             var preAppendLength      = mdc.Sb.Length;
                             var registeredForRevisit = mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, formatFlags);
-                            if (!registeredForRevisit.ShouldSuppressBody || mdc.Settings.IncludeSpanFormattableContentsOnRevisits)
+                            if (!registeredForRevisit.ShouldSuppressBody 
+                             || (isSpanFormattableType && mdc.Settings.InstanceMarkingIncludeSpanFormattableContents))
                             {
                                 if (registeredForRevisit.ShouldSuppressBody)
                                     mdc.StyleFormatter.AppendInstanceValuesFieldName(typeof(TValue), formatFlags);
@@ -927,7 +934,12 @@ public static class StyledTypeBuilderExtensions
                     break;
             }
         else
-            mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
+        {
+            if (!formatFlags.HasNullBecomesEmptyFlag())
+            {
+                mdc.StyleFormatter.AppendFormattedNull(mdc.Sb, formatString, formatFlags);
+            }
+        }
         return sb;
     }
 

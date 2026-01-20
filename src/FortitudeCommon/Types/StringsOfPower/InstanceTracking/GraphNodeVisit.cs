@@ -5,7 +5,6 @@ using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
-using static FortitudeCommon.Types.StringsOfPower.WriteMethodType;
 
 namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
@@ -15,9 +14,11 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
         public bool IsValueType;
 
-        public GraphNodeVisit(int ObjVisitIndex
+        public GraphNodeVisit(
+            int ObjVisitIndex
           , int ParentVisitIndex
-          , Type VistedAsType
+          , Type ActualType
+          , Type VisitedAsType
           , ITypeMolderDieCast? TypeBuilderComponentAccess  
           , WriteMethodType writeMethod
           , object? VisitedInstance
@@ -29,8 +30,9 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
         )
         {
             this.ParentVisitIndex           = ParentVisitIndex;
-            this.VistedAsType               = VistedAsType;
-            IsValueType                     = VistedAsType.IsValueType;
+            this.VisitedAsType              = VisitedAsType;
+            this.ActualType                 = ActualType;
+            IsValueType                     = ActualType.IsValueType;
             this.ObjVisitIndex              = ObjVisitIndex;
             this.TypeBuilderComponentAccess = TypeBuilderComponentAccess;
             WriteMethod                     = writeMethod;
@@ -116,41 +118,33 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
         public int CurrentBufferTypeEnd { get; init; } = -1;
 
         public int CurrentBufferExpectedFirstFieldStart { get; init; }
-        public int ObjVisitIndex { get; set; }
-        public int ParentVisitIndex { get; set; }
-        public Type VistedAsType { get; set; }
-        public WriteMethodType WriteMethod { get; set; }
-        public object? VisitedInstance { get; set; }
-        public int CurrentBufferTypeStart { get; set; }
-        public CallerContext CallerContext { get; set; }
-        public FormattingState FormattingState { get; set; }
+        public int ObjVisitIndex { get; init; }
+        public int ParentVisitIndex { get; init; }
+        public Type VisitedAsType { get; init; }
+        public Type ActualType { get; init; }
+        public WriteMethodType WriteMethod { get; init; }
+        public object? VisitedInstance { get; init; }
+        public int CurrentBufferTypeStart { get; init; }
+        public CallerContext CallerContext { get; init; }
+        public FormattingState FormattingState { get; init; }
         
-        public int RevisitCount { get; set; }
+        public int RevisitCount { get; init; }
         
-        public int IndentLevel { get; set; }
+        public int IndentLevel { get; init; }
         public int GraphDepth => FormattingState.GraphDepth;
         public int RemainingGraphDepth => FormattingState.RemainingGraphDepth;
         public FormatFlags CreateWithFlags => FormattingState.CreateWithFlags;
 
-        public IStyledTypeFormatting? Formatter => FormattingState.Formatter;
+        public IStyledTypeFormatting Formatter => FormattingState.Formatter;
         public IEncodingTransfer? GraphEncoder => FormattingState.GraphEncoder;
         public IEncodingTransfer? ParentEncoder => FormattingState.ParentEncoder;
 
         public void Reset()
         {
-            ObjVisitIndex    = 0;
-            ParentVisitIndex = 0;
-            VistedAsType     = typeof(GraphNodeVisit);
-            WriteMethod      = None;
             if (VisitedInstance is IRecyclableStructContainer recyclableStructContainerObject)
             {
                 recyclableStructContainerObject.DecrementRefCount();
             }
-            VisitedInstance        = null;
-            FormattingState        = default;
-            CurrentBufferTypeStart = 0;
-            IsValueType            = false;
-            RevisitCount           = 0;
             CallerContext.Clear();
         }
 
@@ -158,9 +152,10 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
         // ReSharper disable InconsistentNaming
         public readonly void Deconstruct(out int ObjVisitIndex
               , out int ParentVisitIndex
-              , out Type VistedAsType
+              , out Type VisitedAsType
+              , out Type ActualType
               , out WriteMethodType WriteMethod
-              , out object? StylingObjInstance
+              , out object? VisitedInstance
               , out int CurrentBufferTypeStart
               , out CallerContext CallerContext
               , out FormattingState FormattingState
@@ -170,9 +165,10 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
         {
             ObjVisitIndex          = this.ObjVisitIndex;
             ParentVisitIndex       = this.ParentVisitIndex;
-            VistedAsType           = this.VistedAsType;
+            VisitedAsType          = this.VisitedAsType;
+            ActualType             = this.ActualType;
             WriteMethod            = this.WriteMethod;
-            StylingObjInstance     = this.VisitedInstance;
+            VisitedInstance        = this.VisitedInstance;
             CurrentBufferTypeStart = this.CurrentBufferTypeStart;
             CallerContext          = this.CallerContext;
             FormattingState        = this.FormattingState;

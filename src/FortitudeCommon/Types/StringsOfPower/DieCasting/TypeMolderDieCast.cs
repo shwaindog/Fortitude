@@ -21,9 +21,6 @@ public interface ITypeMolderDieCast : IRecyclableObject, ITransferState
 
     ISecretStringOfPower Master { get; }
 
-    MoldDieCastSettings AppendSettings { get; set; }
-
-
     FormatFlags CallerContentHandling { get; }
     FormatFlags CreateMoldFormatFlags { get; }
 
@@ -77,7 +74,7 @@ public interface ITypeMolderDieCast : IRecyclableObject, ITransferState
     public int DecrementIndent();
     public int IncrementIndent();
 
-    public void UnSetIgnoreFlag(SkipTypeParts flagToUnset);
+    public void UnSetIgnoreFlag(FormatFlags flagToUnset);
     void        SetUntrackedVisit();
 
     new IRecycler Recycler { get; }
@@ -122,6 +119,7 @@ public static class TypeMoldFlagsExtensions
     public static bool HasIsCompleteFlag(this TypeMoldFlags flags)       => (flags & IsCompleteFlag) > 0;
     public static bool HasSkipBodyFlag(this TypeMoldFlags flags)         => (flags & SkipBodyFlag) > 0;
     public static bool HasSkipFieldsFlag(this TypeMoldFlags flags)        => (flags & SkipFieldsFlag) > 0;
+
     // public static bool HasWriteAsAttributeFlag(this TypeMoldFlags flags) => (flags & WriteAsAttributeFlag) > 0;
     // public static bool HasWriteAsContentFlag(this TypeMoldFlags flags)   => (flags & WriteAsContentFlag) > 0;
     // public static bool HasWriteAsComplexFlag(this TypeMoldFlags flags)   => (flags & WriteAsComplexFlag) > 0;
@@ -275,15 +273,9 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
         return typeBuilderState.Master.IndentLevel;
     }
 
-    public MoldDieCastSettings AppendSettings
+    public void UnSetIgnoreFlag(FormatFlags flagToUnset)
     {
-        get => typeBuilderState.AppenderSettings;
-        set => typeBuilderState.AppenderSettings = value;
-    }
-
-    public void UnSetIgnoreFlag(SkipTypeParts flagToUnset)
-    {
-        typeBuilderState.AppenderSettings.SkipTypeParts &= ~flagToUnset;
+        typeBuilderState.CreateFormatFlags &= ~flagToUnset;
     }
 
     public new IRecycler Recycler => base.Recycler ?? typeBuilderState.Master.Recycler;

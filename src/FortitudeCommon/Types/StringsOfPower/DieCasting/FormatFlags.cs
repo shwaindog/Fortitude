@@ -184,7 +184,7 @@ public static class FieldContentHandlingExtensions
     
     public static bool HasEachItemOnlyOneLineFlag(this FormatFlags flags)                => (flags & EachItemOnlyOneLine) > 0;
     public static bool HasNoRevisitCheck(this FormatFlags flags)                         => (flags & NoRevisitCheck) > 0;
-    public static bool HasSuppressTypeNamesFlag(this FormatFlags flags)                  => (flags & LogSuppressTypeNames) > 0;
+    public static bool HasLogSuppressTypeNamesFlag(this FormatFlags flags)                  => (flags & LogSuppressTypeNames) > 0;
     public static bool DoesNotHaveLogSuppressTypeNamesFlag(this FormatFlags flags)       => (flags & LogSuppressTypeNames) == 0;
     public static bool HasAddTypeNameFieldFlag(this FormatFlags flags)                   => (flags & AddTypeNameField) > 0;
     public static bool DoesNotHaveAddTypeNameFieldFlag(this FormatFlags flags)           => (flags & AddTypeNameField) == 0;

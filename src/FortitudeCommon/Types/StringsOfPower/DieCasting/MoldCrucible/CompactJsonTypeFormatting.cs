@@ -9,6 +9,7 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
+using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FieldContentHandlingExtensions;
@@ -129,10 +130,10 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return modifiedFlags | AsStringContent;
     }
 
-    public SkipTypeParts GetNextValueTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FormatFlags formatFlags) => SkipTypeParts.None;
-    public SkipTypeParts GetNextValueTypePartFlags(ITheOneString tos, Type actualType, FormatFlags formatFlags) => SkipTypeParts.None;
-    public SkipTypeParts GetNextComplexTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FormatFlags formatFlags) => SkipTypeParts.None;
-    public SkipTypeParts GetNextComplexTypePartFlags(ITheOneString tos, Type actualType, FormatFlags formatFlags) => SkipTypeParts.None;
+    public FormatFlags GetNextValueTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, VisitResult visitResult, FormatFlags formatFlags) => formatFlags;
+    public FormatFlags GetNextValueTypePartFlags(ITheOneString tos, Type actualType, VisitResult visitResult, FormatFlags formatFlags) => formatFlags;
+    public FormatFlags GetNextComplexTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, VisitResult visitResult, FormatFlags formatFlags) => formatFlags;
+    public FormatFlags GetNextComplexTypePartFlags(ITheOneString tos, Type actualType, VisitResult visitResult, FormatFlags formatFlags) => formatFlags;
 
     public virtual ContentSeparatorRanges StartContentTypeOpening(ITypeMolderDieCast moldInternal
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -213,7 +214,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
 
         var lastContentChar = GraphBuilder.RemoveLastSeparatorAndPadding();
 
-        if (moldInternal.AppendSettings.SkipTypeParts.HasTypeEndFlag())
+        if (moldInternal.CreateMoldFormatFlags.HasSuppressClosing())
         {
             GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags, true);
         }
@@ -248,8 +249,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         return sb;
     }
 
-    public virtual int InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, int refId, int indexToInsertAt, WriteMethodType writeMethod
-      , FormatFlags createTypeFlags, int currentEnd = -1, ITypeMolderDieCast? liveMoldInternal = null)
+    public virtual int InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, Type actualType, int refId, int indexToInsertAt
+      , WriteMethodType writeMethod, FormatFlags createTypeFlags, int currentEnd = -1, ITypeMolderDieCast? liveMoldInternal = null)
     {
         if (createTypeFlags.HasNoRevisitCheck()) return 0;
         
@@ -294,7 +295,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting
         else
         {
             // after inserted
-            prefixInsertSize += SizeFieldSeparatorAndPadding(createTypeFlags);;
+            prefixInsertSize += SizeFieldSeparatorAndPadding(createTypeFlags);
         }
         prefixInsertSize += SizeFormatFieldName(3, createTypeFlags);
         prefixInsertSize += SizeFieldValueSeparator(createTypeFlags);

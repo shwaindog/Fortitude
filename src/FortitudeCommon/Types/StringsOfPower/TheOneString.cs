@@ -45,15 +45,15 @@ public interface ITheOneString : IReusableObject<ITheOneString>
     ITheOneString ReInitialize(IStringBuilder usingStringBuilder, StringStyle buildStyle = StringStyle.CompactLog);
 
     ITheOneString ClearAndReinitialize
-        (StringStyle style, int indentLevel = 0, SkipTypeParts ignoreFlags = SkipTypeParts.None);
+        (StringStyle style, int indentLevel = 0, FormatFlags initialTypeCreateFlags = DefaultCallerTypeFlags);
 
     ITheOneString ClearAndReinitialize
-        (StyleOptions styleOptions, int indentLevel = 0, SkipTypeParts ignoreFlags = SkipTypeParts.None);
+        (StyleOptions styleOptions, int indentLevel = 0, FormatFlags initialTypeCreateFlags = DefaultCallerTypeFlags);
 
     ITheOneString ClearAndReinitialize
-        (StyleOptionsValue styleOptions, int indentLevel = 0, SkipTypeParts ignoreFlags = SkipTypeParts.None);
+        (StyleOptionsValue styleOptions, int indentLevel = 0, FormatFlags initialTypeCreateFlags = DefaultCallerTypeFlags);
 
-    ITheOneString Clear(int indentLevel = 0, SkipTypeParts ignoreFlags = SkipTypeParts.None);
+    ITheOneString Clear(int indentLevel = 0, FormatFlags initialTypeCreateFlags = DefaultCallerTypeFlags);
 
     ITheOneString ClearVisitHistory();
 
@@ -93,7 +93,7 @@ public interface ITheOneString : IReusableObject<ITheOneString>
 
     CallContextDisposable ResolveContextForCallerFlags(FormatFlags contentFlags);
 
-    bool WasThisLastVisitedAsAMoreDerivedType<TVisited>(TVisited checkIsLastVisited);
+    bool IsCallerSameInstanceAndMoreDerived<TVisited>(TVisited checkIsLastVisited);
 
     // IStyleTypeBuilder AutoType<T>();
 
@@ -108,8 +108,6 @@ public interface ITheOneString : IReusableObject<ITheOneString>
 
 public interface ISecretStringOfPower : ITheOneString
 {
-    SkipTypeParts SkipTypeParts { get; }
-
     new IRecycler Recycler { get; }
 
     new CallerContext CallerContext { get; set; }
@@ -176,10 +174,11 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     public static readonly Func<IStringBuilder> BufferFactory = () => AlWaysRecycler.Borrow<MutableString>();
 
     protected GraphInstanceRegistry instanceVisitRegistry;
-
-    private MoldDieCastSettings initialAppendSettings;
-
-    private MoldDieCastSettings? nextTypeAppendSettings;
+    //
+    // private MoldDieCastSettings initialAppendSettings;
+    //
+    // private MoldDieCastSettings? nextTypeAppendSettings;
+    private FormatFlags nextTypeCreateFlags = DefaultCallerTypeFlags;
 
 
     protected IStringBuilder? Sb;
@@ -226,8 +225,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     {
         Sb = BufferFactory();
         Sb.Append(toClone.Sb);
-        initialAppendSettings  = toClone.initialAppendSettings;
-        nextTypeAppendSettings = toClone.nextTypeAppendSettings;
+        nextTypeCreateFlags  = toClone.nextTypeCreateFlags;
 
         if (DefaultSettings == null)
         {
@@ -267,8 +265,8 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         return this;
     }
 
-
-    protected MoldDieCastSettings AppendSettings => nextTypeAppendSettings ?? CurrentTypeAccess?.AppendSettings ?? initialAppendSettings;
+    //
+    // protected MoldDieCastSettings AppendSettings => nextTypeAppendSettings ?? CurrentTypeAccess?.AppendSettings ?? initialAppendSettings;
 
     protected ITypeMolderDieCast? CurrentTypeAccess => instanceVisitRegistry.CurrentNode?.TypeBuilderComponentAccess;
 
@@ -293,7 +291,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         set => Settings.IndentLevel = value;
     }
 
-    public SkipTypeParts SkipTypeParts => AppendSettings.SkipTypeParts;
+    // public SkipTypeParts SkipTypeParts => AppendSettings.SkipTypeParts;
 
     public StringStyle Style => Settings.Values.Style;
 
@@ -358,13 +356,13 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     }
 
     public ITheOneString ClearAndReinitialize
-        (StringStyle style, int indentLevel = 0, SkipTypeParts ignoreFlags = SkipTypeParts.None)
+        (StringStyle style, int indentLevel = 0, FormatFlags initialTypeFlags = DefaultCallerTypeFlags)
     {
         Settings.Style = style;
 
         IndentLevel = indentLevel;
 
-        initialAppendSettings = new MoldDieCastSettings(ignoreFlags);
+        nextTypeCreateFlags = initialTypeFlags;
         Sb?.Clear();
         Sb ??= BufferFactory();
 
@@ -379,13 +377,13 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     }
 
     public ITheOneString ClearAndReinitialize(StyleOptions styleOptions, int indentLevel = 0
-      , SkipTypeParts ignoreWrite = SkipTypeParts.None)
+      , FormatFlags initialTypeFlags = DefaultCallerTypeFlags)
     {
         Settings = styleOptions;
 
         IndentLevel = indentLevel;
 
-        initialAppendSettings = new MoldDieCastSettings(ignoreWrite);
+        nextTypeCreateFlags = initialTypeFlags;
         Sb?.Clear();
         Sb ??= BufferFactory();
 
@@ -401,13 +399,13 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     }
 
     public ITheOneString ClearAndReinitialize(StyleOptionsValue styleOptionsValue, int indentLevel = 0
-      , SkipTypeParts ignoreWrite = SkipTypeParts.None)
+      , FormatFlags initialTypeFlags = DefaultCallerTypeFlags)
     {
         Settings.Values = styleOptionsValue;
 
         IndentLevel = indentLevel;
 
-        initialAppendSettings = new MoldDieCastSettings(ignoreWrite);
+        nextTypeCreateFlags = initialTypeFlags;
         Sb?.Clear();
         Sb ??= BufferFactory();
 
@@ -422,9 +420,9 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         return ClearVisitHistory();
     }
 
-    public ITheOneString Clear(int indentLevel = 0, SkipTypeParts ignoreWrite = SkipTypeParts.None)
+    public ITheOneString Clear(int indentLevel = 0, FormatFlags initialTypeFlags = DefaultCallerTypeFlags)
     {
-        initialAppendSettings = new MoldDieCastSettings(ignoreWrite);
+        nextTypeCreateFlags = initialTypeFlags;
         Sb?.Clear();
         Sb ??= BufferFactory();
 
@@ -479,17 +477,17 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var graphVisitResult = !IsExemptFromCircularRefNodeTracking(actualType, createFlags)
             ? SourceGraphVisitRefId(toStyle, visitType, createFlags)
             : VisitResult.Empty;
-        var typeFormatter    = TypeFormattingOverrides.GetValueOrDefault(visitType, CurrentStyledTypeFormatter);
-        var appendSettings   = nextTypeAppendSettings ?? new MoldDieCastSettings(SkipTypeParts.None);
-        var remainingDepth   = instanceVisitRegistry.RemainingDepth - 1;
-        var writeMethod = (graphVisitResult.HasExistingInstanceId || remainingDepth <= 0) && !appendSettings.SkipTypeParts.HasTypeStartFlag()
+        var typeFormatter     = TypeFormattingOverrides.GetValueOrDefault(visitType, CurrentStyledTypeFormatter);
+        var mergedCreateFlags = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, graphVisitResult, createFlags);
+        var remainingDepth    = instanceVisitRegistry.RemainingDepth - 1;
+        var writeMethod = (graphVisitResult.HasExistingInstanceId || remainingDepth <= 0) && !mergedCreateFlags.DoesNotHaveSuppressOpening()
             ? MoldComplexType
             : RawContent;
         var simpleValueBuilder =
             Recycler.Borrow<RawContentMold>().InitializeRawContentTypeBuilder
-                (WrapOrReturnSubjectAsObject(toStyle), actualType, this, appendSettings, createContext.NameOverride, remainingDepth
+                (WrapOrReturnSubjectAsObject(toStyle), actualType, this, createContext.NameOverride, remainingDepth
                , graphVisitResult, typeFormatter, writeMethod, createFlags);
-        TypeStart(toStyle, simpleValueBuilder, writeMethod, createFlags);
+        TypeStart(toStyle, visitType, simpleValueBuilder, writeMethod, createFlags);
         return simpleValueBuilder;
     }
 
@@ -501,15 +499,15 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var graphVisitResult = !IsExemptFromCircularRefNodeTracking(actualType, createFlags)
             ? SourceGraphVisitRefId(toStyle, visitType, createFlags)
             : VisitResult.Empty;
-        var typeFormatter    = TypeFormattingOverrides.GetValueOrDefault(visitType, CurrentStyledTypeFormatter);
-        var appendSettings   = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, createFlags);
-        var writeMethod      = MoldKeyedCollectionType;
-        var remainingDepth   = instanceVisitRegistry.RemainingDepth - 1;
+        var typeFormatter     = TypeFormattingOverrides.GetValueOrDefault(visitType, CurrentStyledTypeFormatter);
+        var mergedCreateFlags = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, graphVisitResult, createFlags);
+        var writeMethod       = MoldKeyedCollectionType;
+        var remainingDepth    = instanceVisitRegistry.RemainingDepth - 1;
         var keyedCollectionBuilder =
             Recycler.Borrow<KeyedCollectionMold>().InitializeKeyValueCollectionBuilder
-                (WrapOrReturnSubjectAsObject(toStyle), actualType, this, appendSettings, createContext.NameOverride
-               , remainingDepth, graphVisitResult, typeFormatter, writeMethod, createFlags);
-        TypeStart(toStyle, keyedCollectionBuilder, writeMethod, createFlags);
+                (WrapOrReturnSubjectAsObject(toStyle), actualType, this, createContext.NameOverride
+               , remainingDepth, graphVisitResult, typeFormatter, writeMethod, mergedCreateFlags);
+        TypeStart(toStyle, visitType, keyedCollectionBuilder, writeMethod, mergedCreateFlags);
         return keyedCollectionBuilder;
     }
 
@@ -523,15 +521,15 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var graphVisitResult = !IsExemptFromCircularRefNodeTracking(actualType, createFlags)
             ? SourceGraphVisitRefId(keyValueContainerInstance, actualType, createFlags)
             : VisitResult.Empty;
-        var typeFormatter    = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
-        var appendSettings   = GetComplexTypeAppendSettings(keyValueContainerInstance, actualType, typeFormatter, createFlags);
-        var writeMethod      = MoldExplicitCollectionType;
-        var remainingDepth   = instanceVisitRegistry.RemainingDepth - 1;
+        var typeFormatter     = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
+        var mergedCreateFlags = GetComplexTypeAppendSettings(keyValueContainerInstance, actualType, typeFormatter, graphVisitResult, createFlags);
+        var writeMethod       = MoldExplicitCollectionType;
+        var remainingDepth    = instanceVisitRegistry.RemainingDepth - 1;
         var keyedCollectionBuilder =
             Recycler.Borrow<ExplicitKeyedCollectionMold<TKey, TValue>>().InitializeExplicitKeyValueCollectionBuilder
-                (keyValueContainerInstance, actualType, this, appendSettings, createContext.NameOverride
-               , remainingDepth, graphVisitResult, typeFormatter, writeMethod, createFlags);
-        TypeStart(keyValueContainerInstance, keyedCollectionBuilder, writeMethod, createFlags);
+                (keyValueContainerInstance, actualType, this, createContext.NameOverride
+               , remainingDepth, graphVisitResult, typeFormatter, writeMethod, mergedCreateFlags);
+        TypeStart(keyValueContainerInstance, actualType, keyedCollectionBuilder, writeMethod, mergedCreateFlags);
         return keyedCollectionBuilder;
     }
 
@@ -543,15 +541,15 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var graphVisitResult = !IsExemptFromCircularRefNodeTracking(actualType, createFlags)
             ? SourceGraphVisitRefId(toStyle, visitType, createFlags)
             : VisitResult.Empty;
-        var typeFormatter    = TypeFormattingOverrides.GetValueOrDefault(visitType, CurrentStyledTypeFormatter);
-        var appendSettings   = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, createFlags);
-        var writeMethod      = MoldSimpleCollectionType;
-        var remainingDepth   = instanceVisitRegistry.RemainingDepth - 1;
+        var typeFormatter     = TypeFormattingOverrides.GetValueOrDefault(visitType, CurrentStyledTypeFormatter);
+        var mergedCreateFlags = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, graphVisitResult, createFlags);
+        var writeMethod       = MoldSimpleCollectionType;
+        var remainingDepth    = instanceVisitRegistry.RemainingDepth - 1;
         var simpleOrderedCollectionBuilder =
             Recycler.Borrow<SimpleOrderedCollectionMold>().InitializeSimpleOrderedCollectionBuilder
-                (WrapOrReturnSubjectAsObject(toStyle), actualType, this, appendSettings, createContext.NameOverride, remainingDepth
-               , graphVisitResult, typeFormatter, writeMethod, createFlags);
-        TypeStart(toStyle, simpleOrderedCollectionBuilder, writeMethod, createFlags);
+                (WrapOrReturnSubjectAsObject(toStyle), actualType, this, createContext.NameOverride, remainingDepth
+               , graphVisitResult, typeFormatter, writeMethod, mergedCreateFlags);
+        TypeStart(toStyle, visitType, simpleOrderedCollectionBuilder, writeMethod, mergedCreateFlags);
         return simpleOrderedCollectionBuilder;
     }
 
@@ -563,31 +561,31 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var graphVisitResult = !IsExemptFromCircularRefNodeTracking(actualType, createFlags)
             ? SourceGraphVisitRefId(toStyle, visitType, createFlags)
             : VisitResult.Empty;
-        var typeFormatter    = TypeFormattingOverrides.GetValueOrDefault(visitType, CurrentStyledTypeFormatter);
-        var appendSettings   = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, createFlags);
-        var writeMethod      = MoldSimpleCollectionType;
-        var remainingDepth   = instanceVisitRegistry.RemainingDepth - 1;
+        var typeFormatter     = TypeFormattingOverrides.GetValueOrDefault(visitType, CurrentStyledTypeFormatter);
+        var mergedCreateFlags = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, graphVisitResult, createFlags);
+        var writeMethod       = MoldSimpleCollectionType;
+        var remainingDepth    = instanceVisitRegistry.RemainingDepth - 1;
         var complexOrderedCollectionBuilder =
             Recycler.Borrow<ComplexOrderedCollectionMold>().InitializeComplexOrderedCollectionBuilder
-                (WrapOrReturnSubjectAsObject(toStyle), actualType, this, appendSettings, createContext.NameOverride, remainingDepth
-               , graphVisitResult, typeFormatter, writeMethod, createFlags);
-        TypeStart(toStyle, complexOrderedCollectionBuilder, writeMethod, createFlags);
+                (WrapOrReturnSubjectAsObject(toStyle), actualType, this, createContext.NameOverride, remainingDepth
+               , graphVisitResult, typeFormatter, writeMethod, mergedCreateFlags);
+        TypeStart(toStyle, visitType, complexOrderedCollectionBuilder, writeMethod, mergedCreateFlags);
         return complexOrderedCollectionBuilder;
     }
 
     public ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(Type typeOfToStyle, CreateContext createContext = default)
     {
-        var createFlags    = createContext.FormatFlags | CallerContext.FormatFlags;
-        var actualType     = typeOfToStyle;
-        var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
-        var appendSettings = GetComplexTypeAppendSettings(actualType, typeFormatter, createFlags);
-        var writeMethod    = MoldExplicitCollectionType;
-        var remainingDepth = instanceVisitRegistry.RemainingDepth - 1;
+        var createFlags       = createContext.FormatFlags | CallerContext.FormatFlags;
+        var actualType        = typeOfToStyle;
+        var typeFormatter     = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
+        var mergedCreateFlags = GetComplexTypeAppendSettings(actualType, typeFormatter, VisitResult.Empty, createFlags);
+        var writeMethod       = MoldExplicitCollectionType;
+        var remainingDepth    = instanceVisitRegistry.RemainingDepth - 1;
         var explicitOrderedCollectionBuilder =
             Recycler.Borrow<ExplicitOrderedCollectionMold<TElement>>().InitializeExplicitOrderedCollectionBuilder
-                (NeverEqual, actualType, this, appendSettings, createContext.NameOverride, remainingDepth
-               , VisitResult.Empty, typeFormatter, writeMethod, createFlags);
-        TypeStart(actualType, explicitOrderedCollectionBuilder, writeMethod, createFlags);
+                (NeverEqual, actualType, this, createContext.NameOverride, remainingDepth
+               , VisitResult.Empty, typeFormatter, writeMethod, mergedCreateFlags);
+        TypeStart(actualType, explicitOrderedCollectionBuilder, writeMethod, mergedCreateFlags);
         return explicitOrderedCollectionBuilder;
     }
     
@@ -595,17 +593,17 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
       , CreateContext createContext = default)
         where TElement : struct
     {
-        var createFlags    = createContext.FormatFlags | CallerContext.FormatFlags;
-        var actualType     = typeOfToStyle;
-        var typeFormatter  = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
-        var appendSettings = GetComplexTypeAppendSettings(actualType, actualType, typeFormatter, createFlags);
-        var writeMethod    = MoldExplicitCollectionType;
-        var remainingDepth = instanceVisitRegistry.RemainingDepth - 1;
+        var createFlags       = createContext.FormatFlags | CallerContext.FormatFlags;
+        var actualType        = typeOfToStyle;
+        var typeFormatter     = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
+        var mergedCreateFlags = GetComplexTypeAppendSettings(actualType, actualType, typeFormatter, VisitResult.Empty, createFlags);
+        var writeMethod       = MoldExplicitCollectionType;
+        var remainingDepth    = instanceVisitRegistry.RemainingDepth - 1;
         var explicitOrderedCollectionBuilder =
             Recycler.Borrow<ExplicitOrderedCollectionMold<TElement>>().InitializeExplicitOrderedCollectionBuilder
-                (NeverEqual, actualType, this, appendSettings, createContext.NameOverride, remainingDepth
-               , VisitResult.Empty, typeFormatter, writeMethod, createFlags);
-        TypeStart(actualType, explicitOrderedCollectionBuilder, writeMethod, createFlags);
+                (NeverEqual, actualType, this, createContext.NameOverride, remainingDepth
+               , VisitResult.Empty, typeFormatter, writeMethod, mergedCreateFlags);
+        TypeStart(actualType, explicitOrderedCollectionBuilder, writeMethod, mergedCreateFlags);
         return explicitOrderedCollectionBuilder;
     }
 
@@ -617,15 +615,15 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var graphVisitResult = !IsExemptFromCircularRefNodeTracking(actualType, createFlags)
             ? SourceGraphVisitRefId(toStyle, visitType, createFlags)
             : VisitResult.Empty;
-        var typeFormatter    = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
-        var appendSettings   = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, createFlags);
-        var writeMethod      = MoldExplicitCollectionType;
-        var remainingDepth   = instanceVisitRegistry.RemainingDepth - 1;
+        var typeFormatter     = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
+        var mergedCreateFlags = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, graphVisitResult, createFlags);
+        var writeMethod       = MoldExplicitCollectionType;
+        var remainingDepth    = instanceVisitRegistry.RemainingDepth - 1;
         var explicitOrderedCollectionBuilder =
             Recycler.Borrow<ExplicitOrderedCollectionMold<TElement>>().InitializeExplicitOrderedCollectionBuilder
-                (WrapOrReturnSubjectAsObject(toStyle), actualType, this, appendSettings, createContext.NameOverride, remainingDepth
-               , graphVisitResult, typeFormatter, writeMethod, createFlags);
-        TypeStart(toStyle, explicitOrderedCollectionBuilder, writeMethod, createFlags);
+                (WrapOrReturnSubjectAsObject(toStyle), actualType, this, createContext.NameOverride, remainingDepth
+               , graphVisitResult, typeFormatter, writeMethod, mergedCreateFlags);
+        TypeStart(toStyle, visitType, explicitOrderedCollectionBuilder, writeMethod, mergedCreateFlags);
         return explicitOrderedCollectionBuilder;
     }
 
@@ -637,15 +635,15 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var graphVisitResult = !IsExemptFromCircularRefNodeTracking(actualType, createFlags)
             ? SourceGraphVisitRefId(collectionInstance, actualType, createFlags)
             : VisitResult.Empty;
-        var typeFormatter    = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
-        var appendSettings   = GetComplexTypeAppendSettings(collectionInstance, actualType, typeFormatter, createFlags);
-        var writeMethod      = MoldExplicitCollectionType;
-        var remainingDepth   = instanceVisitRegistry.RemainingDepth - 1;
+        var typeFormatter     = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
+        var mergedCreateFlags = GetComplexTypeAppendSettings(collectionInstance, actualType, typeFormatter, graphVisitResult, createFlags);
+        var writeMethod       = MoldExplicitCollectionType;
+        var remainingDepth    = instanceVisitRegistry.RemainingDepth - 1;
         var explicitOrderedCollectionBuilder =
             Recycler.Borrow<ExplicitOrderedCollectionMold<TElement>>().InitializeExplicitOrderedCollectionBuilder
-                (collectionInstance, actualType, this, appendSettings, createContext.NameOverride, remainingDepth
-               , graphVisitResult, typeFormatter, writeMethod, createFlags);
-        TypeStart(collectionInstance, explicitOrderedCollectionBuilder, writeMethod, createFlags);
+                (collectionInstance, actualType, this, createContext.NameOverride, remainingDepth
+               , graphVisitResult, typeFormatter, writeMethod, mergedCreateFlags);
+        TypeStart(collectionInstance, actualType, explicitOrderedCollectionBuilder, writeMethod, mergedCreateFlags);
         return explicitOrderedCollectionBuilder;
     }
 
@@ -657,15 +655,15 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var graphVisitResult = !IsExemptFromCircularRefNodeTracking(actualType, createFlags)
             ? SourceGraphVisitRefId(toStyle, visitType, createFlags)
             : VisitResult.Empty;
-        var typeFormatter    = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
-        var appendSettings   = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, createFlags);
-        var writeMethod      = MoldComplexType;
-        var remainingDepth   = instanceVisitRegistry.RemainingDepth - 1;
+        var typeFormatter     = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
+        var mergedCreateFlags = GetComplexTypeAppendSettings(toStyle, actualType, typeFormatter, graphVisitResult, createFlags);
+        var writeMethod       = MoldComplexType;
+        var remainingDepth    = instanceVisitRegistry.RemainingDepth - 1;
         var complexTypeBuilder =
             Recycler.Borrow<ComplexPocoTypeMold>().InitializeComplexTypeBuilder
-                (WrapOrReturnSubjectAsObject(toStyle), actualType, this, appendSettings, createContext.NameOverride
-               , remainingDepth, graphVisitResult, typeFormatter, writeMethod, createFlags);
-        TypeStart(toStyle, complexTypeBuilder, writeMethod, createFlags);
+                (WrapOrReturnSubjectAsObject(toStyle), actualType, this, createContext.NameOverride
+               , remainingDepth, graphVisitResult, typeFormatter, writeMethod, mergedCreateFlags);
+        TypeStart(toStyle, visitType, complexTypeBuilder, writeMethod, mergedCreateFlags);
         return complexTypeBuilder;
     }
 
@@ -677,15 +675,15 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var graphVisitResult = !IsExemptFromCircularRefNodeTracking(actualType, createFlags)
             ? SourceGraphVisitRefId(toStyle, visitType, createFlags)
             : VisitResult.Empty;
-        var typeFormatter    = TypeFormattingOverrides.GetValueOrDefault(visitType, CurrentStyledTypeFormatter);
-        var appendSettings   = GetValueTypeAppendSettings(toStyle, actualType, typeFormatter, createFlags);
-        var writeMethod      = MoldSimpleContentType;
-        var remainingDepth   = instanceVisitRegistry.RemainingDepth - 1;
+        var typeFormatter     = TypeFormattingOverrides.GetValueOrDefault(visitType, CurrentStyledTypeFormatter);
+        var mergedCreateFlags = GetValueTypeAppendSettings(toStyle, actualType, typeFormatter, graphVisitResult, createFlags);
+        var writeMethod       = MoldSimpleContentType;
+        var remainingDepth    = instanceVisitRegistry.RemainingDepth - 1;
         var simpleValueBuilder =
             Recycler.Borrow<SimpleContentTypeMold>().InitializeSimpleValueTypeBuilder
-                (WrapOrReturnSubjectAsObject(toStyle), actualType, this, appendSettings, createContext.NameOverride, remainingDepth
-               , graphVisitResult, typeFormatter, writeMethod, createFlags);
-        TypeStart(toStyle, simpleValueBuilder, writeMethod, createFlags);
+                (WrapOrReturnSubjectAsObject(toStyle), actualType, this, createContext.NameOverride, remainingDepth
+               , graphVisitResult, typeFormatter, writeMethod, mergedCreateFlags);
+        TypeStart(toStyle, visitType, simpleValueBuilder, writeMethod, mergedCreateFlags);
         return simpleValueBuilder;
     }
 
@@ -697,33 +695,29 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var graphVisitResult = !IsExemptFromCircularRefNodeTracking(actualType, createFlags)
             ? SourceGraphVisitRefId(toStyle, visitType, createFlags)
             : VisitResult.Empty;
-        var typeFormatter    = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
-        var appendSettings   = GetValueTypeAppendSettings(toStyle, actualType, typeFormatter, createFlags);
-        var writeMethod      = MoldComplexContentType;
-        var remainingDepth   = instanceVisitRegistry.RemainingDepth - 1;
+        var typeFormatter     = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
+        var mergedCreateFlags = GetValueTypeAppendSettings(toStyle, actualType, typeFormatter, graphVisitResult, createFlags);
+        var writeMethod       = MoldComplexContentType;
+        var remainingDepth    = instanceVisitRegistry.RemainingDepth - 1;
         var complexContentBuilder =
             Recycler.Borrow<ComplexContentTypeMold>().InitializeComplexValueTypeBuilder
-                (WrapOrReturnSubjectAsObject(toStyle), actualType, this, appendSettings, createContext.NameOverride, remainingDepth
-               , graphVisitResult, typeFormatter, writeMethod, createFlags);
-        TypeStart(toStyle, complexContentBuilder, writeMethod, createFlags);
+                (WrapOrReturnSubjectAsObject(toStyle), actualType, this, createContext.NameOverride, remainingDepth
+               , graphVisitResult, typeFormatter, writeMethod, mergedCreateFlags);
+        TypeStart(toStyle, visitType, complexContentBuilder, writeMethod, mergedCreateFlags);
         return complexContentBuilder;
     }
 
     ITheOneString ISecretStringOfPower.AddBaseFieldsStart()
     {
-        var nextAppender = nextTypeAppendSettings ??
-                           new MoldDieCastSettings(SkipTypeParts.All);
-        nextAppender.SkipTypeParts = SkipTypeParts.TypeStart | SkipTypeParts.TypeName | SkipTypeParts.TypeEnd;
-        nextTypeAppendSettings     = nextAppender;
+        nextTypeCreateFlags = SuppressOpening | LogSuppressTypeNames | SuppressClosing;
 
         return this;
     }
 
-    public MoldDieCastSettings GetComplexTypeAppendSettings(Type forType, IStyledTypeFormatting formatter, FormatFlags formatFlags)
+    public FormatFlags GetComplexTypeAppendSettings(Type forType, IStyledTypeFormatting formatter, VisitResult visitResult, FormatFlags formatFlags)
     {
-        var nextDieSettings = AppendSettings;
-        nextDieSettings.SkipTypeParts |= formatter.GetNextComplexTypePartFlags(this, forType, formatFlags);
-        return nextDieSettings;
+        var nextCreateFlags =  formatter.GetNextComplexTypePartFlags(this, forType, visitResult, nextTypeCreateFlags | formatFlags);
+        return nextCreateFlags;
     }
     //
     // public MoldDieCastSettings GetComplexTypeAppendSettings<TElement>(ReadOnlySpan<TElement> forValue, Type actualType
@@ -734,18 +728,16 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     //     return nextDieSettings;
     // }
 
-    public MoldDieCastSettings GetComplexTypeAppendSettings<T>(T forValue, Type actualType, IStyledTypeFormatting formatter, FormatFlags formatFlags)
+    public FormatFlags GetComplexTypeAppendSettings<T>(T forValue, Type actualType, IStyledTypeFormatting formatter, VisitResult visitResult, FormatFlags formatFlags)
     {
-        var nextDieSettings = AppendSettings;
-        nextDieSettings.SkipTypeParts |= formatter.GetNextComplexTypePartFlags(this, forValue, actualType, formatFlags);
-        return nextDieSettings;
+        var nextCreateFlags = formatter.GetNextComplexTypePartFlags(this, forValue, actualType, visitResult, nextTypeCreateFlags | formatFlags);
+        return nextCreateFlags;
     }
 
-    public MoldDieCastSettings GetValueTypeAppendSettings<T>(T forValue, Type actualType, IStyledTypeFormatting formatter, FormatFlags formatFlags)
+    public FormatFlags GetValueTypeAppendSettings<T>(T forValue, Type actualType, IStyledTypeFormatting formatter, VisitResult visitResult, FormatFlags formatFlags)
     {
-        var nextDieSettings = AppendSettings;
-        nextDieSettings.SkipTypeParts |= formatter.GetNextValueTypePartFlags(this, forValue, actualType, formatFlags);
-        return nextDieSettings;
+        var nextCreateFlags = formatter.GetNextValueTypePartFlags(this, forValue, actualType, visitResult, nextTypeCreateFlags | formatFlags);
+        return nextCreateFlags;
     }
 
     public CallContextDisposable ResolveContextForCallerFlags(FormatFlags contentFlags)
@@ -807,7 +799,8 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
            , Settings.IndentSize, CurrentStyledTypeFormatter, GraphBuilder.GraphEncoder
            , GraphBuilder.ParentGraphEncoder);
         
-        var newVisit = new GraphNodeVisit(instanceVisitRegistry.Count, instanceVisitRegistry.CurrentGraphNodeIndex, visitType
+        var newVisit = new GraphNodeVisit(instanceVisitRegistry.Count, instanceVisitRegistry.CurrentGraphNodeIndex
+                                        , visitType, visitType
                                         , ((ITypeBuilderComponentSource)typeMold).MoldState, writeMethod
                                         , null, Sb!.Length, IndentLevel, CallerContext, fmtState
                                         , typeMold.MoldVisit.LastRevisitCount + 1)
@@ -819,7 +812,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         StartNewVisit(typeMold, newVisit);
     }
 
-    protected void TypeStart<T>(T toStyle, TypeMolder typeMold, WriteMethodType writeMethod, FormatFlags formatFlags)
+    protected void TypeStart<T>(T toStyle, Type visitType, TypeMolder typeMold, WriteMethodType writeMethod, FormatFlags formatFlags)
     {
         var fmtState = new FormattingState
             (instanceVisitRegistry.CurrentDepth + 1
@@ -829,7 +822,8 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         
         var wrapped = WrapOrReturnSubjectAsObject(toStyle);
 
-        var newVisit = new GraphNodeVisit(instanceVisitRegistry.Count, instanceVisitRegistry.CurrentGraphNodeIndex, typeof(T)
+        var newVisit = new GraphNodeVisit(instanceVisitRegistry.Count, instanceVisitRegistry.CurrentGraphNodeIndex
+                                        , toStyle?.GetType() ?? visitType, visitType
                                         , ((ITypeBuilderComponentSource)typeMold).MoldState, writeMethod
                                         , wrapped, Sb!.Length, IndentLevel, CallerContext, fmtState
                                         , typeMold.MoldVisit.LastRevisitCount + 1);
@@ -851,13 +845,20 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
         instanceVisitRegistry.CurrentGraphNodeIndex = newVisit.ObjVisitIndex;
         newType.FinishTypeOpening();
-        nextTypeAppendSettings = new MoldDieCastSettings(SkipTypeParts.None);
+        nextTypeCreateFlags = DefaultCallerTypeFlags;
     }
 
     public bool IsExemptFromCircularRefNodeTracking(Type typeStarted, FormatFlags formatFlags)
     {
-        return formatFlags.HasNoRevisitCheck() || typeStarted.IsString() || typeStarted.IsStringBuilder() || typeStarted.IsCharArray()
-            || typeStarted.IsCharSequence() || typeStarted.IsArrayOf(typeof(Rune));
+        return typeStarted.IsValueType  
+            || formatFlags.HasNoRevisitCheck()
+            || typeStarted.IsString()
+            || typeStarted.IsStringBuilder()
+            || typeStarted.IsCharArray()
+            || typeStarted.IsCharSequence()
+            || (typeStarted.IsSpanFormattableCached() 
+             && !Settings.InstanceTrackingIncludeSpanFormattableClasses)
+            || typeStarted.IsArrayOf(typeof(Rune));
     }
 
     protected void PopCurrentSettings(bool finishedAsComplex)
@@ -906,7 +907,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var activeMold = forThisNode.TypeBuilderComponentAccess;
         var charsInserted =
             formatter.InsertInstanceReferenceId
-                (insertGraphBuilder, refId, indexToInsertAt, forThisNode.WriteMethod
+                (insertGraphBuilder, forThisNode.ActualType,  refId, indexToInsertAt, forThisNode.WriteMethod
                , fmtState.CreateWithFlags, forThisNode.CurrentBufferTypeEnd, activeMold);
 
         insertGraphBuilder.DecrementRefCount();
@@ -919,10 +920,12 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         }
     }
     
-    public bool WasThisLastVisitedAsAMoreDerivedType<TVisited>(TVisited checkIsLastVisited)
+    public bool IsCallerSameInstanceAndMoreDerived<TVisited>(TVisited checkIsLastVisited)
     {
-        if (instanceVisitRegistry.Count == 0 || checkIsLastVisited == null) return false;
-        var graphNodeVisit = instanceVisitRegistry[^1];
+        if (instanceVisitRegistry.Count == 0 
+         || checkIsLastVisited == null 
+         || (instanceVisitRegistry.CurrentNode is not {ParentVisitIndex: >= 0})) return false;
+        var graphNodeVisit = instanceVisitRegistry[instanceVisitRegistry.CurrentNode.Value.ParentVisitIndex];
         var wasLastSameObjectAndOrMoreDerivedRef = instanceVisitRegistry.WasVisitOnSameInstance(checkIsLastVisited, graphNodeVisit) 
             && instanceVisitRegistry.WasVisitOnAMoreDerivedType(typeof(TVisited), graphNodeVisit);
         return wasLastSameObjectAndOrMoreDerivedRef;
@@ -952,8 +955,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         ClearAndReinitialize(Settings, IndentLevel);
         Sb!.Append(source.WriteBuffer);
 
-        initialAppendSettings  = source.initialAppendSettings;
-        nextTypeAppendSettings = source.nextTypeAppendSettings;
+        nextTypeCreateFlags  = DefaultCallerTypeFlags;
 
         return this;
     }

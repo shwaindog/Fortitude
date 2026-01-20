@@ -17,7 +17,6 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower vesselOfStringOfPower
-      , MoldDieCastSettings appendSettings
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
@@ -25,7 +24,7 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
-        Initialize(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName
+        Initialize(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeName
                                        , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
     }
 

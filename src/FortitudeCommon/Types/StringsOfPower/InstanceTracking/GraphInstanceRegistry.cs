@@ -31,7 +31,8 @@ public class GraphInstanceRegistry(ITheOneString master) : IList<GraphNodeVisit>
             OrderedObjectGraph[i] = new GraphNodeVisit();
         }
         OrderedObjectGraph.Clear();
-        NextObjVisitedRefId = 1;
+        NextObjVisitedRefId   = 1;
+        CurrentGraphNodeIndex = -1;
     }
     
     public bool UseReferenceEqualsForVisited { get; set; }
@@ -46,17 +47,17 @@ public class GraphInstanceRegistry(ITheOneString master) : IList<GraphNodeVisit>
     
     public bool WasVisitOnSameOrBaseType(Type objAsType, GraphNodeVisit startToLast)
     {
-       if (startToLast.VistedAsType == objAsType || 
-           (objAsType.IsAssignableTo(startToLast.VistedAsType) 
-           && !startToLast.VistedAsType.IsAssignableTo(objAsType))) { return true; }
+       if (startToLast.VisitedAsType == objAsType || 
+           (objAsType.IsAssignableTo(startToLast.VisitedAsType) 
+           && !startToLast.VisitedAsType.IsAssignableTo(objAsType))) { return true; }
        return false;
     }
     
     public bool WasVisitAsBaseTypeOrHigher(Type objAsType, GraphNodeVisit startToLast)
     {
-       if (startToLast.VistedAsType != objAsType 
-        && (!objAsType.IsAssignableTo(startToLast.VistedAsType)
-         && startToLast.VistedAsType.IsAssignableTo(objAsType))) { return true; }
+       if (startToLast.VisitedAsType != objAsType 
+        && (!objAsType.IsAssignableTo(startToLast.VisitedAsType)
+         && startToLast.VisitedAsType.IsAssignableTo(objAsType))) { return true; }
        return false;
     }
 
@@ -69,23 +70,23 @@ public class GraphInstanceRegistry(ITheOneString master) : IList<GraphNodeVisit>
 
     public bool WasVisitOnExactlySameType(Type objAsType, GraphNodeVisit checkVisit)
     {
-        if (objAsType == checkVisit.VistedAsType) { return true; }
+        if (objAsType == checkVisit.VisitedAsType) { return true; }
         return false;
     }
 
     public bool WasVisitOnAMoreDerivedType(Type objAsType, GraphNodeVisit checkVisit)
     {
-        if (objAsType != checkVisit.VistedAsType && 
-            (checkVisit.VistedAsType.IsAssignableTo(objAsType) 
-           && !objAsType.IsAssignableTo(checkVisit.VistedAsType))) { return true; }
+        if (objAsType != checkVisit.VisitedAsType && 
+            (checkVisit.VisitedAsType.IsAssignableTo(objAsType) 
+           && !objAsType.IsAssignableTo(checkVisit.VisitedAsType))) { return true; }
         return false;
     }
 
     public bool WasVisitOnSameOrMoreDerivedType(Type objAsType, GraphNodeVisit checkVisit)
     {
-        if (objAsType == checkVisit.VistedAsType 
-         || (checkVisit.VistedAsType.IsAssignableTo(objAsType)
-            && !objAsType.IsAssignableTo(checkVisit.VistedAsType))) { return true; }
+        if (objAsType == checkVisit.VisitedAsType 
+         || (checkVisit.VisitedAsType.IsAssignableTo(objAsType)
+            && !objAsType.IsAssignableTo(checkVisit.VisitedAsType))) { return true; }
         return false;
     }
     

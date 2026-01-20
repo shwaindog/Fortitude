@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
@@ -13,7 +14,6 @@ public class RawContentMold : KnownTypeMolder<RawContentMold>
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
-      , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
@@ -21,7 +21,7 @@ public class RawContentMold : KnownTypeMolder<RawContentMold>
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
-        Initialize(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
+        Initialize(instanceOrContainer, typeBeingBuilt, master, typeName
                  , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
 
         return this;
@@ -53,8 +53,23 @@ public class RawContentMold : KnownTypeMolder<RawContentMold>
         var writeMethod = msf!.WriteMethod;
         if (writeMethod.SupportsMultipleFields())
         {
-            var formatter = msf!.StyleFormatter;
-            formatter.AppendComplexTypeClosing(msf);
+            var sf = msf.StyleFormatter;
+            var gb = sf.GraphBuilder;
+            if (gb.GraphEncoder.Type != gb.ParentGraphEncoder.Type)
+            {
+                
+                IEncodingTransfer origGraphEncoder  =  gb.GraphEncoder;
+                IEncodingTransfer origParentEncoder =  gb.ParentGraphEncoder;
+                origParentEncoder.IncrementRefCount(); // changing GraphEncoder replaces parent and decrements
+                gb.GraphEncoder       = origParentEncoder;// setting this changes parentGraphEncoder to old value
+                gb.ParentGraphEncoder = origParentEncoder;
+                sf.AppendComplexTypeClosing(msf);
+                gb.GraphEncoder = origGraphEncoder;
+            }
+            else
+            {
+                sf.AppendComplexTypeClosing(msf);
+            }
         }
         
         msf.StyleFormatter.GraphBuilder.MarkContentEnd();

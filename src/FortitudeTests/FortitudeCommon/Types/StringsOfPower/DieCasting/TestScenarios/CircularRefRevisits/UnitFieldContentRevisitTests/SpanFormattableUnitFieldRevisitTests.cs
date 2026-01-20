@@ -10,13 +10,13 @@ using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenari
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations.ScaffoldingStringBuilderInvokeFlags;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CircularRefRevisits;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CircularRefRevisits.UnitFieldContentRevisitTests;
 
 [NoMatchingProductionClass]
 [TestClass]
-public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
+public class SpanFormattableUnitFieldRevisitTests : CommonStyleExpectationTestBase
 {
-    private static InputBearerExpect<TwoSpanFormattableFields<IPAddress>>? twoSameIpAddressFieldsDefaultRevisitSettingsExpect;
+    private static InputBearerExpect<TwoSpanFormattableFields<IPAddress>>? twoSameIpAddressFieldsWithDefaultRevisitSettingsExpect;
     private static InputBearerExpect<TwoSpanFormattableFields<IPAddress>>? twoIpAddressFieldsShowRevisitInstanceIdsOnlyExpect;
     private static InputBearerExpect<TwoSpanFormattableFields<IPAddress>>? twoIpAddressFieldsShowRevisitsAndValuesExpect;
 
@@ -42,11 +42,11 @@ public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
         }
     }
 
-    public static InputBearerExpect<TwoSpanFormattableFields<IPAddress>> TwoIpAddressFieldsWithDefaultRevisitSettingsExpect
+    public static InputBearerExpect<TwoSpanFormattableFields<IPAddress>> TwoIpAddressFieldsWithWithDefaultRevisitSettingsExpect
     {
         get
         {
-            return twoSameIpAddressFieldsDefaultRevisitSettingsExpect ??=
+            return twoSameIpAddressFieldsWithDefaultRevisitSettingsExpect ??=
                 new InputBearerExpect<TwoSpanFormattableFields<IPAddress>>(TwoIpAddressFields)
                 {
                     {
@@ -96,25 +96,25 @@ public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
     [TestMethod]
     public void TwoIpAddressFieldsWithDefaultRevisitSettingsCompactLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoIpAddressFieldsWithDefaultRevisitSettingsExpect, CompactLog);
+        ExecuteIndividualScaffoldExpectation(TwoIpAddressFieldsWithWithDefaultRevisitSettingsExpect, CompactLog);
     }
 
     [TestMethod]
     public void TwoIpAddressFieldsWithDefaultRevisitSettingsCompactJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoIpAddressFieldsWithDefaultRevisitSettingsExpect, CompactJson);
+        ExecuteIndividualScaffoldExpectation(TwoIpAddressFieldsWithWithDefaultRevisitSettingsExpect, CompactJson);
     }
 
     [TestMethod]
     public void TwoIpAddressFieldsWithDefaultRevisitSettingsPrettyLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoIpAddressFieldsWithDefaultRevisitSettingsExpect, PrettyLog);
+        ExecuteIndividualScaffoldExpectation(TwoIpAddressFieldsWithWithDefaultRevisitSettingsExpect, PrettyLog);
     }
 
     [TestMethod]
     public void TwoIpAddressFieldsWithDefaultRevisitSettingsPrettyJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoIpAddressFieldsWithDefaultRevisitSettingsExpect, PrettyJson);
+        ExecuteIndividualScaffoldExpectation(TwoIpAddressFieldsWithWithDefaultRevisitSettingsExpect, PrettyJson);
     }
 
     public static InputBearerExpect<TwoSpanFormattableFields<IPAddress>> TwoIpAddressFieldsShowRevisitInstanceIdsOnlyExpect
@@ -198,7 +198,7 @@ public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
             (TwoIpAddressFieldsShowRevisitInstanceIdsOnlyExpect
            , new StyleOptions(CompactLog)
              {
-                 MarkRevisitedSpanFormattableClassInstances = true
+                 InstanceTrackingIncludeSpanFormattableClasses = true
              });
     }
 
@@ -209,7 +209,7 @@ public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
             (TwoIpAddressFieldsShowRevisitInstanceIdsOnlyExpect
            , new StyleOptions(CompactJson)
              {
-                 MarkRevisitedSpanFormattableClassInstances = true
+                 InstanceTrackingIncludeSpanFormattableClasses = true
              });
     }
 
@@ -220,7 +220,7 @@ public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
             (TwoIpAddressFieldsShowRevisitInstanceIdsOnlyExpect
            , new StyleOptions(PrettyLog)
              {
-                 MarkRevisitedSpanFormattableClassInstances = true
+                 InstanceTrackingIncludeSpanFormattableClasses = true
              });
     }
 
@@ -231,7 +231,7 @@ public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
             (TwoIpAddressFieldsShowRevisitInstanceIdsOnlyExpect
            , new StyleOptions(PrettyJson)
              {
-                 MarkRevisitedSpanFormattableClassInstances = true
+                 InstanceTrackingIncludeSpanFormattableClasses = true
              });
     }
     
@@ -320,8 +320,8 @@ public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
             (TwoIpAddressFieldsShowRevisitsAndValuesExpect
            , new StyleOptions(CompactLog)
              {
-                 MarkRevisitedSpanFormattableClassInstances = true
-                , IncludeSpanFormattableContentsOnRevisits = true 
+                 InstanceTrackingIncludeSpanFormattableClasses  = true
+                , InstanceMarkingIncludeSpanFormattableContents = true 
              });
     }
 
@@ -332,8 +332,8 @@ public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
             (TwoIpAddressFieldsShowRevisitsAndValuesExpect
            , new StyleOptions(CompactJson)
              {
-                 MarkRevisitedSpanFormattableClassInstances = true
-               , IncludeSpanFormattableContentsOnRevisits   = true 
+                 InstanceTrackingIncludeSpanFormattableClasses = true
+               , InstanceMarkingIncludeSpanFormattableContents = true 
              });
     }
 
@@ -344,8 +344,8 @@ public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
             (TwoIpAddressFieldsShowRevisitsAndValuesExpect
            , new StyleOptions(PrettyLog)
              {
-                 MarkRevisitedSpanFormattableClassInstances = true
-               , IncludeSpanFormattableContentsOnRevisits   = true 
+                 InstanceTrackingIncludeSpanFormattableClasses = true
+               , InstanceMarkingIncludeSpanFormattableContents = true 
              });
     }
 
@@ -356,8 +356,8 @@ public class UnitContentFieldRevisitTests : CommonStyleExpectationTestBase
             (TwoIpAddressFieldsShowRevisitsAndValuesExpect
            , new StyleOptions(PrettyJson)
              {
-                 MarkRevisitedSpanFormattableClassInstances = true
-               , IncludeSpanFormattableContentsOnRevisits   = true 
+                 InstanceTrackingIncludeSpanFormattableClasses = true
+               , InstanceMarkingIncludeSpanFormattableContents      = true 
              });
     }
 }

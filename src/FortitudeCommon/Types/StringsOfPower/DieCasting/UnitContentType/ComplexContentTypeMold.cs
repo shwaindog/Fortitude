@@ -7,7 +7,6 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.UnitField;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
-using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
@@ -22,7 +21,6 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold>
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
-      , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
@@ -30,7 +28,7 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold>
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
-        InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
+        InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeName
                                  , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
 
         return this;

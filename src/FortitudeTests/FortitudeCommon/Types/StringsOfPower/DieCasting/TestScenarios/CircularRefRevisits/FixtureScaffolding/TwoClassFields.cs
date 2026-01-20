@@ -78,7 +78,7 @@ public class TwoSpanFormattableFirstAsSimpleCloakedValueContent<TFmt>: IStringBe
     public TFmt? SecondSpanFormattableField { get; set; }
 
     public PalantírReveal<TFmt> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
-        tos.StartSimpleContentType(FirstSpanFormattableField)
+        tos.StartSimpleContentType(cloaked)
            .AsValue (cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
@@ -127,7 +127,7 @@ public class TwoSpanFormattableSecondAsSimpleCloakedValueContent<TFmt>: IStringB
     public TFmt? SecondSpanFormattableField { get; set; }
 
     public PalantírReveal<TFmt> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
-        tos.StartSimpleContentType(SecondSpanFormattableField)
+        tos.StartSimpleContentType(cloaked)
            .AsValue (cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
@@ -176,7 +176,7 @@ public class TwoSpanFormattableFirstAsSimpleCloakedStringContent<TFmt>: IStringB
     public TFmt? SecondSpanFormattableField { get; set; }
 
     public PalantírReveal<TFmt> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
-        tos.StartSimpleContentType(FirstSpanFormattableField)
+        tos.StartSimpleContentType(cloaked)
            .AsString (cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
@@ -225,7 +225,7 @@ public class TwoSpanFormattableSecondAsSimpleCloakedStringContent<TFmt>: IString
     public TFmt? SecondSpanFormattableField { get; set; }
 
     public PalantírReveal<TFmt> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
-        tos.StartSimpleContentType(SecondSpanFormattableField)
+        tos.StartSimpleContentType(cloaked)
            .AsString (cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
@@ -274,7 +274,7 @@ public class TwoSpanFormattableFirstAsComplexCloakedValueContent<TFmt>: IStringB
     public TFmt? SecondSpanFormattableField { get; set; }
 
     public PalantírReveal<TFmt> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
-        tos.StartComplexContentType(FirstSpanFormattableField)
+        tos.StartComplexContentType(cloaked)
            .AsValue (nameof(FirstSpanFormattableField), cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
@@ -323,7 +323,7 @@ public class TwoSpanFormattableSecondAsComplexCloakedValueContent<TFmt>: IString
     public TFmt? SecondSpanFormattableField { get; set; }
 
     public PalantírReveal<TFmt> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
-        tos.StartComplexContentType(SecondSpanFormattableField)
+        tos.StartComplexContentType(cloaked)
            .AsValue (nameof(SecondSpanFormattableField), cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
@@ -372,7 +372,7 @@ public class TwoSpanFormattableFirstAsComplexCloakedStringContent<TFmt>: IString
     public TFmt? SecondSpanFormattableField { get; set; }
 
     public PalantírReveal<TFmt> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
-        tos.StartComplexContentType(FirstSpanFormattableField)
+        tos.StartComplexContentType(cloaked)
            .AsString (nameof(FirstSpanFormattableField), cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
@@ -421,7 +421,7 @@ public class TwoSpanFormattableSecondAsComplexCloakedStringContent<TFmt>: IStrin
     public TFmt? SecondSpanFormattableField { get; set; }
 
     public PalantírReveal<TFmt> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
-        tos.StartComplexContentType(SecondSpanFormattableField)
+        tos.StartComplexContentType(cloaked)
            .AsString (nameof(SecondSpanFormattableField), cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
@@ -519,7 +519,7 @@ public class TwoStringBearersFirstAsSimpleCloakedValueContent<TBearer>: IStringB
     public TBearer? SecondStringBearerField { get; set; }
 
     public PalantírReveal<TBearer> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
-        tos.StartSimpleContentType(FirstStringBearerField)
+        tos.StartSimpleContentType(cloaked)
            .RevealAsValue (cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
@@ -568,7 +568,7 @@ public class TwoStringBearersSecondAsSimpleCloakedValueContent<TBearer>: IString
     public TBearer? SecondStringBearerField { get; set; }
 
     public PalantírReveal<TBearer> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
-        tos.StartSimpleContentType(SecondStringBearerField)
+        tos.StartSimpleContentType(cloaked)
            .RevealAsValue (cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
@@ -617,7 +617,7 @@ public class TwoStringBearersFirstAsSimpleCloakedStringContent<TBearer>: IString
     public TBearer? SecondStringBearerField { get; set; }
 
     public PalantírReveal<TBearer> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
-        tos.StartSimpleContentType(FirstStringBearerField)
+        tos.StartSimpleContentType(cloaked)
            .RevealAsString (cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 

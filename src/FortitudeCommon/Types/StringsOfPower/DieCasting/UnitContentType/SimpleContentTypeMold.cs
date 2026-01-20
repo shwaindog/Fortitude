@@ -14,7 +14,6 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold>
             object instanceOrContainer
           , Type typeBeingBuilt
           , ISecretStringOfPower master
-          , MoldDieCastSettings typeSettings
           , string? typeName
           , int remainingGraphDepth
           , VisitResult moldGraphVisit
@@ -22,7 +21,7 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold>
           , WriteMethodType writeMethodType  
           , FormatFlags createFormatFlags)
     {
-        InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
+        InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeName
                                  , remainingGraphDepth,  moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
 
         return this;

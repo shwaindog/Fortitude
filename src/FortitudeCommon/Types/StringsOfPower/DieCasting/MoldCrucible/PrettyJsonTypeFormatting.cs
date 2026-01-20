@@ -61,7 +61,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
     public override int SizeNextFieldPadding(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (formatFlags.HasNoFieldPaddingFlag()) return 0;
-        var nextPaddingSize = 0;
+        int nextPaddingSize;
         if (formatFlags.UseMainFieldPadding() && formatFlags.CanAddNewLine())
         {
             nextPaddingSize =  GraphBuilder.GraphEncoder.CalculateEncodedLength(StyleOptions.NewLineStyle);
@@ -91,27 +91,33 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
 
     public override ContentSeparatorRanges AppendComplexTypeClosing(ITypeMolderDieCast moldInternal)
     {
+        var sb                        = moldInternal.Sb;
+        
         var previousContentPadSpacing = GraphBuilder.LastContentSeparatorPaddingRanges;
         if(moldInternal.Master.CallerContext.FormatFlags.HasSuppressClosing())
         {
             return GraphBuilder.LastContentSeparatorPaddingRanges;
         }
         var lastNonWhiteSpace         = GraphBuilder.RemoveLastSeparatorAndPadding();
-        GraphBuilder.IndentLevel--; 
+        if (previousContentPadSpacing.PreviousFormatFlags.DoesNotHaveAsEmbeddedContentFlags()) GraphBuilder.IndentLevel--;
 
-        GraphBuilder.StartNextContentSeparatorPaddingSequence(moldInternal.Sb, DefaultCallerTypeFlags);
+        var fmtFlags              = moldInternal.CreateMoldFormatFlags;
+        var paddedCloseStartIndex = sb.Length;
         if (lastNonWhiteSpace != BrcOpnChar && previousContentPadSpacing.PreviousFormatFlags.CanAddNewLine())
         {
-            GraphBuilder.AppendContent(StyleOptions.NewLineStyle);
+            GraphBuilder.AppendPadding(StyleOptions.NewLineStyle);
             if (!previousContentPadSpacing.PreviousFormatFlags.HasNoWhitespacesToNextFlag())
             {
-                GraphBuilder.AppendContent(StyleOptions.IndentChar, StyleOptions.IndentRepeat(GraphBuilder.IndentLevel));
+                GraphBuilder.AppendPadding(StyleOptions.IndentChar, StyleOptions.IndentRepeat(GraphBuilder.IndentLevel));
             }
         }
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(moldInternal.Sb, DefaultCallerTypeFlags);
+        GraphBuilder.MarkContentStart(paddedCloseStartIndex);
         if (previousContentPadSpacing.PreviousFormatFlags.DoesNotHaveAsEmbeddedContentFlags())
         {
             GraphBuilder.AppendContent(BrcCls);
         }
+        GraphBuilder.MarkContentEnd(sb.Length);
         return GraphBuilder.SnapshotLastAppendSequence(DefaultCallerTypeFlags);
     }
 
@@ -151,6 +157,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         var lastNonWhiteSpace         = GraphBuilder.RemoveLastSeparatorAndPadding();
         GraphBuilder.IndentLevel--;
 
+        var paddedCloseStartIndex = sb.Length;
         if (totalItemCount > 0 && lastNonWhiteSpace != BrcOpnChar && callerFormattingFlags.CanAddNewLine())
         {
             GraphBuilder.AppendContent(StyleOptions.NewLineStyle);
@@ -161,7 +168,10 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
                                          , StyleOptions.IndentRepeat(GraphBuilder.IndentLevel));
             }
         }
+        GraphBuilder.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
+        GraphBuilder.MarkContentStart(paddedCloseStartIndex);
         GraphBuilder.AppendContent(BrcCls);
+        GraphBuilder.MarkContentEnd(sb.Length);
         return sb;
     }
 

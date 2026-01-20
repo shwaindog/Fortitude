@@ -14,7 +14,6 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
-      , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
@@ -22,7 +21,7 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
-        Initialize(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
+        Initialize(instanceOrContainer, typeBeingBuilt, master, typeName
                  , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType
                  , createFormatFlags | AsCollection);
 
@@ -75,7 +74,6 @@ public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCo
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
-      , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
@@ -84,7 +82,7 @@ public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCo
       , FormatFlags createFormatFlags)
     {
         InitializeOrderedCollectionBuilder
-            (instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
+            (instanceOrContainer, typeBeingBuilt, master, typeName
            , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType
            , createFormatFlags | AsCollection);
 
@@ -109,7 +107,6 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
-      , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
@@ -118,7 +115,7 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
       , FormatFlags createFormatFlags)
     {
         InitializeOrderedCollectionBuilder
-            (instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
+            (instanceOrContainer, typeBeingBuilt, master, typeName
            , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags | AsCollection);
 
         return this;

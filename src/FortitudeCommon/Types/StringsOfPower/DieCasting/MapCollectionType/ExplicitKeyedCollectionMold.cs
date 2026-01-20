@@ -19,7 +19,6 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower vesselOfStringOfPower
-      , MoldDieCastSettings appendSettings
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
@@ -27,7 +26,7 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
-        InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName, remainingGraphDepth
+        InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeName, remainingGraphDepth
                                       , moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
 
         stb = MoldStateField;
@@ -39,10 +38,10 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
 
     public override void StartFormattingTypeOpening()
     {
-        var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!;
-        var typeFormattingFlags = stb.AppendSettings.SkipTypeParts.ToFormattingFlags();
+        var keyValueTypes       = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!;
+        var typeCreateFlags = stb.CreateMoldFormatFlags;
         MoldStateField.StyleFormatter.AppendKeyedCollectionStart(MoldStateField.Sb, MoldStateField.TypeBeingBuilt, keyValueTypes.Value.Key
-                                                           , keyValueTypes.Value.Value, typeFormattingFlags);
+                                                           , keyValueTypes.Value.Value, typeCreateFlags);
     }
 
     public override void CompleteTypeOpeningToTypeFields() { }

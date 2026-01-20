@@ -4,6 +4,7 @@
 using System.Text;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
+using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
@@ -35,10 +36,10 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     SeparatorPaddingRanges AppendFieldValueSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    SkipTypeParts          GetNextValueTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FormatFlags formatFlags);
-    SkipTypeParts          GetNextComplexTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FormatFlags formatFlags);
-    SkipTypeParts          GetNextValueTypePartFlags(ITheOneString tos, Type actualType, FormatFlags formatFlags);
-    SkipTypeParts          GetNextComplexTypePartFlags(ITheOneString tos, Type actualType, FormatFlags formatFlags);
+    FormatFlags          GetNextValueTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, VisitResult visitResult, FormatFlags formatFlags);
+    FormatFlags          GetNextComplexTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, VisitResult visitResult, FormatFlags formatFlags);
+    FormatFlags          GetNextValueTypePartFlags(ITheOneString tos, Type actualType, VisitResult visitResult, FormatFlags formatFlags);
+    FormatFlags          GetNextComplexTypePartFlags(ITheOneString tos, Type actualType, VisitResult visitResult, FormatFlags formatFlags);
     int                    SizeToNextFieldSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
     Range?                 AddToNextFieldSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
     int                    SizeNextFieldPadding(FormatFlags formatFlags = DefaultCallerTypeFlags);
@@ -210,7 +211,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     int SizeFormatFieldName(int sourceLength, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    int InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, int refId, int indexToInsertAt, WriteMethodType writeMethod
+    int InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, Type actualType, int refId, int indexToInsertAt, WriteMethodType writeMethod
     , FormatFlags createTypeFlags, int currentEnd = -1, ITypeMolderDieCast? liveMoldInternal = null);
     
     int AppendExistingReferenceId(ITypeMolderDieCast moldInternal, int refId, WriteMethodType writeMethod, FormatFlags createTypeFlags);
