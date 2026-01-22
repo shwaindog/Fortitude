@@ -12,7 +12,7 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
     {
         public int RefId { get; private init; }
 
-        public bool IsValueType;
+        public bool IsValueType => ActualType.IsValueType;
 
         public GraphNodeVisit(
             int ObjVisitIndex
@@ -24,26 +24,25 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
           , object? VisitedInstance
           , int CurrentBufferTypeStart
           , int IndentLevel  
-          , CallerContext callerContext  
+          , CallerContext CallerContext  
           , FormattingState FormattingState
-          , int revisitCount = 0  
+          , int RevisitCount = 0  
         )
         {
             this.ParentVisitIndex           = ParentVisitIndex;
             this.VisitedAsType              = VisitedAsType;
             this.ActualType                 = ActualType;
-            IsValueType                     = ActualType.IsValueType;
             this.ObjVisitIndex              = ObjVisitIndex;
             this.TypeBuilderComponentAccess = TypeBuilderComponentAccess;
             WriteMethod                     = writeMethod;
             this.VisitedInstance            = VisitedInstance;
             this.CurrentBufferTypeStart     = CurrentBufferTypeStart;
             this.IndentLevel                = IndentLevel;
-            CallerContext.CopyFrom(callerContext);
+            this.CallerContext.CopyFrom(CallerContext);
             
             this.FormattingState = FormattingState;
             
-            this.RevisitCount    = revisitCount;
+            this.RevisitCount    = RevisitCount;
         }
 
         public ITypeMolderDieCast? TypeBuilderComponentAccess { get; init; }
@@ -90,6 +89,23 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
               , CurrentBufferTypeStart = CurrentBufferTypeStart
               , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
               , CurrentBufferTypeEnd = contentEndIndex
+              , WriteMethod = writeMethod
+              , IndentLevel  = IndentLevel
+              , CallerContext = CallerContext
+              , FormattingState = FormattingState
+              , RevisitCount = RevisitCount
+            };
+        }
+
+        public GraphNodeVisit UpdateVisitWriteType(WriteMethodType writeMethod)
+        {
+            return this with
+            {
+                RefId = RefId
+              , TypeBuilderComponentAccess = null
+              , CurrentBufferTypeStart = CurrentBufferTypeStart
+              , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
+              , CurrentBufferTypeEnd = CurrentBufferTypeEnd
               , WriteMethod = writeMethod
               , IndentLevel  = IndentLevel
               , CallerContext = CallerContext

@@ -186,23 +186,23 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
 
     public PalantírReveal<TEnumValue> EnumPalantír { get; }
 
-    public StateExtractStringRange EnumStyler(TEnumValue toFormatEnum, ITheOneString stsa)
+    public StateExtractStringRange EnumStyler(TEnumValue toFormatEnum, ITheOneString tos)
     {
-        var tb = stsa.StartSimpleContentType(toFormatEnum);
+        var tb = tos.StartSimpleContentType(toFormatEnum);
         using (var sb = tb.StartDelimitedStringBuilder())
         {
             var buildNames = stackalloc char[allValuesCharCount].ResetMemory();
-            SourceEnumNamesFromEnum(toFormatEnum, buildNames, ReadOnlySpan<char>.Empty, stsa.CurrentStyledTypeFormatter.ContentEncoder
-                                  , stsa.CurrentStyledTypeFormatter.GraphBuilder.GraphEncoder);
+            SourceEnumNamesFromEnum(toFormatEnum, buildNames, ReadOnlySpan<char>.Empty, tos.CurrentStyledTypeFormatter.ContentEncoder
+                                  , tos.CurrentStyledTypeFormatter.Gb.GraphEncoder);
             sb.Append(buildNames, 0, buildNames.PopulatedLength());
         }
 
         return tb.Complete();
     }
 
-    public StateExtractStringRange EnumStyler(Enum toFormatEnum, ITheOneString stsa)
+    public StateExtractStringRange EnumStyler(Enum toFormatEnum, ITheOneString tos)
     {
-        return EnumStyler((TEnumValue)toFormatEnum, stsa);
+        return EnumStyler((TEnumValue)toFormatEnum, tos);
     }
 
     private int SourceEnumNamesFromEnum(TEnumValue enumValue, Span<char> buildNames, ReadOnlySpan<char> format

@@ -39,7 +39,11 @@ public abstract class TransitioningTypeMolder<TCurrent, TNext> : KnownTypeMolder
 
     public virtual TNext TransitionToNextMold()
     {
-        
+        var msf      = MoldStateField;
+        var sf       = msf.StyleFormatter;
+        var gb       = sf.Gb;
+        var fmtFlags = gb.CurrentSectionRanges.StartedWithFormatFlags;
+        gb.Complete(fmtFlags);
         var nextTypeBuilder = MoldStateField.Recycler.Borrow<TNext>();
 
         if (nextTypeBuilder is IMigrateFrom<TCurrent, TNext> copyFromCurrent)
@@ -77,7 +81,7 @@ public abstract class TransitioningTypeMolder<TCurrent, TNext> : KnownTypeMolder
     {
         if (source == null) return TransitionToNextMold();
         PortableState = ((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.PortableState;
-        SourceBuilderComponentAccess(((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.WriteMethod);
+        SourceBuilderComponentAccess(((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.CurrentWriteMethod);
         MoldStateField.CopyFrom(source.MoldStateField, copyMergeFlags);
         return TransitionToNextMold();
     }

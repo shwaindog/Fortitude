@@ -15,8 +15,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -36,7 +37,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived>(string fieldName
@@ -47,8 +48,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -67,7 +69,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived>(
@@ -79,8 +81,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -99,7 +102,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived>(string fieldName
@@ -110,8 +113,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -131,7 +135,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived>(string fieldName
@@ -142,8 +146,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -160,7 +165,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived>(string fieldName
@@ -171,12 +176,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value == null)
         {
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         }
         var hasValue = selectKeys?.MoveNext() ?? false;
         
@@ -198,7 +204,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             hasValue = selectKeys.MoveNext();
         }
         if (ekcb != null) ekcb.AppendCollectionComplete();
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>(
@@ -213,8 +219,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -234,7 +241,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived>(string fieldName
@@ -247,8 +254,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKSelectDerived : TKey 
         where TValue : struct
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -268,7 +276,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>(
@@ -283,8 +291,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -303,7 +312,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived>(
@@ -317,8 +326,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKSelectDerived : TKey 
         where TValue : struct
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -337,7 +347,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>(
@@ -352,8 +362,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -372,7 +383,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived>(string fieldName
@@ -385,8 +396,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKSelectDerived : TKey 
         where TValue : struct
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -405,7 +417,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>(
@@ -420,8 +432,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -441,7 +454,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived>(
@@ -455,8 +468,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKSelectDerived : TKey 
         where TValue : struct
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -476,7 +490,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TVRevealBase>(
@@ -491,8 +505,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -509,7 +524,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived>(
@@ -523,8 +538,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKSelectDerived : TKey 
         where TValue : struct
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -541,7 +557,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TVRevealBase>(
@@ -556,12 +572,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value == null)
         {
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         }
         var hasValue = selectKeys?.MoveNext() ?? false;
         
@@ -583,7 +600,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             hasValue = selectKeys.MoveNext();
         }
         if (ekcb != null) ekcb.AppendCollectionComplete();
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived>(
@@ -597,12 +614,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKSelectDerived : TKey 
         where TValue : struct
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value == null)
         {
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         }
         var hasValue = selectKeys?.MoveNext() ?? false;
         
@@ -624,7 +642,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             hasValue = selectKeys.MoveNext();
         }
         if (ekcb != null) ekcb.AppendCollectionComplete();
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
@@ -641,8 +659,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -662,7 +681,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>(
@@ -678,8 +697,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : struct
         where TKRevealBase : notnull
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -699,7 +719,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
@@ -716,8 +736,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -736,7 +757,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>(
@@ -752,8 +773,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : struct
         where TKRevealBase : notnull
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue?>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue?>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -772,7 +794,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue?>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
@@ -789,8 +811,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -809,7 +832,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>(
@@ -825,8 +848,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : struct
         where TKRevealBase : notnull
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue?>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue?>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -845,7 +869,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue?>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
@@ -862,8 +886,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -882,7 +907,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>(
@@ -898,8 +923,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : struct
         where TKRevealBase : notnull
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue?>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue?>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -919,7 +945,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue?>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
@@ -936,8 +962,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -954,7 +981,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TKRevealBase>(
@@ -970,8 +997,9 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : struct
         where TKRevealBase : notnull
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
@@ -988,7 +1016,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             }
             if (ekcb != null) ekcb.AppendCollectionComplete();
         }
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
@@ -1005,12 +1033,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         if (value == null)
         {
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         }
         var hasValue    = selectKeys?.MoveNext() ?? false;
         
@@ -1032,7 +1061,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             hasValue = selectKeys.MoveNext();
         }
         if (ekcb != null) ekcb.AppendCollectionComplete();
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 
     public TExt WhenPopulatedWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TKRevealBase>(
@@ -1048,13 +1077,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : struct
         where TKRevealBase : notnull
     {
-        if (stb.HasSkipField<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags)) 
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
         var hasValue    = selectKeys.MoveNext();
         if (value == null)
         {
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), fieldName, formatFlags);
+            return stb.WasSkipped(actualType, fieldName, formatFlags);
         }
         ExplicitKeyedCollectionMold<TKey, TValue>? ekcb = null;
         while (hasValue)
@@ -1074,6 +1104,6 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             hasValue = selectKeys.MoveNext();
         }
         if (ekcb != null) ekcb.AppendCollectionComplete();
-        return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value.GetType(), fieldName, formatFlags);
+        return stb.WasSkipped(actualType, fieldName, formatFlags);
     }
 }

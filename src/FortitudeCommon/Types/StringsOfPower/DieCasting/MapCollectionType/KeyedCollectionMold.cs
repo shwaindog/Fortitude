@@ -22,12 +22,11 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , IStyledTypeFormatting typeFormatting
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
         InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeName
-                                      , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
+                                      , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
 
         stb = MoldStateField;
 

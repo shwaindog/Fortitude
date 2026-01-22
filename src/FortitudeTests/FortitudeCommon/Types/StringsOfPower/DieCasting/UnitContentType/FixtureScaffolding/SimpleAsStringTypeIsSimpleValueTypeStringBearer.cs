@@ -450,7 +450,7 @@ public class ComplexContentAsStringCloakedBearer<TCloaked, TRevealBase> :
                (nameof(CloakedBearerComplexContentAsString)
               , CloakedBearerComplexContentAsString
               , ValueRevealer
-              , tos.CallerContext.FormatString ?? ValueFormatString
+              , tos.CallerContext.FormatString ?? ValueFormatString ?? ""
               , tos.CallerContext.FormatFlags | FormattingFlags)
            .Complete();
 }
@@ -475,7 +475,7 @@ public class SimpleContentAsStringCloakedBearer<TCloaked, TRevealBase> :
            .RevealAsString
                (CloakedBearerSimpleContentAsString
               , ValueRevealer
-              , tos.CallerContext.FormatString ?? ValueFormatString
+              , tos.CallerContext.FormatString ?? ValueFormatString ?? ""
               , tos.CallerContext.FormatFlags | FormattingFlags)
            .Complete();
 }
@@ -501,7 +501,7 @@ public class ComplexContentAsStringCloakedBearerOrNull<TCloaked, TRevealBase> :
                (nameof(CloakedBearerOrNullComplexContentAsString)
               , CloakedBearerOrNullComplexContentAsString
               , ValueRevealer
-              , tos.CallerContext.FormatString ?? ValueFormatString
+              , tos.CallerContext.FormatString ?? ValueFormatString ?? ""
               , tos.CallerContext.FormatFlags | FormattingFlags)
            .Complete();
 }
@@ -555,7 +555,7 @@ public class ComplexContentAsStringCloakedBearerOrStringDefault<TCloaked, TRevea
               , CloakedBearerOrStringDefaultComplexContentAsString
               , ValueRevealer
               , DefaultValue
-              , tos.CallerContext.FormatString ?? ValueFormatString
+              , tos.CallerContext.FormatString ?? ValueFormatString ?? ""
               , tos.CallerContext.FormatFlags | FormattingFlags)
            .Complete();
 }
@@ -653,7 +653,7 @@ public class ComplexContentAsStringNullableStructCloakedBearerOrNull<TCloakedStr
                (nameof(NullableStructCloakedBearerOrNullComplexContentAsString)
               , NullableStructCloakedBearerOrNullComplexContentAsString
               , ValueRevealer
-              , tos.CallerContext.FormatString ?? ValueFormatString
+              , tos.CallerContext.FormatString ?? ValueFormatString ?? ""
               , tos.CallerContext.FormatFlags | FormattingFlags)
            .Complete();
 }

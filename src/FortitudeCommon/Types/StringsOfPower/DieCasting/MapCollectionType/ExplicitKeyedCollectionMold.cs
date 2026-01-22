@@ -22,12 +22,11 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , IStyledTypeFormatting typeFormatting
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
         InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeName, remainingGraphDepth
-                                      , moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
+                                      , moldGraphVisit, writeMethodType, createFormatFlags);
 
         stb = MoldStateField;
 

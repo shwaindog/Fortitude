@@ -86,12 +86,12 @@ public class ContentTypeMoldTestsCompactJsonAsValueTests : ContentTypeMoldAsValu
     public void CompactJsonNullStringBearerAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)=> 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
     
-    // [TestMethod]
+    [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(UnsignedIntegerTestData.UnsignedIntegerExpectations[2]
-                                           , ScaffoldingRegistry.AllScaffoldingTypes[1356], StringBuilderType.MutableString);
+        ExecuteIndividualScaffoldExpectation(StringBearerTestData.AllStringBearerExpectations[27]
+                                           , ScaffoldingRegistry.AllScaffoldingTypes[1268], StringBuilderType.CharArrayStringBuilder);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName

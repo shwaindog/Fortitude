@@ -43,6 +43,10 @@ public interface IFormattingOptions
 
 public class FormattingOptions : ExplicitRecyclableObject, IFormattingOptions
 {
+    private static int    globalInstanceId;
+
+    protected int InstanceId = Interlocked.Increment(ref globalInstanceId); 
+    
     protected ICustomStringFormatter? Stringformatter;
 
     private bool writeNullString = true;
@@ -92,4 +96,7 @@ public class FormattingOptions : ExplicitRecyclableObject, IFormattingOptions
     public string False { get; set; } = DefaultFalseString;
     
     public bool EnumsDefaultAsNumber { get; set; }
+    
+    
+    public override string ToString() => $"{{ {GetType().Name}: {InstanceId}, }}";
 }

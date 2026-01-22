@@ -98,8 +98,8 @@ public class ContentTypeMoldCompactLogAsStringTests : ContentTypeMoldAsStringTes
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(CloakedBearerTestData.AllCloakedBearerExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[1197]
-                                           , StringBuilderType.MutableString);
+        ExecuteIndividualScaffoldExpectation(CharArrayTestData.AllCharArrayExpectations[4], ScaffoldingRegistry.AllScaffoldingTypes[1188]
+                                           , StringBuilderType.CharArrayStringBuilder);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName

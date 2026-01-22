@@ -4,14 +4,19 @@
 using System.Runtime.CompilerServices;
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using FortitudeCommon.Types.StringsOfPower.Options;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
-public class GraphTrackingBuilder : RecyclableObject
+public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
 {
+    private static int globalInstanceId;
+
+    protected int InstanceId = Interlocked.Increment(ref globalInstanceId);
+
     private ContentSeparatorPaddingRangeTracking currentSectionRanges;
 
     private StyleOptions? styleOptions;
@@ -21,10 +26,11 @@ public class GraphTrackingBuilder : RecyclableObject
     private int overWriteIndentLevel = -1;
     private int overWriteIndentSize  = -1;
 
-    public GraphTrackingBuilder Initialize(StyleOptions options)
+    public GraphTrackingBuilder Initialize(StyleOptions options, IStringBuilder stringBuilder)
     {
         styleOptions = options;
         ((IRecyclableObject)options).IncrementRefCount();
+        sb = stringBuilder;
 
         return this;
     }
@@ -126,7 +132,7 @@ public class GraphTrackingBuilder : RecyclableObject
                 parentGraphEncoder.DecrementRefCount();
             }
             parentGraphEncoder = graphEncoder;
-            graphEncoder = value;
+            graphEncoder       = value;
         }
     }
 
@@ -479,5 +485,38 @@ public class GraphTrackingBuilder : RecyclableObject
             }
         }
         return destIndex > 0 ? (IsInModifyOverwriteMode ? destSpan[Math.Max(0, overWriteIndex - 1)] : destSpan[destIndex - 1]) : '\0';
+    }
+
+    public override GraphTrackingBuilder Clone()
+    {
+        var recycler = Recycler ?? DataStructures.MemoryPools.Recycler.ThreadStaticRecycler;
+        var clone    = recycler.Borrow<GraphTrackingBuilder>();
+        return clone.CopyFrom(this, CopyMergeFlags.FullReplace);
+    }
+
+    public override GraphTrackingBuilder CopyFrom(GraphTrackingBuilder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        SetHistory(source);
+        styleOptions         = source.styleOptions;
+        AllowEmptyContent    = source.AllowEmptyContent;
+        sb                   = source.Sb;
+        graphEncoder         = source.GraphEncoder;
+        parentGraphEncoder   = source.ParentGraphEncoder;
+
+        overWriteIndex       = source.overWriteIndex;
+        overWriteEndIndex    = source.overWriteEndIndex;
+        overWriteIndentLevel = source.overWriteIndentLevel;
+        overWriteIndentSize  = source.overWriteIndentSize;
+
+        return this;
+    }
+
+    public override string ToString() => $"{{ {GetType().Name}: {InstanceId}, {nameof(styleOptions)}: {styleOptions?.ToString() ?? "null"} }}";
+
+    public void SetHistory(GraphTrackingBuilder graphBuilder)
+    {
+        currentSectionRanges = graphBuilder.CurrentSectionRanges;
+        LastContentSeparatorPaddingRanges = graphBuilder.LastContentSeparatorPaddingRanges;
+        PenUltimateContentSeparatorPaddingRanges = graphBuilder.PenUltimateContentSeparatorPaddingRanges;
     }
 }

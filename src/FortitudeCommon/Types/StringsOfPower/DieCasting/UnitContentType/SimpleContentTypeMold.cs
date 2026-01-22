@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
@@ -17,12 +16,11 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold>
           , string? typeName
           , int remainingGraphDepth
           , VisitResult moldGraphVisit
-          , IStyledTypeFormatting typeFormatting  
           , WriteMethodType writeMethodType  
           , FormatFlags createFormatFlags)
     {
         InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeName
-                                 , remainingGraphDepth,  moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
+                                 , remainingGraphDepth,  moldGraphVisit, writeMethodType, createFormatFlags);
 
         return this;
     }
@@ -36,12 +34,12 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold>
 
     public override void StartFormattingTypeOpening()
     {
-        MoldStateField.StyleFormatter.StartContentTypeOpening(MoldStateField);
+      Msf.StyleFormatter.StartContentTypeOpening(Msf, Msf.CreateMoldFormatFlags);
     }
 
     public override void AppendClosing()
     {
-        MoldStateField.StyleFormatter.AppendContentTypeClosing(MoldStateField);
+      Msf.StyleFormatter.AppendContentTypeClosing(Msf);
     }
     
     public ContentJoinTypeMold<SimpleContentTypeMold> AsValue(bool value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -328,21 +326,21 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold>
     , FormatFlags formatFlags = EncodeAll)
       where TCloaked : TCloakedBase
       where TCloakedBase : notnull =>
-      Msf.FieldStringRevealOrDefaultNext("", value, palantírReveal, "", formatString, formatFlags);
+      Msf.FieldStringRevealOrDefaultNext("", value, palantírReveal, "", formatString ?? "", formatFlags);
     
     public ContentJoinTypeMold<SimpleContentTypeMold> RevealAsStringOrNull<TCloaked, TCloakedBase>(TCloaked? value
     , PalantírReveal<TCloakedBase> palantírReveal, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll)
       where TCloaked : TCloakedBase
       where TCloakedBase : notnull =>
-      Msf.FieldStringRevealOrNullNext("", value, palantírReveal, formatString, formatFlags);
+      Msf.FieldStringRevealOrNullNext("", value, palantírReveal, formatString ?? "", formatFlags);
     
     public ContentJoinTypeMold<SimpleContentTypeMold> RevealAsStringOrDefault<TCloaked, TCloakedBase>(TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal
     , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll)
       where TCloaked : TCloakedBase
       where TCloakedBase : notnull =>
-      Msf.FieldStringRevealOrDefaultNext("", value, palantírReveal, defaultValue, formatString, formatFlags);
+      Msf.FieldStringRevealOrDefaultNext("", value, palantírReveal, defaultValue, formatString ?? "", formatFlags);
     
     public ContentJoinTypeMold<SimpleContentTypeMold> RevealAsString<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = EncodeAll)
@@ -353,7 +351,7 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold>
     , PalantírReveal<TCloakedStruct> palantírReveal, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll)
       where TCloakedStruct : struct =>
-      Msf.FieldStringRevealOrNullNext("", value, palantírReveal, formatString, formatFlags);
+      Msf.FieldStringRevealOrNullNext("", value, palantírReveal, formatString ?? "", formatFlags);
     
     public ContentJoinTypeMold<SimpleContentTypeMold> RevealAsStringOrDefault<TCloakedStruct>(TCloakedStruct? value
     , PalantírReveal<TCloakedStruct> palantírReveal, string defaultValue = ""

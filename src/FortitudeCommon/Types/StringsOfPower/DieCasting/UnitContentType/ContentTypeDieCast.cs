@@ -14,15 +14,22 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
 {
     public const string DblQt = "\"";
 
+    private bool ignoreSuppressSpanFormattable;
+    private int  countNextSkipFieldIsSkipBody;
+
     public ContentTypeDieCast<TContentMold> InitializeValueBuilderCompAccess
-        (TContentMold externalTypeBuilder, TypeMolder.MoldPortableState typeBuilderPortableState, WriteMethodType writeMethod  )
+        (TContentMold externalTypeBuilder, TypeMolder.MoldPortableState typeBuilderPortableState, WriteMethodType writeMethod)
     {
-        writeMethod = writeMethod.SupportsMultipleFields() && typeBuilderPortableState.Master.Style.IsLog()
-            ? writeMethod
-            : writeMethod.ToNoFieldEquivalent();
-        
+        var createFmtFlags = typeBuilderPortableState.CreateFormatFlags;
+        writeMethod = createFmtFlags.DoesNotHaveContentAllowComplexType()
+            ? writeMethod.ToNoFieldEquivalent()
+            : writeMethod;
+
         Initialize(externalTypeBuilder, typeBuilderPortableState, writeMethod);
 
+        if (SkipBody && MoldGraphVisit.HasExistingInstanceId
+                     && !TypeBeingBuilt.IsValueType && TypeBeingBuilt.IsSpanFormattableCached()
+                     && Settings.InstanceMarkingIncludeSpanFormattableContents) { ignoreSuppressSpanFormattable = true; }
         OnFinishedWithStringBuilder = FinishUsingStringBuilder;
 
         return this;
@@ -31,7 +38,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     private void FinishUsingStringBuilder(IScopeDelimitedStringBuilder finishedBuilding)
     {
         if (Style.IsJson()) finishedBuilding.Append(DblQt);
-        StyleFormatter.GraphBuilder.MarkContentEnd();
+        Sf.Gb.MarkContentEnd();
     }
 
     private Action<IScopeDelimitedStringBuilder>? OnFinishedWithStringBuilder { get; set; }
@@ -40,7 +47,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
 
     public IScopeDelimitedStringBuilder StartDelimitedStringBuilder()
     {
-        StyleFormatter.GraphBuilder.StartNextContentSeparatorPaddingSequence(Sb, DefaultCallerTypeFlags, true);
+        Sf.Gb.StartNextContentSeparatorPaddingSequence(Sb, DefaultCallerTypeFlags, true);
         if (Style.IsJson()) Sb.Append(DblQt);
         var scopedSb = (IScopeDelimitedStringBuilder)Sb;
         scopedSb.OnScopeEndedAction = OnFinishedWithStringBuilder;
@@ -50,36 +57,38 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     public ContentJoinTypeMold<TContentMold> FieldValueNext(ReadOnlySpan<char> nonJsonfieldName, bool? value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<bool?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(bool?);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<bool?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags, formatString);
+        var callContext   = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinValue(value, formatString, formatFlags); }
+            using (callContext) { VettedJoinValue(value, formatString, resolvedFlags); }
         }
-        else { VettedJoinValue(value, formatString, formatFlags); }
+        else { VettedJoinValue(value, formatString, resolvedFlags); }
 
         return ConditionalValueTypeSuffix();
     }
 
     public ContentJoinTypeMold<TContentMold> JoinValueJoin(bool? value, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<bool?>(value?.GetType(), "", formatFlags))
+        var actualType  = value?.GetType() ?? typeof(bool?);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<bool?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (!callContext.HasFormatChange) return VettedJoinValue(value, formatString, formatFlags);
-        using (callContext) { return VettedJoinValue(value, formatString, formatFlags); }
+
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags, formatString);
+        var callContext   = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinValue(value, formatString, resolvedFlags);
+        using (callContext) { return VettedJoinValue(value, formatString, resolvedFlags); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinValue(bool? value, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -101,43 +110,56 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , ReadOnlySpan<char> defaultValue
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        var actualType  = value?.GetType() ?? typeof(TFmt);
-        if (callContext.ShouldSkip || HasSkipBody<TFmt?>(actualType, nonJsonfieldName, formatFlags))
-        {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TFmt?>(actualType, nonJsonfieldName, formatFlags);
-        }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags));
+        var actualType    = value?.GetType() ?? typeof(TFmt);
         
-        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags) && !ignoreSuppressSpanFormattable)
+        {
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
+        }
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        else if (SkipBody && Settings.InstanceMarkingIncludeSpanFormattableContents)
+        {
+            StyleFormatter.AppendInstanceValuesFieldName(typeof(TFmt), formatFlags);
+        }
+
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+
+        if (!actualType.IsValueType && BuildingInstanceEquals(value))
+        {
+            resolvedFlags |= NoRevisitCheck;
+        }
+        var callContext   = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinWithDefaultValue(value, defaultValue, formatString, formatFlags); }
+            using (callContext) { VettedJoinWithDefaultValue(value, defaultValue, formatString, resolvedFlags); }
         }
-        else { VettedJoinWithDefaultValue(value, defaultValue, formatString, formatFlags); }
+        else { VettedJoinWithDefaultValue(value, defaultValue, formatString, resolvedFlags); }
 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin<TFmt>(TFmt? value, ReadOnlySpan<char> defaultValue, string formatString = ""
+    public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin<TFmt>(TFmt? value
+      , ReadOnlySpan<char> defaultValue, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
         var actualType  = value?.GetType() ?? typeof(TFmt);
-        if (callContext.ShouldSkip || HasSkipBody<TFmt?>(actualType, formatString, formatFlags))
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TFmt?>(actualType, formatString, formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags));
 
-        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (!callContext.HasFormatChange) return VettedJoinWithDefaultValue(value, defaultValue, formatString, formatFlags);
-        using (callContext) { return VettedJoinWithDefaultValue(value, defaultValue, formatString, formatFlags); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        if (!actualType.IsValueType && BuildingInstanceEquals(value))
+        {
+            resolvedFlags |= NoRevisitCheck;
+        }
+        var callContext   = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinWithDefaultValue(value, defaultValue, formatString, resolvedFlags);
+        using (callContext) { return VettedJoinWithDefaultValue(value, defaultValue, formatString, resolvedFlags); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinWithDefaultValue<TFmt>(TFmt? value, ReadOnlySpan<char> defaultValue, string formatString = ""
@@ -155,8 +177,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             else { StyleFormatter.FormatFallbackFieldContents<TFmt>(Sb, defaultValue, 0, formatString, formatFlags: withMoldInherited); }
             return StyleTypeBuilder.TransitionToNextMold();
         }
-        if (withMoldInherited.HasIsFieldNameFlag()) { StyleFormatter.FormatFieldName(Sb, value, formatString, withMoldInherited); }
-        else { StyleFormatter.FormatFieldContents(Sb, value, formatString, withMoldInherited); }
+        this.AppendFormattedOrNull(value, formatString, formatFlags);
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
@@ -164,23 +185,33 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable?
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
         var actualType  = value?.GetType() ?? typeof(TFmt);
-        if (callContext.ShouldSkip || HasSkipBody<TFmt?>(actualType, nonJsonfieldName, formatFlags))
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags) && !ignoreSuppressSpanFormattable)
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TFmt?>(actualType, nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags));
-
-        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        else if (SkipBody && Settings.InstanceMarkingIncludeSpanFormattableContents)
+        {
+            StyleFormatter.AppendInstanceValuesFieldName(typeof(TFmt), formatFlags);
+        }
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags), formatString);
+        if (!actualType.IsValueType && BuildingInstanceEquals(value))
+        {
+            resolvedFlags |= NoRevisitCheck;
+        }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinValue(value, formatString, formatFlags); }
+            using (callContext) { VettedJoinValue(value, formatString, resolvedFlags); }
         }
-        else { VettedJoinValue(value, formatString, formatFlags); }
+        else { VettedJoinValue(value, formatString, resolvedFlags); }
 
         return ConditionalValueTypeSuffix();
     }
@@ -189,26 +220,29 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable?
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
         var actualType  = value?.GetType() ?? typeof(TFmt);
-        if (callContext.ShouldSkip || HasSkipBody<TFmt?>(actualType, "", formatFlags))
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TFmt?>(actualType, "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags));
-        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (!callContext.HasFormatChange) return VettedJoinValue(value, formatString, formatFlags);
-        using (callContext) { return VettedJoinValue(value, formatString, formatFlags); }
+
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags), formatString);
+        if (!actualType.IsValueType && BuildingInstanceEquals(value))
+        {
+            resolvedFlags |= NoRevisitCheck;
+        }
+        
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinValue(value, formatString, resolvedFlags);
+        using (callContext) { return VettedJoinValue(value, formatString, resolvedFlags); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinValue<TFmt>(TFmt value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
-        if (withMoldInherited.HasIsFieldNameFlag()) { StyleFormatter.FormatFieldName(Sb, value, formatString, withMoldInherited); }
-        else { StyleFormatter.FormatFieldContents(Sb, value, formatString, withMoldInherited); }
+        this.AppendFormattedOrNull(value, formatString, withMoldInherited);
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
@@ -216,21 +250,25 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , ReadOnlySpan<char> defaultValue
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TFmtStruct?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(TFmtStruct?);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TFmtStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags));
-
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinWithDefaultValue(value, defaultValue, formatString, formatFlags); }
+            using (callContext) { VettedJoinWithDefaultValue(value, defaultValue, formatString, resolvedFlags); }
         }
-        else { VettedJoinWithDefaultValue(value, defaultValue, formatString, formatFlags); }
+        else { VettedJoinWithDefaultValue(value, defaultValue, formatString, resolvedFlags); }
         return ConditionalValueTypeSuffix();
     }
 
@@ -238,16 +276,17 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TFmtStruct?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(TFmtStruct?);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TFmtStruct?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags));
-        if (!callContext.HasFormatChange) return VettedJoinWithDefaultValue(value, defaultValue, formatString, formatFlags);
-        using (callContext) { return VettedJoinWithDefaultValue(value, defaultValue, formatString, formatFlags); }
+
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinWithDefaultValue(value, defaultValue, formatString, resolvedFlags);
+        using (callContext) { return VettedJoinWithDefaultValue(value, defaultValue, formatString, resolvedFlags); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinWithDefaultValue<TFmtStruct>(TFmtStruct? value, ReadOnlySpan<char> defaultValue
@@ -262,10 +301,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             {
                 StyleFormatter.FormatFieldName(Sb, defaultValue, 0, formatString, formatFlags: withMoldInherited);
             }
-            else
-            {
-                StyleFormatter.FormatFallbackFieldContents<TFmtStruct>(Sb, defaultValue, 0, formatString, formatFlags: withMoldInherited);
-            }
+            else { StyleFormatter.FormatFallbackFieldContents<TFmtStruct>(Sb, defaultValue, 0, formatString, formatFlags: withMoldInherited); }
             return StyleTypeBuilder.TransitionToNextMold();
         }
         if (withMoldInherited.HasIsFieldNameFlag()) { StyleFormatter.FormatFieldName(Sb, value, formatString, withMoldInherited); }
@@ -278,21 +314,25 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TFmtStruct?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(TFmtStruct?);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TFmtStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags));
-
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags), formatString);
+
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinValue(value, formatString, formatFlags); }
+            using (callContext) { VettedJoinValue(value, formatString, resolvedFlags); }
         }
-        else { VettedJoinValue(value, formatString, formatFlags); }
+        else { VettedJoinValue(value, formatString, resolvedFlags); }
         return ConditionalValueTypeSuffix();
     }
 
@@ -300,16 +340,17 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TFmtStruct?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(TFmtStruct?);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TFmtStruct?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags));
-        if (!callContext.HasFormatChange) return VettedJoinValue(value, formatString, formatFlags);
-        using (callContext) { return VettedJoinValue(value, formatString, formatFlags); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags), formatString);
+        
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinValue(value, formatString, resolvedFlags);
+        using (callContext) { return VettedJoinValue(value, formatString, resolvedFlags); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinValue<TFmtStruct>(TFmtStruct? value, string formatString = ""
@@ -329,42 +370,48 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     }
 
     public ContentJoinTypeMold<TContentMold> FieldValueOrNullNext<TCloaked, TRevealBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
-      , PalantírReveal<TRevealBase> palantírReveal, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TRevealBase> palantírReveal, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase
         where TRevealBase : notnull
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCloaked?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TCloaked);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCloaked?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags), formatString);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext   = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinValue(value, palantírReveal, formatString, formatFlags); }
+            using (callContext) { VettedJoinValue(value, palantírReveal, formatString, resolvedFlags); }
         }
-        else { VettedJoinValue(value, palantírReveal, formatString, formatFlags); }
+        else { VettedJoinValue(value, palantírReveal, formatString, resolvedFlags); }
         return ConditionalValueTypeSuffix();
     }
 
     public ContentJoinTypeMold<TContentMold> JoinValueJoin<TCloaked, TRevealBase>(TCloaked? value, PalantírReveal<TRevealBase> palantírReveal
-      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase
         where TRevealBase : notnull
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCloaked?>(value?.GetType(), "", formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TCloaked);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCloaked?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (!callContext.HasFormatChange) return VettedJoinValue(value, palantírReveal, formatString, formatFlags);
-        using (callContext) { return VettedJoinValue(value, palantírReveal, formatString, formatFlags); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags), formatString);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinValue(value, palantírReveal, formatString, resolvedFlags);
+        using (callContext) { return VettedJoinValue(value, palantírReveal, formatString, resolvedFlags); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinValue<TCloaked, TRevealBase>(TCloaked? value, PalantírReveal<TRevealBase> palantírReveal
@@ -388,43 +435,49 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     }
 
     public ContentJoinTypeMold<TContentMold> FieldValueOrNullNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
-      , PalantírReveal<TCloakedStruct> palantírReveal, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TCloakedStruct> palantírReveal, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCloakedStruct?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(TCloakedStruct?);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCloakedStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { JoinValueJoin(value, palantírReveal, formatString, formatFlags); }
+            using (callContext) { JoinValueJoin(value, palantírReveal, formatString, resolvedFlags); }
         }
-        else { JoinValueJoin(value, palantírReveal, formatString, formatFlags); }
+        else { JoinValueJoin(value, palantírReveal, formatString, resolvedFlags); }
 
         return ConditionalValueTypeSuffix();
     }
 
     public ContentJoinTypeMold<TContentMold> JoinValueJoin<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCloakedStruct?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(TCloakedStruct?);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCloakedStruct?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (!callContext.HasFormatChange) return VettedJoinValue(value, palantírReveal, formatString, formatFlags);
-        using (callContext) { return VettedJoinValue(value, palantírReveal, formatString, formatFlags); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinValue(value, palantírReveal, formatString, resolvedFlags);
+        using (callContext) { return VettedJoinValue(value, palantírReveal, formatString, resolvedFlags); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinValue<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
         if (value == null)
@@ -443,50 +496,56 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     }
 
     public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext<TCloaked, TRevealBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
-      , PalantírReveal<TRevealBase> palantírReveal, ReadOnlySpan<char> defaultValue, string? formatString = null
+      , PalantírReveal<TRevealBase> palantírReveal, ReadOnlySpan<char> defaultValue, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase
         where TRevealBase : notnull
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCloaked?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TCloaked);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCloaked?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, formatString, formatFlags); }
+            using (callContext) { VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, formatString, resolvedFlags); }
         }
-        else { VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, formatString, formatFlags); }
+        else { VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, formatString, resolvedFlags); }
 
         return ConditionalValueTypeSuffix();
     }
 
     public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin<TCloaked, TRevealBase>(TCloaked? value
-      , PalantírReveal<TRevealBase> palantírReveal
-      , ReadOnlySpan<char> defaultValue, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TRevealBase> palantírReveal, ReadOnlySpan<char> defaultValue, string formatString = ""
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase
         where TRevealBase : notnull
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCloaked?>(value?.GetType(), "", formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TCloaked);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCloaked?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (!callContext.HasFormatChange) return VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, formatString, formatFlags);
-        using (callContext) { return VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, formatString, formatFlags); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        if (!callContext.HasFormatChange) return VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, formatString, resolvedFlags);
+        using (callContext) { return VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, formatString, resolvedFlags); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinWithDefaultValue<TCloaked, TRevealBase>(TCloaked? value
-      , PalantírReveal<TRevealBase> palantírReveal
-      , ReadOnlySpan<char> defaultValue, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TRevealBase> palantírReveal, ReadOnlySpan<char> defaultValue, string formatString = ""
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase
         where TRevealBase : notnull
     {
@@ -512,22 +571,28 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
 
     public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal, ReadOnlySpan<char> defaultValue
-      , FormatFlags formatFlags = DefaultCallerTypeFlags, string? formatString = null)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "")
         where TCloakedStruct : struct
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCloakedStruct?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(TCloakedStruct?);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCloakedStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, formatFlags, formatString); }
+            using (callContext) { VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, resolvedFlags, formatString); }
         }
-        else { VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, formatFlags, formatString); }
+        else { VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, resolvedFlags, formatString); }
 
         return ConditionalValueTypeSuffix();
     }
@@ -535,22 +600,23 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin<TCloakedStruct>(TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal
       , ReadOnlySpan<char> defaultValue
-      , FormatFlags formatFlags = DefaultCallerTypeFlags, string? formatString = null) where TCloakedStruct : struct
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "") where TCloakedStruct : struct
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCloakedStruct?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(TCloakedStruct?);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCloakedStruct?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (!callContext.HasFormatChange) return VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, formatFlags, formatString);
-        using (callContext) { return VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, formatFlags, formatString); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, resolvedFlags, formatString);
+        using (callContext) { return VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, resolvedFlags, formatString); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinWithDefaultValue<TCloakedStruct>(TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal
-      , ReadOnlySpan<char> defaultValue, FormatFlags formatFlags = DefaultCallerTypeFlags, string? formatString = null)
+      , ReadOnlySpan<char> defaultValue, FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "")
         where TCloakedStruct : struct
     {
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
@@ -573,47 +639,53 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
+    public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value
       , string defaultValue = ""
-      , FormatFlags formatFlags = DefaultCallerTypeFlags, string? formatString = null)
-        where TBearer : IStringBearer
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "")
+        where TBearer : IStringBearer?
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TBearer?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TBearer);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TBearer?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinWithDefaultValue(value, defaultValue, formatFlags, formatString); }
+            using (callContext) { VettedJoinWithDefaultValue(value, defaultValue, resolvedFlags, formatString); }
         }
-        else { VettedJoinWithDefaultValue(value, defaultValue, formatFlags, formatString); }
+        else { VettedJoinWithDefaultValue(value, defaultValue, resolvedFlags, formatString); }
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin<TBearer>(TBearer? value
-      , ReadOnlySpan<char> defaultValue, FormatFlags formatFlags = DefaultCallerTypeFlags, string? formatString = null)
-        where TBearer : IStringBearer
+    public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin<TBearer>(TBearer value
+      , ReadOnlySpan<char> defaultValue, FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "")
+        where TBearer : IStringBearer?
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TBearer?>(value?.GetType(), "", formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TBearer);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TBearer?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (!callContext.HasFormatChange) return VettedJoinWithDefaultValue(value, defaultValue, formatFlags, formatString);
-        using (callContext) { return VettedJoinWithDefaultValue(value, defaultValue, formatFlags, formatString); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinWithDefaultValue(value, defaultValue, resolvedFlags, formatString);
+        using (callContext) { return VettedJoinWithDefaultValue(value, defaultValue, resolvedFlags, formatString); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinWithDefaultValue<TBearer>(TBearer? value
-      , ReadOnlySpan<char> defaultValue, FormatFlags formatFlags = DefaultCallerTypeFlags, string? formatString = null)
-        where TBearer : IStringBearer
+    public ContentJoinTypeMold<TContentMold> VettedJoinWithDefaultValue<TBearer>(TBearer value
+      , ReadOnlySpan<char> defaultValue, FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "")
+        where TBearer : IStringBearer?
     {
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
         if (value == null)
@@ -630,42 +702,50 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     }
 
     public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
-      , string defaultValue = "", FormatFlags formatFlags = DefaultCallerTypeFlags, string? formatString = null)
+      , string defaultValue = "", FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "")
         where TBearerStruct : struct, IStringBearer
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TBearerStruct?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(TBearerStruct?);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TBearerStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinWithDefaultValue(value, defaultValue, formatFlags, formatString); }
+            using (callContext) { VettedJoinWithDefaultValue(value, defaultValue, resolvedFlags, formatString); }
         }
-        else { VettedJoinWithDefaultValue(value, defaultValue, formatFlags, formatString); }
+        else { VettedJoinWithDefaultValue(value, defaultValue, resolvedFlags, formatString); }
         return ConditionalValueTypeSuffix();
     }
 
     public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin<TBearerStruct>(TBearerStruct? value
-      , ReadOnlySpan<char> defaultValue, FormatFlags formatFlags = DefaultCallerTypeFlags, string? formatString = null)
+      , ReadOnlySpan<char> defaultValue, FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "")
         where TBearerStruct : struct, IStringBearer
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TBearerStruct?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(TBearerStruct?);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TBearerStruct?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (!callContext.HasFormatChange) return VettedJoinWithDefaultValue(value, defaultValue, formatFlags, formatString);
-        using (callContext) { return VettedJoinWithDefaultValue(value, defaultValue, formatFlags, formatString); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinWithDefaultValue(value, defaultValue, resolvedFlags, formatString);
+        using (callContext) { return VettedJoinWithDefaultValue(value, defaultValue, resolvedFlags, formatString); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinWithDefaultValue<TBearerStruct>(TBearerStruct? value
-      , ReadOnlySpan<char> defaultValue, FormatFlags formatFlags = DefaultCallerTypeFlags, string? formatString = null)
+      , ReadOnlySpan<char> defaultValue, FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "")
         where TBearerStruct : struct, IStringBearer
     {
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
@@ -685,51 +765,57 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrNullNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
-      , FormatFlags formatFlags = DefaultCallerTypeFlags, string? formatString = null) where TBearer : IStringBearer
+    public ContentJoinTypeMold<TContentMold> FieldValueOrNullNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "") where TBearer : IStringBearer?
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TBearer?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TBearer);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TBearer?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags), formatString);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinValue(value, formatFlags, formatString); }
+            using (callContext) { VettedJoinValue(value, resolvedFlags, formatString); }
         }
-        else { VettedJoinValue(value, formatFlags, formatString); }
+        else { VettedJoinValue(value, resolvedFlags, formatString); }
 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueJoin<TBearer>(TBearer? value
-      , FormatFlags formatFlags = DefaultCallerTypeFlags, string? formatString = null)
-        where TBearer : IStringBearer
+    public ContentJoinTypeMold<TContentMold> JoinValueJoin<TBearer>(TBearer value
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "")
+        where TBearer : IStringBearer?
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TBearer?>(value?.GetType(), "", formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TBearer);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TBearer?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (!callContext.HasFormatChange) return VettedJoinValue(value, formatFlags, formatString);
-        using (callContext) { return VettedJoinValue(value, formatFlags, formatString); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags), formatString);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinValue(value, resolvedFlags, formatString);
+        using (callContext) { return VettedJoinValue(value, resolvedFlags, formatString); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinValue<TBearer>(TBearer? value, FormatFlags formatFlags = DefaultCallerTypeFlags
-      , string? formatString = null)
-        where TBearer : IStringBearer
+    public ContentJoinTypeMold<TContentMold> VettedJoinValue<TBearer>(TBearer value, FormatFlags formatFlags = DefaultCallerTypeFlags
+      , string formatString = "")
+        where TBearer : IStringBearer?
     {
         if (value == null)
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder.TransitionToNextMold();
-            AppendNull(formatString ?? "", formatFlags);
+            AppendNull(formatString, formatFlags);
             return StyleTypeBuilder.TransitionToNextMold();
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
@@ -739,48 +825,54 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     }
 
     public ContentJoinTypeMold<TContentMold> FieldValueOrNullNext<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
-      , FormatFlags formatFlags = DefaultCallerTypeFlags, string? formatString = null) where TBearerStruct : struct, IStringBearer
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "") where TBearerStruct : struct, IStringBearer
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TBearerStruct?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(TBearerStruct?);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TBearerStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinValue(value, formatFlags, formatString); }
+            using (callContext) { VettedJoinValue(value, resolvedFlags, formatString); }
         }
-        else { VettedJoinValue(value, formatFlags, formatString); }
+        else { VettedJoinValue(value, resolvedFlags, formatString); }
 
         return ConditionalValueTypeSuffix();
     }
 
     public ContentJoinTypeMold<TContentMold> JoinValueJoin<TBearerStruct>(TBearerStruct? value
-      , FormatFlags formatFlags = DefaultCallerTypeFlags, string? formatString = null)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "")
         where TBearerStruct : struct, IStringBearer
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TBearerStruct?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(TBearerStruct?);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TBearerStruct?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (!callContext.HasFormatChange) return VettedJoinValue(value, formatFlags, formatString);
-        using (callContext) { return VettedJoinValue(value, formatFlags, formatString); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinValue(value, resolvedFlags, formatString);
+        using (callContext) { return VettedJoinValue(value, resolvedFlags, formatString); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinValue<TBearerStruct>(TBearerStruct? value, FormatFlags formatFlags = DefaultCallerTypeFlags
-      , string? formatString = null)
+      , string formatString = "")
         where TBearerStruct : struct, IStringBearer
     {
         if (value == null)
         {
             if (formatFlags.HasNullBecomesEmptyFlag()) return StyleTypeBuilder.TransitionToNextMold();
-            AppendNull(formatString ?? "", formatFlags);
+            AppendNull(formatString, formatFlags);
             return StyleTypeBuilder.TransitionToNextMold();
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
@@ -792,34 +884,40 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, Span<char> value
       , ReadOnlySpan<char> fallbackValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<Memory<char>?>(value.Length > 0 ? typeof(Span<char>) : null, nonJsonfieldName, formatFlags))
+        var actualType  = typeof(Span<char>);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<Memory<char>?>(value.Length > 0 ? typeof(Span<char>) : null, nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "Span", formatFlags);
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, "Span", StyleFormatter.ResolveContentAsValueFormattingFlags("Span", "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinWithDefaultValue(value, fallbackValue, formatString, formatFlags); }
+            using (callContext) { VettedJoinWithDefaultValue(value, fallbackValue, formatString, resolvedFlags); }
         }
-        else { VettedJoinWithDefaultValue(value, fallbackValue, formatString, formatFlags); }
+        else { VettedJoinWithDefaultValue(value, fallbackValue, formatString, resolvedFlags); }
         return ConditionalValueTypeSuffix();
     }
 
     public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin(Span<char> value, ReadOnlySpan<char> fallbackValue
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<Memory<char>?>(value.Length > 0 ? typeof(Span<char>) : null, "", formatFlags))
+        var actualType  = typeof(Span<char>);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<Memory<char>?>(value.Length > 0 ? typeof(Span<char>) : null, "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "Span", formatFlags);
-        if (!callContext.HasFormatChange) return VettedJoinWithDefaultValue(value, fallbackValue, formatString, formatFlags);
-        using (callContext) { return VettedJoinWithDefaultValue(value, fallbackValue, formatString, formatFlags); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, "Span", StyleFormatter.ResolveContentAsValueFormattingFlags("Span", "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinWithDefaultValue(value, fallbackValue, formatString, resolvedFlags);
+        using (callContext) { return VettedJoinWithDefaultValue(value, fallbackValue, formatString, resolvedFlags); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinWithDefaultValue(Span<char> value, ReadOnlySpan<char> fallbackValue
@@ -837,10 +935,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             else { StyleFormatter.FormatFieldContents(Sb, fallbackValue, 0, formatString, formatFlags: withMoldInherited); }
             return StyleTypeBuilder.TransitionToNextMold();
         }
-        if (withMoldInherited.HasIsFieldNameFlag())
-        {
-            StyleFormatter.FormatFieldName(Sb, value, 0, formatString, formatFlags: withMoldInherited);
-        }
+        if (withMoldInherited.HasIsFieldNameFlag()) { StyleFormatter.FormatFieldName(Sb, value, 0, formatString, formatFlags: withMoldInherited); }
         else { StyleFormatter.FormatFieldContents(Sb, value, 0, formatString, formatFlags: withMoldInherited); }
         return StyleTypeBuilder.TransitionToNextMold();
     }
@@ -848,40 +943,40 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
       , ReadOnlySpan<char> fallbackValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip
-         || HasSkipBody<ReadOnlyMemory<char>?>(value.Length > 0
-                                                   ? typeof(ReadOnlySpan<char>)
-                                                   : null, nonJsonfieldName, formatFlags))
+        var actualType  = typeof(ReadOnlySpan<char>);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<ReadOnlyMemory<char>?>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "ReadOnlySpan", formatFlags);
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, "ReadOnlySpan", StyleFormatter.ResolveContentAsValueFormattingFlags("ReadOnlySpan", "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinWithDefaultValue(value, fallbackValue, formatString, formatFlags); }
+            using (callContext) { VettedJoinWithDefaultValue(value, fallbackValue, formatString, resolvedFlags); }
         }
-        else { VettedJoinWithDefaultValue(value, fallbackValue, formatString, formatFlags); }
+        else { VettedJoinWithDefaultValue(value, fallbackValue, formatString, resolvedFlags); }
         return ConditionalValueTypeSuffix();
     }
 
     public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin(ReadOnlySpan<char> value, ReadOnlySpan<char> fallbackValue
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip 
-         || HasSkipBody<ReadOnlyMemory<char>?>(value.Length > 0 
-                                                   ? typeof(ReadOnlySpan<char>) 
-                                                   : null, "", formatFlags))
+        var actualType  = typeof(ReadOnlySpan<char>);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<ReadOnlyMemory<char>?>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "ReadOnlySpan", formatFlags);
-        if (!callContext.HasFormatChange) return VettedJoinWithDefaultValue(value, fallbackValue, formatString, formatFlags);
-        using (callContext) { return VettedJoinWithDefaultValue(value, fallbackValue, formatString, formatFlags); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, "ReadOnlySpan", StyleFormatter.ResolveContentAsValueFormattingFlags("ReadOnlySpan", "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinWithDefaultValue(value, fallbackValue, formatString, resolvedFlags);
+        using (callContext) { return VettedJoinWithDefaultValue(value, fallbackValue, formatString, resolvedFlags); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinWithDefaultValue(ReadOnlySpan<char> value, ReadOnlySpan<char> fallbackValue
@@ -899,10 +994,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             else { StyleFormatter.FormatFieldContents(Sb, fallbackValue, 0, formatString, formatFlags: withMoldInherited); }
             return StyleTypeBuilder.TransitionToNextMold();
         }
-        if (withMoldInherited.HasIsFieldNameFlag())
-        {
-            StyleFormatter.FormatFieldName(Sb, value, 0, formatString, formatFlags: withMoldInherited);
-        }
+        if (withMoldInherited.HasIsFieldNameFlag()) { StyleFormatter.FormatFieldName(Sb, value, 0, formatString, formatFlags: withMoldInherited); }
         else { StyleFormatter.FormatFieldContents(Sb, value, 0, formatString, formatFlags: withMoldInherited); }
         return StyleTypeBuilder.TransitionToNextMold();
     }
@@ -911,20 +1003,24 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip ||
-            HasSkipBody<ReadOnlyMemory<char>?>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, nonJsonfieldName, formatFlags))
+        var actualType  = typeof(ReadOnlySpan<char>);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<ReadOnlyMemory<char>?>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "ReadOnlySpan", formatFlags);
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, "ReadOnlySpan", StyleFormatter.ResolveContentAsValueFormattingFlags("ReadOnlySpan", "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinValue(value, formatString, formatFlags); }
+            using (callContext) { VettedJoinValue(value, formatString, resolvedFlags); }
         }
-        else { VettedJoinValue(value, formatString, formatFlags); }
+        else { VettedJoinValue(value, formatString, resolvedFlags); }
 
         return ConditionalValueTypeSuffix();
     }
@@ -932,18 +1028,16 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     public ContentJoinTypeMold<TContentMold> JoinValueJoin(ReadOnlySpan<char> value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip 
-         || HasSkipBody<ReadOnlyMemory<char>?>(value.Length > 0 
-                                                   ? typeof(ReadOnlySpan<char>) 
-                                                   : null, "", formatFlags))
+        var actualType  = typeof(ReadOnlySpan<char>);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<ReadOnlyMemory<char>?>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, "ReadOnlySpan", formatFlags);
-        if (!callContext.HasFormatChange) return VettedJoinValue(value, formatString, formatFlags);
-        using (callContext) { return VettedJoinValue(value, formatString, formatFlags); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, "ReadOnlySpan", StyleFormatter.ResolveContentAsValueFormattingFlags("ReadOnlySpan", "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinValue(value, formatString, resolvedFlags);
+        using (callContext) { return VettedJoinValue(value, formatString, resolvedFlags); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinValue(ReadOnlySpan<char> value, string formatString = ""
@@ -964,19 +1058,24 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length
       , ReadOnlySpan<char> defaultValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<string?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(string);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<string?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags); }
+            using (callContext) { VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags); }
         }
-        else { VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags); }
+        else { VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags); }
 
         return ConditionalValueTypeSuffix();
     }
@@ -984,15 +1083,16 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin(string? value, int startIndex, int length
       , ReadOnlySpan<char> defaultValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<string?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(string);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<string?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (!callContext.HasFormatChange) return VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags);
-        using (callContext) { return VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags);
+        using (callContext) { return VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinValueWithDefault(string? value, int startIndex, int length
@@ -1030,19 +1130,24 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     public ContentJoinTypeMold<TContentMold> FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<ReadOnlyMemory<char>?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(string);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<ReadOnlyMemory<char>?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinValue(value, startIndex, length, formatString, formatFlags); }
+            using (callContext) { VettedJoinValue(value, startIndex, length, formatString, resolvedFlags); }
         }
-        else { VettedJoinValue(value, startIndex, length, formatString, formatFlags); }
+        else { VettedJoinValue(value, startIndex, length, formatString, resolvedFlags); }
 
         return ConditionalValueTypeSuffix();
     }
@@ -1050,15 +1155,16 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     public ContentJoinTypeMold<TContentMold> JoinValueJoin(string? value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<string?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(string);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<string?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (!callContext.HasFormatChange) return VettedJoinValue(value, startIndex, length, formatString, formatFlags);
-        using (callContext) { return VettedJoinValue(value, startIndex, length, formatString, formatFlags); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinValue(value, startIndex, length, formatString, resolvedFlags);
+        using (callContext) { return VettedJoinValue(value, startIndex, length, formatString, resolvedFlags); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinValue(string? value, int startIndex, int length, string formatString = ""
@@ -1105,22 +1211,26 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     }
 
     public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length
-      , string defaultValue = ""
-      , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string defaultValue = "", string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<char[]?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(char[]);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<char[]?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags); }
+            using (callContext) { VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags); }
         }
-        else { VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags); }
+        else { VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags); }
         return ConditionalValueTypeSuffix();
     }
 
@@ -1128,15 +1238,16 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<char[]?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(char[]);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<char[]?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (!callContext.HasFormatChange) return VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags);
-        using (callContext) { return VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags);
+        using (callContext) { return VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinValueWithDefault(char[]? value, int startIndex, int length, string defaultValue = ""
@@ -1175,34 +1286,40 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     public ContentJoinTypeMold<TContentMold> FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<char[]?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(char[]);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<char[]?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinValue(value, startIndex, length, formatString, formatFlags); }
+            using (callContext) { VettedJoinValue(value, startIndex, length, formatString, resolvedFlags); }
         }
-        else { VettedJoinValue(value, startIndex, length, formatString, formatFlags); }
+        else { VettedJoinValue(value, startIndex, length, formatString, resolvedFlags); }
         return ConditionalValueTypeSuffix();
     }
 
     public ContentJoinTypeMold<TContentMold> JoinValueJoin(char[]? value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<char[]?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(char[]);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<char[]?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (!callContext.HasFormatChange) return VettedJoinValue(value, startIndex, length, formatString, formatFlags);
-        using (callContext) { return VettedJoinValue(value, startIndex, length, formatString, formatFlags); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinValue(value, startIndex, length, formatString, resolvedFlags);
+        using (callContext) { return VettedJoinValue(value, startIndex, length, formatString, resolvedFlags); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinValue(char[]? value, int startIndex, int length, string formatString = ""
@@ -1249,47 +1366,51 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext<TCharSeq>(ReadOnlySpan<char> nonJsonfieldName, TCharSeq? value, int startIndex
-      , int length
-      , string defaultValue = "", string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TCharSeq : ICharSequence
+    public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext<TCharSeq>(ReadOnlySpan<char> nonJsonfieldName, TCharSeq value, int startIndex
+      , int length, string defaultValue = "", string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TCharSeq : ICharSequence?
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCharSeq?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TCharSeq);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCharSeq?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, formatFlags); }
+            using (callContext) { VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, resolvedFlags); }
         }
-        else { VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, formatFlags); }
+        else { VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, resolvedFlags); }
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin<TCharSeq>(TCharSeq? value, int startIndex, int length, string defaultValue = ""
-      , string formatString = ""
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TCharSeq : ICharSequence
+    public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin<TCharSeq>(TCharSeq value, int startIndex, int length, string defaultValue = ""
+      , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TCharSeq : ICharSequence?
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCharSeq?>(value?.GetType(), "", formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TCharSeq);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCharSeq?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (!callContext.HasFormatChange) return VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, formatFlags);
-        using (callContext) { return VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, formatFlags); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, resolvedFlags);
+        using (callContext) { return VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, resolvedFlags); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinWithDefaultValue<TCharSeq>(TCharSeq? value, int startIndex, int length
+    public ContentJoinTypeMold<TContentMold> VettedJoinWithDefaultValue<TCharSeq>(TCharSeq value, int startIndex, int length
       , string defaultValue = "", string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TCharSeq : ICharSequence
+        where TCharSeq : ICharSequence?
     {
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
         if (value != null)
@@ -1333,23 +1454,27 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     }
 
     public ContentJoinTypeMold<TContentMold> FieldValueOrNullNext<TCharSeq>(ReadOnlySpan<char> nonJsonfieldName, TCharSeq? value, int startIndex
-      , int length
-      , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , int length, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCharSeq?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TCharSeq);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCharSeq?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinValue(value, startIndex, length, formatString, formatFlags); }
+            using (callContext) { VettedJoinValue(value, startIndex, length, formatString, resolvedFlags); }
         }
-        else { VettedJoinValue(value, startIndex, length, formatString, formatFlags); }
+        else { VettedJoinValue(value, startIndex, length, formatString, resolvedFlags); }
         return ConditionalValueTypeSuffix();
     }
 
@@ -1357,15 +1482,16 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCharSeq?>(value?.GetType(), "", formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TCharSeq);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCharSeq?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (!callContext.HasFormatChange) return VettedJoinValue(value, startIndex, length, formatString, formatFlags);
-        using (callContext) { return VettedJoinValue(value, startIndex, length, formatString, formatFlags); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinValue(value, startIndex, length, formatString, resolvedFlags);
+        using (callContext) { return VettedJoinValue(value, startIndex, length, formatString, resolvedFlags); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinValue<TCharSeq>(TCharSeq? value, int startIndex, int length, string formatString = ""
@@ -1420,19 +1546,24 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex
       , int length, string defaultValue = "", string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<StringBuilder?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(StringBuilder);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<StringBuilder?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, formatFlags); }
+            using (callContext) { VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, resolvedFlags); }
         }
-        else { VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, formatFlags); }
+        else { VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, resolvedFlags); }
         return ConditionalValueTypeSuffix();
     }
 
@@ -1440,15 +1571,16 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<StringBuilder?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(StringBuilder);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<StringBuilder?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (!callContext.HasFormatChange) return VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, formatFlags);
-        using (callContext) { return VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, formatFlags); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, resolvedFlags);
+        using (callContext) { return VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, resolvedFlags); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinWithDefaultValue(StringBuilder? value, int startIndex, int length, string defaultValue = ""
@@ -1497,37 +1629,42 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     }
 
     public ContentJoinTypeMold<TContentMold> FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex
-      , int length
-      , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , int length, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<StringBuilder?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(StringBuilder);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<StringBuilder?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinValue(value, startIndex, length, formatString, formatFlags); }
+            using (callContext) { VettedJoinValue(value, startIndex, length, formatString, resolvedFlags); }
         }
-        else { VettedJoinValue(value, startIndex, length, formatString, formatFlags); }
+        else { VettedJoinValue(value, startIndex, length, formatString, resolvedFlags); }
         return ConditionalValueTypeSuffix();
     }
 
     public ContentJoinTypeMold<TContentMold> JoinValueJoin(StringBuilder? value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
-        if (callContext.ShouldSkip || HasSkipBody<StringBuilder?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(StringBuilder);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<StringBuilder?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (!callContext.HasFormatChange) return VettedJoinValue(value, startIndex, length, formatString, formatFlags);
-        using (callContext) { return VettedJoinValue(value, startIndex, length, formatString, formatFlags); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinValue(value, startIndex, length, formatString, resolvedFlags);
+        using (callContext) { return VettedJoinValue(value, startIndex, length, formatString, resolvedFlags); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinValue(StringBuilder? value, int startIndex, int length, string formatString = ""
@@ -1582,40 +1719,42 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     public ContentJoinTypeMold<TContentMold> ValueMatchOrNullNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
         var actualType  = value?.GetType() ?? typeof(TAny);
-        if (callContext.ShouldSkip || HasSkipBody<TAny?>(actualType, nonJsonfieldName, formatFlags))
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TAny?>(actualType, "", formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags));
-        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags), formatString);
+        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedValueMatchJoinValue(value, formatString, formatFlags); }
+            using (callContext) { VettedValueMatchJoinValue(value, formatString, resolvedFlags); }
         }
-        else { VettedValueMatchJoinValue(value, formatString, formatFlags); }
+        else { VettedValueMatchJoinValue(value, formatString, resolvedFlags); }
         return ConditionalValueTypeSuffix();
     }
 
     public ContentJoinTypeMold<TContentMold> JoinValueMatchJoin<TAny>(TAny? value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
         var actualType  = value?.GetType() ?? typeof(TAny);
-        if (callContext.ShouldSkip || HasSkipBody<TAny?>(actualType, "", formatFlags)) 
-        { 
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TAny?>(actualType, "", formatFlags); 
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
+        {
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags));
-        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (!callContext.HasFormatChange) return VettedValueMatchJoinValue(value, formatString, formatFlags);
-        using (callContext) { return VettedValueMatchJoinValue(value, formatString, formatFlags); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, formatFlags), formatString);
+        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedValueMatchJoinValue(value, formatString, resolvedFlags);
+        using (callContext) { return VettedValueMatchJoinValue(value, formatString, resolvedFlags); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedValueMatchJoinValue<TAny>(TAny? value, string formatString = ""
@@ -1633,49 +1772,48 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     }
 
     public ContentJoinTypeMold<TContentMold> ValueMatchOrDefaultNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string defaultValue = ""
-      , string formatString = ""
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
         var actualType  = value?.GetType() ?? typeof(TAny);
-        if (callContext.ShouldSkip || HasSkipBody<TAny?>(actualType, nonJsonfieldName, formatFlags))
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TAny?>(actualType, nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags));
-        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinValueMatchWithDefaultValue(value, defaultValue, formatString, formatFlags); }
+            using (callContext) { VettedJoinValueMatchWithDefaultValue(value, defaultValue, formatString, resolvedFlags); }
         }
-        else { VettedJoinValueMatchWithDefaultValue(value, defaultValue, formatString, formatFlags); }
+        else { VettedJoinValueMatchWithDefaultValue(value, defaultValue, formatString, resolvedFlags); }
         return ConditionalValueTypeSuffix();
     }
 
     public ContentJoinTypeMold<TContentMold> JoinValueMatchWithDefaultJoin<TAny>(TAny? value, ReadOnlySpan<char> defaultValue
-      , string formatString = ""
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsValueContent);
         var actualType  = value?.GetType() ?? typeof(TAny);
-        if (callContext.ShouldSkip || HasSkipBody<TAny?>(actualType, "", formatFlags))
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TAny?>(actualType, "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags));
-        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (!callContext.HasFormatChange) return VettedJoinValueMatchWithDefaultValue(value, defaultValue, formatString, formatFlags);
-        using (callContext) { return VettedJoinValueMatchWithDefaultValue(value, defaultValue, formatString, formatFlags); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
+        if (!callContext.HasFormatChange) return VettedJoinValueMatchWithDefaultValue(value, defaultValue, formatString, resolvedFlags);
+        using (callContext) { return VettedJoinValueMatchWithDefaultValue(value, defaultValue, formatString, resolvedFlags); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinValueMatchWithDefaultValue<TAny>(TAny? value, ReadOnlySpan<char> defaultValue
-      , string formatString = ""
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
         if (value != null) { this.AppendMatchFormattedOrNull(value, formatString, withMoldInherited); }
@@ -1697,37 +1835,42 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     public ContentJoinTypeMold<TContentMold> FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, bool? value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<bool?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(bool?);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<bool?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
-
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+            using (callContext) { VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         }
-        else { VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         return ConditionalValueTypeSuffix();
     }
 
     public ContentJoinTypeMold<TContentMold> JoinStringJoin(bool? value, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<bool?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(bool?);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, "", formatFlags)
+         && !ignoreSuppressSpanFormattable)
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<bool?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
-        if (!callContext.HasFormatChange) return VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
-        using (callContext) { return VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+        if (!callContext.HasFormatChange) return VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+        using (callContext) { return VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinString(bool? value, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
@@ -1737,15 +1880,15 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         {
             if (formatFlags.HasNullBecomesEmptyFlag())
             {
-                if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
-                if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
+                if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
                 return StyleTypeBuilder.TransitionToNextMold();
             }
             AppendNull(formatString, formatFlags);
         }
         else
         {
-            if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+            if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
             var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
             if (withMoldInherited.HasIsFieldNameFlag())
             {
@@ -1753,7 +1896,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             }
             else { StyleFormatter.FormatFieldContents(Sb, value, formatString, withMoldInherited); }
 
-            if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+            if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         }
         return StyleTypeBuilder.TransitionToNextMold();
     }
@@ -1763,23 +1906,33 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , bool addEndDblQt = true)
         where TFmt : ISpanFormattable?
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
         var actualType  = value?.GetType() ?? typeof(TFmt);
-        if (callContext.ShouldSkip || HasSkipBody<TFmt?>(actualType, nonJsonfieldName, formatFlags))
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags) 
+         && !ignoreSuppressSpanFormattable)
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TFmt?>(actualType, nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags));
-
-        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        else if (SkipBody && Settings.InstanceMarkingIncludeSpanFormattableContents)
+        {
+            StyleFormatter.AppendInstanceValuesFieldName(typeof(TFmt), formatFlags);
+        }
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+            using (callContext)
+            {
+                VettedJoinStringWithDefault(value, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+            }
         }
-        else { VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinStringWithDefault(value, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         return ConditionalValueTypeSuffix();
     }
 
@@ -1787,27 +1940,32 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
         where TFmt : ISpanFormattable?
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
         var actualType  = value?.GetType() ?? typeof(TFmt);
-        if (callContext.ShouldSkip || HasSkipBody<TFmt?>(actualType, "", formatFlags))
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, "", formatFlags)
+         && !ignoreSuppressSpanFormattable)
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TFmt?>(actualType, "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags));
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
 
-        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
         if (!callContext.HasFormatChange)
-            return VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
-        using (callContext) { return VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+            return VettedJoinStringWithDefault(value, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+        using (callContext)
+        {
+            return VettedJoinStringWithDefault(value, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+        }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinStringWithDefault<TFmt>(TFmt value, string defaultValue = "", string formatString = ""
-      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
+    public ContentJoinTypeMold<TContentMold> VettedJoinStringWithDefault<TFmt>(TFmt value
+      , string defaultValue = "", string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
+      , bool addStartDblQt = false, bool addEndDblQt = false)
         where TFmt : ISpanFormattable?
     {
-        if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
         if (value == null)
         {
@@ -1827,7 +1985,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         {
             this.AppendFormattedOrNull(value, formatString, formatFlags);
         }
-        if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
@@ -1835,23 +1993,31 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
         where TFmt : ISpanFormattable?
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
         var actualType  = value?.GetType() ?? typeof(TFmt);
-        if (callContext.ShouldSkip || HasSkipBody<TFmt?>(actualType, nonJsonfieldName, formatFlags))
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, nonJsonfieldName, formatFlags) 
+         && !ignoreSuppressSpanFormattable)
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TFmt?>(actualType, nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
-
-        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        else if (SkipBody && Settings.InstanceMarkingIncludeSpanFormattableContents)
+        {
+            StyleFormatter.AppendInstanceValuesFieldName(typeof(TFmt), formatFlags);
+        }
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags), formatString);
+        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+        
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+            using (callContext) { VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         }
-        else { VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         return ConditionalValueTypeSuffix();
     }
 
@@ -1859,18 +2025,18 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
         where TFmt : ISpanFormattable?
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
         var actualType  = value?.GetType() ?? typeof(TFmt);
-        if (callContext.ShouldSkip || HasSkipBody<TFmt?>(actualType, "", formatFlags))
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) 
+         || HasSkipBody(actualType, "", formatFlags)
+         && !ignoreSuppressSpanFormattable)
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TFmt?>(actualType, "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
         var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, withMoldInherited));
-        
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags), formatString);
         if (!actualType.IsValueType && BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+
         if (!callContext.HasFormatChange) return VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
         using (callContext) { return VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
@@ -1879,9 +2045,9 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
         where TFmt : ISpanFormattable?
     {
-        if (addStartDblQt && value != null) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addStartDblQt && value != null) Sf.Gb.AppendParentContent(DblQt);
         this.AppendFormattedOrNull(value, formatString, formatFlags);
-        if (addEndDblQt && value != null) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addEndDblQt && value != null) Sf.Gb.AppendParentContent(DblQt);
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
@@ -1890,21 +2056,24 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
         where TFmtStruct : struct, ISpanFormattable
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TFmtStruct?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(TFmtStruct?);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TFmtStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags));
-
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+            using (callContext) { VettedJoinStringWithDefault(value, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         }
-        else { VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinStringWithDefault(value, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         return ConditionalValueTypeSuffix();
     }
 
@@ -1913,17 +2082,17 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
         where TFmtStruct : struct, ISpanFormattable
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TFmtStruct?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(TFmtStruct?);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TFmtStruct?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags));
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (!callContext.HasFormatChange)
-            return VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
-        using (callContext) { return VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+            return VettedJoinStringWithDefault(value, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+        using (callContext) { return VettedJoinStringWithDefault(value, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinStringWithDefault<TFmtStruct>(TFmtStruct? value, string defaultValue = ""
@@ -1931,7 +2100,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
         where TFmtStruct : struct, ISpanFormattable
     {
-        if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
         if (value == null)
         {
@@ -1952,48 +2121,48 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             }
             else { StyleFormatter.FormatFieldContents(Sb, value, formatString, withMoldInherited | DisableAutoDelimiting); }
         }
-        if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
     public ContentJoinTypeMold<TContentMold> FieldStringOrNullNext<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
-      , string formatString = ""
-      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
+      , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
         where TFmtStruct : struct, ISpanFormattable
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TFmtStruct?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(TFmtStruct?);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TFmtStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
-
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+            using (callContext) { VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         }
-        else { VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         return ConditionalValueTypeSuffix();
     }
 
     public ContentJoinTypeMold<TContentMold> JoinStringJoin<TFmtStruct>(TFmtStruct? value, string formatString = ""
-      , FormatFlags formatFlags = DefaultCallerTypeFlags
-      , bool addStartDblQt = false, bool addEndDblQt = false)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
         where TFmtStruct : struct, ISpanFormattable
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TFmtStruct?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(TFmtStruct?);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TFmtStruct?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
-        if (!callContext.HasFormatChange) return VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
-        using (callContext) { return VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+        if (!callContext.HasFormatChange) return VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+        using (callContext) { return VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinString<TFmtStruct>(TFmtStruct? value, string formatString = ""
@@ -2005,15 +2174,15 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         {
             if (formatFlags.HasNullBecomesEmptyFlag())
             {
-                if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
-                if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
+                if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
                 return StyleTypeBuilder.TransitionToNextMold();
             }
             AppendNull(formatString, formatFlags);
         }
         else
         {
-            if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+            if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
 
             var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
             if (withMoldInherited.HasIsFieldNameFlag())
@@ -2021,68 +2190,72 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
                 StyleFormatter.FormatFieldName(Sb, value, formatString, withMoldInherited | DisableFieldNameDelimiting);
             }
             else { this.AppendMatchFormattedOrNull(value, formatString, withMoldInherited | DisableAutoDelimiting); }
-            if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+            if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         }
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
     public ContentJoinTypeMold<TContentMold> FieldStringRevealOrDefaultNext<TCloaked, TRevealBase>(ReadOnlySpan<char> nonJsonfieldName
-      , TCloaked? value
-      , PalantírReveal<TRevealBase> palantírReveal, string defaultValue = "", string? formatString = null
+      , TCloaked value, PalantírReveal<TRevealBase> palantírReveal, string defaultValue = "", string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
-        where TCloaked : TRevealBase
+        where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCloaked?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TCloaked);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCloaked?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (callContext.HasFormatChange)
         {
             using (callContext)
             {
-                VettedJoinStringWithDefault(value, palantírReveal, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+                VettedJoinStringWithDefault(value, palantírReveal, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
             }
         }
-        else { VettedJoinStringWithDefault(value, palantírReveal, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinStringWithDefault(value, palantírReveal, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringWithDefaultJoin<TCloaked, TRevealBase>(TCloaked? value
-      , PalantírReveal<TRevealBase> palantírReveal, string defaultValue = "", string? formatString = null
+    public ContentJoinTypeMold<TContentMold> JoinStringWithDefaultJoin<TCloaked, TRevealBase>(TCloaked value
+      , PalantírReveal<TRevealBase> palantírReveal, string defaultValue = "", string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
-        where TCloaked : TRevealBase
+        where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCloaked?>(value?.GetType(), "", formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TCloaked);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCloaked?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (!callContext.HasFormatChange)
-            return VettedJoinStringWithDefault(value, palantírReveal, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+            return VettedJoinStringWithDefault(value, palantírReveal, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
         using (callContext)
         {
-            return VettedJoinStringWithDefault(value, palantírReveal, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+            return VettedJoinStringWithDefault(value, palantírReveal, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
         }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinStringWithDefault<TCloaked, TRevealBase>(TCloaked? value
+    public ContentJoinTypeMold<TContentMold> VettedJoinStringWithDefault<TCloaked, TRevealBase>(TCloaked value
       , PalantírReveal<TRevealBase> palantírReveal, string defaultValue = "", string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
-        where TCloaked : TRevealBase
+        where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
         if (value == null)
         {
             if (!formatFlags.HasNullBecomesEmptyFlag())
@@ -2104,57 +2277,62 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             }
             else { StyleFormatter.FormatFieldContents(Master, value, palantírReveal, formatString, withMoldInherited); }
         }
-        if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringRevealOrNullNext<TCloaked, TRevealBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
-      , PalantírReveal<TRevealBase> palantírReveal, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags
+    public ContentJoinTypeMold<TContentMold> FieldStringRevealOrNullNext<TCloaked, TRevealBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked value
+      , PalantírReveal<TRevealBase> palantírReveal, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = true, bool addEndDblQt = true)
-        where TCloaked : TRevealBase
+        where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCloaked?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TCloaked);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCloaked?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags), formatString);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinString(value, palantírReveal, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+            using (callContext) { VettedJoinString(value, palantírReveal, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         }
-        else { VettedJoinString(value, palantírReveal, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinString(value, palantírReveal, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringJoin<TCloaked, TRevealBase>(TCloaked? value
-      , PalantírReveal<TRevealBase> palantírReveal, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags
+    public ContentJoinTypeMold<TContentMold> JoinStringJoin<TCloaked, TRevealBase>(TCloaked value
+      , PalantírReveal<TRevealBase> palantírReveal, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
-        where TCloaked : TRevealBase
+        where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCloaked?>(value?.GetType(), "", formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TCloaked);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCloaked?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (!callContext.HasFormatChange) return VettedJoinString(value, palantírReveal, formatString, formatFlags, addStartDblQt, addEndDblQt);
-        using (callContext) { return VettedJoinString(value, palantírReveal, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString , formatFlags), formatString);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+        if (!callContext.HasFormatChange) return VettedJoinString(value, palantírReveal, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+        using (callContext) { return VettedJoinString(value, palantírReveal, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinString<TCloaked, TRevealBase>(TCloaked? value
+    public ContentJoinTypeMold<TContentMold> VettedJoinString<TCloaked, TRevealBase>(TCloaked value
       , PalantírReveal<TRevealBase> palantírReveal
-      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags
+      , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
-        where TCloaked : TRevealBase
+        where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
         if (value == null)
@@ -2169,7 +2347,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         }
         else
         {
-            if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+            if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
 
             var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
             if (withMoldInherited.HasIsFieldNameFlag())
@@ -2177,7 +2355,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
                 StyleFormatter.FormatFieldName(Master, value, palantírReveal, formatString, withMoldInherited | DisableFieldNameDelimiting);
             }
             else { StyleFormatter.FormatFieldContents(Master, value, palantírReveal, formatString, withMoldInherited); }
-            if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+            if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         }
         return StyleTypeBuilder.TransitionToNextMold();
     }
@@ -2188,23 +2366,28 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , bool addStartDblQt = true, bool addEndDblQt = true)
         where TCloakedStruct : struct
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCloakedStruct?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(TCloakedStruct?);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCloakedStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+
         if (callContext.HasFormatChange)
         {
             using (callContext)
             {
-                VettedJoinStringWithDefault(value, palantírReveal, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+                VettedJoinStringWithDefault(value, palantírReveal, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
             }
         }
-        else { VettedJoinStringWithDefault(value, palantírReveal, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinStringWithDefault(value, palantírReveal, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
 
         return ConditionalValueTypeSuffix();
     }
@@ -2215,18 +2398,20 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , bool addStartDblQt = false, bool addEndDblQt = false)
         where TCloakedStruct : struct
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCloakedStruct?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(TCloakedStruct?);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCloakedStruct?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags), formatString);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (!callContext.HasFormatChange)
-            return VettedJoinStringWithDefault(value, palantírReveal, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+            return VettedJoinStringWithDefault(value, palantírReveal, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
         using (callContext)
         {
-            return VettedJoinStringWithDefault(value, palantírReveal, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+            return VettedJoinStringWithDefault(value, palantírReveal, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
         }
     }
 
@@ -2236,7 +2421,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , bool addStartDblQt = false, bool addEndDblQt = false)
         where TCloakedStruct : struct
     {
-        if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
         if (value == null)
         {
             if (!formatFlags.HasNullBecomesEmptyFlag())
@@ -2261,48 +2446,53 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             }
             else { StyleFormatter.FormatFieldContents(Master, value.Value, palantírReveal, formatString, withMoldInherited); }
         }
-        if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
     public ContentJoinTypeMold<TContentMold> FieldStringRevealOrNullNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
-      , PalantírReveal<TCloakedStruct> palantírReveal, string? formatString = null
+      , PalantírReveal<TCloakedStruct> palantírReveal, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = true, bool addEndDblQt = true) where TCloakedStruct : struct
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCloakedStruct?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(TCloakedStruct?);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCloakedStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinString(value, palantírReveal, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+            using (callContext) { VettedJoinString(value, palantírReveal, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         }
-        else { VettedJoinString(value, palantírReveal, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinString(value, palantírReveal, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
 
         return ConditionalValueTypeSuffix();
     }
 
     public ContentJoinTypeMold<TContentMold> JoinStringJoin<TCloakedStruct>(TCloakedStruct? value
-      , PalantírReveal<TCloakedStruct> palantírReveal, string? formatString = null
+      , PalantírReveal<TCloakedStruct> palantírReveal, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
         where TCloakedStruct : struct
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCloakedStruct?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(TCloakedStruct?);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCloakedStruct?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (!callContext.HasFormatChange) return VettedJoinString(value, palantírReveal, formatString, formatFlags, addStartDblQt, addEndDblQt);
-        using (callContext) { return VettedJoinString(value, palantírReveal, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+        if (!callContext.HasFormatChange) return VettedJoinString(value, palantírReveal, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+        using (callContext) { return VettedJoinString(value, palantírReveal, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinString<TCloakedStruct>(TCloakedStruct? value
@@ -2315,74 +2505,79 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         {
             if (formatFlags.HasNullBecomesEmptyFlag())
             {
-                if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
-                if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
+                if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
                 return StyleTypeBuilder.TransitionToNextMold();
             }
             AppendNull("", formatFlags);
         }
         else
         {
-            if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+            if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
             var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
             if (withMoldInherited.HasIsFieldNameFlag())
             {
                 StyleFormatter.FormatFieldName(Master, value.Value, palantírReveal, formatString, withMoldInherited | DisableFieldNameDelimiting);
             }
             else { StyleFormatter.FormatFieldContents(Master, value.Value, palantírReveal, formatString, withMoldInherited); }
-            if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+            if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         }
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringRevealOrDefaultNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
+    public ContentJoinTypeMold<TContentMold> FieldStringRevealOrDefaultNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value
       , string defaultValue = ""
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = true, bool addEndDblQt = true)
-        where TBearer : IStringBearer
+        where TBearer : IStringBearer?
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TBearer?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TBearer);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TBearer?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinStringWithDefault(value, defaultValue, formatFlags, formatString, addStartDblQt, addEndDblQt); }
+            using (callContext) { VettedJoinStringWithDefault(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt); }
         }
-        else { VettedJoinStringWithDefault(value, defaultValue, formatFlags, formatString, addStartDblQt, addEndDblQt); }
+        else { VettedJoinStringWithDefault(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt); }
 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringWithDefaultJoin<TBearer>(TBearer? value, string defaultValue = ""
+    public ContentJoinTypeMold<TContentMold> JoinStringWithDefaultJoin<TBearer>(TBearer value, string defaultValue = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = ""
       , bool addStartDblQt = false, bool addEndDblQt = false)
-        where TBearer : IStringBearer
+        where TBearer : IStringBearer?
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TBearer?>(value?.GetType(), "", formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TBearer);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TBearer?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags, formatString);
-        if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (!callContext.HasFormatChange)
-            return VettedJoinStringWithDefault(value, defaultValue, formatFlags, formatString, addStartDblQt, addEndDblQt);
-        using (callContext) { return VettedJoinStringWithDefault(value, defaultValue, formatFlags, formatString, addStartDblQt, addEndDblQt); }
+            return VettedJoinStringWithDefault(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
+        using (callContext) { return VettedJoinStringWithDefault(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinStringWithDefault<TBearer>(TBearer? value, string defaultValue = ""
+    public ContentJoinTypeMold<TContentMold> VettedJoinStringWithDefault<TBearer>(TBearer value, string defaultValue = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = ""
       , bool addStartDblQt = false, bool addEndDblQt = false)
-        where TBearer : IStringBearer
+        where TBearer : IStringBearer?
     {
-        if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
         if (value == null)
         {
             if (!formatFlags.HasNullBecomesEmptyFlag())
@@ -2408,47 +2603,53 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             }
             else { StyleFormatter.FormatFieldContents(Master, value, formatString, withMoldInherited); }
         }
-        if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
     public ContentJoinTypeMold<TContentMold> FieldStringRevealOrDefaultNext<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName
-      , TBearerStruct? value, string defaultValue = "", FormatFlags formatFlags = DefaultCallerTypeFlags, string? formatString = null
+      , TBearerStruct? value, string defaultValue = "", FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = ""
       , bool addStartDblQt = true, bool addEndDblQt = true)
         where TBearerStruct : struct, IStringBearer
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TBearerStruct?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(TBearerStruct?);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TBearerStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+        
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinStringWithDefault(value, defaultValue, formatFlags, formatString, addStartDblQt, addEndDblQt); }
+            using (callContext) { VettedJoinStringWithDefault(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt); }
         }
-        else { VettedJoinStringWithDefault(value, defaultValue, formatFlags, formatString, addStartDblQt, addEndDblQt); }
+        else { VettedJoinStringWithDefault(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt); }
         return ConditionalValueTypeSuffix();
     }
 
     public ContentJoinTypeMold<TContentMold> JoinStringWithDefaultJoin<TBearerStruct>(TBearerStruct? value, string defaultValue = ""
-      , FormatFlags formatFlags = DefaultCallerTypeFlags, string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = ""
       , bool addStartDblQt = false, bool addEndDblQt = false)
         where TBearerStruct : struct, IStringBearer
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TBearerStruct?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(TBearerStruct?);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TBearerStruct?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags, formatString ?? "");
-        if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (!callContext.HasFormatChange)
-            return VettedJoinStringWithDefault(value, defaultValue, formatFlags, formatString, addStartDblQt, addEndDblQt);
-        using (callContext) { return VettedJoinStringWithDefault(value, defaultValue, formatFlags, formatString, addStartDblQt, addEndDblQt); }
+            return VettedJoinStringWithDefault(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
+        using (callContext) { return VettedJoinStringWithDefault(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinStringWithDefault<TBearerStruct>(TBearerStruct? value, string defaultValue = ""
@@ -2456,7 +2657,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , bool addStartDblQt = false, bool addEndDblQt = false)
         where TBearerStruct : struct, IStringBearer
     {
-        if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
         if (value == null)
         {
             if (!formatFlags.HasNullBecomesEmptyFlag())
@@ -2478,50 +2679,55 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             }
             else { StyleFormatter.FormatFieldContents(Master, value.Value, formatString, withMoldInherited | DisableAutoDelimiting); }
         }
-        if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringRevealOrNullNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
+    public ContentJoinTypeMold<TContentMold> FieldStringRevealOrNullNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value
       , FormatFlags formatFlags = DefaultCallerTypeFlags, string? formatString = null
       , bool addStartDblQt = true, bool addEndDblQt = true)
-        where TBearer : IStringBearer
+        where TBearer : IStringBearer?
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TBearer?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TBearer);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TBearer?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString ?? "", formatFlags));
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinString(value, formatFlags, formatString, addStartDblQt, addEndDblQt); }
+            using (callContext) { VettedJoinString(value, resolvedFlags, formatString, addStartDblQt, addEndDblQt); }
         }
-        else { VettedJoinString(value, formatFlags, formatString, addStartDblQt, addEndDblQt); }
+        else { VettedJoinString(value, resolvedFlags, formatString, addStartDblQt, addEndDblQt); }
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringJoin<TBearer>(TBearer? value, FormatFlags formatFlags = DefaultCallerTypeFlags
+    public ContentJoinTypeMold<TContentMold> JoinStringJoin<TBearer>(TBearer value, FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? formatString = null, bool addStartDblQt = false, bool addEndDblQt = false)
-        where TBearer : IStringBearer
+        where TBearer : IStringBearer?
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TBearer?>(value?.GetType(), "", formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TBearer);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TBearer?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
-        if (!callContext.HasFormatChange) return VettedJoinString(value, formatFlags, formatString, addStartDblQt, addEndDblQt);
-        using (callContext) { return VettedJoinString(value, formatFlags, formatString, addStartDblQt, addEndDblQt); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString ?? "", formatFlags));
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+        if (!callContext.HasFormatChange) return VettedJoinString(value, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
+        using (callContext) { return VettedJoinString(value, resolvedFlags, formatString, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinString<TBearer>(TBearer? value, FormatFlags formatFlags = DefaultCallerTypeFlags
-      , string? formatString = null, bool addStartDblQt = false, bool addEndDblQt = false) where TBearer : IStringBearer
+    public ContentJoinTypeMold<TContentMold> VettedJoinString<TBearer>(TBearer value, FormatFlags formatFlags = DefaultCallerTypeFlags
+      , string? formatString = null, bool addStartDblQt = false, bool addEndDblQt = false) where TBearer : IStringBearer?
     {
         if (value == null)
         {
@@ -2535,7 +2741,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         }
         else
         {
-            if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+            if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
 
             var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
             if (withMoldInherited.HasIsFieldNameFlag())
@@ -2543,45 +2749,52 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
                 StyleFormatter.FormatFieldName(Master, value, formatString, withMoldInherited | DisableFieldNameDelimiting);
             }
             else { StyleFormatter.FormatFieldContents(Master, value, formatString, withMoldInherited); }
-            if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+            if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         }
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
     public ContentJoinTypeMold<TContentMold> FieldStringRevealOrNullNext<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
-      , FormatFlags formatFlags = DefaultCallerTypeFlags, string? formatString = null, bool addStartDblQt = true, bool addEndDblQt = true)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "", bool addStartDblQt = true, bool addEndDblQt = true)
         where TBearerStruct : struct, IStringBearer
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TBearerStruct?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(TBearerStruct?);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TBearerStruct?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags), formatString);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinString(value, formatFlags, formatString, addStartDblQt, addEndDblQt); }
+            using (callContext) { VettedJoinString(value, resolvedFlags, formatString, addStartDblQt, addEndDblQt); }
         }
-        else { VettedJoinString(value, formatFlags, formatString, addStartDblQt, addEndDblQt); }
+        else { VettedJoinString(value, resolvedFlags, formatString, addStartDblQt, addEndDblQt); }
         return ConditionalValueTypeSuffix();
     }
 
     public ContentJoinTypeMold<TContentMold> JoinStringJoin<TBearerStruct>(TBearerStruct? value, FormatFlags formatFlags = DefaultCallerTypeFlags
-      , string? formatString = null, bool addStartDblQt = false, bool addEndDblQt = false)
+      , string formatString = "", bool addStartDblQt = false, bool addEndDblQt = false)
         where TBearerStruct : struct, IStringBearer
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TBearerStruct?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(TBearerStruct?);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TBearerStruct?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags(Sb, value, formatFlags);
-        if (!callContext.HasFormatChange) return VettedJoinString(value, formatFlags, formatString, addStartDblQt, addEndDblQt);
-        using (callContext) { return VettedJoinString(value, formatFlags, formatString, addStartDblQt, addEndDblQt); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags), formatString);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+        if (!callContext.HasFormatChange) return VettedJoinString(value, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
+        using (callContext) { return VettedJoinString(value, resolvedFlags, formatString, addStartDblQt, addEndDblQt); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinString<TBearerStruct>(TBearerStruct? value, FormatFlags formatFlags = DefaultCallerTypeFlags
@@ -2591,15 +2804,15 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         {
             if (formatFlags.HasNullBecomesEmptyFlag())
             {
-                if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
-                if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
+                if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
                 return StyleTypeBuilder.TransitionToNextMold();
             }
             AppendNull("", formatFlags);
         }
         else
         {
-            if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+            if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
 
             var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
             if (withMoldInherited.HasIsFieldNameFlag())
@@ -2607,7 +2820,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
                 StyleFormatter.FormatFieldName(Master, value.Value, formatString, withMoldInherited | DisableFieldNameDelimiting);
             }
             else { StyleFormatter.FormatFieldContents(Master, value.Value, formatString, withMoldInherited); }
-            if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+            if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         }
         return StyleTypeBuilder.TransitionToNextMold();
     }
@@ -2615,21 +2828,23 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     public ContentJoinTypeMold<TContentMold> FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, Span<char> value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<Memory<char>?>(value.Length > 0 ? typeof(Span<char>) : null, nonJsonfieldName, formatFlags))
+        var actualType  = typeof(Span<char>);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<Memory<char>>(value.Length > 0 ? typeof(Span<char>) : null, nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, "Span", StyleFormatter.ResolveContentAsStringFormattingFlags("Span", "", formatString, formatFlags));
-
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, "Span", StyleFormatter.ResolveContentAsStringFormattingFlags("Span", "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+            using (callContext) { VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         }
-        else { VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         return ConditionalValueTypeSuffix();
     }
 
@@ -2637,16 +2852,16 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<Memory<char>?>(value.Length > 0 ? typeof(Span<char>) : null, "", formatFlags))
+        var actualType  = typeof(Span<char>);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<Memory<char>>(value.Length > 0 ? typeof(Span<char>) : null, "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, "Span", StyleFormatter.ResolveContentAsStringFormattingFlags("Span", "", formatString, formatFlags));
-        if (!callContext.HasFormatChange) return VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
-        using (callContext) { return VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, "Span", StyleFormatter.ResolveContentAsStringFormattingFlags("Span", "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+        if (!callContext.HasFormatChange) return VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+        using (callContext) { return VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinString(Span<char> value, string formatString = ""
@@ -2657,14 +2872,14 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         {
             if (formatFlags.HasNullBecomesEmptyFlag())
             {
-                if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
-                if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
+                if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
                 return StyleTypeBuilder.TransitionToNextMold();
             }
             AppendNull(formatString, formatFlags);
             return StyleTypeBuilder.TransitionToNextMold();
         }
-        if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
         if (withMoldInherited.HasIsFieldNameFlag())
@@ -2672,53 +2887,55 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             StyleFormatter.FormatFieldName(Sb, value, 0, formatString, formatFlags: withMoldInherited | DisableFieldNameDelimiting);
         }
         else { StyleFormatter.FormatFieldContents(Sb, value, 0, formatString, formatFlags: withMoldInherited); }
-        if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
     public ContentJoinTypeMold<TContentMold> FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
-      , string defaultValue = ""
-      , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
+      , string defaultValue = "", string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true
+      , bool addEndDblQt = true)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip ||
-            HasSkipBody<ReadOnlyMemory<char>?>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, nonJsonfieldName, formatFlags))
+        var actualType  = typeof(ReadOnlySpan<char>);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<ReadOnlyMemory<char>>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, "Span", StyleFormatter.ResolveContentAsStringFormattingFlags("Span", defaultValue, formatString, formatFlags));
-
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, "ReadOnlySpan", StyleFormatter.ResolveContentAsStringFormattingFlags("ReadOnlySpan", "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+            using (callContext) { VettedJoinStringWithDefault(value, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         }
-        else { VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinStringWithDefault(value, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         return ConditionalValueTypeSuffix();
     }
 
     public ContentJoinTypeMold<TContentMold> JoinStringWithDefaultJoin(ReadOnlySpan<char> value, string defaultValue = "", string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<ReadOnlyMemory<char>?>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, "", formatFlags))
+        var actualType  = typeof(ReadOnlySpan<char>);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<ReadOnlyMemory<char>>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, "Span", StyleFormatter.ResolveContentAsStringFormattingFlags("Span", defaultValue, formatString, formatFlags));
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, "ReadOnlySpan", StyleFormatter.ResolveContentAsStringFormattingFlags("ReadOnlySpan", "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (!callContext.HasFormatChange)
-            return VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
-        using (callContext) { return VettedJoinStringWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+            return VettedJoinStringWithDefault(value, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+        using (callContext) { return VettedJoinStringWithDefault(value, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinStringWithDefault(ReadOnlySpan<char> value, string defaultValue = "", string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
         if (value.Length == 0)
         {
             if (!formatFlags.HasNullBecomesEmptyFlag())
@@ -2740,7 +2957,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             }
             else { StyleFormatter.FormatFieldContents(Sb, value, 0, formatString, formatFlags: withMoldInherited); }
         }
-        if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
@@ -2748,57 +2965,56 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip ||
-            HasSkipBody<ReadOnlyMemory<char>?>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, nonJsonfieldName, formatFlags))
+        var actualType  = typeof(ReadOnlySpan<char>);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<ReadOnlyMemory<char>>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, "ReadOnlySpan", StyleFormatter.ResolveContentAsStringFormattingFlags("ReadOnlySpan", "", formatString, formatFlags));
-
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, "ReadOnlySpan", StyleFormatter.ResolveContentAsStringFormattingFlags("ReadOnlySpan", "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+            using (callContext) { VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         }
-        else { VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         return ConditionalValueTypeSuffix();
     }
 
     public ContentJoinTypeMold<TContentMold> JoinStringJoin(ReadOnlySpan<char> value, string formatString = ""
-      , FormatFlags formatFlags = DefaultCallerTypeFlags
-      , bool addStartDblQt = false, bool addEndDblQt = false)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<ReadOnlyMemory<char>?>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, "", formatFlags))
+        var actualType  = typeof(ReadOnlySpan<char>);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<ReadOnlyMemory<char>>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, "ReadOnlySpan", StyleFormatter.ResolveContentAsStringFormattingFlags("ReadOnlySpan", "", formatString, formatFlags));
-        if (!callContext.HasFormatChange) return VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
-        using (callContext) { return VettedJoinString(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, "ReadOnlySpan", StyleFormatter.ResolveContentAsStringFormattingFlags("ReadOnlySpan", "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+        if (!callContext.HasFormatChange) return VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+        using (callContext) { return VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinString(ReadOnlySpan<char> value, string formatString = ""
-      , FormatFlags formatFlags = DefaultCallerTypeFlags
-      , bool addStartDblQt = false, bool addEndDblQt = false)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
         if (value.Length == 0)
         {
             if (formatFlags.HasNullBecomesEmptyFlag())
             {
-                if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
-                if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
+                if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
                 return StyleTypeBuilder.TransitionToNextMold();
             }
             AppendNull(formatString, formatFlags);
             return StyleTypeBuilder.TransitionToNextMold();
         }
-        if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
         if (withMoldInherited.HasIsFieldNameFlag())
@@ -2806,7 +3022,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             StyleFormatter.FormatFieldName(Sb, value, 0, formatString, formatFlags: withMoldInherited | DisableFieldNameDelimiting);
         }
         else { StyleFormatter.FormatFieldContents(Sb, value, 0, formatString, formatFlags: withMoldInherited); }
-        if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
@@ -2814,37 +3030,40 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<string?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(string);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<string?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
-
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+            using (callContext) { VettedJoinString(value, startIndex, length, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         }
-        else { VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinString(value, startIndex, length, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         return ConditionalValueTypeSuffix();
     }
 
     public ContentJoinTypeMold<TContentMold> JoinStringJoin(string? value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<string?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(string);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<string?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
-        if (!callContext.HasFormatChange) return VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt);
-        using (callContext) { return VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+        if (!callContext.HasFormatChange) return VettedJoinString(value, startIndex, length, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+        using (callContext) { return VettedJoinString(value, startIndex, length, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinString(string? value, int startIndex, int length, string formatString = ""
@@ -2856,7 +3075,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             var capLength = Math.Clamp(length, 0, value.Length - capStart);
             if (capLength > 0)
             {
-                if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
 
                 var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
                 if (withMoldInherited.HasIsFieldNameFlag())
@@ -2866,7 +3085,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
                 }
                 else { StyleFormatter.FormatFieldContents(Sb, value, capStart, formatString, capLength, formatFlags: withMoldInherited); }
 
-                if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
             }
             else
             {
@@ -2875,7 +3094,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
                     var prefixSuffixLength = ((ReadOnlySpan<char>)formatString).PrefixSuffixLength();
                     if (prefixSuffixLength > 0)
                     {
-                        if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                        if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
 
                         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
                         if (withMoldInherited.HasIsFieldNameFlag())
@@ -2883,7 +3102,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
                             StyleFormatter.FormatFieldName(Sb, "", 0, formatString, formatFlags: withMoldInherited | DisableFieldNameDelimiting);
                         }
                         else { StyleFormatter.FormatFieldContents(Sb, "", 0, formatString, formatFlags: withMoldInherited); }
-                        if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                        if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
                         return StyleTypeBuilder.TransitionToNextMold();
                     }
                 }
@@ -2903,24 +3122,26 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , string defaultValue = "", string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = true, bool addEndDblQt = true)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<string?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(string);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<string?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags));
-
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (callContext.HasFormatChange)
         {
             using (callContext)
             {
-                VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+                VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
             }
         }
-        else { VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         return ConditionalValueTypeSuffix();
     }
 
@@ -2928,19 +3149,19 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , ReadOnlySpan<char> defaultValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<string?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(string);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<string?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags));
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (!callContext.HasFormatChange)
-            return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+            return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
         using (callContext)
         {
-            return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+            return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
         }
     }
 
@@ -2948,7 +3169,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , ReadOnlySpan<char> defaultValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
         if (value != null)
         {
@@ -2962,7 +3183,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
                                                  , formatFlags: withMoldInherited | DisableFieldNameDelimiting);
                 }
                 else { StyleFormatter.FormatFieldContents(Sb, value, capStart, formatString, capLength, formatFlags: formatFlags); }
-                if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
                 return StyleTypeBuilder.TransitionToNextMold();
             }
         }
@@ -2973,7 +3194,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             StyleFormatter.FormatFieldName(Sb, defaultValue, 0, formatString, formatFlags: withMoldInherited | DisableFieldNameDelimiting);
         }
         else { StyleFormatter.FormatFieldContents(Sb, defaultValue, 0, formatString, formatFlags: formatFlags); }
-        if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
@@ -2981,37 +3202,39 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<char[]?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(char[]);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<char[]?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
-
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+            using (callContext) { VettedJoinString(value, startIndex, length, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         }
-        else { VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinString(value, startIndex, length, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         return ConditionalValueTypeSuffix();
     }
 
     public ContentJoinTypeMold<TContentMold> JoinStringJoin(char[]? value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<char[]?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(char[]);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<char[]?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
-        if (!callContext.HasFormatChange) return VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt);
-        using (callContext) { return VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+        if (!callContext.HasFormatChange) return VettedJoinString(value, startIndex, length, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+        using (callContext) { return VettedJoinString(value, startIndex, length, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinString(char[]? value, int startIndex, int length, string formatString = ""
@@ -3023,7 +3246,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             var capLength = Math.Clamp(length, 0, value.Length - capStart);
             if (capLength > 0)
             {
-                if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
 
                 var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
                 if (withMoldInherited.HasIsFieldNameFlag())
@@ -3032,7 +3255,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
                                                  , formatFlags: withMoldInherited | DisableFieldNameDelimiting);
                 }
                 else { StyleFormatter.FormatFieldContents(Sb, value, capStart, formatString, capLength, formatFlags: formatFlags); }
-                if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
             }
             else
             {
@@ -3041,7 +3264,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
                     var prefixSuffixLength = ((ReadOnlySpan<char>)formatString).PrefixSuffixLength();
                     if (prefixSuffixLength > 0)
                     {
-                        if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                        if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
 
                         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
                         if (withMoldInherited.HasIsFieldNameFlag())
@@ -3050,7 +3273,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
                                                          , formatFlags: withMoldInherited | DisableFieldNameDelimiting);
                         }
                         else { StyleFormatter.FormatFieldContents(Sb, ((ReadOnlySpan<char>)""), 0, formatString, formatFlags: formatFlags); }
-                        if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                        if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
                         return StyleTypeBuilder.TransitionToNextMold();
                     }
                 }
@@ -3070,24 +3293,26 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , string defaultValue = "", string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = true, bool addEndDblQt = true)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<char[]?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(char[]);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<char[]?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags));
-
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (callContext.HasFormatChange)
         {
             using (callContext)
             {
-                VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+                VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
             }
         }
-        else { VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         return ConditionalValueTypeSuffix();
     }
 
@@ -3095,19 +3320,19 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , ReadOnlySpan<char> defaultValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<char[]?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(char[]);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<char[]?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags));
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (!callContext.HasFormatChange)
-            return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+            return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
         using (callContext)
         {
-            return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+            return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
         }
     }
 
@@ -3115,7 +3340,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , ReadOnlySpan<char> defaultValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
         if (value != null)
         {
@@ -3129,7 +3354,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
                                                  , formatFlags: withMoldInherited | DisableFieldNameDelimiting);
                 }
                 else { StyleFormatter.FormatFieldContents(Sb, value, capStart, formatString, capLength, formatFlags: formatFlags); }
-                if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
                 return StyleTypeBuilder.TransitionToNextMold();
             }
         }
@@ -3140,64 +3365,66 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             StyleFormatter.FormatFieldName(Sb, defaultValue, 0, formatString, formatFlags: withMoldInherited | DisableFieldNameDelimiting);
         }
         else { StyleFormatter.FormatFieldContents(Sb, defaultValue, 0, formatString, formatFlags: formatFlags); }
-        if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringOrDefaultNext<TCharSeq>(ReadOnlySpan<char> nonJsonfieldName, TCharSeq? value, int startIndex
-      , int length
-      , string defaultValue = "", string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
+    public ContentJoinTypeMold<TContentMold> FieldStringOrDefaultNext<TCharSeq>(ReadOnlySpan<char> nonJsonfieldName, TCharSeq value, int startIndex
+      , int length, string defaultValue = "", string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = true, bool addEndDblQt = true)
-        where TCharSeq : ICharSequence
+        where TCharSeq : ICharSequence?
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCharSeq?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TCharSeq);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCharSeq?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags));
-
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+        
         if (callContext.HasFormatChange)
         {
             using (callContext)
             {
-                VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+                VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
             }
         }
-        else { VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringWithDefaultJoin<TCharSeq>(TCharSeq? value, int startIndex, int length
+    public ContentJoinTypeMold<TContentMold> JoinStringWithDefaultJoin<TCharSeq>(TCharSeq value, int startIndex, int length
       , ReadOnlySpan<char> defaultValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
-        where TCharSeq : ICharSequence
+        where TCharSeq : ICharSequence?
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCharSeq?>(value?.GetType(), "", formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TCharSeq);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCharSeq?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags));
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (!callContext.HasFormatChange)
-            return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+            return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
         using (callContext)
         {
-            return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+            return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
         }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinStringWithDefault<TCharSeq>(TCharSeq? value, int startIndex, int length
+    public ContentJoinTypeMold<TContentMold> VettedJoinStringWithDefault<TCharSeq>(TCharSeq value, int startIndex, int length
       , ReadOnlySpan<char> defaultValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
-        where TCharSeq : ICharSequence
+        where TCharSeq : ICharSequence?
     {
-        if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
         if (value != null)
@@ -3233,53 +3460,56 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             }
             else { StyleFormatter.FormatFieldContents(Sb, defaultValue, 0, formatString, formatFlags: withMoldInherited); }
         }
-        if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringOrNullNext<TCharSeq>(ReadOnlySpan<char> nonJsonfieldName, TCharSeq? value, int startIndex
+    public ContentJoinTypeMold<TContentMold> FieldStringOrNullNext<TCharSeq>(ReadOnlySpan<char> nonJsonfieldName, TCharSeq value, int startIndex
       , int length
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
-        where TCharSeq : ICharSequence
+        where TCharSeq : ICharSequence?
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCharSeq?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TCharSeq);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCharSeq?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
-
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+            using (callContext) { VettedJoinString(value, startIndex, length, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         }
-        else { VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinString(value, startIndex, length, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringJoin<TCharSeq>(TCharSeq? value, int startIndex, int length, string formatString = ""
+    public ContentJoinTypeMold<TContentMold> JoinStringJoin<TCharSeq>(TCharSeq value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
-        where TCharSeq : ICharSequence
+        where TCharSeq : ICharSequence?
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<TCharSeq?>(value?.GetType(), "", formatFlags))
+        var actualType  = value?.GetType() ?? typeof(TCharSeq);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TCharSeq?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "",  formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
 
-        if (!callContext.HasFormatChange) return VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt);
-        using (callContext) { return VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        if (!callContext.HasFormatChange) return VettedJoinString(value, startIndex, length, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+        using (callContext) { return VettedJoinString(value, startIndex, length, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinString<TCharSeq>(TCharSeq? value, int startIndex, int length, string formatString = ""
+    public ContentJoinTypeMold<TContentMold> VettedJoinString<TCharSeq>(TCharSeq value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
-        where TCharSeq : ICharSequence
+        where TCharSeq : ICharSequence?
     {
         if (value != null)
         {
@@ -3289,7 +3519,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
             if (capLength > 0)
             {
-                if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
 
                 if (withMoldInherited.HasIsFieldNameFlag())
                 {
@@ -3297,7 +3527,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
                                                  , formatFlags: withMoldInherited | DisableFieldNameDelimiting);
                 }
                 else { StyleFormatter.FormatFieldContents(Sb, value, capStart, formatString, capLength, formatFlags: withMoldInherited); }
-                if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
             }
             else
             {
@@ -3306,7 +3536,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
                     var prefixSuffixLength = ((ReadOnlySpan<char>)formatString).PrefixSuffixLength();
                     if (prefixSuffixLength > 0)
                     {
-                        if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                        if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
 
 
                         if (withMoldInherited.HasIsFieldNameFlag())
@@ -3314,7 +3544,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
                             StyleFormatter.FormatFieldName(Sb, "", 0, formatString, formatFlags: withMoldInherited | DisableFieldNameDelimiting);
                         }
                         else { StyleFormatter.FormatFieldContents(Sb, "", 0, formatString, formatFlags: withMoldInherited); }
-                        if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                        if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
                         return StyleTypeBuilder.TransitionToNextMold();
                     }
                 }
@@ -3335,24 +3565,26 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , string defaultValue = "", string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = true, bool addEndDblQt = true)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<StringBuilder?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(StringBuilder);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<StringBuilder?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags));
-
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (callContext.HasFormatChange)
         {
             using (callContext)
             {
-                VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+                VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
             }
         }
-        else { VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         return ConditionalValueTypeSuffix();
     }
 
@@ -3360,19 +3592,19 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , ReadOnlySpan<char> defaultValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<StringBuilder?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(StringBuilder);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<StringBuilder?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags));
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue,  formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (!callContext.HasFormatChange)
-            return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+            return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
         using (callContext)
         {
-            return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
+            return VettedJoinStringWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
         }
     }
 
@@ -3380,7 +3612,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , ReadOnlySpan<char> defaultValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
         if (value != null)
@@ -3395,7 +3627,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
                                                  , formatFlags: withMoldInherited | DisableFieldNameDelimiting);
                 }
                 else { StyleFormatter.FormatFieldContents(Sb, value, capStart, formatString, capLength, formatFlags: withMoldInherited); }
-                if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
                 return StyleTypeBuilder.TransitionToNextMold();
             }
         }
@@ -3406,7 +3638,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             StyleFormatter.FormatFieldName(Sb, defaultValue, 0, formatString, formatFlags: withMoldInherited | DisableFieldNameDelimiting);
         }
         else { StyleFormatter.FormatFieldContents(Sb, defaultValue, 0, formatString, formatFlags: withMoldInherited); }
-        if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
@@ -3414,37 +3646,39 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<StringBuilder?>(value?.GetType(), nonJsonfieldName, formatFlags))
+        var actualType  = typeof(StringBuilder);
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<StringBuilder?>(value?.GetType(), nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
-
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+            using (callContext) { VettedJoinString(value, startIndex, length, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         }
-        else { VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinString(value, startIndex, length, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         return ConditionalValueTypeSuffix();
     }
 
     public ContentJoinTypeMold<TContentMold> JoinStringJoin(StringBuilder? value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
-        if (callContext.ShouldSkip || HasSkipBody<StringBuilder?>(value?.GetType(), "", formatFlags))
+        var actualType  = typeof(StringBuilder);
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<StringBuilder?>(value?.GetType(), "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
-        if (!callContext.HasFormatChange) return VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt);
-        using (callContext) { return VettedJoinString(value, startIndex, length, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "",  formatString, formatFlags), formatString);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
+        if (!callContext.HasFormatChange) return VettedJoinString(value, startIndex, length, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+        using (callContext) { return VettedJoinString(value, startIndex, length, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinString(StringBuilder? value, int startIndex, int length, string formatString = ""
@@ -3457,7 +3691,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             var capLength = Math.Clamp(length, 0, value.Length - capStart);
             if (capLength > 0)
             {
-                if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
 
                 if (withMoldInherited.HasIsFieldNameFlag())
                 {
@@ -3469,7 +3703,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
                     StyleFormatter.FormatFieldContents(Sb, value, capStart, formatString
                                                      , capLength, formatFlags: withMoldInherited);
                 }
-                if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
             }
             else
             {
@@ -3478,14 +3712,14 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
                     var prefixSuffixLength = ((ReadOnlySpan<char>)formatString).PrefixSuffixLength();
                     if (prefixSuffixLength > 0)
                     {
-                        if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                        if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
 
                         if (withMoldInherited.HasIsFieldNameFlag())
                         {
                             StyleFormatter.FormatFieldName(Sb, "", 0, formatString, formatFlags: withMoldInherited | DisableFieldNameDelimiting);
                         }
                         else { StyleFormatter.FormatFieldContents(Sb, "", 0, formatString, formatFlags: withMoldInherited); }
-                        if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                        if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
                         return StyleTypeBuilder.TransitionToNextMold();
                     }
                 }
@@ -3504,45 +3738,45 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     public ContentJoinTypeMold<TContentMold> StringMatchOrNullNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
         var actualType  = value?.GetType() ?? typeof(TAny);
-        if (callContext.ShouldSkip || HasSkipBody<TAny?>(actualType, nonJsonfieldName, formatFlags))
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TAny?>(actualType, nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
-        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags), formatString);
+        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinStringMatchJoin(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+            using (callContext) { VettedJoinStringMatchJoin(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         }
-        else { VettedJoinStringMatchJoin(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinStringMatchJoin(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringMatchJoin<TAny>(TAny? value, string formatString = ""
-      , FormatFlags formatFlags = DefaultCallerTypeFlags
-      , bool addStartDblQt = false, bool addEndDblQt = false)
+    public ContentJoinTypeMold<TContentMold> JoinStringMatchJoin<TAny>(TAny value, string formatString = ""
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
         var actualType  = value?.GetType() ?? typeof(TAny);
-        if (callContext.ShouldSkip || HasSkipBody<TAny?>(actualType, "", formatFlags))
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TAny?>(actualType, "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags));
-        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "",  formatString, formatFlags), formatString);
+        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
 
-        if (!callContext.HasFormatChange) return VettedJoinStringMatchJoin(value, formatString, formatFlags, addStartDblQt, addEndDblQt);
-        using (callContext) { return VettedJoinStringMatchJoin(value, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        if (!callContext.HasFormatChange) return VettedJoinStringMatchJoin(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+        using (callContext) { return VettedJoinStringMatchJoin(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinStringMatchJoin<TAny>(TAny? value, string formatString = ""
+    public ContentJoinTypeMold<TContentMold> VettedJoinStringMatchJoin<TAny>(TAny value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
@@ -3551,18 +3785,18 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         {
             if (formatFlags.HasNullBecomesEmptyFlag())
             {
-                if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
                 StyleFormatter.FormatFieldContents(Sb, "", 0, formatString, formatFlags: withMoldInherited | DisableAutoDelimiting);
-                if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+                if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
                 return StyleTypeBuilder.TransitionToNextMold();
             }
             AppendNull(formatString, formatFlags);
             return StyleTypeBuilder.TransitionToNextMold();
         }
-        if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
 
         this.AppendMatchFormattedOrNull(value, formatString, DisableAutoDelimiting | withMoldInherited | DisableFieldNameDelimiting);
-        if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
@@ -3570,22 +3804,24 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
         var actualType  = value?.GetType() ?? typeof(TAny);
-        if (callContext.ShouldSkip || HasSkipBody<TAny?>(actualType, nonJsonfieldName, formatFlags))
+        
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TAny?>(actualType, nonJsonfieldName, formatFlags);
+            return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags));
-        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
+        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (callContext.HasFormatChange)
         {
-            using (callContext) { VettedJoinStringMatchWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+            using (callContext) { VettedJoinStringMatchWithDefault(value, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         }
-        else { VettedJoinStringMatchWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+        else { VettedJoinStringMatchWithDefault(value, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
         return ConditionalValueTypeSuffix();
     }
 
@@ -3593,26 +3829,25 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        var callContext = Master.ResolveContextForCallerFlags(formatFlags | AsStringContent);
         var actualType  = value?.GetType() ?? typeof(TAny);
-        if (callContext.ShouldSkip || HasSkipBody<TAny?>(actualType, "", formatFlags))
+        if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
         {
-            if (callContext.HasFormatChange) callContext.Dispose();
-            return WasSkipped<TAny?>(actualType, "", formatFlags);
+            return WasSkipped(actualType, "", formatFlags);
         }
-        formatFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags));
-        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { formatFlags |= NoRevisitCheck; }
+        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+            (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "",  formatString, formatFlags), formatString);
+        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (!callContext.HasFormatChange)
-            return VettedJoinStringMatchWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt);
-        using (callContext) { return VettedJoinStringMatchWithDefault(value, defaultValue, formatString, formatFlags, addStartDblQt, addEndDblQt); }
+            return VettedJoinStringMatchWithDefault(value, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+        using (callContext) { return VettedJoinStringMatchWithDefault(value, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
     public ContentJoinTypeMold<TContentMold> VettedJoinStringMatchWithDefault<TAny>(TAny? value, ReadOnlySpan<char> defaultValue
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
-        if (addStartDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
         if (value != null)
         {
@@ -3645,7 +3880,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
                 }
             }
         }
-        if (addEndDblQt) StyleFormatter.GraphBuilder.AppendParentContent(DblQt);
+        if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
@@ -3661,12 +3896,21 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
             this.AddGoToNext();
             return StyleTypeBuilder.TransitionToNextMold();
         }
-        StyleFormatter.GraphBuilder.Complete(StyleFormatter.GraphBuilder.CurrentSectionRanges.StartedWithFormatFlags);
+        Sf.Gb.Complete(Sf.Gb.CurrentSectionRanges.StartedWithFormatFlags);
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
+    public override bool HasSkipBody(Type actualType, ReadOnlySpan<char> fieldName
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
+        SkipBody && (!actualType.IsSpanFormattableCached() || !ignoreSuppressSpanFormattable);
 
-    public new ContentJoinTypeMold<TContentMold> WasSkipped<TCallerType>(Type? actualType, ReadOnlySpan<char> fieldName
+    public override bool HasSkipField(Type actualType, ReadOnlySpan<char> fieldName, FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags) =>
+        countNextSkipFieldIsSkipBody-- > 0 
+            ? HasSkipBody(actualType, fieldName, formatFlags) : base.HasSkipField(actualType, fieldName, formatFlags);
+
+    // private int NextSkipFieldCallsSkipBody() => ++countNextSkipFieldIsSkipBody;
+
+    public new ContentJoinTypeMold<TContentMold> WasSkipped(Type actualType, ReadOnlySpan<char> fieldName
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
 
     {
@@ -3677,8 +3921,14 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     {
         if (source == null) return this;
         base.CopyFrom(source, copyMergeFlags);
-        if (source is ContentTypeDieCast<TContentMold> valueTypeDieCast) { WriteMethod = valueTypeDieCast.WriteMethod; }
+        if (source is ContentTypeDieCast<TContentMold> valueTypeDieCast) { CurrentWriteMethod = valueTypeDieCast.CurrentWriteMethod; }
 
         return this;
+    }
+
+    public override void StateReset()
+    {
+        ignoreSuppressSpanFormattable = false;
+        base.StateReset();
     }
 }

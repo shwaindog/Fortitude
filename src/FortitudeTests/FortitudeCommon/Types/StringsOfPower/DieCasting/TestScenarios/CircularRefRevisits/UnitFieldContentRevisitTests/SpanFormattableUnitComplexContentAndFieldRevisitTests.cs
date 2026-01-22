@@ -14,34 +14,34 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestSce
 
 [NoMatchingProductionClass]
 [TestClass]
-public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectationTestBase
+public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyleExpectationTestBase
 {
-    private static InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress>>?
-        twoSameIpAddressesOneSimpleCloakedValueOneFieldWithDefaultRevisitSettingsExpect;
-    private static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>>?
-        twoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect;
-    private static InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>>?
-        twoSameIpAddressesOneSimpleCloakedStringOneFieldWithDefaultRevisitSettingsExpect;
-    private static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>>?
-        twoSameIpAddressesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect;
+    private static InputBearerExpect<TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress>>?
+        twoSameIpAddressesOneComplexCloakedValueOneFieldWithDefaultRevisitSettingsExpect;
+    private static InputBearerExpect<TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress>>?
+        twoSameIpAddressesOneFieldOneComplexCloakedValueWithDefaultRevisitSettingsExpect;
+    private static InputBearerExpect<TwoSpanFormattableFirstAsComplexCloakedStringContent<IPAddress>>?
+        twoSameIpAddressesOneComplexCloakedStringOneFieldWithDefaultRevisitSettingsExpect;
+    private static InputBearerExpect<TwoSpanFormattableSecondAsComplexCloakedStringContent<IPAddress>>?
+        twoSameIpAddressesOneFieldOneComplexCloakedStringWithDefaultRevisitSettingsExpect;
 
-    private static InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress>>?
-        twoSameIpAddressesOneSimpleCloakedValueOneFieldShowRevisitInstanceIdsExpect;
-    private static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>>?
-        twoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitInstanceIdsExpect;
-    private static InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>>?
-        twoSameIpAddressesOneSimpleCloakedStringOneFieldShowRevisitInstanceIdsExpect;
-    private static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>>?
-        twoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitInstanceIdsExpect;
+    private static InputBearerExpect<TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress>>?
+        twoSameIpAddressesOneComplexCloakedValueOneFieldShowRevisitInstanceIdsExpect;
+    private static InputBearerExpect<TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress>>?
+        twoSameIpAddressesOneFieldOneComplexCloakedValueShowRevisitInstanceIdsExpect;
+    private static InputBearerExpect<TwoSpanFormattableFirstAsComplexCloakedStringContent<IPAddress>>?
+        twoSameIpAddressesOneComplexCloakedStringOneFieldShowRevisitInstanceIdsExpect;
+    private static InputBearerExpect<TwoSpanFormattableSecondAsComplexCloakedStringContent<IPAddress>>?
+        twoSameIpAddressesOneFieldOneComplexCloakedStringShowRevisitInstanceIdsExpect;
 
-    private static InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress>>?
-        twoSameIpAddressesOneSimpleCloakedValueOneFieldShowRevisitAndValuesExpect;
-    private static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>>?
-        twoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitAndValuesExpect;
-    private static InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>>?
-        twoSameIpAddressesOneSimpleCloakedStringOneFieldShowRevisitAndValuesExpect;
-    private static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>>?
-        twoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitAndValuesExpect;
+    private static InputBearerExpect<TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress>>?
+        twoSameIpAddressesOneComplexCloakedValueOneFieldShowRevisitAndValuesExpect;
+    private static InputBearerExpect<TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress>>?
+        twoSameIpAddressesOneFieldOneComplexCloakedValueShowRevisitAndValuesExpect;
+    private static InputBearerExpect<TwoSpanFormattableFirstAsComplexCloakedStringContent<IPAddress>>?
+        twoSameIpAddressesOneComplexCloakedStringOneFieldShowRevisitAndValuesExpect;
+    private static InputBearerExpect<TwoSpanFormattableSecondAsComplexCloakedStringContent<IPAddress>>?
+        twoSameIpAddressesOneFieldOneComplexCloakedStringShowRevisitAndValuesExpect;
 
     [ClassInitialize]
     public static void EnsureBaseClassInitialized(TestContext testContext) =>
@@ -55,31 +55,34 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
         Node.ResetInstanceIds();
     }
 
-    public static TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress> TwoSameIpAddressesOneSimpleCloakedValueOneField
+    public static TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress> TwoSameIpAddressesOneComplexCloakedValueOneField
     {
         get
         {
             var loopbackAddress = IPAddress.Loopback;
             var twoSameIpAddressesOneCloakedOneFields =
-                new TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress>(loopbackAddress, loopbackAddress);
+                new TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress>(loopbackAddress, loopbackAddress);
             return twoSameIpAddressesOneCloakedOneFields;
         }
     }
 
-    public static InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress>>
-        TwoSameIpAddressesOneSimpleCloakedValueOneFieldsWithDefaultRevisitSettingsExpect
+    public static InputBearerExpect<TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress>>
+        TwoSameIpAddressesOneComplexCloakedValueOneFieldsWithDefaultRevisitSettingsExpect
     {
         get
         {
-            return twoSameIpAddressesOneSimpleCloakedValueOneFieldWithDefaultRevisitSettingsExpect ??=
-                new InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneSimpleCloakedValueOneField)
+            return twoSameIpAddressesOneComplexCloakedValueOneFieldWithDefaultRevisitSettingsExpect ??=
+                new InputBearerExpect<TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneComplexCloakedValueOneField)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress>
+                        TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress>
                          {
-                         FirstSpanFormattableField: 127.0.0.1,
+                         FirstSpanFormattableField:
+                         {
+                         CloakedRevealerFirstSpanFormattableField: 127.0.0.1
+                         },
                          SecondSpanFormattableField: 127.0.0.1
                          }
                         """.RemoveLineEndings()
@@ -88,8 +91,10 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress> {
-                          FirstSpanFormattableField: 127.0.0.1,
+                        TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress> {
+                          FirstSpanFormattableField: {
+                            CloakedRevealerFirstSpanFormattableField: 127.0.0.1
+                          },
                           SecondSpanFormattableField: 127.0.0.1
                         }
                         """.Dos2Unix()
@@ -121,53 +126,56 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     [TestMethod]
     public void TwoSameIpAddressesOneCloakedValueOneFieldWithDefaultRevisitSettingsCompactLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneSimpleCloakedValueOneFieldsWithDefaultRevisitSettingsExpect, CompactLog);
+        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneComplexCloakedValueOneFieldsWithDefaultRevisitSettingsExpect, CompactLog);
     }
 
     [TestMethod]
     public void TwoSameIpAddressesOneCloakedValueOneFieldWithDefaultRevisitSettingsCompactJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneSimpleCloakedValueOneFieldsWithDefaultRevisitSettingsExpect, CompactJson);
+        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneComplexCloakedValueOneFieldsWithDefaultRevisitSettingsExpect, CompactJson);
     }
 
     [TestMethod]
     public void TwoSameIpAddressesOneCloakedValueOneFieldWithDefaultRevisitSettingsPrettyLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneSimpleCloakedValueOneFieldsWithDefaultRevisitSettingsExpect, PrettyLog);
+        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneComplexCloakedValueOneFieldsWithDefaultRevisitSettingsExpect, PrettyLog);
     }
 
     [TestMethod]
     public void TwoSameIpAddressesOneCloakedValueOneFieldWithDefaultRevisitSettingsPrettyJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneSimpleCloakedValueOneFieldsWithDefaultRevisitSettingsExpect, PrettyJson);
+        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneComplexCloakedValueOneFieldsWithDefaultRevisitSettingsExpect, PrettyJson);
     }
 
-    public static TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress> TwoSameIpAddressesOneFieldOneSimpleCloakedValue
+    public static TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress> TwoSameIpAddressesOneFieldOneComplexCloakedValue
     {
         get
         {
             var loopbackAddress = IPAddress.Loopback;
             var twoSameIpAddressesOneFieldsOneCloaked
-                = new TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>(loopbackAddress, loopbackAddress);
+                = new TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress>(loopbackAddress, loopbackAddress);
             return twoSameIpAddressesOneFieldsOneCloaked;
         }
     }
 
-    public static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>>
-        TwoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect
+    public static InputBearerExpect<TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress>>
+        TwoSameIpAddressesOneFieldOneComplexCloakedValueWithDefaultRevisitSettingsExpect
     {
         get
         {
-            return twoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect ??=
-                new InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneFieldOneSimpleCloakedValue)
+            return twoSameIpAddressesOneFieldOneComplexCloakedValueWithDefaultRevisitSettingsExpect ??=
+                new InputBearerExpect<TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneFieldOneComplexCloakedValue)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>
+                        TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress>
                          {
                          FirstSpanFormattableField: 127.0.0.1,
-                         SecondSpanFormattableField: 127.0.0.1
+                         SecondSpanFormattableField:
+                         {
+                         CloakedRevealerSecondSpanFormattableField: 127.0.0.1
+                         }
                          }
                         """.RemoveLineEndings()
                     }
@@ -175,9 +183,11 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress> {
+                        TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress> {
                           FirstSpanFormattableField: 127.0.0.1,
-                          SecondSpanFormattableField: 127.0.0.1
+                          SecondSpanFormattableField: {
+                            CloakedRevealerSecondSpanFormattableField: 127.0.0.1
+                          }
                         }
                         """.Dos2Unix()
                     }
@@ -208,53 +218,56 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     [TestMethod]
     public void TwoSameIpAddressesOneFieldOneCloakedValueWithDefaultRevisitSettingsCompactLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect, CompactLog);
+        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneComplexCloakedValueWithDefaultRevisitSettingsExpect, CompactLog);
     }
 
     [TestMethod]
     public void TwoSameIpAddressesOneFieldOneCloakedValueWithDefaultRevisitSettingsCompactJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect, CompactJson);
+        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneComplexCloakedValueWithDefaultRevisitSettingsExpect, CompactJson);
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsPrettyLogFormatTest()
+    public void TwoSameIpAddressesOneFieldOneComplexCloakedValueWithDefaultRevisitSettingsPrettyLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect, PrettyLog);
+        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneComplexCloakedValueWithDefaultRevisitSettingsExpect, PrettyLog);
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsPrettyJsonFormatTest()
+    public void TwoSameIpAddressesOneFieldOneComplexCloakedValueWithDefaultRevisitSettingsPrettyJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect, PrettyJson);
+        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneComplexCloakedValueWithDefaultRevisitSettingsExpect, PrettyJson);
     }
 
-    public static TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress> TwoSameIpAddressesOneSimpleCloakedStringOneField
+    public static TwoSpanFormattableFirstAsComplexCloakedStringContent<IPAddress> TwoSameIpAddressesOneComplexCloakedStringOneField
     {
         get
         {
             var loopbackAddress = IPAddress.Loopback;
             var twoSameIpAddressesOneCloakedOneFields =
-                new TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>(loopbackAddress, loopbackAddress);
+                new TwoSpanFormattableFirstAsComplexCloakedStringContent<IPAddress>(loopbackAddress, loopbackAddress);
             return twoSameIpAddressesOneCloakedOneFields;
         }
     }
 
-    public static InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>>
-        TwoSameIpAddressesOneSimpleCloakedStringOneFieldsWithDefaultRevisitSettingsExpect
+    public static InputBearerExpect<TwoSpanFormattableFirstAsComplexCloakedStringContent<IPAddress>>
+        TwoSameIpAddressesOneComplexCloakedStringOneFieldsWithDefaultRevisitSettingsExpect
     {
         get
         {
-            return twoSameIpAddressesOneSimpleCloakedStringOneFieldWithDefaultRevisitSettingsExpect ??=
+            return twoSameIpAddressesOneComplexCloakedStringOneFieldWithDefaultRevisitSettingsExpect ??=
                 new InputBearerExpect<
-                    TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>>(TwoSameIpAddressesOneSimpleCloakedStringOneField)
+                    TwoSpanFormattableFirstAsComplexCloakedStringContent<IPAddress>>(TwoSameIpAddressesOneComplexCloakedStringOneField)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>
+                        TwoSpanFormattableFirstAsComplexCloakedStringContent<IPAddress>
                          {
-                         FirstSpanFormattableField: "127.0.0.1",
+                         FirstSpanFormattableField:
+                         {
+                         CloakedRevealerFirstSpanFormattableField: "127.0.0.1"
+                         },
                          SecondSpanFormattableField: 127.0.0.1
                          }
                         """.RemoveLineEndings()
@@ -263,8 +276,10 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress> {
-                          FirstSpanFormattableField: "127.0.0.1",
+                        TwoSpanFormattableFirstAsComplexCloakedStringContent<IPAddress> {
+                          FirstSpanFormattableField: {
+                            CloakedRevealerFirstSpanFormattableField: "127.0.0.1"
+                          },
                           SecondSpanFormattableField: 127.0.0.1
                         }
                         """.Dos2Unix()
@@ -296,54 +311,57 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     [TestMethod]
     public void TwoSameIpAddressesOneCloakedStringOneFieldWithDefaultRevisitSettingsCompactLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneSimpleCloakedStringOneFieldsWithDefaultRevisitSettingsExpect, CompactLog);
+        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneComplexCloakedStringOneFieldsWithDefaultRevisitSettingsExpect, CompactLog);
     }
 
     [TestMethod]
     public void TwoSameIpAddressesOneCloakedStringOneFieldWithDefaultRevisitSettingsCompactJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneSimpleCloakedStringOneFieldsWithDefaultRevisitSettingsExpect, CompactJson);
+        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneComplexCloakedStringOneFieldsWithDefaultRevisitSettingsExpect, CompactJson);
     }
 
     [TestMethod]
     public void TwoSameIpAddressesOneCloakedStringOneFieldWithDefaultRevisitSettingsPrettyLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneSimpleCloakedStringOneFieldsWithDefaultRevisitSettingsExpect, PrettyLog);
+        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneComplexCloakedStringOneFieldsWithDefaultRevisitSettingsExpect, PrettyLog);
     }
 
     [TestMethod]
     public void TwoSameIpAddressesOneCloakedStringOneFieldWithDefaultRevisitSettingsPrettyJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneSimpleCloakedStringOneFieldsWithDefaultRevisitSettingsExpect, PrettyJson);
+        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneComplexCloakedStringOneFieldsWithDefaultRevisitSettingsExpect, PrettyJson);
     }
 
-    public static TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress> TwoSameIpAddressesOneFieldOneSimpleCloakedString
+    public static TwoSpanFormattableSecondAsComplexCloakedStringContent<IPAddress> TwoSameIpAddressesOneFieldOneComplexCloakedString
     {
         get
         {
             var loopbackAddress = IPAddress.Loopback;
             var twoSameIpAddressesOneFieldsOneCloakedString
-                = new TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>(loopbackAddress, loopbackAddress);
+                = new TwoSpanFormattableSecondAsComplexCloakedStringContent<IPAddress>(loopbackAddress, loopbackAddress);
             return twoSameIpAddressesOneFieldsOneCloakedString;
         }
     }
 
-    public static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>>
-        TwoSameIpAddressesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect
+    public static InputBearerExpect<TwoSpanFormattableSecondAsComplexCloakedStringContent<IPAddress>>
+        TwoSameIpAddressesOneFieldOneComplexCloakedStringWithDefaultRevisitSettingsExpect
     {
         get
         {
-            return twoSameIpAddressesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect ??=
+            return twoSameIpAddressesOneFieldOneComplexCloakedStringWithDefaultRevisitSettingsExpect ??=
                 new InputBearerExpect<
-                    TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>>(TwoSameIpAddressesOneFieldOneSimpleCloakedString)
+                    TwoSpanFormattableSecondAsComplexCloakedStringContent<IPAddress>>(TwoSameIpAddressesOneFieldOneComplexCloakedString)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>
+                        TwoSpanFormattableSecondAsComplexCloakedStringContent<IPAddress>
                          {
                          FirstSpanFormattableField: 127.0.0.1,
-                         SecondSpanFormattableField: "127.0.0.1"
+                         SecondSpanFormattableField:
+                         {
+                         CloakedRevealerSecondSpanFormattableField: "127.0.0.1"
+                         }
                          }
                         """.RemoveLineEndings()
                     }
@@ -351,9 +369,11 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress> {
+                        TwoSpanFormattableSecondAsComplexCloakedStringContent<IPAddress> {
                           FirstSpanFormattableField: 127.0.0.1,
-                          SecondSpanFormattableField: "127.0.0.1"
+                          SecondSpanFormattableField: {
+                            CloakedRevealerSecondSpanFormattableField: "127.0.0.1"
+                          }
                         }
                         """.Dos2Unix()
                     }
@@ -384,45 +404,45 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     [TestMethod]
     public void TwoSameIpAddressesOneFieldOneCloakedStringWithDefaultRevisitSettingsCompactLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect, CompactLog);
+        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneComplexCloakedStringWithDefaultRevisitSettingsExpect, CompactLog);
     }
 
     [TestMethod]
     public void TwoSameIpAddressesOneFieldOneCloakedStringWithDefaultRevisitSettingsCompactJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect, CompactJson);
+        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneComplexCloakedStringWithDefaultRevisitSettingsExpect, CompactJson);
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsPrettyLogFormatTest()
+    public void TwoSameIpAddressesOneFieldOneComplexCloakedStringWithDefaultRevisitSettingsPrettyLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect, PrettyLog);
+        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneComplexCloakedStringWithDefaultRevisitSettingsExpect, PrettyLog);
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsPrettyJsonFormatTest()
+    public void TwoSameIpAddressesOneFieldOneComplexCloakedStringWithDefaultRevisitSettingsPrettyJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect, PrettyJson);
+        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneComplexCloakedStringWithDefaultRevisitSettingsExpect, PrettyJson);
     }
 
 
-    public static InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress>>
-        TwoSameIpAddressesOneSimpleCloakedValueOneFieldShowRevisitInstanceIdsExpect
+    public static InputBearerExpect<TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress>>
+        TwoSameIpAddressesOneComplexCloakedValueOneFieldShowRevisitInstanceIdsExpect
     {
         get
         {
-            return twoSameIpAddressesOneSimpleCloakedValueOneFieldShowRevisitInstanceIdsExpect ??=
-                new InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneSimpleCloakedValueOneField)
+            return twoSameIpAddressesOneComplexCloakedValueOneFieldShowRevisitInstanceIdsExpect ??=
+                new InputBearerExpect<TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneComplexCloakedValueOneField)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress>
+                        TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress>
                          {
                          FirstSpanFormattableField:
                          {
                          $id: 1,
-                         $values: 127.0.0.1
+                         CloakedRevealerFirstSpanFormattableField: 127.0.0.1
                          },
                          SecondSpanFormattableField:
                          {
@@ -436,10 +456,10 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress> {
+                        TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress> {
                           FirstSpanFormattableField: {
                             $id: 1,
-                            $values: 127.0.0.1
+                            CloakedRevealerFirstSpanFormattableField: 127.0.0.1
                           },
                           SecondSpanFormattableField: {
                             $ref: 1
@@ -488,7 +508,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneCloakedValueOneFieldShowRevisitInstanceIdsCompactLogFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedValueOneFieldShowRevisitInstanceIdsExpect
+            (TwoSameIpAddressesOneComplexCloakedValueOneFieldShowRevisitInstanceIdsExpect
            , new StyleOptions(CompactLog)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -499,7 +519,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneCloakedValueOneFieldShowRevisitInstanceIdsCompactJsonFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedValueOneFieldShowRevisitInstanceIdsExpect
+            (TwoSameIpAddressesOneComplexCloakedValueOneFieldShowRevisitInstanceIdsExpect
             , new StyleOptions(CompactJson)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -510,7 +530,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneSimpleValueOneFieldShowRevisitInstanceIdsPrettyLogFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedValueOneFieldShowRevisitInstanceIdsExpect
+            (TwoSameIpAddressesOneComplexCloakedValueOneFieldShowRevisitInstanceIdsExpect
            , new StyleOptions(PrettyLog)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -521,25 +541,25 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneSimpleValueOneFieldShowRevisitInstanceIdsPrettyJsonFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedValueOneFieldShowRevisitInstanceIdsExpect
+            (TwoSameIpAddressesOneComplexCloakedValueOneFieldShowRevisitInstanceIdsExpect
            , new StyleOptions(PrettyJson)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
              });
     }
     
-    public static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>>
-        TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitInstanceIdsExpect
+    public static InputBearerExpect<TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress>>
+        TwoSameIpAddressesOneFieldOneComplexCloakedValueShowRevisitInstanceIdsExpect
     {
         get
         {
-            return twoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitInstanceIdsExpect ??=
-                new InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneFieldOneSimpleCloakedValue)
+            return twoSameIpAddressesOneFieldOneComplexCloakedValueShowRevisitInstanceIdsExpect ??=
+                new InputBearerExpect<TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneFieldOneComplexCloakedValue)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>
+                        TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress>
                          {
                          FirstSpanFormattableField:
                          {
@@ -558,7 +578,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress> {
+                        TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress> {
                           FirstSpanFormattableField: {
                             $id: 1,
                             $values: 127.0.0.1
@@ -609,7 +629,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneFieldOneCloakedValueShowRevisitInstanceIdsCompactLogFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitInstanceIdsExpect
+            (TwoSameIpAddressesOneFieldOneComplexCloakedValueShowRevisitInstanceIdsExpect
            , new StyleOptions(CompactLog)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -620,7 +640,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneFieldOneCloakedValueShowRevisitInstanceIdsCompactJsonFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitInstanceIdsExpect
+            (TwoSameIpAddressesOneFieldOneComplexCloakedValueShowRevisitInstanceIdsExpect
            , new StyleOptions(CompactJson)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -628,10 +648,10 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitInstanceIdsPrettyLogFormatTest()
+    public void TwoSameIpAddressesOneFieldOneComplexCloakedValueShowRevisitInstanceIdsPrettyLogFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitInstanceIdsExpect
+            (TwoSameIpAddressesOneFieldOneComplexCloakedValueShowRevisitInstanceIdsExpect
            , new StyleOptions(PrettyLog)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -639,10 +659,10 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitInstanceIdsPrettyJsonFormatTest()
+    public void TwoSameIpAddressesOneFieldOneComplexCloakedValueShowRevisitInstanceIdsPrettyJsonFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitInstanceIdsExpect
+            (TwoSameIpAddressesOneFieldOneComplexCloakedValueShowRevisitInstanceIdsExpect
            , new StyleOptions(PrettyJson)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -650,24 +670,24 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     }
     
     
-    public static InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>>
-        TwoSameIpAddressesOneSimpleCloakedStringOneFieldsShowRevisitInstanceIdsExpect
+    public static InputBearerExpect<TwoSpanFormattableFirstAsComplexCloakedStringContent<IPAddress>>
+        TwoSameIpAddressesOneComplexCloakedStringOneFieldsShowRevisitInstanceIdsExpect
     {
         get
         {
-            return twoSameIpAddressesOneSimpleCloakedStringOneFieldShowRevisitInstanceIdsExpect ??=
+            return twoSameIpAddressesOneComplexCloakedStringOneFieldShowRevisitInstanceIdsExpect ??=
                 new InputBearerExpect<
-                    TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>>(TwoSameIpAddressesOneSimpleCloakedStringOneField)
+                    TwoSpanFormattableFirstAsComplexCloakedStringContent<IPAddress>>(TwoSameIpAddressesOneComplexCloakedStringOneField)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>
+                        TwoSpanFormattableFirstAsComplexCloakedStringContent<IPAddress>
                          {
                          FirstSpanFormattableField:
                          {
                          $id: 1,
-                         $values: "127.0.0.1"
+                         CloakedRevealerFirstSpanFormattableField: "127.0.0.1"
                          },
                          SecondSpanFormattableField:
                          {
@@ -681,10 +701,10 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress> {
+                        TwoSpanFormattableFirstAsComplexCloakedStringContent<IPAddress> {
                           FirstSpanFormattableField: {
                             $id: 1,
-                            $values: "127.0.0.1"
+                            CloakedRevealerFirstSpanFormattableField: "127.0.0.1"
                           },
                           SecondSpanFormattableField: {
                             $ref: 1
@@ -733,7 +753,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneCloakedStringOneFieldShowRevisitInstanceIdsCompactLogFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedStringOneFieldsShowRevisitInstanceIdsExpect
+            (TwoSameIpAddressesOneComplexCloakedStringOneFieldsShowRevisitInstanceIdsExpect
            , new StyleOptions(CompactLog)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -744,7 +764,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneCloakedStringOneFieldShowRevisitInstanceIdsCompactJsonFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedStringOneFieldsShowRevisitInstanceIdsExpect
+            (TwoSameIpAddressesOneComplexCloakedStringOneFieldsShowRevisitInstanceIdsExpect
            , new StyleOptions(CompactJson)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -755,7 +775,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneCloakedStringOneFieldShowRevisitInstanceIdsPrettyLogFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedStringOneFieldsShowRevisitInstanceIdsExpect
+            (TwoSameIpAddressesOneComplexCloakedStringOneFieldsShowRevisitInstanceIdsExpect
            , new StyleOptions(PrettyLog)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -766,7 +786,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneCloakedStringOneFieldShowRevisitInstanceIdsPrettyJsonFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedStringOneFieldsShowRevisitInstanceIdsExpect
+            (TwoSameIpAddressesOneComplexCloakedStringOneFieldsShowRevisitInstanceIdsExpect
            , new StyleOptions(PrettyJson)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -774,19 +794,19 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     }
     
     
-    public static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>>
-        TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitInstanceIdsExpect
+    public static InputBearerExpect<TwoSpanFormattableSecondAsComplexCloakedStringContent<IPAddress>>
+        TwoSameIpAddressesOneFieldOneComplexCloakedStringShowRevisitInstanceIdsExpect
     {
         get
         {
-            return twoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitInstanceIdsExpect ??=
+            return twoSameIpAddressesOneFieldOneComplexCloakedStringShowRevisitInstanceIdsExpect ??=
                 new InputBearerExpect<
-                    TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>>(TwoSameIpAddressesOneFieldOneSimpleCloakedString)
+                    TwoSpanFormattableSecondAsComplexCloakedStringContent<IPAddress>>(TwoSameIpAddressesOneFieldOneComplexCloakedString)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>
+                        TwoSpanFormattableSecondAsComplexCloakedStringContent<IPAddress>
                          {
                          FirstSpanFormattableField:
                          {
@@ -804,7 +824,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress> {
+                        TwoSpanFormattableSecondAsComplexCloakedStringContent<IPAddress> {
                           FirstSpanFormattableField: {
                             $id: 1,
                             $values: 127.0.0.1
@@ -856,7 +876,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneFieldOneCloakedStringShowRevisitInstanceIdsCompactLogFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitInstanceIdsExpect
+            (TwoSameIpAddressesOneFieldOneComplexCloakedStringShowRevisitInstanceIdsExpect
            , new StyleOptions(CompactLog)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -867,7 +887,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneFieldOneCloakedStringShowRevisitInstanceIdsCompactJsonFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitInstanceIdsExpect
+            (TwoSameIpAddressesOneFieldOneComplexCloakedStringShowRevisitInstanceIdsExpect
            , new StyleOptions(CompactJson)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -875,10 +895,10 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitInstanceIdsPrettyLogFormatTest()
+    public void TwoSameIpAddressesOneFieldOneComplexCloakedStringShowRevisitInstanceIdsPrettyLogFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitInstanceIdsExpect
+            (TwoSameIpAddressesOneFieldOneComplexCloakedStringShowRevisitInstanceIdsExpect
            , new StyleOptions(PrettyLog)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -886,33 +906,33 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitInstanceIdsPrettyJsonFormatTest()
+    public void TwoSameIpAddressesOneFieldOneComplexCloakedStringShowRevisitInstanceIdsPrettyJsonFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitInstanceIdsExpect
+            (TwoSameIpAddressesOneFieldOneComplexCloakedStringShowRevisitInstanceIdsExpect
            , new StyleOptions(PrettyJson)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
              });
     }
     
-    public static InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress>>
-        TwoSameIpAddressesOneSimpleCloakedValueOneFieldShowRevisitAndValuesExpect
+    public static InputBearerExpect<TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress>>
+        TwoSameIpAddressesOneComplexCloakedValueOneFieldShowRevisitAndValuesExpect
     {
         get
         {
-            return twoSameIpAddressesOneSimpleCloakedValueOneFieldShowRevisitAndValuesExpect ??=
-                new InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneSimpleCloakedValueOneField)
+            return twoSameIpAddressesOneComplexCloakedValueOneFieldShowRevisitAndValuesExpect ??=
+                new InputBearerExpect<TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneComplexCloakedValueOneField)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress>
+                        TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress>
                          {
                          FirstSpanFormattableField:
                          {
                          $id: 1,
-                         $values: 127.0.0.1
+                         CloakedRevealerFirstSpanFormattableField: 127.0.0.1
                          },
                          SecondSpanFormattableField:
                          {
@@ -926,10 +946,10 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress> {
+                        TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress> {
                           FirstSpanFormattableField: {
                             $id: 1,
-                            $values: 127.0.0.1
+                            CloakedRevealerFirstSpanFormattableField: 127.0.0.1
                           },
                           SecondSpanFormattableField: {
                             $ref: 1,
@@ -980,7 +1000,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneCloakedValueOneFieldShowRevisitAndValuesCompactLogFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedValueOneFieldShowRevisitAndValuesExpect
+            (TwoSameIpAddressesOneComplexCloakedValueOneFieldShowRevisitAndValuesExpect
            , new StyleOptions(CompactLog)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -992,7 +1012,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneCloakedValueOneFieldShowRevisitAndValuesCompactJsonFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedValueOneFieldShowRevisitAndValuesExpect
+            (TwoSameIpAddressesOneComplexCloakedValueOneFieldShowRevisitAndValuesExpect
             , new StyleOptions(CompactJson)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -1004,7 +1024,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneSimpleValueOneFieldShowRevisitAndValuesPrettyLogFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedValueOneFieldShowRevisitAndValuesExpect
+            (TwoSameIpAddressesOneComplexCloakedValueOneFieldShowRevisitAndValuesExpect
            , new StyleOptions(PrettyLog)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -1016,7 +1036,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneSimpleValueOneFieldShowRevisitAndValuesPrettyJsonFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedValueOneFieldShowRevisitAndValuesExpect
+            (TwoSameIpAddressesOneComplexCloakedValueOneFieldShowRevisitAndValuesExpect
            , new StyleOptions(PrettyJson)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -1024,18 +1044,18 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
              });
     }
     
-    public static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>>
-        TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitAndValuesExpect
+    public static InputBearerExpect<TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress>>
+        TwoSameIpAddressesOneFieldOneComplexCloakedValueShowRevisitAndValuesExpect
     {
         get
         {
-            return twoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitAndValuesExpect ??=
-                new InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneFieldOneSimpleCloakedValue)
+            return twoSameIpAddressesOneFieldOneComplexCloakedValueShowRevisitAndValuesExpect ??=
+                new InputBearerExpect<TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneFieldOneComplexCloakedValue)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>
+                        TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress>
                          {
                          FirstSpanFormattableField:
                          {
@@ -1045,7 +1065,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                          SecondSpanFormattableField:
                          {
                          $ref: 1,
-                         $values: 127.0.0.1
+                         CloakedRevealerSecondSpanFormattableField: 127.0.0.1
                          }
                          }
                         """.RemoveLineEndings()
@@ -1054,14 +1074,14 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress> {
+                        TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress> {
                           FirstSpanFormattableField: {
                             $id: 1,
                             $values: 127.0.0.1
                           },
                           SecondSpanFormattableField: {
                             $ref: 1,
-                            $values: 127.0.0.1
+                            CloakedRevealerSecondSpanFormattableField: 127.0.0.1
                           }
                         }
                         """.Dos2Unix()
@@ -1079,7 +1099,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         "SecondSpanFormattableField":
                         {
                         "$ref":"1",
-                        "$values":"127.0.0.1"
+                        "CloakedRevealerSecondSpanFormattableField":"127.0.0.1"
                         }
                         }
                         """.RemoveLineEndings()
@@ -1095,7 +1115,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                           },
                           "SecondSpanFormattableField": {
                             "$ref": "1",
-                            "$values": "127.0.0.1"
+                            "CloakedRevealerSecondSpanFormattableField": "127.0.0.1"
                           }
                         }
                         """.Dos2Unix()
@@ -1108,7 +1128,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneFieldOneCloakedValueShowRevisitAndValuesCompactLogFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitAndValuesExpect
+            (TwoSameIpAddressesOneFieldOneComplexCloakedValueShowRevisitAndValuesExpect
            , new StyleOptions(CompactLog)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -1120,7 +1140,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneFieldOneCloakedValueShowRevisitAndValuesCompactJsonFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitAndValuesExpect
+            (TwoSameIpAddressesOneFieldOneComplexCloakedValueShowRevisitAndValuesExpect
            , new StyleOptions(CompactJson)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -1129,10 +1149,10 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitAndValuesPrettyLogFormatTest()
+    public void TwoSameIpAddressesOneFieldOneComplexCloakedValueShowRevisitAndValuesPrettyLogFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitAndValuesExpect
+            (TwoSameIpAddressesOneFieldOneComplexCloakedValueShowRevisitAndValuesExpect
            , new StyleOptions(PrettyLog)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -1141,10 +1161,10 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitAndValuesPrettyJsonFormatTest()
+    public void TwoSameIpAddressesOneFieldOneComplexCloakedValueShowRevisitAndValuesPrettyJsonFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitAndValuesExpect
+            (TwoSameIpAddressesOneFieldOneComplexCloakedValueShowRevisitAndValuesExpect
            , new StyleOptions(PrettyJson)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -1153,24 +1173,24 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     }
     
     
-    public static InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>>
-        TwoSameIpAddressesOneSimpleCloakedStringOneFieldsShowRevisitAndValuesExpect
+    public static InputBearerExpect<TwoSpanFormattableFirstAsComplexCloakedStringContent<IPAddress>>
+        TwoSameIpAddressesOneComplexCloakedStringOneFieldsShowRevisitAndValuesExpect
     {
         get
         {
-            return twoSameIpAddressesOneSimpleCloakedStringOneFieldShowRevisitAndValuesExpect ??=
+            return twoSameIpAddressesOneComplexCloakedStringOneFieldShowRevisitAndValuesExpect ??=
                 new InputBearerExpect<
-                    TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>>(TwoSameIpAddressesOneSimpleCloakedStringOneField)
+                    TwoSpanFormattableFirstAsComplexCloakedStringContent<IPAddress>>(TwoSameIpAddressesOneComplexCloakedStringOneField)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>
+                        TwoSpanFormattableFirstAsComplexCloakedStringContent<IPAddress>
                          {
                          FirstSpanFormattableField:
                          {
                          $id: 1,
-                         $values: "127.0.0.1"
+                         CloakedRevealerFirstSpanFormattableField: "127.0.0.1"
                          },
                          SecondSpanFormattableField:
                          {
@@ -1184,10 +1204,10 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress> {
+                        TwoSpanFormattableFirstAsComplexCloakedStringContent<IPAddress> {
                           FirstSpanFormattableField: {
                             $id: 1,
-                            $values: "127.0.0.1"
+                            CloakedRevealerFirstSpanFormattableField: "127.0.0.1"
                           },
                           SecondSpanFormattableField: {
                             $ref: 1,
@@ -1238,7 +1258,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneCloakedStringOneFieldShowRevisitAndValuesCompactLogFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedStringOneFieldsShowRevisitAndValuesExpect
+            (TwoSameIpAddressesOneComplexCloakedStringOneFieldsShowRevisitAndValuesExpect
            , new StyleOptions(CompactLog)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -1250,7 +1270,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneCloakedStringOneFieldShowRevisitAndValuesCompactJsonFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedStringOneFieldsShowRevisitAndValuesExpect
+            (TwoSameIpAddressesOneComplexCloakedStringOneFieldsShowRevisitAndValuesExpect
            , new StyleOptions(CompactJson)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -1262,7 +1282,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneCloakedStringOneFieldShowRevisitAndValuesPrettyLogFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedStringOneFieldsShowRevisitAndValuesExpect
+            (TwoSameIpAddressesOneComplexCloakedStringOneFieldsShowRevisitAndValuesExpect
            , new StyleOptions(PrettyLog)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -1274,7 +1294,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneCloakedStringOneFieldShowRevisitAndValuesPrettyJsonFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedStringOneFieldsShowRevisitAndValuesExpect
+            (TwoSameIpAddressesOneComplexCloakedStringOneFieldsShowRevisitAndValuesExpect
            , new StyleOptions(PrettyJson)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -1283,19 +1303,19 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     }
     
     
-    public static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>>
-        TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitAndValuesExpect
+    public static InputBearerExpect<TwoSpanFormattableSecondAsComplexCloakedStringContent<IPAddress>>
+        TwoSameIpAddressesOneFieldOneComplexCloakedStringShowRevisitAndValuesExpect
     {
         get
         {
-            return twoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitAndValuesExpect ??=
+            return twoSameIpAddressesOneFieldOneComplexCloakedStringShowRevisitAndValuesExpect ??=
                 new InputBearerExpect<
-                    TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>>(TwoSameIpAddressesOneFieldOneSimpleCloakedString)
+                    TwoSpanFormattableSecondAsComplexCloakedStringContent<IPAddress>>(TwoSameIpAddressesOneFieldOneComplexCloakedString)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>
+                        TwoSpanFormattableSecondAsComplexCloakedStringContent<IPAddress>
                          {
                          FirstSpanFormattableField:
                          {
@@ -1305,7 +1325,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                          SecondSpanFormattableField:
                          {
                          $ref: 1,
-                         $values: "127.0.0.1"
+                         CloakedRevealerSecondSpanFormattableField: "127.0.0.1"
                          }
                          }
                         """.RemoveLineEndings()
@@ -1314,14 +1334,14 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress> {
+                        TwoSpanFormattableSecondAsComplexCloakedStringContent<IPAddress> {
                           FirstSpanFormattableField: {
                             $id: 1,
                             $values: 127.0.0.1
                           },
                           SecondSpanFormattableField: {
                             $ref: 1,
-                            $values: "127.0.0.1"
+                            CloakedRevealerSecondSpanFormattableField: "127.0.0.1"
                           }
                         }
                         """.Dos2Unix()
@@ -1339,7 +1359,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         "SecondSpanFormattableField":
                         {
                         "$ref":"1",
-                        "$values":"127.0.0.1"
+                        "CloakedRevealerSecondSpanFormattableField":"127.0.0.1"
                         }
                         }
                         """.RemoveLineEndings()
@@ -1355,7 +1375,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                           },
                           "SecondSpanFormattableField": {
                             "$ref": "1",
-                            "$values": "127.0.0.1"
+                            "CloakedRevealerSecondSpanFormattableField": "127.0.0.1"
                           }
                         }
                         """.Dos2Unix()
@@ -1368,7 +1388,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneFieldOneCloakedStringShowRevisitAndValuesCompactLogFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitAndValuesExpect
+            (TwoSameIpAddressesOneFieldOneComplexCloakedStringShowRevisitAndValuesExpect
            , new StyleOptions(CompactLog)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -1380,7 +1400,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     public void TwoSameIpAddressesOneFieldOneCloakedStringShowRevisitAndValuesCompactJsonFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitAndValuesExpect
+            (TwoSameIpAddressesOneFieldOneComplexCloakedStringShowRevisitAndValuesExpect
            , new StyleOptions(CompactJson)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -1389,10 +1409,10 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitAndValuesPrettyLogFormatTest()
+    public void TwoSameIpAddressesOneFieldOneComplexCloakedStringShowRevisitAndValuesPrettyLogFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitAndValuesExpect
+            (TwoSameIpAddressesOneFieldOneComplexCloakedStringShowRevisitAndValuesExpect
            , new StyleOptions(PrettyLog)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
@@ -1401,10 +1421,10 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitAndValuesPrettyJsonFormatTest()
+    public void TwoSameIpAddressesOneFieldOneComplexCloakedStringShowRevisitAndValuesPrettyJsonFormatTest()
     {
         ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitAndValuesExpect
+            (TwoSameIpAddressesOneFieldOneComplexCloakedStringShowRevisitAndValuesExpect
            , new StyleOptions(PrettyJson)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true

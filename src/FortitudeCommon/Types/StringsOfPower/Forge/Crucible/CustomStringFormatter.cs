@@ -25,7 +25,11 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     protected const string SqBrktCls     = "]";
     protected const char   SqBrktClsChar = ']';
 
-    public const string NoFormatFormatString = "{0}";
+    public const   string NoFormatFormatString = "{0}";
+    
+    private static int    globalInstanceId;
+
+    protected int InstanceId = Interlocked.Increment(ref globalInstanceId); 
 
     protected static readonly ConcurrentDictionary<Type, IStringBearerFormattableProvider> GlobalCustomSpanFormattableProviders = new();
 
@@ -53,7 +57,11 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     public virtual IFormattingOptions Options
     {
         get => FormatOptions ??= new FormattingOptions.FormattingOptions();
-        set { FormatOptions = value; }
+        set
+        {
+            // Console.Out.WriteLine($"Setting {ToString()}  Options: {value?.ToString() ?? "null"}");
+            FormatOptions = value;
+        }
     }
 
     public virtual IEncodingTransfer ContentEncoder

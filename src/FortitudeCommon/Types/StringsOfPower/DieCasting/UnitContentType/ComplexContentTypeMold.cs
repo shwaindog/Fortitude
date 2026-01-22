@@ -4,7 +4,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.UnitField;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
@@ -24,12 +23,11 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold>
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , IStyledTypeFormatting typeFormatting
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
         InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeName
-                                 , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
+                                 , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
 
         return this;
     }
@@ -37,21 +35,30 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold>
     public override void StartFormattingTypeOpening()
     {
       if (IsComplexType)
-        MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField);
+        MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField, Msf.CreateMoldFormatFlags);
       else
         MoldStateField.StyleFormatter.StartContentTypeOpening(MoldStateField);
     }
-    
+
+    public override void FinishTypeOpening()
+    {
+      if (Msf.CurrentWriteMethod != WriteMethodType.MoldComplexContentType)
+      {
+        Msf.Master.UpdateVisitWriteMethod(MoldVisit.CurrentVisitIndex, Msf.CurrentWriteMethod);  
+      }
+      base.FinishTypeOpening();
+    }
+
     public override void AppendClosing()
     {
-      var formatter = MoldStateField.StyleFormatter;
+      var sf = Msf.Sf;
       if (IsComplexType)
       {
-        formatter.AppendComplexTypeClosing(MoldStateField);
+        sf.AppendComplexTypeClosing(MoldStateField);
       }
       else
       {
-        formatter.AppendContentTypeClosing(MoldStateField);
+        sf.AppendContentTypeClosing(MoldStateField);
       }
     }
     
@@ -386,21 +393,21 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold>
     , FormatFlags formatFlags = EncodeAll)
       where TCloaked : TCloakedBase
       where TCloakedBase : notnull =>
-      Msf.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, "", formatString, formatFlags);
+      Msf.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, "", formatString ?? "", formatFlags);
     
     public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsStringOrNull<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
     , PalantírReveal<TCloakedBase> palantírReveal, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll)
       where TCloaked : TCloakedBase
       where TCloakedBase : notnull =>
-      Msf.FieldStringRevealOrNullNext(nonJsonfieldName, value, palantírReveal, formatString, formatFlags);
+      Msf.FieldStringRevealOrNullNext(nonJsonfieldName, value, palantírReveal, formatString ?? "", formatFlags);
     
     public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsStringOrDefault<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName
     , TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal, string defaultValue = ""
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = EncodeAll)
       where TCloaked : TCloakedBase
       where TCloakedBase : notnull =>
-      Msf.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue, formatString, formatFlags);
+      Msf.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue, formatString ?? "", formatFlags);
 
     public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsString<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
     , PalantírReveal<TCloakedStruct> palantírReveal, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -411,7 +418,7 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold>
     public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsStringOrNull<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
     , PalantírReveal<TCloakedStruct> palantírReveal, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) where TCloakedStruct : struct =>
-      Msf.FieldStringRevealOrNullNext(nonJsonfieldName, value, palantírReveal, formatString, formatFlags);
+      Msf.FieldStringRevealOrNullNext(nonJsonfieldName, value, palantírReveal, formatString ?? "", formatFlags);
     
     public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsStringOrDefault<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName
     , TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal, string defaultValue = "", string? formatString = null

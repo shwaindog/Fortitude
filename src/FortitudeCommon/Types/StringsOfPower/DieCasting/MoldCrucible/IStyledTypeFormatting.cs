@@ -14,7 +14,18 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 {
     string Name { get; }
 
-    public GraphTrackingBuilder GraphBuilder { get; set; }
+    public StyleOptions StyleOptions { get; set; }
+    public GraphTrackingBuilder? GraphBuilder { get; set; }
+    public GraphTrackingBuilder Gb { get; set; }
+    
+    IStyledTypeFormatting? PreviousContext { get; set; }
+    IStyledTypeFormatting PreviousContextOrThis { get; }
+    
+    bool AddedContextOnThisCall { get; set; }
+
+    IStyledTypeFormatting Initialize(GraphTrackingBuilder graphTrackingBuilder, StyleOptions styleOptions, IStringBuilder sb);
+    IStyledTypeFormatting ContextStartPushToNext();
+    IStyledTypeFormatting ContextCompletePopToPrevious();
 
     FormatFlags ResolveContentFormattingFlags<T>(IStringBuilder sb, T input, FormatFlags callerFormattingFlags
       , string formatString = "", bool isFieldName = false);
@@ -36,10 +47,8 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     SeparatorPaddingRanges AppendFieldValueSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    FormatFlags          GetNextValueTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, VisitResult visitResult, FormatFlags formatFlags);
-    FormatFlags          GetNextComplexTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, VisitResult visitResult, FormatFlags formatFlags);
-    FormatFlags          GetNextValueTypePartFlags(ITheOneString tos, Type actualType, VisitResult visitResult, FormatFlags formatFlags);
-    FormatFlags          GetNextComplexTypePartFlags(ITheOneString tos, Type actualType, VisitResult visitResult, FormatFlags formatFlags);
+    FormatFlags          GetFormatterContentHandlingFlags<T>(ITheOneString tos, T forValue, Type actualType, WriteMethodType proposedWriteType, VisitResult visitResult, FormatFlags formatFlags);
+    FormatFlags          GetFormatterContentHandlingFlags(ITheOneString tos, Type actualType, WriteMethodType proposedWriteType, VisitResult visitResult, FormatFlags formatFlags);
     int                    SizeToNextFieldSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
     Range?                 AddToNextFieldSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
     int                    SizeNextFieldPadding(FormatFlags formatFlags = DefaultCallerTypeFlags);

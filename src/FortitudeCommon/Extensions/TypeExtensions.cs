@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Reflection;
 using System.Text;
+using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using static System.Reflection.GenericParameterAttributes;
 
@@ -36,12 +37,15 @@ public static class TypeExtensions
     public static readonly Type NullableCharType            = typeof(char?);
     public static readonly Type RuneType                    = typeof(Rune);
     public static readonly Type NullableRuneType            = typeof(Rune?);
+    public static readonly Type StringBearerType            = typeof(IStringBearer);
 
     private static readonly ConcurrentDictionary<Type, bool> TypeIsFlagsEnumCache = new();
 
-    private static readonly ConcurrentDictionary<Type, bool> TypeIsSpanFormattbleCache = new();
+    private static readonly ConcurrentDictionary<Type, bool> TypeIsSpanFormattableCache = new();
 
-    private static readonly ConcurrentDictionary<Type, bool> TypeIsNullableSpanFormattbleCache = new();
+    private static readonly ConcurrentDictionary<Type, bool> TypeIsNullableSpanFormattableCache = new();
+
+    private static readonly ConcurrentDictionary<Type, bool> TypeIsStringBearerCache = new();
 
     private static readonly ConcurrentDictionary<Type, bool> TypeIsNullableCache = new();
 
@@ -343,20 +347,34 @@ public static class TypeExtensions
         type == SpanFormattableType || type.GetInterfaces().Any(i => i == SpanFormattableType);
 
     public static bool IsSpanFormattableCached(this Type type) =>
-        TypeIsSpanFormattbleCache.GetOrAdd(type, t => t.IsSpanFormattable());
+        TypeIsSpanFormattableCache.GetOrAdd(type, t => t.IsSpanFormattable());
 
     public static bool IsNullableSpanFormattable(this Type type) =>
         type is { IsValueType: true, IsGenericType: true } && type.GetGenericTypeDefinition() == NullableTypeDef
                                                            && type.GenericTypeArguments[0].IsSpanFormattable();
 
     public static bool IsNullableSpanFormattableCached(this Type type) =>
-        TypeIsNullableSpanFormattbleCache.GetOrAdd(type, t => t.IsNullableSpanFormattable());
+        TypeIsNullableSpanFormattableCache.GetOrAdd(type, t => t.IsNullableSpanFormattable());
 
     public static bool IsSpanFormattableOrNullable(this Type type) =>
         type.IsSpanFormattable() || type.IsNullableSpanFormattable();
 
     public static bool IsSpanFormattableOrNullableCached(this Type type) =>
         type.IsSpanFormattableCached() || type.IsNullableSpanFormattableCached();
+
+    public static bool IsStringBearerOrNullableCached(this Type type) =>
+        TypeIsNullableSpanFormattableCache.GetOrAdd(type, t => t.IsStringBearerOrNullable());
+
+    public static bool IsStringBearerOrNullable(this Type type) =>
+        type.IsStringBearer() || type.IsNullableStringBearer();
+
+    public static bool IsStringBearer(this Type type) =>
+        type == StringBearerType || type.GetInterfaces().Any(i => i == StringBearerType);
+
+    public static bool IsNullableStringBearer(this Type type) =>
+        type is { IsValueType: true, IsGenericType: true }
+     && type.GetGenericTypeDefinition() == NullableTypeDef
+     && type.GenericTypeArguments[0].IsStringBearer();
 
     public static bool IsNullable(this Type type) =>
         type is { IsValueType: true, IsGenericType: true } && type.GetGenericTypeDefinition() == NullableTypeDef;
@@ -606,14 +624,14 @@ public static class TypeExtensions
     public static bool IsNullableCharArray(this Type check)    => check == typeof(char?[]);
     public static bool IsNotNullableCharArray(this Type check) => !check.IsNullableCharArray();
 
-    public static bool IsCharSpan(this Type check)             => check == CharSpanType;
-    public static bool IsNotCharSpan(this Type check)          => !check.IsCharSpan();
-    public static bool IsReadOnlyCharSpan(this Type check)             => check == ReadOnlyCharSpanType;
-    public static bool IsNotReadOnlyCharSpan(this Type check)          => !check.IsReadOnlyCharSpan();
-    public static bool IsCharMemory(this Type check)             => check == CharMemoryType;
-    public static bool IsNotCharMemory(this Type check)          => !check.IsCharMemory();
-    public static bool IsReadOnlyCharMemory(this Type check)             => check == ReadOnlyCharMemoryType;
-    public static bool IsNotReadOnlyCharMemory(this Type check)          => !check.IsReadOnlyCharMemory();
+    public static bool IsCharSpan(this Type check)              => check == CharSpanType;
+    public static bool IsNotCharSpan(this Type check)           => !check.IsCharSpan();
+    public static bool IsReadOnlyCharSpan(this Type check)      => check == ReadOnlyCharSpanType;
+    public static bool IsNotReadOnlyCharSpan(this Type check)   => !check.IsReadOnlyCharSpan();
+    public static bool IsCharMemory(this Type check)            => check == CharMemoryType;
+    public static bool IsNotCharMemory(this Type check)         => !check.IsCharMemory();
+    public static bool IsReadOnlyCharMemory(this Type check)    => check == ReadOnlyCharMemoryType;
+    public static bool IsNotReadOnlyCharMemory(this Type check) => !check.IsReadOnlyCharMemory();
 
     public static bool IsRune(this Type check)                 => check == RuneType;
     public static bool IsNotRune(this Type check)              => !check.IsRune();
@@ -792,9 +810,9 @@ public static class TypeExtensions
 
     public static bool IsAnyTypeHoldingChars(this Type check) =>
         check.IsChar() || check.IsNullableChar() || check.IsRune() || check.IsNullableRune() || check.IsString()
-     || check.IsCharMemory() || check.IsReadOnlyCharMemory() || check.IsCharSpan() || check.IsReadOnlyCharSpan()   
-     || check.IsStringArray() || check.IsStringList() || check.IsCharArray() || check.IsNullableCharArray() || check.IsRuneArray() 
-     || check.IsNullableRuneArray() || check.IsCharSequence() || check.IsCharSequenceSupportArray() || check.IsCharSequenceSupportingList() 
+     || check.IsCharMemory() || check.IsReadOnlyCharMemory() || check.IsCharSpan() || check.IsReadOnlyCharSpan()
+     || check.IsStringArray() || check.IsStringList() || check.IsCharArray() || check.IsNullableCharArray() || check.IsRuneArray()
+     || check.IsNullableRuneArray() || check.IsCharSequence() || check.IsCharSequenceSupportArray() || check.IsCharSequenceSupportingList()
      || check.IsStringBuilder() || check.IsStringBuilderArray() || check.IsStringBuilderList();
 
     public static bool IsAnyTypeHoldingCharsCached(this Type check) =>

@@ -17,12 +17,11 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , IStyledTypeFormatting typeFormatting
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
         Initialize(instanceOrContainer, typeBeingBuilt, master, typeName
-                 , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType
+                 , remainingGraphDepth, moldGraphVisit, writeMethodType
                  , createFormatFlags | AsCollection);
 
         stb = CompAsOrderedCollection;
@@ -77,13 +76,12 @@ public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCo
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , IStyledTypeFormatting typeFormatting
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
         InitializeOrderedCollectionBuilder
             (instanceOrContainer, typeBeingBuilt, master, typeName
-           , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType
+           , remainingGraphDepth, moldGraphVisit, writeMethodType
            , createFormatFlags | AsCollection);
 
         return this;
@@ -110,13 +108,12 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , IStyledTypeFormatting typeFormatting
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
         InitializeOrderedCollectionBuilder
             (instanceOrContainer, typeBeingBuilt, master, typeName
-           , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags | AsCollection);
+           , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags | AsCollection);
 
         return this;
     }

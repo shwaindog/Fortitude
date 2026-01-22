@@ -27,11 +27,11 @@ public class ContentJoinTypeMold<TMold> : KnownTypeMolder<ContentJoinTypeMold<TM
 
     public override void AppendClosing()
     {
-        var sf = MoldStateField.StyleFormatter;
-        var gb = sf.GraphBuilder;
+        var sf = MoldStateField.Sf;
+        var gb = sf.Gb;
 
-        IEncodingTransfer origGraphEncoder     = sf.GraphBuilder.GraphEncoder;
-        IEncodingTransfer origParentEncoder     = sf.GraphBuilder.ParentGraphEncoder;
+        IEncodingTransfer origGraphEncoder  = gb.GraphEncoder;
+        IEncodingTransfer origParentEncoder = gb.ParentGraphEncoder;
         
         var shouldSwitchEncoders = wasUpgradedToComplexType && gb.GraphEncoder.Type != gb.ParentGraphEncoder.Type;
 
@@ -68,7 +68,7 @@ public class ContentJoinTypeMold<TMold> : KnownTypeMolder<ContentJoinTypeMold<TM
     public ContentJoinTypeMold<TMold> CopyFrom(TMold source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         PortableState = ((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.PortableState;
-        SourceBuilderComponentAccess(((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.WriteMethod);
+        SourceBuilderComponentAccess(((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.CurrentWriteMethod);
 
         MoldStateField.CopyFrom(((ITypeBuilderComponentSource)source).MoldState, copyMergeFlags);
         initialWasComplex        = source.IsComplexType;

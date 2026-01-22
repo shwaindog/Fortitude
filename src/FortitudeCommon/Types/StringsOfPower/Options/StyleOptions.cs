@@ -729,7 +729,11 @@ public struct StyleOptionsValue : IJsonFormattingOptions
 
 public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, ITransferState<StyleOptions>
 {
-    private StyleOptionsValue values;
+    private static int globalInstanceId;
+
+    protected int               InstanceId = Interlocked.Increment(ref globalInstanceId);
+    
+    private   StyleOptionsValue values;
 
     private ICustomStringFormatter? formatter;
 
@@ -1278,4 +1282,6 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
         formatter = null!;
         base.InheritedStateReset();
     }
+
+    public override string ToString() => $"{{ {GetType().Name}: {InstanceId}, {Style}: {Style} }}";
 }

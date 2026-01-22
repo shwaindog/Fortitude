@@ -96,6 +96,12 @@ public class GraphInstanceRegistry(ITheOneString master) : IList<GraphNodeVisit>
         return SourceGraphVisitRefId((object)toStyle, type, formatFlags);
     }
 
+    public void UpdateVisitWriteMethod(int visitIndex, WriteMethodType newWriteMethod)
+    {
+        if (visitIndex >= OrderedObjectGraph.Count || visitIndex < 0) return;
+        OrderedObjectGraph[visitIndex] = OrderedObjectGraph[visitIndex].UpdateVisitWriteType(newWriteMethod);
+    }
+
     private VisitResult SourceGraphVisitRefId(object objToStyle, Type type, FormatFlags formatFlags)
     {
         if (type.IsValueType || formatFlags.HasNoRevisitCheck()) return VisitResult.Empty;

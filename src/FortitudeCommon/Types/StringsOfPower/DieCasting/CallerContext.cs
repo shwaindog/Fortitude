@@ -8,8 +8,6 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 public struct CallerContext : IStructTransferState<CallerContext>, IEquatable<CallerContext>
 {
-    // private          uint            packedDepthDelta;
-    
     private IStringBuilder? callerFieldName;
 
     public CallerContext() { }

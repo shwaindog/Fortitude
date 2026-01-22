@@ -24,15 +24,15 @@ public static class StyleFormattingSelector
                {
                    StringStyle.Json | StringStyle.Compact =>
                        theStringMaster.Recycler.Borrow<CompactJsonTypeFormatting>()
-                               .Initialize(theStringMaster.GraphBuilder, theStringMaster.Settings)
+                               .Initialize(theStringMaster.InitializedGraphBuilder(), theStringMaster.Settings, theStringMaster.WriteBuffer)
                  , StringStyle.Json | StringStyle.Pretty =>
                        theStringMaster.Recycler.Borrow<PrettyJsonTypeFormatting>()
-                                      .Initialize(theStringMaster.GraphBuilder, theStringMaster.Settings)
+                                      .Initialize(theStringMaster.InitializedGraphBuilder(), theStringMaster.Settings, theStringMaster.WriteBuffer)
                  , StringStyle.Log | StringStyle.Pretty =>
                        theStringMaster.Recycler.Borrow<PrettyLogTypeFormatting>()
-                                      .Initialize(theStringMaster.GraphBuilder, theStringMaster.Settings)
+                                      .Initialize(theStringMaster.InitializedGraphBuilder(), theStringMaster.Settings, theStringMaster.WriteBuffer)
                  , _ => Recycler.ThreadStaticRecycler.Borrow<CompactLogTypeFormatting>()
-                                .Initialize(theStringMaster.GraphBuilder, theStringMaster.Settings)
+                                .Initialize(theStringMaster.InitializedGraphBuilder(), theStringMaster.Settings, theStringMaster.WriteBuffer)
                };
     }
     

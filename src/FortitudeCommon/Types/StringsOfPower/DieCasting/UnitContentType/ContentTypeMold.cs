@@ -18,12 +18,11 @@ public class ContentTypeMold<TContentMold> : TransitioningTypeMolder<TContentMol
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , IStyledTypeFormatting typeFormatting
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
         Initialize(instanceOrContainer, typeBeingBuilt, master, typeName
-                 , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
+                 , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
 
         return this;
     }
@@ -35,27 +34,27 @@ public class ContentTypeMold<TContentMold> : TransitioningTypeMolder<TContentMol
 
     public override void StartFormattingTypeOpening()
     {
-        var formatter = MoldStateField!.StyleFormatter;
+        var formatter         = Msf!.StyleFormatter;
         if (Msf.SupportsMultipleFields)
         {
-            formatter.StartComplexTypeOpening(MoldStateField);
+            formatter.StartComplexTypeOpening(Msf);
         }
         else
         {
-            formatter.StartContentTypeOpening(MoldStateField);
+            formatter.StartContentTypeOpening(Msf);
         }
     }
 
     public override void CompleteTypeOpeningToTypeFields()
     {
-        var formatter = MoldStateField!.StyleFormatter;
+        var formatter = Msf!.StyleFormatter;
         if (IsComplexType)
         {
-            formatter.FinishComplexTypeOpening(MoldStateField);
+            formatter.FinishComplexTypeOpening(Msf);
         }
         else
         {
-            formatter.FinishContentTypeOpening(MoldStateField);
+            formatter.FinishContentTypeOpening(Msf);
         }
     }
 

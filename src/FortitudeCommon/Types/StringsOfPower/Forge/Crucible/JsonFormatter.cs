@@ -27,7 +27,17 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     public virtual IJsonFormattingOptions JsonOptions
     {
         get => (IJsonFormattingOptions)(FormatOptions ??= new JsonFormattingOptions());
-        set => FormatOptions = value;
+        set
+        {
+            // Console.Out.WriteLine($"Setting {ToString()}  JsonOptions: {value?.ToString() ?? "null"}");
+            FormatOptions = value;
+        }
+    }
+
+    public override IFormattingOptions Options
+    {
+        get => base.Options ?? JsonOptions;
+        set => base.Options = (IJsonFormattingOptions)value;
     }
 
     public JsonFormatter(IJsonFormattingOptions jsonFormattingOptions)
@@ -37,7 +47,6 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
 
     public JsonFormatter()
     {
-        JsonOptions = new JsonFormattingOptions();
     }
 
 

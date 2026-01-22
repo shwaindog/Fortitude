@@ -17,12 +17,11 @@ public class RawContentMold : KnownTypeMolder<RawContentMold>
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , IStyledTypeFormatting typeFormatting
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
         Initialize(instanceOrContainer, typeBeingBuilt, master, typeName
-                 , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
+                 , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
 
         return this;
     }
@@ -34,27 +33,26 @@ public class RawContentMold : KnownTypeMolder<RawContentMold>
     public override void StartFormattingTypeOpening()
     {
         var msf = MoldStateField;
-        msf.StyleFormatter.GraphBuilder.StartNextContentSeparatorPaddingSequence(msf.Sb, msf.CreateMoldFormatFlags);
-        if (msf.WriteMethod.SupportsMultipleFields())
+        msf.Sf.Gb.StartNextContentSeparatorPaddingSequence(msf.Sb, msf.CreateMoldFormatFlags);
+        if (msf.CurrentWriteMethod.SupportsMultipleFields())
         {
-            var formatter = MoldStateField!.StyleFormatter;
-            formatter.StartComplexTypeOpening(MoldStateField);
+            var formatter = msf.Sf;
+            formatter.StartComplexTypeOpening(msf);
         }
     }
 
     public override void CompleteTypeOpeningToTypeFields()
     {
-        
     }
 
     public override void AppendClosing()
     {
-        var msf         = MoldStateField;
-        var writeMethod = msf!.WriteMethod;
+        var msf         = State;
+        var writeMethod = msf.CurrentWriteMethod;
         if (writeMethod.SupportsMultipleFields())
         {
             var sf = msf.StyleFormatter;
-            var gb = sf.GraphBuilder;
+            var gb = sf.Gb;
             if (gb.GraphEncoder.Type != gb.ParentGraphEncoder.Type)
             {
                 
@@ -72,7 +70,7 @@ public class RawContentMold : KnownTypeMolder<RawContentMold>
             }
         }
         
-        msf.StyleFormatter.GraphBuilder.MarkContentEnd();
+        msf.Sf.Gb.MarkContentEnd();
     }
 
 }

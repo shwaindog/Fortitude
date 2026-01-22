@@ -21,12 +21,11 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , IStyledTypeFormatting typeFormatting
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
         InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, owning, typeName, remainingGraphDepth
-                                      , moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
+                                      , moldGraphVisit, writeMethodType, createFormatFlags);
 
         return this;
     }
@@ -35,7 +34,7 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
 
     public override void StartFormattingTypeOpening()
     {
-        State.StyleFormatter.StartComplexTypeOpening(State);
+        State.StyleFormatter.StartComplexTypeOpening(State, State.CreateMoldFormatFlags);
     }
     
     public override void AppendClosing()

@@ -19,12 +19,11 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , IStyledTypeFormatting typeFormatting
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
         InitializeOrderedCollectionBuilder(instanceOrContainer, typeBeingBuilt, master, typeName
-                                         , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
+                                         , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
 
         return this;
     }

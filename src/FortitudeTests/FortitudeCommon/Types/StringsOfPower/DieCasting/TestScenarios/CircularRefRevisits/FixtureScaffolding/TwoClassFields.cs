@@ -275,7 +275,7 @@ public class TwoSpanFormattableFirstAsComplexCloakedValueContent<TFmt>: IStringB
 
     public PalantírReveal<TFmt> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(cloaked)
-           .AsValue (nameof(FirstSpanFormattableField), cloaked, ValueFormatString, FormattingFlags)
+           .AsValue ($"CloakedRevealer{nameof(FirstSpanFormattableField)}", cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
@@ -324,7 +324,7 @@ public class TwoSpanFormattableSecondAsComplexCloakedValueContent<TFmt>: IString
 
     public PalantírReveal<TFmt> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(cloaked)
-           .AsValue (nameof(SecondSpanFormattableField), cloaked, ValueFormatString, FormattingFlags)
+           .AsValue ($"CloakedRevealer{nameof(SecondSpanFormattableField)}" , cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
@@ -373,7 +373,7 @@ public class TwoSpanFormattableFirstAsComplexCloakedStringContent<TFmt>: IString
 
     public PalantírReveal<TFmt> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(cloaked)
-           .AsString (nameof(FirstSpanFormattableField), cloaked, ValueFormatString, FormattingFlags)
+           .AsString ($"CloakedRevealer{nameof(FirstSpanFormattableField)}", cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
@@ -422,7 +422,7 @@ public class TwoSpanFormattableSecondAsComplexCloakedStringContent<TFmt>: IStrin
 
     public PalantírReveal<TFmt> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(cloaked)
-           .AsString (nameof(SecondSpanFormattableField), cloaked, ValueFormatString, FormattingFlags)
+           .AsString ($"CloakedRevealer{nameof(SecondSpanFormattableField)}", cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
@@ -716,7 +716,7 @@ public class TwoStringBearersFirstAsComplexCloakedValueContent<TBearer>: IString
 
     public PalantírReveal<TBearer> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(cloaked)
-           .RevealAsValue (nameof(FirstStringBearerField), cloaked, ValueFormatString, FormattingFlags)
+           .RevealAsValue ($"CloakedRevealer{nameof(FirstStringBearerField)}", cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
@@ -765,7 +765,7 @@ public class TwoStringBearersSecondAsComplexCloakedValueContent<TBearer>: IStrin
 
     public PalantírReveal<TBearer> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(cloaked)
-           .RevealAsValue (nameof(SecondStringBearerField), cloaked, ValueFormatString, FormattingFlags)
+           .RevealAsValue ($"CloakedRevealer{nameof(SecondStringBearerField)}", cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
@@ -814,7 +814,7 @@ public class TwoStringBearersFirstAsComplexCloakedStringContent<TBearer>: IStrin
 
     public PalantírReveal<TBearer> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(cloaked)
-           .RevealAsString (nameof(FirstStringBearerField), cloaked, ValueFormatString, FormattingFlags)
+           .RevealAsString ($"CloakedRevealer{nameof(FirstStringBearerField)}", cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
@@ -863,7 +863,7 @@ public class TwoStringBearersSecondAsComplexCloakedStringContent<TBearer>: IStri
 
     public PalantírReveal<TBearer> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(cloaked)
-           .RevealAsString (nameof(SecondStringBearerField), cloaked, ValueFormatString, FormattingFlags)
+           .RevealAsString ($"CloakedRevealer{nameof(SecondStringBearerField)}", cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
