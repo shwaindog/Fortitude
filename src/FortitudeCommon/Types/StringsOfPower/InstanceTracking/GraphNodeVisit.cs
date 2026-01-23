@@ -26,6 +26,7 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
           , int IndentLevel  
           , CallerContext CallerContext  
           , FormattingState FormattingState
+          , FormatFlags CurrentFormatFlags  
           , int RevisitCount = 0  
         )
         {
@@ -52,15 +53,15 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
             return this with
             {
                 RefId = newRefId
-              , TypeBuilderComponentAccess = TypeBuilderComponentAccess
-              , CurrentBufferTypeStart = CurrentBufferTypeStart
               , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
-              , CurrentBufferTypeEnd = CurrentBufferTypeEnd
-              , WriteMethod = WriteMethod
-              , IndentLevel  = IndentLevel
-              , CallerContext = CallerContext
-              , FormattingState = FormattingState
-              , RevisitCount = RevisitCount
+              // , TypeBuilderComponentAccess = TypeBuilderComponentAccess
+              // , CurrentBufferTypeStart = CurrentBufferTypeStart
+              // , CurrentBufferTypeEnd = CurrentBufferTypeEnd
+              // , WriteMethod = WriteMethod
+              // , IndentLevel  = IndentLevel
+              // , CallerContext = CallerContext
+              // , FormattingState = FormattingState
+              // , RevisitCount = RevisitCount
             };
         }
 
@@ -68,15 +69,15 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
         {
             return this with
             {
-                RefId = RefId
-              , TypeBuilderComponentAccess = TypeBuilderComponentAccess
-              , CurrentBufferTypeStart = CurrentBufferTypeStart
-              , CurrentBufferExpectedFirstFieldStart = bufferFirstFieldStart
-              , WriteMethod = WriteMethod
-              , IndentLevel  = indentLevel
-              , CallerContext = CallerContext
-              , FormattingState = FormattingState
-              , RevisitCount = RevisitCount
+               CurrentBufferExpectedFirstFieldStart = bufferFirstFieldStart
+             , IndentLevel  = indentLevel
+              // ,  RefId = RefId
+              // , TypeBuilderComponentAccess = TypeBuilderComponentAccess
+              // , CurrentBufferTypeStart = CurrentBufferTypeStart
+              // , WriteMethod = WriteMethod
+              // , CallerContext = CallerContext
+              // , FormattingState = FormattingState
+              // , RevisitCount = RevisitCount
             };
         }
 
@@ -84,16 +85,17 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
         {
             return this with
             {
-                RefId = RefId
-              , TypeBuilderComponentAccess = null
-              , CurrentBufferTypeStart = CurrentBufferTypeStart
-              , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
-              , CurrentBufferTypeEnd = contentEndIndex
+                CurrentBufferTypeEnd = contentEndIndex
               , WriteMethod = writeMethod
-              , IndentLevel  = IndentLevel
-              , CallerContext = CallerContext
-              , FormattingState = FormattingState
-              , RevisitCount = RevisitCount
+              , TypeBuilderComponentAccess = null
+              , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
+              // , RefId = RefId
+              // , CurrentBufferTypeStart = CurrentBufferTypeStart
+              // , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
+              // , IndentLevel  = IndentLevel
+              // , CallerContext = CallerContext
+              // , FormattingState = FormattingState
+              // , RevisitCount = RevisitCount
             };
         }
 
@@ -101,16 +103,55 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
         {
             return this with
             {
-                RefId = RefId
-              , TypeBuilderComponentAccess = null
-              , CurrentBufferTypeStart = CurrentBufferTypeStart
+                WriteMethod = writeMethod
               , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
-              , CurrentBufferTypeEnd = CurrentBufferTypeEnd
-              , WriteMethod = writeMethod
-              , IndentLevel  = IndentLevel
-              , CallerContext = CallerContext
-              , FormattingState = FormattingState
-              , RevisitCount = RevisitCount
+              // , RefId = RefId
+              // , TypeBuilderComponentAccess = TypeBuilderComponentAccess
+              // , CurrentBufferTypeStart = CurrentBufferTypeStart
+              // , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
+              // , CurrentBufferTypeEnd = CurrentBufferTypeEnd
+              // , IndentLevel  = IndentLevel
+              // , CallerContext = CallerContext
+              // , FormattingState = FormattingState
+              // , RevisitCount = RevisitCount
+            };
+        }
+
+        public GraphNodeVisit UpdateVisitAddFormatFlags(FormatFlags flagsToAdd)
+        {
+            return this with
+            {
+                CurrentFormatFlags = CurrentFormatFlags | flagsToAdd
+              , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
+              // , RefId = RefId
+              // , TypeBuilderComponentAccess = TypeBuilderComponentAccess
+              // , CurrentBufferTypeStart = CurrentBufferTypeStart
+              // , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
+              // , CurrentBufferTypeEnd = CurrentBufferTypeEnd
+              // , WriteMethod = WriteMethod
+              // , IndentLevel  = IndentLevel
+              // , CallerContext = CallerContext
+              // , FormattingState = FormattingState
+              // , RevisitCount = RevisitCount
+            };
+        }
+
+        public GraphNodeVisit UpdateVisitRemoveFormatFlags(FormatFlags flagsToRemove)
+        {
+            return this with
+            {
+                CurrentFormatFlags = CurrentFormatFlags & ~flagsToRemove
+              , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
+              // , RefId = RefId
+              // , TypeBuilderComponentAccess = TypeBuilderComponentAccess
+              // , CurrentBufferTypeStart = CurrentBufferTypeStart
+              // , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
+              // , CurrentBufferTypeEnd = CurrentBufferTypeEnd
+              // , WriteMethod = WriteMethod
+              // , IndentLevel  = IndentLevel
+              // , CallerContext = CallerContext
+              // , FormattingState = FormattingState
+              // , RevisitCount = RevisitCount
             };
         }
 
@@ -118,16 +159,16 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
         {
             return this with
             {
-                RefId = RefId
-              , TypeBuilderComponentAccess = TypeBuilderComponentAccess
-              , CurrentBufferTypeStart = CurrentBufferTypeStart + amountToShift
-              , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart + amountToShift
-              , CurrentBufferTypeEnd = CurrentBufferTypeEnd != -1 ? CurrentBufferTypeEnd + amountToShift : -1
-              , WriteMethod = WriteMethod
-              , IndentLevel  = IndentLevel
-              , CallerContext = CallerContext  
-              , FormattingState = FormattingState  
-              , RevisitCount = RevisitCount  
+                CurrentBufferTypeStart = CurrentBufferTypeStart + amountToShift
+                , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart + amountToShift
+                , CurrentBufferTypeEnd = CurrentBufferTypeEnd != -1 ? CurrentBufferTypeEnd + amountToShift : -1
+              // , RefId = RefId
+              // , TypeBuilderComponentAccess = TypeBuilderComponentAccess
+              // , WriteMethod = WriteMethod
+              // , IndentLevel  = IndentLevel
+              // , CallerContext = CallerContext  
+              // , FormattingState = FormattingState  
+              // , RevisitCount = RevisitCount  
             };
         }
 
@@ -144,12 +185,13 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
         public CallerContext CallerContext { get; init; }
         public FormattingState FormattingState { get; init; }
         
+        public FormatFlags CurrentFormatFlags { get; init; }
+        
         public int RevisitCount { get; init; }
         
         public int IndentLevel { get; init; }
         public int GraphDepth => FormattingState.GraphDepth;
         public int RemainingGraphDepth => FormattingState.RemainingGraphDepth;
-        public FormatFlags CreateWithFlags => FormattingState.CreateWithFlags;
 
         public IStyledTypeFormatting Formatter => FormattingState.Formatter;
         public IEncodingTransfer? GraphEncoder => FormattingState.GraphEncoder;

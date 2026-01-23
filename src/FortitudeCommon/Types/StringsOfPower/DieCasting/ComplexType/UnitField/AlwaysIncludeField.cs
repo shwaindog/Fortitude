@@ -45,14 +45,14 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
         where TCloaked : TRevealBase?
         where TRevealBase : notnull =>
         !stb.HasSkipField(value?.GetType() ?? typeof(TCloaked), fieldName, formatFlags) 
-          ? stb.RevealCloakedBearerField(fieldName, value, palantírReveal, formatString, formatFlags).AddGoToNext()
+          ? stb.RevealCloakedBearerField(fieldName, value, palantírReveal, formatString ?? "", formatFlags).AddGoToNext()
           : stb.WasSkipped(value?.GetType() ?? typeof(TCloaked), fieldName, formatFlags);
 
     public TMold AlwaysReveal<TCloakedStruct>(ReadOnlySpan<char> fieldName, TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TCloakedStruct : struct =>
       !stb.HasSkipField(typeof(TCloakedStruct?), fieldName, formatFlags) 
-        ? stb.RevealNullableCloakedBearerField(fieldName, value, palantírReveal, formatString, formatFlags).AddGoToNext()
+        ? stb.RevealNullableCloakedBearerField(fieldName, value, palantírReveal, formatString ?? "", formatFlags).AddGoToNext()
         : stb.WasSkipped(typeof(TCloakedStruct?), fieldName, formatFlags);
 
     public TMold AlwaysReveal<TBearer>(ReadOnlySpan<char> fieldName, TBearer value

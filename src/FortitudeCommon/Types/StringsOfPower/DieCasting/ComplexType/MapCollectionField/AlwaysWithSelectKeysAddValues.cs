@@ -23,7 +23,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
@@ -31,7 +31,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         {
             var key = selectKeys[i];
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueFormatString, keyFormatString);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueFormatString  ?? "", keyFormatString);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -53,7 +53,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
@@ -61,7 +61,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         {
             var key = selectKeys[i];
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueFormatString, keyFormatString);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueFormatString  ?? "", keyFormatString);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -83,7 +83,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
@@ -91,7 +91,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         {
             var key = selectKeys[i];
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueFormatString, keyFormatString);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueFormatString  ?? "", keyFormatString);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -113,7 +113,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
@@ -121,7 +121,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         {
             var key = selectKeys[i];
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueFormatString, keyFormatString);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueFormatString  ?? "", keyFormatString);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -150,7 +150,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         foreach (var key in selectKeys)
         {
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueFormatString, keyFormatString);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueFormatString  ?? "", keyFormatString);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -185,7 +185,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                 hasValue = selectKeys.MoveNext();
                 continue;
             }
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueFormatString, keyFormatString);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueFormatString  ?? "", keyFormatString);
             hasValue = selectKeys.MoveNext();
         }
         ekcm.AppendCollectionComplete();
@@ -211,7 +211,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
@@ -219,7 +219,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         {
             var key = selectKeys[i];
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -243,7 +243,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
@@ -251,7 +251,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         {
             var key = selectKeys[i];
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -276,7 +276,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
@@ -284,7 +284,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         {
             var key = selectKeys[i];
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -307,7 +307,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
@@ -315,7 +315,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         {
             var key = selectKeys[i];
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -340,7 +340,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
@@ -348,7 +348,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         {
             var key = selectKeys[i];
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -372,7 +372,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
@@ -380,7 +380,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         {
             var key = selectKeys[i];
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -405,7 +405,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
@@ -413,7 +413,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         {
             var key = selectKeys[i];
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -437,7 +437,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
@@ -445,7 +445,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         {
             var key = selectKeys[i];
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -470,14 +470,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         foreach (var key in selectKeys)
         {
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -501,14 +501,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         foreach (var key in selectKeys)
         {
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -533,7 +533,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var hasValue = selectKeys?.MoveNext() ?? false;
@@ -546,7 +546,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                 hasValue = selectKeys.MoveNext();
                 continue;
             }
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags);
             hasValue = selectKeys.MoveNext();
         }
         ekcm.AppendCollectionComplete();
@@ -572,7 +572,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         var hasValue = selectKeys.MoveNext();
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
@@ -584,7 +584,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                 hasValue = selectKeys.MoveNext();
                 continue;
             }
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags);
             hasValue = selectKeys.MoveNext();
         }
         ekcm.AppendCollectionComplete();
@@ -612,7 +612,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
@@ -620,7 +620,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         {
             var key = selectKeys[i];
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -646,7 +646,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
@@ -654,7 +654,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         {
             var key = selectKeys[i];
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -681,7 +681,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
@@ -689,7 +689,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         {
             var key = selectKeys[i];
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -715,7 +715,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
@@ -723,7 +723,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         {
             var key = selectKeys[i];
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -750,7 +750,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
@@ -758,7 +758,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         {
             var key = selectKeys[i];
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -784,7 +784,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
@@ -792,7 +792,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         {
             var key = selectKeys[i];
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -819,7 +819,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
@@ -827,7 +827,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         {
             var key = selectKeys[i];
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -853,7 +853,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
@@ -861,7 +861,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         {
             var key = selectKeys[i];
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -888,14 +888,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         foreach (var key in selectKeys)
         {
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -921,14 +921,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
         foreach (var key in selectKeys)
         {
             if (!value.TryGetValue(key, out var keyValue)) continue;
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
         }
         ekcm.AppendCollectionComplete();
         return stb.AddGoToNext();
@@ -955,7 +955,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         stb.FieldNameJoin(fieldName);
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var hasValue = selectKeys?.MoveNext() ?? false;
@@ -969,7 +969,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                 hasValue = selectKeys.MoveNext();
                 continue;
             }
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
             hasValue = selectKeys.MoveNext();
         }
         ekcm.AppendCollectionComplete();
@@ -997,7 +997,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         var hasValue = selectKeys.MoveNext();
         if (value == null)
         {
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
             return stb.AddGoToNext();
         }
         var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
@@ -1009,7 +1009,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                 hasValue = selectKeys.MoveNext();
                 continue;
             }
-            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+            ekcm.AddKeyValueMatchAndGoToNextEntry(key, keyValue, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
             hasValue = selectKeys.MoveNext();
         }
         ekcm.AppendCollectionComplete();

@@ -9,6 +9,7 @@ using System.Text;
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.DataStructures.MemoryPools.Buffers;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using static FortitudeCommon.Types.StringsOfPower.Forge.FormatSwitches;
 
@@ -1962,5 +1963,20 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     {
         (StringEncoderTransfer as IRecyclableObject)?.DecrementRefCount();
         base.StateReset();
+    }
+
+    public ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags) => throw new NotImplementedException();
+
+    object ICloneable.Clone() => Clone();
+
+    public IReusableObject<ICustomStringFormatter> CopyFrom(IReusableObject<ICustomStringFormatter> source
+      , CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default) => throw new NotImplementedException();
+
+    public ICustomStringFormatter Clone() => throw new NotImplementedException();
+
+    public ICustomStringFormatter CopyFrom(ICustomStringFormatter source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        
+        return this;
     }
 }

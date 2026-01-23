@@ -63,6 +63,7 @@ public class GraphInstanceRegistry(ITheOneString master) : IList<GraphNodeVisit>
 
     public bool WasVisitOnSameInstance(object objToStyle, GraphNodeVisit checkVisit)
     {
+        if (checkVisit.CurrentFormatFlags.HasNoRevisitCheck()) return false;
         var checkRef       = checkVisit.VisitedInstance;
         var isSameInstance = UseReferenceEqualsForVisited ? ReferenceEquals(checkRef, objToStyle) : Equals(checkRef, objToStyle);
         return isSameInstance;
@@ -100,6 +101,18 @@ public class GraphInstanceRegistry(ITheOneString master) : IList<GraphNodeVisit>
     {
         if (visitIndex >= OrderedObjectGraph.Count || visitIndex < 0) return;
         OrderedObjectGraph[visitIndex] = OrderedObjectGraph[visitIndex].UpdateVisitWriteType(newWriteMethod);
+    }
+
+    public void UpdateVisitAddFormatFlags(int visitIndex, FormatFlags flagsToAdd)
+    {
+        if (visitIndex >= OrderedObjectGraph.Count || visitIndex < 0) return;
+        OrderedObjectGraph[visitIndex] = OrderedObjectGraph[visitIndex].UpdateVisitAddFormatFlags(flagsToAdd);
+    }
+
+    public void UpdateVisitRemoveFormatFlags(int visitIndex, FormatFlags flagsToRemove)
+    {
+        if (visitIndex >= OrderedObjectGraph.Count || visitIndex < 0) return;
+        OrderedObjectGraph[visitIndex] = OrderedObjectGraph[visitIndex].UpdateVisitRemoveFormatFlags(flagsToRemove);
     }
 
     private VisitResult SourceGraphVisitRefId(object objToStyle, Type type, FormatFlags formatFlags)

@@ -66,7 +66,7 @@ public abstract class CommonScaffoldExpectationTestBase : CommonExpectationBase
 
         var sb = SourceTheOnStringStringBuilder(usingStringBuilder);
 
-        TheOneString.ReInitialize(sb, TestStyle);
+        MyTheOneString.ReInitialize(sb, TestStyle);
 
         Logger.InfoAppend("To Debug Test past the following code into ")?
               .Append(GetType().Name).Append(".").Append(nameof(RunExecuteIndividualScaffoldExpectation)).AppendLine("\n")
@@ -85,19 +85,19 @@ public abstract class CommonScaffoldExpectationTestBase : CommonExpectationBase
         {
             complexFieldExpectation.WhenValueExpectedOutput = BuildExpectedChildOutput;
         }
-        var stringBearer                = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall, TheOneString.Settings);
+        var stringBearer                = formatExpectation.CreateStringBearerWithValueFor(scaffoldingToCall, MyTheOneString.Settings);
         var resultWithVisibleWhiteSpace = Recycler.Borrow<CharArrayStringBuilder>();
-        stringBearer.RevealState(TheOneString);
-        TheOneString.WriteBuffer.CopyAndMakeWhiteSpaceVisible(resultWithVisibleWhiteSpace);
+        stringBearer.RevealState(MyTheOneString);
+        MyTheOneString.WriteBuffer.CopyAndMakeWhiteSpaceVisible(resultWithVisibleWhiteSpace);
         var buildExpectedWithVisibleWhiteSpace = Recycler.Borrow<CharArrayStringBuilder>();
         var buildExpectedOutput =
             BuildExpectedRootOutput
-                (Recycler, TheOneString, stringBearer.GetType()
+                (Recycler, MyTheOneString, stringBearer.GetType()
                , ((ISinglePropertyTestStringBearer)stringBearer).PropertyName
                , scaffoldingToCall.ScaffoldingFlags
                , formatExpectation);
         buildExpectedOutput.CopyAndMakeWhiteSpaceVisible(buildExpectedWithVisibleWhiteSpace);
-        if (!TheOneString.WriteBuffer.SequenceMatches(buildExpectedOutput))
+        if (!MyTheOneString.WriteBuffer.SequenceMatches(buildExpectedOutput))
         {
             Logger.ErrorAppend("Result Did not match Expected - ")?.AppendLine()
                   .Append(resultWithVisibleWhiteSpace).AppendLine()

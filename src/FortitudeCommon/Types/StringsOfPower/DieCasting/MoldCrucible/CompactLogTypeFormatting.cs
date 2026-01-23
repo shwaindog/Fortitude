@@ -918,9 +918,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         where TRevealBase : notnull
     {
         var sb = tos.WriteBuffer;
+        var withMoldInherited = callerFormatFlags 
+                              | (tos.CurrentTypeBuilder?.CreateFormatFlags ?? DefaultCallerTypeFlags) & MoldAlwaysInherited;
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         tos.SetCallerFormatString(callerFormatString);
-        tos.SetCallerFormatFlags(callerFormatFlags);
+        tos.SetCallerFormatFlags(withMoldInherited  | IsFieldName);
         if (value == null) { AppendFormattedNull(sb, ""); }
         else { valueRevealer(value, tos); }
         Gb.MarkContentEnd();
@@ -931,9 +933,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
       , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?
     {
         var sb = tos.WriteBuffer;
+        var withMoldInherited = callerFormatFlags 
+                              | (tos.CurrentTypeBuilder?.CreateFormatFlags ?? DefaultCallerTypeFlags) & MoldAlwaysInherited;
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         tos.SetCallerFormatString(callerFormatString);
-        tos.SetCallerFormatFlags(callerFormatFlags);
+        tos.SetCallerFormatFlags(withMoldInherited  | IsFieldName);
         if (styledObj == null) { AppendFormattedNull(sb, callerFormatString, callerFormatFlags); }
         else { styledObj.RevealState(tos); }
         Gb.MarkContentEnd();

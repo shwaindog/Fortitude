@@ -53,6 +53,10 @@ public interface ITheOneString : IReusableObject<ITheOneString>
 
     ITheOneString ClearAndReinitialize
         (StyleOptionsValue styleOptions, int indentLevel = 0, FormatFlags initialTypeCreateFlags = DefaultCallerTypeFlags);
+    
+    ITheOneString ClearKeepSettings(int indentLevel = 0, FormatFlags initialTypeCreateFlags = DefaultCallerTypeFlags);
+
+    ITheOneString ClearAndToDefaultSettings(int indentLevel = 0, FormatFlags initialTypeFlags = DefaultCallerTypeFlags);
 
     ITheOneString Clear(int indentLevel = 0, FormatFlags initialTypeCreateFlags = DefaultCallerTypeFlags);
 
@@ -118,6 +122,8 @@ public interface ISecretStringOfPower : ITheOneString
     void TypeComplete(ITypeMolderDieCast completeType);
 
     void UpdateVisitWriteMethod(int visitIndex, WriteMethodType newWriteMethod);
+    void UpdateVisitAddFormatFlags(int visitIndex, FormatFlags flagsToAdd);
+    void UpdateVisitRemoveFormatFlags(int visitIndex, FormatFlags flagsToRemove);
 
     ITheOneString AddBaseFieldsStart();
 }
@@ -227,16 +233,9 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         Sb.Append(toClone.Sb);
         nextTypeCreateFlags = toClone.nextTypeCreateFlags;
 
-        if (DefaultSettings == null)
-        {
-            Settings.Style     = toClone.Style;
-            Settings.Formatter = toClone.Formatter;
-        }
-        else
-        {
-            Settings.Values    = DefaultSettings.Values;
-            Settings.Formatter = DefaultSettings.Formatter;
-        }
+        Settings.Values    = DefaultSettings.Values;
+        Settings.Formatter = DefaultSettings.Formatter;
+        
         InstanceVisitRegistry = new GraphInstanceRegistry(this);
     }
 
@@ -280,7 +279,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         }
     }
 
-    public static StyleOptions? DefaultSettings { get; set; }
+    public static StyleOptions DefaultSettings { get; set; } = new ();
 
     public int IndentLevel
     {
@@ -337,44 +336,19 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
         Sb = usingStringBuilder;
 
+        Settings.Values = DefaultSettings.Values;
         Settings.Style = buildStyle;
-        IndentLevel    = 0;
-
-        CallerContext = CallerContext.Clear();
-
-
-        var checkFormatter = CurrentStyledTypeFormatter;
-        CurrentGraphBuilder.StateReset();
-        checkFormatter.Initialize(CurrentGraphBuilder, Settings, Sb);
-
-
-        InstanceVisitRegistry.ClearObjectVisitedGraph();
-        Settings.Formatter = checkFormatter;
-
-        // Console.Out.WriteLine($"Using formatter {Formatter}");
-
-        return this;
+        
+        return Clear();
     }
 
     public ITheOneString ClearAndReinitialize
         (StringStyle style, int indentLevel = 0, FormatFlags initialTypeFlags = DefaultCallerTypeFlags)
     {
-        Settings.Style = style;
-
-        IndentLevel = indentLevel;
-
-        nextTypeCreateFlags = initialTypeFlags;
-        Sb?.Clear();
-        Sb ??= BufferFactory();
-
-        CallerContext = CallerContext.Clear();
-
-        var checkFormatter = CurrentStyledTypeFormatter;
-        CurrentGraphBuilder.StateReset();
-        checkFormatter.Initialize(CurrentGraphBuilder, Settings, Sb);
-
-        // Console.Out.WriteLine($"Using formatter {Formatter}");
-        return ClearVisitHistory();
+        Settings.Values = DefaultSettings.Values;
+        Settings.Style  = style;
+        
+        return Clear(indentLevel, initialTypeFlags);
     }
 
     public ITheOneString ClearAndReinitialize(StyleOptions styleOptions, int indentLevel = 0
@@ -382,20 +356,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     {
         Settings = styleOptions;
 
-        IndentLevel = indentLevel;
-
-        nextTypeCreateFlags = initialTypeFlags;
-        Sb?.Clear();
-        Sb ??= BufferFactory();
-
-        CallerContext = CallerContext.Clear();
-
-        var checkFormatter = CurrentStyledTypeFormatter;
-        CurrentGraphBuilder.StateReset();
-        checkFormatter.Initialize(CurrentGraphBuilder, Settings, Sb);
-
-        // Console.Out.WriteLine($"Using formatter {Formatter}");
-        return ClearVisitHistory();
+        return Clear(indentLevel, initialTypeFlags);
     }
 
     public ITheOneString ClearAndReinitialize(StyleOptionsValue styleOptionsValue, int indentLevel = 0
@@ -403,11 +364,17 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     {
         Settings.Values = styleOptionsValue;
 
-        IndentLevel = indentLevel;
+        return Clear(indentLevel, initialTypeFlags);
+    }
 
+    public ITheOneString Clear(int indentLevel = 0, FormatFlags initialTypeFlags = DefaultCallerTypeFlags)
+    {
         nextTypeCreateFlags = initialTypeFlags;
         Sb?.Clear();
+
         Sb ??= BufferFactory();
+
+        IndentLevel = indentLevel;
 
         CallerContext = CallerContext.Clear();
 
@@ -415,11 +382,19 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         CurrentGraphBuilder.StateReset();
         checkFormatter.Initialize(CurrentGraphBuilder, Settings, Sb);
 
+
         // Console.Out.WriteLine($"Using formatter {Formatter}");
         return ClearVisitHistory();
     }
 
-    public ITheOneString Clear(int indentLevel = 0, FormatFlags initialTypeFlags = DefaultCallerTypeFlags)
+    public ITheOneString ClearAndToDefaultSettings(int indentLevel = 0, FormatFlags initialTypeFlags = DefaultCallerTypeFlags)
+    {
+        Settings.Values = DefaultSettings.Values;
+        
+        return Clear(indentLevel, initialTypeFlags);
+    }
+
+    public ITheOneString ClearKeepSettings(int indentLevel = 0, FormatFlags initialTypeFlags = DefaultCallerTypeFlags)
     {
         nextTypeCreateFlags = initialTypeFlags;
         Sb?.Clear();
@@ -826,7 +801,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
                 (InstanceVisitRegistry.Count, InstanceVisitRegistry.CurrentGraphNodeIndex
                , visitType, visitType
                , ((ITypeBuilderComponentSource)typeMold).MoldState, writeMethod
-               , null, Sb!.Length, IndentLevel, CallerContext, fmtState
+               , null, Sb!.Length, IndentLevel, CallerContext, fmtState, formatFlags
                , typeMold.MoldVisit.LastRevisitCount + 1)
                 {
                     TypeBuilderComponentAccess = ((ITypeBuilderComponentSource)typeMold).MoldState
@@ -851,7 +826,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
                 (InstanceVisitRegistry.Count, InstanceVisitRegistry.CurrentGraphNodeIndex
                , toStyle?.GetType() ?? visitType, visitType
                , ((ITypeBuilderComponentSource)typeMold).MoldState, writeMethod
-               , wrapped, Sb!.Length, IndentLevel, CallerContext, fmtState
+               , wrapped, Sb!.Length, IndentLevel, CallerContext, fmtState, formatFlags
                , typeMold.MoldVisit.LastRevisitCount + 1);
 
         if (newVisit.ObjVisitIndex != InstanceVisitRegistry.Count) throw new ArgumentException("ObjVisitIndex to be the size of OrderedObjectGraph");
@@ -875,6 +850,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     {
         return typeStarted.IsValueType
             || formatFlags.HasNoRevisitCheck()
+            || (Settings.InstanceTrackingAllAsStringClassesAreExempt && formatFlags.HasAsStringContentFlag())   
             || typeStarted.IsString()
             || typeStarted.IsStringBuilder()
             || typeStarted.IsCharArray()
@@ -932,7 +908,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var charsInserted =
             formatter.InsertInstanceReferenceId
                 (insertGraphBuilder, forThisNode.ActualType, refId, indexToInsertAt, forThisNode.WriteMethod
-               , fmtState.CreateWithFlags, forThisNode.CurrentBufferTypeEnd, activeMold);
+               , forThisNode.CurrentFormatFlags, forThisNode.CurrentBufferTypeEnd, activeMold);
 
         insertGraphBuilder.DecrementRefCount();
         if (charsInserted == 0) return;
@@ -962,12 +938,24 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         InstanceVisitRegistry.UpdateVisitWriteMethod(visitIndex, newWriteMethod);
     }
 
+    public void UpdateVisitAddFormatFlags(int visitIndex, FormatFlags flagsToAdd)
+    {
+        if (InstanceVisitRegistry.Count < visitIndex) return;
+        InstanceVisitRegistry.UpdateVisitAddFormatFlags(visitIndex, flagsToAdd);
+    }
+
+    public void UpdateVisitRemoveFormatFlags(int visitIndex, FormatFlags flagsToRemove)
+    {
+        if (InstanceVisitRegistry.Count < visitIndex) return;
+        InstanceVisitRegistry.UpdateVisitRemoveFormatFlags(visitIndex, flagsToRemove);
+    }
+
 
     protected virtual IStringBuilder SourceStringBuilder() => Sb ??= BufferFactory();
 
     public override void StateReset()
     {
-        Clear();
+        ClearAndToDefaultSettings();
 
         base.StateReset();
     }

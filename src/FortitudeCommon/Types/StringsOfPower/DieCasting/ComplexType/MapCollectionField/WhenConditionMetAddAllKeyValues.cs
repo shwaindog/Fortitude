@@ -8,48 +8,64 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.MapCollect
 
 public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolder
 {
-    public TExt WhenNonNullAddAll<TKey, TValue>(
-      string fieldName
+    public TExt WhenConditionMetAddAll<TKey, TValue>(
+      bool condition
+    , string fieldName
     , IReadOnlyDictionary<TKey, TValue>? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
     , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-      WhenConditionMetAddAll(value != null, fieldName, value, valueFormatString, keyFormatString, formatFlags);
+      condition 
+          ? AlwaysAddAll(fieldName, value, valueFormatString ?? "", keyFormatString ?? "", formatFlags) 
+          : stb.WasSkipped(value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAll<TKey, TValue>(
-      string fieldName
+    public TExt WhenConditionMetAddAll<TKey, TValue>(
+      bool condition
+    , string fieldName
     , KeyValuePair<TKey, TValue>[]? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
     , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-      WhenConditionMetAddAll(value != null, fieldName, value, valueFormatString, keyFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAll(fieldName, value, valueFormatString ?? "", keyFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAll<TKey, TValue>(
-      string fieldName
+    public TExt WhenConditionMetAddAll<TKey, TValue>(
+      bool condition
+    , string fieldName
     , IReadOnlyList<KeyValuePair<TKey, TValue>>? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
     , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-      WhenConditionMetAddAll(value != null, fieldName, value, valueFormatString, keyFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAll(fieldName, value, valueFormatString ?? "", keyFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAllEnumerate<TKey, TValue>(
-      string fieldName
+    public TExt WhenConditionMetAddAllEnumerate<TKey, TValue>(
+      bool condition
+    , string fieldName
     , IEnumerable<KeyValuePair<TKey, TValue>>? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
     , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-      WhenConditionMetAddAllEnumerate(value != null, fieldName, value, valueFormatString, keyFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAllEnumerate(fieldName, value, valueFormatString ?? "", keyFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAllEnumerate<TKey, TValue>(
-      string fieldName
+    public TExt WhenConditionMetAddAllEnumerate<TKey, TValue>(
+      bool condition
+    , string fieldName
     , IEnumerator<KeyValuePair<TKey, TValue>>? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
     , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-      WhenConditionMetAddAllEnumerate(value != null, fieldName, value, valueFormatString, keyFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAllEnumerate(fieldName, value, valueFormatString ?? "", keyFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAll<TKey, TValue, TVRevealBase>(
-      string fieldName
+    public TExt WhenConditionMetAddAll<TKey, TValue, TVRevealBase>(
+      bool condition
+    , string fieldName
     , IReadOnlyDictionary<TKey, TValue>? value
     , PalantírReveal<TVRevealBase> valueRevealer
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
@@ -57,20 +73,26 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     , FormatFlags formatFlags = DefaultCallerTypeFlags) 
        where TValue : TVRevealBase?  
        where TVRevealBase : notnull =>
-      WhenConditionMetAddAll(value != null, fieldName, value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAll(fieldName, value, valueRevealer, keyFormatString ?? "", valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAll<TKey, TValue>(
-      string fieldName
+    public TExt WhenConditionMetAddAll<TKey, TValue>(
+      bool condition
+    , string fieldName
     , IReadOnlyDictionary<TKey, TValue?>? value
     , PalantírReveal<TValue> valueRevealer
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-    , FormatFlags formatFlags = DefaultCallerTypeFlags)
-      where TValue : struct =>
-      WhenConditionMetAddAll(value != null, fieldName, value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+    , FormatFlags formatFlags = DefaultCallerTypeFlags) 
+       where TValue : struct   =>
+      condition 
+        ? AlwaysAddAll(fieldName, value, valueRevealer, keyFormatString ?? "", valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAll<TKey, TValue, TVRevealBase>(
-      string fieldName
+    public TExt WhenConditionMetAddAll<TKey, TValue, TVRevealBase>(
+      bool condition
+    , string fieldName
     , KeyValuePair<TKey, TValue>[]? value
     , PalantírReveal<TVRevealBase> valueRevealer
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
@@ -78,20 +100,26 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TValue : TVRevealBase? 
         where TVRevealBase : notnull =>
-      WhenConditionMetAddAll(value != null, fieldName, value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAll(fieldName, value, valueRevealer, keyFormatString ?? "", valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAll<TKey, TValue>(
-      string fieldName
+    public TExt WhenConditionMetAddAll<TKey, TValue>(
+      bool condition
+    , string fieldName
     , KeyValuePair<TKey, TValue?>[]? value
     , PalantírReveal<TValue> valueRevealer
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
     , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TValue : struct  =>
-      WhenConditionMetAddAll(value != null, fieldName, value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAll(fieldName, value, valueRevealer, keyFormatString ?? "", valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAll<TKey, TValue, TVRevealBase>(
-      string fieldName
+    public TExt WhenConditionMetAddAll<TKey, TValue, TVRevealBase>(
+      bool condition
+    , string fieldName
     , IReadOnlyList<KeyValuePair<TKey, TValue>>? value
     , PalantírReveal<TVRevealBase> valueRevealer
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
@@ -99,20 +127,26 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TValue : TVRevealBase? 
         where TVRevealBase : notnull =>
-      WhenConditionMetAddAll(value != null, fieldName, value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAll(fieldName, value, valueRevealer, keyFormatString ?? "", valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAll<TKey, TValue>(
-      string fieldName
+    public TExt WhenConditionMetAddAll<TKey, TValue>(
+      bool condition
+    , string fieldName
     , IReadOnlyList<KeyValuePair<TKey, TValue?>>? value
     , PalantírReveal<TValue> valueRevealer
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
     , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TValue : struct  =>
-      WhenConditionMetAddAll(value != null, fieldName, value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAll(fieldName, value, valueRevealer, keyFormatString ?? "", valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAllEnumerate<TKey, TValue, TVRevealBase>(
-      string fieldName
+    public TExt WhenConditionMetAddAllEnumerate<TKey, TValue, TVRevealBase>(
+      bool condition
+    , string fieldName
     , IEnumerable<KeyValuePair<TKey, TValue>>? value
     , PalantírReveal<TVRevealBase> valueRevealer
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
@@ -120,20 +154,26 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     , FormatFlags formatFlags = DefaultCallerTypeFlags) 
        where TValue : TVRevealBase? 
        where TVRevealBase : notnull =>
-      WhenConditionMetAddAllEnumerate(value != null, fieldName, value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAllEnumerate(fieldName, value, valueRevealer, keyFormatString ?? "", valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAllEnumerate<TKey, TValue>(
-      string fieldName
+    public TExt WhenConditionMetAddAllEnumerate<TKey, TValue>(
+      bool condition
+    , string fieldName
     , IEnumerable<KeyValuePair<TKey, TValue?>>? value
     , PalantírReveal<TValue> valueRevealer
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
     , FormatFlags formatFlags = DefaultCallerTypeFlags) 
        where TValue : struct  =>
-      WhenConditionMetAddAllEnumerate(value != null, fieldName, value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAllEnumerate(fieldName, value, valueRevealer, keyFormatString ?? "", valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAllEnumerate<TKey, TValue, TVRevealBase>(
-      string fieldName
+    public TExt WhenConditionMetAddAllEnumerate<TKey, TValue, TVRevealBase>(
+      bool condition
+    , string fieldName
     , IEnumerator<KeyValuePair<TKey, TValue>>? value
     , PalantírReveal<TVRevealBase> valueRevealer
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
@@ -141,20 +181,26 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TValue : TVRevealBase? 
         where TVRevealBase : notnull =>
-      WhenConditionMetAddAllEnumerate(value != null, fieldName, value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAllEnumerate(fieldName, value, valueRevealer, keyFormatString ?? "", valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAllEnumerate<TKey, TValue>(
-      string fieldName
+    public TExt WhenConditionMetAddAllEnumerate<TKey, TValue>(
+      bool condition
+    , string fieldName
     , IEnumerator<KeyValuePair<TKey, TValue?>>? value
     , PalantírReveal<TValue> valueRevealer
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
     , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TValue : struct  =>
-      WhenConditionMetAddAllEnumerate(value != null, fieldName, value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAllEnumerate(fieldName, value, valueRevealer, keyFormatString ?? "", valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAll<TKey, TValue, TKRevealBase, TVRevealBase>(
-      string fieldName
+    public TExt WhenConditionMetAddAll<TKey, TValue, TKRevealBase, TVRevealBase>(
+      bool condition
+    , string fieldName
     , IReadOnlyDictionary<TKey, TValue>? value
     , PalantírReveal<TVRevealBase> valueRevealer
     , PalantírReveal<TKRevealBase> keyRevealer
@@ -164,10 +210,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
        where TValue : TVRevealBase? 
        where TKRevealBase : notnull
        where TVRevealBase : notnull =>
-      WhenConditionMetAddAll(value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAll(fieldName, value, valueRevealer, keyRevealer, valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAll<TKey, TValue, TKRevealBase>(
-      string fieldName
+    public TExt WhenConditionMetAddAll<TKey, TValue, TKRevealBase>(
+      bool condition
+    , string fieldName
     , IReadOnlyDictionary<TKey, TValue?>? value
     , PalantírReveal<TValue> valueRevealer
     , PalantírReveal<TKRevealBase> keyRevealer
@@ -176,10 +225,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
        where TKey : TKRevealBase 
        where TValue : struct 
        where TKRevealBase : notnull =>
-      WhenConditionMetAddAll(value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAll(fieldName, value, valueRevealer, keyRevealer, valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAll<TKey, TValue, TKRevealBase, TVRevealBase>(
-      string fieldName
+    public TExt WhenConditionMetAddAll<TKey, TValue, TKRevealBase, TVRevealBase>(
+      bool condition
+    , string fieldName
     , KeyValuePair<TKey, TValue>[]? value
     , PalantírReveal<TVRevealBase> valueRevealer
     , PalantírReveal<TKRevealBase> keyRevealer
@@ -189,10 +241,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : TVRevealBase? 
         where TKRevealBase : notnull
         where TVRevealBase : notnull =>
-      WhenConditionMetAddAll(value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAll(fieldName, value, valueRevealer, keyRevealer, valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAll<TKey, TValue, TVRevealBase>(
-      string fieldName
+    public TExt WhenConditionMetAddAll<TKey, TValue, TVRevealBase>(
+      bool condition
+    , string fieldName
     , KeyValuePair<TKey?, TValue>[]? value
     , PalantírReveal<TVRevealBase> valueRevealer
     , PalantírReveal<TKey> keyRevealer
@@ -201,10 +256,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKey : struct 
         where TValue : TVRevealBase? 
         where TVRevealBase : notnull =>
-      WhenConditionMetAddAll(value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAll(fieldName, value, valueRevealer, keyRevealer, valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAll<TKey, TValue, TKRevealBase>(
-      string fieldName
+    public TExt WhenConditionMetAddAll<TKey, TValue, TKRevealBase>(
+      bool condition
+    , string fieldName
     , KeyValuePair<TKey, TValue?>[]? value
     , PalantírReveal<TValue> valueRevealer
     , PalantírReveal<TKRevealBase> keyRevealer
@@ -213,10 +271,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKey : TKRevealBase? 
         where TValue : struct 
         where TKRevealBase : notnull =>
-      WhenConditionMetAddAll(value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAll(fieldName, value, valueRevealer, keyRevealer, valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAll<TKey, TValue>(
-      string fieldName
+    public TExt WhenConditionMetAddAll<TKey, TValue>(
+      bool condition
+    , string fieldName
     , KeyValuePair<TKey?, TValue?>[]? value
     , PalantírReveal<TValue> valueRevealer
     , PalantírReveal<TKey> keyRevealer
@@ -224,10 +285,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TKey : struct 
         where TValue : struct  =>
-      WhenConditionMetAddAll(value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAll(fieldName, value, valueRevealer, keyRevealer, valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAll<TKey, TValue, TKRevealBase, TVRevealBase>(
-      string fieldName
+    public TExt WhenConditionMetAddAll<TKey, TValue, TKRevealBase, TVRevealBase>(
+      bool condition
+    , string fieldName
     , IReadOnlyList<KeyValuePair<TKey, TValue>>? value
     , PalantírReveal<TVRevealBase> valueRevealer
     , PalantírReveal<TKRevealBase> keyRevealer
@@ -237,10 +301,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : TVRevealBase? 
         where TKRevealBase : notnull
         where TVRevealBase : notnull =>
-      WhenConditionMetAddAll(value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAll(fieldName, value, valueRevealer, keyRevealer, valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAll<TKey, TValue, TVRevealBase>(
-      string fieldName
+    public TExt WhenConditionMetAddAll<TKey, TValue, TVRevealBase>(
+      bool condition
+    , string fieldName
     , IReadOnlyList<KeyValuePair<TKey?, TValue>>? value
     , PalantírReveal<TVRevealBase> valueRevealer
     , PalantírReveal<TKey> keyRevealer
@@ -249,10 +316,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKey : struct 
         where TValue : TVRevealBase? 
         where TVRevealBase : notnull =>
-      WhenConditionMetAddAll(value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAll(fieldName, value, valueRevealer, keyRevealer, valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAll<TKey, TValue, TKRevealBase>(
-      string fieldName
+    public TExt WhenConditionMetAddAll<TKey, TValue, TKRevealBase>(
+      bool condition
+    , string fieldName
     , IReadOnlyList<KeyValuePair<TKey, TValue?>>? value
     , PalantírReveal<TValue> valueRevealer
     , PalantírReveal<TKRevealBase> keyRevealer
@@ -261,10 +331,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       where TKey : TKRevealBase? 
       where TValue : struct 
       where TKRevealBase : notnull =>
-      WhenConditionMetAddAll(value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAll(fieldName, value, valueRevealer, keyRevealer, valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAll<TKey, TValue>(
-      string fieldName
+    public TExt WhenConditionMetAddAll<TKey, TValue>(
+      bool condition
+    , string fieldName
     , IReadOnlyList<KeyValuePair<TKey?, TValue?>>? value
     , PalantírReveal<TValue> valueRevealer
     , PalantírReveal<TKey> keyRevealer
@@ -272,10 +345,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     , FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TKey : struct 
       where TValue : struct  =>
-      WhenConditionMetAddAll(value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAll(fieldName, value, valueRevealer, keyRevealer, valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAllEnumerate<TKey, TValue, TKRevealBase, TVRevealBase>(
-      string fieldName
+    public TExt WhenConditionMetAddAllEnumerate<TKey, TValue, TKRevealBase, TVRevealBase>(
+      bool condition
+    , string fieldName
     , IEnumerable<KeyValuePair<TKey, TValue>>? value
     , PalantírReveal<TVRevealBase> valueRevealer
     , PalantírReveal<TKRevealBase> keyRevealer
@@ -285,10 +361,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
        where TValue : TVRevealBase? 
        where TKRevealBase : notnull
        where TVRevealBase : notnull =>
-      WhenConditionMetAddAllEnumerate(value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAllEnumerate(fieldName, value, valueRevealer, keyRevealer, valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAllEnumerate<TKey, TValue, TVRevealBase>(
-      string fieldName
+    public TExt WhenConditionMetAddAllEnumerate<TKey, TValue, TVRevealBase>(
+      bool condition
+    , string fieldName
     , IEnumerable<KeyValuePair<TKey?, TValue>>? value
     , PalantírReveal<TVRevealBase> valueRevealer
     , PalantírReveal<TKey> keyRevealer
@@ -297,10 +376,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
        where TKey : struct 
        where TValue : TVRevealBase? 
        where TVRevealBase : notnull =>
-      WhenConditionMetAddAllEnumerate(value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAllEnumerate(fieldName, value, valueRevealer, keyRevealer, valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAllEnumerate<TKey, TValue, TKRevealBase>(
-      string fieldName
+    public TExt WhenConditionMetAddAllEnumerate<TKey, TValue, TKRevealBase>(
+      bool condition
+    , string fieldName
     , IEnumerable<KeyValuePair<TKey, TValue?>>? value
     , PalantírReveal<TValue> valueRevealer
     , PalantírReveal<TKRevealBase> keyRevealer
@@ -309,10 +391,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
        where TKey : TKRevealBase? 
        where TValue : struct 
        where TKRevealBase : notnull =>
-      WhenConditionMetAddAllEnumerate(value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAllEnumerate(fieldName, value, valueRevealer, keyRevealer, valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAllEnumerate<TKey, TValue>(
-      string fieldName
+    public TExt WhenConditionMetAddAllEnumerate<TKey, TValue>(
+      bool condition
+    , string fieldName
     , IEnumerable<KeyValuePair<TKey?, TValue?>>? value
     , PalantírReveal<TValue> valueRevealer
     , PalantírReveal<TKey> keyRevealer
@@ -320,10 +405,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     , FormatFlags formatFlags = DefaultCallerTypeFlags) 
        where TKey : struct 
        where TValue : struct  =>
-      WhenConditionMetAddAllEnumerate(value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAllEnumerate(fieldName, value, valueRevealer, keyRevealer, valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAllEnumerate<TKey, TValue, TKRevealBase, TVRevealBase>(
-      string fieldName
+    public TExt WhenConditionMetAddAllEnumerate<TKey, TValue, TKRevealBase, TVRevealBase>(
+      bool condition
+    , string fieldName
     , IEnumerator<KeyValuePair<TKey, TValue>>? value
     , PalantírReveal<TVRevealBase> valueRevealer
     , PalantírReveal<TKRevealBase> keyRevealer
@@ -333,10 +421,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : TVRevealBase? 
         where TKRevealBase : notnull
         where TVRevealBase : notnull =>
-      WhenConditionMetAddAllEnumerate(value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAllEnumerate(fieldName, value, valueRevealer, keyRevealer, valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAllEnumerate<TKey, TValue, TVRevealBase>(
-      string fieldName
+    public TExt WhenConditionMetAddAllEnumerate<TKey, TValue, TVRevealBase>(
+      bool condition
+    , string fieldName
     , IEnumerator<KeyValuePair<TKey?, TValue>>? value
     , PalantírReveal<TVRevealBase> valueRevealer
     , PalantírReveal<TKey> keyRevealer
@@ -345,10 +436,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKey : struct 
         where TValue : TVRevealBase? 
         where TVRevealBase : notnull =>
-      WhenConditionMetAddAllEnumerate(value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAllEnumerate(fieldName, value, valueRevealer, keyRevealer, valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAllEnumerate<TKey, TValue, TKRevealBase>(
-      string fieldName
+    public TExt WhenConditionMetAddAllEnumerate<TKey, TValue, TKRevealBase>(
+      bool condition
+    , string fieldName
     , IEnumerator<KeyValuePair<TKey, TValue?>>? value
     , PalantírReveal<TValue> valueRevealer
     , PalantírReveal<TKRevealBase> keyRevealer
@@ -357,10 +451,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKey : TKRevealBase? 
         where TValue : struct 
         where TKRevealBase : notnull =>
-      WhenConditionMetAddAllEnumerate(value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAllEnumerate(fieldName, value, valueRevealer, keyRevealer, valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>), fieldName, formatFlags);
 
-    public TExt WhenNonNullAddAllEnumerate<TKey, TValue>(
-      string fieldName
+    public TExt WhenConditionMetAddAllEnumerate<TKey, TValue>(
+      bool condition
+    , string fieldName
     , IEnumerator<KeyValuePair<TKey?, TValue?>>? value
     , PalantírReveal<TValue> valueRevealer
     , PalantírReveal<TKey> keyRevealer
@@ -368,5 +465,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TKey : struct 
         where TValue : struct  =>
-      WhenConditionMetAddAllEnumerate(value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+      condition 
+        ? AlwaysAddAllEnumerate(fieldName, value, valueRevealer, keyRevealer, valueFormatString ?? "", formatFlags) 
+        : stb.WasSkipped(value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>), fieldName, formatFlags);
 }

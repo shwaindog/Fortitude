@@ -5,7 +5,7 @@ using System.Net;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CircularRefRevisits.FixtureScaffolding;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CircularRefRevisits.FixtureScaffolding.UnitFieldContent;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData.TestTree;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations.ScaffoldingStringBuilderInvokeFlags;
@@ -72,7 +72,8 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
         get
         {
             return twoSameIpAddressesOneComplexCloakedValueOneFieldWithDefaultRevisitSettingsExpect ??=
-                new InputBearerExpect<TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneComplexCloakedValueOneField)
+                new InputBearerExpect<
+                    TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneComplexCloakedValueOneField)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
@@ -81,7 +82,8 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                          {
                          FirstSpanFormattableField:
                          {
-                         CloakedRevealerFirstSpanFormattableField: 127.0.0.1
+                         CloakedRevealerFirstSpanFormattableField: 127.0.0.1,
+                         logOnlyArray: [ 1, 2, 3 ]
                          },
                          SecondSpanFormattableField: 127.0.0.1
                          }
@@ -93,7 +95,12 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                       , """
                         TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress> {
                           FirstSpanFormattableField: {
-                            CloakedRevealerFirstSpanFormattableField: 127.0.0.1
+                            CloakedRevealerFirstSpanFormattableField: 127.0.0.1,
+                            logOnlyArray: [
+                              1,
+                              2,
+                              3
+                            ]
                           },
                           SecondSpanFormattableField: 127.0.0.1
                         }
@@ -164,7 +171,8 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
         get
         {
             return twoSameIpAddressesOneFieldOneComplexCloakedValueWithDefaultRevisitSettingsExpect ??=
-                new InputBearerExpect<TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneFieldOneComplexCloakedValue)
+                new InputBearerExpect<
+                    TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneFieldOneComplexCloakedValue)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
@@ -174,7 +182,8 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                          FirstSpanFormattableField: 127.0.0.1,
                          SecondSpanFormattableField:
                          {
-                         CloakedRevealerSecondSpanFormattableField: 127.0.0.1
+                         CloakedRevealerSecondSpanFormattableField: 127.0.0.1,
+                         logOnlyMap: { FirstKey: 1, SecondKey: 2, ThirdKey: 3 }
                          }
                          }
                         """.RemoveLineEndings()
@@ -186,7 +195,12 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                         TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress> {
                           FirstSpanFormattableField: 127.0.0.1,
                           SecondSpanFormattableField: {
-                            CloakedRevealerSecondSpanFormattableField: 127.0.0.1
+                            CloakedRevealerSecondSpanFormattableField: 127.0.0.1,
+                            logOnlyMap: {
+                              FirstKey: 1,
+                              SecondKey: 2,
+                              ThirdKey: 3
+                            }
                           }
                         }
                         """.Dos2Unix()
@@ -266,7 +280,8 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                          {
                          FirstSpanFormattableField:
                          {
-                         CloakedRevealerFirstSpanFormattableField: "127.0.0.1"
+                         CloakedRevealerFirstSpanFormattableField: "127.0.0.1",
+                         logOnlyStringBuilder: "For your eyes only"
                          },
                          SecondSpanFormattableField: 127.0.0.1
                          }
@@ -278,7 +293,8 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                       , """
                         TwoSpanFormattableFirstAsComplexCloakedStringContent<IPAddress> {
                           FirstSpanFormattableField: {
-                            CloakedRevealerFirstSpanFormattableField: "127.0.0.1"
+                            CloakedRevealerFirstSpanFormattableField: "127.0.0.1",
+                            logOnlyStringBuilder: "For your eyes only"
                           },
                           SecondSpanFormattableField: 127.0.0.1
                         }
@@ -360,7 +376,12 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                          FirstSpanFormattableField: 127.0.0.1,
                          SecondSpanFormattableField:
                          {
-                         CloakedRevealerSecondSpanFormattableField: "127.0.0.1"
+                         CloakedRevealerSecondSpanFormattableField: "127.0.0.1",
+                         logOnlyList: [
+                         FirstCharSeq,
+                         SecondCharSeq,
+                         ThirdCharSeq
+                         ]
                          }
                          }
                         """.RemoveLineEndings()
@@ -372,7 +393,12 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                         TwoSpanFormattableSecondAsComplexCloakedStringContent<IPAddress> {
                           FirstSpanFormattableField: 127.0.0.1,
                           SecondSpanFormattableField: {
-                            CloakedRevealerSecondSpanFormattableField: "127.0.0.1"
+                            CloakedRevealerSecondSpanFormattableField: "127.0.0.1",
+                            logOnlyList: [
+                              FirstCharSeq,
+                              SecondCharSeq,
+                              ThirdCharSeq
+                            ]
                           }
                         }
                         """.Dos2Unix()
@@ -432,7 +458,8 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
         get
         {
             return twoSameIpAddressesOneComplexCloakedValueOneFieldShowRevisitInstanceIdsExpect ??=
-                new InputBearerExpect<TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneComplexCloakedValueOneField)
+                new InputBearerExpect<
+                    TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneComplexCloakedValueOneField)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
@@ -442,7 +469,8 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                          FirstSpanFormattableField:
                          {
                          $id: 1,
-                         CloakedRevealerFirstSpanFormattableField: 127.0.0.1
+                         CloakedRevealerFirstSpanFormattableField: 127.0.0.1,
+                         logOnlyArray: [ 1, 2, 3 ]
                          },
                          SecondSpanFormattableField:
                          {
@@ -459,7 +487,12 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                         TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress> {
                           FirstSpanFormattableField: {
                             $id: 1,
-                            CloakedRevealerFirstSpanFormattableField: 127.0.0.1
+                            CloakedRevealerFirstSpanFormattableField: 127.0.0.1,
+                            logOnlyArray: [
+                              1,
+                              2,
+                              3
+                            ]
                           },
                           SecondSpanFormattableField: {
                             $ref: 1
@@ -520,7 +553,7 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
     {
         ExecuteIndividualScaffoldExpectationWithOptions
             (TwoSameIpAddressesOneComplexCloakedValueOneFieldShowRevisitInstanceIdsExpect
-            , new StyleOptions(CompactJson)
+           , new StyleOptions(CompactJson)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
              });
@@ -547,14 +580,15 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                  InstanceTrackingIncludeSpanFormattableClasses = true
              });
     }
-    
+
     public static InputBearerExpect<TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress>>
         TwoSameIpAddressesOneFieldOneComplexCloakedValueShowRevisitInstanceIdsExpect
     {
         get
         {
             return twoSameIpAddressesOneFieldOneComplexCloakedValueShowRevisitInstanceIdsExpect ??=
-                new InputBearerExpect<TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneFieldOneComplexCloakedValue)
+                new InputBearerExpect<
+                    TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneFieldOneComplexCloakedValue)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
@@ -668,8 +702,8 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                  InstanceTrackingIncludeSpanFormattableClasses = true
              });
     }
-    
-    
+
+
     public static InputBearerExpect<TwoSpanFormattableFirstAsComplexCloakedStringContent<IPAddress>>
         TwoSameIpAddressesOneComplexCloakedStringOneFieldsShowRevisitInstanceIdsExpect
     {
@@ -687,7 +721,8 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                          FirstSpanFormattableField:
                          {
                          $id: 1,
-                         CloakedRevealerFirstSpanFormattableField: "127.0.0.1"
+                         CloakedRevealerFirstSpanFormattableField: "127.0.0.1",
+                         logOnlyStringBuilder: "For your eyes only"
                          },
                          SecondSpanFormattableField:
                          {
@@ -704,7 +739,8 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                         TwoSpanFormattableFirstAsComplexCloakedStringContent<IPAddress> {
                           FirstSpanFormattableField: {
                             $id: 1,
-                            CloakedRevealerFirstSpanFormattableField: "127.0.0.1"
+                            CloakedRevealerFirstSpanFormattableField: "127.0.0.1",
+                            logOnlyStringBuilder: "For your eyes only"
                           },
                           SecondSpanFormattableField: {
                             $ref: 1
@@ -792,8 +828,8 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                  InstanceTrackingIncludeSpanFormattableClasses = true
              });
     }
-    
-    
+
+
     public static InputBearerExpect<TwoSpanFormattableSecondAsComplexCloakedStringContent<IPAddress>>
         TwoSameIpAddressesOneFieldOneComplexCloakedStringShowRevisitInstanceIdsExpect
     {
@@ -915,14 +951,15 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                  InstanceTrackingIncludeSpanFormattableClasses = true
              });
     }
-    
+
     public static InputBearerExpect<TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress>>
         TwoSameIpAddressesOneComplexCloakedValueOneFieldShowRevisitAndValuesExpect
     {
         get
         {
             return twoSameIpAddressesOneComplexCloakedValueOneFieldShowRevisitAndValuesExpect ??=
-                new InputBearerExpect<TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneComplexCloakedValueOneField)
+                new InputBearerExpect<
+                    TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneComplexCloakedValueOneField)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
@@ -932,7 +969,8 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                          FirstSpanFormattableField:
                          {
                          $id: 1,
-                         CloakedRevealerFirstSpanFormattableField: 127.0.0.1
+                         CloakedRevealerFirstSpanFormattableField: 127.0.0.1,
+                         logOnlyArray: [ 1, 2, 3 ]
                          },
                          SecondSpanFormattableField:
                          {
@@ -949,7 +987,12 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                         TwoSpanFormattableFirstAsComplexCloakedValueContent<IPAddress> {
                           FirstSpanFormattableField: {
                             $id: 1,
-                            CloakedRevealerFirstSpanFormattableField: 127.0.0.1
+                            CloakedRevealerFirstSpanFormattableField: 127.0.0.1,
+                            logOnlyArray: [
+                              1,
+                              2,
+                              3
+                            ]
                           },
                           SecondSpanFormattableField: {
                             $ref: 1,
@@ -1004,7 +1047,7 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
            , new StyleOptions(CompactLog)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
-                , InstanceMarkingIncludeSpanFormattableContents = true
+               , InstanceMarkingIncludeSpanFormattableContents = true
              });
     }
 
@@ -1013,7 +1056,7 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
     {
         ExecuteIndividualScaffoldExpectationWithOptions
             (TwoSameIpAddressesOneComplexCloakedValueOneFieldShowRevisitAndValuesExpect
-            , new StyleOptions(CompactJson)
+           , new StyleOptions(CompactJson)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
                , InstanceMarkingIncludeSpanFormattableContents = true
@@ -1043,14 +1086,15 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                , InstanceMarkingIncludeSpanFormattableContents = true
              });
     }
-    
+
     public static InputBearerExpect<TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress>>
         TwoSameIpAddressesOneFieldOneComplexCloakedValueShowRevisitAndValuesExpect
     {
         get
         {
             return twoSameIpAddressesOneFieldOneComplexCloakedValueShowRevisitAndValuesExpect ??=
-                new InputBearerExpect<TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneFieldOneComplexCloakedValue)
+                new InputBearerExpect<
+                    TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneFieldOneComplexCloakedValue)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
@@ -1171,8 +1215,8 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                , InstanceMarkingIncludeSpanFormattableContents = true
              });
     }
-    
-    
+
+
     public static InputBearerExpect<TwoSpanFormattableFirstAsComplexCloakedStringContent<IPAddress>>
         TwoSameIpAddressesOneComplexCloakedStringOneFieldsShowRevisitAndValuesExpect
     {
@@ -1190,7 +1234,8 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                          FirstSpanFormattableField:
                          {
                          $id: 1,
-                         CloakedRevealerFirstSpanFormattableField: "127.0.0.1"
+                         CloakedRevealerFirstSpanFormattableField: "127.0.0.1",
+                         logOnlyStringBuilder: "For your eyes only"
                          },
                          SecondSpanFormattableField:
                          {
@@ -1207,7 +1252,8 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                         TwoSpanFormattableFirstAsComplexCloakedStringContent<IPAddress> {
                           FirstSpanFormattableField: {
                             $id: 1,
-                            CloakedRevealerFirstSpanFormattableField: "127.0.0.1"
+                            CloakedRevealerFirstSpanFormattableField: "127.0.0.1",
+                            logOnlyStringBuilder: "For your eyes only"
                           },
                           SecondSpanFormattableField: {
                             $ref: 1,
@@ -1301,8 +1347,8 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                , InstanceMarkingIncludeSpanFormattableContents = true
              });
     }
-    
-    
+
+
     public static InputBearerExpect<TwoSpanFormattableSecondAsComplexCloakedStringContent<IPAddress>>
         TwoSameIpAddressesOneFieldOneComplexCloakedStringShowRevisitAndValuesExpect
     {
@@ -1432,5 +1478,56 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
              });
     }
 
+    [TestMethod]
+    public void TwoSameIpAddressesOneFieldOneCloakedStringShowRevisitAndValuesButAsStringRevisitExemptCompactLogFormatTest()
+    {
+        ExecuteIndividualScaffoldExpectationWithOptions
+            (TwoSameIpAddressesOneComplexCloakedStringOneFieldsWithDefaultRevisitSettingsExpect
+           , new StyleOptions(CompactLog)
+             {
+                 InstanceTrackingIncludeSpanFormattableClasses = true
+               , InstanceTrackingAllAsStringClassesAreExempt   = true
+               , InstanceMarkingIncludeSpanFormattableContents = true
+             });
+    }
 
+    [TestMethod]
+    public void TwoSameIpAddressesOneFieldOneCloakedStringShowRevisitAndValuesButAsStringRevisitExemptCompactJsonFormatTest()
+    {
+        ExecuteIndividualScaffoldExpectationWithOptions
+            (TwoSameIpAddressesOneComplexCloakedStringOneFieldsWithDefaultRevisitSettingsExpect
+           , new StyleOptions(CompactJson)
+             {
+                 InstanceTrackingIncludeSpanFormattableClasses = true
+               , InstanceTrackingAllAsStringClassesAreExempt   = true
+               , InstanceMarkingIncludeSpanFormattableContents = true
+             });
+    }
+
+
+    [TestMethod]
+    public void TwoSameIpAddressesOneFieldOneComplexCloakedStringShowRevisitAndValuesButAsStringRevisitExemptPrettyLogFormatTest()
+    {
+        ExecuteIndividualScaffoldExpectationWithOptions
+            (TwoSameIpAddressesOneComplexCloakedStringOneFieldsWithDefaultRevisitSettingsExpect
+           , new StyleOptions(PrettyLog)
+             {
+                 InstanceTrackingIncludeSpanFormattableClasses = true
+               , InstanceTrackingAllAsStringClassesAreExempt   = true
+               , InstanceMarkingIncludeSpanFormattableContents = true
+             });
+    }
+
+    [TestMethod]
+    public void TwoSameIpAddressesOneFieldOneComplexCloakedStringShowRevisitAndValuesButAsStringRevisitExemptPrettyJsonFormatTest()
+    {
+        ExecuteIndividualScaffoldExpectationWithOptions
+            (TwoSameIpAddressesOneComplexCloakedStringOneFieldsWithDefaultRevisitSettingsExpect
+           , new StyleOptions(PrettyJson)
+             {
+                 InstanceTrackingIncludeSpanFormattableClasses = true
+               , InstanceTrackingAllAsStringClassesAreExempt   = true
+               , InstanceMarkingIncludeSpanFormattableContents = true
+             });
+    }
 }

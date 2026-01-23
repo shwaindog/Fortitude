@@ -8,7 +8,7 @@ using static FortitudeCommon.Types.StringsOfPower.Forge.FormatSwitches;
 
 namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 
-public interface ICustomStringFormatter : IRecyclableObject
+public interface ICustomStringFormatter : IReusableObject<ICustomStringFormatter>
 {
     int AddCollectionElementSeparator(Type collectionType, IStringBuilder sb, int nextItemNumber
     , FormatSwitches formatSwitches = EncodeInnerContent);

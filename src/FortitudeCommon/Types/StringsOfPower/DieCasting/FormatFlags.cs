@@ -91,6 +91,11 @@ public enum FormatFlags : ulong
 public static class FieldContentHandlingExtensions
 {
     public const FormatFlags None = 0;
+    public const FormatFlags  MoldAlwaysInherited = AsStringContent | AsValueContent ;
+    
+    public const FormatFlags  MoldCallerBlockableInherited = 
+        MoldAlwaysInherited | OnOneLine | EachItemOnlyOneLine | UseAltItemSeparator | UseAltItemPadding
+        | ReformatMultiLine | PrettyWrapAtLineWidth | PrettyWrapAtContentWidth;
 
     public static bool HasEncodeBounds(this FormatFlags flags)                     => (flags & EncodeBounds) > 0;
     public static bool HasEncodeAll(this FormatFlags flags)                        => (flags & EncodeAll) == EncodeAll;

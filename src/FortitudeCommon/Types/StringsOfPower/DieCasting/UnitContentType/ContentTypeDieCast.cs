@@ -10,14 +10,16 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 
-public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> where TContentMold : ContentTypeMold<TContentMold>
+public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCast<TContentMold> 
+    where TContentMold : ContentTypeMold<TContentMold, TToContentMold>
+    where TToContentMold : ContentJoinTypeMold<TContentMold, TToContentMold>, IMigrateFrom<TContentMold, TToContentMold>, new()
 {
     public const string DblQt = "\"";
 
     private bool ignoreSuppressSpanFormattable;
     private int  countNextSkipFieldIsSkipBody;
 
-    public ContentTypeDieCast<TContentMold> InitializeValueBuilderCompAccess
+    public ContentTypeDieCast<TContentMold, TToContentMold> InitializeValueBuilderCompAccess
         (TContentMold externalTypeBuilder, TypeMolder.MoldPortableState typeBuilderPortableState, WriteMethodType writeMethod)
     {
         var createFmtFlags = typeBuilderPortableState.CreateFormatFlags;
@@ -54,7 +56,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return scopedSb;
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueNext(ReadOnlySpan<char> nonJsonfieldName, bool? value, string formatString = ""
+    public TToContentMold FieldValueNext(ReadOnlySpan<char> nonJsonfieldName, bool? value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType  = typeof(bool?);
@@ -77,7 +79,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueJoin(bool? value, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public TToContentMold JoinValueJoin(bool? value, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType  = value?.GetType() ?? typeof(bool?);
         if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, "", formatFlags))
@@ -91,7 +93,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinValue(value, formatString, resolvedFlags); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinValue(bool? value, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public TToContentMold VettedJoinValue(bool? value, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (value == null)
         {
@@ -106,7 +108,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value
+    public TToContentMold FieldValueOrDefaultNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value
       , ReadOnlySpan<char> defaultValue
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
@@ -141,7 +143,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin<TFmt>(TFmt? value
+    public TToContentMold JoinValueWithDefaultJoin<TFmt>(TFmt? value
       , ReadOnlySpan<char> defaultValue, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
@@ -162,7 +164,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinWithDefaultValue(value, defaultValue, formatString, resolvedFlags); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinWithDefaultValue<TFmt>(TFmt? value, ReadOnlySpan<char> defaultValue, string formatString = ""
+    public TToContentMold VettedJoinWithDefaultValue<TFmt>(TFmt? value, ReadOnlySpan<char> defaultValue, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
@@ -181,7 +183,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldFmtValueOrNullNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value
+    public TToContentMold FieldFmtValueOrNullNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable?
     {
@@ -216,7 +218,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueJoin<TFmt>(TFmt value, string formatString = ""
+    public TToContentMold JoinValueJoin<TFmt>(TFmt value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable?
     {
@@ -238,7 +240,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinValue(value, formatString, resolvedFlags); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinValue<TFmt>(TFmt value, string formatString = ""
+    public TToContentMold VettedJoinValue<TFmt>(TFmt value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
@@ -246,7 +248,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
+    public TToContentMold FieldValueOrDefaultNext<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
       , ReadOnlySpan<char> defaultValue
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
@@ -272,7 +274,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin<TFmtStruct>(TFmtStruct? value, ReadOnlySpan<char> defaultValue
+    public TToContentMold JoinValueWithDefaultJoin<TFmtStruct>(TFmtStruct? value, ReadOnlySpan<char> defaultValue
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
@@ -289,7 +291,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinWithDefaultValue(value, defaultValue, formatString, resolvedFlags); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinWithDefaultValue<TFmtStruct>(TFmtStruct? value, ReadOnlySpan<char> defaultValue
+    public TToContentMold VettedJoinWithDefaultValue<TFmtStruct>(TFmtStruct? value, ReadOnlySpan<char> defaultValue
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
@@ -309,7 +311,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldFmtValueOrNullNext<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
+    public TToContentMold FieldFmtValueOrNullNext<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
@@ -336,7 +338,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueJoin<TFmtStruct>(TFmtStruct? value, string formatString = ""
+    public TToContentMold JoinValueJoin<TFmtStruct>(TFmtStruct? value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
     {
@@ -353,7 +355,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinValue(value, formatString, resolvedFlags); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinValue<TFmtStruct>(TFmtStruct? value, string formatString = ""
+    public TToContentMold VettedJoinValue<TFmtStruct>(TFmtStruct? value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
     {
@@ -369,7 +371,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrNullNext<TCloaked, TRevealBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
+    public TToContentMold FieldValueOrNullNext<TCloaked, TRevealBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
       , PalantírReveal<TRevealBase> palantírReveal, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase
         where TRevealBase : notnull
@@ -396,7 +398,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueJoin<TCloaked, TRevealBase>(TCloaked? value, PalantírReveal<TRevealBase> palantírReveal
+    public TToContentMold JoinValueJoin<TCloaked, TRevealBase>(TCloaked? value, PalantírReveal<TRevealBase> palantírReveal
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase
         where TRevealBase : notnull
@@ -414,7 +416,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinValue(value, palantírReveal, formatString, resolvedFlags); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinValue<TCloaked, TRevealBase>(TCloaked? value, PalantírReveal<TRevealBase> palantírReveal
+    public TToContentMold VettedJoinValue<TCloaked, TRevealBase>(TCloaked? value, PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase
         where TRevealBase : notnull
@@ -434,7 +436,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrNullNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
+    public TToContentMold FieldValueOrNullNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
@@ -460,7 +462,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueJoin<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
+    public TToContentMold JoinValueJoin<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
@@ -476,7 +478,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinValue(value, palantírReveal, formatString, resolvedFlags); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinValue<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
+    public TToContentMold VettedJoinValue<TCloakedStruct>(TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
@@ -495,7 +497,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext<TCloaked, TRevealBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
+    public TToContentMold FieldValueOrDefaultNext<TCloaked, TRevealBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
       , PalantírReveal<TRevealBase> palantírReveal, ReadOnlySpan<char> defaultValue, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase
@@ -524,7 +526,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin<TCloaked, TRevealBase>(TCloaked? value
+    public TToContentMold JoinValueWithDefaultJoin<TCloaked, TRevealBase>(TCloaked? value
       , PalantírReveal<TRevealBase> palantírReveal, ReadOnlySpan<char> defaultValue, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase
@@ -543,7 +545,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, formatString, resolvedFlags); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinWithDefaultValue<TCloaked, TRevealBase>(TCloaked? value
+    public TToContentMold VettedJoinWithDefaultValue<TCloaked, TRevealBase>(TCloaked? value
       , PalantírReveal<TRevealBase> palantírReveal, ReadOnlySpan<char> defaultValue, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase
@@ -569,7 +571,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
+    public TToContentMold FieldValueOrDefaultNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal, ReadOnlySpan<char> defaultValue
       , FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "")
         where TCloakedStruct : struct
@@ -597,7 +599,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin<TCloakedStruct>(TCloakedStruct? value
+    public TToContentMold JoinValueWithDefaultJoin<TCloakedStruct>(TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal
       , ReadOnlySpan<char> defaultValue
       , FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "") where TCloakedStruct : struct
@@ -614,7 +616,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinWithDefaultValue(value, palantírReveal, defaultValue, resolvedFlags, formatString); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinWithDefaultValue<TCloakedStruct>(TCloakedStruct? value
+    public TToContentMold VettedJoinWithDefaultValue<TCloakedStruct>(TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal
       , ReadOnlySpan<char> defaultValue, FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "")
         where TCloakedStruct : struct
@@ -639,7 +641,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value
+    public TToContentMold FieldValueOrDefaultNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value
       , string defaultValue = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "")
         where TBearer : IStringBearer?
@@ -666,7 +668,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin<TBearer>(TBearer value
+    public TToContentMold JoinValueWithDefaultJoin<TBearer>(TBearer value
       , ReadOnlySpan<char> defaultValue, FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "")
         where TBearer : IStringBearer?
     {
@@ -683,7 +685,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinWithDefaultValue(value, defaultValue, resolvedFlags, formatString); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinWithDefaultValue<TBearer>(TBearer value
+    public TToContentMold VettedJoinWithDefaultValue<TBearer>(TBearer value
       , ReadOnlySpan<char> defaultValue, FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "")
         where TBearer : IStringBearer?
     {
@@ -701,7 +703,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
+    public TToContentMold FieldValueOrDefaultNext<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
       , string defaultValue = "", FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "")
         where TBearerStruct : struct, IStringBearer
     {
@@ -727,7 +729,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin<TBearerStruct>(TBearerStruct? value
+    public TToContentMold JoinValueWithDefaultJoin<TBearerStruct>(TBearerStruct? value
       , ReadOnlySpan<char> defaultValue, FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "")
         where TBearerStruct : struct, IStringBearer
     {
@@ -744,7 +746,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinWithDefaultValue(value, defaultValue, resolvedFlags, formatString); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinWithDefaultValue<TBearerStruct>(TBearerStruct? value
+    public TToContentMold VettedJoinWithDefaultValue<TBearerStruct>(TBearerStruct? value
       , ReadOnlySpan<char> defaultValue, FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "")
         where TBearerStruct : struct, IStringBearer
     {
@@ -765,7 +767,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrNullNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value
+    public TToContentMold FieldValueOrNullNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value
       , FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "") where TBearer : IStringBearer?
     {
         var actualType  = value?.GetType() ?? typeof(TBearer);
@@ -791,7 +793,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueJoin<TBearer>(TBearer value
+    public TToContentMold JoinValueJoin<TBearer>(TBearer value
       , FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "")
         where TBearer : IStringBearer?
     {
@@ -808,7 +810,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinValue(value, resolvedFlags, formatString); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinValue<TBearer>(TBearer value, FormatFlags formatFlags = DefaultCallerTypeFlags
+    public TToContentMold VettedJoinValue<TBearer>(TBearer value, FormatFlags formatFlags = DefaultCallerTypeFlags
       , string formatString = "")
         where TBearer : IStringBearer?
     {
@@ -824,7 +826,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrNullNext<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
+    public TToContentMold FieldValueOrNullNext<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
       , FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "") where TBearerStruct : struct, IStringBearer
     {
         var actualType  = typeof(TBearerStruct?);
@@ -849,7 +851,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueJoin<TBearerStruct>(TBearerStruct? value
+    public TToContentMold JoinValueJoin<TBearerStruct>(TBearerStruct? value
       , FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "")
         where TBearerStruct : struct, IStringBearer
     {
@@ -865,7 +867,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinValue(value, resolvedFlags, formatString); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinValue<TBearerStruct>(TBearerStruct? value, FormatFlags formatFlags = DefaultCallerTypeFlags
+    public TToContentMold VettedJoinValue<TBearerStruct>(TBearerStruct? value, FormatFlags formatFlags = DefaultCallerTypeFlags
       , string formatString = "")
         where TBearerStruct : struct, IStringBearer
     {
@@ -881,7 +883,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, Span<char> value
+    public TToContentMold FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, Span<char> value
       , ReadOnlySpan<char> fallbackValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType  = typeof(Span<char>);
@@ -905,7 +907,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin(Span<char> value, ReadOnlySpan<char> fallbackValue
+    public TToContentMold JoinValueWithDefaultJoin(Span<char> value, ReadOnlySpan<char> fallbackValue
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType  = typeof(Span<char>);
@@ -920,7 +922,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinWithDefaultValue(value, fallbackValue, formatString, resolvedFlags); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinWithDefaultValue(Span<char> value, ReadOnlySpan<char> fallbackValue
+    public TToContentMold VettedJoinWithDefaultValue(Span<char> value, ReadOnlySpan<char> fallbackValue
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
@@ -940,7 +942,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
+    public TToContentMold FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
       , ReadOnlySpan<char> fallbackValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType  = typeof(ReadOnlySpan<char>);
@@ -964,7 +966,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin(ReadOnlySpan<char> value, ReadOnlySpan<char> fallbackValue
+    public TToContentMold JoinValueWithDefaultJoin(ReadOnlySpan<char> value, ReadOnlySpan<char> fallbackValue
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType  = typeof(ReadOnlySpan<char>);
@@ -979,7 +981,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinWithDefaultValue(value, fallbackValue, formatString, resolvedFlags); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinWithDefaultValue(ReadOnlySpan<char> value, ReadOnlySpan<char> fallbackValue
+    public TToContentMold VettedJoinWithDefaultValue(ReadOnlySpan<char> value, ReadOnlySpan<char> fallbackValue
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
@@ -999,7 +1001,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
+    public TToContentMold FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -1025,7 +1027,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueJoin(ReadOnlySpan<char> value, string formatString = ""
+    public TToContentMold JoinValueJoin(ReadOnlySpan<char> value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType  = typeof(ReadOnlySpan<char>);
@@ -1040,7 +1042,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinValue(value, formatString, resolvedFlags); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinValue(ReadOnlySpan<char> value, string formatString = ""
+    public TToContentMold VettedJoinValue(ReadOnlySpan<char> value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (value.Length == 0)
@@ -1055,7 +1057,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length
+    public TToContentMold FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length
       , ReadOnlySpan<char> defaultValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType  = typeof(string);
@@ -1080,7 +1082,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin(string? value, int startIndex, int length
+    public TToContentMold JoinValueWithDefaultJoin(string? value, int startIndex, int length
       , ReadOnlySpan<char> defaultValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType  = typeof(string);
@@ -1095,7 +1097,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinValueWithDefault(string? value, int startIndex, int length
+    public TToContentMold VettedJoinValueWithDefault(string? value, int startIndex, int length
       , ReadOnlySpan<char> defaultValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
@@ -1127,7 +1129,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length
+    public TToContentMold FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType  = typeof(string);
@@ -1152,7 +1154,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueJoin(string? value, int startIndex, int length, string formatString = ""
+    public TToContentMold JoinValueJoin(string? value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType  = typeof(string);
@@ -1167,7 +1169,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinValue(value, startIndex, length, formatString, resolvedFlags); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinValue(string? value, int startIndex, int length, string formatString = ""
+    public TToContentMold VettedJoinValue(string? value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (value != null)
@@ -1210,7 +1212,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length
+    public TToContentMold FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length
       , string defaultValue = "", string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType  = typeof(char[]);
@@ -1234,7 +1236,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin(char[]? value, int startIndex, int length, string defaultValue = ""
+    public TToContentMold JoinValueWithDefaultJoin(char[]? value, int startIndex, int length, string defaultValue = ""
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -1250,7 +1252,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinValueWithDefault(value, startIndex, length, defaultValue, formatString, resolvedFlags); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinValueWithDefault(char[]? value, int startIndex, int length, string defaultValue = ""
+    public TToContentMold VettedJoinValueWithDefault(char[]? value, int startIndex, int length, string defaultValue = ""
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -1283,7 +1285,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length
+    public TToContentMold FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType  = typeof(char[]);
@@ -1307,7 +1309,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueJoin(char[]? value, int startIndex, int length, string formatString = ""
+    public TToContentMold JoinValueJoin(char[]? value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType  = typeof(char[]);
@@ -1322,7 +1324,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinValue(value, startIndex, length, formatString, resolvedFlags); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinValue(char[]? value, int startIndex, int length, string formatString = ""
+    public TToContentMold VettedJoinValue(char[]? value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (value != null)
@@ -1366,7 +1368,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext<TCharSeq>(ReadOnlySpan<char> nonJsonfieldName, TCharSeq value, int startIndex
+    public TToContentMold FieldValueOrDefaultNext<TCharSeq>(ReadOnlySpan<char> nonJsonfieldName, TCharSeq value, int startIndex
       , int length, string defaultValue = "", string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence?
     {
@@ -1391,7 +1393,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin<TCharSeq>(TCharSeq value, int startIndex, int length, string defaultValue = ""
+    public TToContentMold JoinValueWithDefaultJoin<TCharSeq>(TCharSeq value, int startIndex, int length, string defaultValue = ""
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence?
     {
@@ -1407,7 +1409,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, resolvedFlags); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinWithDefaultValue<TCharSeq>(TCharSeq value, int startIndex, int length
+    public TToContentMold VettedJoinWithDefaultValue<TCharSeq>(TCharSeq value, int startIndex, int length
       , string defaultValue = "", string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence?
@@ -1453,7 +1455,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrNullNext<TCharSeq>(ReadOnlySpan<char> nonJsonfieldName, TCharSeq? value, int startIndex
+    public TToContentMold FieldValueOrNullNext<TCharSeq>(ReadOnlySpan<char> nonJsonfieldName, TCharSeq? value, int startIndex
       , int length, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence
     {
@@ -1478,7 +1480,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueJoin<TCharSeq>(TCharSeq? value, int startIndex, int length, string formatString = ""
+    public TToContentMold JoinValueJoin<TCharSeq>(TCharSeq? value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence
     {
@@ -1494,7 +1496,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinValue(value, startIndex, length, formatString, resolvedFlags); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinValue<TCharSeq>(TCharSeq? value, int startIndex, int length, string formatString = ""
+    public TToContentMold VettedJoinValue<TCharSeq>(TCharSeq? value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence
     {
@@ -1543,7 +1545,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex
+    public TToContentMold FieldValueOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex
       , int length, string defaultValue = "", string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType  = typeof(StringBuilder);
@@ -1567,7 +1569,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueWithDefaultJoin(StringBuilder? value, int startIndex, int length, string defaultValue = ""
+    public TToContentMold JoinValueWithDefaultJoin(StringBuilder? value, int startIndex, int length, string defaultValue = ""
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -1583,7 +1585,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinWithDefaultValue(value, startIndex, length, defaultValue, formatString, resolvedFlags); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinWithDefaultValue(StringBuilder? value, int startIndex, int length, string defaultValue = ""
+    public TToContentMold VettedJoinWithDefaultValue(StringBuilder? value, int startIndex, int length, string defaultValue = ""
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -1628,7 +1630,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex
+    public TToContentMold FieldValueOrNullNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex
       , int length, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType  = typeof(StringBuilder);
@@ -1652,7 +1654,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueJoin(StringBuilder? value, int startIndex, int length, string formatString = ""
+    public TToContentMold JoinValueJoin(StringBuilder? value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType  = typeof(StringBuilder);
@@ -1667,7 +1669,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinValue(value, startIndex, length, formatString, resolvedFlags); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinValue(StringBuilder? value, int startIndex, int length, string formatString = ""
+    public TToContentMold VettedJoinValue(StringBuilder? value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (value != null)
@@ -1716,7 +1718,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> ValueMatchOrNullNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string formatString = ""
+    public TToContentMold ValueMatchOrNullNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType  = value?.GetType() ?? typeof(TAny);
@@ -1741,7 +1743,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueMatchJoin<TAny>(TAny? value, string formatString = ""
+    public TToContentMold JoinValueMatchJoin<TAny>(TAny? value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType  = value?.GetType() ?? typeof(TAny);
@@ -1757,7 +1759,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedValueMatchJoinValue(value, formatString, resolvedFlags); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedValueMatchJoinValue<TAny>(TAny? value, string formatString = ""
+    public TToContentMold VettedValueMatchJoinValue<TAny>(TAny? value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (value == null)
@@ -1771,7 +1773,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> ValueMatchOrDefaultNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string defaultValue = ""
+    public TToContentMold ValueMatchOrDefaultNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string defaultValue = ""
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType  = value?.GetType() ?? typeof(TAny);
@@ -1796,7 +1798,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinValueMatchWithDefaultJoin<TAny>(TAny? value, ReadOnlySpan<char> defaultValue
+    public TToContentMold JoinValueMatchWithDefaultJoin<TAny>(TAny? value, ReadOnlySpan<char> defaultValue
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType  = value?.GetType() ?? typeof(TAny);
@@ -1812,7 +1814,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinValueMatchWithDefaultValue(value, defaultValue, formatString, resolvedFlags); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinValueMatchWithDefaultValue<TAny>(TAny? value, ReadOnlySpan<char> defaultValue
+    public TToContentMold VettedJoinValueMatchWithDefaultValue<TAny>(TAny? value, ReadOnlySpan<char> defaultValue
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
@@ -1832,7 +1834,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, bool? value, string formatString = ""
+    public TToContentMold FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, bool? value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
     {
         var actualType  = typeof(bool?);
@@ -1856,7 +1858,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringJoin(bool? value, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
+    public TToContentMold JoinStringJoin(bool? value, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
         var actualType  = typeof(bool?);
@@ -1873,7 +1875,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinString(bool? value, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
+    public TToContentMold VettedJoinString(bool? value, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
         if (value == null)
@@ -1901,7 +1903,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringOrDefaultNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value
+    public TToContentMold FieldStringOrDefaultNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value
       , string defaultValue = "", string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true
       , bool addEndDblQt = true)
         where TFmt : ISpanFormattable?
@@ -1923,7 +1925,14 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         
         var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
-        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        if (!actualType.IsValueType && BuildingInstanceEquals(value))
+        {
+            if (Settings.InstanceTrackingAllAsStringClassesAreExempt)
+            {
+                Master.UpdateVisitAddFormatFlags(MoldGraphVisit.CurrentVisitIndex, NoRevisitCheck);
+            }
+            resolvedFlags |= NoRevisitCheck;
+        }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         if (callContext.HasFormatChange)
         {
@@ -1936,7 +1945,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringWithDefaultJoin<TFmt>(TFmt value, string defaultValue = "", string formatString = ""
+    public TToContentMold JoinStringWithDefaultJoin<TFmt>(TFmt value, string defaultValue = "", string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
         where TFmt : ISpanFormattable?
     {
@@ -1949,7 +1958,14 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         }
         var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, formatFlags), formatString);
-        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        if (!actualType.IsValueType && BuildingInstanceEquals(value))
+        {
+            if (Settings.InstanceTrackingAllAsStringClassesAreExempt)
+            {
+                Master.UpdateVisitAddFormatFlags(MoldGraphVisit.CurrentVisitIndex, NoRevisitCheck);
+            }
+            resolvedFlags |= NoRevisitCheck;
+        }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
 
         if (!callContext.HasFormatChange)
@@ -1960,7 +1976,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinStringWithDefault<TFmt>(TFmt value
+    public TToContentMold VettedJoinStringWithDefault<TFmt>(TFmt value
       , string defaultValue = "", string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
         where TFmt : ISpanFormattable?
@@ -1989,7 +2005,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringOrNullNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value
+    public TToContentMold FieldStringOrNullNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
         where TFmt : ISpanFormattable?
     {
@@ -2010,7 +2026,14 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         
         var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags), formatString);
-        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        if (!actualType.IsValueType && BuildingInstanceEquals(value))
+        {
+            if (Settings.InstanceTrackingAllAsStringClassesAreExempt)
+            {
+                Master.UpdateVisitAddFormatFlags(MoldGraphVisit.CurrentVisitIndex, NoRevisitCheck);
+            }
+            resolvedFlags |= NoRevisitCheck;
+        }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
         
         if (callContext.HasFormatChange)
@@ -2021,7 +2044,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringJoin<TFmt>(TFmt value, string formatString = ""
+    public TToContentMold JoinStringJoin<TFmt>(TFmt value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
         where TFmt : ISpanFormattable?
     {
@@ -2034,14 +2057,21 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         }
         var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
             (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags), formatString);
-        if (!actualType.IsValueType && BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        if (!actualType.IsValueType && BuildingInstanceEquals(value))
+        {
+            if (Settings.InstanceTrackingAllAsStringClassesAreExempt)
+            {
+                Master.UpdateVisitAddFormatFlags(MoldGraphVisit.CurrentVisitIndex, NoRevisitCheck);
+            }
+            resolvedFlags |= NoRevisitCheck;
+        }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
 
         if (!callContext.HasFormatChange) return VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
         using (callContext) { return VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinString<TFmt>(TFmt value, string formatString = ""
+    public TToContentMold VettedJoinString<TFmt>(TFmt value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
         where TFmt : ISpanFormattable?
     {
@@ -2051,7 +2081,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringOrDefaultNext<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
+    public TToContentMold FieldStringOrDefaultNext<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
       , string defaultValue = ""
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
         where TFmtStruct : struct, ISpanFormattable
@@ -2077,7 +2107,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringWithDefaultJoin<TFmtStruct>(TFmtStruct? value, string defaultValue = ""
+    public TToContentMold JoinStringWithDefaultJoin<TFmtStruct>(TFmtStruct? value, string defaultValue = ""
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
         where TFmtStruct : struct, ISpanFormattable
@@ -2095,7 +2125,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinStringWithDefault(value, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinStringWithDefault<TFmtStruct>(TFmtStruct? value, string defaultValue = ""
+    public TToContentMold VettedJoinStringWithDefault<TFmtStruct>(TFmtStruct? value, string defaultValue = ""
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
         where TFmtStruct : struct, ISpanFormattable
@@ -2125,7 +2155,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringOrNullNext<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
+    public TToContentMold FieldStringOrNullNext<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
         where TFmtStruct : struct, ISpanFormattable
     {
@@ -2149,7 +2179,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringJoin<TFmtStruct>(TFmtStruct? value, string formatString = ""
+    public TToContentMold JoinStringJoin<TFmtStruct>(TFmtStruct? value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
         where TFmtStruct : struct, ISpanFormattable
     {
@@ -2165,7 +2195,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinString<TFmtStruct>(TFmtStruct? value, string formatString = ""
+    public TToContentMold VettedJoinString<TFmtStruct>(TFmtStruct? value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
         where TFmtStruct : struct, ISpanFormattable
@@ -2195,7 +2225,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringRevealOrDefaultNext<TCloaked, TRevealBase>(ReadOnlySpan<char> nonJsonfieldName
+    public TToContentMold FieldStringRevealOrDefaultNext<TCloaked, TRevealBase>(ReadOnlySpan<char> nonJsonfieldName
       , TCloaked value, PalantírReveal<TRevealBase> palantírReveal, string defaultValue = "", string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
         where TCloaked : TRevealBase?
@@ -2225,7 +2255,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringWithDefaultJoin<TCloaked, TRevealBase>(TCloaked value
+    public TToContentMold JoinStringWithDefaultJoin<TCloaked, TRevealBase>(TCloaked value
       , PalantírReveal<TRevealBase> palantírReveal, string defaultValue = "", string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
         where TCloaked : TRevealBase?
@@ -2248,7 +2278,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinStringWithDefault<TCloaked, TRevealBase>(TCloaked value
+    public TToContentMold VettedJoinStringWithDefault<TCloaked, TRevealBase>(TCloaked value
       , PalantírReveal<TRevealBase> palantírReveal, string defaultValue = "", string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
@@ -2281,7 +2311,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringRevealOrNullNext<TCloaked, TRevealBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked value
+    public TToContentMold FieldStringRevealOrNullNext<TCloaked, TRevealBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked value
       , PalantírReveal<TRevealBase> palantírReveal, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = true, bool addEndDblQt = true)
         where TCloaked : TRevealBase?
@@ -2309,7 +2339,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringJoin<TCloaked, TRevealBase>(TCloaked value
+    public TToContentMold JoinStringJoin<TCloaked, TRevealBase>(TCloaked value
       , PalantírReveal<TRevealBase> palantírReveal, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
         where TCloaked : TRevealBase?
@@ -2328,7 +2358,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinString(value, palantírReveal, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinString<TCloaked, TRevealBase>(TCloaked value
+    public TToContentMold VettedJoinString<TCloaked, TRevealBase>(TCloaked value
       , PalantírReveal<TRevealBase> palantírReveal
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
@@ -2360,7 +2390,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringRevealOrDefaultNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
+    public TToContentMold FieldStringRevealOrDefaultNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal, string defaultValue = "", string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = true, bool addEndDblQt = true)
@@ -2392,7 +2422,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringWithDefaultJoin<TCloakedStruct>(TCloakedStruct? value
+    public TToContentMold JoinStringWithDefaultJoin<TCloakedStruct>(TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal, string defaultValue = ""
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
@@ -2415,7 +2445,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinStringWithDefault<TCloakedStruct>(TCloakedStruct? value
+    public TToContentMold VettedJoinStringWithDefault<TCloakedStruct>(TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal, string defaultValue = "", string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
@@ -2450,7 +2480,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringRevealOrNullNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
+    public TToContentMold FieldStringRevealOrNullNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = true, bool addEndDblQt = true) where TCloakedStruct : struct
@@ -2477,7 +2507,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringJoin<TCloakedStruct>(TCloakedStruct? value
+    public TToContentMold JoinStringJoin<TCloakedStruct>(TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
@@ -2495,7 +2525,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinString(value, palantírReveal, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinString<TCloakedStruct>(TCloakedStruct? value
+    public TToContentMold VettedJoinString<TCloakedStruct>(TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
@@ -2525,7 +2555,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringRevealOrDefaultNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value
+    public TToContentMold FieldStringRevealOrDefaultNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value
       , string defaultValue = ""
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = true, bool addEndDblQt = true)
@@ -2553,7 +2583,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringWithDefaultJoin<TBearer>(TBearer value, string defaultValue = ""
+    public TToContentMold JoinStringWithDefaultJoin<TBearer>(TBearer value, string defaultValue = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = ""
       , bool addStartDblQt = false, bool addEndDblQt = false)
         where TBearer : IStringBearer?
@@ -2572,7 +2602,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinStringWithDefault(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinStringWithDefault<TBearer>(TBearer value, string defaultValue = ""
+    public TToContentMold VettedJoinStringWithDefault<TBearer>(TBearer value, string defaultValue = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = ""
       , bool addStartDblQt = false, bool addEndDblQt = false)
         where TBearer : IStringBearer?
@@ -2607,7 +2637,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringRevealOrDefaultNext<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName
+    public TToContentMold FieldStringRevealOrDefaultNext<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName
       , TBearerStruct? value, string defaultValue = "", FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = ""
       , bool addStartDblQt = true, bool addEndDblQt = true)
         where TBearerStruct : struct, IStringBearer
@@ -2633,7 +2663,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringWithDefaultJoin<TBearerStruct>(TBearerStruct? value, string defaultValue = ""
+    public TToContentMold JoinStringWithDefaultJoin<TBearerStruct>(TBearerStruct? value, string defaultValue = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = ""
       , bool addStartDblQt = false, bool addEndDblQt = false)
         where TBearerStruct : struct, IStringBearer
@@ -2652,7 +2682,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinStringWithDefault(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinStringWithDefault<TBearerStruct>(TBearerStruct? value, string defaultValue = ""
+    public TToContentMold VettedJoinStringWithDefault<TBearerStruct>(TBearerStruct? value, string defaultValue = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, string? formatString = null
       , bool addStartDblQt = false, bool addEndDblQt = false)
         where TBearerStruct : struct, IStringBearer
@@ -2683,7 +2713,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringRevealOrNullNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value
+    public TToContentMold FieldStringRevealOrNullNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value
       , FormatFlags formatFlags = DefaultCallerTypeFlags, string? formatString = null
       , bool addStartDblQt = true, bool addEndDblQt = true)
         where TBearer : IStringBearer?
@@ -2709,7 +2739,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringJoin<TBearer>(TBearer value, FormatFlags formatFlags = DefaultCallerTypeFlags
+    public TToContentMold JoinStringJoin<TBearer>(TBearer value, FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? formatString = null, bool addStartDblQt = false, bool addEndDblQt = false)
         where TBearer : IStringBearer?
     {
@@ -2726,7 +2756,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinString(value, resolvedFlags, formatString, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinString<TBearer>(TBearer value, FormatFlags formatFlags = DefaultCallerTypeFlags
+    public TToContentMold VettedJoinString<TBearer>(TBearer value, FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? formatString = null, bool addStartDblQt = false, bool addEndDblQt = false) where TBearer : IStringBearer?
     {
         if (value == null)
@@ -2754,7 +2784,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringRevealOrNullNext<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
+    public TToContentMold FieldStringRevealOrNullNext<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
       , FormatFlags formatFlags = DefaultCallerTypeFlags, string formatString = "", bool addStartDblQt = true, bool addEndDblQt = true)
         where TBearerStruct : struct, IStringBearer
     {
@@ -2780,7 +2810,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringJoin<TBearerStruct>(TBearerStruct? value, FormatFlags formatFlags = DefaultCallerTypeFlags
+    public TToContentMold JoinStringJoin<TBearerStruct>(TBearerStruct? value, FormatFlags formatFlags = DefaultCallerTypeFlags
       , string formatString = "", bool addStartDblQt = false, bool addEndDblQt = false)
         where TBearerStruct : struct, IStringBearer
     {
@@ -2797,7 +2827,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinString(value, resolvedFlags, formatString, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinString<TBearerStruct>(TBearerStruct? value, FormatFlags formatFlags = DefaultCallerTypeFlags
+    public TToContentMold VettedJoinString<TBearerStruct>(TBearerStruct? value, FormatFlags formatFlags = DefaultCallerTypeFlags
       , string? formatString = null, bool addStartDblQt = false, bool addEndDblQt = false) where TBearerStruct : struct, IStringBearer
     {
         if (value == null)
@@ -2825,7 +2855,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, Span<char> value, string formatString = ""
+    public TToContentMold FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, Span<char> value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
     {
         var actualType  = typeof(Span<char>);
@@ -2848,7 +2878,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringJoin(Span<char> value, string formatString = ""
+    public TToContentMold JoinStringJoin(Span<char> value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
@@ -2864,7 +2894,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinString(Span<char> value, string formatString = ""
+    public TToContentMold VettedJoinString(Span<char> value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
@@ -2891,7 +2921,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
+    public TToContentMold FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
       , string defaultValue = "", string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true
       , bool addEndDblQt = true)
     {
@@ -2916,7 +2946,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringWithDefaultJoin(ReadOnlySpan<char> value, string defaultValue = "", string formatString = ""
+    public TToContentMold JoinStringWithDefaultJoin(ReadOnlySpan<char> value, string defaultValue = "", string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
         var actualType  = typeof(ReadOnlySpan<char>);
@@ -2932,7 +2962,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinStringWithDefault(value, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinStringWithDefault(ReadOnlySpan<char> value, string defaultValue = "", string formatString = ""
+    public TToContentMold VettedJoinStringWithDefault(ReadOnlySpan<char> value, string defaultValue = "", string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
         if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
@@ -2961,7 +2991,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
+    public TToContentMold FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
     {
@@ -2985,7 +3015,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringJoin(ReadOnlySpan<char> value, string formatString = ""
+    public TToContentMold JoinStringJoin(ReadOnlySpan<char> value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
         var actualType  = typeof(ReadOnlySpan<char>);
@@ -3000,7 +3030,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinString(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinString(ReadOnlySpan<char> value, string formatString = ""
+    public TToContentMold VettedJoinString(ReadOnlySpan<char> value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
         if (value.Length == 0)
@@ -3026,7 +3056,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length
+    public TToContentMold FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
     {
@@ -3051,7 +3081,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringJoin(string? value, int startIndex, int length, string formatString = ""
+    public TToContentMold JoinStringJoin(string? value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
         var actualType  = typeof(string);
@@ -3066,7 +3096,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinString(value, startIndex, length, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinString(string? value, int startIndex, int length, string formatString = ""
+    public TToContentMold VettedJoinString(string? value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
         if (value != null)
@@ -3118,7 +3148,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length
+    public TToContentMold FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length
       , string defaultValue = "", string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = true, bool addEndDblQt = true)
     {
@@ -3145,7 +3175,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringWithDefaultJoin(string? value, int startIndex, int length
+    public TToContentMold JoinStringWithDefaultJoin(string? value, int startIndex, int length
       , ReadOnlySpan<char> defaultValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
@@ -3165,7 +3195,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinStringWithDefault(string? value, int startIndex, int length
+    public TToContentMold VettedJoinStringWithDefault(string? value, int startIndex, int length
       , ReadOnlySpan<char> defaultValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
@@ -3198,7 +3228,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length
+    public TToContentMold FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
     {
@@ -3222,7 +3252,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringJoin(char[]? value, int startIndex, int length, string formatString = ""
+    public TToContentMold JoinStringJoin(char[]? value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
         var actualType  = typeof(char[]);
@@ -3237,7 +3267,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinString(value, startIndex, length, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinString(char[]? value, int startIndex, int length, string formatString = ""
+    public TToContentMold VettedJoinString(char[]? value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
         if (value != null)
@@ -3289,7 +3319,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length
+    public TToContentMold FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length
       , string defaultValue = "", string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = true, bool addEndDblQt = true)
     {
@@ -3316,7 +3346,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringWithDefaultJoin(char[]? value, int startIndex, int length
+    public TToContentMold JoinStringWithDefaultJoin(char[]? value, int startIndex, int length
       , ReadOnlySpan<char> defaultValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
@@ -3336,7 +3366,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinStringWithDefault(char[]? value, int startIndex, int length
+    public TToContentMold VettedJoinStringWithDefault(char[]? value, int startIndex, int length
       , ReadOnlySpan<char> defaultValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
@@ -3369,7 +3399,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringOrDefaultNext<TCharSeq>(ReadOnlySpan<char> nonJsonfieldName, TCharSeq value, int startIndex
+    public TToContentMold FieldStringOrDefaultNext<TCharSeq>(ReadOnlySpan<char> nonJsonfieldName, TCharSeq value, int startIndex
       , int length, string defaultValue = "", string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = true, bool addEndDblQt = true)
         where TCharSeq : ICharSequence?
@@ -3398,7 +3428,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringWithDefaultJoin<TCharSeq>(TCharSeq value, int startIndex, int length
+    public TToContentMold JoinStringWithDefaultJoin<TCharSeq>(TCharSeq value, int startIndex, int length
       , ReadOnlySpan<char> defaultValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
         where TCharSeq : ICharSequence?
@@ -3419,7 +3449,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinStringWithDefault<TCharSeq>(TCharSeq value, int startIndex, int length
+    public TToContentMold VettedJoinStringWithDefault<TCharSeq>(TCharSeq value, int startIndex, int length
       , ReadOnlySpan<char> defaultValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
         where TCharSeq : ICharSequence?
@@ -3464,7 +3494,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringOrNullNext<TCharSeq>(ReadOnlySpan<char> nonJsonfieldName, TCharSeq value, int startIndex
+    public TToContentMold FieldStringOrNullNext<TCharSeq>(ReadOnlySpan<char> nonJsonfieldName, TCharSeq value, int startIndex
       , int length
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
         where TCharSeq : ICharSequence?
@@ -3490,7 +3520,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringJoin<TCharSeq>(TCharSeq value, int startIndex, int length, string formatString = ""
+    public TToContentMold JoinStringJoin<TCharSeq>(TCharSeq value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
         where TCharSeq : ICharSequence?
     {
@@ -3507,7 +3537,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinString(value, startIndex, length, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinString<TCharSeq>(TCharSeq value, int startIndex, int length, string formatString = ""
+    public TToContentMold VettedJoinString<TCharSeq>(TCharSeq value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
         where TCharSeq : ICharSequence?
     {
@@ -3560,7 +3590,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex
+    public TToContentMold FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex
       , int length
       , string defaultValue = "", string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = true, bool addEndDblQt = true)
@@ -3588,7 +3618,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringWithDefaultJoin(StringBuilder? value, int startIndex, int length
+    public TToContentMold JoinStringWithDefaultJoin(StringBuilder? value, int startIndex, int length
       , ReadOnlySpan<char> defaultValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
@@ -3608,7 +3638,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinStringWithDefault(StringBuilder? value, int startIndex, int length
+    public TToContentMold VettedJoinStringWithDefault(StringBuilder? value, int startIndex, int length
       , ReadOnlySpan<char> defaultValue, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
@@ -3642,7 +3672,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex
+    public TToContentMold FieldStringOrNullNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex
       , int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
     {
@@ -3666,7 +3696,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringJoin(StringBuilder? value, int startIndex, int length, string formatString = ""
+    public TToContentMold JoinStringJoin(StringBuilder? value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
         var actualType  = typeof(StringBuilder);
@@ -3681,7 +3711,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinString(value, startIndex, length, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinString(StringBuilder? value, int startIndex, int length, string formatString = ""
+    public TToContentMold VettedJoinString(StringBuilder? value, int startIndex, int length, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
@@ -3735,7 +3765,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> StringMatchOrNullNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string formatString = ""
+    public TToContentMold StringMatchOrNullNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
     {
         var actualType  = value?.GetType() ?? typeof(TAny);
@@ -3759,7 +3789,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringMatchJoin<TAny>(TAny value, string formatString = ""
+    public TToContentMold JoinStringMatchJoin<TAny>(TAny value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
         var actualType  = value?.GetType() ?? typeof(TAny);
@@ -3776,7 +3806,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinStringMatchJoin(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinStringMatchJoin<TAny>(TAny value, string formatString = ""
+    public TToContentMold VettedJoinStringMatchJoin<TAny>(TAny value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags
       , bool addStartDblQt = false, bool addEndDblQt = false)
     {
@@ -3800,7 +3830,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return StyleTypeBuilder.TransitionToNextMold();
     }
 
-    public ContentJoinTypeMold<TContentMold> StringMatchOrDefaultNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string defaultValue = ""
+    public TToContentMold StringMatchOrDefaultNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string defaultValue = ""
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = true, bool addEndDblQt = true)
     {
@@ -3825,7 +3855,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         return ConditionalValueTypeSuffix();
     }
 
-    public ContentJoinTypeMold<TContentMold> JoinStringMatchWithDefaultJoin<TAny>(TAny? value, ReadOnlySpan<char> defaultValue
+    public TToContentMold JoinStringMatchWithDefaultJoin<TAny>(TAny? value, ReadOnlySpan<char> defaultValue
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
@@ -3843,7 +3873,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         using (callContext) { return VettedJoinStringMatchWithDefault(value, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
     }
 
-    public ContentJoinTypeMold<TContentMold> VettedJoinStringMatchWithDefault<TAny>(TAny? value, ReadOnlySpan<char> defaultValue
+    public TToContentMold VettedJoinStringMatchWithDefault<TAny>(TAny? value, ReadOnlySpan<char> defaultValue
       , string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
@@ -3889,7 +3919,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
         StyleFormatter.AppendFormattedNull(Sb, formatString, formatFlags);
     }
 
-    public ContentJoinTypeMold<TContentMold> ConditionalValueTypeSuffix()
+    public TToContentMold ConditionalValueTypeSuffix()
     {
         if (SupportsMultipleFields)
         {
@@ -3910,7 +3940,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
 
     // private int NextSkipFieldCallsSkipBody() => ++countNextSkipFieldIsSkipBody;
 
-    public new ContentJoinTypeMold<TContentMold> WasSkipped(Type actualType, ReadOnlySpan<char> fieldName
+    public new TToContentMold WasSkipped(Type actualType, ReadOnlySpan<char> fieldName
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
 
     {
@@ -3921,7 +3951,7 @@ public class ContentTypeDieCast<TContentMold> : TypeMolderDieCast<TContentMold> 
     {
         if (source == null) return this;
         base.CopyFrom(source, copyMergeFlags);
-        if (source is ContentTypeDieCast<TContentMold> valueTypeDieCast) { CurrentWriteMethod = valueTypeDieCast.CurrentWriteMethod; }
+        if (source is ContentTypeDieCast<TContentMold, TToContentMold> valueTypeDieCast) { CurrentWriteMethod = valueTypeDieCast.CurrentWriteMethod; }
 
         return this;
     }

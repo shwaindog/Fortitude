@@ -15,7 +15,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase? where TValue : TVFilterBase? =>
-        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueFormatString, keyFormatString, formatFlags);
+        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueFormatString  ?? "", keyFormatString  ?? "", formatFlags);
 
     public TExt AlwaysAddFiltered<TKey, TValue, TKeyFilterBase, TValueFilterBase>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
@@ -47,7 +47,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueFormatString, keyFormatString);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueFormatString  ?? "", keyFormatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -88,7 +88,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueFormatString, keyFormatString);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueFormatString  ?? "", keyFormatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -131,7 +131,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     }
                     break;
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueFormatString, keyFormatString);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueFormatString  ?? "", keyFormatString);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
@@ -183,7 +183,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                         }
                         break;
                     }
-                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueFormatString, keyFormatString);
+                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueFormatString  ?? "", keyFormatString);
                     if (filterResult is { KeepProcessing: false }) break;
                     skipCount = filterResult.SkipNextCount;
                     hasValue  = value.MoveNext();
@@ -206,7 +206,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKey : TKFilterBase
         where TValue : TVFilterBase?, TVRevealBase?
         where TVRevealBase : notnull =>
-        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags);
 
     public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase>
     (string fieldName, IReadOnlyDictionary<TKey, TValue?>? value
@@ -217,7 +217,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKey : TKFilterBase
         where TValue : struct =>
-        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags);
 
     public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
     (string fieldName, KeyValuePair<TKey, TValue>[]? value
@@ -252,14 +252,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -295,14 +295,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -339,14 +339,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -382,14 +382,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -428,14 +428,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     }
                     break;
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -473,14 +473,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     }
                     break;
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -528,7 +528,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                         }
                         break;
                     }
-                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags);
                     if (filterResult is { KeepProcessing: false }) break;
                     skipCount = filterResult.SkipNextCount;
                     hasValue  = value.MoveNext();
@@ -537,7 +537,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -584,7 +584,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                         }
                         break;
                     }
-                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags);
                     if (filterResult is { KeepProcessing: false }) break;
                     skipCount = filterResult.SkipNextCount;
                     hasValue  = value.MoveNext();
@@ -593,7 +593,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -609,7 +609,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : TVFilterBase?, TVRevealBase?
         where TKRevealBase : notnull
         where TVRevealBase : notnull =>
-        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
 
     public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>(
         string fieldName
@@ -622,7 +622,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKey : TKFilterBase, TKRevealBase
         where TValue : struct
         where TKRevealBase : notnull =>
-        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+        AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
 
     public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>(
         string fieldName
@@ -659,14 +659,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -704,14 +704,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -749,14 +749,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -792,14 +792,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -838,14 +838,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -883,14 +883,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -928,14 +928,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -972,14 +972,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     break;
                 }
 
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -1020,14 +1020,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     }
                     break;
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -1067,14 +1067,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     }
                     break;
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -1114,14 +1114,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     }
                     break;
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -1160,14 +1160,14 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                     }
                     break;
                 }
-                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+                ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -1217,7 +1217,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                         }
                         break;
                     }
-                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
                     if (filterResult is { KeepProcessing: false }) break;
                     skipCount = filterResult.SkipNextCount;
                     hasValue  = value.MoveNext();
@@ -1226,7 +1226,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -1275,7 +1275,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                         }
                         break;
                     }
-                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
                     if (filterResult is { KeepProcessing: false }) break;
                     skipCount = filterResult.SkipNextCount;
                     hasValue  = value.MoveNext();
@@ -1284,7 +1284,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -1333,7 +1333,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                         }
                         break;
                     }
-                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
                     if (filterResult is { KeepProcessing: false }) break;
                     skipCount = filterResult.SkipNextCount;
                     hasValue  = value.MoveNext();
@@ -1342,7 +1342,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 
@@ -1389,7 +1389,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                         }
                         break;
                     }
-                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+                    ekcm.AddKeyValueMatchAndGoToNextEntry(kvp.Key, kvp.Value, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags);
                     if (filterResult is { KeepProcessing: false }) break;
                     skipCount = filterResult.SkipNextCount;
                     hasValue  = value.MoveNext();
@@ -1398,7 +1398,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString, formatFlags);
+            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
         return stb.AddGoToNext();
     }
 }

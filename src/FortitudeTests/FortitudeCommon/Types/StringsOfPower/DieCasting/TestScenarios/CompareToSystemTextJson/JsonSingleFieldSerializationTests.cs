@@ -343,7 +343,7 @@ public class JsonSingleFieldSerializationTests
         logger.WrnApnd("Json Serializer")?.Args("\n");
         logger.InfApnd("\n")?.Args(jsonStringPropertyClassStringified, "\n");
 
-        theOneString.Clear();
+        theOneString.ClearKeepSettings();
         jsonStringPropertyClass.RevealState(theOneString);
         var oneStringify = theOneString.WriteBuffer.ToString();
 

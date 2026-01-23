@@ -678,12 +678,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext();
     }
 
-    public TExt AlwaysAddAll<TFmt>(string fieldName, TFmt?[]? value
+    public TExt AlwaysAddAll<TFmt>(string fieldName, TFmt[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable
+        where TFmt : ISpanFormattable?
     {
-        var actualType = value?.GetType() ?? typeof(TFmt?[]);
+        var actualType = value?.GetType() ?? typeof(TFmt[]);
         if (stb.HasSkipField(actualType, fieldName, formatFlags))
             return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);

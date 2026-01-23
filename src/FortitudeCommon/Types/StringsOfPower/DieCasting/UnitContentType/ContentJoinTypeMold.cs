@@ -6,14 +6,15 @@ using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 
-public class ContentJoinTypeMold<TMold> : KnownTypeMolder<ContentJoinTypeMold<TMold>>, 
-    IMigrateFrom<TMold, ContentJoinTypeMold<TMold>>
-    where TMold : TypeMolder
+public class ContentJoinTypeMold<TFromMold, TToMold> : KnownTypeMolder<TToMold>, 
+    IMigrateFrom<TFromMold, TToMold>
+    where TFromMold : TypeMolder
+    where TToMold : ContentJoinTypeMold<TFromMold, TToMold>
 {
     private bool initialWasComplex;
     private bool wasUpgradedToComplexType;
 
-    public override bool IsComplexType => initialWasComplex;
+    public override bool IsComplexType => initialWasComplex || wasUpgradedToComplexType;
 
     public override void StartFormattingTypeOpening()
     {
@@ -65,7 +66,7 @@ public class ContentJoinTypeMold<TMold> : KnownTypeMolder<ContentJoinTypeMold<TM
         return this;
     }
 
-    public ContentJoinTypeMold<TMold> CopyFrom(TMold source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public TToMold CopyFrom(TFromMold source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         PortableState = ((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.PortableState;
         SourceBuilderComponentAccess(((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.CurrentWriteMethod);
@@ -74,7 +75,7 @@ public class ContentJoinTypeMold<TMold> : KnownTypeMolder<ContentJoinTypeMold<TM
         initialWasComplex        = source.IsComplexType;
         wasUpgradedToComplexType = initialWasComplex && source is SimpleContentTypeMold;
 
-        return this;
+        return (TToMold)this;
     }
 
     protected override void InheritedStateReset()

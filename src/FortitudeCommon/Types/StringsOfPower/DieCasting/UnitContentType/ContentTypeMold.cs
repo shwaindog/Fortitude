@@ -1,16 +1,18 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 
-public class ContentTypeMold<TContentMold> : TransitioningTypeMolder<TContentMold, ContentJoinTypeMold<TContentMold>>
-    where TContentMold : ContentTypeMold<TContentMold>
+public class ContentTypeMold<TContentMold, TToContentMold> : TransitioningTypeMolder<TContentMold, TToContentMold>
+    where TContentMold : ContentTypeMold<TContentMold, TToContentMold>
+    where TToContentMold : ContentJoinTypeMold<TContentMold, TToContentMold>, IMigrateFrom<TContentMold, TToContentMold>, new()
 {
-    public ContentTypeMold<TContentMold> InitializeContentTypeBuilder
+    public ContentTypeMold<TContentMold, TToContentMold> InitializeContentTypeBuilder
     (
         object instanceOrContainer
       , Type typeBeingBuilt
@@ -27,7 +29,7 @@ public class ContentTypeMold<TContentMold> : TransitioningTypeMolder<TContentMol
         return this;
     }
 
-    protected ContentTypeDieCast<TContentMold> Msf => (ContentTypeDieCast<TContentMold>)MoldStateField!;
+    protected ContentTypeDieCast<TContentMold, TToContentMold> Msf => (ContentTypeDieCast<TContentMold, TToContentMold>)MoldStateField!;
 
     public override bool IsComplexType => Msf.SupportsMultipleFields;
 

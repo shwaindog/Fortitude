@@ -17,7 +17,7 @@ public abstract class CommonExpectationBase
 {
     protected static IVersatileFLogger Logger       = null!;
     protected static Recycler          Recycler     = null!;
-    protected static ITheOneString     TheOneString = null!;
+    protected static ITheOneString     MyTheOneString = null!;
 
     protected static StringBuilderType LastRetrievedStringBuilderType = StringBuilderType.CharArrayStringBuilder;
 
@@ -34,9 +34,10 @@ public abstract class CommonExpectationBase
                    .RegisterFactory(() => new RecyclingCharArray(bufferSize))
                    .RegisterFactory(() => new RecyclingByteArray(bufferSize))
                    .RegisterFactory(() => new MutableString(bufferSize));
-        TheOneString = new TheOneString().ReInitialize(new CharArrayStringBuilder());
+        MyTheOneString = new TheOneString().ReInitialize(new CharArrayStringBuilder());
 
-        TheOneString.Settings.NewLineStyle = "\n";
+        MyTheOneString.Settings.NewLineStyle = "\n";
+        TheOneString.DefaultSettings.NewLineStyle = "\n";
     }
 
     protected IStringBuilder GetComparisonBuilder(IStringBuilder subjectOneStringWriteBuffer)

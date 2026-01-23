@@ -608,7 +608,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         where TRevealBase : notnull
     {
         var sb                = tos.WriteBuffer;
-        var withMoldInherited = callerFormatFlags | tos.CurrentTypeBuilder?.CreateFormatFlags ?? DefaultCallerTypeFlags;
+        var withMoldInherited = callerFormatFlags 
+                              | (tos.CurrentTypeBuilder?.CreateFormatFlags ?? DefaultCallerTypeFlags) & MoldAlwaysInherited;
         Gb.StartNextContentSeparatorPaddingSequence(sb, withMoldInherited | NoRevisitCheck | IsFieldName);
         var preAppendLen = sb.Length;
         tos.SetCallerFormatString(callerFormatString);
@@ -632,8 +633,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
       , FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?
     {
         var sb                = tos.WriteBuffer;
-        // var withMoldInherited = callerFormatFlags | tos.CurrentTypeBuilder?.CreateFormatFlags ?? DefaultCallerTypeFlags;
-        var withMoldInherited = callerFormatFlags;
+        var withMoldInherited = callerFormatFlags 
+          | (tos.CurrentTypeBuilder?.CreateFormatFlags ?? DefaultCallerTypeFlags) & MoldAlwaysInherited;
         Gb.StartNextContentSeparatorPaddingSequence(sb, withMoldInherited | NoRevisitCheck | IsFieldName);
         var preAppendLen = sb.Length;
         tos.SetCallerFormatString(callerFormatString);
