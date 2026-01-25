@@ -193,7 +193,7 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
         {
             var buildNames = stackalloc char[allValuesCharCount].ResetMemory();
             SourceEnumNamesFromEnum(toFormatEnum, buildNames, ReadOnlySpan<char>.Empty, tos.CurrentStyledTypeFormatter.ContentEncoder
-                                  , tos.CurrentStyledTypeFormatter.Gb.GraphEncoder);
+                                  , tos.CurrentStyledTypeFormatter.LayoutEncoder);
             sb.Append(buildNames, 0, buildNames.PopulatedLength());
         }
 
@@ -423,7 +423,7 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
 
             padSize   = padSpan.PadAndAlign(splitJoinResultSpan, layout);
             padSize   = Math.Min(padSize, alignedLength);
-            lastAdded = PassThroughEncodingTransfer.Instance.OverwriteTransfer(padSpan[..padSize], enumNextSpan, 0);
+            lastAdded = PassThroughEncodingTransfer.FinalEncoder.OverwriteTransfer(padSpan[..padSize], enumNextSpan, 0);
         }
         else
         {

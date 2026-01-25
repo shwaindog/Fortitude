@@ -18,9 +18,9 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
     protected const string ClnSpc = ": ";
     protected const string Spc    = " ";
 
-    public override PrettyJsonTypeFormatting Initialize(GraphTrackingBuilder graphTrackingBuilder, StyleOptions styleOptions, IStringBuilder sb)
+    public override PrettyJsonTypeFormatting Initialize(ITheOneString theOneString)
     {
-        base.Initialize(graphTrackingBuilder, styleOptions, sb);
+        base.Initialize(theOneString);
 
         return this;
     }
@@ -49,7 +49,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
     }
 
     public override int SizeFieldValueSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-        Gb.GraphEncoder.CalculateEncodedLength(ClnSpc);
+        LayoutEncoder.CalculateEncodedLength(ClnSpc);
 
     public override SeparatorPaddingRanges AppendFieldValueSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         Gb
@@ -65,10 +65,10 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         int nextPaddingSize;
         if (formatFlags.UseMainFieldPadding() && formatFlags.CanAddNewLine())
         {
-            nextPaddingSize =  Gb.GraphEncoder.CalculateEncodedLength(StyleOptions.NewLineStyle);
+            nextPaddingSize =  LayoutEncoder.CalculateEncodedLength(StyleOptions.NewLineStyle);
             nextPaddingSize += StyleOptions.IndentRepeat(Gb.IndentLevel);
         }
-        else { nextPaddingSize = Gb.GraphEncoder.CalculateEncodedLength(StyleOptions.AlternateFieldPadding); }
+        else { nextPaddingSize = LayoutEncoder.CalculateEncodedLength(StyleOptions.AlternateFieldPadding); }
         return nextPaddingSize;
     }
 
@@ -207,13 +207,12 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             if ((elementType == typeof(char) && JsonOptions.CharBufferWritesAsCharCollection) ||
                 (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String))
             {
-                charsAdded = Gb.GraphEncoder.OverwriteTransfer(DblQt, destSpan, destStartIndex);
+                charsAdded = LayoutEncoder.OverwriteTransfer(DblQt, destSpan, destStartIndex);
                 return charsAdded;
             }
             Gb.IndentLevel++;
             charsAdded =
-                Gb
-                    .GraphEncoder
+                LayoutEncoder
                     .OverwriteTransfer
                         ( elementType == typeof(KeyValuePair<string, JsonNode>) 
                              ? BrcOpn 
@@ -383,7 +382,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             {
                 if (prevFmtFlags.DoesNotHaveAsValueContentFlag() || prevFmtFlags.HasAsStringContentFlag())
                 {
-                    charsAdded += Gb.GraphEncoder.OverwriteTransfer(DblQt, destSpan, destIndex);
+                    charsAdded += LayoutEncoder.OverwriteTransfer(DblQt, destSpan, destIndex);
                 }
                 Gb.MarkContentEnd(destIndex + charsAdded);
                 return charsAdded;
@@ -406,12 +405,12 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             }
             if (elementType == typeof(KeyValuePair<string, JsonNode>))
             {
-                charsAdded += Gb.GraphEncoder.OverwriteTransfer(BrcCls, destSpan, destIndex);
+                charsAdded += LayoutEncoder.OverwriteTransfer(BrcCls, destSpan, destIndex);
                 Gb.MarkContentEnd(destIndex + charsAdded);
             }
             else
             {
-                charsAdded += Gb.GraphEncoder.OverwriteTransfer(SqBrktCls, destSpan, destIndex);
+                charsAdded += LayoutEncoder.OverwriteTransfer(SqBrktCls, destSpan, destIndex);
                 Gb.MarkContentEnd(destIndex + charsAdded);
             }
         }
@@ -420,12 +419,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
     
     public override PrettyJsonTypeFormatting Clone()
     {
-        return Recycler.Borrow<PrettyJsonTypeFormatting>().CopyFrom(this, CopyMergeFlags.FullReplace);
-    }
-
-    public override ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags)
-    {
-        return CopyFrom((PrettyJsonTypeFormatting)source, copyMergeFlags);
+        return AlwaysRecycler.Borrow<PrettyJsonTypeFormatting>().CopyFrom(this, CopyMergeFlags.FullReplace);
     }
 
     public override PrettyJsonTypeFormatting CopyFrom(CompactJsonTypeFormatting source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)

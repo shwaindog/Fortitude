@@ -10,6 +10,7 @@ namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 
 public interface ICustomStringFormatter : IReusableObject<ICustomStringFormatter>
 {
+  
     int AddCollectionElementSeparator(Type collectionType, IStringBuilder sb, int nextItemNumber
     , FormatSwitches formatSwitches = EncodeInnerContent);
     

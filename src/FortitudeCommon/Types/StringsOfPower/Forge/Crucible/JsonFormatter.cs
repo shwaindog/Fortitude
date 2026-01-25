@@ -5,7 +5,9 @@ using System.Text;
 using System.Text.Json.Nodes;
 using FortitudeCommon.DataStructures.MemoryPools.Buffers;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
+using static FortitudeCommon.Types.Mutable.CopyMergeFlags;
 using static FortitudeCommon.Types.StringsOfPower.Forge.FormatSwitchesExtensions;
 using static FortitudeCommon.Types.StringsOfPower.Forge.FormatSwitches;
 
@@ -27,11 +29,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     public virtual IJsonFormattingOptions JsonOptions
     {
         get => (IJsonFormattingOptions)(FormatOptions ??= new JsonFormattingOptions());
-        set
-        {
-            // Console.Out.WriteLine($"Setting {ToString()}  JsonOptions: {value?.ToString() ?? "null"}");
-            FormatOptions = value;
-        }
+        set => FormatOptions = value;
     }
 
     public override IFormattingOptions Options
@@ -52,7 +50,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
 
     public override IEncodingTransfer ContentEncoder
     {
-        get => StringEncoderTransfer ??= JsonOptions.SourceEncodingTransfer(JsonOptions);
+        get => MainEncoder ??= JsonOptions.SourceEncodingTransfer(JsonOptions);
         set => base.ContentEncoder = value;
     }
 
@@ -1703,5 +1701,21 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         }
         if (elementType == typeof(KeyValuePair<string, JsonNode>)) return destSpan.OverWriteAt(destIndex, BrcCls);
         return destSpan.OverWriteAt(destIndex, SqBrktCls);
+    }
+
+    public override void StateReset()
+    {
+        
+        
+        base.StateReset();
+    }
+
+    public override ICustomStringFormatter Clone() => AlwaysRecycler.Borrow<JsonFormatter>().CopyFrom(this, FullReplace);
+
+    public override JsonFormatter CopyFrom(ICustomStringFormatter source, CopyMergeFlags copyMergeFlags = Default)
+    {
+        base.CopyFrom(source, copyMergeFlags);
+
+        return this;
     }
 }

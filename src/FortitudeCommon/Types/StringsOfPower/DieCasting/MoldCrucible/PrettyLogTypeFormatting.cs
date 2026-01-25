@@ -14,9 +14,9 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
 public class PrettyLogTypeFormatting : CompactLogTypeFormatting
 {
-    public override PrettyLogTypeFormatting Initialize(GraphTrackingBuilder graphTrackingBuilder, StyleOptions styleOptions, IStringBuilder sb)
+    public override PrettyLogTypeFormatting Initialize(ITheOneString theOneString)
     {
-        base.Initialize(graphTrackingBuilder, styleOptions, sb);
+        base.Initialize(theOneString);
 
         return this;
     }
@@ -68,10 +68,10 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         int nextPaddingSize;
         if (formatFlags.UseMainFieldPadding() && formatFlags.CanAddNewLine())
         {
-            nextPaddingSize =  Gb.GraphEncoder.CalculateEncodedLength(StyleOptions.NewLineStyle);
+            nextPaddingSize =  LayoutEncoder.CalculateEncodedLength(StyleOptions.NewLineStyle);
             nextPaddingSize += StyleOptions.IndentRepeat(Gb.IndentLevel);
         }
-        else { nextPaddingSize = Gb.GraphEncoder.CalculateEncodedLength(StyleOptions.AlternateFieldPadding); }
+        else { nextPaddingSize = LayoutEncoder.CalculateEncodedLength(StyleOptions.AlternateFieldPadding); }
         return nextPaddingSize;
     }
 
@@ -279,7 +279,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         {
             if (prevFmtFlags.DoesNotHaveAsValueContentFlag() || prevFmtFlags.HasAsStringContentFlag())
             {
-                charsAdded += Gb.GraphEncoder.OverwriteTransfer(DblQt, destSpan, destIndex);
+                charsAdded += LayoutEncoder.OverwriteTransfer(DblQt, destSpan, destIndex);
             }
             Gb.MarkContentEnd(destIndex + charsAdded);
             return charsAdded;
@@ -298,12 +298,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
     
     public override PrettyLogTypeFormatting Clone()
     {
-        return Recycler.Borrow<PrettyLogTypeFormatting>().CopyFrom(this, CopyMergeFlags.FullReplace);
-    }
-
-    public override ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags)
-    {
-        return CopyFrom((PrettyLogTypeFormatting)source, copyMergeFlags);
+        return AlwaysRecycler.Borrow<PrettyLogTypeFormatting>().CopyFrom(this, CopyMergeFlags.FullReplace);
     }
 
     public override PrettyLogTypeFormatting CopyFrom(CompactLogTypeFormatting source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)

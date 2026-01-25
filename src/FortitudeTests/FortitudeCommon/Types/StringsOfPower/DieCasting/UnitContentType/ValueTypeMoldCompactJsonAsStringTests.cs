@@ -93,8 +93,8 @@ public class ContentTypeMoldTestsCompactJsonAsStringTests : ContentTypeMoldAsStr
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(StringBearerTestData.AllStringBearerExpectations[27], ScaffoldingRegistry.AllScaffoldingTypes[1223]
-                                           , StringBuilderType.CharArrayStringBuilder);
+        ExecuteIndividualScaffoldExpectation(CloakedBearerTestData.AllCloakedBearerExpectations[57]
+                                           , ScaffoldingRegistry.AllScaffoldingTypes[1197], StringBuilderType.MutableString);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName

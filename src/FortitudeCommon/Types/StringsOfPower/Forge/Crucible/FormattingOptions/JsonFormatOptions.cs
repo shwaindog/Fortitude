@@ -57,55 +57,6 @@ public interface IJsonFormattingOptions : IFormattingOptions
 
     long DateTimeTicksToNumberPrecision(long timeStampTicks);
 
-    private static readonly List<string> ExistingKeys = new();
-
-    public static string CreateKey(Type encodingTransferType, (Range, JsonEscapeType, Func<Rune, string>)[] cacheRanges, Range[] exemptEscapingRanges
-      , Range[] unicodeEscapingRanges)
-    {
-        Span<char> buildKey = stackalloc char[1024];
-        buildKey.Append(encodingTransferType.Name);
-        buildKey.Append('_');
-        for (int i = 0; i < cacheRanges.Length; i++)
-        {
-            var cacheRange = cacheRanges[i];
-            buildKey.AppendRange(cacheRange.Item1);
-            buildKey.Append('-');
-            buildKey.AppendEnum(cacheRange.Item2);
-            buildKey.Append('_');
-        }
-        for (int i = 0; i < exemptEscapingRanges.Length; i++)
-        {
-            var exemptRange = exemptEscapingRanges[i];
-            buildKey.Append("exmpt-");
-            buildKey.AppendRange(exemptRange);
-            buildKey.Append('_');
-        }
-        for (int i = 0; i < unicodeEscapingRanges.Length; i++)
-        {
-            var exemptRange = unicodeEscapingRanges[i];
-            buildKey.Append("uniCdEsc-");
-            buildKey.AppendRange(exemptRange);
-            buildKey.Append('_');
-        }
-        var len = buildKey.PopulatedLength();
-        buildKey = buildKey[..len];
-        string? asString = null;
-        for (int i = 0; i < ExistingKeys.Count; i++)
-        {
-            var existing = ExistingKeys[i];
-            if (buildKey.SequenceMatches(existing))
-            {
-                asString = existing;
-                break;
-            }
-        }
-        if (asString == null)
-        {
-            asString = buildKey.ToString();
-            ExistingKeys.Add(asString);
-        }
-        return asString;
-    }
 
     private static readonly List<string> ExistingTableMappingKeys = new();
 

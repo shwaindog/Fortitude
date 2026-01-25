@@ -4,7 +4,6 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Nodes;
-using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.DataStructures.MemoryPools.Buffers;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
@@ -36,18 +35,22 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
             }
             return (StyleOptions)JsonOptions;
         }
-        set
-        {
-            // Console.Out.WriteLine($"Setting {ToString()}  StyleOptions: {value?.ToString() ?? "null"}");
-            JsonOptions = value!;
-        }
+        set => JsonOptions = value;
     }
 
-    public virtual IStyledTypeFormatting Initialize(GraphTrackingBuilder graphTrackingBuilder, StyleOptions styleOptions, IStringBuilder sb)
+    public virtual IStyledTypeFormatting Initialize(ITheOneString theOneString)
     {
-        Gb      = graphTrackingBuilder;
-        Options = styleOptions;
-        graphTrackingBuilder.Initialize(styleOptions, sb);
+        graphBuilder = AlwaysRecycler.Borrow<GraphTrackingBuilder>().Initialize(this, theOneString.WriteBuffer);
+        Options      = theOneString.Settings;
+
+        return this;
+    }
+
+    protected virtual IStyledTypeFormatting Initialize(GraphTrackingBuilder withGraphBuilder)
+    {
+        
+        Options      = withGraphBuilder.StyleOptions!;
+        graphBuilder = withGraphBuilder.Initialize(this);
 
         return this;
     }
@@ -55,7 +58,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
 
     public GraphTrackingBuilder? GraphBuilder
     {
-        get => graphBuilder ?? Recycler.Borrow<GraphTrackingBuilder>();
+        get => graphBuilder ?? AlwaysRecycler.Borrow<GraphTrackingBuilder>();
         set
         {
             if (ReferenceEquals(graphBuilder, value)) return;
@@ -99,16 +102,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         return this;
     }
 
-    public override IRecycler Recycler
-    {
-        get => base.Recycler ?? DataStructures.MemoryPools.Recycler.ThreadStaticRecycler;
-        #pragma warning disable CS8765 // Nullability of type of parameter doesn't match overridden member (possibly because of nullability attributes).
-        #pragma warning disable CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
-        set => base.Recycler = value;
-        #pragma warning restore CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
-        #pragma warning restore CS8765 // Nullability of type of parameter doesn't match overridden member (possibly because of nullability attributes).
-    }
-
     public override IEncodingTransfer LayoutEncoder
     {
         get
@@ -116,9 +109,9 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
             var formatFlags = Gb.CurrentSectionRanges.StartedWithFormatFlags;
             return formatFlags.HasAsStringContentFlag() || formatFlags.HasEncodeAll()
                 ? ContentEncoder
-                : Gb.ParentGraphEncoder;
+                : ContentEncoder.LayoutEncoder;
         }
-        set => Gb.GraphEncoder = value;
+        set => ContentEncoder = ContentEncoder.WithAttachedLayoutEncoder(value);
     }
 
     public virtual FormatFlags ResolveContentFormattingFlags<T>(IStringBuilder sb, T input, FormatFlags callerFormattingFlags
@@ -249,7 +242,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
       , FormatFlags formatFlags = DefaultCallerTypeFlags) => ContentSeparatorRanges.None;
 
     public virtual int SizeFieldValueSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-        Gb.GraphEncoder.CalculateEncodedLength(Cln);
+        LayoutEncoder.CalculateEncodedLength(Cln);
 
     public virtual SeparatorPaddingRanges AppendFieldValueSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         Gb.AppendSeparator(Cln)
@@ -258,8 +251,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
     public virtual int SizeToNextFieldSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         return formatFlags.UseMainFieldSeparator()
-            ? Gb.ParentGraphEncoder.CalculateEncodedLength(StyleOptions.MainItemSeparator)
-            : Gb.ParentGraphEncoder.CalculateEncodedLength(StyleOptions.AlternateFieldSeparator);
+            ? LayoutEncoder.CalculateEncodedLength(StyleOptions.MainItemSeparator)
+            : LayoutEncoder.CalculateEncodedLength(StyleOptions.AlternateFieldSeparator);
     }
 
     public virtual Range? AddToNextFieldSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -273,8 +266,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
     {
         if (formatFlags.HasNoFieldPaddingFlag()) return 0;
         return formatFlags.UseMainFieldPadding()
-            ? Gb.ParentGraphEncoder.CalculateEncodedLength(StyleOptions.MainFieldPadding)
-            : Gb.ParentGraphEncoder.CalculateEncodedLength(StyleOptions.AlternateFieldPadding);
+            ? LayoutEncoder.CalculateEncodedLength(StyleOptions.MainFieldPadding)
+            : LayoutEncoder.CalculateEncodedLength(StyleOptions.AlternateFieldPadding);
     }
 
     public virtual ContentSeparatorRanges AddNextFieldPadding(FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -552,7 +545,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
     public virtual int SizeFormatFieldName(int sourceLength, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var size                                                          = 0;
-        if (formatFlags.DoesNotHaveDisableFieldNameDelimitingFlag()) size = 2 * Gb.GraphEncoder.CalculateEncodedLength(DblQt);
+        if (formatFlags.DoesNotHaveDisableFieldNameDelimitingFlag()) size = 2 * LayoutEncoder.CalculateEncodedLength(DblQt);
         size += sourceLength;
         return size;
     }
@@ -607,8 +600,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        var sb                = tos.WriteBuffer;
-        var withMoldInherited = callerFormatFlags 
+        var sb = tos.WriteBuffer;
+        var withMoldInherited = callerFormatFlags
                               | (tos.CurrentTypeBuilder?.CreateFormatFlags ?? DefaultCallerTypeFlags) & MoldAlwaysInherited;
         Gb.StartNextContentSeparatorPaddingSequence(sb, withMoldInherited | NoRevisitCheck | IsFieldName);
         var preAppendLen = sb.Length;
@@ -623,8 +616,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
             Gb.MarkContentEnd();
             return sb;
         }
-        Gb.GraphEncoder.InsertTransfer(DblQt, sb, preAppendLen);
-        Gb.GraphEncoder.AppendTransfer(DblQt, sb);
+        LayoutEncoder.InsertTransfer(DblQt, sb, preAppendLen);
+        LayoutEncoder.AppendTransfer(DblQt, sb);
         Gb.MarkContentEnd();
         return sb;
     }
@@ -632,9 +625,9 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
     public virtual IStringBuilder FormatFieldName<TBearer>(ISecretStringOfPower tos, TBearer styledObj, string? callerFormatString = null
       , FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?
     {
-        var sb                = tos.WriteBuffer;
-        var withMoldInherited = callerFormatFlags 
-          | (tos.CurrentTypeBuilder?.CreateFormatFlags ?? DefaultCallerTypeFlags) & MoldAlwaysInherited;
+        var sb = tos.WriteBuffer;
+        var withMoldInherited = callerFormatFlags
+                              | (tos.CurrentTypeBuilder?.CreateFormatFlags ?? DefaultCallerTypeFlags) & MoldAlwaysInherited;
         Gb.StartNextContentSeparatorPaddingSequence(sb, withMoldInherited | NoRevisitCheck | IsFieldName);
         var preAppendLen = sb.Length;
         tos.SetCallerFormatString(callerFormatString);
@@ -648,8 +641,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
             Gb.MarkContentEnd();
             return sb;
         }
-        Gb.GraphEncoder.InsertTransfer(DblQt, sb, preAppendLen);
-        Gb.GraphEncoder.AppendTransfer(DblQt, sb);
+        LayoutEncoder.InsertTransfer(DblQt, sb, preAppendLen);
+        LayoutEncoder.AppendTransfer(DblQt, sb);
         Gb.MarkContentEnd();
         return sb;
     }
@@ -1715,7 +1708,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
             {
                 if (formatSwitches.ShouldDelimit())
                 {
-                    charsAdded += Gb.GraphEncoder.OverwriteTransfer(DblQt, destSpan, destIndex);
+                    charsAdded += LayoutEncoder.OverwriteTransfer(DblQt, destSpan, destIndex);
                     Gb.MarkContentEnd(destIndex + charsAdded);
                     return charsAdded;
                 }
@@ -1733,14 +1726,14 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
                 Gb.RemoveLastSeparatorAndPadding(destSpan, ref destIndex);
                 Gb.ResetCurrent((FormatFlags)formatSwitches, true);
                 Gb.MarkContentStart(destIndex);
-                charsAdded += Gb.GraphEncoder.OverwriteTransfer(BrcCls, destSpan, destIndex);
+                charsAdded += LayoutEncoder.OverwriteTransfer(BrcCls, destSpan, destIndex);
                 Gb.MarkContentEnd(destIndex + charsAdded);
                 return charsAdded;
             }
             Gb.RemoveLastSeparatorAndPadding(destSpan, ref destIndex);
             Gb.ResetCurrent((FormatFlags)formatSwitches, true);
             Gb.MarkContentStart(destIndex);
-            charsAdded += Gb.GraphEncoder.OverwriteTransfer(SqBrktCls, destSpan, destIndex);
+            charsAdded += LayoutEncoder.OverwriteTransfer(SqBrktCls, destSpan, destIndex);
             Gb.MarkContentEnd(destIndex + charsAdded);
         }
         return charsAdded;
@@ -1748,14 +1741,11 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
 
     object ICloneable.Clone() => Clone();
 
-    public virtual CompactJsonTypeFormatting Clone()
-    {
-        return Recycler.Borrow<CompactJsonTypeFormatting>().CopyFrom(this, CopyMergeFlags.FullReplace);
-    }
+    IStyledTypeFormatting IStyledTypeFormatting.Clone() => Clone();
 
-    public virtual ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags)
+    public override CompactJsonTypeFormatting Clone()
     {
-        return CopyFrom((CompactJsonTypeFormatting)source, copyMergeFlags);
+        return AlwaysRecycler.Borrow<CompactJsonTypeFormatting>().CopyFrom(this, CopyMergeFlags.FullReplace);
     }
 
     public virtual CompactJsonTypeFormatting CopyFrom(CompactJsonTypeFormatting source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
@@ -1766,7 +1756,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
             graphBuilder = null;
         }
         var nextGb = source.Gb.Clone();
-        Initialize(nextGb, source.StyleOptions, source.Gb.Sb);
+        Initialize(nextGb);
 
         return this;
     }
@@ -1780,6 +1770,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         base.StateReset();
     }
 
-    public override string ToString() => $"{{ {GetType().Name}: {InstanceId}, {nameof(Gb)}: {Gb?.ToString() ?? "null"}, " +
+    public override string ToString() => $"{{ {GetType().Name}: {InstanceId}, {nameof(Gb)}: {Gb}, " +
                                          $"{nameof(FormatOptions)}: {FormatOptions?.ToString() ?? "null"} }}";
 }

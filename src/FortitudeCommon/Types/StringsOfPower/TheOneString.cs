@@ -252,8 +252,11 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     public ITheOneString Initialize(StringStyle buildStyle = StringStyle.CompactLog)
     {
-        Sb?.DecrementRefCount();
-        Sb = SourceStringBuilder();
+        if (Sb?.Length != 0)
+        {
+            Sb?.DecrementRefCount();
+            Sb = SourceStringBuilder();
+        }
 
         Settings.Style = buildStyle;
 
@@ -303,7 +306,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     public GraphTrackingBuilder CurrentGraphBuilder
     {
-        get => CurrentStyledTypeFormatter.GraphBuilder ?? Recycler.Borrow<GraphTrackingBuilder>().Initialize(Settings, WriteBuffer);
+        get => CurrentStyledTypeFormatter.GraphBuilder ??= Recycler.Borrow<GraphTrackingBuilder>();
         set => CurrentStyledTypeFormatter.GraphBuilder = value;
     }
     public GraphTrackingBuilder InitializedGraphBuilder(IRecycler? recycler = null) => (recycler ?? Recycler).Borrow<GraphTrackingBuilder>();
@@ -332,14 +335,17 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     public ITheOneString ReInitialize(IStringBuilder usingStringBuilder, StringStyle buildStyle = StringStyle.CompactLog)
     {
-        Sb?.DecrementRefCount();
-
-        Sb = usingStringBuilder;
+        if (!ReferenceEquals(usingStringBuilder, Sb))
+        {
+            Sb?.DecrementRefCount();
+            Sb = usingStringBuilder;
+            usingStringBuilder.IncrementRefCount();
+        }
 
         Settings.Values = DefaultSettings.Values;
         Settings.Style = buildStyle;
         
-        return Clear();
+        return ClearSettings();
     }
 
     public ITheOneString ClearAndReinitialize
@@ -369,10 +375,25 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     public ITheOneString Clear(int indentLevel = 0, FormatFlags initialTypeFlags = DefaultCallerTypeFlags)
     {
-        nextTypeCreateFlags = initialTypeFlags;
         Sb?.Clear();
-
         Sb ??= BufferFactory();
+
+        return ClearSettings(indentLevel, initialTypeFlags);
+    }
+
+    protected ITheOneString FreeStringBuilder(int indentLevel = 0, FormatFlags initialTypeFlags = DefaultCallerTypeFlags)
+    {
+        Settings.Values = DefaultSettings.Values;
+
+        Sb?.DecrementRefCount();
+        Sb = null!;
+
+        return ClearSettings(indentLevel, initialTypeFlags);
+    }
+
+    protected ITheOneString ClearSettings(int indentLevel = 0, FormatFlags initialTypeFlags = DefaultCallerTypeFlags)
+    {
+        nextTypeCreateFlags = initialTypeFlags;
 
         IndentLevel = indentLevel;
 
@@ -380,7 +401,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
         var checkFormatter = CurrentStyledTypeFormatter;
         CurrentGraphBuilder.StateReset();
-        checkFormatter.Initialize(CurrentGraphBuilder, Settings, Sb);
+        checkFormatter.Initialize(this);
 
 
         // Console.Out.WriteLine($"Using formatter {Formatter}");
@@ -407,7 +428,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
         var checkFormatter = CurrentStyledTypeFormatter;
         CurrentGraphBuilder.StateReset();
-        checkFormatter.Initialize(CurrentGraphBuilder, Settings, Sb);
+        checkFormatter.Initialize(this);
 
 
         // Console.Out.WriteLine($"Using formatter {Formatter}");
@@ -743,8 +764,8 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         if (Settings.IsSame(contentFlags)
          && !(previousStyle.IsJson()
            && contentFlags.HasAsStringContentFlag()
-           && CurrentGraphBuilder.GraphEncoder.Type != EncodingType.JsonEncoding)
-         && CurrentGraphBuilder.GraphEncoder.Type == CurrentGraphBuilder.ParentGraphEncoder.Type)
+           && CurrentStyledTypeFormatter.LayoutEncoder.Type != EncodingType.JsonEncoding)
+         && CurrentStyledTypeFormatter.LayoutEncoder.Type == CurrentStyledTypeFormatter.LayoutEncoder.LayoutEncoder.Type)
         {
             CurrentStyledTypeFormatter.AddedContextOnThisCall = false;
             return new CallContextDisposable(false);
@@ -762,27 +783,28 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         Settings.Style = contentFlags.UpdateStringStyle(Settings.Style);
         var nextContextFormatter = CurrentStyledTypeFormatter.ContextStartPushToNext();
 
-        Settings.Formatter = nextContextFormatter;
-
         nextContextFormatter.AddedContextOnThisCall = true;
         nextContextFormatter.PreviousContext        = oldFormatter;
 
         if (Settings.Style.IsJson()
          && contentFlags.HasAsStringContentFlag()
-         && CurrentGraphBuilder.GraphEncoder.Type != EncodingType.JsonEncoding)
+         && CurrentStyledTypeFormatter.LayoutEncoder.Type != EncodingType.JsonEncoding)
         {
-            var gb = nextContextFormatter.GraphBuilder!;
-
-            gb.GraphEncoder = Settings.StyledTypeFormatter.ContentEncoder.Type == EncodingType.JsonEncoding
-                ? nextContextFormatter.ContentEncoder
-                : this.ResolveStyleEncoder(EncodingType.JsonEncoding);
+            var newContentEncoder = this.ResolveStyleEncoder(EncodingType.JsonEncoding);
+            newContentEncoder                   = newContentEncoder.WithAttachedLayoutEncoder(oldFormatter.ContentEncoder);
+            nextContextFormatter.ContentEncoder = newContentEncoder; 
         }
-        else if (Settings.Style == previousStyle && CurrentGraphBuilder.ParentGraphEncoder != CurrentGraphBuilder.GraphEncoder)
+        else if (Settings.Style == previousStyle && CurrentStyledTypeFormatter.LayoutEncoder.Type != CurrentStyledTypeFormatter.LayoutEncoder.LayoutEncoder.Type)
         {
             nextContextFormatter.AddedContextOnThisCall = false;
-            var gb = CurrentStyledTypeFormatter.GraphBuilder!;
-            gb.ParentGraphEncoder = gb.GraphEncoder;
+            var newContentEncoder = this.ResolveStyleEncoder(EncodingType.JsonEncoding);
+            newContentEncoder                   = newContentEncoder.WithAttachedLayoutEncoder(oldFormatter.ContentEncoder);
+            nextContextFormatter.ContentEncoder = newContentEncoder; 
         }
+
+        Settings.Formatter = nextContextFormatter;
+        // above increments RefCount so we need to decrement here so it is recycled
+        nextContextFormatter.DecrementRefCount();
 
         return existingOptions;
     }
@@ -793,8 +815,8 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var fmtState = new FormattingState
             (InstanceVisitRegistry.CurrentDepth + 1
            , InstanceVisitRegistry.RemainingDepth - 1, formatFlags
-           , Settings.IndentSize, CurrentStyledTypeFormatter, CurrentGraphBuilder.GraphEncoder
-           , CurrentGraphBuilder.ParentGraphEncoder);
+           , Settings.IndentSize, CurrentStyledTypeFormatter, CurrentStyledTypeFormatter.ContentEncoder
+           , CurrentStyledTypeFormatter.LayoutEncoder);
 
         var newVisit =
             new GraphNodeVisit
@@ -816,8 +838,8 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var fmtState = new FormattingState
             (InstanceVisitRegistry.CurrentDepth + 1
            , InstanceVisitRegistry.RemainingDepth - 1, formatFlags
-           , Settings.IndentSize, CurrentStyledTypeFormatter, CurrentGraphBuilder.GraphEncoder
-           , CurrentGraphBuilder.ParentGraphEncoder);
+           , Settings.IndentSize, CurrentStyledTypeFormatter, CurrentStyledTypeFormatter.ContentEncoder
+           , CurrentStyledTypeFormatter.LayoutEncoder);
 
         var wrapped = WrapOrReturnSubjectAsObject(toStyle);
 
@@ -897,12 +919,11 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         // note: empty types might have a CurrentBufferFirstFieldStart greater than CurrentBufferTypeEnd as empty padding is removed
         var refId     = forThisNode.RefId;
         var fmtState  = forThisNode.FormattingState;
-        var formatter = forThisNode.FormattingState.Formatter;
+        var formatter = forThisNode.FormattingState.Formatter.Clone();
 
         var insertGraphBuilder =
             Recycler.Borrow<GraphTrackingBuilder>()
-                    .InitializeInsertBuilder(WriteBuffer, forThisNode.IndentLevel, fmtState.IndentChars, fmtState.GraphEncoder
-                                           , fmtState.ParentEncoder);
+                    .InitializeInsertBuilder(formatter, WriteBuffer, forThisNode.IndentLevel, fmtState.IndentChars);
 
         var activeMold = forThisNode.TypeBuilderComponentAccess;
         var charsInserted =
@@ -955,7 +976,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     public override void StateReset()
     {
-        ClearAndToDefaultSettings();
+        FreeStringBuilder();
 
         base.StateReset();
     }

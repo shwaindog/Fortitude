@@ -803,6 +803,15 @@ public struct StyleOptionsValue : IJsonFormattingOptions
         get => fallbackOptions;
         set => fallbackOptions = value;
     }
+
+    object ICloneable.Clone() => Clone();
+
+    public StyleOptionsValue Clone() => this;
+
+    IFormattingOptions ICloneable<IFormattingOptions>.Clone()
+    {
+        return this;
+    }
 }
 
 public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, ITransferState<StyleOptions>
@@ -1389,6 +1398,10 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
         get => values.InstancesTrackingThrowOnRevisitCount;
         set => values.InstancesTrackingThrowOnRevisitCount = value;
     }
+
+    object ICloneable.        Clone() => Clone();
+
+    public IFormattingOptions Clone() => AlwaysRecycler.Borrow<StyleOptions>().CopyFrom(this);
 
     public ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags)
     {

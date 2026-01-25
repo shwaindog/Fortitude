@@ -23,7 +23,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     
     bool AddedContextOnThisCall { get; set; }
 
-    IStyledTypeFormatting Initialize(GraphTrackingBuilder graphTrackingBuilder, StyleOptions styleOptions, IStringBuilder sb);
+    IStyledTypeFormatting Initialize(ITheOneString theOneString);
     IStyledTypeFormatting ContextStartPushToNext();
     IStyledTypeFormatting ContextCompletePopToPrevious();
 
@@ -306,6 +306,8 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder FormatFieldContents<TBearer>(ISecretStringOfPower tos, TBearer styledObj, string? callerFormatString = null
       , FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?;
+
+    new IStyledTypeFormatting Clone();
 }
 
 public static class StyleTypeFormattingExtensions
@@ -389,4 +391,6 @@ public static class StyleTypeFormattingExtensions
         }
         return -destStartIndex;
     }
+    
+    
 }

@@ -30,25 +30,15 @@ public class ContentJoinTypeMold<TFromMold, TToMold> : KnownTypeMolder<TToMold>,
     {
         var sf = MoldStateField.Sf;
         var gb = sf.Gb;
-
-        IEncodingTransfer origGraphEncoder  = gb.GraphEncoder;
-        IEncodingTransfer origParentEncoder = gb.ParentGraphEncoder;
         
-        var shouldSwitchEncoders = wasUpgradedToComplexType && gb.GraphEncoder.Type != gb.ParentGraphEncoder.Type;
+        var shouldSwitchEncoders = wasUpgradedToComplexType && sf.ContentEncoder.Type != sf.LayoutEncoder.Type;
 
         if (shouldSwitchEncoders)
         {
-            gb.GraphEncoder       = origParentEncoder; // setting this changes parentGraphEncoder to old value
-            gb.ParentGraphEncoder = origParentEncoder;
+            sf = sf.PreviousContextOrThis;
         }
         if (IsComplexType) { sf.AppendComplexTypeClosing(MoldStateField); }
         else { sf.AppendContentTypeClosing(MoldStateField); }
-        if (shouldSwitchEncoders)
-        {
-            gb.GraphEncoder       = origGraphEncoder;
-            
-            gb.ParentGraphEncoder = origParentEncoder;
-        }
     }
 
     public ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags)

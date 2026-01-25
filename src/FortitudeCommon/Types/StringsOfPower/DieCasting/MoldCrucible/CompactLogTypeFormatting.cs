@@ -3,7 +3,6 @@
 
 using System.Diagnostics;
 using System.Text;
-using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.Forge;
@@ -31,19 +30,19 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     protected const string BrcCls     = "}";
     protected const string EqlsSpc    = "= ";
 
-    protected const string SqBrktOpnSpc = "[ ";
-    protected const string RndBrktOpn   = "(";
-    protected const string RndBrktCls   = ")";
-    protected const char RndBrktClsChar   = ')';
-    
+    protected const string SqBrktOpnSpc   = "[ ";
+    protected const string RndBrktOpn     = "(";
+    protected const string RndBrktCls     = ")";
+    protected const char   RndBrktClsChar = ')';
+
     private GraphTrackingBuilder? graphBuilder;
 
     public GraphTrackingBuilder? GraphBuilder
     {
-        get => graphBuilder ?? Recycler.Borrow<GraphTrackingBuilder>();
+        get => graphBuilder ?? AlwaysRecycler.Borrow<GraphTrackingBuilder>();
         set
         {
-            if(ReferenceEquals(graphBuilder, value)) return;
+            if (ReferenceEquals(graphBuilder, value)) return;
             graphBuilder?.DecrementRefCount();
             value?.IncrementRefCount();
             graphBuilder = value;
@@ -62,17 +61,6 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
     public bool AddedContextOnThisCall { get; set; }
 
-    public override IRecycler Recycler
-    {
-        get => base.Recycler ?? DataStructures.MemoryPools.Recycler.ThreadStaticRecycler;
-        #pragma warning disable CS8765 // Nullability of type of parameter doesn't match overridden member (possibly because of nullability attributes).
-        #pragma warning disable CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
-        set => base.Recycler = value;
-        #pragma warning restore CS8767 // Nullability of reference types in type of parameter doesn't match implicitly implemented member (possibly because of nullability attributes).
-        #pragma warning restore CS8765 // Nullability of type of parameter doesn't match overridden member (possibly because of nullability attributes).
-    }
-    
-
     public IStyledTypeFormatting ContextStartPushToNext()
     {
         var next = Clone();
@@ -85,27 +73,32 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var previous = PreviousContext;
         if (previous != null)
         {
-            if (previous.GraphBuilder != null && GraphBuilder != null)
-            {
-                previous.GraphBuilder.SetHistory(GraphBuilder);
-            }
+            if (previous.GraphBuilder != null && GraphBuilder != null) { previous.GraphBuilder.SetHistory(GraphBuilder); }
             DecrementRefCount();
             return previous;
         }
         return this;
     }
 
-    public virtual IStyledTypeFormatting Initialize(GraphTrackingBuilder graphTrackingBuilder, StyleOptions styleOptions, IStringBuilder sb)
+    public virtual IStyledTypeFormatting Initialize(ITheOneString theOneString)
     {
-        Gb = graphTrackingBuilder;
-        Options      = styleOptions;
-        graphTrackingBuilder.Initialize(styleOptions, sb);
+        graphBuilder = AlwaysRecycler.Borrow<GraphTrackingBuilder>().Initialize(this, theOneString.WriteBuffer);
+        
+        Options = theOneString.Settings;
+
+        return this;
+    }
+
+    protected virtual IStyledTypeFormatting Initialize(GraphTrackingBuilder withGraphBuilder)
+    {
+        Options      = withGraphBuilder.StyleOptions!;
+        graphBuilder = withGraphBuilder.Initialize(this);
 
         return this;
     }
 
     public virtual string Name => nameof(CompactLogTypeFormatting);
-    public StyleOptions StyleOptions 
+    public StyleOptions StyleOptions
     {
         get => (StyleOptions)Options;
         set => Options = value;
@@ -175,7 +168,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var resolvedFlags = GetFormatterContentHandlingFlags(tos, actualType, proposedWriteType, visitResult, formatFlags);
         switch (proposedWriteType)
         {
-            case WriteMethodType.MoldComplexType :
+            case WriteMethodType.MoldComplexType:
                 if (!actualType.IsValueType)
                 {
                     var isBaseOfCallerType = tos.IsCallerSameInstanceAndMoreDerived(forValue);
@@ -183,7 +176,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                 }
                 break;
         }
-        
+
         return resolvedFlags;
     }
 
@@ -219,21 +212,19 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                     resolvedFlags = (resolvedFlags & ~ContentAllowComplexType) | SuppressOpening | shouldSuppressTypeNameDecision | SuppressClosing;
                 }
                 break;
-            case WriteMethodType.MoldComplexType :
+            case WriteMethodType.MoldComplexType:
                 if (actualType.IsSpanFormattableCached())
                 {
                     var actualTypeFullName = actualType.FullName;
-                    var shouldSuppressTypeNameDecision = 
+                    var shouldSuppressTypeNameDecision =
                         StyleOptions.LogSuppressDisplayTypeNames
                                     .Any(s => actualTypeFullName?.StartsWith(s) ?? false)
-                        ? LogSuppressTypeNames
-                        : DefaultCallerTypeFlags;
+                            ? LogSuppressTypeNames
+                            : DefaultCallerTypeFlags;
                     resolvedFlags |= shouldSuppressTypeNameDecision;
                 }
                 break;
-            default :
-                resolvedFlags |= formatFlags | ContentAllowText | ContentAllowText | ContentAllowAnyValueType | ContentAllowComplexType;
-                break;
+            default: resolvedFlags |= formatFlags | ContentAllowText | ContentAllowText | ContentAllowAnyValueType | ContentAllowComplexType; break;
         }
         return resolvedFlags;
     }
@@ -241,10 +232,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual ContentSeparatorRanges StartContentTypeOpening(ITypeMolderDieCast moldInternal
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (moldInternal.CurrentWriteMethod.SupportsMultipleFields())
-        {
-            return StartComplexTypeOpening(moldInternal);
-        }
+        if (moldInternal.CurrentWriteMethod.SupportsMultipleFields()) { return StartComplexTypeOpening(moldInternal); }
         var sb = moldInternal.Sb;
 
         var alternativeName = moldInternal.TypeName;
@@ -266,10 +254,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual ContentSeparatorRanges FinishContentTypeOpening(ITypeMolderDieCast moldInternal
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (moldInternal.CurrentWriteMethod.SupportsMultipleFields())
-        {
-            return FinishComplexTypeOpening(moldInternal);
-        }
+        if (moldInternal.CurrentWriteMethod.SupportsMultipleFields()) { return FinishComplexTypeOpening(moldInternal); }
         if (moldInternal is { WroteTypeName: true, RemainingGraphDepth: > 0 })
         {
             // space considered content
@@ -280,10 +265,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
     public virtual ContentSeparatorRanges AppendContentTypeClosing(ITypeMolderDieCast moldInternal)
     {
-        if (moldInternal.CurrentWriteMethod.SupportsMultipleFields())
-        {
-            return AppendComplexTypeClosing(moldInternal);
-        }
+        if (moldInternal.CurrentWriteMethod.SupportsMultipleFields()) { return AppendComplexTypeClosing(moldInternal); }
         Gb.RemoveLastSeparatorAndPadding();
         Gb.StartNextContentSeparatorPaddingSequence(moldInternal.Sb, DefaultCallerTypeFlags);
         return Gb.SnapshotLastAppendSequence(DefaultCallerTypeFlags);
@@ -299,12 +281,12 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var buildTypeFullName = buildingType.FullName ?? "";
 
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
-        
+
         if (moldInternal.CreateMoldFormatFlags.HasSuppressOpening()) return Gb.Complete(formatFlags);
         if (moldInternal.CreateMoldFormatFlags.DoesNotHaveLogSuppressTypeNamesFlag() &&
             (formatFlags.DoesNotHaveLogSuppressTypeNamesFlag() &&
-            (formatFlags.HasAddTypeNameFieldFlag() ||
-             !StyleOptions.LogSuppressDisplayTypeNames.Any(s => buildTypeFullName.StartsWith(s)))))
+             (formatFlags.HasAddTypeNameFieldFlag() ||
+              !StyleOptions.LogSuppressDisplayTypeNames.Any(s => buildTypeFullName.StartsWith(s)))))
         {
             if (alternativeName.IsNotNullOrEmpty()) { sb.Append(alternativeName); }
             else { buildingType.AppendShortNameInCSharpFormat(sb); }
@@ -320,7 +302,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
       , FormatFlags formatFlags = DefaultCallerTypeFlags) => ContentSeparatorRanges.None;
 
     public virtual int SizeFieldValueSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-        Gb.GraphEncoder.CalculateEncodedLength(ClnSpc);
+        LayoutEncoder.CalculateEncodedLength(ClnSpc);
 
     public virtual SeparatorPaddingRanges AppendFieldValueSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         Gb
@@ -332,8 +314,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual int SizeToNextFieldSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         return formatFlags.UseMainFieldSeparator()
-            ? Gb.ParentGraphEncoder.CalculateEncodedLength(StyleOptions.MainItemSeparator)
-            : Gb.ParentGraphEncoder.CalculateEncodedLength(StyleOptions.AlternateFieldSeparator);
+            ? LayoutEncoder.CalculateEncodedLength(StyleOptions.MainItemSeparator)
+            : LayoutEncoder.CalculateEncodedLength(StyleOptions.AlternateFieldSeparator);
     }
 
     public virtual Range? AddToNextFieldSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -347,8 +329,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     {
         if (formatFlags.HasNoFieldPaddingFlag()) return 0;
         return formatFlags.UseMainFieldPadding()
-            ? Gb.ParentGraphEncoder.CalculateEncodedLength(StyleOptions.MainFieldPadding)
-            : Gb.ParentGraphEncoder.CalculateEncodedLength(StyleOptions.AlternateFieldPadding);
+            ? LayoutEncoder.CalculateEncodedLength(StyleOptions.MainFieldPadding)
+            : LayoutEncoder.CalculateEncodedLength(StyleOptions.AlternateFieldPadding);
     }
 
     public virtual ContentSeparatorRanges AddNextFieldPadding(FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -609,16 +591,16 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
         var refDigitsCount = refId.NumOfDigits();
 
-        var toRestore  = Gb;
+        var toRestore = Gb;
         Gb = insertBuilder;
-        
+
         var alreadySupportsMultipleFields = writeMethod.SupportsMultipleFields();
         var needsBracesWrap               = false;
-        var prefixInsertSize                    = 0;
-        var suffixInsertSize                    = 0;
-        
+        var prefixInsertSize              = 0;
+        var suffixInsertSize              = 0;
+
         // first entry spot maybe removed if empty so backtrack to open add one;
-        var isEmpty    = indexToInsertAt - SizeNextFieldPadding(createTypeFlags) + 1 == currentEnd;
+        var isEmpty = indexToInsertAt - SizeNextFieldPadding(createTypeFlags) + 1 == currentEnd;
         if (!alreadySupportsMultipleFields)
         {
             needsBracesWrap = writeMethod == WriteMethodType.RawContent;
@@ -626,10 +608,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             {
                 var actualTypeFullName = actualType.FullName ?? "";
                 if (createTypeFlags.HasSuppressOpening() && createTypeFlags.HasSuppressClosing()
-                 || StyleOptions.LogSuppressDisplayTypeNames.Any(s => actualTypeFullName.StartsWith(s)))
-                {
-                    needsBracesWrap = true;
-                }
+                 || StyleOptions.LogSuppressDisplayTypeNames.Any(s => actualTypeFullName.StartsWith(s))) { needsBracesWrap = true; }
             }
             if (needsBracesWrap)
             {
@@ -639,22 +618,22 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                 prefixInsertSize += SizeNextFieldPadding(createTypeFlags);
                 // insert $id added below
                 prefixInsertSize += SizeFieldSeparatorAndPadding(createTypeFlags);
-                prefixInsertSize += SizeFormatFieldName("$values".Length, createTypeFlags); 
+                prefixInsertSize += SizeFormatFieldName("$values".Length, createTypeFlags);
                 prefixInsertSize += SizeFieldValueSeparator(createTypeFlags);
             }
             else
             {
                 prefixInsertSize += 2;
-                isEmpty    =  true;
+                isEmpty          =  true;
             }
         }
         else if (isEmpty)
         {
-            indexToInsertAt -= SizeNextFieldPadding(createTypeFlags);
-            prefixInsertSize      += SizeNextFieldPadding(createTypeFlags);
+            indexToInsertAt  -= SizeNextFieldPadding(createTypeFlags);
+            prefixInsertSize += SizeNextFieldPadding(createTypeFlags);
             Gb.IndentLevel--;
             // after inserted
-            prefixInsertSize      += SizeNextFieldPadding(createTypeFlags);
+            prefixInsertSize += SizeNextFieldPadding(createTypeFlags);
             Gb.IndentLevel++;
         }
         else
@@ -665,9 +644,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         prefixInsertSize += SizeFormatFieldName("$id".Length, createTypeFlags);
         prefixInsertSize += SizeFieldValueSeparator(createTypeFlags);
         prefixInsertSize += refDigitsCount;
-        
+
         insertBuilder.StartInsertAt(indexToInsertAt, prefixInsertSize);
-        
+
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         if (!alreadySupportsMultipleFields)
         {
@@ -675,14 +654,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             {
                 Gb.AppendContent(BrcOpn);
                 AddNextFieldPadding(createTypeFlags);
-                
             }
             else { Gb.AppendContent(RndBrktOpn); }
         }
-        else if (isEmpty)
-        {
-            AddNextFieldPadding(createTypeFlags);
-        }
+        else if (isEmpty) { AddNextFieldPadding(createTypeFlags); }
         Gb.AppendContent("$id");
         AppendFieldValueSeparator();
         Span<char> refSpan = stackalloc char[refDigitsCount];
@@ -705,22 +680,19 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                 Gb.IndentLevel--;
                 suffixInsertSize += SizeNextFieldPadding(createTypeFlags);
                 suffixInsertSize += 1; // close Brace
-        
+
                 insertBuilder.StartInsertAt(currentEnd + prefixInsertSize, suffixInsertSize);
                 AddNextFieldPadding(createTypeFlags);
                 Gb.AppendContent(BrcCls);
             }
-            else { Gb.AppendContent(RndBrktCls);}
+            else { Gb.AppendContent(RndBrktCls); }
         }
-        else if(isEmpty)
+        else if (isEmpty)
         {
             Gb.IndentLevel--;
             AddNextFieldPadding(createTypeFlags);
         }
-        else
-        {
-            AddToNextFieldSeparatorAndPadding(createTypeFlags);
-        }
+        else { AddToNextFieldSeparatorAndPadding(createTypeFlags); }
         Gb = toRestore;
         return sb.Length - preAppendLength;
     }
@@ -739,45 +711,37 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
         var preAppendLength = sb.Length;
         var needsBracesWrap = false;
-        
-        var alreadySupportsMultipleFields = writeMethod.SupportsMultipleFields(); 
+
+        var alreadySupportsMultipleFields = writeMethod.SupportsMultipleFields();
         Gb.StartNextContentSeparatorPaddingSequence(sb, createTypeFlags);
         if (!alreadySupportsMultipleFields)
         {
-            needsBracesWrap = writeMethod == WriteMethodType.RawContent 
-                           || (writeMethod == WriteMethodType.MoldSimpleContentType 
+            needsBracesWrap = writeMethod == WriteMethodType.RawContent
+                           || (writeMethod == WriteMethodType.MoldSimpleContentType
                             && createTypeFlags.HasSuppressOpening() && createTypeFlags.HasSuppressClosing());
             if (writeMethod == WriteMethodType.MoldSimpleContentType)
             {
                 var actualTypeFullName = moldInternal.TypeBeingBuilt.FullName;
                 if (createTypeFlags.HasSuppressOpening() && createTypeFlags.HasSuppressClosing()
-                 || StyleOptions.LogSuppressDisplayTypeNames.Any(s => actualTypeFullName?.StartsWith(s) ?? false))
-                {
-                    needsBracesWrap = true;
-                }
+                 || StyleOptions.LogSuppressDisplayTypeNames.Any(s => actualTypeFullName?.StartsWith(s) ?? false)) { needsBracesWrap = true; }
             }
             if (needsBracesWrap)
             {
-                moldInternal.CurrentWriteMethod = writeMethod.ToMultiFieldEquivalent(); 
+                moldInternal.CurrentWriteMethod = writeMethod.ToMultiFieldEquivalent();
                 StartComplexTypeOpening(moldInternal, createTypeFlags);
                 FinishComplexTypeOpening(moldInternal, createTypeFlags);
             }
-            else
-            {
-                Gb.AppendContent(RndBrktOpn);
-            }
+            else { Gb.AppendContent(RndBrktOpn); }
         }
         AppendFieldName(sb, "$ref");
         AppendFieldValueSeparator();
         FormatFieldContents(sb, refId, "", createTypeFlags);
 
-        if (!alreadySupportsMultipleFields && !needsBracesWrap)
+        if (!alreadySupportsMultipleFields && !needsBracesWrap) { Gb.AppendContent(RndBrktCls); }
+        else
         {
-            Gb.AppendContent(RndBrktCls);
-        }
-        else { 
             moldInternal.IsEmpty = false;
-            AddToNextFieldSeparatorAndPadding(createTypeFlags); 
+            AddToNextFieldSeparatorAndPadding(createTypeFlags);
         }
         return sb.Length - preAppendLength;
     }
@@ -787,8 +751,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     {
         if (createTypeFlags.HasNoRevisitCheck()) return 0; // fieldNames are marked with this and
         var sb = moldInternal.Sb;
-        
-        var alreadySupportsMultipleFields = writeMethod.SupportsMultipleFields(); 
+
+        var alreadySupportsMultipleFields = writeMethod.SupportsMultipleFields();
         var preAppendLength               = sb.Length;
         if (!alreadySupportsMultipleFields)
         {
@@ -798,22 +762,17 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                 AddToNextFieldSeparator(createTypeFlags);
                 Gb.AppendPaddingAndComplete(" ", DefaultCallerTypeFlags);
             }
-            else
-            {
-                Gb.StartAppendContentAndComplete(RndBrktOpn, sb, DefaultCallerTypeFlags);
-            }
+            else { Gb.StartAppendContentAndComplete(RndBrktOpn, sb, DefaultCallerTypeFlags); }
         }
         AppendFieldName(sb, fieldName);
         AppendFieldValueSeparator();
-        FormatFieldContents(sb, description, 0,"\"{0}\"", formatFlags: createTypeFlags);
+        FormatFieldContents(sb, description, 0, "\"{0}\"", formatFlags: createTypeFlags);
 
-        if (!alreadySupportsMultipleFields)
+        if (!alreadySupportsMultipleFields) { Gb.StartAppendContentAndComplete(RndBrktCls, sb, DefaultCallerTypeFlags); }
+        else
         {
-            Gb.StartAppendContentAndComplete(RndBrktCls, sb, DefaultCallerTypeFlags);
-        }
-        else { 
             moldInternal.IsEmpty = false;
-            AddToNextFieldSeparatorAndPadding(createTypeFlags); 
+            AddToNextFieldSeparatorAndPadding(createTypeFlags);
         }
         return sb.Length - preAppendLength;
     }
@@ -918,11 +877,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         where TRevealBase : notnull
     {
         var sb = tos.WriteBuffer;
-        var withMoldInherited = callerFormatFlags 
+        var withMoldInherited = callerFormatFlags
                               | (tos.CurrentTypeBuilder?.CreateFormatFlags ?? DefaultCallerTypeFlags) & MoldAlwaysInherited;
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         tos.SetCallerFormatString(callerFormatString);
-        tos.SetCallerFormatFlags(withMoldInherited  | IsFieldName);
+        tos.SetCallerFormatFlags(withMoldInherited | IsFieldName);
         if (value == null) { AppendFormattedNull(sb, ""); }
         else { valueRevealer(value, tos); }
         Gb.MarkContentEnd();
@@ -933,11 +892,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
       , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?
     {
         var sb = tos.WriteBuffer;
-        var withMoldInherited = callerFormatFlags 
+        var withMoldInherited = callerFormatFlags
                               | (tos.CurrentTypeBuilder?.CreateFormatFlags ?? DefaultCallerTypeFlags) & MoldAlwaysInherited;
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         tos.SetCallerFormatString(callerFormatString);
-        tos.SetCallerFormatFlags(withMoldInherited  | IsFieldName);
+        tos.SetCallerFormatFlags(withMoldInherited | IsFieldName);
         if (styledObj == null) { AppendFormattedNull(sb, callerFormatString, callerFormatFlags); }
         else { styledObj.RevealState(tos); }
         Gb.MarkContentEnd();
@@ -1497,34 +1456,32 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return destIndex - originalDestIndex;
     }
 
-    object ICloneable.               Clone() => Clone();
-    
-    public virtual CompactLogTypeFormatting Clone()
-    {
-        return Recycler.Borrow<CompactLogTypeFormatting>().CopyFrom(this, CopyMergeFlags.FullReplace);
-    }
+    object ICloneable.Clone() => Clone();
 
-    public virtual ITransferState            CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags)
+    IStyledTypeFormatting IStyledTypeFormatting.Clone() => Clone();
+
+    public override CompactLogTypeFormatting Clone()
     {
-        return CopyFrom((CompactLogTypeFormatting)source, copyMergeFlags);
+        return AlwaysRecycler.Borrow<CompactLogTypeFormatting>().CopyFrom(this, CopyMergeFlags.FullReplace);
     }
 
     public virtual CompactLogTypeFormatting CopyFrom(CompactLogTypeFormatting source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
+        base.CopyFrom(source, copyMergeFlags);
         if (graphBuilder != null)
         {
             graphBuilder.DecrementRefCount();
             graphBuilder = null;
         }
         var nextGb = source.Gb.Clone();
-        Initialize(nextGb, source.StyleOptions, source.Gb.Sb);
+        Initialize(nextGb);
 
         return this;
     }
 
     public override void StateReset()
     {
-        Gb    = null!;
+        Gb              = null!;
         PreviousContext = null;
         base.StateReset();
     }
