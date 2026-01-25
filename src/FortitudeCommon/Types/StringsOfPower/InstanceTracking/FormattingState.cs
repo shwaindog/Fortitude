@@ -11,7 +11,7 @@ public record struct FormattingState
 (
     int GraphDepth
   , int RemainingGraphDepth
-  , FormatFlags CreateWithFlags
+  , FormatFlags OriginalCreateFormatFlags
   , int IndentChars
   , IStyledTypeFormatting Formatter
   , IEncodingTransfer? GraphEncoder

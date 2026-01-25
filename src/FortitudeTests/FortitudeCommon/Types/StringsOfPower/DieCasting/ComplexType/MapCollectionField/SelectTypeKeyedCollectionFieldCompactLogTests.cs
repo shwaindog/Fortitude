@@ -79,11 +79,12 @@ public class SelectTypeKeyedCollectionFieldCompactLogTests : SelectTypeKeyedColl
         (IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
-    // [TestMethod] 
+    [TestMethod] 
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(BothRevealersDictTestData.AllBothRevealersUnfilteredDictExpectations[2], ScaffoldingRegistry.AllScaffoldingTypes[636]);
+        ExecuteIndividualScaffoldExpectation(ValueRevealerDictTestData.AllPredicateFilteredDictExpectations[16]
+                                           , ScaffoldingRegistry.AllScaffoldingTypes[763], StringBuilderType.MutableString);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName

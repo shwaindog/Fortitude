@@ -4,6 +4,7 @@
 using System.Text;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
+using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
@@ -13,7 +14,18 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 {
     string Name { get; }
 
-    public GraphTrackingBuilder GraphBuilder { get; set; }
+    public StyleOptions StyleOptions { get; set; }
+    public GraphTrackingBuilder? GraphBuilder { get; set; }
+    public GraphTrackingBuilder Gb { get; set; }
+    
+    IStyledTypeFormatting? PreviousContext { get; set; }
+    IStyledTypeFormatting PreviousContextOrThis { get; }
+    
+    bool AddedContextOnThisCall { get; set; }
+
+    IStyledTypeFormatting Initialize(ITheOneString theOneString);
+    IStyledTypeFormatting ContextStartPushToNext();
+    IStyledTypeFormatting ContextCompletePopToPrevious();
 
     FormatFlags ResolveContentFormattingFlags<T>(IStringBuilder sb, T input, FormatFlags callerFormattingFlags
       , string formatString = "", bool isFieldName = false);
@@ -35,10 +47,8 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     SeparatorPaddingRanges AppendFieldValueSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    SkipTypeParts          GetNextValueTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FormatFlags formatFlags);
-    SkipTypeParts          GetNextComplexTypePartFlags<T>(ITheOneString tos, T forValue, Type actualType, FormatFlags formatFlags);
-    SkipTypeParts          GetNextValueTypePartFlags(ITheOneString tos, Type actualType, FormatFlags formatFlags);
-    SkipTypeParts          GetNextComplexTypePartFlags(ITheOneString tos, Type actualType, FormatFlags formatFlags);
+    FormatFlags          GetFormatterContentHandlingFlags<T>(ITheOneString tos, T forValue, Type actualType, WriteMethodType proposedWriteType, VisitResult visitResult, FormatFlags formatFlags);
+    FormatFlags          GetFormatterContentHandlingFlags(ITheOneString tos, Type actualType, WriteMethodType proposedWriteType, VisitResult visitResult, FormatFlags formatFlags);
     int                    SizeToNextFieldSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
     Range?                 AddToNextFieldSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
     int                    SizeNextFieldPadding(FormatFlags formatFlags = DefaultCallerTypeFlags);
@@ -210,7 +220,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     int SizeFormatFieldName(int sourceLength, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    int InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, int refId, int indexToInsertAt, WriteMethodType writeMethod
+    int InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, Type actualType, int refId, int indexToInsertAt, WriteMethodType writeMethod
     , FormatFlags createTypeFlags, int currentEnd = -1, ITypeMolderDieCast? liveMoldInternal = null);
     
     int AppendExistingReferenceId(ITypeMolderDieCast moldInternal, int refId, WriteMethodType writeMethod, FormatFlags createTypeFlags);
@@ -296,6 +306,8 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder FormatFieldContents<TBearer>(ISecretStringOfPower tos, TBearer styledObj, string? callerFormatString = null
       , FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?;
+
+    new IStyledTypeFormatting Clone();
 }
 
 public static class StyleTypeFormattingExtensions
@@ -379,4 +391,6 @@ public static class StyleTypeFormattingExtensions
         }
         return -destStartIndex;
     }
+    
+    
 }

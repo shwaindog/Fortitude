@@ -337,24 +337,17 @@ public static class StringBearerTestData
                   , "FieldNullableSpanFormattableAlwaysAddStringBearer\\\\u003cbyte\\\\u003e(1)" }
               , { new EK(IsContentType | CallsViaMatch ), "null" }
               , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultBecomesEmpty) , "" }
-              , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultBecomesZero) , "0" }
-              , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue, AnyLog)
+              , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultTreatedAsValueOut | DefaultBecomesZero) , "0" }
+              , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue 
+                       | DefaultBecomesFallbackString, AnyLog)
                   , "FieldNullableSpanFormattableAlwaysAddStringBearer<byte>(1)" }
-              , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultBecomesFallbackValue | DefaultBecomesFallbackString
-                       , AnyJson)
+              , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue 
+                       | DefaultBecomesFallbackString, AnyLog ) , "\"FieldNullableSpanFormattableAlwaysAddStringBearer<byte>(1)\"" }
+              , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)
                   , "FieldNullableSpanFormattableAlwaysAddStringBearer\\u003cbyte\\u003e(1)" }
-              // , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultBecomesEmpty) , "\"\"" }
-              // , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultBecomesZero) , "\"0\"" }
-              // , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultBecomesFallbackValue| DefaultBecomesFallbackString
-              //          , AnyLog) , "\"FieldNullableSpanFormattableAlwaysAddStringBearer<byte>(1)\"" }
-              // , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultBecomesFallbackValue, AnyJson)
-              //     , "\"FieldNullableSpanFormattableAlwaysAddStringBearer\\u003cbyte\\u003e(1)\"" }
-              // , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue 
-              //          | DefaultBecomesFallbackString, AnyLog ) , "\"FieldNullableSpanFormattableAlwaysAddStringBearer<byte>(1)\"" }
-              // , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue
-              //          | DefaultBecomesFallbackString) , "FieldNullableSpanFormattableAlwaysAddStringBearer\\u003cbyte\\u003e(1)" }
-              // , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue 
-              //          | DefaultBecomesFallbackString) , "\"FieldNullableSpanFormattableAlwaysAddStringBearer\\u003cbyte\\u003e(1)\"" }
+                // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
+              , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultBecomesFallbackString) 
+                  , "FieldNullableSpanFormattableAlwaysAddStringBearer\\\\u003cbyte\\\\u003e(1)" }
               , { new EK(AcceptsNonNullableStructStringBearer | AlwaysWrites | NonDefaultWrites), "null" }
             }
       , new NullableStringBearerExpect<FieldNullableSpanFormattableAlwaysAddStructStringBearer<byte>>
@@ -385,8 +378,11 @@ public static class StringBearerTestData
                        | DefaultBecomesFallbackString, AnyLog ) , "FieldNullableSpanFormattableAlwaysAddStructStringBearer<byte>(1)" }
               , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue 
                        | DefaultBecomesFallbackString, AnyLog ) , "\"FieldNullableSpanFormattableAlwaysAddStructStringBearer<byte>(1)\"" }
-              , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultBecomesFallbackValue 
-                       | DefaultBecomesFallbackString), "FieldNullableSpanFormattableAlwaysAddStructStringBearer\\u003cbyte\\u003e(1)" }
+              , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultBecomesFallbackValue)
+                  , "FieldNullableSpanFormattableAlwaysAddStructStringBearer\\u003cbyte\\u003e(1)" }
+                // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
+              , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultBecomesFallbackString) 
+                  , "FieldNullableSpanFormattableAlwaysAddStructStringBearer\\\\u003cbyte\\\\u003e(1)" }
               , { new EK(AcceptsAnyNullableStruct | AlwaysWrites | NonDefaultWrites), "null" }
             }
       , new NullableStringBearerExpect<FieldNullableSpanFormattableAlwaysAddStructStringBearer<byte>>
@@ -417,11 +413,11 @@ public static class StringBearerTestData
                        | DefaultBecomesFallbackString, AnyLog ), "FieldNullableSpanFormattableAlwaysAddStructStringBearer<byte>(1)" }
               , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue 
                        | DefaultBecomesFallbackString, AnyLog ), "\"FieldNullableSpanFormattableAlwaysAddStructStringBearer<byte>(1)\"" }
-              , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultBecomesFallbackValue 
-                       | DefaultBecomesFallbackString), "FieldNullableSpanFormattableAlwaysAddStructStringBearer\\u003cbyte\\u003e(1)" }
+              , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultBecomesFallbackValue)
+                  , "FieldNullableSpanFormattableAlwaysAddStructStringBearer\\u003cbyte\\u003e(1)" }
                 //   // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
-                // , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultBecomesFallbackString) 
-                //     , "FieldNullableSpanFormattableAlwaysAddStructStringBearer\\\\u003cbyte\\\\u003e(1)" }
+                , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultBecomesFallbackString) 
+                    , "FieldNullableSpanFormattableAlwaysAddStructStringBearer\\\\u003cbyte\\\\u003e(1)" }
               , { new EK(AcceptsAnyNullableStruct | AlwaysWrites | NonDefaultWrites), "null" }
             }
       , new StringBearerExpect<FieldNullableSpanFormattableAlwaysAddStructStringBearer<byte>>
@@ -1080,9 +1076,11 @@ public static class StringBearerTestData
                   , "FieldNullableSpanFormattableAlwaysAddStringBearer<DateTime>(2/2/2020 12:00:00 AM)" }
               , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue 
                        | DefaultBecomesFallbackString, AnyLog ) , "\"FieldNullableSpanFormattableAlwaysAddStringBearer<DateTime>(2/2/2020 12:00:00 AM)\"" }
-              , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultBecomesFallbackValue 
-                       | DefaultBecomesFallbackString) 
+              , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultBecomesFallbackValue) 
                   , "FieldNullableSpanFormattableAlwaysAddStringBearer\\u003cDateTime\\u003e(2/2/2020 12:00:00 AM)" }
+                // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
+              , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultBecomesFallbackString) 
+                  , "FieldNullableSpanFormattableAlwaysAddStringBearer\\\\u003cDateTime\\\\u003e(2/2/2020 12:00:00 AM)" }
               , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultBecomesEmpty), "" }
               , { new EK(AcceptsNonNullableStructStringBearer | AlwaysWrites | NonDefaultWrites), "null" }
             }
@@ -1140,9 +1138,11 @@ public static class StringBearerTestData
                   , "FieldNullableSpanFormattableAlwaysAddStructStringBearer<DateTime>(2/2/2020 12:00:00 AM)" }
               , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue 
                        | DefaultBecomesFallbackString, AnyLog ) , "\"FieldNullableSpanFormattableAlwaysAddStructStringBearer<DateTime>(2/2/2020 12:00:00 AM)\"" }
-              , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultBecomesFallbackValue 
-                       | DefaultBecomesFallbackString) 
+              , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultBecomesFallbackValue) 
                   , "FieldNullableSpanFormattableAlwaysAddStructStringBearer\\u003cDateTime\\u003e(2/2/2020 12:00:00 AM)" }
+                // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
+              , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultBecomesFallbackString) 
+                  , "FieldNullableSpanFormattableAlwaysAddStructStringBearer\\\\u003cDateTime\\\\u003e(2/2/2020 12:00:00 AM)" }
               , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultBecomesEmpty), "" }
               , { new EK(AcceptsAnyNullableStruct | AlwaysWrites | NonDefaultWrites), "null" }
             }
@@ -1186,9 +1186,11 @@ public static class StringBearerTestData
                   , "FieldNullableSpanFormattableAlwaysAddStructStringBearer<DateTime>()" }
               , { new EK(IsContentType | AcceptsNullableStructStringBearer | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue 
                        | DefaultBecomesFallbackString, AnyLog ) , "\"FieldNullableSpanFormattableAlwaysAddStructStringBearer<DateTime>()\"" }
-              , { new EK(IsContentType | AcceptsNullableStructStringBearer | DefaultBecomesFallbackValue 
-                       | DefaultBecomesFallbackString) 
+              , { new EK(IsContentType | AcceptsNullableStructStringBearer | DefaultBecomesFallbackValue) 
                   , "FieldNullableSpanFormattableAlwaysAddStructStringBearer\\u003cDateTime\\u003e()" }
+                // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
+              , { new EK(IsContentType | AcceptsNullableStructStringBearer | DefaultBecomesFallbackString) 
+                  , "FieldNullableSpanFormattableAlwaysAddStructStringBearer\\\\u003cDateTime\\\\u003e()" }
               , { new EK(IsContentType | AcceptsNullableStructStringBearer | DefaultBecomesEmpty), "" }
               , { new EK(AcceptsNullableStructStringBearer | AlwaysWrites | NonDefaultWrites), "null" }
             }
@@ -1977,9 +1979,11 @@ public static class StringBearerTestData
                   , "FieldNullableSpanFormattableAlwaysAddStringBearer<TimeSpan>(00:00:01)" }
               , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue 
                        | DefaultBecomesFallbackString, AnyLog ) , "\"FieldNullableSpanFormattableAlwaysAddStringBearer<TimeSpan>(00:00:01)\"" }
-              , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultBecomesFallbackValue 
-                       | DefaultBecomesFallbackString) 
+              , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultBecomesFallbackValue) 
                   , "FieldNullableSpanFormattableAlwaysAddStringBearer\\u003cTimeSpan\\u003e(00:00:01)" }
+                // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
+              , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultBecomesFallbackString) 
+                  , "FieldNullableSpanFormattableAlwaysAddStringBearer\\\\u003cTimeSpan\\\\u003e(00:00:01)" }
               , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultBecomesEmpty), "" }
               , { new EK(IsContentType | AcceptsNonNullableStructStringBearer | DefaultBecomesEmpty)
                   , "" }
@@ -2028,9 +2032,11 @@ public static class StringBearerTestData
               , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue 
                        | DefaultBecomesFallbackString, AnyLog ) 
                   , "\"FieldNullableSpanFormattableAlwaysAddStructStringBearer<TimeSpan>(00:00:01)\"" }
-              , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultBecomesFallbackValue 
-                       | DefaultBecomesFallbackString) 
+              , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultBecomesFallbackValue) 
                   , "FieldNullableSpanFormattableAlwaysAddStructStringBearer\\u003cTimeSpan\\u003e(00:00:01)" }
+                // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
+              , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultBecomesFallbackString) 
+                  , "FieldNullableSpanFormattableAlwaysAddStructStringBearer\\\\u003cTimeSpan\\\\u003e(00:00:01)" }
               , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultBecomesEmpty), "" }
               , { new EK( AcceptsAnyNullableStruct | AlwaysWrites | NonDefaultWrites), "null" }
             }
@@ -2081,9 +2087,11 @@ public static class StringBearerTestData
                   , "FieldNullableSpanFormattableAlwaysAddStructStringBearer<TimeSpan>()" }
               , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue 
                        | DefaultBecomesFallbackString, AnyLog ) , "\"FieldNullableSpanFormattableAlwaysAddStructStringBearer<TimeSpan>()\"" }
-              , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultBecomesFallbackValue
-                       | DefaultBecomesFallbackString) 
+              , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultBecomesFallbackValue) 
                   , "FieldNullableSpanFormattableAlwaysAddStructStringBearer\\u003cTimeSpan\\u003e()" }
+                // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
+              , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultBecomesFallbackString) 
+                  , "FieldNullableSpanFormattableAlwaysAddStructStringBearer\\\\u003cTimeSpan\\\\u003e()" }
               , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultBecomesEmpty), "" }
               , { new EK(AcceptsAnyNullableStruct | AlwaysWrites | NonDefaultWrites), "null" }
             }
@@ -2485,8 +2493,11 @@ public static class StringBearerTestData
                        | DefaultBecomesFallbackString, AnyLog ), "FieldSpanFormattableAlwaysAddStringBearer<IPAddress>()" }
               , { new EK(IsContentType | AcceptsAnyExceptNullableStruct | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue  
                        | DefaultBecomesFallbackString, AnyLog ) , "\"FieldSpanFormattableAlwaysAddStringBearer<IPAddress>()\"" }
-              , { new EK(IsContentType | AcceptsAnyExceptNullableStruct | DefaultBecomesFallbackValue 
-                       | DefaultBecomesFallbackString), "FieldSpanFormattableAlwaysAddStringBearer\\u003cIPAddress\\u003e()" }
+              , { new EK(IsContentType | AcceptsAnyExceptNullableStruct | DefaultBecomesFallbackValue)
+                  , "FieldSpanFormattableAlwaysAddStringBearer\\u003cIPAddress\\u003e()" }
+                // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
+              , { new EK(IsContentType | AcceptsAnyExceptNullableStruct | DefaultBecomesFallbackString) 
+                  , "FieldSpanFormattableAlwaysAddStringBearer\\\\u003cIPAddress\\\\u003e()" }
               , { new EK(AcceptsAnyExceptNullableStruct | AlwaysWrites | NonDefaultWrites), "null" }
             }
       , new NullableStringBearerExpect<FieldSpanFormattableAlwaysAddStructStringBearer<IPAddress>>
@@ -2515,9 +2526,11 @@ public static class StringBearerTestData
                   , "FieldSpanFormattableAlwaysAddStructStringBearer<IPAddress>()" }
               , { new EK(IsContentType | AcceptsAnyExceptNullableStruct | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue 
                        | DefaultBecomesFallbackString, AnyLog ) , "\"FieldSpanFormattableAlwaysAddStructStringBearer<IPAddress>()\"" }
-              , { new EK(IsContentType | AcceptsAnyExceptNullableStruct | DefaultBecomesFallbackValue 
-                       | DefaultBecomesFallbackString) 
+              , { new EK(IsContentType | AcceptsAnyExceptNullableStruct | DefaultBecomesFallbackValue) 
                   , "FieldSpanFormattableAlwaysAddStructStringBearer\\u003cIPAddress\\u003e()" }
+                // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
+              , { new EK(IsContentType | AcceptsAnyExceptNullableStruct | DefaultBecomesFallbackString) 
+                  , "FieldSpanFormattableAlwaysAddStructStringBearer\\\\u003cIPAddress\\\\u003e()" }
               , { new EK(AcceptsAnyExceptNullableStruct | AlwaysWrites | NonDefaultWrites), "null" }
             }
       , new NullableStringBearerExpect<FieldSpanFormattableAlwaysAddStructStringBearer<IPAddress>>
@@ -2546,9 +2559,11 @@ public static class StringBearerTestData
                   , "FieldSpanFormattableAlwaysAddStructStringBearer<IPAddress>()" }
               , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue 
                        | DefaultBecomesFallbackString, AnyLog ) , "\"FieldSpanFormattableAlwaysAddStructStringBearer<IPAddress>()\"" }
-              , { new EK(IsContentType | AcceptsAnyExceptNullableStruct | DefaultBecomesFallbackValue 
-                       | DefaultBecomesFallbackString) 
+              , { new EK(IsContentType | AcceptsAnyExceptNullableStruct | DefaultBecomesFallbackValue) 
                   , "FieldSpanFormattableAlwaysAddStructStringBearer\\u003cIPAddress\\u003e()" }
+                // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
+              , { new EK(IsContentType | AcceptsAnyExceptNullableStruct | DefaultBecomesFallbackString) 
+                  , "FieldSpanFormattableAlwaysAddStructStringBearer\\\\u003cIPAddress\\\\u003e()" }
               , { new EK(AcceptsAnyNullableStruct | AlwaysWrites | NonDefaultWrites), "null" }
             }
       , new StringBearerExpect<FieldSpanFormattableAlwaysAddStringBearer<IPAddress>>
@@ -2577,12 +2592,11 @@ public static class StringBearerTestData
                   , "FieldSpanFormattableAlwaysAddStringBearer<IPAddress>(127.0.0.1)" }
               , { new EK(IsContentType | AcceptsAnyExceptNullableStruct | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue  | DefaultBecomesFallbackString
                        , AnyLog ) , "\"FieldSpanFormattableAlwaysAddStringBearer<IPAddress>(127.0.0.1)\"" }
-              , { new EK(IsContentType | AcceptsAnyExceptNullableStruct | DefaultBecomesFallbackValue 
-                       | DefaultBecomesFallbackString) 
+              , { new EK(IsContentType | AcceptsAnyExceptNullableStruct | DefaultBecomesFallbackValue) 
                   , "FieldSpanFormattableAlwaysAddStringBearer\\u003cIPAddress\\u003e(127.0.0.1)" }
               //   // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
-              // , { new EK(IsContentType | AcceptsAnyExceptNullableStruct | DefaultBecomesFallbackString) 
-              //     , "FieldSpanFormattableAlwaysAddStringBearer\\\\u003cIPAddress\\\\u003e(127.0.0.1)" }
+              , { new EK(IsContentType | AcceptsAnyExceptNullableStruct | DefaultBecomesFallbackString) 
+                  , "FieldSpanFormattableAlwaysAddStringBearer\\\\u003cIPAddress\\\\u003e(127.0.0.1)" }
               , { new EK(AcceptsAnyExceptNullableStruct | AlwaysWrites | NonDefaultWrites), "null" }
             }
       , new StringBearerExpect<FieldSpanFormattableAlwaysAddStructStringBearer<IPAddress>>
@@ -2633,9 +2647,11 @@ public static class StringBearerTestData
                   , "FieldSpanFormattableAlwaysAddStructStringBearer<IPAddress>(127.0.0.1)" }
               , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue 
                        | DefaultBecomesFallbackString, AnyLog ) , "\"FieldSpanFormattableAlwaysAddStructStringBearer<IPAddress>(127.0.0.1)\"" }
-              , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultBecomesFallbackValue 
-                       | DefaultBecomesFallbackString) 
+              , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultBecomesFallbackValue) 
                   , "FieldSpanFormattableAlwaysAddStructStringBearer\\u003cIPAddress\\u003e(127.0.0.1)" }
+                // uses Default value which is re-encoded escaping \u003c to \\u003c etc...
+              , { new EK(IsContentType | AcceptsAnyNullableStruct | DefaultBecomesFallbackString) 
+                  , "FieldSpanFormattableAlwaysAddStructStringBearer\\\\u003cIPAddress\\\\u003e(127.0.0.1)" }
               , { new EK(AcceptsAnyNullableStruct | AlwaysWrites | NonDefaultWrites), "null" }
             }
       , new StringBearerExpect<FieldSpanFormattableAlwaysAddStringBearer<IPAddress>>

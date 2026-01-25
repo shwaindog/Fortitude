@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
@@ -13,16 +14,14 @@ public class RawContentMold : KnownTypeMolder<RawContentMold>
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
-      , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , IStyledTypeFormatting typeFormatting
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
-        Initialize(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
-                 , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
+        Initialize(instanceOrContainer, typeBeingBuilt, master, typeName
+                 , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
 
         return this;
     }
@@ -34,30 +33,34 @@ public class RawContentMold : KnownTypeMolder<RawContentMold>
     public override void StartFormattingTypeOpening()
     {
         var msf = MoldStateField;
-        msf.StyleFormatter.GraphBuilder.StartNextContentSeparatorPaddingSequence(msf.Sb, msf.CreateMoldFormatFlags);
-        if (msf.WriteMethod.SupportsMultipleFields())
+        msf.Sf.Gb.StartNextContentSeparatorPaddingSequence(msf.Sb, msf.CreateMoldFormatFlags);
+        if (msf.CurrentWriteMethod.SupportsMultipleFields())
         {
-            var formatter = MoldStateField!.StyleFormatter;
-            formatter.StartComplexTypeOpening(MoldStateField);
+            var formatter = msf.Sf;
+            formatter.StartComplexTypeOpening(msf);
         }
     }
 
     public override void CompleteTypeOpeningToTypeFields()
     {
-        
     }
 
     public override void AppendClosing()
     {
-        var msf         = MoldStateField;
-        var writeMethod = msf!.WriteMethod;
+        var msf         = State;
+        var writeMethod = msf.CurrentWriteMethod;
         if (writeMethod.SupportsMultipleFields())
         {
-            var formatter = msf!.StyleFormatter;
-            formatter.AppendComplexTypeClosing(msf);
+            var sf = msf.StyleFormatter;
+            var gb = sf.Gb;
+            if (sf.ContentEncoder.Type != sf.LayoutEncoder.Type)
+            {
+                sf = sf.PreviousContextOrThis;
+            }
+            sf.AppendComplexTypeClosing(msf);
         }
         
-        msf.StyleFormatter.GraphBuilder.MarkContentEnd();
+        msf.Sf.Gb.MarkContentEnd();
     }
 
 }

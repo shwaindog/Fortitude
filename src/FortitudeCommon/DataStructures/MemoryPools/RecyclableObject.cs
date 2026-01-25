@@ -17,11 +17,15 @@ public interface IUsesRecycler
 public class UsesRecycler : IUsesRecycler
 {
     [JsonIgnore] public virtual IRecycler? Recycler { get; set; }
+
+    protected IRecycler AlwaysRecycler => Recycler ?? DataStructures.MemoryPools.Recycler.ThreadStaticRecycler;
 }
 
 public class ExplicitUsesRecycler : IUsesRecycler
 {
     [JsonIgnore] IRecycler? IUsesRecycler.Recycler { get; set; }
+    
+    protected IRecycler AlwaysRecycler => ((IUsesRecycler)this).Recycler ?? Recycler.ThreadStaticRecycler;
 }
 
 public interface IResetable
@@ -104,12 +108,6 @@ public class RecyclableObject : UsesRecycler, IRecyclableObject
     {
         refCount = 1;
     }
-
-    // Uncomment the below if you suspect recyclable objects are being Garbage Collected
-    // ~RecyclableObject()
-    // {
-    //     Console.Out.WriteLine($"GC {GetType().Name}");
-    // }
 }
 
 public class ExplicitRecyclableObject : ExplicitUsesRecycler, IRecyclableObject

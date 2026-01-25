@@ -21,8 +21,9 @@ public partial class KeyedCollectionMold
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             valueFormatString ??= "";
@@ -46,8 +47,9 @@ public partial class KeyedCollectionMold
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             valueFormatString ??= "";
@@ -71,8 +73,9 @@ public partial class KeyedCollectionMold
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             valueFormatString ??= "";
@@ -95,8 +98,9 @@ public partial class KeyedCollectionMold
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
@@ -144,8 +148,9 @@ public partial class KeyedCollectionMold
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             keyFormatString ??= "";
@@ -169,8 +174,9 @@ public partial class KeyedCollectionMold
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TValue : struct
     {
-        if (stb.HasSkipBody<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             keyFormatString ??= "";
@@ -195,8 +201,9 @@ public partial class KeyedCollectionMold
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyList<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue?>>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             keyFormatString ??= "";
@@ -221,8 +228,9 @@ public partial class KeyedCollectionMold
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TValue : struct
     {
-        if (stb.HasSkipBody<IReadOnlyList<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue?>>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             keyFormatString ??= "";
@@ -248,8 +256,9 @@ public partial class KeyedCollectionMold
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             keyFormatString ??= "";
@@ -273,8 +282,9 @@ public partial class KeyedCollectionMold
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TValue : struct
     {
-        if (stb.HasSkipBody<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue?>>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             keyFormatString ??= "";
@@ -299,8 +309,9 @@ public partial class KeyedCollectionMold
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
@@ -327,8 +338,9 @@ public partial class KeyedCollectionMold
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TValue : struct
     {
-        if (stb.HasSkipBody<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
@@ -402,8 +414,9 @@ public partial class KeyedCollectionMold
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
@@ -429,8 +442,9 @@ public partial class KeyedCollectionMold
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<KeyValuePair<TKey, TValue>[]>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
@@ -456,8 +470,9 @@ public partial class KeyedCollectionMold
         where TValue : struct
         where TKRevealBase : notnull
     {
-        if (stb.HasSkipBody<KeyValuePair<TKey, TValue?>[]>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<KeyValuePair<TKey, TValue?>[]>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(KeyValuePair<TKey, TValue?>[]);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
@@ -482,8 +497,9 @@ public partial class KeyedCollectionMold
         where TKey : struct
         where TValue : struct
     {
-        if (stb.HasSkipBody<KeyValuePair<TKey, TValue?>[]>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<KeyValuePair<TKey, TValue?>[]>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(KeyValuePair<TKey, TValue?>[]);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
@@ -510,8 +526,9 @@ public partial class KeyedCollectionMold
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
@@ -537,8 +554,9 @@ public partial class KeyedCollectionMold
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
@@ -564,8 +582,9 @@ public partial class KeyedCollectionMold
         where TValue : struct
         where TKRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
@@ -590,8 +609,9 @@ public partial class KeyedCollectionMold
         where TKey : struct
         where TValue : struct
     {
-        if (stb.HasSkipBody<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyList<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
@@ -618,8 +638,9 @@ public partial class KeyedCollectionMold
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
@@ -644,8 +665,9 @@ public partial class KeyedCollectionMold
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<IEnumerable<KeyValuePair<TKey?, TValue>>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerable<KeyValuePair<TKey?, TValue>>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey?, TValue>>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey?, TValue>);
@@ -670,8 +692,9 @@ public partial class KeyedCollectionMold
         where TValue : struct
         where TKRevealBase : notnull
     {
-        if (stb.HasSkipBody<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue?>>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue?>);
@@ -695,8 +718,9 @@ public partial class KeyedCollectionMold
         where TKey : struct
         where TValue : struct
     {
-        if (stb.HasSkipBody<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerable<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue?>>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue?>);
@@ -722,8 +746,9 @@ public partial class KeyedCollectionMold
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue>>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
@@ -751,8 +776,9 @@ public partial class KeyedCollectionMold
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<IEnumerator<KeyValuePair<TKey?, TValue>>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerator<KeyValuePair<TKey?, TValue>>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey?, TValue>>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
@@ -780,8 +806,9 @@ public partial class KeyedCollectionMold
         where TValue : struct
         where TKRevealBase : notnull
     {
-        if (stb.HasSkipBody<IEnumerator<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerator<KeyValuePair<TKey, TValue?>>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue?>>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
@@ -808,8 +835,9 @@ public partial class KeyedCollectionMold
             where TKey : struct
             where TValue : struct
     {
-        if (stb.HasSkipBody<IEnumerator<KeyValuePair<TKey?, TValue?>>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerator<KeyValuePair<TKey?, TValue?>>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey?, TValue?>>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {

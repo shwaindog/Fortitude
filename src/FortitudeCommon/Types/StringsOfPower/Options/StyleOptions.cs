@@ -12,6 +12,7 @@ using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 using static FortitudeCommon.Types.StringsOfPower.Options.DateTimeStyleFormat;
+using static FortitudeCommon.Types.StringsOfPower.Options.InputClassFlags;
 using static FortitudeCommon.Types.StringsOfPower.Options.TimeStyleFormat;
 
 // ReSharper disable MemberCanBePrivate.Global
@@ -37,6 +38,9 @@ public struct StyleOptionsValue : IJsonFormattingOptions
 
     public const string DefaultLogInnerDblQtReplacementOpenChars  = ""; //  considered  "\u201C";  “
     public const string DefaultLogInnerDblQtReplacementCloseChars = ""; //  considered  "\u201D";  ”
+    
+    public const int DefaultInstanceTrackingDebuggerBreakOnRevisitCount = 64; 
+    public const int DefaultInstanceTrackingThrowExceededRevisitCount = 65; 
 
     public static readonly string[] DefaultLogSuppressNames = [
         "System"
@@ -81,34 +85,42 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     private EncodingType? stringEncoderType;
 
     private Func<IJsonFormattingOptions, IEncodingTransfer>? sourceEncodingTransferResolver;
+    
+    private InputClassFlags? instanceMarkingIncludeInputClassesContents;
+    private InputClassFlags? instancesTrackingIncludeInputClasses;
 
-    private char?     indentChar;
-    private int?      indentSize;
-    private bool?     byteSequenceToBase64;
-    private bool?     disableCircularRefCheck;
-    private bool?     charSArraysAsString;
-    private bool?     circularRefUsesRefEquals;
-    private bool?     markRevisitedSpanFormattableClassInstances;
-    private bool?     includeSpanFormattableContentsOnRevisits;
-    private string?   newLineStyle;
-    private int?      prettyCollectionsColumnCountWrap;
-    private int?      defaultGraphMaxDepth;
-    private string?   customDateTimeFormatString;
-    private string?   customTimeFormatString;
-    private string?   dateOnlyAsStringFormatString;
-    private string?   dateTimeYyyyMMddTossFormat;
-    private string?   dateTimeYyyyMMddTomsFormat;
-    private string?   dateTimeYyyyMMddTousFormat;
-    private string?   timeHHmmssFormat;
-    private string?   timeHHmmssToMsFormat;
-    private string?   timeHHmmssToUsFormat;
-    private string?   timeHHmmssToTicksFormat;
-    private bool?     writeKeyValuePairsAsCollection;
-    private Range[]?  unicodeEscapingRanges;
-    private Range[]?  exemptEscapingRanges;
-    private string[]? logSuppressDisplayTypeNames;
-    private string[]? logSuppressDisplayCollectionNames;
-    private string[]? logSuppressDisplayCollectionElementNames;
+    private char?            indentChar;
+    private int?             indentSize;
+    private bool?            byteSequenceToBase64;
+    private bool?            disableCircularRefCheck;
+    private bool?            charSArraysAsString;
+    private bool?            circularRefUsesRefEquals;
+    private bool?            instanceMarkingMarkInstanceIdOnFirstVisit;
+    private bool?            instanceMarkingMarkVirtualMemoryAddress;
+    private bool?            instanceMarkingMarkRevisitCount;
+    private bool?            instanceMarkingDisabled;
+    private bool?            instanceTrackingDisabled;
+    private int?             instancesTrackingDebuggerBreakOnRevisitCount;
+    private int?             instancesTrackingThrowOnRevisitCount;
+    private string?          newLineStyle;
+    private int?             prettyCollectionsColumnCountWrap;
+    private int?             defaultGraphMaxDepth;
+    private string?          customDateTimeFormatString;
+    private string?          customTimeFormatString;
+    private string?          dateOnlyAsStringFormatString;
+    private string?          dateTimeYyyyMMddTossFormat;
+    private string?          dateTimeYyyyMMddTomsFormat;
+    private string?          dateTimeYyyyMMddTousFormat;
+    private string?          timeHHmmssFormat;
+    private string?          timeHHmmssToMsFormat;
+    private string?          timeHHmmssToUsFormat;
+    private string?          timeHHmmssToTicksFormat;
+    private bool?            writeKeyValuePairsAsCollection;
+    private Range[]?         unicodeEscapingRanges;
+    private Range[]?         exemptEscapingRanges;
+    private string[]?        logSuppressDisplayTypeNames;
+    private string[]?        logSuppressDisplayCollectionNames;
+    private string[]?        logSuppressDisplayCollectionElementNames;
 
     private FormatFlags contextContentHandlingFlags;
     private StringStyle?         style;
@@ -635,16 +647,155 @@ public struct StyleOptionsValue : IJsonFormattingOptions
         set => defaultGraphMaxDepth = value;
     }
 
-    public bool MarkRevisitedSpanFormattableClassInstances
+    public bool InstanceMarkingMarkInstanceIdOnFirstVisit
     {
-        readonly get => markRevisitedSpanFormattableClassInstances ?? fallbackOptions?.Values.MarkRevisitedSpanFormattableClassInstances ?? false;
-        set => markRevisitedSpanFormattableClassInstances = value;
+        readonly get => instanceMarkingMarkInstanceIdOnFirstVisit ?? fallbackOptions?.Values.InstanceMarkingMarkInstanceIdOnFirstVisit ?? false;
+        set => instanceMarkingMarkInstanceIdOnFirstVisit = value;
     }
 
-    public bool IncludeSpanFormattableContentsOnRevisits
+    public bool InstanceMarkingMarkVirtualMemoryAddress
     {
-        readonly get => includeSpanFormattableContentsOnRevisits ?? fallbackOptions?.Values.IncludeSpanFormattableContentsOnRevisits ?? false;
-        set => includeSpanFormattableContentsOnRevisits = value;
+        readonly get => instanceMarkingMarkVirtualMemoryAddress ?? fallbackOptions?.Values.InstanceMarkingMarkVirtualMemoryAddress ?? false;
+        set => instanceMarkingMarkVirtualMemoryAddress = value;
+    }
+
+    public bool InstanceMarkingMarkRevisitCount
+    {
+        readonly get => instanceMarkingMarkRevisitCount ?? fallbackOptions?.Values.InstanceMarkingMarkRevisitCount ?? false;
+        set => instanceMarkingMarkRevisitCount = value;
+    }
+
+    public bool InstanceMarkingIncludeSpanFormattableContents
+    {
+        readonly get => instanceMarkingIncludeInputClassesContents.IsSpanFormattableClassActive() 
+                     ?? fallbackOptions?.Values.InstanceMarkingIncludeSpanFormattableContents ?? false;
+        set => instanceMarkingIncludeInputClassesContents = instanceMarkingIncludeInputClassesContents.SetTo(SpanFormattableClass, value);
+    }
+
+    public bool InstanceMarkingIncludeStringContents
+    {
+        readonly get => instanceMarkingIncludeInputClassesContents.IsStringClassActive() 
+                     ?? fallbackOptions?.Values.InstanceMarkingIncludeStringContents ?? false;
+        
+        set => instanceMarkingIncludeInputClassesContents = instanceMarkingIncludeInputClassesContents.SetTo(StringClass, value);
+    }
+
+    public bool InstanceMarkingIncludeCharArrayContents
+    {
+        readonly get => instanceMarkingIncludeInputClassesContents.IsCharArrayClassActive() 
+                     ?? fallbackOptions?.Values.InstanceMarkingIncludeCharArrayContents ?? false;
+        
+        set => instanceMarkingIncludeInputClassesContents = instanceMarkingIncludeInputClassesContents.SetTo(CharArrayClass, value);
+    }
+
+    public bool InstanceMarkingIncludeCharSequenceContents
+    {
+        readonly get => instanceMarkingIncludeInputClassesContents.IsCharSequenceClassActive() 
+                     ?? fallbackOptions?.Values.InstanceMarkingIncludeCharSequenceContents ?? false;
+        
+        set => instanceMarkingIncludeInputClassesContents = instanceMarkingIncludeInputClassesContents.SetTo(CharSequenceClass, value);
+    }
+
+    public bool InstanceMarkingIncludeStringBuilderContents
+    {
+        readonly get => instanceMarkingIncludeInputClassesContents.IsStringBuilderClassActive() 
+                     ?? fallbackOptions?.Values.InstanceMarkingIncludeStringBuilderContents ?? false;
+        
+        set => instanceMarkingIncludeInputClassesContents = instanceMarkingIncludeInputClassesContents.SetTo(StringBuilderClass, value);
+    }
+
+    public bool InstanceMarkingIncludeAllContentOnlyContents
+    {
+        readonly get => instanceMarkingIncludeInputClassesContents.IsAllInputClassesActive() 
+                     ?? fallbackOptions?.Values.InstanceMarkingIncludeAllContentOnlyContents ?? false;
+        
+        set => instanceMarkingIncludeInputClassesContents = instanceMarkingIncludeInputClassesContents.SetTo(AllInputClasses, value);
+    }
+
+    public bool InstanceMarkingDisabled
+    {
+        readonly get => instanceMarkingDisabled ?? fallbackOptions?.Values.InstanceMarkingDisabled ?? false;
+        set => instanceMarkingDisabled = value;
+    }
+
+    public bool InstanceTrackingDisabled
+    {
+        readonly get => instanceTrackingDisabled ?? fallbackOptions?.Values.InstanceTrackingDisabled ?? false;
+        set => instanceTrackingDisabled = value;
+    }
+
+    public bool InstanceTrackingIncludeSpanFormattableClasses
+    {
+        readonly get => instancesTrackingIncludeInputClasses.IsSpanFormattableClassActive() 
+                     ?? fallbackOptions?.Values.InstanceTrackingIncludeSpanFormattableClasses ?? false;
+        
+        set => instancesTrackingIncludeInputClasses = instancesTrackingIncludeInputClasses.SetTo(SpanFormattableClass, value);
+    }
+
+    public bool InstanceTrackingIncludeStringInstances
+    {
+        readonly get => instancesTrackingIncludeInputClasses.IsStringClassActive() 
+                     ?? fallbackOptions?.Values.InstanceTrackingIncludeStringInstances ?? false;
+        
+        set => instancesTrackingIncludeInputClasses = instancesTrackingIncludeInputClasses.SetTo(StringClass, value);
+    }
+
+    public bool InstanceTrackingIncludeCharArrayInstances
+    {
+        readonly get => instancesTrackingIncludeInputClasses.IsCharArrayClassActive() 
+                     ?? fallbackOptions?.Values.InstanceTrackingIncludeCharArrayInstances ?? false;
+        
+        set => instancesTrackingIncludeInputClasses = instancesTrackingIncludeInputClasses.SetTo(CharArrayClass, value);
+    }
+
+    public bool InstanceTrackingIncludeCharSequenceInstances
+    {
+        readonly get => instancesTrackingIncludeInputClasses.IsCharSequenceClassActive() 
+                     ?? fallbackOptions?.Values.InstanceTrackingIncludeCharSequenceInstances ?? false;
+        
+        set => instancesTrackingIncludeInputClasses = instancesTrackingIncludeInputClasses.SetTo(CharSequenceClass, value);
+    }
+
+    public bool InstanceTrackingIncludeStringBuilderInstances
+    {
+        readonly get => instancesTrackingIncludeInputClasses.IsStringBuilderClassActive() 
+                     ?? fallbackOptions?.Values.InstanceTrackingIncludeStringBuilderInstances ?? false;
+        
+        set => instancesTrackingIncludeInputClasses = instancesTrackingIncludeInputClasses.SetTo(StringBuilderClass, value);
+    }
+
+    public bool InstanceTrackingIncludeAllExemptClassInstances
+    {
+        readonly get => instancesTrackingIncludeInputClasses.IsAllInputClassesActive() 
+                     ?? fallbackOptions?.Values.InstanceTrackingIncludeStringInstances ?? false;
+        
+        set => instancesTrackingIncludeInputClasses = instancesTrackingIncludeInputClasses.SetTo(AllInputClasses, value);
+    }
+
+    public bool InstanceTrackingAllAsStringClassesAreExempt
+    {
+        readonly get => instancesTrackingIncludeInputClasses.IsAsStringClassesActive() 
+                     ?? fallbackOptions?.Values.InstanceTrackingAllAsStringClassesAreExempt ?? false;
+        
+        set => instancesTrackingIncludeInputClasses = instancesTrackingIncludeInputClasses.SetTo(AsStringClasses, value);
+    }
+
+    public int InstancesTrackingDebuggerBreakOnRevisitCount
+    {
+        readonly get => 
+            instancesTrackingDebuggerBreakOnRevisitCount 
+         ?? fallbackOptions?.Values.InstancesTrackingDebuggerBreakOnRevisitCount 
+         ?? DefaultInstanceTrackingDebuggerBreakOnRevisitCount;
+        set => instancesTrackingDebuggerBreakOnRevisitCount = value;
+    }
+
+    public int InstancesTrackingThrowOnRevisitCount
+    {
+        readonly get => 
+            instancesTrackingThrowOnRevisitCount 
+         ?? fallbackOptions?.Values.InstancesTrackingThrowOnRevisitCount 
+         ?? DefaultInstanceTrackingDebuggerBreakOnRevisitCount;
+        set => instancesTrackingThrowOnRevisitCount = value;
     }
 
     public StyleOptions? DefaultOptions
@@ -652,11 +803,24 @@ public struct StyleOptionsValue : IJsonFormattingOptions
         get => fallbackOptions;
         set => fallbackOptions = value;
     }
+
+    object ICloneable.Clone() => Clone();
+
+    public StyleOptionsValue Clone() => this;
+
+    IFormattingOptions ICloneable<IFormattingOptions>.Clone()
+    {
+        return this;
+    }
 }
 
 public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, ITransferState<StyleOptions>
 {
-    private StyleOptionsValue values;
+    private static int globalInstanceId;
+
+    protected int               InstanceId = Interlocked.Increment(ref globalInstanceId);
+    
+    private   StyleOptionsValue values;
 
     private ICustomStringFormatter? formatter;
 
@@ -937,7 +1101,7 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
         set => values.StringEncoderType = value;
     }
 
-    public ICustomStringFormatter? Formatter
+    public ICustomStringFormatter? Formatter 
     {
         get => formatter;
         set
@@ -1115,17 +1279,129 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
         set => values.DefaultGraphMaxDepth = value;
     }
 
-    public bool MarkRevisitedSpanFormattableClassInstances
+    public bool InstanceMarkingMarkInstanceIdOnFirstVisit
     {
-        get => values.MarkRevisitedSpanFormattableClassInstances;
-        set => values.MarkRevisitedSpanFormattableClassInstances = value;
+        get => values.InstanceMarkingMarkInstanceIdOnFirstVisit;
+        set => values.InstanceMarkingMarkInstanceIdOnFirstVisit = value;
     }
 
-    public bool IncludeSpanFormattableContentsOnRevisits
+    public bool InstanceMarkingMarkVirtualMemoryAddress
     {
-        get => values.IncludeSpanFormattableContentsOnRevisits;
-        set => values.IncludeSpanFormattableContentsOnRevisits = value;
+        get => values.InstanceMarkingMarkVirtualMemoryAddress;
+        set => values.InstanceMarkingMarkVirtualMemoryAddress = value;
     }
+
+    public bool InstanceMarkingMarkRevisitCount
+    {
+        get => values.InstanceMarkingMarkRevisitCount;
+        set => values.InstanceMarkingMarkRevisitCount = value;
+    }
+
+    public bool InstanceMarkingIncludeSpanFormattableContents
+    {
+        get => values.InstanceMarkingIncludeSpanFormattableContents;
+        set => values.InstanceMarkingIncludeSpanFormattableContents = value;
+    }
+
+    public bool InstanceMarkingIncludeStringContents
+    {
+        get => values.InstanceMarkingIncludeStringContents;
+        set => values.InstanceMarkingIncludeStringContents = value;
+    }
+
+    public bool InstanceMarkingIncludeCharArrayContents
+    {
+        get => values.InstanceMarkingIncludeCharArrayContents;
+        set => values.InstanceMarkingIncludeCharArrayContents = value;
+    }
+
+    public bool InstanceMarkingIncludeCharSequenceContents
+    {
+        get => values.InstanceMarkingIncludeCharSequenceContents;
+        set => values.InstanceMarkingIncludeCharSequenceContents = value;
+    }
+
+    public bool InstanceMarkingIncludeStringBuilderContents
+    {
+        get => values.InstanceMarkingIncludeStringBuilderContents;
+        set => values.InstanceMarkingIncludeStringBuilderContents = value;
+    }
+
+    public bool InstanceMarkingIncludeAllContentOnlyContents
+    {
+        get => values.InstanceMarkingIncludeAllContentOnlyContents;
+        set => values.InstanceMarkingIncludeAllContentOnlyContents = value;
+    }
+
+    public bool InstanceMarkingDisabled
+    {
+        get => values.InstanceMarkingDisabled;
+        set => values.InstanceMarkingDisabled = value;
+    }
+
+    public bool InstanceTrackingDisabled
+    {
+        get => values.InstanceTrackingDisabled;
+        set => values.InstanceTrackingDisabled = value;
+    }
+
+    public bool InstanceTrackingIncludeSpanFormattableClasses
+    {
+        get => values.InstanceTrackingIncludeSpanFormattableClasses;
+        set => values.InstanceTrackingIncludeSpanFormattableClasses = value;
+    }
+
+    public bool InstanceTrackingIncludeStringInstances
+    {
+        get => values.InstanceTrackingIncludeStringInstances;
+        set => values.InstanceTrackingIncludeStringInstances = value;
+    }
+
+    public bool InstanceTrackingIncludeCharArrayInstances
+    {
+        get => values.InstanceTrackingIncludeCharArrayInstances;
+        set => values.InstanceTrackingIncludeCharArrayInstances = value;
+    }
+
+    public bool InstanceTrackingIncludeCharSequenceInstances
+    {
+        get => values.InstanceTrackingIncludeCharSequenceInstances;
+        set => values.InstanceTrackingIncludeCharSequenceInstances = value;
+    }
+
+    public bool InstanceTrackingIncludeStringBuilderInstances
+    {
+        get => values.InstanceTrackingIncludeStringBuilderInstances;
+        set => values.InstanceTrackingIncludeStringBuilderInstances = value;
+    }
+
+    public bool InstanceTrackingIncludeAllExemptClassInstances
+    {
+        get => values.InstanceTrackingIncludeAllExemptClassInstances;
+        set => values.InstanceTrackingIncludeAllExemptClassInstances = value;
+    }
+
+    public bool InstanceTrackingAllAsStringClassesAreExempt
+    {
+        get => values.InstanceTrackingAllAsStringClassesAreExempt;
+        set => values.InstanceTrackingAllAsStringClassesAreExempt = value;
+    }
+
+    public int InstancesTrackingDebuggerBreakOnRevisitCount
+    {
+        get => values.InstancesTrackingDebuggerBreakOnRevisitCount;
+        set => values.InstancesTrackingDebuggerBreakOnRevisitCount = value;
+    }
+
+    public int InstancesTrackingThrowOnRevisitCount
+    {
+        get => values.InstancesTrackingThrowOnRevisitCount;
+        set => values.InstancesTrackingThrowOnRevisitCount = value;
+    }
+
+    object ICloneable.        Clone() => Clone();
+
+    public IFormattingOptions Clone() => AlwaysRecycler.Borrow<StyleOptions>().CopyFrom(this);
 
     public ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags)
     {
@@ -1151,4 +1427,6 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
         formatter = null!;
         base.InheritedStateReset();
     }
+
+    public override string ToString() => $"{{ {GetType().Name}: {InstanceId}, {Style}: {Style} }}";
 }

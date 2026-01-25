@@ -2,15 +2,19 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 
-public class ContentJoinTypeMold<TMold> : KnownTypeMolder<ContentJoinTypeMold<TMold>>, IMigrateFrom<TMold, ContentJoinTypeMold<TMold>>
-    where TMold : TypeMolder
+public class ContentJoinTypeMold<TFromMold, TToMold> : KnownTypeMolder<TToMold>, 
+    IMigrateFrom<TFromMold, TToMold>
+    where TFromMold : TypeMolder
+    where TToMold : ContentJoinTypeMold<TFromMold, TToMold>
 {
     private bool initialWasComplex;
-    
-    public override bool IsComplexType => initialWasComplex;
+    private bool wasUpgradedToComplexType;
+
+    public override bool IsComplexType => initialWasComplex || wasUpgradedToComplexType;
 
     public override void StartFormattingTypeOpening()
     {
@@ -24,35 +28,51 @@ public class ContentJoinTypeMold<TMold> : KnownTypeMolder<ContentJoinTypeMold<TM
 
     public override void AppendClosing()
     {
-        var formatter = MoldStateField.StyleFormatter;
-        if (IsComplexType)
+        var sf = MoldStateField.Sf;
+        var gb = sf.Gb;
+        
+        var shouldSwitchEncoders = wasUpgradedToComplexType && sf.ContentEncoder.Type != sf.LayoutEncoder.Type;
+
+        if (shouldSwitchEncoders)
         {
-            formatter.AppendComplexTypeClosing(MoldStateField);
+            sf = sf.PreviousContextOrThis;
         }
-        else
-        {
-            formatter.AppendContentTypeClosing(MoldStateField);
-        }
+        if (IsComplexType) { sf.AppendComplexTypeClosing(MoldStateField); }
+        else { sf.AppendContentTypeClosing(MoldStateField); }
     }
-    
+
     public ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags)
     {
         switch (source)
         {
-            case SimpleContentTypeMold simpleSource:   CopyFrom(simpleSource, copyMergeFlags); break;
+            case SimpleContentTypeMold simpleSource:
+            {
+                CopyFrom(simpleSource, copyMergeFlags);
+                if (IsComplexType) { wasUpgradedToComplexType = true; }
+                break;
+            }
             case ComplexContentTypeMold complexSource: CopyFrom(complexSource, copyMergeFlags); break;
         }
         return this;
     }
 
-    public ContentJoinTypeMold<TMold> CopyFrom(TMold source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public TToMold CopyFrom(TFromMold source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         PortableState = ((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.PortableState;
-        SourceBuilderComponentAccess(((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.WriteMethod);
-        
-        MoldStateField.CopyFrom(((ITypeBuilderComponentSource)source).MoldState, copyMergeFlags);
-        initialWasComplex = source.IsComplexType;
+        SourceBuilderComponentAccess(((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.CurrentWriteMethod);
 
-        return this;
+        MoldStateField.CopyFrom(((ITypeBuilderComponentSource)source).MoldState, copyMergeFlags);
+        initialWasComplex        = source.IsComplexType;
+        wasUpgradedToComplexType = initialWasComplex && source is SimpleContentTypeMold;
+
+        return (TToMold)this;
+    }
+
+    protected override void InheritedStateReset()
+    {
+        initialWasComplex        = false;
+        wasUpgradedToComplexType = false;
+        
+        base.InheritedStateReset();
     }
 }

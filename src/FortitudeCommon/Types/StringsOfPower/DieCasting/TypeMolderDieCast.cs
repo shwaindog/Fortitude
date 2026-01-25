@@ -21,9 +21,6 @@ public interface ITypeMolderDieCast : IRecyclableObject, ITransferState
 
     ISecretStringOfPower Master { get; }
 
-    MoldDieCastSettings AppendSettings { get; set; }
-
-
     FormatFlags CallerContentHandling { get; }
     FormatFlags CreateMoldFormatFlags { get; }
 
@@ -33,7 +30,7 @@ public interface ITypeMolderDieCast : IRecyclableObject, ITransferState
 
     ushort IndentLevel { get; }
     
-    WriteMethodType WriteMethod { get; set; }
+    WriteMethodType CurrentWriteMethod { get; set; }
 
     bool SupportsMultipleFields { get; }
 
@@ -58,13 +55,14 @@ public interface ITypeMolderDieCast : IRecyclableObject, ITransferState
     
     bool BuildingInstanceEquals<T>(T check);
 
-    bool HasSkipBody<TCallerType>(Type? actualType, ReadOnlySpan<char> fieldName
+    bool HasSkipBody(Type actualType, ReadOnlySpan<char> fieldName
       , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags);
 
-    bool HasSkipField<TCallerType>(Type? actualType, ReadOnlySpan<char> fieldName
+    bool HasSkipField(Type actualType, ReadOnlySpan<char> fieldName
       , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags);
 
     IStyledTypeFormatting StyleFormatter { get; }
+    IStyledTypeFormatting Sf { get; }
 
     int RemainingGraphDepth { get; set; }
 
@@ -77,7 +75,7 @@ public interface ITypeMolderDieCast : IRecyclableObject, ITransferState
     public int DecrementIndent();
     public int IncrementIndent();
 
-    public void UnSetIgnoreFlag(SkipTypeParts flagToUnset);
+    public void UnSetIgnoreFlag(FormatFlags flagToUnset);
     void        SetUntrackedVisit();
 
     new IRecycler Recycler { get; }
@@ -92,7 +90,7 @@ public interface ITypeMolderDieCast<out T> : IMigratableTypeMolderDieCast where 
 {
     T StyleTypeBuilder { get; }
 
-    T WasSkipped<TCallerType>(Type? actualType, ReadOnlySpan<char> fieldName
+    T WasSkipped(Type actualType, ReadOnlySpan<char> fieldName
       , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags);
 }
 
@@ -122,6 +120,7 @@ public static class TypeMoldFlagsExtensions
     public static bool HasIsCompleteFlag(this TypeMoldFlags flags)       => (flags & IsCompleteFlag) > 0;
     public static bool HasSkipBodyFlag(this TypeMoldFlags flags)         => (flags & SkipBodyFlag) > 0;
     public static bool HasSkipFieldsFlag(this TypeMoldFlags flags)        => (flags & SkipFieldsFlag) > 0;
+
     // public static bool HasWriteAsAttributeFlag(this TypeMoldFlags flags) => (flags & WriteAsAttributeFlag) > 0;
     // public static bool HasWriteAsContentFlag(this TypeMoldFlags flags)   => (flags & WriteAsContentFlag) > 0;
     // public static bool HasWriteAsComplexFlag(this TypeMoldFlags flags)   => (flags & WriteAsComplexFlag) > 0;
@@ -143,6 +142,7 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
     public TExt StyleTypeBuilder { get; private set; } = null!;
 
     private TypeMolder.MoldPortableState typeBuilderState = null!;
+    private WriteMethodType              currentWriteMethod;
 
     public TypeMolderDieCast<TExt> Initialize
         (TExt externalTypeBuilder, TypeMolder.MoldPortableState typeBuilderPortableState, WriteMethodType writeMethod)
@@ -157,17 +157,20 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
                      || typeof(MultiValueTypeMolder<TExt>).IsAssignableFrom(typeOfTExt);
 
         var fmtFlags = typeBuilderPortableState.CreateFormatFlags;
-        var hasBeenVisitedBefore = typeBuilderState.MoldGraphVisit.HasExistingInstanceId;
+        var hasBeenVisitedBefore = MoldGraphVisit.HasExistingInstanceId;
         SkipBody   = hasBeenVisitedBefore && fmtFlags.DoesNotHaveIsFieldNameFlag();
         SkipFields = hasBeenVisitedBefore || (Style.IsJson() && !hasJsonFields);
 
-        WriteMethod = writeMethod;
+        InitialWriteMethod = writeMethod;
+        currentWriteMethod = writeMethod;
         return this;
     }
     
     public ISecretStringOfPower Master => typeBuilderState.Master;
 
     TypeMolder.MoldPortableState IMigratableTypeMolderDieCast.PortableState => typeBuilderState;
+
+    protected VisitResult MoldGraphVisit => typeBuilderState.MoldGraphVisit;
     
     public string? TypeName => typeBuilderState.TypeName;
 
@@ -179,28 +182,24 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
     public int RemainingGraphDepth { get; set; }
 
     public int InstanceReferenceId => typeBuilderState.MoldGraphVisit.InstanceId;
-    //
-    // public bool WriteAsAttribute
-    // {
-    //     get => moldFlags.HasWriteAsAttributeFlag();
-    //     set => moldFlags ^= !value && WriteAsAttribute || value && !WriteAsAttribute ? WriteAsAttributeFlag : None;
-    // }
-    //
-    // public bool WriteAsContent
-    // {
-    //     get => moldFlags.HasWriteAsContentFlag();
-    //     set => moldFlags ^= !value && WriteAsContent || value && !WriteAsContent ? WriteAsContentFlag : None;
-    // }
 
     public ushort IndentLevel => (ushort)typeBuilderState.Master.IndentLevel;
-    
-    public WriteMethodType WriteMethod { get; set; }
-    
-    public bool SupportsMultipleFields
+
+    public WriteMethodType InitialWriteMethod { get; private set; }
+
+    public WriteMethodType CurrentWriteMethod
     {
-        get => WriteMethod.SupportsMultipleFields();
+        get => currentWriteMethod;
+        set
+        {
+            if (currentWriteMethod == value) return;
+            currentWriteMethod = value;
+            Master.UpdateVisitWriteMethod(MoldGraphVisit.CurrentVisitIndex, value);
+        }
     }
-    
+
+    public bool SupportsMultipleFields => CurrentWriteMethod.SupportsMultipleFields();
+
     public bool IsEmpty
     {
         get => moldFlags.HasIsEmptyFlag();
@@ -228,7 +227,8 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
 
     public char IndentChar => Settings.IndentChar;
 
-    public IStyledTypeFormatting StyleFormatter => typeBuilderState.TypeFormatting;
+    public IStyledTypeFormatting StyleFormatter => typeBuilderState.Master.CurrentStyledTypeFormatter;
+    public IStyledTypeFormatting Sf => StyleFormatter;
 
     public bool IsComplete => StyleTypeBuilder.IsComplete;
 
@@ -246,13 +246,13 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
 
     public int LastStartNewLineContentPos { get; private set; } = -1;
 
-    public virtual bool HasSkipBody<TCallerType>(Type? actualType, ReadOnlySpan<char> fieldName
+    public virtual bool HasSkipBody(Type actualType, ReadOnlySpan<char> fieldName
       , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags) => SkipBody;
 
-    public virtual bool HasSkipField<TCallerType>(Type? actualType, ReadOnlySpan<char> fieldName
+    public virtual bool HasSkipField(Type actualType, ReadOnlySpan<char> fieldName
       , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags) => SkipFields;
 
-    public TExt WasSkipped<TCallerType>(Type? actualType, ReadOnlySpan<char> fieldName
+    public virtual TExt WasSkipped(Type actualType, ReadOnlySpan<char> fieldName
       , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags)
 
     {
@@ -275,15 +275,9 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
         return typeBuilderState.Master.IndentLevel;
     }
 
-    public MoldDieCastSettings AppendSettings
+    public void UnSetIgnoreFlag(FormatFlags flagToUnset)
     {
-        get => typeBuilderState.AppenderSettings;
-        set => typeBuilderState.AppenderSettings = value;
-    }
-
-    public void UnSetIgnoreFlag(SkipTypeParts flagToUnset)
-    {
-        typeBuilderState.AppenderSettings.SkipTypeParts &= ~flagToUnset;
+        typeBuilderState.CreateFormatFlags &= ~flagToUnset;
     }
 
     public new IRecycler Recycler => base.Recycler ?? typeBuilderState.Master.Recycler;
@@ -314,7 +308,7 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
     {
         if (source == null) return this;
         RemainingGraphDepth = source.RemainingGraphDepth;
-        WriteMethod      = source.WriteMethod;
+        CurrentWriteMethod      = source.CurrentWriteMethod;
         SkipBody            = source.SkipBody;
         SkipFields          = source.SkipFields;
         LastStartNewLineContentPos = source.LastStartNewLineContentPos;
@@ -324,9 +318,11 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
 
     public override void StateReset()
     {
-        moldFlags        = IsEmptyFlag;
-        StyleTypeBuilder = null!;
-        typeBuilderState = null!;
+        InitialWriteMethod = WriteMethodType.None;
+        currentWriteMethod = WriteMethodType.None;
+        moldFlags          = IsEmptyFlag;
+        StyleTypeBuilder   = null!;
+        typeBuilderState   = null!;
         base.StateReset();
     }
 

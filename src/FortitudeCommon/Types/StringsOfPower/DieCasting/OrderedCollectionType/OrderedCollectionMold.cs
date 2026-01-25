@@ -14,16 +14,14 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
-      , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , IStyledTypeFormatting typeFormatting
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
-        Initialize(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
-                 , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType
+        Initialize(instanceOrContainer, typeBeingBuilt, master, typeName
+                 , remainingGraphDepth, moldGraphVisit, writeMethodType
                  , createFormatFlags | AsCollection);
 
         stb = CompAsOrderedCollection;
@@ -75,17 +73,15 @@ public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCo
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
-      , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , IStyledTypeFormatting typeFormatting
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
         InitializeOrderedCollectionBuilder
-            (instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
-           , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType
+            (instanceOrContainer, typeBeingBuilt, master, typeName
+           , remainingGraphDepth, moldGraphVisit, writeMethodType
            , createFormatFlags | AsCollection);
 
         return this;
@@ -109,17 +105,15 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
-      , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , IStyledTypeFormatting typeFormatting
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
         InitializeOrderedCollectionBuilder
-            (instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
-           , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags | AsCollection);
+            (instanceOrContainer, typeBeingBuilt, master, typeName
+           , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags | AsCollection);
 
         return this;
     }

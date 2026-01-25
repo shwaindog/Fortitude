@@ -88,11 +88,12 @@ public class ContentTypeMoldPrettyJsonAsStringTests : ContentTypeMoldAsStringTes
     public void PrettyJsonNullStringBearerAsString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)=> 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
     
-    // [TestMethod]
+    [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(BoolTestData.AllBoolExpectations[5], ScaffoldingRegistry.AllScaffoldingTypes[1217]);
+        ExecuteIndividualScaffoldExpectation(CloakedBearerTestData.AllCloakedBearerExpectations[3], 
+                                             ScaffoldingRegistry.AllScaffoldingTypes[1197], StringBuilderType.MutableString);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName

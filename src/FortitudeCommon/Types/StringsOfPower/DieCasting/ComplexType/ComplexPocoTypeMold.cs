@@ -18,16 +18,14 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
         object instanceOrContainer
       , Type typeBeingBuilt
       , TheOneString owning
-      , MoldDieCastSettings appendSettings
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , IStyledTypeFormatting typeFormatting
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
-        InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, owning, appendSettings, typeName, remainingGraphDepth
-                                      , moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
+        InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, owning, typeName, remainingGraphDepth
+                                      , moldGraphVisit, writeMethodType, createFormatFlags);
 
         return this;
     }
@@ -36,7 +34,7 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
 
     public override void StartFormattingTypeOpening()
     {
-        State.StyleFormatter.StartComplexTypeOpening(State);
+        State.StyleFormatter.StartComplexTypeOpening(State, State.CreateMoldFormatFlags);
     }
     
     public override void AppendClosing()

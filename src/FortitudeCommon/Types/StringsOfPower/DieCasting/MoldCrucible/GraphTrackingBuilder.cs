@@ -4,37 +4,62 @@
 using System.Runtime.CompilerServices;
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using FortitudeCommon.Types.StringsOfPower.Options;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
-public class GraphTrackingBuilder : RecyclableObject
+public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
 {
+    private static int globalInstanceId;
+
+    protected int InstanceId = Interlocked.Increment(ref globalInstanceId);
+
     private ContentSeparatorPaddingRangeTracking currentSectionRanges;
 
-    private StyleOptions? styleOptions;
+    private IStyledTypeFormatting formatter = null!;
 
     private int overWriteIndex       = -1;
     private int overWriteEndIndex    = -1;
     private int overWriteIndentLevel = -1;
     private int overWriteIndentSize  = -1;
 
-    public GraphTrackingBuilder Initialize(StyleOptions options)
+    private IStringBuilder sb = null!;
+
+    // private IEncodingTransfer? graphEncoder;
+    // private IEncodingTransfer? parentGraphEncoder;
+
+    public bool HasCommitContent => CurrentSectionRanges.HasContent;
+
+    public IStringBuilder Sb => sb;
+
+    public StyleOptions? StyleOptions => formatter?.StyleOptions;
+
+    public GraphTrackingBuilder Initialize(IStyledTypeFormatting styleFormatter, IStringBuilder stringBuilder)
     {
-        styleOptions = options;
-        ((IRecyclableObject)options).IncrementRefCount();
+        formatter = styleFormatter;
+        formatter.IncrementRefCount();
+        sb = stringBuilder;
 
         return this;
     }
 
-    public GraphTrackingBuilder InitializeInsertBuilder(IStringBuilder writeBuffer, int indentLevel, int indentChars
-      , IEncodingTransfer? overrideGraphEncoder, IEncodingTransfer? overrideParentGraphEncoder)
+    public GraphTrackingBuilder Initialize(IStyledTypeFormatting styleFormatter)
     {
-        sb                   = writeBuffer;
-        graphEncoder         = overrideGraphEncoder;
-        parentGraphEncoder   = overrideParentGraphEncoder;
+        formatter = styleFormatter;
+        formatter.IncrementRefCount();
+
+        return this;
+    }
+
+    public GraphTrackingBuilder InitializeInsertBuilder(IStyledTypeFormatting styleFormatter,
+        IStringBuilder stringBuilder, int indentLevel, int indentChars)
+    {
+        formatter = styleFormatter;
+        sb        = stringBuilder;
+
         overWriteIndentLevel = indentLevel;
         overWriteIndentSize  = indentChars;
         return this;
@@ -78,68 +103,24 @@ public class GraphTrackingBuilder : RecyclableObject
 
     public int IndentLevel
     {
-        get => styleOptions?.IndentLevel ?? overWriteIndentLevel;
+        get => overWriteIndentLevel >= 0 ?  overWriteIndentLevel : (StyleOptions?.IndentLevel ?? 0);
         set
         {
-            if (styleOptions != null) { styleOptions.IndentLevel = value; }
-            overWriteIndentLevel = value;
+            if (overWriteIndentLevel < 0)
+            {
+                if (StyleOptions != null) { StyleOptions.IndentLevel = value; }
+            }
+            else { overWriteIndentLevel = value; }
         }
     }
 
-    public int IndentSize => styleOptions?.IndentSize ?? overWriteIndentSize;
-
-    public override void StateReset()
-    {
-        overWriteIndex       = -1;
-        overWriteEndIndex    = -1;
-        overWriteIndentLevel = -1;
-        overWriteIndentSize  = -1;
-        if (graphEncoder is not PassThroughEncodingTransfer)
-        {
-            graphEncoder?.DecrementRefCount();
-            graphEncoder = null;
-        }
-        if (parentGraphEncoder is not PassThroughEncodingTransfer)
-        {
-            parentGraphEncoder?.DecrementRefCount();
-            parentGraphEncoder = null;
-        }
-        LastContentSeparatorPaddingRanges = default;
-
-        sb = null!;
-
-        PenUltimateContentSeparatorPaddingRanges = null;
-    }
+    public int IndentSize => StyleOptions?.IndentSize ?? overWriteIndentSize;
 
     public IEncodingTransfer GraphEncoder
     {
-        get => graphEncoder ??= Recycler.Borrow<PassThroughEncodingTransfer>();
-        set
-        {
-            if (ReferenceEquals(parentGraphEncoder, value) && ReferenceEquals(graphEncoder, value)) return;
-            if (parentGraphEncoder != null && !ReferenceEquals(parentGraphEncoder, graphEncoder)) { parentGraphEncoder.DecrementRefCount(); }
-            parentGraphEncoder = graphEncoder;
-            if (parentGraphEncoder != null && !ReferenceEquals(graphEncoder, value)) { parentGraphEncoder.DecrementRefCount(); }
-            graphEncoder = value;
-        }
+        get => formatter.LayoutEncoder;
+        set => formatter.LayoutEncoder = value;
     }
-
-    public override IRecycler Recycler => base.Recycler ?? DataStructures.MemoryPools.Recycler.ThreadStaticRecycler;
-
-    public IEncodingTransfer ParentGraphEncoder
-    {
-        get => parentGraphEncoder ??= Recycler.Borrow<PassThroughEncodingTransfer>();
-        set => parentGraphEncoder = value;
-    }
-
-    private IStringBuilder sb = null!;
-
-    private IEncodingTransfer? graphEncoder;
-    private IEncodingTransfer? parentGraphEncoder;
-
-    public bool HasCommitContent => CurrentSectionRanges.HasContent;
-
-    public IStringBuilder Sb => sb;
 
     private bool AllowEmptyContent
     {
@@ -195,9 +176,9 @@ public class GraphTrackingBuilder : RecyclableObject
         ResetCurrent(formatFlags, allowEmptyContent);
         MarkContentStart();
         if (IsInModifyOverwriteMode)
-            overWriteIndex += ParentGraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
+            overWriteIndex += formatter.LayoutEncoder.OverwriteTransfer(content, sb, overWriteIndex);
         else
-            ParentGraphEncoder.AppendTransfer(content, sb);
+            formatter.LayoutEncoder.AppendTransfer(content, sb);
         return MarkContentEnd();
     }
 
@@ -210,9 +191,9 @@ public class GraphTrackingBuilder : RecyclableObject
         MarkContentStart();
 
         if (IsInModifyOverwriteMode)
-            overWriteIndex += GraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
+            overWriteIndex += formatter.LayoutEncoder.OverwriteTransfer(content, sb, overWriteIndex);
         else
-            GraphEncoder.AppendTransfer(content, sb);
+            formatter.LayoutEncoder.AppendTransfer(content, sb);
         return MarkContentEnd();
     }
 
@@ -229,27 +210,27 @@ public class GraphTrackingBuilder : RecyclableObject
         MarkContentStart();
 
         if (IsInModifyOverwriteMode)
-            overWriteIndex += GraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
+            overWriteIndex += formatter.LayoutEncoder.OverwriteTransfer(content, sb, overWriteIndex);
         else
-            GraphEncoder.AppendTransfer(content, sb);
+            formatter.LayoutEncoder.AppendTransfer(content, sb);
         return MarkContentEnd();
     }
 
     public GraphTrackingBuilder AppendContent(ReadOnlySpan<char> content)
     {
         if (IsInModifyOverwriteMode)
-            overWriteIndex += GraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
+            overWriteIndex += formatter.LayoutEncoder.OverwriteTransfer(content, sb, overWriteIndex);
         else
-            GraphEncoder.AppendTransfer(content, sb);
+            formatter.LayoutEncoder.AppendTransfer(content, sb);
         return MarkContentEnd();
     }
 
     public GraphTrackingBuilder AppendDelimiter(ReadOnlySpan<char> content)
     {
         if (IsInModifyOverwriteMode)
-            overWriteIndex += ParentGraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
+            overWriteIndex += formatter.ContentEncoder.LayoutEncoder.LayoutEncoder.OverwriteTransfer(content, sb, overWriteIndex);
         else
-            ParentGraphEncoder.AppendTransfer(content, sb);
+            formatter.ContentEncoder.LayoutEncoder.LayoutEncoder.AppendTransfer(content, sb);
         return MarkContentEnd();
     }
 
@@ -258,9 +239,9 @@ public class GraphTrackingBuilder : RecyclableObject
         if (currentSectionRanges is { FromStartContentStart: null }) { MarkContentStart(); }
 
         if (IsInModifyOverwriteMode)
-            overWriteIndex += GraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
+            overWriteIndex += formatter.LayoutEncoder.OverwriteTransfer(content, sb, overWriteIndex);
         else
-            GraphEncoder.AppendTransfer(content, sb);
+            formatter.LayoutEncoder.AppendTransfer(content, sb);
         return MarkContentEnd();
     }
 
@@ -269,9 +250,9 @@ public class GraphTrackingBuilder : RecyclableObject
         if (currentSectionRanges is { FromStartContentStart: null }) { MarkContentStart(); }
 
         if (IsInModifyOverwriteMode)
-            overWriteIndex += ParentGraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
+            overWriteIndex += formatter.ContentEncoder.LayoutEncoder.LayoutEncoder.OverwriteTransfer(content, sb, overWriteIndex);
         else
-            ParentGraphEncoder.AppendTransfer(content, sb);
+            formatter.ContentEncoder.LayoutEncoder.LayoutEncoder.AppendTransfer(content, sb);
         return MarkContentEnd();
     }
 
@@ -283,9 +264,9 @@ public class GraphTrackingBuilder : RecyclableObject
             Span<char> chars = stackalloc char[repeatTimes];
             chars.OverWriteRepatAt(0, toRepeat, repeatTimes);
             if (IsInModifyOverwriteMode)
-                overWriteIndex += GraphEncoder.OverwriteTransfer(chars, sb, overWriteIndex);
+                overWriteIndex += formatter.LayoutEncoder.OverwriteTransfer(chars, sb, overWriteIndex);
             else
-                GraphEncoder.AppendTransfer(chars, sb);
+                formatter.LayoutEncoder.AppendTransfer(chars, sb);
         }
         return MarkContentEnd();
     }
@@ -311,9 +292,9 @@ public class GraphTrackingBuilder : RecyclableObject
         else if (currentSectionRanges is { FromStartSeparatorEnd: null }) { MarkSeparatorEnd(); }
 
         if (IsInModifyOverwriteMode)
-            overWriteIndex += GraphEncoder.OverwriteTransfer(padding, sb, overWriteIndex);
+            overWriteIndex += formatter.LayoutEncoder.OverwriteTransfer(padding, sb, overWriteIndex);
         else
-            GraphEncoder.AppendTransfer(padding, sb);
+            formatter.LayoutEncoder.AppendTransfer(padding, sb);
         return TagPaddingEnd();
     }
 
@@ -330,9 +311,9 @@ public class GraphTrackingBuilder : RecyclableObject
             Span<char> chars = stackalloc char[repeatTimes];
             chars.OverWriteRepatAt(0, toRepeat, repeatTimes);
             if (IsInModifyOverwriteMode)
-                overWriteIndex += GraphEncoder.OverwriteTransfer(chars, sb, overWriteIndex);
+                overWriteIndex += formatter.LayoutEncoder.OverwriteTransfer(chars, sb, overWriteIndex);
             else
-                GraphEncoder.AppendTransfer(chars, sb);
+                formatter.LayoutEncoder.AppendTransfer(chars, sb);
         }
         return TagPaddingEnd();
     }
@@ -342,18 +323,18 @@ public class GraphTrackingBuilder : RecyclableObject
         if (currentSectionRanges is { FromStartContentEnd: null }) { MarkContentEnd(); }
 
         if (IsInModifyOverwriteMode)
-            overWriteIndex += GraphEncoder.OverwriteTransfer(separator, sb, overWriteIndex);
+            overWriteIndex += formatter.LayoutEncoder.OverwriteTransfer(separator, sb, overWriteIndex);
         else
-            GraphEncoder.AppendTransfer(separator, sb);
+            formatter.LayoutEncoder.AppendTransfer(separator, sb);
         return MarkSeparatorEnd();
     }
 
     public ContentSeparatorRanges AppendPaddingAndComplete(string content, FormatFlags formatFlags)
     {
         if (IsInModifyOverwriteMode)
-            overWriteIndex += GraphEncoder.OverwriteTransfer(content, sb, overWriteIndex);
+            overWriteIndex += formatter.LayoutEncoder.OverwriteTransfer(content, sb, overWriteIndex);
         else
-            GraphEncoder.AppendTransfer(content, sb);
+            formatter.LayoutEncoder.AppendTransfer(content, sb);
         return Complete(formatFlags);
     }
 
@@ -473,5 +454,52 @@ public class GraphTrackingBuilder : RecyclableObject
             }
         }
         return destIndex > 0 ? (IsInModifyOverwriteMode ? destSpan[Math.Max(0, overWriteIndex - 1)] : destSpan[destIndex - 1]) : '\0';
+    }
+
+    public override void StateReset()
+    {
+        overWriteIndex       = -1;
+        overWriteEndIndex    = -1;
+        overWriteIndentLevel = -1;
+        overWriteIndentSize  = -1;
+        formatter.DecrementRefCount();
+
+        formatter = null!;
+
+        LastContentSeparatorPaddingRanges = default;
+
+        sb = null!;
+
+        PenUltimateContentSeparatorPaddingRanges = null;
+    }
+
+    public override GraphTrackingBuilder Clone()
+    {
+        var clone = AlwaysRecycler.Borrow<GraphTrackingBuilder>();
+        return clone.CopyFrom(this, CopyMergeFlags.FullReplace);
+    }
+
+    public override GraphTrackingBuilder CopyFrom(GraphTrackingBuilder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        SetHistory(source);
+        formatter          = source.formatter;
+        AllowEmptyContent  = source.AllowEmptyContent;
+        sb                 = source.Sb;
+
+        overWriteIndex       = source.overWriteIndex;
+        overWriteEndIndex    = source.overWriteEndIndex;
+        overWriteIndentLevel = source.overWriteIndentLevel;
+        overWriteIndentSize  = source.overWriteIndentSize;
+
+        return this;
+    }
+
+    public override string ToString() => $"{{ {GetType().Name}: {InstanceId}, {nameof(StyleOptions)}: {StyleOptions?.ToString() ?? "null"} }}";
+
+    public void SetHistory(GraphTrackingBuilder graphBuilder)
+    {
+        currentSectionRanges                     = graphBuilder.CurrentSectionRanges;
+        LastContentSeparatorPaddingRanges        = graphBuilder.LastContentSeparatorPaddingRanges;
+        PenUltimateContentSeparatorPaddingRanges = graphBuilder.PenUltimateContentSeparatorPaddingRanges;
     }
 }

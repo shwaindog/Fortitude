@@ -15,140 +15,140 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
     public TMold AlwaysAdd(ReadOnlySpan<char> fieldName, bool value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-      !stb.HasSkipField<bool>(typeof(bool), fieldName, formatFlags) 
+      !stb.HasSkipField(typeof(bool), fieldName, formatFlags) 
         ? stb.AppendBooleanField(fieldName, value, formatString ?? "", formatFlags).AddGoToNext()
-        : stb.WasSkipped<bool>(typeof(bool), fieldName, formatFlags);
+        : stb.WasSkipped(typeof(bool), fieldName, formatFlags);
 
     public TMold AlwaysAdd(ReadOnlySpan<char> fieldName, bool? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-      !stb.HasSkipField<bool?>(value?.GetType(), fieldName, formatFlags) 
+      !stb.HasSkipField(typeof(bool?), fieldName, formatFlags) 
         ? stb.AppendNullableBooleanField(fieldName, value, formatString ?? "", formatFlags).AddGoToNext()
-        : stb.WasSkipped<bool?>(value?.GetType(), fieldName, formatFlags);
+        : stb.WasSkipped(typeof(bool?), fieldName, formatFlags);
 
     public TMold AlwaysAdd<TFmt>(ReadOnlySpan<char> fieldName, TFmt value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable? =>
-      !stb.HasSkipField<TFmt?>(value?.GetType(), fieldName, formatFlags) 
+      !stb.HasSkipField(value?.GetType() ?? typeof(TFmt), fieldName, formatFlags) 
         ? stb.AppendFormattableField(fieldName, value, formatString ?? "", formatFlags).AddGoToNext()
-        : stb.WasSkipped<TFmt?>(value?.GetType(), fieldName, formatFlags);
+        : stb.WasSkipped(value?.GetType() ?? typeof(TFmt), fieldName, formatFlags);
 
     public TMold AlwaysAdd<TFmtStruct>(ReadOnlySpan<char> fieldName, TFmtStruct? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable =>
-      !stb.HasSkipField<TFmtStruct?>(value?.GetType(), fieldName, formatFlags) 
+      !stb.HasSkipField(typeof(TFmtStruct?), fieldName, formatFlags) 
         ? stb.AppendFormattableField(fieldName, value, formatString ?? "", formatFlags).AddGoToNext()
-        : stb.WasSkipped<TFmtStruct?>(value?.GetType(), fieldName, formatFlags);
+        : stb.WasSkipped(typeof(TFmtStruct?), fieldName, formatFlags);
 
     public TMold AlwaysReveal<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, TCloaked value
       , PalantírReveal<TRevealBase> palantírReveal, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull =>
-        !stb.HasSkipField<TCloaked?>(value?.GetType(), fieldName, formatFlags) 
-          ? stb.RevealCloakedBearerField(fieldName, value, palantírReveal, formatString, formatFlags).AddGoToNext()
-          : stb.WasSkipped<TCloaked?>(value?.GetType(), fieldName, formatFlags);
+        !stb.HasSkipField(value?.GetType() ?? typeof(TCloaked), fieldName, formatFlags) 
+          ? stb.RevealCloakedBearerField(fieldName, value, palantírReveal, formatString ?? "", formatFlags).AddGoToNext()
+          : stb.WasSkipped(value?.GetType() ?? typeof(TCloaked), fieldName, formatFlags);
 
     public TMold AlwaysReveal<TCloakedStruct>(ReadOnlySpan<char> fieldName, TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TCloakedStruct : struct =>
-      !stb.HasSkipField<TCloakedStruct?>(value?.GetType(), fieldName, formatFlags) 
-        ? stb.RevealNullableCloakedBearerField(fieldName, value, palantírReveal, formatString, formatFlags).AddGoToNext()
-        : stb.WasSkipped<TCloakedStruct?>(value?.GetType(), fieldName, formatFlags);
+      !stb.HasSkipField(typeof(TCloakedStruct?), fieldName, formatFlags) 
+        ? stb.RevealNullableCloakedBearerField(fieldName, value, palantírReveal, formatString ?? "", formatFlags).AddGoToNext()
+        : stb.WasSkipped(typeof(TCloakedStruct?), fieldName, formatFlags);
 
     public TMold AlwaysReveal<TBearer>(ReadOnlySpan<char> fieldName, TBearer value
     , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer? =>
-      !stb.HasSkipField<TBearer?>(value?.GetType(), fieldName, formatFlags) 
+      !stb.HasSkipField(value?.GetType() ?? typeof(TBearer), fieldName, formatFlags) 
         ? stb.RevealStringBearerField(fieldName, value, formatString ?? "", formatFlags).AddGoToNext()
-        : stb.WasSkipped<TBearer?>(value?.GetType(), fieldName, formatFlags);
+        : stb.WasSkipped(value?.GetType() ?? typeof(TBearer), fieldName, formatFlags);
 
     public TMold AlwaysReveal<TBearerStruct>(ReadOnlySpan<char> fieldName, TBearerStruct? value
     , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer =>
-      !stb.HasSkipField<TBearerStruct?>(value?.GetType(), fieldName, formatFlags) 
+      !stb.HasSkipField(typeof(TBearerStruct?), fieldName, formatFlags) 
         ? stb.RevealNullableStringBearerField(fieldName, value, formatString ?? "", formatFlags).AddGoToNext()
-        : stb.WasSkipped<TBearerStruct?>(value?.GetType(), fieldName, formatFlags);
+        : stb.WasSkipped(typeof(TBearerStruct?), fieldName, formatFlags);
 
     public TMold AlwaysAdd(ReadOnlySpan<char> fieldName, Span<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-      !stb.HasSkipField<Memory<char>>(value.Length > 0 ? typeof(Span<char>) : null, fieldName, formatFlags) 
+      !stb.HasSkipField(typeof(Span<char>), fieldName, formatFlags) 
         ? stb.AppendReadOnlySpanField(fieldName, value, formatString ?? "", formatFlags: formatFlags).AddGoToNext()
-        : stb.WasSkipped<Memory<char>>(value.Length > 0 ?typeof(Span<char>) : null, fieldName, formatFlags);
+        : stb.WasSkipped(typeof(Span<char>), fieldName, formatFlags);
 
     public TMold AlwaysAdd(ReadOnlySpan<char> fieldName, ReadOnlySpan<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-      !stb.HasSkipField<ReadOnlyMemory<char>>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, fieldName, formatFlags) 
+      !stb.HasSkipField(typeof(ReadOnlySpan<char>), fieldName, formatFlags) 
         ? stb.AppendReadOnlySpanField(fieldName, value, formatString ?? "", formatFlags: formatFlags).AddGoToNext()
-        : stb.WasSkipped<ReadOnlyMemory<char>>(value.Length > 0 ? typeof(ReadOnlySpan<char>) : null, fieldName, formatFlags);
+        : stb.WasSkipped(typeof(ReadOnlySpan<char>), fieldName, formatFlags);
 
     public TMold AlwaysAdd(ReadOnlySpan<char> fieldName, string? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-      !stb.HasSkipField<string>(value?.GetType(), fieldName, formatFlags) 
+      !stb.HasSkipField(typeof(string), fieldName, formatFlags) 
         ? stb.AppendStringField(fieldName, value,  formatString ?? "", formatFlags: formatFlags).AddGoToNext()
-        : stb.WasSkipped<string>(value?.GetType(), fieldName, formatFlags);
+        : stb.WasSkipped(typeof(string), fieldName, formatFlags);
 
     public TMold AlwaysAdd(ReadOnlySpan<char> fieldName, string? value, int startIndex, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-      !stb.HasSkipField<string>(value?.GetType(), fieldName, formatFlags) 
+      !stb.HasSkipField(typeof(string), fieldName, formatFlags) 
         ? stb.AppendStringField(fieldName, value, formatString ?? "", startIndex, length, formatFlags)
              .AddGoToNext()
-        : stb.WasSkipped<string>(value?.GetType(), fieldName, formatFlags);
+        : stb.WasSkipped(typeof(string), fieldName, formatFlags);
 
     public TMold AlwaysAdd(ReadOnlySpan<char> fieldName, char[]? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-      !stb.HasSkipField<char[]>(value?.GetType(), fieldName, formatFlags)
+      !stb.HasSkipField(typeof(char[]), fieldName, formatFlags)
         ? stb.AppendCharArrayField(fieldName, value, formatString ?? "", formatFlags: formatFlags).AddGoToNext()
-        : stb.WasSkipped<char[]>(value?.GetType(), fieldName, formatFlags);
+        : stb.WasSkipped(typeof(char[]), fieldName, formatFlags);
 
     public TMold AlwaysAdd(ReadOnlySpan<char> fieldName, char[]? value, int startIndex, int length = int.MaxValue
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-      !stb.HasSkipField<char[]>(value?.GetType(), fieldName, formatFlags)
+      !stb.HasSkipField(typeof(char[]), fieldName, formatFlags)
         ? stb.AppendCharArrayField(fieldName, value, formatString ?? "", startIndex, length, formatFlags).AddGoToNext()
-        : stb.WasSkipped<char[]>(value?.GetType(), fieldName, formatFlags);
+        : stb.WasSkipped(typeof(char[]), fieldName, formatFlags);
 
     public TMold AlwaysAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence? =>
-      !stb.HasSkipField<TCharSeq>(value?.GetType(), fieldName, formatFlags)
+      !stb.HasSkipField(value?.GetType() ?? typeof(TCharSeq), fieldName, formatFlags)
         ? stb.AppendCharSequenceField(fieldName, value, formatString ?? "", formatFlags: formatFlags).AddGoToNext()
-        : stb.WasSkipped<TCharSeq>(value?.GetType(), fieldName, formatFlags);
+        : stb.WasSkipped(value?.GetType() ?? typeof(TCharSeq), fieldName, formatFlags);
     
     public TMold AlwaysAddCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, TCharSeq value, int startIndex, int length = int.MaxValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence? =>
-      !stb.HasSkipField<TCharSeq?>(value?.GetType(), fieldName, formatFlags)
+      !stb.HasSkipField(value?.GetType() ?? typeof(TCharSeq), fieldName, formatFlags)
         ? stb.AppendCharSequenceField(fieldName, value, formatString ?? "", startIndex, length, formatFlags).AddGoToNext()
-        : stb.WasSkipped<TCharSeq?>(value?.GetType(), fieldName, formatFlags);
+        : stb.WasSkipped(value?.GetType() ?? typeof(TCharSeq), fieldName, formatFlags);
 
     public TMold AlwaysAdd(ReadOnlySpan<char> fieldName, StringBuilder? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-      !stb.HasSkipField<StringBuilder?>(value?.GetType(), fieldName, formatFlags)
+      !stb.HasSkipField(typeof(StringBuilder), fieldName, formatFlags)
         ? stb.AppendStringBuilderField(fieldName, value, formatString ?? "", formatFlags: formatFlags).AddGoToNext()
-        : stb.WasSkipped<StringBuilder?>(value?.GetType(), fieldName, formatFlags);
+        : stb.WasSkipped(typeof(StringBuilder), fieldName, formatFlags);
 
     public TMold AlwaysAdd(ReadOnlySpan<char> fieldName, StringBuilder? value, int startIndex, int length = int.MaxValue
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-      !stb.HasSkipField<StringBuilder?>(value?.GetType(), fieldName, formatFlags)
+      !stb.HasSkipField(typeof(StringBuilder), fieldName, formatFlags)
         ? stb.AppendStringBuilderField(fieldName, value, formatString ?? "", startIndex, length, formatFlags).AddGoToNext()
-        : stb.WasSkipped<StringBuilder?>(value?.GetType(), fieldName, formatFlags);
+        : stb.WasSkipped(typeof(StringBuilder), fieldName, formatFlags);
 
     public TMold AlwaysAddMatch<TAny>(ReadOnlySpan<char> fieldName, TAny? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-      !stb.HasSkipField<TAny?>(value?.GetType(), fieldName, formatFlags)
+      !stb.HasSkipField(value?.GetType() ?? typeof(TAny), fieldName, formatFlags)
         ? stb.AppendMatchField(fieldName, value, formatString ?? "", formatFlags).AddGoToNext()
-        : stb.WasSkipped<TAny?>(value?.GetType(), fieldName, formatFlags);
+        : stb.WasSkipped(value?.GetType() ?? typeof(TAny), fieldName, formatFlags);
 
     [CallsObjectToString]
     public TMold AlwaysAddObject(ReadOnlySpan<char> fieldName, object? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-      !stb.HasSkipField<object?>(value?.GetType(), fieldName, formatFlags)
+      !stb.HasSkipField(value?.GetType() ?? typeof(object), fieldName, formatFlags)
         ? stb.AppendObjectField(fieldName, value, formatString ?? "", formatFlags).AddGoToNext()
-        : stb.WasSkipped<object?>(value?.GetType(), fieldName, formatFlags);
+        : stb.WasSkipped(value?.GetType() ?? typeof(object), fieldName, formatFlags);
 }

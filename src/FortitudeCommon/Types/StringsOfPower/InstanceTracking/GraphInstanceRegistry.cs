@@ -31,7 +31,8 @@ public class GraphInstanceRegistry(ITheOneString master) : IList<GraphNodeVisit>
             OrderedObjectGraph[i] = new GraphNodeVisit();
         }
         OrderedObjectGraph.Clear();
-        NextObjVisitedRefId = 1;
+        NextObjVisitedRefId   = 1;
+        CurrentGraphNodeIndex = -1;
     }
     
     public bool UseReferenceEqualsForVisited { get; set; }
@@ -46,22 +47,23 @@ public class GraphInstanceRegistry(ITheOneString master) : IList<GraphNodeVisit>
     
     public bool WasVisitOnSameOrBaseType(Type objAsType, GraphNodeVisit startToLast)
     {
-       if (startToLast.VistedAsType == objAsType || 
-           (objAsType.IsAssignableTo(startToLast.VistedAsType) 
-           && !startToLast.VistedAsType.IsAssignableTo(objAsType))) { return true; }
+       if (startToLast.VisitedAsType == objAsType || 
+           (objAsType.IsAssignableTo(startToLast.VisitedAsType) 
+           && !startToLast.VisitedAsType.IsAssignableTo(objAsType))) { return true; }
        return false;
     }
     
     public bool WasVisitAsBaseTypeOrHigher(Type objAsType, GraphNodeVisit startToLast)
     {
-       if (startToLast.VistedAsType != objAsType 
-        && (!objAsType.IsAssignableTo(startToLast.VistedAsType)
-         && startToLast.VistedAsType.IsAssignableTo(objAsType))) { return true; }
+       if (startToLast.VisitedAsType != objAsType 
+        && (!objAsType.IsAssignableTo(startToLast.VisitedAsType)
+         && startToLast.VisitedAsType.IsAssignableTo(objAsType))) { return true; }
        return false;
     }
 
     public bool WasVisitOnSameInstance(object objToStyle, GraphNodeVisit checkVisit)
     {
+        if (checkVisit.CurrentFormatFlags.HasNoRevisitCheck()) return false;
         var checkRef       = checkVisit.VisitedInstance;
         var isSameInstance = UseReferenceEqualsForVisited ? ReferenceEquals(checkRef, objToStyle) : Equals(checkRef, objToStyle);
         return isSameInstance;
@@ -69,23 +71,23 @@ public class GraphInstanceRegistry(ITheOneString master) : IList<GraphNodeVisit>
 
     public bool WasVisitOnExactlySameType(Type objAsType, GraphNodeVisit checkVisit)
     {
-        if (objAsType == checkVisit.VistedAsType) { return true; }
+        if (objAsType == checkVisit.VisitedAsType) { return true; }
         return false;
     }
 
     public bool WasVisitOnAMoreDerivedType(Type objAsType, GraphNodeVisit checkVisit)
     {
-        if (objAsType != checkVisit.VistedAsType && 
-            (checkVisit.VistedAsType.IsAssignableTo(objAsType) 
-           && !objAsType.IsAssignableTo(checkVisit.VistedAsType))) { return true; }
+        if (objAsType != checkVisit.VisitedAsType && 
+            (checkVisit.VisitedAsType.IsAssignableTo(objAsType) 
+           && !objAsType.IsAssignableTo(checkVisit.VisitedAsType))) { return true; }
         return false;
     }
 
     public bool WasVisitOnSameOrMoreDerivedType(Type objAsType, GraphNodeVisit checkVisit)
     {
-        if (objAsType == checkVisit.VistedAsType 
-         || (checkVisit.VistedAsType.IsAssignableTo(objAsType)
-            && !objAsType.IsAssignableTo(checkVisit.VistedAsType))) { return true; }
+        if (objAsType == checkVisit.VisitedAsType 
+         || (checkVisit.VisitedAsType.IsAssignableTo(objAsType)
+            && !objAsType.IsAssignableTo(checkVisit.VisitedAsType))) { return true; }
         return false;
     }
     
@@ -93,6 +95,24 @@ public class GraphInstanceRegistry(ITheOneString master) : IList<GraphNodeVisit>
     {
         if (type.IsValueType || toStyle == null || formatFlags.HasNoRevisitCheck()) return VisitResult.Empty;
         return SourceGraphVisitRefId((object)toStyle, type, formatFlags);
+    }
+
+    public void UpdateVisitWriteMethod(int visitIndex, WriteMethodType newWriteMethod)
+    {
+        if (visitIndex >= OrderedObjectGraph.Count || visitIndex < 0) return;
+        OrderedObjectGraph[visitIndex] = OrderedObjectGraph[visitIndex].UpdateVisitWriteType(newWriteMethod);
+    }
+
+    public void UpdateVisitAddFormatFlags(int visitIndex, FormatFlags flagsToAdd)
+    {
+        if (visitIndex >= OrderedObjectGraph.Count || visitIndex < 0) return;
+        OrderedObjectGraph[visitIndex] = OrderedObjectGraph[visitIndex].UpdateVisitAddFormatFlags(flagsToAdd);
+    }
+
+    public void UpdateVisitRemoveFormatFlags(int visitIndex, FormatFlags flagsToRemove)
+    {
+        if (visitIndex >= OrderedObjectGraph.Count || visitIndex < 0) return;
+        OrderedObjectGraph[visitIndex] = OrderedObjectGraph[visitIndex].UpdateVisitRemoveFormatFlags(flagsToRemove);
     }
 
     private VisitResult SourceGraphVisitRefId(object objToStyle, Type type, FormatFlags formatFlags)

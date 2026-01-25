@@ -1145,7 +1145,7 @@ public class SimpleContentAsValueStringBearerOrNull<TBearer> : ProxyFormattedMol
 }
 
 [TypeGeneratePart(IsContentType | IsComplexType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer 
-                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
+                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackString)]
 public class ComplexContentAsValueStringBearerOrStringDefault<TBearer> : ProxyFormattedMoldScaffold<TBearer?>
   , IMoldSupportedDefaultValue<string> where TBearer : IStringBearer
 {
@@ -1170,7 +1170,7 @@ public class ComplexContentAsValueStringBearerOrStringDefault<TBearer> : ProxyFo
 }
 
 [TypeGeneratePart(IsContentType | SingleValueCardinality | AcceptsTypeAllButNullableStruct | AcceptsStringBearer 
-                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
+                | SupportsSettingDefaultValue | DefaultTreatedAsValueOut | DefaultBecomesFallbackString)]
 public class SimpleContentAsValueStringBearerOrStringDefault<TBearer> : ProxyFormattedMoldScaffold<TBearer?>
   , IMoldSupportedDefaultValue<string> where TBearer : IStringBearer
 {
@@ -1284,7 +1284,7 @@ public class SimpleContentAsValueNullableStructStringBearerOrNull<TBearerStruct>
 }
 
 [TypeGeneratePart(IsContentType | IsComplexType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | SupportsSettingDefaultValue
-                | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
+                | DefaultTreatedAsValueOut | DefaultBecomesFallbackString)]
 public class ComplexContentAsValueNullableStructStringBearerOrStringDefault<TBearerStruct>
     : ProxyFormattedMoldScaffold<TBearerStruct?>, IMoldSupportedDefaultValue<string> where TBearerStruct : struct, IStringBearer
 {
@@ -1310,7 +1310,7 @@ public class ComplexContentAsValueNullableStructStringBearerOrStringDefault<TBea
 }
 
 [TypeGeneratePart(IsContentType | SingleValueCardinality | AcceptsNullableStruct | AcceptsStringBearer | SupportsSettingDefaultValue
-                | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)]
+                | DefaultTreatedAsValueOut | DefaultBecomesFallbackString)]
 public class SimpleContentAsValueNullableStructStringBearerOrStringDefault<TBearerStruct>
     : ProxyFormattedMoldScaffold<TBearerStruct?>, IMoldSupportedDefaultValue<string> where TBearerStruct : struct, IStringBearer
 {

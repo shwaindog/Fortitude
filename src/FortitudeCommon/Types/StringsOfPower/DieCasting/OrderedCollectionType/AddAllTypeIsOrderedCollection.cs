@@ -16,7 +16,8 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAll(bool[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<Memory<bool>>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<Memory<bool>>(value?.GetType(), "", formatFlags);
+        var actualType = typeof(bool[]);
+        if (stb.HasSkipBody(actualType, "", formatFlags)) return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(bool);
         stb.ConditionalCollectionPrefix(elementType, value?.Length > 0);
 
@@ -38,7 +39,8 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<bool?[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<bool?[]>(value?.GetType(), "", formatFlags);
+        var actualType = typeof(bool?[]);
+        if (stb.HasSkipBody(actualType, "", formatFlags)) return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(bool?);
         stb.ConditionalCollectionPrefix(elementType, value?.Length > 0);
 
@@ -60,8 +62,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<Memory<bool>>(value.Length > 0 ? typeof(Span<bool>) : null, "", formatFlags))
-            return stb.WasSkipped<Memory<bool>>(value.Length > 0 ? typeof(Span<bool>) : null, "", formatFlags);
+        var actualType = typeof(Span<bool>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(bool);
         stb.ConditionalCollectionPrefix(elementType, value.Length > 0);
 
@@ -83,8 +86,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<ReadOnlyMemory<bool>>(value.Length > 0 ? typeof(ReadOnlySpan<bool>) : null, "", formatFlags))
-            return stb.WasSkipped<ReadOnlyMemory<bool>>(value.Length > 0 ? typeof(ReadOnlySpan<bool>) : null, "", formatFlags);
+        var actualType = typeof(ReadOnlySpan<bool>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(bool);
         stb.ConditionalCollectionPrefix(elementType, value.Length > 0);
 
@@ -106,8 +110,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<Memory<bool?>>(value.Length > 0 ? typeof(Span<bool?>) : null, "", formatFlags))
-            return stb.WasSkipped<Memory<bool?>>(value.Length > 0 ? typeof(Span<bool?>) : null, "", formatFlags);
+        var actualType = typeof(Span<bool?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(bool?);
         stb.ConditionalCollectionPrefix(elementType, value.Length > 0);
         if (value != null)
@@ -128,8 +133,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<ReadOnlyMemory<bool?>>(value.Length > 0 ? typeof(ReadOnlySpan<bool?>) : null, "", formatFlags))
-            return stb.WasSkipped<ReadOnlyMemory<bool?>>(value.Length > 0 ? typeof(ReadOnlySpan<bool?>) : null, "", formatFlags);
+        var actualType = typeof(ReadOnlySpan<bool?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(bool?);
         stb.ConditionalCollectionPrefix(elementType, value.Length > 0);
         if (value != null)
@@ -150,8 +156,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<IReadOnlyList<bool>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyList<bool>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyList<bool>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(bool);
         stb.ConditionalCollectionPrefix(elementType, value?.Count > 0);
         if (value != null)
@@ -172,8 +179,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<IReadOnlyList<bool?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyList<bool?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyList<bool?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(bool?);
         stb.ConditionalCollectionPrefix(elementType, value?.Count > 0);
         if (value != null)
@@ -194,8 +202,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<IEnumerable<bool>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerable<bool>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<bool>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(bool);
         var any         = false;
         var itemCount   = 0;
@@ -219,8 +228,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<IEnumerable<bool?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerable<bool?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<bool?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(bool);
         var any         = false;
         var itemCount   = 0;
@@ -244,8 +254,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<IEnumerator<bool>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerator<bool>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerator<bool>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(bool);
         var any         = false;
         var itemCount   = 0;
@@ -273,8 +284,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<IEnumerator<bool?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerator<bool?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerator<bool?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(bool);
         var any         = false;
         var itemCount   = 0;
@@ -302,7 +314,8 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
     {
-        if (stb.HasSkipBody<TFmt?[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<TFmt?[]>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(TFmt?[]);
+        if (stb.HasSkipBody(actualType, "", formatFlags)) return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TFmt);
         var any         = false;
         if (value != null)
@@ -327,7 +340,8 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
-        if (stb.HasSkipBody<TFmtStruct?[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<TFmtStruct?[]>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(TFmtStruct?[]);
+        if (stb.HasSkipBody(actualType, "", formatFlags)) return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TFmtStruct?);
         var any         = false;
         if (value != null)
@@ -352,8 +366,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
-        if (stb.HasSkipBody<Memory<TFmt>>(value.Length > 0 ? typeof(Span<TFmt>) : null, "", formatFlags))
-            return stb.WasSkipped<Memory<TFmt>>(value.Length > 0 ? typeof(Span<TFmt>) : null, "", formatFlags);
+        var actualType = typeof(Span<TFmt>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TFmt);
         var any         = false;
         if (value != null)
@@ -378,8 +393,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
-        if (stb.HasSkipBody<ReadOnlyMemory<TFmt>>(value.Length > 0 ? typeof(ReadOnlySpan<TFmt>) : null, "", formatFlags))
-            return stb.WasSkipped<ReadOnlyMemory<TFmt>>(value.Length > 0 ? typeof(ReadOnlySpan<TFmt>) : null, "", formatFlags);
+        var actualType = typeof(ReadOnlySpan<TFmt>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TFmt);
         var any         = false;
         if (value != null)
@@ -404,8 +420,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
-        if (stb.HasSkipBody<Memory<TFmtStruct?>>(value.Length > 0 ? typeof(Span<TFmtStruct?>) : null, "", formatFlags))
-            return stb.WasSkipped<Memory<TFmtStruct?>>(value.Length > 0 ? typeof(Span<TFmtStruct?>) : null, "", formatFlags);
+        var actualType = typeof(Span<TFmtStruct?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TFmtStruct?);
         var any         = false;
         if (value != null)
@@ -430,8 +447,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
-        if (stb.HasSkipBody<ReadOnlyMemory<TFmtStruct?>>(value.Length > 0 ? typeof(ReadOnlySpan<TFmtStruct?>) : null, "", formatFlags))
-            return stb.WasSkipped<ReadOnlyMemory<TFmtStruct?>>(value.Length > 0 ? typeof(ReadOnlySpan<TFmtStruct?>) : null, "", formatFlags);
+        var actualType = typeof(ReadOnlySpan<TFmtStruct?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TFmtStruct?);
         var any         = false;
         if (value != null)
@@ -456,8 +474,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
     {
-        if (stb.HasSkipBody<IReadOnlyList<TFmt?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyList<TFmt?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyList<TFmt?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TFmt);
         var any         = false;
         if (value != null)
@@ -482,8 +501,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
-        if (stb.HasSkipBody<IReadOnlyList<TFmtStruct?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyList<TFmtStruct?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyList<TFmtStruct?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TFmtStruct?);
         var any         = false;
         if (value != null)
@@ -508,8 +528,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
     {
-        if (stb.HasSkipBody<IEnumerable<TFmt?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerable<TFmt?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<TFmt?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TFmt);
         var any         = false;
         var itemCount   = 0;
@@ -533,8 +554,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
-        if (stb.HasSkipBody<IEnumerable<TFmtStruct?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerable<TFmtStruct?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<TFmtStruct?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TFmtStruct?);
         var any         = false;
         var itemCount   = 0;
@@ -558,8 +580,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
     {
-        if (stb.HasSkipBody<IEnumerator<TFmt?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerator<TFmt?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerator<TFmt?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TFmt);
         var any         = false;
         var itemCount   = 0;
@@ -586,8 +609,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
-        if (stb.HasSkipBody<IEnumerator<TFmtStruct?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerator<TFmtStruct?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerator<TFmtStruct?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TFmtStruct?);
         var any         = false;
         var itemCount   = 0;
@@ -615,7 +639,8 @@ public partial class OrderedCollectionMold<TOCMold>
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        if (stb.HasSkipBody<TCloaked?[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<TCloaked?[]>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(TCloaked?[]);
+        if (stb.HasSkipBody(actualType, "", formatFlags)) return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCloaked);
         var any         = false;
         if (value != null)
@@ -640,8 +665,9 @@ public partial class OrderedCollectionMold<TOCMold>
         , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
-        if (stb.HasSkipBody<TCloakedStruct?[]>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<TCloakedStruct?[]>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(TCloakedStruct?[]);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCloakedStruct);
         var any         = false;
         if (value != null)
@@ -666,8 +692,9 @@ public partial class OrderedCollectionMold<TOCMold>
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        if (stb.HasSkipBody<Memory<TCloaked>>(value.Length > 0 ? typeof(Span<TCloaked>) : null, "", formatFlags))
-            return stb.WasSkipped<Memory<TCloaked>>(value.Length > 0 ? typeof(Span<TCloaked>) : null, "", formatFlags);
+        var actualType = typeof(Span<TCloaked>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCloaked);
         var any         = false;
         if (value != null)
@@ -691,8 +718,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
-        if (stb.HasSkipBody<Memory<TCloakedStruct>>(value.Length > 0 ? typeof(Span<TCloakedStruct>) : null, "", formatFlags))
-            return stb.WasSkipped<Memory<TCloakedStruct>>(value.Length > 0 ? typeof(Span<TCloakedStruct>) : null, "", formatFlags);
+        var actualType = typeof(Span<TCloakedStruct?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCloakedStruct);
         var any         = false;
         if (value != null)
@@ -717,8 +745,9 @@ public partial class OrderedCollectionMold<TOCMold>
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        if (stb.HasSkipBody<ReadOnlyMemory<TCloaked>>(value.Length > 0 ? typeof(ReadOnlySpan<TCloaked>) : null, "", formatFlags))
-            return stb.WasSkipped<ReadOnlyMemory<TCloaked>>(value.Length > 0 ? typeof(ReadOnlySpan<TCloaked>) : null, "", formatFlags);
+        var actualType = typeof(ReadOnlySpan<TCloaked>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCloaked);
         var any         = false;
         if (value != null)
@@ -742,8 +771,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
-        if (stb.HasSkipBody<ReadOnlyMemory<TCloakedStruct>>(value.Length > 0 ? typeof(ReadOnlySpan<TCloakedStruct>) : null, "", formatFlags))
-            return stb.WasSkipped<ReadOnlyMemory<TCloakedStruct>>(value.Length > 0 ? typeof(ReadOnlySpan<TCloakedStruct>) : null, "", formatFlags);
+        var actualType = typeof(ReadOnlySpan<TCloakedStruct?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCloakedStruct);
         var any         = false;
         if (value != null)
@@ -768,8 +798,9 @@ public partial class OrderedCollectionMold<TOCMold>
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyList<TCloaked?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyList<TCloaked?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyList<TCloaked?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCloaked);
         var any         = false;
         if (value != null)
@@ -793,8 +824,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
-        if (stb.HasSkipBody<IReadOnlyList<TCloakedStruct?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyList<TCloakedStruct?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyList<TCloakedStruct?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCloakedStruct);
         var any         = false;
         if (value != null)
@@ -819,8 +851,9 @@ public partial class OrderedCollectionMold<TOCMold>
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        if (stb.HasSkipBody<IEnumerable<TCloaked?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerable<TCloaked?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<TCloaked?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCloaked);
         var any         = false;
         var itemCount   = 0;
@@ -843,8 +876,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
-        if (stb.HasSkipBody<IEnumerable<TCloakedStruct?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerable<TCloakedStruct?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<TCloakedStruct?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCloakedStruct);
         var any         = false;
         var itemCount   = 0;
@@ -868,8 +902,9 @@ public partial class OrderedCollectionMold<TOCMold>
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        if (stb.HasSkipBody<IEnumerator<TCloaked?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerator<TCloaked?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerator<TCloaked?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCloaked);
         var any         = false;
         var itemCount   = 0;
@@ -895,8 +930,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
-        if (stb.HasSkipBody<IEnumerator<TCloakedStruct?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerator<TCloakedStruct?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerator<TCloakedStruct?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCloakedStruct);
         var any         = false;
         var itemCount   = 0;
@@ -921,7 +957,8 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold RevealAll<TBearer>(TBearer[]? value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
-        if (stb.HasSkipBody<TBearer[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<TBearer[]>(value?.GetType()
+        var actualType = value?.GetType() ?? typeof(TBearer[]);
+        if (stb.HasSkipBody(actualType, "", formatFlags)) return stb.WasSkipped(actualType
        , "", formatFlags);
         var elementType = typeof(TBearer);
         var any         = false;
@@ -945,8 +982,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold RevealAll<TBearerStruct>(TBearerStruct?[]? value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
-        if (stb.HasSkipBody<TBearerStruct[]>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<TBearerStruct[]>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(TBearerStruct[]);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TBearerStruct);
         var any         = false;
         if (value != null)
@@ -969,8 +1007,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold RevealAll<TBearer>(Span<TBearer> value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
-        if (stb.HasSkipBody<Memory<TBearer>>(value.Length > 0 ? typeof(Span<TBearer>) : null, "", formatFlags))
-            return stb.WasSkipped<Memory<TBearer>>(value.Length > 0 ? typeof(Span<TBearer>) : null, "", formatFlags);
+        var actualType = typeof(Span<TBearer>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TBearer);
         var any         = false;
         if (value != null)
@@ -993,8 +1032,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold RevealAll<TBearerStruct>(Span<TBearerStruct?> value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
-        if (stb.HasSkipBody<Memory<TBearerStruct?>>(value.Length > 0 ? typeof(Span<TBearerStruct?>) : null, "", formatFlags))
-            return stb.WasSkipped<Memory<TBearerStruct?>>(value.Length > 0 ? typeof(Span<TBearerStruct?>) : null, "", formatFlags);
+        var actualType = typeof(Span<TBearerStruct?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TBearerStruct);
         var any         = false;
         if (value != null)
@@ -1017,8 +1057,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold RevealAll<TBearer>(ReadOnlySpan<TBearer> value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
-        if (stb.HasSkipBody<ReadOnlyMemory<TBearer?>>(value.Length > 0 ? typeof(ReadOnlySpan<TBearer?>) : null, "", formatFlags))
-            return stb.WasSkipped<ReadOnlyMemory<TBearer?>>(value.Length > 0 ? typeof(ReadOnlySpan<TBearer?>) : null, "", formatFlags);
+        var actualType = typeof(ReadOnlySpan<TBearer>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TBearer);
         var any         = false;
         if (value != null)
@@ -1042,8 +1083,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
-        if (stb.HasSkipBody<ReadOnlyMemory<TBearerStruct?>>(value.Length > 0 ? typeof(ReadOnlySpan<TBearerStruct?>) : null, "", formatFlags))
-            return stb.WasSkipped<ReadOnlyMemory<TBearerStruct?>>(value.Length > 0 ? typeof(ReadOnlySpan<TBearerStruct?>) : null, "", formatFlags);
+        var actualType = typeof(ReadOnlySpan<TBearerStruct?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TBearerStruct);
         var any         = false;
         if (value != null)
@@ -1066,8 +1108,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold RevealAll<TBearer>(IReadOnlyList<TBearer>? value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
-        if (stb.HasSkipBody<IReadOnlyList<TBearer?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyList<TBearer?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyList<TBearer?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TBearer);
         var any         = false;
         if (value != null)
@@ -1091,8 +1134,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
-        if (stb.HasSkipBody<IReadOnlyList<TBearerStruct?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyList<TBearerStruct?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyList<TBearerStruct?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TBearerStruct);
         var any         = false;
         if (value != null)
@@ -1116,8 +1160,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
-        if (stb.HasSkipBody<IEnumerable<TBearer?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerable<TBearer?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<TBearer?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TBearer);
         var any         = false;
         var itemCount   = 0;
@@ -1140,8 +1185,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
-        if (stb.HasSkipBody<IEnumerable<TBearerStruct>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerable<TBearerStruct>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<TBearerStruct>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TBearerStruct);
         var any         = false;
         var itemCount   = 0;
@@ -1164,8 +1210,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
-        if (stb.HasSkipBody<IEnumerator<TBearer?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerator<TBearer?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerator<TBearer?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TBearer);
         var any         = false;
         var hasValue    = value?.MoveNext() ?? false;
@@ -1192,8 +1239,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
-        if (stb.HasSkipBody<IEnumerable<TBearerStruct?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerable<TBearerStruct?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<TBearerStruct?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TBearerStruct);
         var any         = false;
         var hasValue    = value?.MoveNext() ?? false;
@@ -1219,7 +1267,8 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAll(string?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<string?[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<string?[]>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(string?[]);
+        if (stb.HasSkipBody(actualType, "", formatFlags)) return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(string);
         var any         = false;
         if (value != null)
@@ -1243,8 +1292,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAll(Span<string> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<Memory<string>>(value.Length > 0 ? typeof(Span<string>) : null, "", formatFlags))
-            return stb.WasSkipped<Memory<string>>(value.Length > 0 ? typeof(Span<string>) : null, "", formatFlags);
+        var actualType = typeof(Span<string>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(string);
         var any         = false;
         if (value != null)
@@ -1268,8 +1318,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAllNullable(Span<string?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<Memory<string?>>(value.Length > 0 ? typeof(Span<string?>) : null, "", formatFlags))
-            return stb.WasSkipped<Memory<string?>>(value.Length > 0 ? typeof(Span<string?>) : null, "", formatFlags);
+        var actualType = typeof(Span<string?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(string);
         var any         = false;
         if (value != null)
@@ -1293,8 +1344,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAll(ReadOnlySpan<string> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<ReadOnlyMemory<string>>(value.Length > 0 ? typeof(ReadOnlySpan<string>) : null, "", formatFlags))
-            return stb.WasSkipped<ReadOnlyMemory<string>>(value.Length > 0 ? typeof(ReadOnlySpan<string>) : null, "", formatFlags);
+        var actualType = typeof(ReadOnlySpan<string>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(string);
         var any         = false;
         if (value != null)
@@ -1318,8 +1370,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAllNullable(ReadOnlySpan<string?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<ReadOnlyMemory<string?>>(value.Length > 0 ? typeof(ReadOnlySpan<string?>) : null, "", formatFlags))
-            return stb.WasSkipped<ReadOnlyMemory<string?>>(value.Length > 0 ? typeof(ReadOnlySpan<string?>) : null, "", formatFlags);
+        var actualType = typeof(ReadOnlySpan<string?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(string);
         var any         = false;
         if (value != null)
@@ -1343,8 +1396,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAll(IReadOnlyList<string?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<IReadOnlyList<string?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyList<string?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyList<string?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(string);
         var any         = false;
         if (value != null)
@@ -1368,8 +1422,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAllEnumerate(IEnumerable<string?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<IEnumerable<string?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerable<string?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<string?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(string);
         var any         = false;
         var itemCount   = 0;
@@ -1392,8 +1447,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAllEnumerate(IEnumerator<string?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<IEnumerator<string?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerator<string?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerator<string?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(string);
         var any         = false;
         var itemCount   = 0;
@@ -1421,7 +1477,8 @@ public partial class OrderedCollectionMold<TOCMold>
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence
     {
-        if (stb.HasSkipBody<TCharSeq?[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<TCharSeq?[]>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(TCharSeq?[]);
+        if (stb.HasSkipBody(actualType, "", formatFlags)) return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCharSeq);
         var any         = false;
         if (value != null)
@@ -1446,8 +1503,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence?
     {
-        if (stb.HasSkipBody<Memory<TCharSeq>>(value.Length > 0 ? typeof(Span<TCharSeq>) : null, "", formatFlags))
-            return stb.WasSkipped<Memory<TCharSeq>>(value.Length > 0 ? typeof(Span<TCharSeq>) : null, "", formatFlags);
+        var actualType = typeof(Span<TCharSeq>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCharSeq);
         var any         = false;
         if (value != null)
@@ -1473,8 +1531,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence?
     {
-        if (stb.HasSkipBody<ReadOnlyMemory<TCharSeq>>(value.Length > 0 ? typeof(ReadOnlySpan<TCharSeq>) : null, "", formatFlags))
-            return stb.WasSkipped<ReadOnlyMemory<TCharSeq>>(value.Length > 0 ? typeof(ReadOnlySpan<TCharSeq>) : null, "", formatFlags);
+        var actualType = typeof(ReadOnlySpan<TCharSeq>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCharSeq);
         var any         = false;
         if (value != null)
@@ -1500,8 +1559,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence
     {
-        if (stb.HasSkipBody<IReadOnlyList<TCharSeq?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyList<TCharSeq?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyList<TCharSeq?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCharSeq);
         var any         = false;
         if (value != null)
@@ -1527,8 +1587,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence
     {
-        if (stb.HasSkipBody<IEnumerable<TCharSeq?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerable<TCharSeq?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<TCharSeq?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCharSeq);
         var any         = false;
         var itemCount   = 0;
@@ -1553,8 +1614,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence
     {
-        if (stb.HasSkipBody<IEnumerator<TCharSeq?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerator<TCharSeq?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerator<TCharSeq?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCharSeq);
         var any         = false;
         var hasValue    = value?.MoveNext() ?? false;
@@ -1581,8 +1643,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAll(StringBuilder?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<IEnumerator<StringBuilder?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerator<StringBuilder?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerator<StringBuilder?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
         if (value != null)
@@ -1606,8 +1669,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAll(Span<StringBuilder> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<Memory<StringBuilder>>(value.Length > 0 ? typeof(Span<StringBuilder>) : null, "", formatFlags))
-            return stb.WasSkipped<Memory<StringBuilder>>(value.Length > 0 ? typeof(Span<StringBuilder>) : null, "", formatFlags);
+        var actualType = typeof(Span<StringBuilder>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
         if (value != null)
@@ -1631,8 +1695,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAllNullable(Span<StringBuilder?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<Memory<StringBuilder?>>(value.Length > 0 ? typeof(Span<StringBuilder?>) : null, "", formatFlags))
-            return stb.WasSkipped<Memory<StringBuilder?>>(value.Length > 0 ? typeof(Span<StringBuilder?>) : null, "", formatFlags);
+        var actualType = typeof(Span<StringBuilder?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
         if (value != null)
@@ -1656,8 +1721,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAll(ReadOnlySpan<StringBuilder> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<ReadOnlyMemory<StringBuilder>>(value.Length > 0 ? typeof(ReadOnlySpan<StringBuilder>) : null, "", formatFlags))
-            return stb.WasSkipped<ReadOnlyMemory<StringBuilder>>(value.Length > 0 ? typeof(ReadOnlySpan<StringBuilder>) : null, "", formatFlags);
+        var actualType = typeof(ReadOnlySpan<StringBuilder>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
         if (value != null)
@@ -1682,8 +1748,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<ReadOnlyMemory<StringBuilder?>>(value.Length > 0 ? typeof(ReadOnlySpan<StringBuilder?>) : null, "", formatFlags))
-            return stb.WasSkipped<ReadOnlyMemory<StringBuilder?>>(value.Length > 0 ? typeof(ReadOnlySpan<StringBuilder?>) : null, "", formatFlags);
+        var actualType = typeof(ReadOnlySpan<StringBuilder?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
         if (value != null)
@@ -1707,8 +1774,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAll(IReadOnlyList<StringBuilder?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<IReadOnlyList<StringBuilder?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyList<StringBuilder?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyList<StringBuilder?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
         if (value != null)
@@ -1733,8 +1801,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<IEnumerable<StringBuilder?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerable<StringBuilder?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<StringBuilder?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
         var itemCount   = 0;
@@ -1758,8 +1827,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<IEnumerator<StringBuilder?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerator<StringBuilder?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerator<StringBuilder?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
         var hasValue    = value?.MoveNext() ?? false;
@@ -1786,7 +1856,8 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAllMatch<TAny>(TAny[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<TAny[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<TAny[]>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(TAny[]);
+        if (stb.HasSkipBody(actualType, "", formatFlags)) return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TAny);
         var any         = false;
         if (value != null)
@@ -1810,8 +1881,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAllMatch<TAny>(Span<TAny> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<Memory<TAny>>(value.Length > 0 ? typeof(Span<TAny?>) : null, "", formatFlags))
-            return stb.WasSkipped<Memory<TAny>>(value.Length > 0 ? typeof(Span<TAny?>) : null, "", formatFlags);
+        var actualType = typeof(Span<TAny>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TAny);
         var any         = false;
         if (value != null)
@@ -1835,8 +1907,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAllMatch<TAny>(ReadOnlySpan<TAny> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<ReadOnlyMemory<TAny>>(value.Length > 0 ? typeof(ReadOnlySpan<TAny>) : null, "", formatFlags))
-            return stb.WasSkipped<ReadOnlyMemory<TAny>>(value.Length > 0 ? typeof(ReadOnlySpan<TAny>) : null, "", formatFlags);
+        var actualType = typeof(ReadOnlySpan<TAny>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TAny);
         var any         = false;
         if (value != null)
@@ -1860,8 +1933,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAllMatch<TAny>(IReadOnlyList<TAny>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<IReadOnlyList<TAny>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyList<TAny>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyList<TAny>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TAny);
         var any         = false;
         if (value != null)
@@ -1886,8 +1960,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<IEnumerable<TAny>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerable<TAny>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<TAny>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TAny);
         var any         = false;
         var itemCount   = 0;
@@ -1911,8 +1986,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<IEnumerator<TAny>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerator<TAny>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerator<TAny>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TAny);
         var any         = false;
         var itemCount   = 0;
@@ -1940,7 +2016,8 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAllObject(object?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<object?[]>(value?.GetType(), "", formatFlags)) return stb.WasSkipped<object?[]>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(object?[]);
+        if (stb.HasSkipBody(actualType, "", formatFlags)) return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(object);
         var any         = false;
         if (value != null)
@@ -1965,8 +2042,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAllObject(Span<object> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<Memory<object>>(value.Length > 0 ? typeof(Span<object>) : null, "", formatFlags))
-            return stb.WasSkipped<Memory<object>>(value.Length > 0 ? typeof(Span<object>) : null, "", formatFlags);
+        var actualType = typeof(Span<object>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(object);
         var any         = false;
         if (value != null)
@@ -1991,8 +2069,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAllObjectNullable(Span<object?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<Memory<object?>>(value.Length > 0 ? typeof(Span<object?>) : null, "", formatFlags))
-            return stb.WasSkipped<Memory<object?>>(value.Length > 0 ? typeof(Span<object?>) : null, "", formatFlags);
+        var actualType = typeof(Span<object?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(object);
         var any         = false;
         if (value != null)
@@ -2017,8 +2096,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAllObject(ReadOnlySpan<object> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<ReadOnlyMemory<object>>(value.Length > 0 ? typeof(ReadOnlySpan<object>) : null, "", formatFlags))
-            return stb.WasSkipped<ReadOnlyMemory<object>>(value.Length > 0 ? typeof(ReadOnlySpan<object>) : null, "", formatFlags);
+        var actualType = typeof(ReadOnlySpan<object>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(object);
         var any         = false;
         if (value != null)
@@ -2043,8 +2123,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAllObjectNullable(ReadOnlySpan<object?> value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<ReadOnlyMemory<object?>>(value.Length > 0 ? typeof(ReadOnlySpan<object?>) : null, "", formatFlags))
-            return stb.WasSkipped<ReadOnlyMemory<object?>>(value.Length > 0 ? typeof(ReadOnlySpan<object?>) : null, "", formatFlags);
+        var actualType = typeof(ReadOnlySpan<object?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(object);
         var any         = false;
         if (value != null)
@@ -2069,8 +2150,9 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAllObject(IReadOnlyList<object?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<IReadOnlyList<object?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyList<object?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyList<object?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(object);
         var any         = false;
         if (value != null)
@@ -2096,8 +2178,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<IEnumerable<object?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerable<object?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<object?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(object);
         var any         = false;
         var itemCount   = 0;
@@ -2122,8 +2205,9 @@ public partial class OrderedCollectionMold<TOCMold>
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.HasSkipBody<IEnumerator<object?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IEnumerator<object?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IEnumerator<object?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(object);
         var any         = false;
         var itemCount   = 0;

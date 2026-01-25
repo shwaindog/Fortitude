@@ -16,8 +16,9 @@ public partial class KeyedCollectionMold
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             valueFormatString ??= "";
@@ -44,8 +45,9 @@ public partial class KeyedCollectionMold
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             valueFormatString ??= "";
@@ -72,8 +74,9 @@ public partial class KeyedCollectionMold
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             valueFormatString ??= "";
@@ -100,8 +103,9 @@ public partial class KeyedCollectionMold
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             valueFormatString ??= "";
@@ -128,8 +132,9 @@ public partial class KeyedCollectionMold
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             valueFormatString ??= "";
@@ -155,8 +160,9 @@ public partial class KeyedCollectionMold
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectDerived : TKey
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var hasValue = selectKeys.MoveNext();
         var kvpType  = typeof(KeyValuePair<TKey, TValue>);
         ItemCount = 0;
@@ -189,8 +195,9 @@ public partial class KeyedCollectionMold
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             keyFormatString ??= "";
@@ -217,8 +224,9 @@ public partial class KeyedCollectionMold
         where TKSelectDerived : TKey
         where TValue : struct
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             keyFormatString ??= "";
@@ -246,8 +254,9 @@ public partial class KeyedCollectionMold
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             keyFormatString ??= "";
@@ -275,8 +284,9 @@ public partial class KeyedCollectionMold
         where TKSelectDerived : TKey
         where TValue : struct
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             keyFormatString ??= "";
@@ -305,8 +315,9 @@ public partial class KeyedCollectionMold
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             keyFormatString ??= "";
@@ -334,8 +345,9 @@ public partial class KeyedCollectionMold
         where TKSelectDerived : TKey
         where TValue : struct
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             keyFormatString ??= "";
@@ -364,8 +376,9 @@ public partial class KeyedCollectionMold
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             keyFormatString ??= "";
@@ -393,8 +406,9 @@ public partial class KeyedCollectionMold
         where TKSelectDerived : TKey
         where TValue : struct
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             keyFormatString ??= "";
@@ -423,8 +437,9 @@ public partial class KeyedCollectionMold
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             keyFormatString ??= "";
@@ -451,8 +466,9 @@ public partial class KeyedCollectionMold
         where TKSelectDerived : TKey
         where TValue : struct
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             keyFormatString ??= "";
@@ -480,8 +496,9 @@ public partial class KeyedCollectionMold
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var hasValue = selectKeys.MoveNext();
         var kvpType  = typeof(KeyValuePair<TKey, TValue>);
         ItemCount = 0;
@@ -512,8 +529,9 @@ public partial class KeyedCollectionMold
         where TKSelectDerived : TKey
         where TValue : struct
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var hasValue = selectKeys.MoveNext();
         var kvpType  = typeof(KeyValuePair<TKey, TValue>);
         ItemCount = 0;
@@ -547,8 +565,9 @@ public partial class KeyedCollectionMold
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
@@ -577,8 +596,9 @@ public partial class KeyedCollectionMold
         where TKSelectDerived : TKey
         where TKRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
@@ -608,8 +628,9 @@ public partial class KeyedCollectionMold
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
@@ -638,8 +659,9 @@ public partial class KeyedCollectionMold
         where TKSelectDerived : TKey
         where TKRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue?>);
@@ -669,8 +691,9 @@ public partial class KeyedCollectionMold
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
@@ -699,8 +722,9 @@ public partial class KeyedCollectionMold
         where TKSelectDerived : TKey
         where TKRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
@@ -730,8 +754,9 @@ public partial class KeyedCollectionMold
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
@@ -759,8 +784,9 @@ public partial class KeyedCollectionMold
         where TKSelectDerived : TKey
         where TKRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
@@ -789,8 +815,9 @@ public partial class KeyedCollectionMold
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
@@ -818,8 +845,9 @@ public partial class KeyedCollectionMold
         where TKSelectDerived : TKey
         where TKRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
@@ -848,8 +876,9 @@ public partial class KeyedCollectionMold
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var hasValue = selectKeys.MoveNext();
         var kvpType  = typeof(KeyValuePair<TKey, TValue>);
         ItemCount = 0;
@@ -881,8 +910,9 @@ public partial class KeyedCollectionMold
         where TKSelectDerived : TKey
         where TKRevealBase : notnull
     {
-        if (stb.HasSkipBody<IReadOnlyDictionary<TKey, TValue?>>(value?.GetType(), "", formatFlags))
-            return stb.WasSkipped<IReadOnlyDictionary<TKey, TValue?>>(value?.GetType(), "", formatFlags);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
         var hasValue = selectKeys.MoveNext();
         var kvpType  = typeof(KeyValuePair<TKey, TValue?>);
         ItemCount = 0;

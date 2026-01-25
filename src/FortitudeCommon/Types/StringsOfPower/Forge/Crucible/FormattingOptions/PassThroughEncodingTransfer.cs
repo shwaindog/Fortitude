@@ -6,12 +6,43 @@ namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
 public class PassThroughEncodingTransfer : RecyclableObject, IEncodingTransfer
 {
-    protected const char DblQtChar = '"';
+    protected const char               DblQtChar = '"';
+    
+
+    public static PassThroughEncodingTransfer FinalEncoder { get; } = new();
+    
+    private         IEncodingTransfer? layoutEncoder;
+    
     public string EncodingTransferConfigKey { get; private set; } = nameof(EncodingType.PassThrough);
 
     public EncodingType Type => EncodingType.PassThrough;
 
-    public static PassThroughEncodingTransfer Instance { get; } = new();
+    public IEncodingTransfer LayoutEncoder
+    {
+        get
+        {
+            if (ReferenceEquals(FinalEncoder, this)) return this;
+            return layoutEncoder ?? FinalEncoder;
+        }
+        private set => layoutEncoder = value;
+    }
+
+    public IEncodingTransfer WithAttachedLayoutEncoder(IEncodingTransfer toAttach)
+    {
+        var toAddedLayoutTo = this;
+        if (ReferenceEquals(FinalEncoder, this) && toAttach.Type != EncodingType.PassThrough)
+        {
+            toAddedLayoutTo               = (PassThroughEncodingTransfer)Clone();
+            toAddedLayoutTo.layoutEncoder = toAttach;
+            toAttach.IncrementRefCount();
+        } else if (toAttach.Type != EncodingType.PassThrough)
+        {
+            toAddedLayoutTo.layoutEncoder?.DecrementRefCount();
+            toAddedLayoutTo.layoutEncoder = toAttach;
+            toAttach.IncrementRefCount();
+        }
+        return toAddedLayoutTo;
+    }
 
     public int StringValueDelimiter(IStringBuilder sb) => sb.Append(DblQtChar).ReturnCharCount(1);
 
@@ -389,4 +420,27 @@ public class PassThroughEncodingTransfer : RecyclableObject, IEncodingTransfer
         for (var i = 0; i < cappedLength; i++) destSpan[i + destStartIndex] = source[sourceFrom + i];
         return cappedLength;
     }
+
+    public override int IncrementRefCount()
+    {
+        if (!ReferenceEquals(FinalEncoder, this)) { return base.IncrementRefCount(); }
+        return 1;
+    }
+
+    public override int DecrementRefCount()
+    {
+        if (!ReferenceEquals(FinalEncoder, this)) { return base.DecrementRefCount(); }
+        return 1;
+    }
+
+    public override void StateReset()
+    {
+        layoutEncoder?.DecrementRefCount();
+        layoutEncoder = null;
+        base.StateReset();
+    }
+
+    object ICloneable.Clone() => Clone();
+
+    public IEncodingTransfer Clone() => AlwaysRecycler.Borrow<PassThroughEncodingTransfer>();
 }

@@ -93,12 +93,8 @@ public class ContentTypeMoldTestsCompactJsonAsStringTests : ContentTypeMoldAsStr
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(CloakedBearerTestData.AllCloakedBearerExpectations[52], ScaffoldingRegistry.AllScaffoldingTypes[1197], StringBuilderType.MutableString);
-        ExecuteIndividualScaffoldExpectation(CloakedBearerTestData.AllCloakedBearerExpectations[52], ScaffoldingRegistry.AllScaffoldingTypes[1198], StringBuilderType.CharArrayStringBuilder);
-        ExecuteIndividualScaffoldExpectation(CloakedBearerTestData.AllCloakedBearerExpectations[52], ScaffoldingRegistry.AllScaffoldingTypes[1199], StringBuilderType.MutableString);
-        ExecuteIndividualScaffoldExpectation(CloakedBearerTestData.AllCloakedBearerExpectations[52], ScaffoldingRegistry.AllScaffoldingTypes[1290], StringBuilderType.CharArrayStringBuilder);
-        ExecuteIndividualScaffoldExpectation(CloakedBearerTestData.AllCloakedBearerExpectations[52], ScaffoldingRegistry.AllScaffoldingTypes[1291], StringBuilderType.MutableString);
-        ExecuteIndividualScaffoldExpectation(CloakedBearerTestData.AllCloakedBearerExpectations[52], ScaffoldingRegistry.AllScaffoldingTypes[1292], StringBuilderType.CharArrayStringBuilder);
+        ExecuteIndividualScaffoldExpectation(CloakedBearerTestData.AllCloakedBearerExpectations[57]
+                                           , ScaffoldingRegistry.AllScaffoldingTypes[1197], StringBuilderType.MutableString);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName

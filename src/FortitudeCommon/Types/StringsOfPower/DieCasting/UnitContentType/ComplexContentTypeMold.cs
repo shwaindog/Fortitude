@@ -3,35 +3,28 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.UnitField;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
-using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 
-public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold>
+public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, ContentWithLogOnlyMold>
 {
-    private ComplexType.CollectionField.SelectTypeCollectionField<ComplexContentTypeMold>? logOnlyInternalCollectionField;
-    private SelectTypeField<ComplexContentTypeMold>?                                       logOnlyInternalField;
 
     public ComplexContentTypeMold InitializeComplexValueTypeBuilder
     (
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
-      , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , IStyledTypeFormatting typeFormatting
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
-        InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName
-                                 , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
+        InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeName
+                                 , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
 
         return this;
     }
@@ -39,21 +32,30 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold>
     public override void StartFormattingTypeOpening()
     {
       if (IsComplexType)
-        MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField);
+        MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField, Msf.CreateMoldFormatFlags);
       else
         MoldStateField.StyleFormatter.StartContentTypeOpening(MoldStateField);
     }
-    
+
+    public override void FinishTypeOpening()
+    {
+      if (Msf.CurrentWriteMethod != WriteMethodType.MoldComplexContentType)
+      {
+        Msf.Master.UpdateVisitWriteMethod(MoldVisit.CurrentVisitIndex, Msf.CurrentWriteMethod);  
+      }
+      base.FinishTypeOpening();
+    }
+
     public override void AppendClosing()
     {
-      var formatter = MoldStateField.StyleFormatter;
+      var sf = Msf.Sf;
       if (IsComplexType)
       {
-        formatter.AppendComplexTypeClosing(MoldStateField);
+        sf.AppendComplexTypeClosing(MoldStateField);
       }
       else
       {
-        formatter.AppendContentTypeClosing(MoldStateField);
+        sf.AppendContentTypeClosing(MoldStateField);
       }
     }
     
@@ -62,524 +64,502 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold>
     protected override void SourceBuilderComponentAccess(WriteMethodType writeMethod)
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
-        MoldStateField = recycler.Borrow<ContentTypeDieCast<ComplexContentTypeMold>>()
+        MoldStateField = recycler.Borrow<ContentTypeDieCast<ComplexContentTypeMold, ContentWithLogOnlyMold>>()
                              .InitializeValueBuilderCompAccess(this, PortableState, writeMethod);
     }
     
-    public SelectTypeField<ComplexContentTypeMold> LogOnlyField =>
-        logOnlyInternalField ??=
-            PortableState.Master.Recycler
-                         .Borrow<SelectTypeField<ComplexContentTypeMold>>().Initialize(MoldStateField);
-
-    public ComplexType.CollectionField.SelectTypeCollectionField<ComplexContentTypeMold> LogOnlyCollectionField =>
-        logOnlyInternalCollectionField ??=
-            PortableState.Master.Recycler
-                         .Borrow<ComplexType.CollectionField.SelectTypeCollectionField<ComplexContentTypeMold>>().Initialize(MoldStateField);
-
     protected override void InheritedStateReset()
     {
-        logOnlyInternalCollectionField?.DecrementRefCount();
-        logOnlyInternalCollectionField = null!;
-        logOnlyInternalField?.DecrementRefCount();
-        logOnlyInternalField = null!;
-
         MoldStateField.DecrementIndent();
         MoldStateField = null!;
     }
 
-    public ComplexContentTypeMold AddBaseFieldsStart()
-    {
-        MoldStateField.Master.AddBaseFieldsStart();
-
-        return Me;
-    }
-    
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValue(ReadOnlySpan<char> nonJsonfieldName, bool value
+    public ContentWithLogOnlyMold AsValue(ReadOnlySpan<char> nonJsonfieldName, bool value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, bool? value
+    public ContentWithLogOnlyMold AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, bool? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValue<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value
+    public ContentWithLogOnlyMold AsValue<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) where TFmt : ISpanFormattable? =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, "0", formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueOrNull<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value
+    public ContentWithLogOnlyMold AsValueOrNull<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) where TFmt : ISpanFormattable? =>
         Msf.FieldFmtValueOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueOrDefault<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, TFmt defaultValue
+    public ContentWithLogOnlyMold AsValueOrDefault<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, TFmt defaultValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) where TFmt : ISpanFormattable? =>
         Msf.FieldFmtValueOrNullNext(nonJsonfieldName, value ?? defaultValue, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueOrDefault<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string defaultValue
+    public ContentWithLogOnlyMold AsValueOrDefault<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, string defaultValue
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) where TFmt : ISpanFormattable? =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueOrNull<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
+    public ContentWithLogOnlyMold AsValueOrNull<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) where TFmtStruct : struct, ISpanFormattable =>
         Msf.FieldFmtValueOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueOrDefault<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
+    public ContentWithLogOnlyMold AsValueOrDefault<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
       , TFmtStruct defaultValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) where TFmtStruct : struct, ISpanFormattable =>
         Msf.FieldFmtValueOrNullNext(nonJsonfieldName, value ?? defaultValue, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueOrDefault<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
+    public ContentWithLogOnlyMold AsValueOrDefault<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
       , string defaultValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) where TFmtStruct : struct, ISpanFormattable =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsValue<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked value
+    public ContentWithLogOnlyMold RevealAsValue<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked value
       , PalantírReveal<TCloakedBase> palantírReveal, string? formatString = null, FormatFlags formatFlags = AsValueContent)
         where TCloaked : TCloakedBase
         where TCloakedBase : notnull =>
         Msf.FieldValueOrNullNext(nonJsonfieldName, value, palantírReveal, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsValueOrNull<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
+    public ContentWithLogOnlyMold RevealAsValueOrNull<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
       , PalantírReveal<TCloakedBase> palantírReveal, string? formatString = null, FormatFlags formatFlags = AsValueContent)
         where TCloaked : TCloakedBase
         where TCloakedBase : notnull =>
         Msf.FieldValueOrNullNext(nonJsonfieldName, value, palantírReveal, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsValueOrDefault<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName
+    public ContentWithLogOnlyMold RevealAsValueOrDefault<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName
       , TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal, ReadOnlySpan<char> defaultValue, string? formatString = null
       , FormatFlags formatFlags = AsValueContent)
         where TCloaked : TCloakedBase
         where TCloakedBase : notnull =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsValue<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
+    public ContentWithLogOnlyMold RevealAsValue<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal, string? formatString = null, FormatFlags formatFlags = AsValueContent)
         where TCloakedStruct : struct =>
         Msf.FieldValueOrNullNext(nonJsonfieldName, value, palantírReveal, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsValueOrNull<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
+    public ContentWithLogOnlyMold RevealAsValueOrNull<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal, string? formatString = null, FormatFlags formatFlags = AsValueContent)
         where TCloakedStruct : struct =>
         Msf.FieldValueOrNullNext(nonJsonfieldName, value, palantírReveal, formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsValueOrDefault<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
+    public ContentWithLogOnlyMold RevealAsValueOrDefault<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
       , PalantírReveal<TCloakedStruct> palantírReveal, ReadOnlySpan<char> defaultValue, string? formatString = null
       , FormatFlags formatFlags = AsValueContent)
         where TCloakedStruct : struct =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue, formatFlags, formatString ?? "");
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsValue<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value
+    public ContentWithLogOnlyMold RevealAsValue<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value
       , string? formatString = null, FormatFlags formatFlags = AsValueContent)
         where TBearer : IStringBearer =>
         Msf.FieldValueOrNullNext(nonJsonfieldName, value, formatFlags, formatString ?? "");
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsValueOrNull<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
+    public ContentWithLogOnlyMold RevealAsValueOrNull<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
       , string? formatString = null, FormatFlags formatFlags = AsValueContent) where TBearer : IStringBearer =>
         Msf.FieldValueOrNullNext(nonJsonfieldName, value, formatFlags, formatString ?? "");
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsValueOrDefault<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
+    public ContentWithLogOnlyMold RevealAsValueOrDefault<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
       , string defaultValue = "", string? formatString = null, FormatFlags formatFlags = AsValueContent) where TBearer : IStringBearer =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue, formatFlags, formatString ?? "");
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsValue<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
+    public ContentWithLogOnlyMold RevealAsValue<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
       , string? formatString = null, FormatFlags formatFlags = AsValueContent)
         where TBearerStruct : struct, IStringBearer =>
         Msf.FieldValueOrNullNext(nonJsonfieldName, value, formatFlags, formatString ?? "");
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsValueOrNull<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
+    public ContentWithLogOnlyMold RevealAsValueOrNull<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
       , string? formatString = null, FormatFlags formatFlags = AsValueContent) where TBearerStruct : struct, IStringBearer =>
         Msf.FieldValueOrNullNext(nonJsonfieldName, value, formatFlags, formatString ?? "");
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsValueOrDefault<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
+    public ContentWithLogOnlyMold RevealAsValueOrDefault<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
       , string defaultValue = "", string? formatString = null, FormatFlags formatFlags = AsValueContent) 
         where TBearerStruct : struct, IStringBearer =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue, formatFlags, formatString ?? "");
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValue(ReadOnlySpan<char> nonJsonfieldName, Span<char> value
+    public ContentWithLogOnlyMold AsValue(ReadOnlySpan<char> nonJsonfieldName, Span<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, "0", formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueOrZero(ReadOnlySpan<char> nonJsonfieldName, Span<char> value
+    public ContentWithLogOnlyMold AsValueOrZero(ReadOnlySpan<char> nonJsonfieldName, Span<char> value
       , string? formatString = null, FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, "0", formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, Span<char> value
+    public ContentWithLogOnlyMold AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, Span<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, Span<char> value
+    public ContentWithLogOnlyMold AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, Span<char> value
       , ReadOnlySpan<char> defaultValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValue(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
+    public ContentWithLogOnlyMold AsValue(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, "0", formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
+    public ContentWithLogOnlyMold AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueOrZero(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
+    public ContentWithLogOnlyMold AsValueOrZero(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, "0", formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
+    public ContentWithLogOnlyMold AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
       , ReadOnlySpan<char> defaultValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValue(ReadOnlySpan<char> nonJsonfieldName, string value
+    public ContentWithLogOnlyMold AsValue(ReadOnlySpan<char> nonJsonfieldName, string value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, "0", formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValue(ReadOnlySpan<char> nonJsonfieldName, string value, int startIndex
+    public ContentWithLogOnlyMold AsValue(ReadOnlySpan<char> nonJsonfieldName, string value, int startIndex
       , int length = int.MaxValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, "0", formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex
+    public ContentWithLogOnlyMold AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex
       , int length = int.MaxValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueOrNullNext(nonJsonfieldName, value, startIndex, length, formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex
+    public ContentWithLogOnlyMold AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex
       , int length = int.MaxValue, string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValue(ReadOnlySpan<char> nonJsonfieldName, char[] value
+    public ContentWithLogOnlyMold AsValue(ReadOnlySpan<char> nonJsonfieldName, char[] value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, 0, value?.Length ?? 0, "0", formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValue(ReadOnlySpan<char> nonJsonfieldName, char[] value, int startIndex = 0
+    public ContentWithLogOnlyMold AsValue(ReadOnlySpan<char> nonJsonfieldName, char[] value, int startIndex = 0
       , int length = int.MaxValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, "0", formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex = 0
+    public ContentWithLogOnlyMold AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex = 0
       , int length = int.MaxValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueOrNullNext(nonJsonfieldName, value, startIndex, length, formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex = 0
+    public ContentWithLogOnlyMold AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex = 0
       , int length = int.MaxValue, string? defaultValue = null, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue ?? "0", formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValue(ReadOnlySpan<char> nonJsonfieldName, ICharSequence value
+    public ContentWithLogOnlyMold AsValue(ReadOnlySpan<char> nonJsonfieldName, ICharSequence value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, 0, int.MaxValue, "0", formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValue(ReadOnlySpan<char> nonJsonfieldName, ICharSequence value, int startIndex = 0
+    public ContentWithLogOnlyMold AsValue(ReadOnlySpan<char> nonJsonfieldName, ICharSequence value, int startIndex = 0
       , int length = int.MaxValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, "0", formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex = 0
+    public ContentWithLogOnlyMold AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex = 0
       , int length = int.MaxValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueOrNullNext(nonJsonfieldName, value, startIndex, length, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex
+    public ContentWithLogOnlyMold AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex
       , int length = int.MaxValue, string? defaultValue = null, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue ?? "0", formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValue(ReadOnlySpan<char> nonJsonfieldName, StringBuilder value
+    public ContentWithLogOnlyMold AsValue(ReadOnlySpan<char> nonJsonfieldName, StringBuilder value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, 0, int.MaxValue, "0", formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValue(ReadOnlySpan<char> nonJsonfieldName, StringBuilder value, int startIndex
+    public ContentWithLogOnlyMold AsValue(ReadOnlySpan<char> nonJsonfieldName, StringBuilder value, int startIndex
       , int length = int.MaxValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, "0", formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex = 0
+    public ContentWithLogOnlyMold AsValueOrNull(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex = 0
       , int length = int.MaxValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>
         Msf.FieldValueOrNullNext(nonJsonfieldName, value, startIndex, length, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex = 0
+    public ContentWithLogOnlyMold AsValueOrDefault(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex = 0
       , int length = int.MaxValue, string? defaultValue = null, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = AsValueContent) =>
       Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue ?? "0", formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueMatch<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value
+    public ContentWithLogOnlyMold AsValueMatch<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = AsValueContent) =>
       Msf.ValueMatchOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueMatchOrNull<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny? value
+    public ContentWithLogOnlyMold AsValueMatchOrNull<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = AsValueContent) =>
       Msf.ValueMatchOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsValueMatchOrDefault<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny? value, string? defaultValue
+    public ContentWithLogOnlyMold AsValueMatchOrDefault<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny? value, string? defaultValue
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = AsValueContent) =>
       Msf.ValueMatchOrDefaultNext(nonJsonfieldName, value, defaultValue ?? "", formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsString(ReadOnlySpan<char> nonJsonfieldName, bool value
+    public ContentWithLogOnlyMold AsString(ReadOnlySpan<char> nonJsonfieldName, bool value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, bool? value
+    public ContentWithLogOnlyMold AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, bool? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsString<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value
+    public ContentWithLogOnlyMold AsString<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) where TFmt : ISpanFormattable =>
       Msf.FieldStringOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
     
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringOrNull<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value
+    public ContentWithLogOnlyMold AsStringOrNull<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) where TFmt : ISpanFormattable? =>
       Msf.FieldStringOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringOrDefault<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, TFmt defaultValue
+    public ContentWithLogOnlyMold AsStringOrDefault<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt? value, TFmt defaultValue
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll)
       where TFmt : ISpanFormattable =>
       Msf.FieldStringOrDefaultNext(nonJsonfieldName, value ?? defaultValue, "", formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringOrDefault<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value, string defaultValue
+    public ContentWithLogOnlyMold AsStringOrDefault<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value, string defaultValue
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) where TFmt : ISpanFormattable? =>
       Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringOrNull<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
+    public ContentWithLogOnlyMold AsStringOrNull<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = EncodeAll)
       where TFmtStruct : struct, ISpanFormattable =>
       Msf.FieldStringOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringOrDefault<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
+    public ContentWithLogOnlyMold AsStringOrDefault<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
     , TFmtStruct defaultValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) where TFmtStruct : struct, ISpanFormattable =>
       Msf.FieldStringOrNullNext(nonJsonfieldName, value ?? defaultValue, formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringOrDefault<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
+    public ContentWithLogOnlyMold AsStringOrDefault<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
     , string defaultValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) where TFmtStruct : struct, ISpanFormattable =>
       Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsString<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked value
+    public ContentWithLogOnlyMold RevealAsString<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked value
     , PalantírReveal<TCloakedBase> palantírReveal, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll)
       where TCloaked : TCloakedBase
       where TCloakedBase : notnull =>
-      Msf.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, "", formatString, formatFlags);
+      Msf.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, "", formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsStringOrNull<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
+    public ContentWithLogOnlyMold RevealAsStringOrNull<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
     , PalantírReveal<TCloakedBase> palantírReveal, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll)
       where TCloaked : TCloakedBase
       where TCloakedBase : notnull =>
-      Msf.FieldStringRevealOrNullNext(nonJsonfieldName, value, palantírReveal, formatString, formatFlags);
+      Msf.FieldStringRevealOrNullNext(nonJsonfieldName, value, palantírReveal, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsStringOrDefault<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName
+    public ContentWithLogOnlyMold RevealAsStringOrDefault<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName
     , TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal, string defaultValue = ""
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = EncodeAll)
       where TCloaked : TCloakedBase
       where TCloakedBase : notnull =>
-      Msf.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue, formatString, formatFlags);
+      Msf.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue, formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsString<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
+    public ContentWithLogOnlyMold RevealAsString<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
     , PalantírReveal<TCloakedStruct> palantírReveal, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll)
       where TCloakedStruct : struct =>
       Msf.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, "", formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsStringOrNull<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
+    public ContentWithLogOnlyMold RevealAsStringOrNull<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
     , PalantírReveal<TCloakedStruct> palantírReveal, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) where TCloakedStruct : struct =>
-      Msf.FieldStringRevealOrNullNext(nonJsonfieldName, value, palantírReveal, formatString, formatFlags);
+      Msf.FieldStringRevealOrNullNext(nonJsonfieldName, value, palantírReveal, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsStringOrDefault<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName
+    public ContentWithLogOnlyMold RevealAsStringOrDefault<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName
     , TCloakedStruct? value, PalantírReveal<TCloakedStruct> palantírReveal, string defaultValue = "", string? formatString = null
     , FormatFlags formatFlags = EncodeAll)
       where TCloakedStruct : struct =>
       Msf.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsString<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value
+    public ContentWithLogOnlyMold RevealAsString<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = EncodeAll)
       where TBearer : IStringBearer =>
       Msf.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, "", formatString ?? "", formatFlags);
     
   
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsStringOrNull<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
+    public ContentWithLogOnlyMold RevealAsStringOrNull<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = EncodeAll)
       where TBearer : IStringBearer =>
       Msf.FieldStringRevealOrNullNext(nonJsonfieldName, value, formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsStringOrDefault<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
+    public ContentWithLogOnlyMold RevealAsStringOrDefault<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
     , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll)
       where TBearer : IStringBearer => Msf.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsString<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
+    public ContentWithLogOnlyMold RevealAsString<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = EncodeAll)
       where TBearerStruct : struct, IStringBearer =>
       Msf.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, "", formatFlags, formatString ?? "");
     
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsStringOrNull<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
+    public ContentWithLogOnlyMold RevealAsStringOrNull<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = EncodeAll)
       where TBearerStruct : struct, IStringBearer =>
       Msf.FieldStringRevealOrNullNext(nonJsonfieldName, value, formatFlags, formatString ?? "");
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> RevealAsStringOrDefault<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName
+    public ContentWithLogOnlyMold RevealAsStringOrDefault<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName
     , TBearerStruct? value, string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll)
       where TBearerStruct : struct, IStringBearer =>
       Msf.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, defaultValue, formatFlags, formatString ?? "");
     
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsString(ReadOnlySpan<char> nonJsonfieldName, Span<char> value
+    public ContentWithLogOnlyMold AsString(ReadOnlySpan<char> nonJsonfieldName, Span<char> value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, "", formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringOrDefault(ReadOnlySpan<char> nonJsonfieldName, Span<char> value, string defaultValue = ""
+    public ContentWithLogOnlyMold AsStringOrDefault(ReadOnlySpan<char> nonJsonfieldName, Span<char> value, string defaultValue = ""
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, Span<char> value
+    public ContentWithLogOnlyMold AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, Span<char> value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsString(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
+    public ContentWithLogOnlyMold AsString(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, "", formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringOrDefault(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
+    public ContentWithLogOnlyMold AsStringOrDefault(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
     , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
+    public ContentWithLogOnlyMold AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsString(ReadOnlySpan<char> nonJsonfieldName, string value
+    public ContentWithLogOnlyMold AsString(ReadOnlySpan<char> nonJsonfieldName, string value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, "", formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, string? value
+    public ContentWithLogOnlyMold AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, string? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsString(ReadOnlySpan<char> nonJsonfieldName, string value, int startIndex
+    public ContentWithLogOnlyMold AsString(ReadOnlySpan<char> nonJsonfieldName, string value, int startIndex
     , int length = int.MaxValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, startIndex, length, "", formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex
+    public ContentWithLogOnlyMold AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex
     , int length = int.MaxValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringOrNullNext(nonJsonfieldName, value, startIndex, length, formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringOrDefault(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex
+    public ContentWithLogOnlyMold AsStringOrDefault(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex
     , int length = int.MaxValue, string? defaultValue = null, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue ?? "", formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsString(ReadOnlySpan<char> nonJsonfieldName, char[] value
+    public ContentWithLogOnlyMold AsString(ReadOnlySpan<char> nonJsonfieldName, char[] value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, 0, int.MaxValue, "", formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsString(ReadOnlySpan<char> nonJsonfieldName, char[] value, int startIndex = 0
+    public ContentWithLogOnlyMold AsString(ReadOnlySpan<char> nonJsonfieldName, char[] value, int startIndex = 0
     , int length = int.MaxValue , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) => 
       Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, startIndex, length, "", formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex
+    public ContentWithLogOnlyMold AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex
     , int length = int.MaxValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringOrNullNext(nonJsonfieldName, value, startIndex, length, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringOrDefault(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex = 0
+    public ContentWithLogOnlyMold AsStringOrDefault(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex = 0
     , int length = int.MaxValue, string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue, formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsString(ReadOnlySpan<char> nonJsonfieldName, ICharSequence value
+    public ContentWithLogOnlyMold AsString(ReadOnlySpan<char> nonJsonfieldName, ICharSequence value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, 0, int.MaxValue, "", formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsString(ReadOnlySpan<char> nonJsonfieldName, ICharSequence value, int startIndex = 0
+    public ContentWithLogOnlyMold AsString(ReadOnlySpan<char> nonJsonfieldName, ICharSequence value, int startIndex = 0
     , int length = int.MaxValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, startIndex, length, "", formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex = 0
+    public ContentWithLogOnlyMold AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex = 0
     , int length = int.MaxValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringOrNullNext(nonJsonfieldName, value, startIndex, length, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringOrDefault(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex = 0
+    public ContentWithLogOnlyMold AsStringOrDefault(ReadOnlySpan<char> nonJsonfieldName, ICharSequence? value, int startIndex = 0
     , int length = int.MaxValue, string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsString(ReadOnlySpan<char> nonJsonfieldName, StringBuilder value
+    public ContentWithLogOnlyMold AsString(ReadOnlySpan<char> nonJsonfieldName, StringBuilder value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, 0, int.MaxValue, "", formatString ?? "", formatFlags);
   
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsString(ReadOnlySpan<char> nonJsonfieldName, StringBuilder value, int startIndex = 0
+    public ContentWithLogOnlyMold AsString(ReadOnlySpan<char> nonJsonfieldName, StringBuilder value, int startIndex = 0
     , int length = int.MaxValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, startIndex, length, "", formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex = 0
+    public ContentWithLogOnlyMold AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex = 0
     , int length = int.MaxValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringOrNullNext(nonJsonfieldName, value, startIndex, length, formatString ?? "", formatFlags);
 
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringOrDefault(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex = 0
+    public ContentWithLogOnlyMold AsStringOrDefault(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex = 0
     , int length = int.MaxValue, string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, startIndex, length, defaultValue, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringMatch<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value
+    public ContentWithLogOnlyMold AsStringMatch<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.StringMatchOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
     
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringMatchOrNull<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny? value
+    public ContentWithLogOnlyMold AsStringMatchOrNull<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.StringMatchOrNullNext(nonJsonfieldName, value, formatString ?? "", formatFlags);
 
-    public ContentJoinTypeMold<ComplexContentTypeMold> AsStringMatchOrDefault<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny? value
+    public ContentWithLogOnlyMold AsStringMatchOrDefault<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny? value
     , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
       Msf.StringMatchOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);

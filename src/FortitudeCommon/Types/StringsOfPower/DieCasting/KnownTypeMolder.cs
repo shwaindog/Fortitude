@@ -14,11 +14,9 @@ public interface IStateTransitioningTransitioningKnownTypeMolder : IDisposable
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
-      , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , IStyledTypeFormatting typeFormatting
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags);
 
@@ -40,16 +38,14 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
-      , MoldDieCastSettings typeSettings
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , IStyledTypeFormatting typeFormatting
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
-        InitializeStyledTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeSettings, typeName, remainingGraphDepth
-                                  , moldGraphVisit, typeFormatting, createFormatFlags);
+        InitializeStyledTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeName, remainingGraphDepth
+                                  , moldGraphVisit, createFormatFlags);
 
         SourceBuilderComponentAccess(writeMethodType);
     }
@@ -70,14 +66,15 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
 
     public override void StartTypeOpening()
     {
-        if (PortableState.AppenderSettings.SkipTypeParts.HasTypeStartFlag()) return;
+        if (PortableState.CreateFormatFlags.HasSuppressOpening()) return;
         StartFormattingTypeOpening();
         AppendGraphFields();
     }
 
     public override void FinishTypeOpening()
     {
-        if (!PortableState.AppenderSettings.SkipTypeParts.HasTypeStartFlag()) { CompleteTypeOpeningToTypeFields(); }
+        if (PortableState.CreateFormatFlags.HasSuppressOpening()) return;
+        CompleteTypeOpeningToTypeFields();
     }
 
     public abstract void StartFormattingTypeOpening();
@@ -85,27 +82,30 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
 
     public virtual void AppendClosing()
     {
-        MoldStateField.StyleFormatter.GraphBuilder.RemoveLastSeparatorAndPadding();
+        State.Sf.Gb.RemoveLastSeparatorAndPadding();
     }
 
     protected TMold Me => (TMold)(TypeMolder)this;
 
     public override StateExtractStringRange Complete()
     {
-        if (MoldStateField == null) { throw new NullReferenceException("Expected MoldState to be set"); }
-        if (!PortableState.AppenderSettings.SkipTypeParts.HasTypeEndFlag()) { AppendClosing(); }
+        if (State == null) { throw new NullReferenceException("Expected MoldState to be set"); }
+        if (PortableState.CreateFormatFlags.DoesNotHaveSuppressClosing())
+        {
+            AppendClosing();
+        }
         else
         {
-            MoldStateField.StyleFormatter.GraphBuilder.RemoveLastSeparatorAndPadding();
-            MoldStateField.StyleFormatter.GraphBuilder.AddHighWaterMark();
+            State.Sf.Gb.RemoveLastSeparatorAndPadding();
+            State.Sf.Gb.AddHighWaterMark();
         }
-        var currentAppenderIndex = MoldStateField.Master.WriteBuffer.Length;
+        var currentAppenderIndex = State.Master.WriteBuffer.Length;
         var typeWriteRange       = new Range(Index.FromStart(StartIndex), Index.FromStart(currentAppenderIndex));
         var result =
             new StateExtractStringRange(TypeName ??
-                                        TypeBeingBuilt.CachedCSharpNameWithConstraints(), MoldStateField.Master, typeWriteRange);
+                                        TypeBeingBuilt.CachedCSharpNameWithConstraints(), State.Master, typeWriteRange);
         PortableState.CompleteResult = result;
-        MoldStateField.Master.TypeComplete(MoldStateField);
+        State.Master.TypeComplete(State);
         MoldStateField = null!;
         ((IRecyclableObject)this).DecrementRefCount();
         return result;
@@ -119,9 +119,8 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         {
             var charsWritten =
                 msf.StyleFormatter
-                   .AppendExistingReferenceId(msf, msf.StyleTypeBuilder.RevisitedInstanceId, msf.WriteMethod, createFlags);
+                   .AppendExistingReferenceId(msf, msf.StyleTypeBuilder.RevisitedInstanceId, msf.CurrentWriteMethod, createFlags);
             msf.WroteRefId = charsWritten > 0;
-            return true;
         }
         if (MoldStateField.RemainingGraphDepth <= 0)
         {
@@ -129,7 +128,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
 
             var charsWritten =
                 formatter
-                    .AppendInstanceInfoField(msf, "$clipped", "maxDepth", msf.WriteMethod, createFlags);
+                    .AppendInstanceInfoField(msf, "$clipped", "maxDepth", msf.CurrentWriteMethod, createFlags);
             if (charsWritten > 0)
             {
                 msf.WasDepthClipped = true;

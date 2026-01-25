@@ -5,11 +5,15 @@ namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
 
 
-public interface IEncodingTransfer : IRecyclableObject
+public interface IEncodingTransfer : IRecyclableObject, ICloneable<IEncodingTransfer>
 {
     string EncodingTransferConfigKey { get; }
 
     EncodingType Type { get; }
+    
+    IEncodingTransfer LayoutEncoder { get; }
+
+    IEncodingTransfer WithAttachedLayoutEncoder(IEncodingTransfer toAttach);
 
     int StringValueDelimiter(IStringBuilder sb);
     int StringValueDelimiter(Span<char> destSpan, int destStartIndex);

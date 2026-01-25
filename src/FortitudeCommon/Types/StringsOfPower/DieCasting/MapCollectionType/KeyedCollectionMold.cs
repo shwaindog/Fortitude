@@ -19,16 +19,14 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower vesselOfStringOfPower
-      , MoldDieCastSettings appendSettings
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , IStyledTypeFormatting typeFormatting
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
-        InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName
-                                      , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
+        InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeName
+                                      , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
 
         stb = MoldStateField;
 

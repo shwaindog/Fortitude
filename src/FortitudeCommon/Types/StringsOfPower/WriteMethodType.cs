@@ -62,4 +62,13 @@ public static class WriteMethodTypeExtensions
           , MoldComplexCollectionType  => MoldSimpleContentType
           , _                          => value
         };
+    
+    public static bool NoFieldNames(this WriteMethodType value) =>
+        value switch
+        {
+            RawContent               => true
+          , MoldSimpleContentType    => true
+          , MoldSimpleCollectionType => true
+          , _                        => false
+        };
 }

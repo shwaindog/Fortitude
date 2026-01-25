@@ -24,15 +24,15 @@ public static class StyleFormattingSelector
                {
                    StringStyle.Json | StringStyle.Compact =>
                        theStringMaster.Recycler.Borrow<CompactJsonTypeFormatting>()
-                               .Initialize(theStringMaster.GraphBuilder, theStringMaster.Settings)
+                               .Initialize(theStringMaster)
                  , StringStyle.Json | StringStyle.Pretty =>
                        theStringMaster.Recycler.Borrow<PrettyJsonTypeFormatting>()
-                                      .Initialize(theStringMaster.GraphBuilder, theStringMaster.Settings)
+                                      .Initialize(theStringMaster)
                  , StringStyle.Log | StringStyle.Pretty =>
                        theStringMaster.Recycler.Borrow<PrettyLogTypeFormatting>()
-                                      .Initialize(theStringMaster.GraphBuilder, theStringMaster.Settings)
+                                      .Initialize(theStringMaster)
                  , _ => Recycler.ThreadStaticRecycler.Borrow<CompactLogTypeFormatting>()
-                                .Initialize(theStringMaster.GraphBuilder, theStringMaster.Settings)
+                                .Initialize(theStringMaster)
                };
     }
     
@@ -48,10 +48,10 @@ public static class StyleFormattingSelector
         encodingType switch
         {
             EncodingType.PassThrough =>
-                PassThroughEncodingTransfer.Instance
+                PassThroughEncodingTransfer.FinalEncoder
           , EncodingType.JsonEncoding =>
                 theStringMaster.Recycler.Borrow<JsonEscapingEncodingTransfer>()
                                .Initialize(theStringMaster.Settings, theStringMaster.Settings.CachedMappingFactoryRanges)
-          , _ => PassThroughEncodingTransfer.Instance                      
+          , _ => PassThroughEncodingTransfer.FinalEncoder                      
         };
 }

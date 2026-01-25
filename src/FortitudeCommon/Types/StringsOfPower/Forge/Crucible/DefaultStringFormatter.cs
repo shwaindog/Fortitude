@@ -3,6 +3,7 @@
 
 using System.Text;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.Mutable;
 using static FortitudeCommon.Types.StringsOfPower.Forge.FormatSwitches;
 
 namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
@@ -771,5 +772,14 @@ public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormat
         CharSpanCollectionScratchBuffer?.DecrementRefCount();
         CharSpanCollectionScratchBuffer = null;
         return destSpan.OverWriteAt(destIndex, SqBrktCls);
+    }
+
+    public override ICustomStringFormatter Clone() => AlwaysRecycler.Borrow<DefaultStringFormatter>().CopyFrom(this);
+
+    public override DefaultStringFormatter CopyFrom(ICustomStringFormatter source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    {
+        base.CopyFrom(source, copyMergeFlags);
+
+        return this;
     }
 }

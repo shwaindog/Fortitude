@@ -246,8 +246,10 @@ public static class CloakedBearerTestData
             {
                 { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsValueOut | DefaultBecomesEmpty), "" }
               , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsValueOut | DefaultBecomesZero), "0" }
-              , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue )
+              , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue, AnyLog )
                   , "1/1/0001 12:00:00 AM" }
+              , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue, AnyJson )
+                  , "\"1/1/0001 12:00:00 AM\"" }
               , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsStringOut | DefaultBecomesEmpty), "\"\"" }
               , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsStringOut | DefaultBecomesZero), "\"0\"" }
               , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue )
@@ -260,8 +262,10 @@ public static class CloakedBearerTestData
             {
                 { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsValueOut | DefaultBecomesEmpty), "" }
               , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsValueOut | DefaultBecomesZero), "0" }
-              , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue)
+              , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue, AnyLog)
                   , "1/1/0001 12:00:00 AM" }
+              , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue, AnyJson)
+                  , "\"1/1/0001 12:00:00 AM\"" }
               , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsStringOut | DefaultBecomesEmpty), "\"\"" }
               , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsStringOut | DefaultBecomesZero), "\"0\"" }
               , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsStringOut | DefaultBecomesFallbackValue)
@@ -426,7 +430,8 @@ public static class CloakedBearerTestData
             {
                 { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsValueOut | DefaultBecomesEmpty), "" }
               , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsValueOut | DefaultBecomesZero), "0" }
-              , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue), "00:00:00" }
+              , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue, AnyLog), "00:00:00" }
+              , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue, AnyJson), "\"00:00:00\"" }
               , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultBecomesEmpty), "\"\"" }
               , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultBecomesZero), "\"0\"" }
               , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultBecomesFallbackValue), "\"00:00:00\"" }
@@ -438,7 +443,8 @@ public static class CloakedBearerTestData
             {
                 { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsValueOut | DefaultBecomesEmpty), "" }
               , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsValueOut | DefaultBecomesZero), "0" }
-              , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue), "00:00:00" }
+              , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue, AnyLog), "00:00:00" }
+              , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue, AnyJson), "\"00:00:00\"" }
               , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultBecomesEmpty), "\"\"" }
               , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultBecomesZero), "\"0\"" }
               , { new EK(IsContentType| AcceptsAnyNullableStruct | DefaultBecomesFallbackValue), "\"00:00:00\"" }
@@ -535,7 +541,7 @@ public static class CloakedBearerTestData
       , new CloakedBearerExpect<IPAddress, FieldSpanFormattableAlwaysAddStructStringBearer<IPAddress>>(null, "")
         {
             { new EK(IsContentType | AcceptsAnyExceptNullableStruct | DefaultTreatedAsValueOut | DefaultBecomesFallbackValue 
-                   | DefaultBecomesFallbackString | DefaultBecomesEmpty), "" }
+                   | DefaultBecomesFallbackString | DefaultBecomesEmpty, AnyLog), "" }
          ,  { new EK(IsContentType | AcceptsAnyExceptNullableStruct | DefaultBecomesFallbackValue  | DefaultBecomesFallbackString
                    | DefaultBecomesEmpty), "\"\"" }
           , { new EK(IsContentType| AcceptsAnyExceptNullableStruct), "null" }

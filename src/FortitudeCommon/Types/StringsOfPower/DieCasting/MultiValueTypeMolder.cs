@@ -17,16 +17,14 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower vesselOfStringOfPower
-      , MoldDieCastSettings appendSettings
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , IStyledTypeFormatting typeFormatting
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
-        Initialize(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, appendSettings, typeName
-                                       , remainingGraphDepth, moldGraphVisit, typeFormatting, writeMethodType, createFormatFlags);
+        Initialize(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeName
+                                       , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
     }
 
 
@@ -59,8 +57,8 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
         TargetStringBearerRevealState.CallBaseStyledToStringIfSupported(thisType, msf.Master);
         if (msf.Sb.Length > markPreBodyStart)
         {
-            msf.StyleFormatter.GraphBuilder.StartNextContentSeparatorPaddingSequence(msf.Sb, FormatFlags.DefaultCallerTypeFlags);
-            msf.StyleFormatter.AddToNextFieldSeparatorAndPadding();
+            msf.Sf.Gb.StartNextContentSeparatorPaddingSequence(msf.Sb, FormatFlags.DefaultCallerTypeFlags);
+            msf.Sf.AddToNextFieldSeparatorAndPadding();
         }
 
         return Me;
