@@ -26,6 +26,15 @@ public class ContentTypeMold<TContentMold, TToContentMold> : TransitioningTypeMo
         Initialize(instanceOrContainer, typeBeingBuilt, master, typeName
                  , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
 
+        if (Msf.WrittenAsFlags.SupportsMultipleFields())
+        {
+            WrittenAs = WrittenAsFlags.AsComplex;
+        }
+        else
+        {
+            WrittenAs = WrittenAsFlags.AsSimple;
+        }
+
         return this;
     }
 

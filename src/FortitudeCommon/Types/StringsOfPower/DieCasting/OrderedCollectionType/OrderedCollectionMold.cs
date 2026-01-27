@@ -23,6 +23,7 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
         Initialize(instanceOrContainer, typeBeingBuilt, master, typeName
                  , remainingGraphDepth, moldGraphVisit, writeMethodType
                  , createFormatFlags | AsCollection);
+        WrittenAs = WrittenAsFlags.AsCollection;
 
         stb = CompAsOrderedCollection;
 

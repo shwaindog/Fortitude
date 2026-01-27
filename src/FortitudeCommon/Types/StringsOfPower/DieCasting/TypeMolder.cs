@@ -8,7 +8,6 @@ using System.Reflection.Emit;
 using System.Text;
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 using FortitudeCommon.Types.StringsOfPower.Forge;
@@ -18,13 +17,20 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 
-public record struct StateExtractStringRange(string TypeName, ITheOneString TypeTheOneString, Range AppendRange)
+public record struct StateExtractStringRange(Type MoldBuildType, ITheOneString TypeTheOneString, Range AppendRange, WrittenAsFlags WrittenAs
+  , int VisitNumber, Type? ContentType = null)
 {
     public static implicit operator StateExtractStringRange(TypeMolder mdc) => mdc.Complete();
 
 
     public static readonly StateExtractStringRange EmptyAppend =
-        new("Empty", null!, new Range(Index.FromStart(0), Index.FromStart(0)));
+        new(typeof(StateExtractStringRange), null!, new Range(Index.FromStart(0), Index.FromStart(0)), WrittenAsFlags.Empty, -1);
+
+    public StateExtractStringRange AddWrittenAsFlags(WrittenAsFlags toAddFlags) => this with { WrittenAs = WrittenAs | toAddFlags };
+
+
+    public static StateExtractStringRange EmptyAppendAt(Type typeBeingBuilt, int indexStart, int visitNumber) =>
+        new(typeof(StateExtractStringRange), null!, new Range(Index.FromStart(indexStart), Index.FromStart(indexStart)), WrittenAsFlags.Empty, visitNumber);
 }
 
 public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
@@ -68,7 +74,13 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
 
     public StyleOptions Settings => PortableState.Master.Settings;
 
-    public string? TypeName => PortableState.TypeName;
+    public int InstanceTrackingVisitNumber => PortableState.MoldGraphVisit.CurrentVisitIndex;
+
+    public WrittenAsFlags WrittenAs
+    {
+        get => PortableState.WrittenAsFlags;
+        protected set => PortableState.WrittenAsFlags = value;
+    }
 
     public FormatFlags CreateFormatFlags => PortableState.CreateFormatFlags;
 
@@ -90,6 +102,7 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
         PortableState.CompleteResult    = null;
         PortableState.CreateFormatFlags = DefaultCallerTypeFlags;
         PortableState.MoldGraphVisit    = VisitResult.Empty;
+        
         if (PortableState.InstanceOrContainer is IRecyclableStructContainer recyclableStructContainer)
         {
             recyclableStructContainer.DecrementRefCount();
@@ -100,13 +113,19 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
         MeRecyclable.StateReset();
     }
 
+    protected virtual StateExtractStringRange BuildMoldStringRange(Range typeWriteRange, Type? contentType = null) => 
+        new StateExtractStringRange(TypeBeingBuilt, PortableState.Master, typeWriteRange, PortableState.WrittenAsFlags
+                                  , PortableState.MoldGraphVisit.CurrentVisitIndex, contentType);
+
     public class MoldPortableState
     {
         public object InstanceOrContainer { get; set; } = null!;
         public Type TypeBeingBuilt { get; set; } = null!;
         public string? TypeName { get; set; }
 
-        public VisitResult MoldGraphVisit { get; set; } = null!;
+        public WrittenAsFlags WrittenAsFlags { get; set; }
+
+        public VisitResult MoldGraphVisit { get; set; }
 
         public FormatFlags CreateFormatFlags { get; set; }
 
@@ -139,10 +158,15 @@ public static class StyledTypeBuilderExtensions
 {
     private static readonly ConcurrentDictionary<(Type, Type), Delegate> DynamicSpanFmtContentInvokers           = new();
     private static readonly ConcurrentDictionary<(Type, Type), Delegate> DynamicSpanFmtCollectionElementInvokers = new();
-    
-    private static ReadOnlySpan<char> EmptyRs => ReadOnlySpan<char>.Empty;
 
     public static TExt AddGoToNext<TExt>(this ITypeMolderDieCast<TExt> mdc)
+        where TExt : TypeMolder
+    {
+        if (mdc.Sf.Gb.HasCommitContent) { mdc.StyleFormatter.AddToNextFieldSeparatorAndPadding(); }
+        return mdc.StyleTypeBuilder;
+    }
+
+    public static TExt AddGoToNext<TAny, TExt>(this TAny writtenAsFlags, ITypeMolderDieCast<TExt> mdc)
         where TExt : TypeMolder
     {
         if (mdc.Sf.Gb.HasCommitContent) { mdc.StyleFormatter.AddToNextFieldSeparatorAndPadding(); }
@@ -165,79 +189,74 @@ public static class StyledTypeBuilderExtensions
         where TExt : TypeMolder =>
         typeBuilder;
 
-    public static ITypeMolderDieCast<TExt> AppendNullableBooleanField<TExt>(this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName
+    public static WrittenAsFlags AppendNullableBooleanField<TExt>(this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName
       , bool? value
       , string formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder
     {
         var actualType = value?.GetType() ?? typeof(bool?);
-        if (mdc.HasSkipField(actualType, fieldName, formatFlags)) return mdc;
+        if (mdc.HasSkipField(actualType, fieldName, formatFlags)) return WrittenAsFlags.Empty;
         var callContext = mdc.Master.ResolveContextForCallerFlags(formatFlags);
-        if (callContext.ShouldSkip) return mdc;
+        if (callContext.ShouldSkip) return WrittenAsFlags.Empty;
 
         mdc.FieldNameJoin(fieldName);
         if (value == null)
         {
             var sb = mdc.Sb;
-            mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
-            return mdc;
+            return mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
         }
         if (!callContext.HasFormatChange) return mdc.AppendFormattedOrNull(value, formatString, formatFlags);
         using (callContext) { return mdc.AppendFormattedOrNull(value, formatString, formatFlags); }
     }
 
-    public static ITypeMolderDieCast<TExt> AppendFormattedOrNull<TExt>(this ITypeMolderDieCast<TExt> mdc, bool? value, string formatString
+    public static WrittenAsFlags AppendFormattedOrNull<TExt>(this ITypeMolderDieCast<TExt> mdc, bool? value, string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder
     {
         formatFlags = mdc.StyleFormatter.ResolveContentFormattingFlags(mdc.Sb, value, formatFlags, formatString);
         if (formatFlags.HasIsFieldNameFlag())
-            mdc.StyleFormatter.FormatFieldName(mdc.Sb, value, formatString, formatFlags);
-        else
-            mdc.StyleFormatter.FormatFieldContents(mdc.Sb, value, formatString, formatFlags);
-        return mdc;
+            return mdc.StyleFormatter.FormatFieldName(mdc.Sb, value, formatString, formatFlags);
+        return mdc.StyleFormatter.FormatFieldContents(mdc.Sb, value, formatString, formatFlags);
     }
 
-    public static ITypeMolderDieCast<TExt> AppendBooleanField<TExt>(this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName, bool value
+    public static WrittenAsFlags AppendBooleanField<TExt>(this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName, bool value
       , string formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder
     {
-        if (mdc.HasSkipField(typeof(bool), fieldName, formatFlags)) return mdc;
+        if (mdc.HasSkipField(typeof(bool), fieldName, formatFlags)) return WrittenAsFlags.Empty;
         var callContext = mdc.Master.ResolveContextForCallerFlags(formatFlags);
-        if (callContext.ShouldSkip) return mdc;
+        if (callContext.ShouldSkip) return WrittenAsFlags.Empty;
 
         mdc.FieldNameJoin(fieldName);
         if (!callContext.HasFormatChange) return mdc.AppendFormatted(value, formatString, formatFlags);
         using (callContext) { return mdc.AppendFormatted(value, formatString, formatFlags); }
     }
 
-    public static ITypeMolderDieCast<TExt> AppendFormatted<TExt>(this ITypeMolderDieCast<TExt> mdc, bool value, string formatString
+    public static WrittenAsFlags AppendFormatted<TExt>(this ITypeMolderDieCast<TExt> mdc, bool value, string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder
     {
         formatFlags = mdc.StyleFormatter.ResolveContentFormattingFlags(mdc.Sb, value, formatFlags, formatString);
         if (formatFlags.HasIsFieldNameFlag())
-            mdc.StyleFormatter.FormatFieldName(mdc.Sb, value, formatString, formatFlags);
-        else
-            mdc.StyleFormatter.FormatFieldContents(mdc.Sb, value, formatString, formatFlags);
-        return mdc;
+            return mdc.StyleFormatter.FormatFieldName(mdc.Sb, value, formatString, formatFlags);
+        return mdc.StyleFormatter.FormatFieldContents(mdc.Sb, value, formatString, formatFlags);
     }
     
-    public static ITypeMolderDieCast<TExt> AppendFormattableField<TExt, TFmt>
+    public static WrittenAsFlags AppendFormattableField<TExt, TFmt>
     (this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName, TFmt? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder where TFmt : ISpanFormattable?
     {
         var actualType = value?.GetType() ?? typeof(TFmt);
-        if (mdc.HasSkipField(actualType, fieldName, formatFlags)) return mdc;
+        if (mdc.HasSkipField(actualType, fieldName, formatFlags)) return WrittenAsFlags.Empty;
         var callContext = mdc.Master.ResolveContextForCallerFlags(formatFlags);
-        if (callContext.ShouldSkip) return mdc;
+        if (callContext.ShouldSkip) return WrittenAsFlags.Empty;
     
         mdc.FieldNameJoin(fieldName);
         if (!callContext.HasFormatChange) return mdc.AppendFormattedOrNull(value, formatString, formatFlags);
         using (callContext) { return mdc.AppendFormattedOrNull(value, formatString, formatFlags); }
     }
 
-    public static ITypeMolderDieCast<TExt> AppendFormattedOrNull<TExt, TFmt>
+    public static WrittenAsFlags AppendFormattedOrNull<TExt, TFmt>
     (this ITypeMolderDieCast<TExt> mdc, TFmt? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder where TFmt : ISpanFormattable?
@@ -248,33 +267,28 @@ public static class StyledTypeBuilderExtensions
         {
             if (!formatFlags.HasNullBecomesEmptyFlag())
             {
-                mdc.StyleFormatter.AppendFormattedNull(mdc.Sb, formatString, formatFlags);
+                return mdc.StyleFormatter.AppendFormattedNull(mdc.Sb, formatString, formatFlags);
             }
-            return mdc;
+            return WrittenAsFlags.Empty;
         }
         if (!formatFlags.HasNoRevisitCheck() && mdc.Settings.InstanceTrackingIncludeSpanFormattableClasses && !typeof(TFmt).IsValueType)
         {
-            mdc.AppendFormattedWithRefenceTracking(value, formatString, formatFlags);
-            return mdc;
+            return mdc.AppendFormattedWithRefenceTracking(value, formatString, formatFlags);
         }
-        mdc.AppendFormattedNoReferenceTracking(value, formatString, formatFlags);
-        return mdc;
+        return mdc.AppendFormattedNoReferenceTracking(value, formatString, formatFlags);
     }
 
-    public static int AppendFormattedNoReferenceTracking<TFmt>
+    public static WrittenAsFlags AppendFormattedNoReferenceTracking<TFmt>
     (this ITypeMolderDieCast mdc, TFmt? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable?
     {
-        var preAppendLength = mdc.Sb.Length;
         if (formatFlags.HasIsFieldNameFlag())
-            mdc.StyleFormatter.FormatFieldName(mdc.Sb, value, formatString, formatFlags);
-        else
-            mdc.StyleFormatter.FormatFieldContents(mdc.Sb, value, formatString, formatFlags);
-        return mdc.Sb.Length - preAppendLength;
+            return mdc.StyleFormatter.FormatFieldName(mdc.Sb, value, formatString, formatFlags);
+        return mdc.StyleFormatter.FormatFieldContents(mdc.Sb, value, formatString, formatFlags);
     }
 
-    public static int AppendFormattedWithRefenceTracking<TFmt>
+    public static WrittenAsFlags AppendFormattedWithRefenceTracking<TFmt>
     (this ITypeMolderDieCast mdc, TFmt? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable?
@@ -296,16 +310,16 @@ public static class StyledTypeBuilderExtensions
             }
             var graphBuilder = mdc.Sf.Gb;
             graphBuilder.Complete(formatFlags);
-            registeredForRevisit.Complete();
+            var stateExtractResult = registeredForRevisit.Complete();
             graphBuilder.StartNextContentSeparatorPaddingSequence(mdc.Sb, formatFlags, true);
             graphBuilder.MarkContentStart(preAppendLength);
             graphBuilder.MarkContentEnd(mdc.Sb.Length);
-            return mdc.Sb.Length - preAppendLength;
+            return stateExtractResult.WrittenAs;
         }
         return mdc.AppendFormattedNoReferenceTracking(value, formatString, formatFlags);
     }
 
-    public static int DynamicReceiveAppendValue<TFmt>(ITypeMolderDieCast mdc, TFmt value, string formatString = ""
+    public static WrittenAsFlags DynamicReceiveAppendValue<TFmt>(ITypeMolderDieCast mdc, TFmt value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
     {
         formatFlags = mdc.StyleFormatter.ResolveContentFormattingFlags(mdc.Sb, value, formatFlags, formatString);
@@ -316,23 +330,23 @@ public static class StyledTypeBuilderExtensions
         return mdc.AppendFormattedNoReferenceTracking(value, formatString, formatFlags);
     }
 
-    public static ITypeMolderDieCast<TExt> AppendFormattableField<TExt, TFmtStruct>
+    public static WrittenAsFlags AppendFormattableField<TExt, TFmtStruct>
     (this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName, TFmtStruct? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = value?.GetType() ?? typeof(TFmtStruct?);
-        if (mdc.HasSkipField(actualType, fieldName, formatFlags)) return mdc;
+        if (mdc.HasSkipField(actualType, fieldName, formatFlags)) return WrittenAsFlags.Empty;
         var callContext = mdc.Master.ResolveContextForCallerFlags(formatFlags);
-        if (callContext.ShouldSkip) return mdc;
+        if (callContext.ShouldSkip) return WrittenAsFlags.Empty;
 
         mdc.FieldNameJoin(fieldName);
         if (!callContext.HasFormatChange) return mdc.AppendNullableFormattedOrNull(value, formatString, formatFlags);
         using (callContext) { return mdc.AppendNullableFormattedOrNull(value, formatString, formatFlags); }
     }
 
-    public static ITypeMolderDieCast<TExt> AppendNullableFormattedOrNull<TExt, TFmtStruct>
+    public static WrittenAsFlags AppendNullableFormattedOrNull<TExt, TFmtStruct>
     (this ITypeMolderDieCast<TExt> mdc, TFmtStruct? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder where TFmtStruct : struct, ISpanFormattable
@@ -340,18 +354,16 @@ public static class StyledTypeBuilderExtensions
         if (value == null)
         {
             var sb = mdc.Sb;
-            mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
-            return mdc;
+            return mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
         }
         formatFlags = mdc.StyleFormatter.ResolveContentFormattingFlags(mdc.Sb, value, formatFlags, formatString);
         if (formatFlags.HasIsFieldNameFlag())
-            mdc.StyleFormatter.FormatFieldName(mdc.Sb, value, formatString, formatFlags);
-        else
-            mdc.StyleFormatter.FormatFieldContents(mdc.Sb, value, formatString, formatFlags);
-        return mdc;
+            return mdc.StyleFormatter.FormatFieldName(mdc.Sb, value, formatString, formatFlags);
+        
+        return mdc.StyleFormatter.FormatFieldContents(mdc.Sb, value, formatString, formatFlags);
     }
 
-    public static ITypeMolderDieCast<TExt> RevealCloakedBearerField<TCloaked, TCloakedBase, TExt>(this ITypeMolderDieCast<TExt> mdc
+    public static StateExtractStringRange RevealCloakedBearerField<TCloaked, TCloakedBase, TExt>(this ITypeMolderDieCast<TExt> mdc
       , ReadOnlySpan<char> fieldName, TCloaked value, PalantírReveal<TCloakedBase> cloakedRevealer, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TCloakedBase?
@@ -359,153 +371,146 @@ public static class StyledTypeBuilderExtensions
         where TCloakedBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(TCloaked);
-        if (mdc.HasSkipField(actualType, fieldName, formatFlags)) return mdc;
+        if (mdc.HasSkipField(actualType, fieldName, formatFlags))
+            return StateExtractStringRange.EmptyAppendAt(typeof(TCloaked), mdc.Sb.Length, mdc.VisitNumber);
         var callContext = mdc.Master.ResolveContextForCallerFlags(formatFlags);
-        if (callContext.ShouldSkip) return mdc;
+        if (callContext.ShouldSkip) return StateExtractStringRange.EmptyAppendAt(typeof(TCloaked), mdc.Sb.Length, mdc.VisitNumber);
 
         mdc.FieldNameJoin(fieldName);
         if (!callContext.HasFormatChange) return mdc.RevealCloakedBearerOrNull(value, cloakedRevealer, formatString, formatFlags);
         using (callContext) { return mdc.RevealCloakedBearerOrNull(value, cloakedRevealer, formatString, formatFlags); }
     }
 
-    public static ITypeMolderDieCast<TExt> RevealCloakedBearerOrNull<TCloaked, TRevealBase, TExt>(this ITypeMolderDieCast<TExt> mdc
+    public static StateExtractStringRange RevealCloakedBearerOrNull<TCloaked, TRevealBase, TExt>(this ITypeMolderDieCast<TExt> mdc
       , TCloaked? value, PalantírReveal<TRevealBase> styler, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TExt : TypeMolder
         where TRevealBase : notnull
     {
-        var sb = mdc.Sb;
-        if (value != null)
+        var sb           = mdc.Sb;
+        var contentStart = sb.Length;
+        if (value == null)
         {
-            if (formatFlags.HasIsFieldNameFlag())
-                mdc.StyleFormatter.FormatFieldName(mdc.Master, value, styler, formatString, formatFlags);
-            else
-                mdc.StyleFormatter.FormatFieldContents(mdc.Master, value, styler, formatString, formatFlags);
-
-            // if (!mdc.Settings.DisableCircularRefCheck && !typeof(TCloaked).IsValueType)
-            // {
-            //     mdc.Master.EnsureRegisteredVisited(value, formatFlags);
-            // }
+            var writtenAsFlags =  mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
+            return new StateExtractStringRange(typeof(TCloaked), mdc.Master, new Range(contentStart, sb.Length), writtenAsFlags, mdc.VisitNumber);
         }
-        else { mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags); }
-        return mdc;
+        
+        if (formatFlags.HasIsFieldNameFlag())
+            return mdc.StyleFormatter.FormatFieldName(mdc.Master, value, styler, formatString, formatFlags);
+        return mdc.StyleFormatter.FormatFieldContents(mdc.Master, value, styler, formatString, formatFlags);
     }
 
-    public static ITypeMolderDieCast<TExt> RevealNullableCloakedBearerField<TCloakedStruct, TExt>(this ITypeMolderDieCast<TExt> mdc
+    public static StateExtractStringRange RevealNullableCloakedBearerField<TCloakedStruct, TExt>(this ITypeMolderDieCast<TExt> mdc
       , ReadOnlySpan<char> fieldName, TCloakedStruct? value, PalantírReveal<TCloakedStruct> cloakedRevealer
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct where TExt : TypeMolder
     {
         var actualType = value?.GetType() ?? typeof(TCloakedStruct?);
-        if (mdc.HasSkipField(actualType, fieldName, formatFlags)) return mdc;
+        if (mdc.HasSkipField(actualType, fieldName, formatFlags)) return StateExtractStringRange.EmptyAppendAt(typeof(TCloakedStruct), mdc.Sb.Length, mdc.VisitNumber);
         var callContext = mdc.Master.ResolveContextForCallerFlags(formatFlags);
-        if (callContext.ShouldSkip) return mdc;
+        if (callContext.ShouldSkip) return StateExtractStringRange.EmptyAppendAt(typeof(TCloakedStruct), mdc.Sb.Length, mdc.VisitNumber);
 
         mdc.FieldNameJoin(fieldName);
-        if (!callContext.HasFormatChange) return mdc.RevealNullableCloakedBearerOrNull(value, cloakedRevealer, formatString, formatFlags);
+        if (!callContext.HasFormatChange) 
+            return mdc.RevealNullableCloakedBearerOrNull(value, cloakedRevealer, formatString, formatFlags);
         using (callContext) { return mdc.RevealNullableCloakedBearerOrNull(value, cloakedRevealer, formatString, formatFlags); }
     }
 
-    public static ITypeMolderDieCast<TExt> RevealNullableCloakedBearerOrNull<TCloakedStruct, TExt>(this ITypeMolderDieCast<TExt> mdc
+    public static StateExtractStringRange RevealNullableCloakedBearerOrNull<TCloakedStruct, TExt>(this ITypeMolderDieCast<TExt> mdc
       , TCloakedStruct? value, PalantírReveal<TCloakedStruct> styler, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct where TExt : TypeMolder
     {
-        var sb = mdc.Sb;
-        if (value != null)
+        var sb           = mdc.Sb;
+        var contentStart = sb.Length;
+        if (value == null)
         {
-            if (formatFlags.HasIsFieldNameFlag())
-                mdc.StyleFormatter.FormatFieldName(mdc.Master, value.Value, styler, formatString, formatFlags);
-            else
-                mdc.StyleFormatter.FormatFieldContents(mdc.Master, value.Value, styler, formatString, formatFlags);
-
-            // if (!mdc.Settings.DisableCircularRefCheck && !typeof(TCloakedStruct).IsValueType)
-            // {
-            //     mdc.Master.EnsureRegisteredVisited(value, formatFlags);
-            // }
+            var writtenAsFlags = mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
+            return new StateExtractStringRange(typeof(TCloakedStruct), mdc.Master, new Range(contentStart, sb.Length), writtenAsFlags, mdc.VisitNumber);
         }
-        else { mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags); }
-        return mdc;
+        if (formatFlags.HasIsFieldNameFlag())
+            return mdc.StyleFormatter.FormatFieldName(mdc.Master, value.Value, styler, formatString, formatFlags);
+        return  mdc.StyleFormatter.FormatFieldContents(mdc.Master, value.Value, styler, formatString, formatFlags);
     }
 
-    public static ITypeMolderDieCast<TExt> RevealStringBearerField<TExt, TBearer>(this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName
+    public static StateExtractStringRange RevealStringBearerField<TExt, TBearer>(this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName
       , TBearer value, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder where TBearer : IStringBearer?
     {
         var actualType = value?.GetType() ?? typeof(TBearer);
-        if (mdc.HasSkipField(actualType, fieldName, formatFlags)) return mdc;
+        if (mdc.HasSkipField(actualType, fieldName, formatFlags)) return StateExtractStringRange.EmptyAppendAt(typeof(TBearer), mdc.Sb.Length, mdc.VisitNumber);
         var callContext = mdc.Master.ResolveContextForCallerFlags(formatFlags);
-        if (callContext.ShouldSkip) return mdc;
+        if (callContext.ShouldSkip) return StateExtractStringRange.EmptyAppendAt(typeof(TBearer), mdc.Sb.Length, mdc.VisitNumber);
 
         mdc.FieldNameJoin(fieldName);
         if (!callContext.HasFormatChange) return mdc.RevealStringBearerOrNull(value, formatString, formatFlags);
         using (callContext) { return mdc.RevealStringBearerOrNull(value, formatString, formatFlags); }
     }
 
-    public static ITypeMolderDieCast<TExt> RevealStringBearerOrNull<TExt, TBearer>(this ITypeMolderDieCast<TExt> mdc
+    public static StateExtractStringRange RevealStringBearerOrNull<TExt, TBearer>(this ITypeMolderDieCast<TExt> mdc
       , TBearer? value, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder
         where TBearer : IStringBearer?
     {
-        var sb = mdc.Sb;
-        if (value != null)
+        var sb           = mdc.Sb;
+        var contentStart = sb.Length;
+        if (value == null)
         {
-            if (formatFlags.HasIsFieldNameFlag())
-                mdc.StyleFormatter.FormatFieldName(mdc.Master, value, formatString, formatFlags);
-            else
-                mdc.StyleFormatter.FormatFieldContents(mdc.Master, value, formatString, formatFlags);
+            var writtenAsFlags = mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
+            return new StateExtractStringRange(typeof(TBearer), mdc.Master, new Range(contentStart, sb.Length), writtenAsFlags, mdc.VisitNumber);
         }
-        else { mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags); }
-        return mdc;
+        if (formatFlags.HasIsFieldNameFlag())
+            return mdc.StyleFormatter.FormatFieldName(mdc.Master, value, formatString, formatFlags);
+        return mdc.StyleFormatter.FormatFieldContents(mdc.Master, value, formatString, formatFlags);
     }
 
-    public static ITypeMolderDieCast<TExt> RevealNullableStringBearerField<TExt, TBearerStruct>(this ITypeMolderDieCast<TExt> mdc
+    public static StateExtractStringRange RevealNullableStringBearerField<TExt, TBearerStruct>(this ITypeMolderDieCast<TExt> mdc
       , ReadOnlySpan<char> fieldName, TBearerStruct? value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder where TBearerStruct : struct, IStringBearer
     {
         var actualType = value?.GetType() ?? typeof(TBearerStruct?);
-        if (mdc.HasSkipField(actualType, fieldName, formatFlags)) return mdc;
+        if (mdc.HasSkipField(actualType, fieldName, formatFlags)) return StateExtractStringRange.EmptyAppendAt(typeof(TBearerStruct), mdc.Sb.Length, mdc.VisitNumber);
         var callContext = mdc.Master.ResolveContextForCallerFlags(formatFlags);
-        if (callContext.ShouldSkip) return mdc;
+        if (callContext.ShouldSkip) return StateExtractStringRange.EmptyAppendAt(typeof(TBearerStruct), mdc.Sb.Length, mdc.VisitNumber);
 
         mdc.FieldNameJoin(fieldName);
         if (!callContext.HasFormatChange) return mdc.RevealNullableStringBearerOrNull(value, formatString, formatFlags);
         using (callContext) { return mdc.RevealNullableStringBearerOrNull(value, formatString, formatFlags); }
     }
 
-    public static ITypeMolderDieCast<TExt> RevealNullableStringBearerOrNull<TExt, TBearerStruct>(this ITypeMolderDieCast<TExt> mdc
+    public static StateExtractStringRange RevealNullableStringBearerOrNull<TExt, TBearerStruct>(this ITypeMolderDieCast<TExt> mdc
       , TBearerStruct? value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder where TBearerStruct : struct, IStringBearer
     {
         var sb = mdc.Sb;
 
+        var contentStart = sb.Length;
         if (value == null)
         {
-            mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
-            return mdc;
+            var writtenAsFlags = mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
+            return new StateExtractStringRange(typeof(TBearerStruct), mdc.Master, new Range(contentStart, sb.Length), writtenAsFlags, mdc.VisitNumber);
         }
         if (formatFlags.HasIsFieldNameFlag())
-            mdc.StyleFormatter.FormatFieldName(mdc.Master, value.Value, formatString, formatFlags);
-        else
-            mdc.StyleFormatter.FormatFieldContents(mdc.Master, value.Value, formatString, formatFlags);
-        return mdc;
+             return mdc.StyleFormatter.FormatFieldName(mdc.Master, value.Value, formatString, formatFlags);
+        
+        return mdc.StyleFormatter.FormatFieldContents(mdc.Master, value.Value, formatString, formatFlags);
     }
 
-    public static ITypeMolderDieCast<TExt> AppendReadOnlySpanField<TExt>
+    public static WrittenAsFlags AppendReadOnlySpanField<TExt>
     (this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName, ReadOnlySpan<char> value
       , string formatString = "", int fromIndex = 0, int length = int.MaxValue
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder
     {
-        if (mdc.HasSkipField(typeof(ReadOnlySpan<char>), fieldName, formatFlags)) return mdc;
+        if (mdc.HasSkipField(typeof(ReadOnlySpan<char>), fieldName, formatFlags)) return WrittenAsFlags.Empty;
         var callContext = mdc.Master.ResolveContextForCallerFlags(formatFlags);
-        if (callContext.ShouldSkip) return mdc;
+        if (callContext.ShouldSkip) return WrittenAsFlags.Empty;
 
         mdc.FieldNameJoin(fieldName);
         if (!callContext.HasFormatChange) return mdc.AppendFormattedOrNullOnZeroLength(value, formatString, fromIndex, length, formatFlags);
         using (callContext) { return mdc.AppendFormattedOrNullOnZeroLength(value, formatString, fromIndex, length, formatFlags); }
     }
 
-    public static ITypeMolderDieCast<TExt> AppendFormattedOrNullOnZeroLength<TExt>
+    public static WrittenAsFlags AppendFormattedOrNullOnZeroLength<TExt>
     (this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
       , int fromIndex = 0, int length = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder
@@ -514,32 +519,30 @@ public static class StyledTypeBuilderExtensions
         var cappedFrom = Math.Clamp(fromIndex, 0, value.Length);
         if (value.Length == 0)
         {
-            mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
-            return mdc;
+            return mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
         }
         formatFlags = mdc.StyleFormatter.ResolveContentFormattingFlags(mdc.Sb, "InputIsCharSpan", formatFlags, formatString);
         if (formatFlags.HasIsFieldNameFlag())
-            mdc.StyleFormatter.FormatFieldName(mdc.Sb, value, cappedFrom, formatString, length, formatFlags);
-        else
-            mdc.StyleFormatter.FormatFieldContents(mdc.Sb, value, cappedFrom, formatString, length, formatFlags);
-        return mdc;
+            return mdc.StyleFormatter.FormatFieldName(mdc.Sb, value, cappedFrom, formatString, length, formatFlags);
+        
+        return mdc.StyleFormatter.FormatFieldContents(mdc.Sb, value, cappedFrom, formatString, length, formatFlags);
     }
 
-    public static ITypeMolderDieCast<TExt> AppendStringField<TExt>
+    public static WrittenAsFlags AppendStringField<TExt>
     (this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName, string? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
       , int fromIndex = 0, int length = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder
     {
-        if (mdc.HasSkipField(typeof(string), fieldName, formatFlags)) return mdc;
+        if (mdc.HasSkipField(typeof(string), fieldName, formatFlags)) return WrittenAsFlags.Empty;
         var callContext = mdc.Master.ResolveContextForCallerFlags(formatFlags);
-        if (callContext.ShouldSkip) return mdc;
+        if (callContext.ShouldSkip) return WrittenAsFlags.Empty;
 
         mdc.FieldNameJoin(fieldName);
         if (!callContext.HasFormatChange) return mdc.AppendFormattedOrNull(value, formatString, fromIndex, length, formatFlags);
         using (callContext) { return mdc.AppendFormattedOrNull(value, formatString, fromIndex, length, formatFlags); }
     }
 
-    public static ITypeMolderDieCast<TExt> AppendFormattedOrNull<TExt>
+    public static WrittenAsFlags AppendFormattedOrNull<TExt>
     (this ITypeMolderDieCast<TExt> mdc, string? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
       , int fromIndex = 0, int length = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder
@@ -547,33 +550,30 @@ public static class StyledTypeBuilderExtensions
         var sb = mdc.Sb;
         if (value == null)
         {
-            mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
-            return mdc;
+            return mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
         }
         formatFlags = mdc.StyleFormatter.ResolveContentFormattingFlags(mdc.Sb, "InputIsCharSpan", formatFlags, formatString);
         var cappedFrom = Math.Max(0, Math.Min(value.Length, fromIndex));
         if (formatFlags.HasIsFieldNameFlag())
-            mdc.StyleFormatter.FormatFieldName(mdc.Sb, value, cappedFrom, formatString, length, formatFlags);
-        else
-            mdc.StyleFormatter.FormatFieldContents(mdc.Sb, value, cappedFrom, formatString, length, formatFlags);
-        return mdc;
+            return mdc.StyleFormatter.FormatFieldName(mdc.Sb, value, cappedFrom, formatString, length, formatFlags);
+        return mdc.StyleFormatter.FormatFieldContents(mdc.Sb, value, cappedFrom, formatString, length, formatFlags);
     }
 
-    public static ITypeMolderDieCast<TExt> AppendCharArrayField<TExt>
+    public static WrittenAsFlags AppendCharArrayField<TExt>
     (this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName, char[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
       , int fromIndex = 0, int length = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder
     {
-        if (mdc.HasSkipField(typeof(char[]), fieldName, formatFlags)) return mdc;
+        if (mdc.HasSkipField(typeof(char[]), fieldName, formatFlags)) return WrittenAsFlags.Empty;
         var callContext = mdc.Master.ResolveContextForCallerFlags(formatFlags);
-        if (callContext.ShouldSkip) return mdc;
+        if (callContext.ShouldSkip) return WrittenAsFlags.Empty;
 
         mdc.FieldNameJoin(fieldName);
         if (!callContext.HasFormatChange) return mdc.AppendFormattedOrNull(value, formatString, fromIndex, length, formatFlags);
         using (callContext) { return mdc.AppendFormattedOrNull(value, formatString, fromIndex, length, formatFlags); }
     }
 
-    public static ITypeMolderDieCast<TExt> AppendFormattedOrNull<TExt>
+    public static WrittenAsFlags AppendFormattedOrNull<TExt>
     (this ITypeMolderDieCast<TExt> mdc, char[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = "", int fromIndex = 0, int length = int.MaxValue
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -582,19 +582,16 @@ public static class StyledTypeBuilderExtensions
         var sb = mdc.Sb;
         if (value == null)
         {
-            mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
-            return mdc;
+            return mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
         }
         var cappedFrom = Math.Max(0, Math.Min(value.Length, fromIndex));
         formatFlags = mdc.StyleFormatter.ResolveContentFormattingFlags(mdc.Sb, value, formatFlags, formatString);
         if (formatFlags.HasIsFieldNameFlag())
-            mdc.StyleFormatter.FormatFieldName(mdc.Sb, value, cappedFrom, formatString, length, formatFlags);
-        else
-            mdc.StyleFormatter.FormatFieldContents(mdc.Sb, value, cappedFrom, formatString, length, formatFlags);
-        return mdc;
+            return mdc.StyleFormatter.FormatFieldName(mdc.Sb, value, cappedFrom, formatString, length, formatFlags);
+        return mdc.StyleFormatter.FormatFieldContents(mdc.Sb, value, cappedFrom, formatString, length, formatFlags);
     }
 
-    public static ITypeMolderDieCast<TExt> AppendCharSequenceField<TExt, TCharSeq>
+    public static WrittenAsFlags AppendCharSequenceField<TExt, TCharSeq>
     (this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName, TCharSeq? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = "", int fromIndex = 0, int length = int.MaxValue
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -602,16 +599,16 @@ public static class StyledTypeBuilderExtensions
         where TCharSeq : ICharSequence?
     {
         var actualType = value?.GetType() ?? typeof(TCharSeq);
-        if (mdc.HasSkipField(actualType, fieldName, formatFlags)) return mdc;
+        if (mdc.HasSkipField(actualType, fieldName, formatFlags)) return WrittenAsFlags.Empty;
         var callContext = mdc.Master.ResolveContextForCallerFlags(formatFlags);
-        if (callContext.ShouldSkip) return mdc;
+        if (callContext.ShouldSkip) return WrittenAsFlags.Empty;
 
         mdc.FieldNameJoin(fieldName);
         if (!callContext.HasFormatChange) return mdc.AppendFormattedOrNull(value, formatString, fromIndex, length, formatFlags);
         using (callContext) { return mdc.AppendFormattedOrNull(value, formatString, fromIndex, length, formatFlags); }
     }
 
-    public static ITypeMolderDieCast<TExt> AppendFormattedOrNull<TExt, TCharSeq>
+    public static WrittenAsFlags AppendFormattedOrNull<TExt, TCharSeq>
     (this ITypeMolderDieCast<TExt> mdc, TCharSeq? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = "", int fromIndex = 0, int length = int.MaxValue
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -621,34 +618,31 @@ public static class StyledTypeBuilderExtensions
         var sb = mdc.Sb;
         if (value == null)
         {
-            mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
-            return mdc;
+            return mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
         }
         var cappedFrom = Math.Max(0, Math.Min(value.Length, fromIndex));
         formatFlags = mdc.StyleFormatter.ResolveContentFormattingFlags(mdc.Sb, value, formatFlags, formatString);
         if (formatFlags.HasIsFieldNameFlag())
-            mdc.StyleFormatter.FormatFieldName(mdc.Sb, value, cappedFrom, formatString, length, formatFlags);
-        else
-            mdc.StyleFormatter.FormatFieldContents(mdc.Sb, value, cappedFrom, formatString, length, formatFlags);
-        return mdc;
+            return mdc.StyleFormatter.FormatFieldName(mdc.Sb, value, cappedFrom, formatString, length, formatFlags);
+        return mdc.StyleFormatter.FormatFieldContents(mdc.Sb, value, cappedFrom, formatString, length, formatFlags);
     }
 
-    public static ITypeMolderDieCast<TExt> AppendStringBuilderField<TExt>
+    public static WrittenAsFlags AppendStringBuilderField<TExt>
     (this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName, StringBuilder? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = "", int fromIndex = 0, int length = int.MaxValue
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder
     {
-        if (mdc.HasSkipField(typeof(StringBuilder), fieldName, formatFlags)) return mdc;
+        if (mdc.HasSkipField(typeof(StringBuilder), fieldName, formatFlags)) return WrittenAsFlags.Empty;
         var callContext = mdc.Master.ResolveContextForCallerFlags(formatFlags);
-        if (callContext.ShouldSkip) return mdc;
+        if (callContext.ShouldSkip) return WrittenAsFlags.Empty;
 
         mdc.FieldNameJoin(fieldName);
         if (!callContext.HasFormatChange) return mdc.AppendFormattedOrNull(value, formatString, fromIndex, length, formatFlags);
         using (callContext) { return mdc.AppendFormattedOrNull(value, formatString, fromIndex, length, formatFlags); }
     }
 
-    public static ITypeMolderDieCast<TExt> AppendFormattedOrNull<TExt>
+    public static WrittenAsFlags AppendFormattedOrNull<TExt>
     (this ITypeMolderDieCast<TExt> mdc, StringBuilder? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = "", int fromIndex = 0, int length = int.MaxValue
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -657,82 +651,79 @@ public static class StyledTypeBuilderExtensions
         var sb = mdc.Sb;
         if (value == null)
         {
-            mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
-            return mdc;
+            return mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
         }
         var cappedFrom = Math.Clamp(fromIndex, 0, value.Length);
         formatFlags = mdc.StyleFormatter.ResolveContentFormattingFlags(mdc.Sb, value, formatFlags, formatString);
         if (formatFlags.HasIsFieldNameFlag())
-            mdc.StyleFormatter.FormatFieldName(mdc.Sb, value, cappedFrom, formatString, length, formatFlags);
-        else
-            mdc.StyleFormatter.FormatFieldContents(mdc.Sb, value, cappedFrom, formatString, length, formatFlags);
-        return mdc;
+            return mdc.StyleFormatter.FormatFieldName(mdc.Sb, value, cappedFrom, formatString, length, formatFlags);
+        return mdc.StyleFormatter.FormatFieldContents(mdc.Sb, value, cappedFrom, formatString, length, formatFlags);
     }
 
-    public static ITypeMolderDieCast<TExt> AppendObjectField<TExt>(this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName, object? value
+    public static WrittenAsFlags AppendObjectField<TExt>(this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName, object? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder
     {
         var actualType = value?.GetType() ?? typeof(object);
-        if (mdc.HasSkipField(actualType, fieldName, formatFlags)) return mdc;
+        if (mdc.HasSkipField(actualType, fieldName, formatFlags)) return WrittenAsFlags.Empty;
         var callContext = mdc.Master.ResolveContextForCallerFlags(formatFlags);
-        if (callContext.ShouldSkip) return mdc;
+        if (callContext.ShouldSkip) return WrittenAsFlags.Empty;
 
         mdc.FieldNameJoin(fieldName);
         if (!callContext.HasFormatChange) return mdc.AppendMatchFormattedOrNull(value, formatString, formatFlags);
         using (callContext) { return mdc.AppendMatchFormattedOrNull(value, formatString, formatFlags); }
     }
 
-    public static ITypeMolderDieCast<TExt> AppendMatchField<TExt, TAny>(this ITypeMolderDieCast<TExt> mdc
+    public static WrittenAsFlags AppendMatchField<TExt, TAny>(this ITypeMolderDieCast<TExt> mdc
       , ReadOnlySpan<char> fieldName, TAny value, string formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder
     {
         var actualType = value?.GetType() ?? typeof(TAny);
-        if (mdc.HasSkipField(actualType, fieldName, formatFlags)) return mdc;
+        if (mdc.HasSkipField(actualType, fieldName, formatFlags)) return WrittenAsFlags.Empty;
         var callContext = mdc.Master.ResolveContextForCallerFlags(formatFlags);
-        if (callContext.ShouldSkip) return mdc;
+        if (callContext.ShouldSkip) return WrittenAsFlags.Empty;
 
         mdc.FieldNameJoin(fieldName);
         if (!callContext.HasFormatChange) return mdc.AppendMatchFormattedOrNull(value, formatString, formatFlags);
         using (callContext) { return mdc.AppendMatchFormattedOrNull(value, formatString, formatFlags); }
     }
 
-    public static ITypeMolderDieCast<TExt> AppendMatchFormattedOrNull<TValue, TExt>(this ITypeMolderDieCast<TExt> mdc
+    public static WrittenAsFlags AppendMatchFormattedOrNull<TValue, TExt>(this ITypeMolderDieCast<TExt> mdc
       , TValue value, string formatString, FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder
     {
         var sb = mdc.Sb;
         if (value != null)
             switch (value)
             {
-                case bool valueBool:           mdc.AppendFormatted(valueBool, formatString, formatFlags); break;
-                case byte valueByte:           mdc.AppendFormattedOrNull(valueByte, formatString, formatFlags); break;
-                case sbyte valueSByte:         mdc.AppendFormattedOrNull(valueSByte, formatString, formatFlags); break;
-                case char valueChar:           mdc.AppendFormattedOrNull(valueChar, formatString, formatFlags); break;
-                case short valueShort:         mdc.AppendFormattedOrNull(valueShort, formatString, formatFlags); break;
-                case ushort valueUShort:       mdc.AppendFormattedOrNull(valueUShort, formatString, formatFlags); break;
-                case Half valueHalfFloat:      mdc.AppendFormattedOrNull(valueHalfFloat, formatString, formatFlags); break;
-                case int valueInt:             mdc.AppendFormattedOrNull(valueInt, formatString, formatFlags); break;
-                case uint valueUInt:           mdc.AppendFormattedOrNull(valueUInt, formatString, formatFlags); break;
-                case nint valueUInt:           mdc.AppendFormattedOrNull(valueUInt, formatString, formatFlags); break;
-                case float valueFloat:         mdc.AppendFormattedOrNull(valueFloat, formatString, formatFlags); break;
-                case long valueLong:           mdc.AppendFormattedOrNull(valueLong, formatString, formatFlags); break;
-                case ulong valueULong:         mdc.AppendFormattedOrNull(valueULong, formatString, formatFlags); break;
-                case double valueDouble:       mdc.AppendFormattedOrNull(valueDouble, formatString, formatFlags); break;
-                case decimal valueDecimal:     mdc.AppendFormattedOrNull(valueDecimal, formatString, formatFlags); break;
-                case Int128 veryLongInt:       mdc.AppendFormattedOrNull(veryLongInt, formatString, formatFlags); break;
-                case UInt128 veryLongUInt:     mdc.AppendFormattedOrNull(veryLongUInt, formatString, formatFlags); break;
-                case BigInteger veryLongInt:   mdc.AppendFormattedOrNull(veryLongInt, formatString, formatFlags); break;
-                case Complex veryLongInt:      mdc.AppendFormattedOrNull(veryLongInt, formatString, formatFlags); break;
-                case DateTime valueDateTime:   mdc.AppendFormattedOrNull(valueDateTime, formatString, formatFlags); break;
-                case DateOnly valueDateOnly:   mdc.AppendFormattedOrNull(valueDateOnly, formatString, formatFlags); break;
-                case TimeSpan valueTimeSpan:   mdc.AppendFormattedOrNull(valueTimeSpan, formatString, formatFlags); break;
-                case TimeOnly valueTimeOnly:   mdc.AppendFormattedOrNull(valueTimeOnly, formatString, formatFlags); break;
-                case Rune valueRune:           mdc.AppendFormattedOrNull(valueRune, formatString, formatFlags); break;
-                case Guid valueGuid:           mdc.AppendFormattedOrNull(valueGuid, formatString, formatFlags); break;
-                case IPNetwork valueIpNetwork: mdc.AppendFormattedOrNull(valueIpNetwork, formatString, formatFlags); break;
-                case Version valueVersion:     mdc.AppendFormattedOrNull(valueVersion, formatString, formatFlags); break;
-                case IPAddress valueIpAddress: mdc.AppendFormattedOrNull(valueIpAddress, formatString, formatFlags); break;
-                case Uri valueUri:             mdc.AppendFormattedOrNull(valueUri, formatString, formatFlags); break;
+                case bool valueBool:           return mdc.AppendFormatted(valueBool, formatString, formatFlags);
+                case byte valueByte:           return mdc.AppendFormattedOrNull(valueByte, formatString, formatFlags);
+                case sbyte valueSByte:         return mdc.AppendFormattedOrNull(valueSByte, formatString, formatFlags);
+                case char valueChar:           return mdc.AppendFormattedOrNull(valueChar, formatString, formatFlags);
+                case short valueShort:         return mdc.AppendFormattedOrNull(valueShort, formatString, formatFlags);
+                case ushort valueUShort:       return mdc.AppendFormattedOrNull(valueUShort, formatString, formatFlags);
+                case Half valueHalfFloat:      return mdc.AppendFormattedOrNull(valueHalfFloat, formatString, formatFlags);
+                case int valueInt:             return mdc.AppendFormattedOrNull(valueInt, formatString, formatFlags);
+                case uint valueUInt:           return mdc.AppendFormattedOrNull(valueUInt, formatString, formatFlags);
+                case nint valueUInt:           return mdc.AppendFormattedOrNull(valueUInt, formatString, formatFlags);
+                case float valueFloat:         return mdc.AppendFormattedOrNull(valueFloat, formatString, formatFlags);
+                case long valueLong:           return mdc.AppendFormattedOrNull(valueLong, formatString, formatFlags);
+                case ulong valueULong:         return mdc.AppendFormattedOrNull(valueULong, formatString, formatFlags);
+                case double valueDouble:       return mdc.AppendFormattedOrNull(valueDouble, formatString, formatFlags);
+                case decimal valueDecimal:     return mdc.AppendFormattedOrNull(valueDecimal, formatString, formatFlags);
+                case Int128 veryLongInt:       return mdc.AppendFormattedOrNull(veryLongInt, formatString, formatFlags);
+                case UInt128 veryLongUInt:     return mdc.AppendFormattedOrNull(veryLongUInt, formatString, formatFlags);
+                case BigInteger veryLongInt:   return mdc.AppendFormattedOrNull(veryLongInt, formatString, formatFlags);
+                case Complex veryLongInt:      return mdc.AppendFormattedOrNull(veryLongInt, formatString, formatFlags);
+                case DateTime valueDateTime:   return mdc.AppendFormattedOrNull(valueDateTime, formatString, formatFlags);
+                case DateOnly valueDateOnly:   return mdc.AppendFormattedOrNull(valueDateOnly, formatString, formatFlags);
+                case TimeSpan valueTimeSpan:   return mdc.AppendFormattedOrNull(valueTimeSpan, formatString, formatFlags);
+                case TimeOnly valueTimeOnly:   return mdc.AppendFormattedOrNull(valueTimeOnly, formatString, formatFlags);
+                case Rune valueRune:           return mdc.AppendFormattedOrNull(valueRune, formatString, formatFlags);
+                case Guid valueGuid:           return mdc.AppendFormattedOrNull(valueGuid, formatString, formatFlags);
+                case IPNetwork valueIpNetwork: return mdc.AppendFormattedOrNull(valueIpNetwork, formatString, formatFlags);
+                case Version valueVersion:     return mdc.AppendFormattedOrNull(valueVersion, formatString, formatFlags);
+                case IPAddress valueIpAddress: return mdc.AppendFormattedOrNull(valueIpAddress, formatString, formatFlags);
+                case Uri valueUri:             return mdc.AppendFormattedOrNull(valueUri, formatString, formatFlags);
                 case Enum:
                 case ISpanFormattable:
                     var actualValueType = value.GetType();
@@ -758,26 +749,25 @@ public static class StyledTypeBuilderExtensions
                     if (typeOfTValue.ImplementsInterface(typeof(ISpanFormattable)))
                     {
                         var castInvoker = (SpanFmtStructContentHandler<TValue>)invoker;
-                        castInvoker(mdc, value, formatString, formatFlags);
+                        return castInvoker(mdc, value, formatString, formatFlags);
                     }
-                    else if (value is Enum valueEnum)
+                    if (value is Enum valueEnum)
                     {
                         var castInvoker = (SpanFmtStructContentHandler<Enum>)invoker;
-                        castInvoker(mdc, valueEnum, formatString, formatFlags);
+                        return castInvoker(mdc, valueEnum, formatString, formatFlags);
                     }
                     else
                     {
                         var castInvoker = (SpanFmtStructContentHandler<ISpanFormattable>)invoker;
-                        castInvoker(mdc, (ISpanFormattable)value, formatString, formatFlags);
+                        return castInvoker(mdc, (ISpanFormattable)value, formatString, formatFlags);
                     }
-                    break;
 
-                case char[] valueCharArray:           mdc.AppendFormattedOrNull(valueCharArray, formatString, formatFlags: formatFlags); break;
-                case string valueString:              mdc.AppendFormattedOrNull(valueString, formatString, formatFlags: formatFlags); break;
-                case ICharSequence valueCharSequence: mdc.AppendFormattedOrNull(valueCharSequence, formatString, formatFlags: formatFlags); break;
-                case StringBuilder valueSb:           mdc.AppendFormattedOrNull(valueSb, formatString, formatFlags: formatFlags); break;
+                case char[] valueCharArray:           return mdc.AppendFormattedOrNull(valueCharArray, formatString, formatFlags: formatFlags);
+                case string valueString:              return mdc.AppendFormattedOrNull(valueString, formatString, formatFlags: formatFlags);
+                case ICharSequence valueCharSequence: return mdc.AppendFormattedOrNull(valueCharSequence, formatString, formatFlags: formatFlags);
+                case StringBuilder valueSb:           return mdc.AppendFormattedOrNull(valueSb, formatString, formatFlags: formatFlags);
 
-                case IStringBearer styledToStringObj: mdc.RevealStringBearerOrNull(styledToStringObj, formatString, formatFlags); break;
+                case IStringBearer styledToStringObj: return mdc.RevealStringBearerOrNull(styledToStringObj, formatString, formatFlags).WrittenAs;
                 case IEnumerator:
                 case IEnumerable:
                     var type = typeof(TValue);
@@ -787,70 +777,66 @@ public static class StyledTypeBuilderExtensions
                     {
                         var keyedCollectionBuilder = mdc.Master.StartKeyedCollectionType(value);
                         KeyedCollectionGenericAddAllInvoker.CallAddAll<TValue>(keyedCollectionBuilder, value, formatString, formatFlags);
-                        keyedCollectionBuilder.Complete();
-                        break;
+                        var mapCollectionStateExtractResult = keyedCollectionBuilder.Complete();
+                        return mapCollectionStateExtractResult.WrittenAs;
                     }
                     var orderedCollectionBuilder = mdc.Master.StartSimpleCollectionType(value);
                     SimpleOrderedCollectionGenericAddAllInvoker.CallAddAll<TValue>(orderedCollectionBuilder, value, formatString, formatFlags);
-                    orderedCollectionBuilder.Complete();
-                    break;
+                    var collectionStateExtractResult = orderedCollectionBuilder.Complete();
+                    return collectionStateExtractResult.WrittenAs;
 
                 default:
                     var unknownType = value.GetType();
                     if (formatFlags.HasIsFieldNameFlag())
-                        mdc.StyleFormatter.FormatFieldNameMatch(mdc.Sb, value, formatString, formatFlags);
-                    else
-                    {
-                        if (unknownType.IsValueType || mdc.Master.IsCallerSameInstanceAndMoreDerived(value))
-                            mdc.StyleFormatter.FormatFieldContentsMatch(mdc.Sb, value, formatString, formatFlags);
-                        else
-                            mdc.Master.RegisterVisitedInstanceAndConvert(value, formatString, formatFlags);
-                    }
-                    break;
+                        return mdc.StyleFormatter.FormatFieldNameMatch(mdc.Sb, value, formatString, formatFlags);
+                    
+                    if (unknownType.IsValueType || mdc.Master.IsCallerSameInstanceAndMoreDerived(value))
+                        return mdc.StyleFormatter.FormatFieldContentsMatch(mdc.Sb, value, formatString, formatFlags);
+                    
+                    var result = mdc.Master.RegisterVisitedInstanceAndConvert(value, formatString, formatFlags);
+                    return result.WrittenAs;
             }
-        else
-            mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
-        return mdc;
+        return mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
     }
 
-    public static IStringBuilder AppendFormattedCollectionItemMatchOrNull<TValue, TExt>(this ITypeMolderDieCast<TExt> mdc
+    public static WrittenAsFlags AppendFormattedCollectionItemMatchOrNull<TValue, TExt>(this ITypeMolderDieCast<TExt> mdc
       , TValue value, int retrieveCount, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder
     {
         var sb = mdc.Sb;
         if (value != null)
             switch (value)
             {
-                case bool valueBool: mdc.AppendFormattedCollectionItem(valueBool, retrieveCount, formatString, formatFlags); break;
-                case byte valueByte: mdc.AppendFormattedCollectionItem(valueByte, retrieveCount, formatString, formatFlags); break;
-                case sbyte valueSByte: mdc.AppendFormattedCollectionItem(valueSByte, retrieveCount, formatString, formatFlags); break;
-                case char valueChar: mdc.AppendFormattedCollectionItem(valueChar, retrieveCount, formatString, formatFlags); break;
-                case short valueShort: mdc.AppendFormattedCollectionItem(valueShort, retrieveCount, formatString, formatFlags); break;
-                case ushort valueUShort: mdc.AppendFormattedCollectionItem(valueUShort, retrieveCount, formatString, formatFlags); break;
-                case Half valueHalfFloat: mdc.AppendFormattedCollectionItem(valueHalfFloat, retrieveCount, formatString, formatFlags); break;
-                case int valueInt: mdc.AppendFormattedCollectionItem(valueInt, retrieveCount, formatString, formatFlags); break;
-                case uint valueUInt: mdc.AppendFormattedCollectionItem(valueUInt, retrieveCount, formatString, formatFlags); break;
-                case nint valueUInt: mdc.AppendFormattedCollectionItem(valueUInt, retrieveCount, formatString, formatFlags); break;
-                case float valueFloat: mdc.AppendFormattedCollectionItem(valueFloat, retrieveCount, formatString, formatFlags); break;
-                case long valueLong: mdc.AppendFormattedCollectionItem(valueLong, retrieveCount, formatString, formatFlags); break;
-                case ulong valueULong: mdc.AppendFormattedCollectionItem(valueULong, retrieveCount, formatString, formatFlags); break;
-                case double valueDouble: mdc.AppendFormattedCollectionItem(valueDouble, retrieveCount, formatString, formatFlags); break;
-                case decimal valueDecimal: mdc.AppendFormattedCollectionItem(valueDecimal, retrieveCount, formatString, formatFlags); break;
-                case Int128 veryLongInt: mdc.AppendFormattedCollectionItem(veryLongInt, retrieveCount, formatString, formatFlags); break;
-                case UInt128 veryLongUInt: mdc.AppendFormattedCollectionItem(veryLongUInt, retrieveCount, formatString, formatFlags); break;
-                case BigInteger veryLongInt: mdc.AppendFormattedCollectionItem(veryLongInt, retrieveCount, formatString, formatFlags); break;
-                case Complex veryLongInt: mdc.AppendFormattedCollectionItem(veryLongInt, retrieveCount, formatString, formatFlags); break;
-                case DateTime valueDateTime: mdc.AppendFormattedCollectionItem(valueDateTime, retrieveCount, formatString, formatFlags); break;
-                case DateOnly valueDateOnly: mdc.AppendFormattedCollectionItem(valueDateOnly, retrieveCount, formatString, formatFlags); break;
-                case TimeSpan valueTimeSpan: mdc.AppendFormattedCollectionItem(valueTimeSpan, retrieveCount, formatString, formatFlags); break;
-                case TimeOnly valueTimeOnly: mdc.AppendFormattedCollectionItem(valueTimeOnly, retrieveCount, formatString, formatFlags); break;
-                case Rune valueRune: mdc.AppendFormattedCollectionItem(valueRune, retrieveCount, formatString, formatFlags); break;
-                case Guid valueGuid: mdc.AppendFormattedCollectionItem(valueGuid, retrieveCount, formatString, formatFlags); break;
-                case IPNetwork valueIpNetwork: mdc.AppendFormattedCollectionItem(valueIpNetwork, retrieveCount, formatString, formatFlags); break;
-                case char[] valueCharArray: mdc.AppendFormattedCollectionItemOrNull(valueCharArray, retrieveCount, formatString, formatFlags); break;
-                case string valueString: mdc.AppendFormattedCollectionItemOrNull(valueString, retrieveCount, formatString, formatFlags); break;
-                case Version valueVersion: mdc.AppendFormattedCollectionItem(valueVersion, retrieveCount, formatString, formatFlags); break;
-                case IPAddress valueIpAddress: mdc.AppendFormattedCollectionItem(valueIpAddress, retrieveCount, formatString, formatFlags); break;
-                case Uri valueUri: mdc.AppendFormattedCollectionItem(valueUri, retrieveCount, formatString, formatFlags); break;
+                case bool valueBool: return mdc.AppendFormattedCollectionItem(valueBool, retrieveCount, formatString, formatFlags);
+                case byte valueByte: return mdc.AppendFormattedCollectionItem(valueByte, retrieveCount, formatString, formatFlags);
+                case sbyte valueSByte: return mdc.AppendFormattedCollectionItem(valueSByte, retrieveCount, formatString, formatFlags);
+                case char valueChar: return mdc.AppendFormattedCollectionItem(valueChar, retrieveCount, formatString, formatFlags);
+                case short valueShort: return mdc.AppendFormattedCollectionItem(valueShort, retrieveCount, formatString, formatFlags);
+                case ushort valueUShort: return mdc.AppendFormattedCollectionItem(valueUShort, retrieveCount, formatString, formatFlags);
+                case Half valueHalfFloat: return mdc.AppendFormattedCollectionItem(valueHalfFloat, retrieveCount, formatString, formatFlags);
+                case int valueInt: return mdc.AppendFormattedCollectionItem(valueInt, retrieveCount, formatString, formatFlags);
+                case uint valueUInt: return mdc.AppendFormattedCollectionItem(valueUInt, retrieveCount, formatString, formatFlags);
+                case nint valueUInt: return mdc.AppendFormattedCollectionItem(valueUInt, retrieveCount, formatString, formatFlags);
+                case float valueFloat: return mdc.AppendFormattedCollectionItem(valueFloat, retrieveCount, formatString, formatFlags);
+                case long valueLong: return mdc.AppendFormattedCollectionItem(valueLong, retrieveCount, formatString, formatFlags);
+                case ulong valueULong: return mdc.AppendFormattedCollectionItem(valueULong, retrieveCount, formatString, formatFlags);
+                case double valueDouble: return mdc.AppendFormattedCollectionItem(valueDouble, retrieveCount, formatString, formatFlags);
+                case decimal valueDecimal: return mdc.AppendFormattedCollectionItem(valueDecimal, retrieveCount, formatString, formatFlags);
+                case Int128 veryLongInt: return mdc.AppendFormattedCollectionItem(veryLongInt, retrieveCount, formatString, formatFlags);
+                case UInt128 veryLongUInt: return mdc.AppendFormattedCollectionItem(veryLongUInt, retrieveCount, formatString, formatFlags);
+                case BigInteger veryLongInt: return mdc.AppendFormattedCollectionItem(veryLongInt, retrieveCount, formatString, formatFlags);
+                case Complex veryLongInt: return mdc.AppendFormattedCollectionItem(veryLongInt, retrieveCount, formatString, formatFlags);
+                case DateTime valueDateTime: return mdc.AppendFormattedCollectionItem(valueDateTime, retrieveCount, formatString, formatFlags);
+                case DateOnly valueDateOnly: return mdc.AppendFormattedCollectionItem(valueDateOnly, retrieveCount, formatString, formatFlags);
+                case TimeSpan valueTimeSpan: return mdc.AppendFormattedCollectionItem(valueTimeSpan, retrieveCount, formatString, formatFlags);
+                case TimeOnly valueTimeOnly: return mdc.AppendFormattedCollectionItem(valueTimeOnly, retrieveCount, formatString, formatFlags);
+                case Rune valueRune: return mdc.AppendFormattedCollectionItem(valueRune, retrieveCount, formatString, formatFlags);
+                case Guid valueGuid: return mdc.AppendFormattedCollectionItem(valueGuid, retrieveCount, formatString, formatFlags);
+                case IPNetwork valueIpNetwork: return mdc.AppendFormattedCollectionItem(valueIpNetwork, retrieveCount, formatString, formatFlags);
+                case char[] valueCharArray: return mdc.AppendFormattedCollectionItemOrNull(valueCharArray, retrieveCount, formatString, formatFlags);
+                case string valueString: return mdc.AppendFormattedCollectionItemOrNull(valueString, retrieveCount, formatString, formatFlags);
+                case Version valueVersion: return mdc.AppendFormattedCollectionItem(valueVersion, retrieveCount, formatString, formatFlags);
+                case IPAddress valueIpAddress: return mdc.AppendFormattedCollectionItem(valueIpAddress, retrieveCount, formatString, formatFlags);
+                case Uri valueUri: return mdc.AppendFormattedCollectionItem(valueUri, retrieveCount, formatString, formatFlags);
                 case Enum:
                 case ISpanFormattable:
                     var actualValueType = value.GetType();
@@ -876,26 +862,24 @@ public static class StyledTypeBuilderExtensions
                     if (typeOfTValue.ImplementsInterface(typeof(ISpanFormattable)))
                     {
                         var castInvoker = (SpanFmtStructCollectionElementHandler<TValue>)invoker;
-                        castInvoker(mdc, value, retrieveCount, formatString, formatFlags);
+                        return castInvoker(mdc, value, retrieveCount, formatString, formatFlags);
                     }
-                    else if (value is Enum valueEnum)
+                    if (value is Enum valueEnum)
                     {
                         var castInvoker = (SpanFmtStructCollectionElementHandler<Enum>)invoker;
-                        castInvoker(mdc, valueEnum, retrieveCount, formatString, formatFlags);
+                        return castInvoker(mdc, valueEnum, retrieveCount, formatString, formatFlags);
                     }
                     else
                     {
                         var castInvoker = (SpanFmtStructCollectionElementHandler<ISpanFormattable>)invoker;
-                        castInvoker(mdc, (ISpanFormattable)value, retrieveCount, formatString, formatFlags);
+                        return castInvoker(mdc, (ISpanFormattable)value, retrieveCount, formatString, formatFlags);
                     }
-                    break;
 
                 case ICharSequence valueCharSequence:
-                    mdc.AppendFormattedCollectionItemOrNull(valueCharSequence, retrieveCount, formatString, formatFlags);
-                    break;
-                case StringBuilder valueSb: mdc.AppendFormattedCollectionItemOrNull(valueSb, retrieveCount, formatString, formatFlags); break;
+                    return mdc.AppendFormattedCollectionItemOrNull(valueCharSequence, retrieveCount, formatString, formatFlags);
+                case StringBuilder valueSb: return mdc.AppendFormattedCollectionItemOrNull(valueSb, retrieveCount, formatString, formatFlags);
 
-                case IStringBearer styledToStringObj: mdc.RevealStringBearerOrNull(styledToStringObj, formatString, formatFlags); break;
+                case IStringBearer styledToStringObj: return mdc.RevealStringBearerOrNull(styledToStringObj, formatString, formatFlags).WrittenAs;
                 case IEnumerator:
                 case IEnumerable:
                     var type = typeof(TValue);
@@ -905,13 +889,13 @@ public static class StyledTypeBuilderExtensions
                     {
                         var keyedCollectionBuilder = mdc.Master.StartKeyedCollectionType(value);
                         KeyedCollectionGenericAddAllInvoker.CallAddAll<TValue>(keyedCollectionBuilder, value, formatString, formatFlags);
-                        keyedCollectionBuilder.Complete();
-                        break;
+                        var mapCollectionStateExtractResult = keyedCollectionBuilder.Complete();
+                        return mapCollectionStateExtractResult.WrittenAs;
                     }
                     var orderedCollectionBuilder = mdc.Master.StartSimpleCollectionType(value);
                     SimpleOrderedCollectionGenericAddAllInvoker.CallAddAll<TValue>(orderedCollectionBuilder, value, formatString, formatFlags);
-                    orderedCollectionBuilder.Complete();
-                    break;
+                    var collectionStateExtractResult = orderedCollectionBuilder.Complete();
+                    return collectionStateExtractResult.WrittenAs;
 
                 default:
                     var unKnownType = typeof(TValue);
@@ -935,14 +919,15 @@ public static class StyledTypeBuilderExtensions
                             }
                             var gb = mdc.Sf.Gb;
                             gb.Complete(formatFlags);
-                            registeredForRevisit.Complete();
+                            var stateExtractResult = registeredForRevisit.Complete();
                             gb.StartNextContentSeparatorPaddingSequence(mdc.Sb, formatFlags, true);
                             gb.MarkContentStart(preAppendLength);
                             gb.MarkContentEnd(mdc.Sb.Length);
-                            return sb;
+                            return stateExtractResult.WrittenAs;
                         }
+                        var contentStart = sb.Length;
                         mdc.StyleFormatter.CollectionNextItem(value, retrieveCount, mdc.Sb, (FormatSwitches)formatFlags);
-                        return sb;
+                        return sb.WrittenAsFromFirstCharacters(contentStart, mdc.Sf.Gb);
                     }
                     break;
             }
@@ -950,10 +935,10 @@ public static class StyledTypeBuilderExtensions
         {
             if (!formatFlags.HasNullBecomesEmptyFlag())
             {
-                mdc.StyleFormatter.AppendFormattedNull(mdc.Sb, formatString, formatFlags);
+                return mdc.StyleFormatter.AppendFormattedNull(mdc.Sb, formatString, formatFlags);
             }
         }
-        return sb;
+        return WrittenAsFlags.Empty;
     }
 
 
@@ -1004,65 +989,56 @@ public static class StyledTypeBuilderExtensions
         mdc.StyleFormatter.AddCollectionElementSeparatorAndPadding(mdc, elementType, elementAt + 1);
     }
 
-    public static ITypeMolderDieCast<TExt> AppendFormattedCollectionItem<TExt>
+    public static WrittenAsFlags AppendFormattedCollectionItem<TExt>
     (this ITypeMolderDieCast<TExt> mdc, bool value, int retrieveCount, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder =>
-        mdc.StyleFormatter.CollectionNextItemFormat(mdc.Sb, value, retrieveCount, formatString, formatFlags)
-           .AnyToCompAccess(mdc);
+        mdc.StyleFormatter.CollectionNextItemFormat(mdc.Sb, value, retrieveCount, formatString, formatFlags);
 
-    public static ITypeMolderDieCast<TExt> AppendFormattedCollectionItem<TExt>
+    public static WrittenAsFlags AppendFormattedCollectionItem<TExt>
     (this ITypeMolderDieCast<TExt> mdc, bool? value, int retrieveCount, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder =>
-        mdc.StyleFormatter.CollectionNextItemFormat(mdc.Sb, value, retrieveCount, formatString, formatFlags)
-           .AnyToCompAccess(mdc);
+        mdc.StyleFormatter.CollectionNextItemFormat(mdc.Sb, value, retrieveCount, formatString, formatFlags);
 
-    public static ITypeMolderDieCast<TExt> AppendFormattedCollectionItem<TExt, TFmt>
+    public static WrittenAsFlags AppendFormattedCollectionItem<TExt, TFmt>
     (this ITypeMolderDieCast<TExt> mdc, TFmt value, int retrieveCount, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder where TFmt : ISpanFormattable? =>
-        mdc.StyleFormatter.CollectionNextItemFormat(mdc.Sb, value, retrieveCount, formatString, formatFlags)
-           .AnyToCompAccess(mdc);
+        mdc.StyleFormatter.CollectionNextItemFormat(mdc.Sb, value, retrieveCount, formatString, formatFlags);
 
-    public static ITypeMolderDieCast<TExt> AppendFormattedCollectionItem<TExt, TFmtStruct>
+    public static WrittenAsFlags AppendFormattedCollectionItem<TExt, TFmtStruct>
     (this ITypeMolderDieCast<TExt> mdc, TFmtStruct? value, int retrieveCount
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder where TFmtStruct : struct, ISpanFormattable =>
-        mdc.StyleFormatter.CollectionNextItemFormat(mdc.Sb, value, retrieveCount, formatString, formatFlags)
-           .AnyToCompAccess(mdc);
-
-    public static int DynamicReceiveAppendFormattedCollectionItem<TFmt>(ITypeMolderDieCast mdc, TFmt? value
-      , int retrieveCount, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable
-    {
-        var preAppendLength = mdc.Sb.Length;
         mdc.StyleFormatter.CollectionNextItemFormat(mdc.Sb, value, retrieveCount, formatString, formatFlags);
-        return mdc.Sb.Length - preAppendLength;
-    }
 
-    public static ITypeMolderDieCast<TExt> AppendFormattedCollectionItemOrNull<TExt>
+    public static WrittenAsFlags DynamicReceiveAppendFormattedCollectionItem<TFmt>(ITypeMolderDieCast mdc, TFmt? value
+      , int retrieveCount, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TFmt : ISpanFormattable =>
+        mdc.StyleFormatter.CollectionNextItemFormat(mdc.Sb, value, retrieveCount, formatString, formatFlags);
+
+    public static WrittenAsFlags AppendFormattedCollectionItemOrNull<TExt>
     (this ITypeMolderDieCast<TExt> mdc, string? value, int retrieveCount, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder =>
-        mdc.StyleFormatter.CollectionNextItemFormat(mdc.Sb, value, retrieveCount, formatString, formatFlags)
-           .AnyToCompAccess(mdc);
+        mdc.StyleFormatter.CollectionNextItemFormat(mdc.Sb, value, retrieveCount, formatString, formatFlags);
 
-    public static ITypeMolderDieCast<TExt> AppendFormattedCollectionItemOrNull<TExt>
+    public static WrittenAsFlags AppendFormattedCollectionItemOrNull<TExt>
     (this ITypeMolderDieCast<TExt> mdc, char[]? value, int retrieveCount, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder =>
-        mdc.StyleFormatter.CollectionNextItemFormat(mdc.Sb, value, retrieveCount, formatString, formatFlags).AnyToCompAccess(mdc);
+        mdc.StyleFormatter.CollectionNextItemFormat(mdc.Sb, value, retrieveCount, formatString, formatFlags);
 
-    public static ITypeMolderDieCast<TExt> AppendFormattedCollectionItemOrNull<TExt>
+    public static WrittenAsFlags AppendFormattedCollectionItemOrNull<TExt>
     (this ITypeMolderDieCast<TExt> mdc, ICharSequence? value, int retrieveCount
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder =>
-        mdc.StyleFormatter.CollectionNextCharSeqFormat(mdc.Sb, value, retrieveCount, formatString, formatFlags).AnyToCompAccess(mdc);
+        mdc.StyleFormatter.CollectionNextCharSeqFormat(mdc.Sb, value, retrieveCount, formatString, formatFlags);
 
-    public static ITypeMolderDieCast<TExt> AppendFormattedCollectionItemOrNull<TExt>
+    public static WrittenAsFlags AppendFormattedCollectionItemOrNull<TExt>
     (this ITypeMolderDieCast<TExt> mdc, StringBuilder? value, int retrieveCount
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder =>
-        mdc.StyleFormatter.CollectionNextItemFormat(mdc.Sb, value, retrieveCount, formatString, formatFlags).AnyToCompAccess(mdc);
+        mdc.StyleFormatter.CollectionNextItemFormat(mdc.Sb, value, retrieveCount, formatString, formatFlags);
 
-    private delegate int SpanFmtStructContentHandler<in TFmt>(ITypeMolderDieCast mdc, TFmt fmt
+    private delegate WrittenAsFlags SpanFmtStructContentHandler<in TFmt>(ITypeMolderDieCast mdc, TFmt fmt
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     // Invokes DynamicReceiveAppendValue without boxing to ISpanFormattable if the type receive already supports ISpanFormattable
@@ -1081,7 +1057,7 @@ public static class StyledTypeBuilderExtensions
     {
         var helperMethod =
             new DynamicMethod
-                ($"{methodInfo.Name}_DynamicStructAppend", typeof(int),
+                ($"{methodInfo.Name}_DynamicStructAppend", typeof(WrittenAsFlags),
                  [typeof(ITypeMolderDieCast), typeof(T), typeof(string), typeof(FormatFlags)]
                , typeof(StyledTypeBuilderExtensions).Module, false);
         var ilGenerator = helperMethod.GetILGenerator();
@@ -1095,7 +1071,7 @@ public static class StyledTypeBuilderExtensions
         return (SpanFmtStructContentHandler<T>)methodInvoker;
     }
 
-    private delegate int SpanFmtStructCollectionElementHandler<in TFmt>(ITypeMolderDieCast mdc
+    private delegate WrittenAsFlags SpanFmtStructCollectionElementHandler<in TFmt>(ITypeMolderDieCast mdc
       , TFmt fmt, int retrievalCount, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     // Invokes DynamicReceiveAppendFormattedCollectionItem without boxing to ISpanFormattable if the type receive already supports ISpanFormattable
@@ -1114,7 +1090,7 @@ public static class StyledTypeBuilderExtensions
     {
         var helperMethod =
             new DynamicMethod
-                ($"{methodInfo.Name}_DynamicStructAppend", typeof(int),
+                ($"{methodInfo.Name}_DynamicStructAppend", typeof(WrittenAsFlags),
                  [typeof(ITypeMolderDieCast), typeof(TFmt), typeof(int), typeof(string), typeof(FormatFlags)]
                , typeof(StyledTypeBuilderExtensions).Module, true);
         var ilGenerator = helperMethod.GetILGenerator();

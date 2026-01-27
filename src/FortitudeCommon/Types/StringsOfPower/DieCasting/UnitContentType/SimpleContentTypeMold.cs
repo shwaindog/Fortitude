@@ -36,12 +36,32 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, Simp
 
     public override void StartFormattingTypeOpening()
     {
-      Msf.StyleFormatter.StartContentTypeOpening(Msf, Msf.CreateMoldFormatFlags);
+      // if (IsComplexType)
+      //   MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField, Msf.CreateMoldFormatFlags);
+      // else
+        MoldStateField.StyleFormatter.StartContentTypeOpening(MoldStateField, Msf.CreateMoldFormatFlags);
+    }
+    
+    public override void FinishTypeOpening()
+    {
+      if (Msf.CurrentWriteMethod != WriteMethodType.MoldSimpleContentType)
+      {
+        Msf.Master.UpdateVisitWriteMethod(MoldVisit.CurrentVisitIndex, Msf.CurrentWriteMethod);  
+      }
+      MoldStateField.StyleFormatter.FinishContentTypeOpening(MoldStateField);
     }
 
     public override void AppendClosing()
     {
-      Msf.StyleFormatter.AppendContentTypeClosing(Msf);
+      var sf = Msf.Sf;
+      // if (IsComplexType)
+      // {
+      //   sf.AppendComplexTypeClosing(MoldStateField);
+      // }
+      // else
+      // {
+        sf.AppendContentTypeClosing(MoldStateField);
+      // }
     }
     
     public SimpleContentJoinMold  AsValue(bool value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null

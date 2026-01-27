@@ -859,4 +859,13 @@ public static class ExtendedSpanFormattableExtensions
         var length = toBuild.PopulatedLength();
         return toBuild[..length];
     }
+
+    public static ReadOnlySpan<char> JustFormatStringPrefix(this ReadOnlySpan<char> formatString)
+    {
+        formatString.ExtractExtendedStringFormatStages
+            (out var prefix, out _, out _
+           , out  _, out _, out _, out  _);
+
+        return prefix;
+    }
 }

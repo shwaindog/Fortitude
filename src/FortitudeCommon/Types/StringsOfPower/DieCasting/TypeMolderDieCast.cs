@@ -65,12 +65,16 @@ public interface ITypeMolderDieCast : IRecyclableObject, ITransferState
     IStyledTypeFormatting Sf { get; }
 
     int RemainingGraphDepth { get; set; }
+    
+    WrittenAsFlags WrittenAsFlags { get; set; }
 
     StringStyle Style { get; }
 
     StyleOptions Settings { get; }
 
     IStringBuilder Sb { get; }
+    
+    int VisitNumber { get; }
 
     public int DecrementIndent();
     public int IncrementIndent();
@@ -157,7 +161,7 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
                      || typeof(MultiValueTypeMolder<TExt>).IsAssignableFrom(typeOfTExt);
 
         var fmtFlags = typeBuilderPortableState.CreateFormatFlags;
-        var hasBeenVisitedBefore = MoldGraphVisit.HasExistingInstanceId;
+        var hasBeenVisitedBefore = MoldGraphVisit.IsARevisit;
         SkipBody   = hasBeenVisitedBefore && fmtFlags.DoesNotHaveIsFieldNameFlag();
         SkipFields = hasBeenVisitedBefore || (Style.IsJson() && !hasJsonFields);
 
@@ -171,10 +175,18 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
     TypeMolder.MoldPortableState IMigratableTypeMolderDieCast.PortableState => typeBuilderState;
 
     protected VisitResult MoldGraphVisit => typeBuilderState.MoldGraphVisit;
-    
+
+    public int VisitNumber => MoldGraphVisit.CurrentVisitIndex;
+
     public string? TypeName => typeBuilderState.TypeName;
 
     public Type TypeBeingBuilt => typeBuilderState.TypeBeingBuilt;
+
+    public WrittenAsFlags WrittenAsFlags
+    {
+        get => typeBuilderState.WrittenAsFlags;
+        set => typeBuilderState.WrittenAsFlags = value;
+    }
 
     public FormatFlags CallerContentHandling => Master.CallerContext.FormatFlags;
     public FormatFlags CreateMoldFormatFlags => typeBuilderState.CreateFormatFlags;

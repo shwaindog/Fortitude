@@ -26,7 +26,7 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
     {
         InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, owning, typeName, remainingGraphDepth
                                       , moldGraphVisit, writeMethodType, createFormatFlags);
-
+        WrittenAs = WrittenAsFlags.AsComplex;
         return this;
     }
 

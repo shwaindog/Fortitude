@@ -101,9 +101,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         }
         var currentAppenderIndex = State.Master.WriteBuffer.Length;
         var typeWriteRange       = new Range(Index.FromStart(StartIndex), Index.FromStart(currentAppenderIndex));
-        var result =
-            new StateExtractStringRange(TypeName ??
-                                        TypeBeingBuilt.CachedCSharpNameWithConstraints(), State.Master, typeWriteRange);
+        var result = BuildMoldStringRange(typeWriteRange);
         PortableState.CompleteResult = result;
         State.Master.TypeComplete(State);
         MoldStateField = null!;

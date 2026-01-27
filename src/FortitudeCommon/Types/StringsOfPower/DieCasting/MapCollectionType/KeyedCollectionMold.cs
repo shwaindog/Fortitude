@@ -27,6 +27,7 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
     {
         InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeName
                                       , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
+        WrittenAs = WrittenAsFlags.AsMapCollection;
 
         stb = MoldStateField;
 
