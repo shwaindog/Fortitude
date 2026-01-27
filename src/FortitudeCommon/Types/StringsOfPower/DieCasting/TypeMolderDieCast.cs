@@ -44,7 +44,7 @@ public interface ITypeMolderDieCast : IRecyclableObject, ITransferState
     int LastStartNewLineContentPos { get; }
 
     Type TypeBeingBuilt { get; }
-    string? TypeName { get; }
+    string? InstanceName { get; }
 
     bool SkipBody { get; set; }
 
@@ -178,7 +178,7 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
 
     public int VisitNumber => MoldGraphVisit.CurrentVisitIndex;
 
-    public string? TypeName => typeBuilderState.TypeName;
+    public string? InstanceName => typeBuilderState.TypeName;
 
     public Type TypeBeingBuilt => typeBuilderState.TypeBeingBuilt;
 

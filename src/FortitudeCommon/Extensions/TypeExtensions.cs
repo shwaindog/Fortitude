@@ -338,32 +338,33 @@ public static class TypeExtensions
                    .FirstOrDefault();
     }
 
-    public static bool IsIterable(this Type type) => type.IsEnumerable() || type.IsEnumerator();
+    public static bool IsIterable(this Type? type) => (type?.IsEnumerable() ?? false) || (type?.IsEnumerator() ?? false);
 
-    public static Type? GetIterableElementType(this Type type) =>
-        type.GetIndexedCollectionElementType() ?? type.IfEnumerableGetElementType() ?? type.IfEnumeratorGetElementType();
+    public static Type? GetIterableElementType(this Type? type) =>
+        type?.GetIndexedCollectionElementType() ?? type?.IfEnumerableGetElementType() ?? type?.IfEnumeratorGetElementType();
 
-    public static bool IsSpanFormattable(this Type type) =>
-        type == SpanFormattableType || type.GetInterfaces().Any(i => i == SpanFormattableType);
+    public static bool IsSpanFormattable(this Type? type) =>
+        type != null && (type == SpanFormattableType || type.GetInterfaces().Any(i => i == SpanFormattableType));
 
-    public static bool IsSpanFormattableCached(this Type type) =>
-        TypeIsSpanFormattableCache.GetOrAdd(type, t => t.IsSpanFormattable());
+    public static bool IsSpanFormattableCached(this Type? type) =>
+        type != null && TypeIsSpanFormattableCache.GetOrAdd(type, t => t.IsSpanFormattable());
 
-    public static bool IsNullableSpanFormattable(this Type type) =>
-        type is { IsValueType: true, IsGenericType: true } && type.GetGenericTypeDefinition() == NullableTypeDef
-                                                           && type.GenericTypeArguments[0].IsSpanFormattable();
+    public static bool IsNullableSpanFormattable(this Type? type) =>
+        type is { IsValueType: true, IsGenericType: true } 
+       && type.GetGenericTypeDefinition() == NullableTypeDef
+       && type.GenericTypeArguments[0].IsSpanFormattable();
 
-    public static bool IsNullableSpanFormattableCached(this Type type) =>
-        TypeIsNullableSpanFormattableCache.GetOrAdd(type, t => t.IsNullableSpanFormattable());
+    public static bool IsNullableSpanFormattableCached(this Type? type) =>
+        type != null && TypeIsNullableSpanFormattableCache.GetOrAdd(type, t => t.IsNullableSpanFormattable());
 
-    public static bool IsSpanFormattableOrNullable(this Type type) =>
-        type.IsSpanFormattable() || type.IsNullableSpanFormattable();
+    public static bool IsSpanFormattableOrNullable(this Type? type) =>
+        type != null && (type.IsSpanFormattable() || type.IsNullableSpanFormattable());
 
-    public static bool IsSpanFormattableOrNullableCached(this Type type) =>
-        type.IsSpanFormattableCached() || type.IsNullableSpanFormattableCached();
+    public static bool IsSpanFormattableOrNullableCached(this Type? type) =>
+        type != null && (type.IsSpanFormattableCached() || type.IsNullableSpanFormattableCached());
 
-    public static bool IsStringBearerOrNullableCached(this Type type) =>
-        TypeIsNullableSpanFormattableCache.GetOrAdd(type, t => t.IsStringBearerOrNullable());
+    public static bool IsStringBearerOrNullableCached(this Type? type) =>
+        type != null && TypeIsNullableSpanFormattableCache.GetOrAdd(type, t => t.IsStringBearerOrNullable());
 
     public static bool IsStringBearerOrNullable(this Type type) =>
         type.IsStringBearer() || type.IsNullableStringBearer();

@@ -99,12 +99,9 @@ public class ContentTypeMoldCompactLogAsValueTests : ContentTypeMoldAsValueTests
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
         var compactLogTemplate = 
-            condition.HasComplexTypeFlag() 
-         || expectation.GetType().ExtendsGenericBaseType(typeof(NullableStringBearerExpect<>))
-                ? IsLogIgnoredTypeName(tos.Settings, className)
-                    ? (propertyName.IsNotEmpty() ? "{{ {1}: {2} }}" : "{{ {2} }}")
-                    : (propertyName.IsNotEmpty() ? "{0} {{ {1}: {2} }}" : "{0} {{ {2} }}")
-                :  "{0}= {2}";
+            condition.HasComplexTypeFlag() && className.IsStringBearerOrNullableCached() 
+                ? "({0}) {{ {1}: {2} }}"
+                : "({0}) {2}" ;
 
         var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
         if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))

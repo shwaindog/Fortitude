@@ -53,7 +53,7 @@ public class EK
         
         var meetsWriteCondition    = 
             (MatchScaff & AllOutputConditionsMask & condition) > 0 
-         || condition.HasSimpleTypeFlag() || condition.HasOrderedCollectionTypeFlag() || condition.HasKeyedCollectionTypeFlag();
+         || condition.HasContentTypeFlag() || condition.HasOrderedCollectionTypeFlag() || condition.HasKeyedCollectionTypeFlag();
         var conditionHasBothBecomesNullAndFallback = (condition & OutputBecomesMask) == (DefaultBecomesNull | DefaultBecomesFallbackValue)
                                                   && (condition & SupportsSettingDefaultValue) > 0;
         var scaffHasBothBecomesNullAndFallback = (MatchScaff & OutputBecomesMask) == (DefaultBecomesNull | DefaultBecomesFallbackValue);

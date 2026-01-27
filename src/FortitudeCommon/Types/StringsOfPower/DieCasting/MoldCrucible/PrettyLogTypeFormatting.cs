@@ -27,7 +27,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var sb                = moldInternal.Sb;
-        var alternativeName   = moldInternal.TypeName;
+        var alternativeName   = moldInternal.InstanceName;
         var buildingType      = moldInternal.TypeBeingBuilt;
         var buildTypeFullName = buildingType.FullName ?? "";
 
@@ -40,10 +40,16 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
           && (formatFlags.HasAddTypeNameFieldFlag()
            || !StyleOptions.LogSuppressDisplayTypeNames.Any(s => buildTypeFullName.StartsWith(s)))))
         {
-            if (alternativeName != null)
-                sb.Append(alternativeName);
-            else
-                buildingType.AppendShortNameInCSharpFormat(sb);
+            var isComplexContentType = moldInternal.CurrentWriteMethod.IsContentType();
+            if (isComplexContentType)
+            {
+                Gb.AppendContent(RndBrktOpn);
+            }
+            buildingType.AppendShortNameInCSharpFormat(sb);
+            if (isComplexContentType)
+            {
+                Gb.AppendContent(RndBrktCls);
+            } 
             sb.Append(Spc);
         }
         Gb.IndentLevel++;

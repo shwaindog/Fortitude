@@ -101,7 +101,7 @@ public static class ScaffoldingStringBuilderInvokeFlagsExtensions
     public static bool DoesNotHaveComplexTypeFlag(this ScaffoldingStringBuilderInvokeFlags flags) =>
         (flags & IsComplexType) == 0;
 
-    public static bool HasSimpleTypeFlag(this ScaffoldingStringBuilderInvokeFlags flags) =>
+    public static bool HasContentTypeFlag(this ScaffoldingStringBuilderInvokeFlags flags) =>
         (flags & IsContentType) > 0;
 
     public static bool HasOrderedCollectionTypeFlag(this ScaffoldingStringBuilderInvokeFlags flags) =>

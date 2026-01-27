@@ -105,13 +105,10 @@ public class ContentTypeMoldPrettyLogAsStringTests : ContentTypeMoldAsStringTest
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
     {
-        var prettyLogTemplate =
-            condition.HasComplexTypeFlag()
-         || expectation.GetType().ExtendsGenericBaseType(typeof(NullableStringBearerExpect<>))
-                ? IsLogIgnoredTypeName(tos.Settings, className)
-                    ? (propertyName.IsNotEmpty() ? "{{{1}{2}{3}{1}}}" : "{{ {2} }}")
-                    : (propertyName.IsNotEmpty() ? "{0} {{{1}{2}{3}{1}}}" : "{0} {{ {2} }}")
-                : "{0}= {3}";
+        var prettyLogTemplate = 
+            condition.HasComplexTypeFlag() && className.IsStringBearerOrNullableCached() 
+                ? "({0}) {{{1}{2}{3}{1}}}"
+                : "({0}) {3}" ;
 
         var maybeNewLine = "";
         var maybeIndent  = "";

@@ -20,8 +20,8 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
         twoSameOneBranchTwoSameLeafNodesWithDefaultRevisitSettingsExpect;
     private static InputBearerExpect<TwoStringBearersFirstAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>>>?
         twoSameOneBranchTwoSameLeafNodesOneSimpleCloakedValueOneFieldWithDefaultRevisitSettingsExpect;
-    private static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>>?
-        twoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect;
+    private static InputBearerExpect<TwoStringBearersSecondAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>>>?
+        twoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect;
     private static InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>>?
         twoSameIpAddressesOneSimpleCloakedStringOneFieldWithDefaultRevisitSettingsExpect;
     private static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>>?
@@ -241,7 +241,7 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringBearersFirstAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>> {
-                         FirstStringBearerField: BinaryBranchNode<LeafNode>= {
+                         FirstStringBearerField: (BinaryBranchNode<LeafNode>) {
                          $id: 2,
                          Name: "SameOnLeftAndRight",
                          GlobalNodeInstanceId: 2,
@@ -269,7 +269,7 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringBearersFirstAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>> {
-                          FirstStringBearerField: BinaryBranchNode<LeafNode>= {
+                          FirstStringBearerField: (BinaryBranchNode<LeafNode>) {
                             $id: 2,
                             Name: "SameOnLeftAndRight",
                             GlobalNodeInstanceId: 2,
@@ -376,32 +376,49 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
         ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneSimpleCloakedValueOneFieldWithDefaultRevisitSettingsExpect, PrettyJson);
     }
 
-    public static TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress> TwoSameIpAddressesOneFieldOneSimpleCloakedValue
+    public static TwoStringBearersSecondAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>> TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedValue
     {
         get
         {
-            var loopbackAddress = IPAddress.Loopback;
-            var twoSameIpAddressesOneFieldsOneCloaked
-                = new TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>(loopbackAddress, loopbackAddress);
-            return twoSameIpAddressesOneFieldsOneCloaked;
+            var child           = new LeafNode("SameChild");
+            var secondFieldSame = new BinaryBranchNode<LeafNode>("SameOnLeftAndRight", child, child );
+            var twoSameOneBranchTwoSameLeafNodesOneFieldsOneCloaked
+                = new TwoStringBearersSecondAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>>(secondFieldSame, secondFieldSame);
+            return twoSameOneBranchTwoSameLeafNodesOneFieldsOneCloaked;
         }
     }
 
-    public static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>>
+    public static InputBearerExpect<TwoStringBearersSecondAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>>>
         TwoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect
     {
         get
         {
-            return twoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect ??=
-                new InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneFieldOneSimpleCloakedValue)
+            return twoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect ??=
+                new InputBearerExpect<TwoStringBearersSecondAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>>>(
+                 TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedValue)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>
-                         {
-                         FirstSpanFormattableField: 127.0.0.1,
-                         SecondSpanFormattableField: 127.0.0.1
+                        TwoStringBearersSecondAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>> {
+                         FirstStringBearerField: BinaryBranchNode<LeafNode> {
+                         $id: 2,
+                         Name: "SameOnLeftAndRight",
+                         GlobalNodeInstanceId: 2,
+                         NodeType: NodeType.BranchNode,
+                         Left: LeafNode {
+                         $id: 1,
+                         LeafInstanceId: 1,
+                         Name: "SameChild",
+                         GlobalNodeInstanceId: 1,
+                         NodeType: NodeType.LeafNode,
+                         DepthToRoot: 1
+                         },
+                         Right: LeafNode {
+                         $ref: 1
+                         }
+                         },
+                         SecondStringBearerField: (BinaryBranchNode<LeafNode>($ref: 2))
                          }
                         """.RemoveLineEndings()
                     }
@@ -409,9 +426,25 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress> {
-                          FirstSpanFormattableField: 127.0.0.1,
-                          SecondSpanFormattableField: 127.0.0.1
+                        TwoStringBearersSecondAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>> {
+                          FirstStringBearerField: BinaryBranchNode<LeafNode> {
+                            $id: 2,
+                            Name: "SameOnLeftAndRight",
+                            GlobalNodeInstanceId: 2,
+                            NodeType: NodeType.BranchNode,
+                            Left: LeafNode {
+                              $id: 1,
+                              LeafInstanceId: 1,
+                              Name: "SameChild",
+                              GlobalNodeInstanceId: 1,
+                              NodeType: NodeType.LeafNode,
+                              DepthToRoot: 1
+                            },
+                            Right: LeafNode {
+                              $ref: 1
+                            }
+                          },
+                          SecondStringBearerField: (BinaryBranchNode<LeafNode>($ref: 2))
                         }
                         """.Dos2Unix()
                     }
@@ -420,8 +453,26 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
                       , """ 
                         {
-                        "FirstSpanFormattableField":"127.0.0.1",
-                        "SecondSpanFormattableField":"127.0.0.1"
+                        "FirstStringBearerField":{
+                        "$id":"2",
+                        "Name":"SameOnLeftAndRight",
+                        "GlobalNodeInstanceId":2,
+                        "NodeType":"BranchNode",
+                        "Left":{
+                        "$id":"1",
+                        "LeafInstanceId":1,
+                        "Name":"SameChild",
+                        "GlobalNodeInstanceId":1,
+                        "NodeType":"LeafNode",
+                        "DepthToRoot":1
+                        },
+                        "Right":{
+                        "$ref":"1"
+                        }
+                        },
+                        "SecondStringBearerField":{
+                        "$ref":"2"
+                        }
                         }
                         """.RemoveLineEndings()
                     }
@@ -430,8 +481,26 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyJson)
                       , """ 
                         {
-                          "FirstSpanFormattableField": "127.0.0.1",
-                          "SecondSpanFormattableField": "127.0.0.1"
+                          "FirstStringBearerField": {
+                            "$id": "2",
+                            "Name": "SameOnLeftAndRight",
+                            "GlobalNodeInstanceId": 2,
+                            "NodeType": "BranchNode",
+                            "Left": {
+                              "$id": "1",
+                              "LeafInstanceId": 1,
+                              "Name": "SameChild",
+                              "GlobalNodeInstanceId": 1,
+                              "NodeType": "LeafNode",
+                              "DepthToRoot": 1
+                            },
+                            "Right": {
+                              "$ref": "1"
+                            }
+                          },
+                          "SecondStringBearerField": {
+                            "$ref": "2"
+                          }
                         }
                         """.Dos2Unix()
                     }
@@ -440,25 +509,25 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneCloakedValueWithDefaultRevisitSettingsCompactLogFormatTest()
+    public void TwoSameOneBranchTwoSameLeafNodesOneFieldOneCloakedValueWithDefaultRevisitSettingsCompactLogFormatTest()
     {
         ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect, CompactLog);
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneCloakedValueWithDefaultRevisitSettingsCompactJsonFormatTest()
+    public void TwoSameOneBranchTwoSameLeafNodesOneFieldOneCloakedValueWithDefaultRevisitSettingsCompactJsonFormatTest()
     {
         ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect, CompactJson);
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsPrettyLogFormatTest()
+    public void TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsPrettyLogFormatTest()
     {
         ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect, PrettyLog);
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsPrettyJsonFormatTest()
+    public void TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsPrettyJsonFormatTest()
     {
         ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect, PrettyJson);
     }
@@ -639,763 +708,4 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
         ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect, PrettyJson);
     }
     
-    
-    public static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>>
-        TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitInstanceIdsExpect
-    {
-        get
-        {
-            return twoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitInstanceIdsExpect ??=
-                new InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneFieldOneSimpleCloakedValue)
-                {
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
-                      , """
-                        TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>
-                         {
-                         FirstSpanFormattableField:
-                         {
-                         $id: 1,
-                         $values: 127.0.0.1
-                         },
-                         SecondSpanFormattableField:
-                         {
-                         $ref:
-                         1
-                         }
-                         }
-                        """.RemoveLineEndings()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
-                      , """
-                        TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress> {
-                          FirstSpanFormattableField: {
-                            $id: 1,
-                            $values: 127.0.0.1
-                          },
-                          SecondSpanFormattableField: {
-                            $ref: 1
-                          }
-                        }
-                        """.Dos2Unix()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
-                      , """ 
-                        {
-                        "FirstSpanFormattableField":
-                        {
-                        "$id":"1",
-                        "$values":"127.0.0.1"
-                        },
-                        "SecondSpanFormattableField":
-                        {
-                        "$ref":"1"
-                        }
-                        }
-                        """.RemoveLineEndings()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, PrettyJson)
-                      , """ 
-                        {
-                          "FirstSpanFormattableField": {
-                            "$id": "1",
-                            "$values": "127.0.0.1"
-                          },
-                          "SecondSpanFormattableField": {
-                            "$ref": "1"
-                          }
-                        }
-                        """.Dos2Unix()
-                    }
-                };
-        }
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneCloakedValueShowRevisitInstanceIdsCompactLogFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitInstanceIdsExpect
-           , new StyleOptions(CompactLog)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-             });
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneCloakedValueShowRevisitInstanceIdsCompactJsonFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitInstanceIdsExpect
-           , new StyleOptions(CompactJson)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-             });
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitInstanceIdsPrettyLogFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitInstanceIdsExpect
-           , new StyleOptions(PrettyLog)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-             });
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitInstanceIdsPrettyJsonFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitInstanceIdsExpect
-           , new StyleOptions(PrettyJson)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-             });
-    }
-    
-    
-    public static InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>>
-        TwoSameIpAddressesOneSimpleCloakedStringOneFieldsShowRevisitInstanceIdsExpect
-    {
-        get
-        {
-            return twoSameIpAddressesOneSimpleCloakedStringOneFieldShowRevisitInstanceIdsExpect ??=
-                new InputBearerExpect<
-                    TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>>(TwoSameIpAddressesOneSimpleCloakedStringOneField)
-                {
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
-                      , """
-                        TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>
-                         {
-                         FirstSpanFormattableField:
-                         {
-                         $id: 1,
-                         $values: "127.0.0.1"
-                         },
-                         SecondSpanFormattableField:
-                         {
-                         $ref:
-                         1
-                         }
-                         }
-                        """.RemoveLineEndings()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
-                      , """
-                        TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress> {
-                          FirstSpanFormattableField: {
-                            $id: 1,
-                            $values: "127.0.0.1"
-                          },
-                          SecondSpanFormattableField: {
-                            $ref: 1
-                          }
-                        }
-                        """.Dos2Unix()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
-                      , """ 
-                        {
-                        "FirstSpanFormattableField":
-                        {
-                        "$id":"1",
-                        "$values":"127.0.0.1"
-                        },
-                        "SecondSpanFormattableField":
-                        {
-                        "$ref":
-                        "1"
-                        }
-                        }
-                        """.RemoveLineEndings()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, PrettyJson)
-                      , """ 
-                        {
-                          "FirstSpanFormattableField": {
-                            "$id": "1",
-                            "$values": "127.0.0.1"
-                          },
-                          "SecondSpanFormattableField": {
-                            "$ref": "1"
-                          }
-                        }
-                        """.Dos2Unix()
-                    }
-                };
-        }
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneCloakedStringOneFieldShowRevisitInstanceIdsCompactLogFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedStringOneFieldsShowRevisitInstanceIdsExpect
-           , new StyleOptions(CompactLog)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-             });
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneCloakedStringOneFieldShowRevisitInstanceIdsCompactJsonFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedStringOneFieldsShowRevisitInstanceIdsExpect
-           , new StyleOptions(CompactJson)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-             });
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneCloakedStringOneFieldShowRevisitInstanceIdsPrettyLogFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedStringOneFieldsShowRevisitInstanceIdsExpect
-           , new StyleOptions(PrettyLog)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-             });
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneCloakedStringOneFieldShowRevisitInstanceIdsPrettyJsonFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedStringOneFieldsShowRevisitInstanceIdsExpect
-           , new StyleOptions(PrettyJson)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-             });
-    }
-    
-    
-    public static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>>
-        TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitInstanceIdsExpect
-    {
-        get
-        {
-            return twoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitInstanceIdsExpect ??=
-                new InputBearerExpect<
-                    TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>>(TwoSameIpAddressesOneFieldOneSimpleCloakedString)
-                {
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
-                      , """
-                        TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>
-                         {
-                         FirstSpanFormattableField:
-                         {
-                         $id: 1,
-                         $values: 127.0.0.1
-                         },
-                         SecondSpanFormattableField:
-                         {
-                         $ref: 1
-                         }
-                         }
-                        """.RemoveLineEndings()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
-                      , """
-                        TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress> {
-                          FirstSpanFormattableField: {
-                            $id: 1,
-                            $values: 127.0.0.1
-                          },
-                          SecondSpanFormattableField: {
-                            $ref: 1
-                          }
-                        }
-                        """.Dos2Unix()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
-                      , """ 
-                        {
-                        "FirstSpanFormattableField":
-                        {
-                        "$id":"1",
-                        "$values":"127.0.0.1"
-                        },
-                        "SecondSpanFormattableField":
-                        {
-                        "$ref":
-                        "1"
-                        }
-                        }
-                        """.RemoveLineEndings()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, PrettyJson)
-                      , """ 
-                        {
-                          "FirstSpanFormattableField": {
-                            "$id": "1",
-                            "$values": "127.0.0.1"
-                          },
-                          "SecondSpanFormattableField": {
-                            "$ref": "1"
-                          }
-                        }
-                        """.Dos2Unix()
-                    }
-                };
-        }
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneCloakedStringShowRevisitInstanceIdsCompactLogFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitInstanceIdsExpect
-           , new StyleOptions(CompactLog)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-             });
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneCloakedStringShowRevisitInstanceIdsCompactJsonFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitInstanceIdsExpect
-           , new StyleOptions(CompactJson)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-             });
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitInstanceIdsPrettyLogFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitInstanceIdsExpect
-           , new StyleOptions(PrettyLog)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-             });
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitInstanceIdsPrettyJsonFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitInstanceIdsExpect
-           , new StyleOptions(PrettyJson)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-             });
-    }
-    
-    
-    public static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>>
-        TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitAndValuesExpect
-    {
-        get
-        {
-            return twoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitAndValuesExpect ??=
-                new InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>>(TwoSameIpAddressesOneFieldOneSimpleCloakedValue)
-                {
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
-                      , """
-                        TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>
-                         {
-                         FirstSpanFormattableField:
-                         {
-                         $id: 1,
-                         $values: 127.0.0.1
-                         },
-                         SecondSpanFormattableField:
-                         {
-                         $ref: 1,
-                         $values: 127.0.0.1
-                         }
-                         }
-                        """.RemoveLineEndings()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
-                      , """
-                        TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress> {
-                          FirstSpanFormattableField: {
-                            $id: 1,
-                            $values: 127.0.0.1
-                          },
-                          SecondSpanFormattableField: {
-                            $ref: 1,
-                            $values: 127.0.0.1
-                          }
-                        }
-                        """.Dos2Unix()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
-                      , """ 
-                        {
-                        "FirstSpanFormattableField":
-                        {
-                        "$id":"1",
-                        "$values":"127.0.0.1"
-                        },
-                        "SecondSpanFormattableField":
-                        {
-                        "$ref":"1",
-                        "$values":"127.0.0.1"
-                        }
-                        }
-                        """.RemoveLineEndings()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, PrettyJson)
-                      , """ 
-                        {
-                          "FirstSpanFormattableField": {
-                            "$id": "1",
-                            "$values": "127.0.0.1"
-                          },
-                          "SecondSpanFormattableField": {
-                            "$ref": "1",
-                            "$values": "127.0.0.1"
-                          }
-                        }
-                        """.Dos2Unix()
-                    }
-                };
-        }
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneCloakedValueShowRevisitAndValuesCompactLogFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitAndValuesExpect
-           , new StyleOptions(CompactLog)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-               , InstanceMarkingIncludeSpanFormattableContents = true
-             });
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneCloakedValueShowRevisitAndValuesCompactJsonFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitAndValuesExpect
-           , new StyleOptions(CompactJson)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-               , InstanceMarkingIncludeSpanFormattableContents = true
-             });
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitAndValuesPrettyLogFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitAndValuesExpect
-           , new StyleOptions(PrettyLog)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-               , InstanceMarkingIncludeSpanFormattableContents = true
-             });
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitAndValuesPrettyJsonFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitAndValuesExpect
-           , new StyleOptions(PrettyJson)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-               , InstanceMarkingIncludeSpanFormattableContents = true
-             });
-    }
-    
-    
-    public static InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>>
-        TwoSameIpAddressesOneSimpleCloakedStringOneFieldsShowRevisitAndValuesExpect
-    {
-        get
-        {
-            return twoSameIpAddressesOneSimpleCloakedStringOneFieldShowRevisitAndValuesExpect ??=
-                new InputBearerExpect<
-                    TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>>(TwoSameIpAddressesOneSimpleCloakedStringOneField)
-                {
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
-                      , """
-                        TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>
-                         {
-                         FirstSpanFormattableField:
-                         {
-                         $id: 1,
-                         $values: "127.0.0.1"
-                         },
-                         SecondSpanFormattableField:
-                         {
-                         $ref: 1,
-                         $values: 127.0.0.1
-                         }
-                         }
-                        """.RemoveLineEndings()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
-                      , """
-                        TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress> {
-                          FirstSpanFormattableField: {
-                            $id: 1,
-                            $values: "127.0.0.1"
-                          },
-                          SecondSpanFormattableField: {
-                            $ref: 1,
-                            $values: 127.0.0.1
-                          }
-                        }
-                        """.Dos2Unix()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
-                      , """ 
-                        {
-                        "FirstSpanFormattableField":
-                        {
-                        "$id":"1",
-                        "$values":"127.0.0.1"
-                        },
-                        "SecondSpanFormattableField":
-                        {
-                        "$ref":"1",
-                        "$values":"127.0.0.1"
-                        }
-                        }
-                        """.RemoveLineEndings()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, PrettyJson)
-                      , """ 
-                        {
-                          "FirstSpanFormattableField": {
-                            "$id": "1",
-                            "$values": "127.0.0.1"
-                          },
-                          "SecondSpanFormattableField": {
-                            "$ref": "1",
-                            "$values": "127.0.0.1"
-                          }
-                        }
-                        """.Dos2Unix()
-                    }
-                };
-        }
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneCloakedStringOneFieldShowRevisitAndValuesCompactLogFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedStringOneFieldsShowRevisitAndValuesExpect
-           , new StyleOptions(CompactLog)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-               , InstanceMarkingIncludeSpanFormattableContents = true
-             });
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneCloakedStringOneFieldShowRevisitAndValuesCompactJsonFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedStringOneFieldsShowRevisitAndValuesExpect
-           , new StyleOptions(CompactJson)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-               , InstanceMarkingIncludeSpanFormattableContents = true
-             });
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneCloakedStringOneFieldShowRevisitAndValuesPrettyLogFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedStringOneFieldsShowRevisitAndValuesExpect
-           , new StyleOptions(PrettyLog)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-               , InstanceMarkingIncludeSpanFormattableContents = true
-             });
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneCloakedStringOneFieldShowRevisitAndValuesPrettyJsonFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneSimpleCloakedStringOneFieldsShowRevisitAndValuesExpect
-           , new StyleOptions(PrettyJson)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-               , InstanceMarkingIncludeSpanFormattableContents = true
-             });
-    }
-    
-    
-    public static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>>
-        TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitAndValuesExpect
-    {
-        get
-        {
-            return twoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitAndValuesExpect ??=
-                new InputBearerExpect<
-                    TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>>(TwoSameIpAddressesOneFieldOneSimpleCloakedString)
-                {
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
-                      , """
-                        TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>
-                         {
-                         FirstSpanFormattableField:
-                         {
-                         $id: 1,
-                         $values: 127.0.0.1
-                         },
-                         SecondSpanFormattableField:
-                         {
-                         $ref: 1,
-                         $values: "127.0.0.1"
-                         }
-                         }
-                        """.RemoveLineEndings()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
-                      , """
-                        TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress> {
-                          FirstSpanFormattableField: {
-                            $id: 1,
-                            $values: 127.0.0.1
-                          },
-                          SecondSpanFormattableField: {
-                            $ref: 1,
-                            $values: "127.0.0.1"
-                          }
-                        }
-                        """.Dos2Unix()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
-                      , """ 
-                        {
-                        "FirstSpanFormattableField":
-                        {
-                        "$id":"1",
-                        "$values":"127.0.0.1"
-                        },
-                        "SecondSpanFormattableField":
-                        {
-                        "$ref":"1",
-                        "$values":"127.0.0.1"
-                        }
-                        }
-                        """.RemoveLineEndings()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, PrettyJson)
-                      , """ 
-                        {
-                          "FirstSpanFormattableField": {
-                            "$id": "1",
-                            "$values": "127.0.0.1"
-                          },
-                          "SecondSpanFormattableField": {
-                            "$ref": "1",
-                            "$values": "127.0.0.1"
-                          }
-                        }
-                        """.Dos2Unix()
-                    }
-                };
-        }
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneCloakedStringShowRevisitAndValuesCompactLogFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitAndValuesExpect
-           , new StyleOptions(CompactLog)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-               , InstanceMarkingIncludeSpanFormattableContents = true
-             });
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneCloakedStringShowRevisitAndValuesCompactJsonFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitAndValuesExpect
-           , new StyleOptions(CompactJson)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-               , InstanceMarkingIncludeSpanFormattableContents = true
-             });
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitAndValuesPrettyLogFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitAndValuesExpect
-           , new StyleOptions(PrettyLog)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-               , InstanceMarkingIncludeSpanFormattableContents = true
-             });
-    }
-
-    [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitAndValuesPrettyJsonFormatTest()
-    {
-        ExecuteIndividualScaffoldExpectationWithOptions
-            (TwoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitAndValuesExpect
-           , new StyleOptions(PrettyJson)
-             {
-                 InstanceTrackingIncludeSpanFormattableClasses = true
-               , InstanceMarkingIncludeSpanFormattableContents = true
-             });
-    }
-
-
 }

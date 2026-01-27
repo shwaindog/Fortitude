@@ -214,10 +214,6 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                         : DefaultCallerTypeFlags;
                     resolvedFlags = (resolvedFlags & ~ContentAllowComplexType) | SuppressOpening | shouldSuppressTypeNameDecision | SuppressClosing;
                 }
-                // if (actualType.IsStringBearer())
-                // {
-                //     resolvedFlags |= ContentAllowComplexType;
-                // }
                 break;
             case WriteMethodType.MoldComplexType:
                 if (actualType.IsSpanFormattableCached())
@@ -242,7 +238,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         if (moldInternal.CurrentWriteMethod.SupportsMultipleFields()) { return StartComplexTypeOpening(moldInternal); }
         var sb = moldInternal.Sb;
 
-        var alternativeName = moldInternal.TypeName;
+        var alternativeName = moldInternal.InstanceName;
         var buildingType    = moldInternal.TypeBeingBuilt;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         if (formatFlags.DoesNotHaveLogSuppressTypeNamesFlag()
@@ -250,10 +246,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
           && !(StyleOptions.LogSuppressDisplayTypeNames.Any(s => buildingType.FullName?.StartsWith(s) ?? false))
            )
         {
-            if (alternativeName.IsNotNullOrEmpty())
-                sb.Append(alternativeName);
-            else
-                buildingType.AppendShortNameInCSharpFormat(sb);
+            sb.Append(RndBrktOpn);
+            buildingType.AppendShortNameInCSharpFormat(sb);
             moldInternal.WroteTypeName = true;
         }
         return Gb.ContentEndToRanges(formatFlags);
@@ -263,10 +257,14 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (moldInternal.CurrentWriteMethod.SupportsMultipleFields()) { return FinishComplexTypeOpening(moldInternal); }
-        if (moldInternal is { WroteTypeName: true, RemainingGraphDepth: > 0 })
+        if (moldInternal is { WroteTypeName: true })
         {
-            // space considered content
-            Gb.AppendContent(EqlsSpc);
+            Gb.AppendContent(RndBrktCls);
+            if (!moldInternal.SkipBody)
+            {
+                // space considered content
+                Gb.AppendContent(Spc);
+            }
         }
         return ContentSeparatorRanges.None;
     }
@@ -284,7 +282,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     {
         var sb = moldInternal.Sb;
 
-        var alternativeName   = moldInternal.TypeName;
+        var alternativeName   = moldInternal.InstanceName;
         var buildingType      = moldInternal.TypeBeingBuilt;
         var buildTypeFullName = buildingType.FullName ?? "";
 
@@ -296,8 +294,16 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
              (formatFlags.HasAddTypeNameFieldFlag() ||
               !StyleOptions.LogSuppressDisplayTypeNames.Any(s => buildTypeFullName.StartsWith(s)))))
         {
-            if (alternativeName.IsNotNullOrEmpty()) { sb.Append(alternativeName); }
-            else { buildingType.AppendShortNameInCSharpFormat(sb); }
+            var isComplexContentType = moldInternal.CurrentWriteMethod.IsContentType();
+            if (isComplexContentType)
+            {
+                Gb.AppendContent(RndBrktOpn);
+            }
+            buildingType.AppendShortNameInCSharpFormat(sb);
+            if (isComplexContentType)
+            {
+                Gb.AppendContent(RndBrktCls);
+            } 
             sb.Append(Spc);
             moldInternal.WroteTypeName = true;
         }
