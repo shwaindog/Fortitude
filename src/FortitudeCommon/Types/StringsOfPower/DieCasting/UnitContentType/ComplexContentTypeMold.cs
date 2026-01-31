@@ -17,13 +17,14 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
+      , Type typeVisitedAs
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
-        InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeName
+        InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
                                  , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
 
         return this;
@@ -31,7 +32,7 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
     
     public override void StartFormattingTypeOpening()
     {
-      if (IsComplexType)
+      if (Msf.CurrentWriteMethod == WriteMethodType.MoldComplexContentType)
         MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField, Msf.CreateMoldFormatFlags);
       else
         MoldStateField.StyleFormatter.StartContentTypeOpening(MoldStateField);
@@ -41,7 +42,7 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
     {
       if (Msf.CurrentWriteMethod != WriteMethodType.MoldComplexContentType)
       {
-        Msf.Master.UpdateVisitWriteMethod(MoldVisit.CurrentVisitIndex, Msf.CurrentWriteMethod);  
+        Msf.Master.UpdateVisitWriteMethod(MoldVisit.RegistryId, MoldVisit.CurrentVisitIndex, Msf.CurrentWriteMethod);  
       }
       base.FinishTypeOpening();
     }
@@ -60,6 +61,7 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
     }
     
     public override bool IsComplexType => Msf.IsLog;
+    public override bool IsSimpleMold => false;
 
     protected override void SourceBuilderComponentAccess(WriteMethodType writeMethod)
     {

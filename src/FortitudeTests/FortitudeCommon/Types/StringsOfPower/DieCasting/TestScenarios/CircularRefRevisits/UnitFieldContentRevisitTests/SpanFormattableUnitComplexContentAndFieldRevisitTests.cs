@@ -1099,17 +1099,19 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress>
-                         {
-                         FirstSpanFormattableField:
-                         {
+                        TwoSpanFormattableSecondAsComplexCloakedValueContent<IPAddress> {
+                         FirstSpanFormattableField: {
                          $id: 1,
                          $values: 127.0.0.1
                          },
-                         SecondSpanFormattableField:
-                         {
+                         SecondSpanFormattableField: {
                          $ref: 1,
-                         CloakedRevealerSecondSpanFormattableField: 127.0.0.1
+                         CloakedRevealerSecondSpanFormattableField: 127.0.0.1,
+                         logOnlyMap: {
+                         FirstKey: 1,
+                         SecondKey: 2,
+                         ThirdKey: 3
+                         }
                          }
                          }
                         """.RemoveLineEndings()
@@ -1125,7 +1127,12 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                           },
                           SecondSpanFormattableField: {
                             $ref: 1,
-                            CloakedRevealerSecondSpanFormattableField: 127.0.0.1
+                            CloakedRevealerSecondSpanFormattableField: 127.0.0.1,
+                            logOnlyMap: {
+                              FirstKey: 1,
+                              SecondKey: 2,
+                              ThirdKey: 3
+                            }
                           }
                         }
                         """.Dos2Unix()
@@ -1321,6 +1328,7 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
                , InstanceMarkingIncludeSpanFormattableContents = true
+               , InstanceTrackingAllAsStringHaveLocalTracking  = false
              });
     }
 
@@ -1345,6 +1353,7 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
                , InstanceMarkingIncludeSpanFormattableContents = true
+               , InstanceTrackingAllAsStringHaveLocalTracking  = false
              });
     }
 
@@ -1371,7 +1380,8 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                          SecondSpanFormattableField:
                          {
                          $ref: 1,
-                         CloakedRevealerSecondSpanFormattableField: "127.0.0.1"
+                         CloakedRevealerSecondSpanFormattableField: "127.0.0.1",
+                         logOnlyList: [ FirstCharSeq, SecondCharSeq, ThirdCharSeq ]
                          }
                          }
                         """.RemoveLineEndings()
@@ -1387,7 +1397,12 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
                           },
                           SecondSpanFormattableField: {
                             $ref: 1,
-                            CloakedRevealerSecondSpanFormattableField: "127.0.0.1"
+                            CloakedRevealerSecondSpanFormattableField: "127.0.0.1",
+                            logOnlyList: [
+                              FirstCharSeq,
+                              SecondCharSeq,
+                              ThirdCharSeq
+                            ]
                           }
                         }
                         """.Dos2Unix()
@@ -1451,6 +1466,7 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
                , InstanceMarkingIncludeSpanFormattableContents = true
+               , InstanceTrackingAllAsStringHaveLocalTracking  = false
              });
     }
 
@@ -1475,6 +1491,7 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
                , InstanceMarkingIncludeSpanFormattableContents = true
+               , InstanceTrackingAllAsStringHaveLocalTracking  = false
              });
     }
 
@@ -1486,7 +1503,7 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
            , new StyleOptions(CompactLog)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
-               , InstanceTrackingAllAsStringClassesAreExempt   = true
+               , InstanceTrackingAllAsStringHaveLocalTracking   = true
                , InstanceMarkingIncludeSpanFormattableContents = true
              });
     }
@@ -1499,7 +1516,7 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
            , new StyleOptions(CompactJson)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
-               , InstanceTrackingAllAsStringClassesAreExempt   = true
+               , InstanceTrackingAllAsStringHaveLocalTracking  = true
                , InstanceMarkingIncludeSpanFormattableContents = true
              });
     }
@@ -1513,7 +1530,7 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
            , new StyleOptions(PrettyLog)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
-               , InstanceTrackingAllAsStringClassesAreExempt   = true
+               , InstanceTrackingAllAsStringHaveLocalTracking  = true
                , InstanceMarkingIncludeSpanFormattableContents = true
              });
     }
@@ -1526,7 +1543,7 @@ public class SpanFormattableUnitComplexContentAndFieldRevisitTests : CommonStyle
            , new StyleOptions(PrettyJson)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
-               , InstanceTrackingAllAsStringClassesAreExempt   = true
+               , InstanceTrackingAllAsStringHaveLocalTracking  = true
                , InstanceMarkingIncludeSpanFormattableContents = true
              });
     }

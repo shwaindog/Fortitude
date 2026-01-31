@@ -14,13 +14,14 @@ public class RawContentMold : KnownTypeMolder<RawContentMold>
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
+      , Type typeVisitedAs
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
-        Initialize(instanceOrContainer, typeBeingBuilt, master, typeName
+        Initialize(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
                  , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
 
         return this;

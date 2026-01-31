@@ -81,11 +81,12 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
     public bool AddedContextOnThisCall { get; set; }
 
 
-    public IStyledTypeFormatting ContextStartPushToNext()
+    public IStyledTypeFormatting ContextStartPushToNext(StyleOptions withStyleOptions)
     {
         var next = Clone();
         next.PreviousContext        = this;
         next.AddedContextOnThisCall = true;
+        next.StyleOptions           = withStyleOptions;
         return next;
     }
 
@@ -205,11 +206,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
             case WriteMethodType.MoldSimpleContentType:
             case WriteMethodType.MoldComplexContentType:
                 resolvedFlags |= formatFlags | ContentAllowText | ContentAllowText | ContentAllowAnyValueType;
-                if (visitResult.IsARevisit
-                    // || (actualType.IsStringBearerOrNullableCached()
-                    // && (formatFlags.HasContentTreatmentFlags() 
-                    // && formatFlags.DoesNotHaveIsFieldNameFlag()))
-                   )
+                if (visitResult.IsARevisit)
                 {
                     resolvedFlags |= ContentAllowComplexType;
                     break;
@@ -343,7 +340,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
     {
         if (createTypeFlags.HasNoRevisitCheck()) return 0;
 
-        var sb              = insertBuilder.Sb;
+        var sb = insertBuilder.Sb;
+
         var preAppendLength = sb.Length;
 
         var refDigitsCount = refId.NumOfDigits();
@@ -385,7 +383,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         }
         prefixInsertSize += SizeFormatFieldName(3, createTypeFlags);
         prefixInsertSize += SizeFieldValueSeparator(createTypeFlags);
-        prefixInsertSize += refDigitsCount + (!createTypeFlags.HasDisableAutoDelimiting() ? 2 : 0); // bound by DblQt
+        prefixInsertSize += SizeFormatFieldName(refDigitsCount, createTypeFlags);
 
         insertBuilder.StartInsertAt(indexToInsertAt, prefixInsertSize);
         if (!alreadySupportsMultipleFields)
@@ -394,11 +392,11 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
             AddNextFieldPadding(createTypeFlags);
         }
         else if (isEmpty) { AddNextFieldPadding(createTypeFlags); }
-        if (!createTypeFlags.HasDisableFieldNameDelimitingFlag()) Gb.AppendDelimiter(DblQt);
+        if (!createTypeFlags.HasDisableFieldNameDelimitingFlag()) Gb.AppendContent(DblQt);
         Gb.AppendContent("$id");
-        if (!createTypeFlags.HasDisableFieldNameDelimitingFlag()) Gb.AppendDelimiter(DblQt);
+        if (!createTypeFlags.HasDisableFieldNameDelimitingFlag()) Gb.AppendContent(DblQt);
         AppendFieldValueSeparator();
-        if (!createTypeFlags.HasDisableAutoDelimiting()) Gb.AppendDelimiter(DblQt);
+        if (!createTypeFlags.HasDisableAutoDelimiting()) Gb.AppendContent(DblQt);
         Span<char> refSpan = stackalloc char[refDigitsCount];
         if (refId.TryFormat(refSpan, out var charsWritten, ""))
         {
@@ -410,7 +408,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
             Debugger.Break();
             Gb.AppendContent(refId.ToString());
         }
-        if (!createTypeFlags.HasDisableAutoDelimiting()) Gb.AppendDelimiter(DblQt);
+        if (!createTypeFlags.HasDisableAutoDelimiting()) Gb.AppendContent(DblQt);
         if (!alreadySupportsMultipleFields)
         {
             AddToNextFieldSeparatorAndPadding(createTypeFlags);
@@ -438,9 +436,9 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
     public int AppendInstanceValuesFieldName(Type forType, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var preAppendLength = Gb.Sb.Length;
-        if (!formatFlags.HasDisableFieldNameDelimitingFlag()) Gb.AppendDelimiter(DblQt);
+        if (!formatFlags.HasDisableFieldNameDelimitingFlag()) Gb.AppendContent(DblQt);
         Gb.AppendContent("$values");
-        if (!formatFlags.HasDisableFieldNameDelimitingFlag()) Gb.AppendDelimiter(DblQt);
+        if (!formatFlags.HasDisableFieldNameDelimitingFlag()) Gb.AppendContent(DblQt);
         AppendFieldValueSeparator();
         return Gb.Sb.Length - preAppendLength;
     }

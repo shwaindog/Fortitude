@@ -19,13 +19,14 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower vesselOfStringOfPower
+      , Type typeVisitedAs
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
-        InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeName
+        InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeVisitedAs, typeName
                                       , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
         WrittenAs = WrittenAsFlags.AsMapCollection;
 

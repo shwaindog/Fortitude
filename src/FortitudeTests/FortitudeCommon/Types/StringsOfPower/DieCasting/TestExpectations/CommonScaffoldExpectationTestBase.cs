@@ -66,6 +66,7 @@ public abstract class CommonScaffoldExpectationTestBase : CommonExpectationBase
 
         var sb = SourceTheOnStringStringBuilder(usingStringBuilder);
 
+        ResetOneStringWithSettings(MyTheOneString);
         MyTheOneString.ReInitialize(sb, TestStyle);
 
         Logger.InfoAppend("To Debug Test past the following code into ")?

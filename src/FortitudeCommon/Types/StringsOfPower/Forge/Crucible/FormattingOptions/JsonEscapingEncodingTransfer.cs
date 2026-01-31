@@ -55,7 +55,7 @@ public class JsonEscapingEncodingTransfer : ReusableObject<JsonEscapingEncodingT
     public IEncodingTransfer LayoutEncoder
     {
         get => layoutEncoder ?? PassThroughEncodingTransfer.FinalEncoder;
-        private set => layoutEncoder = value;
+        set => layoutEncoder = value;
     }
     
     public IEncodingTransfer WithAttachedLayoutEncoder(IEncodingTransfer toAttach)

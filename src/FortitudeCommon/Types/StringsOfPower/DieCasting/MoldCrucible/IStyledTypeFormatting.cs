@@ -24,7 +24,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     bool AddedContextOnThisCall { get; set; }
 
     IStyledTypeFormatting Initialize(ITheOneString theOneString);
-    IStyledTypeFormatting ContextStartPushToNext();
+    IStyledTypeFormatting ContextStartPushToNext(StyleOptions withStyleOptions);
     IStyledTypeFormatting ContextCompletePopToPrevious();
 
     FormatFlags ResolveContentFormattingFlags<T>(IStringBuilder sb, T input, FormatFlags callerFormattingFlags

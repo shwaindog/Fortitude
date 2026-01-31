@@ -1,9 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Net;
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CircularRefRevisits.FixtureScaffolding.UnitFieldContent;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData.TestTree;
@@ -14,7 +12,7 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestSce
 
 [NoMatchingProductionClass]
 [TestClass]
-public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExpectationTestBase
+public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectationTestBase
 {
     private static InputBearerExpect<TwoStringBearersFields<BinaryBranchNode<LeafNode>>>?
         twoSameOneBranchTwoSameLeafNodesWithDefaultRevisitSettingsExpect;
@@ -22,28 +20,10 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
         twoSameOneBranchTwoSameLeafNodesOneSimpleCloakedValueOneFieldWithDefaultRevisitSettingsExpect;
     private static InputBearerExpect<TwoStringBearersSecondAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>>>?
         twoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect;
-    private static InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>>?
-        twoSameIpAddressesOneSimpleCloakedStringOneFieldWithDefaultRevisitSettingsExpect;
-    private static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>>?
-        twoSameIpAddressesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect;
-
-    private static InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress>>?
-        twoSameIpAddressesOneSimpleCloakedValueOneFieldShowRevisitInstanceIdsExpect;
-    private static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>>?
-        twoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitInstanceIdsExpect;
-    private static InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>>?
-        twoSameIpAddressesOneSimpleCloakedStringOneFieldShowRevisitInstanceIdsExpect;
-    private static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>>?
-        twoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitInstanceIdsExpect;
-
-    private static InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress>>?
-        twoSameIpAddressesOneSimpleCloakedValueOneFieldShowRevisitAndValuesExpect;
-    private static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>>?
-        twoSameIpAddressesOneFieldOneSimpleCloakedValueShowRevisitAndValuesExpect;
-    private static InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>>?
-        twoSameIpAddressesOneSimpleCloakedStringOneFieldShowRevisitAndValuesExpect;
-    private static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>>?
-        twoSameIpAddressesOneFieldOneSimpleCloakedStringShowRevisitAndValuesExpect;
+    private static InputBearerExpect<TwoStringBearersFirstAsSimpleCloakedStringContent<BinaryBranchNode<LeafNode>>>?
+        twoSameOneBranchTwoSameLeafNodesOneSimpleCloakedStringOneFieldWithDefaultRevisitSettingsExpect;
+    private static InputBearerExpect<TwoStringBearersSecondAsSimpleCloakedStringContent<BinaryBranchNode<LeafNode>>>?
+        twoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect;
 
     [ClassInitialize]
     public static void EnsureBaseClassInitialized(TestContext testContext) =>
@@ -61,8 +41,8 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
     {
         get
         {
-            var child           = new LeafNode("SameChild");
-            var secondFieldSame = new BinaryBranchNode<LeafNode>("SameOnLeftAndRight", child, child );
+            var child                                = new LeafNode("SameChild");
+            var secondFieldSame                      = new BinaryBranchNode<LeafNode>("SameOnLeftAndRight", child, child);
             var twoSameOneBranchNodeTwoSameLeafNodes = new TwoStringBearersFields<BinaryBranchNode<LeafNode>>(secondFieldSame, secondFieldSame);
             return twoSameOneBranchNodeTwoSameLeafNodes;
         }
@@ -215,13 +195,13 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
         ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafFieldsWithDefaultRevisitSettingsExpect, PrettyJson);
     }
 
-    public static TwoStringBearersFirstAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>> 
+    public static TwoStringBearersFirstAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>>
         TwoSameOneBranchTwoSameLeafNodesOneSimpleCloakedValueOneField
     {
         get
         {
             var child           = new LeafNode("SameChild");
-            var secondFieldSame = new BinaryBranchNode<LeafNode>("SameOnLeftAndRight", child, child );
+            var secondFieldSame = new BinaryBranchNode<LeafNode>("SameOnLeftAndRight", child, child);
             var twoSameOneBranchNodeTwoSameLeafNodes =
                 new TwoStringBearersFirstAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>>(secondFieldSame, secondFieldSame);
             return twoSameOneBranchNodeTwoSameLeafNodes;
@@ -355,33 +335,38 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
     [TestMethod]
     public void TwoSameOneBranchTwoSameLeafNodesOneCloakedValueOneFieldWithDefaultRevisitSettingsCompactLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneSimpleCloakedValueOneFieldWithDefaultRevisitSettingsExpect, CompactLog);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneSimpleCloakedValueOneFieldWithDefaultRevisitSettingsExpect
+                                           , CompactLog);
     }
 
     [TestMethod]
     public void TwoSameOneBranchTwoSameLeafNodesOneFieldWithDefaultRevisitSettingsCompactJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneSimpleCloakedValueOneFieldWithDefaultRevisitSettingsExpect, CompactJson);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneSimpleCloakedValueOneFieldWithDefaultRevisitSettingsExpect
+                                           , CompactJson);
     }
 
     [TestMethod]
     public void TwoSameOneBranchTwoSameLeafNodesOneCloakedValueOneFieldWithDefaultRevisitSettingsPrettyLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneSimpleCloakedValueOneFieldWithDefaultRevisitSettingsExpect, PrettyLog);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneSimpleCloakedValueOneFieldWithDefaultRevisitSettingsExpect
+                                           , PrettyLog);
     }
 
     [TestMethod]
     public void TwoSameOneBranchTwoSameLeafNodesOneCloakedValueOneFieldWithDefaultRevisitSettingsPrettyJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneSimpleCloakedValueOneFieldWithDefaultRevisitSettingsExpect, PrettyJson);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneSimpleCloakedValueOneFieldWithDefaultRevisitSettingsExpect
+                                           , PrettyJson);
     }
 
-    public static TwoStringBearersSecondAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>> TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedValue
+    public static TwoStringBearersSecondAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>>
+        TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedValue
     {
         get
         {
             var child           = new LeafNode("SameChild");
-            var secondFieldSame = new BinaryBranchNode<LeafNode>("SameOnLeftAndRight", child, child );
+            var secondFieldSame = new BinaryBranchNode<LeafNode>("SameOnLeftAndRight", child, child);
             var twoSameOneBranchTwoSameLeafNodesOneFieldsOneCloaked
                 = new TwoStringBearersSecondAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>>(secondFieldSame, secondFieldSame);
             return twoSameOneBranchTwoSameLeafNodesOneFieldsOneCloaked;
@@ -389,7 +374,7 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
     }
 
     public static InputBearerExpect<TwoStringBearersSecondAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>>>
-        TwoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect
+        TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect
     {
         get
         {
@@ -418,7 +403,9 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
                          $ref: 1
                          }
                          },
-                         SecondStringBearerField: (BinaryBranchNode<LeafNode>($ref: 2))
+                         SecondStringBearerField: (BinaryBranchNode<LeafNode>) {
+                         $ref: 2
+                         }
                          }
                         """.RemoveLineEndings()
                     }
@@ -444,7 +431,9 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
                               $ref: 1
                             }
                           },
-                          SecondStringBearerField: (BinaryBranchNode<LeafNode>($ref: 2))
+                          SecondStringBearerField: (BinaryBranchNode<LeafNode>) {
+                            $ref: 2
+                          }
                         }
                         """.Dos2Unix()
                     }
@@ -511,54 +500,76 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
     [TestMethod]
     public void TwoSameOneBranchTwoSameLeafNodesOneFieldOneCloakedValueWithDefaultRevisitSettingsCompactLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect, CompactLog);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect
+                                           , CompactLog);
     }
 
     [TestMethod]
     public void TwoSameOneBranchTwoSameLeafNodesOneFieldOneCloakedValueWithDefaultRevisitSettingsCompactJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect, CompactJson);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect
+                                           , CompactJson);
     }
 
     [TestMethod]
     public void TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsPrettyLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect, PrettyLog);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect
+                                           , PrettyLog);
     }
 
     [TestMethod]
     public void TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsPrettyJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect, PrettyJson);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedValueWithDefaultRevisitSettingsExpect
+                                           , PrettyJson);
     }
 
-    public static TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress> TwoSameIpAddressesOneSimpleCloakedStringOneField
+    public static TwoStringBearersFirstAsSimpleCloakedStringContent<BinaryBranchNode<LeafNode>>
+        TwoSameOneBranchTwoSameLeafNodesOneSimpleCloakedStringOneField
     {
         get
         {
-            var loopbackAddress = IPAddress.Loopback;
-            var twoSameIpAddressesOneCloakedOneFields =
-                new TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>(loopbackAddress, loopbackAddress);
-            return twoSameIpAddressesOneCloakedOneFields;
+            var child           = new LeafNode("SameChild");
+            var secondFieldSame = new BinaryBranchNode<LeafNode>("SameOnLeftAndRight", child, child);
+            var twoSameOneBranchTwoSameLeafNodesOneCloakedOneFields =
+                new TwoStringBearersFirstAsSimpleCloakedStringContent<BinaryBranchNode<LeafNode>>(secondFieldSame, secondFieldSame);
+            return twoSameOneBranchTwoSameLeafNodesOneCloakedOneFields;
         }
     }
 
-    public static InputBearerExpect<TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>>
-        TwoSameIpAddressesOneSimpleCloakedStringOneFieldsWithDefaultRevisitSettingsExpect
+    public static InputBearerExpect<TwoStringBearersFirstAsSimpleCloakedStringContent<BinaryBranchNode<LeafNode>>>
+        TwoSameOneBranchTwoSameLeafNodesOneSimpleCloakedStringOneFieldsWithDefaultRevisitSettingsExpect
     {
         get
         {
-            return twoSameIpAddressesOneSimpleCloakedStringOneFieldWithDefaultRevisitSettingsExpect ??=
-                new InputBearerExpect<
-                    TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>>(TwoSameIpAddressesOneSimpleCloakedStringOneField)
+            return twoSameOneBranchTwoSameLeafNodesOneSimpleCloakedStringOneFieldWithDefaultRevisitSettingsExpect ??=
+                new InputBearerExpect<TwoStringBearersFirstAsSimpleCloakedStringContent<BinaryBranchNode<LeafNode>>>(
+                 TwoSameOneBranchTwoSameLeafNodesOneSimpleCloakedStringOneField)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>
-                         {
-                         FirstSpanFormattableField: "127.0.0.1",
-                         SecondSpanFormattableField: 127.0.0.1
+                        TwoStringBearersFirstAsSimpleCloakedStringContent<BinaryBranchNode<LeafNode>> {
+                         FirstStringBearerField: (BinaryBranchNode<LeafNode>($id: 2)) "{
+                         Name: "SameOnLeftAndRight",
+                         GlobalNodeInstanceId: 2,
+                         NodeType: NodeType.BranchNode,
+                         Left: LeafNode {
+                         $id: 1,
+                         LeafInstanceId: 1,
+                         Name: "SameChild",
+                         GlobalNodeInstanceId: 1,
+                         NodeType: NodeType.LeafNode,
+                         DepthToRoot: 1
+                         },
+                         Right: LeafNode {
+                         $ref: 1
+                         }
+                         }",
+                         SecondStringBearerField: BinaryBranchNode<LeafNode> {
+                         $ref: 2
+                         }
                          }
                         """.RemoveLineEndings()
                     }
@@ -566,29 +577,136 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress> {
-                          FirstSpanFormattableField: "127.0.0.1",
-                          SecondSpanFormattableField: 127.0.0.1
+                        TwoStringBearersFirstAsSimpleCloakedStringContent<BinaryBranchNode<LeafNode>> {
+                          FirstStringBearerField: (BinaryBranchNode<LeafNode>($id: 2)) "{
+                            Name: "SameOnLeftAndRight",
+                            GlobalNodeInstanceId: 2,
+                            NodeType: NodeType.BranchNode,
+                            Left: LeafNode {
+                              $id: 1,
+                              LeafInstanceId: 1,
+                              Name: "SameChild",
+                              GlobalNodeInstanceId: 1,
+                              NodeType: NodeType.LeafNode,
+                              DepthToRoot: 1
+                            },
+                            Right: LeafNode {
+                              $ref: 1
+                            }
+                          }",
+                          SecondStringBearerField: BinaryBranchNode<LeafNode> {
+                            $ref: 2
+                          }
                         }
                         """.Dos2Unix()
                     }
                    ,
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
-                      , """ 
+                      , """
                         {
-                        "FirstSpanFormattableField":"127.0.0.1",
-                        "SecondSpanFormattableField":"127.0.0.1"
+                        "FirstStringBearerField":"{
+                        \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
+                        \u0022GlobalNodeInstanceId\u0022:2,
+                        \u0022NodeType\u0022:\u0022BranchNode\u0022,
+                        \u0022Left\u0022:{
+                        \u0022$id\u0022:\u00221\u0022,
+                        \u0022LeafInstanceId\u0022:1,
+                        \u0022Name\u0022:\u0022SameChild\u0022,
+                        \u0022GlobalNodeInstanceId\u0022:1,
+                        \u0022NodeType\u0022:\u0022LeafNode\u0022,
+                        \u0022DepthToRoot\u0022:1
+                        },
+                        \u0022Right\u0022:{
+                        \u0022$ref\u0022:\u00221\u0022
+                        }
+                        }",
+                        "SecondStringBearerField":{
+                        "Name":"SameOnLeftAndRight",
+                        "GlobalNodeInstanceId":2,
+                        "NodeType":"BranchNode",
+                        "Left":{
+                        "$id":"1",
+                        "LeafInstanceId":1,
+                        "Name":"SameChild",
+                        "GlobalNodeInstanceId":1,
+                        "NodeType":"LeafNode",
+                        "DepthToRoot":1
+                        },
+                        "Right":{
+                        "$ref":"1"
+                        }
+                        }
                         }
                         """.RemoveLineEndings()
+                        
+                        // removed on default \u0022$id\u0022:\u00222\u0022,
                     }
                    ,
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyJson)
-                      , """ 
+                      , """
                         {
-                          "FirstSpanFormattableField": "127.0.0.1",
-                          "SecondSpanFormattableField": "127.0.0.1"
+
+                        """.Dos2Unix()
+                       +
+                        """
+                          "FirstStringBearerField": "{
+                        \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
+                        \u0022GlobalNodeInstanceId\u0022:2,
+                        \u0022NodeType\u0022:\u0022BranchNode\u0022,
+                        \u0022Left\u0022:{
+                        \u0022$id\u0022:\u00221\u0022,
+                        \u0022LeafInstanceId\u0022:1,
+                        \u0022Name\u0022:\u0022SameChild\u0022,
+                        \u0022GlobalNodeInstanceId\u0022:1,
+                        \u0022NodeType\u0022:\u0022LeafNode\u0022,
+                        \u0022DepthToRoot\u0022:1
+                        },
+                        \u0022Right\u0022:{
+                        \u0022$ref\u0022:\u00221\u0022
+                        }
+                        }",
+                        """.RemoveLineEndings()
+                       // +
+                       //  """
+                       //        "FirstStringBearerField": "{\u000a
+                       //          \u0022$id\u0022: \u00222\u0022,\u000a
+                       //          \u0022Name\u0022: \u0022SameOnLeftAndRight\u0022,\u000a
+                       //          \u0022GlobalNodeInstanceId\u0022: 2,\u000a
+                       //          \u0022NodeType\u0022: \u0022BranchNode\u0022,\u000a
+                       //          \u0022Left\u0022: {\u000a
+                       //            \u0022$id\u0022: \u00221\u0022,\u000a
+                       //            \u0022LeafInstanceId\u0022: 1,\u000a
+                       //            \u0022Name\u0022: \u0022SameChild\u0022,\u000a
+                       //            \u0022GlobalNodeInstanceId\u0022: 1,\u000a
+                       //            \u0022NodeType\u0022: \u0022LeafNode\u0022,\u000a
+                       //            \u0022DepthToRoot\u0022: 1\u000a
+                       //          },\u000a
+                       //          \u0022Right\u0022: {\u000a
+                       //            \u0022$ref\u0022: \u00221\u0022\u000a
+                       //          }\u000a
+                       //        }",
+                       //      """.RemoveLineEndings()
+                       +
+                        """
+                        
+                          "SecondStringBearerField": {
+                            "Name": "SameOnLeftAndRight",
+                            "GlobalNodeInstanceId": 2,
+                            "NodeType": "BranchNode",
+                            "Left": {
+                              "$id": "1",
+                              "LeafInstanceId": 1,
+                              "Name": "SameChild",
+                              "GlobalNodeInstanceId": 1,
+                              "NodeType": "LeafNode",
+                              "DepthToRoot": 1
+                            },
+                            "Right": {
+                              "$ref": "1"
+                            }
+                          }
                         }
                         """.Dos2Unix()
                     }
@@ -597,56 +715,77 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneCloakedStringOneFieldWithDefaultRevisitSettingsCompactLogFormatTest()
+    public void TwoSameOneBranchTwoSameLeafNodesOneCloakedStringOneFieldWithDefaultRevisitSettingsCompactLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneSimpleCloakedStringOneFieldsWithDefaultRevisitSettingsExpect, CompactLog);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneSimpleCloakedStringOneFieldsWithDefaultRevisitSettingsExpect
+                                           , CompactLog);
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneCloakedStringOneFieldWithDefaultRevisitSettingsCompactJsonFormatTest()
+    public void TwoSameOneBranchTwoSameLeafNodesOneCloakedStringOneFieldWithDefaultRevisitSettingsCompactJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneSimpleCloakedStringOneFieldsWithDefaultRevisitSettingsExpect, CompactJson);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneSimpleCloakedStringOneFieldsWithDefaultRevisitSettingsExpect
+                                           , CompactJson);
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneCloakedStringOneFieldWithDefaultRevisitSettingsPrettyLogFormatTest()
+    public void TwoSameOneBranchTwoSameLeafNodesOneCloakedStringOneFieldWithDefaultRevisitSettingsPrettyLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneSimpleCloakedStringOneFieldsWithDefaultRevisitSettingsExpect, PrettyLog);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneSimpleCloakedStringOneFieldsWithDefaultRevisitSettingsExpect
+                                           , PrettyLog);
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneCloakedStringOneFieldWithDefaultRevisitSettingsPrettyJsonFormatTest()
+    public void TwoSameOneBranchTwoSameLeafNodesOneCloakedStringOneFieldWithDefaultRevisitSettingsPrettyJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneSimpleCloakedStringOneFieldsWithDefaultRevisitSettingsExpect, PrettyJson);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneSimpleCloakedStringOneFieldsWithDefaultRevisitSettingsExpect
+                                           , PrettyJson);
     }
 
-    public static TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress> TwoSameIpAddressesOneFieldOneSimpleCloakedString
+    public static TwoStringBearersSecondAsSimpleCloakedStringContent<BinaryBranchNode<LeafNode>>
+        TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedString
     {
         get
         {
-            var loopbackAddress = IPAddress.Loopback;
-            var twoSameIpAddressesOneFieldsOneCloakedString
-                = new TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>(loopbackAddress, loopbackAddress);
-            return twoSameIpAddressesOneFieldsOneCloakedString;
+            var child           = new LeafNode("SameChild");
+            var secondFieldSame = new BinaryBranchNode<LeafNode>("SameOnLeftAndRight", child, child);
+            var twoSameOneBranchTwoSameLeafNodesOneFieldsOneCloakedString
+                = new TwoStringBearersSecondAsSimpleCloakedStringContent<BinaryBranchNode<LeafNode>>(secondFieldSame, secondFieldSame);
+            return twoSameOneBranchTwoSameLeafNodesOneFieldsOneCloakedString;
         }
     }
 
-    public static InputBearerExpect<TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>>
-        TwoSameIpAddressesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect
+    public static InputBearerExpect<TwoStringBearersSecondAsSimpleCloakedStringContent<BinaryBranchNode<LeafNode>>>
+        TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect
     {
         get
         {
-            return twoSameIpAddressesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect ??=
-                new InputBearerExpect<
-                    TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>>(TwoSameIpAddressesOneFieldOneSimpleCloakedString)
+            return twoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect ??=
+                new InputBearerExpect<TwoStringBearersSecondAsSimpleCloakedStringContent<BinaryBranchNode<LeafNode>>>(
+                 TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedString)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>
-                         {
-                         FirstSpanFormattableField: 127.0.0.1,
-                         SecondSpanFormattableField: "127.0.0.1"
+                        TwoStringBearersSecondAsSimpleCloakedStringContent<BinaryBranchNode<LeafNode>> {
+                         FirstStringBearerField: BinaryBranchNode<LeafNode> {
+                         $id: 2,
+                         Name: "SameOnLeftAndRight",
+                         GlobalNodeInstanceId: 2,
+                         NodeType: NodeType.BranchNode,
+                         Left: LeafNode {
+                         $id: 1,
+                         LeafInstanceId: 1,
+                         Name: "SameChild",
+                         GlobalNodeInstanceId: 1,
+                         NodeType: NodeType.LeafNode,
+                         DepthToRoot: 1
+                         },
+                         Right: LeafNode {
+                         $ref: 1
+                         }
+                         },
+                         SecondStringBearerField: (BinaryBranchNode<LeafNode>) { $ref: 2 }
                          }
                         """.RemoveLineEndings()
                     }
@@ -654,9 +793,27 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress> {
-                          FirstSpanFormattableField: 127.0.0.1,
-                          SecondSpanFormattableField: "127.0.0.1"
+                        TwoStringBearersSecondAsSimpleCloakedStringContent<BinaryBranchNode<LeafNode>> {
+                          FirstStringBearerField: BinaryBranchNode<LeafNode> {
+                            $id: 2,
+                            Name: "SameOnLeftAndRight",
+                            GlobalNodeInstanceId: 2,
+                            NodeType: NodeType.BranchNode,
+                            Left: LeafNode {
+                              $id: 1,
+                              LeafInstanceId: 1,
+                              Name: "SameChild",
+                              GlobalNodeInstanceId: 1,
+                              NodeType: NodeType.LeafNode,
+                              DepthToRoot: 1
+                            },
+                            Right: LeafNode {
+                              $ref: 1
+                            }
+                          },
+                          SecondStringBearerField: (BinaryBranchNode<LeafNode>) {
+                            $ref: 2
+                          }
                         }
                         """.Dos2Unix()
                     }
@@ -665,8 +822,26 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
                       , """ 
                         {
-                        "FirstSpanFormattableField":"127.0.0.1",
-                        "SecondSpanFormattableField":"127.0.0.1"
+                        "FirstStringBearerField":{
+                        "$id":"2",
+                        "Name":"SameOnLeftAndRight",
+                        "GlobalNodeInstanceId":2,
+                        "NodeType":"BranchNode",
+                        "Left":{
+                        "$id":"1",
+                        "LeafInstanceId":1,
+                        "Name":"SameChild",
+                        "GlobalNodeInstanceId":1,
+                        "NodeType":"LeafNode",
+                        "DepthToRoot":1
+                        },
+                        "Right":{
+                        "$ref":"1"
+                        }
+                        },
+                        "SecondStringBearerField":{
+                        "$ref":"2"
+                        }
                         }
                         """.RemoveLineEndings()
                     }
@@ -675,8 +850,26 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyJson)
                       , """ 
                         {
-                          "FirstSpanFormattableField": "127.0.0.1",
-                          "SecondSpanFormattableField": "127.0.0.1"
+                          "FirstStringBearerField": {
+                            "$id": "2",
+                            "Name": "SameOnLeftAndRight",
+                            "GlobalNodeInstanceId": 2,
+                            "NodeType": "BranchNode",
+                            "Left": {
+                              "$id": "1",
+                              "LeafInstanceId": 1,
+                              "Name": "SameChild",
+                              "GlobalNodeInstanceId": 1,
+                              "NodeType": "LeafNode",
+                              "DepthToRoot": 1
+                            },
+                            "Right": {
+                              "$ref": "1"
+                            }
+                          },
+                          "SecondStringBearerField": {
+                            "$ref": "2"
+                          }
                         }
                         """.Dos2Unix()
                     }
@@ -685,27 +878,26 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests  : CommonStyleExp
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneCloakedStringWithDefaultRevisitSettingsCompactLogFormatTest()
+    public void TwoSameOneBranchTwoSameLeafNodesOneFieldOneCloakedStringWithDefaultRevisitSettingsCompactLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect, CompactLog);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect, CompactLog);
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneCloakedStringWithDefaultRevisitSettingsCompactJsonFormatTest()
+    public void TwoSameOneBranchTwoSameLeafNodesOneFieldOneCloakedStringWithDefaultRevisitSettingsCompactJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect, CompactJson);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect, CompactJson);
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsPrettyLogFormatTest()
+    public void TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsPrettyLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect, PrettyLog);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect, PrettyLog);
     }
 
     [TestMethod]
-    public void TwoSameIpAddressesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsPrettyJsonFormatTest()
+    public void TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsPrettyJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameIpAddressesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect, PrettyJson);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect, PrettyJson);
     }
-    
 }

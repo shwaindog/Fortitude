@@ -10,35 +10,39 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.WrittenAsFlags;
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 [Flags]
-public enum WrittenAsFlags
+public enum WrittenAsFlags : ushort
 {
-    Empty             = 0
-  , AsNull            = 1
-  , AsString          = 1
-  , AsValue           = 2
-  , AsSimple          = 4
-  , AsCollection      = 8
-  , AsMapCollection   = 16
-  , AsComplex         = 32
-  , UpgradedToComplex = 64
+    Empty                       = 0
+  , AsNull                      = 1
+  , AsString                    = 1
+  , AsValue                     = 2
+  , AsSimple                    = 4
+  , AsCollection                = 8
+  , AsMapCollection             = 16
+  , AsComplex                   = 32
+  , UpgradedToComplex           = 64
+  , WithInstanceId              = 128
+  , WithReferenceToInstanceId   = 256
+  , WithDepthVmemAddress        = 512
+  , WithClippedDepthSuppression = 1024
+  , RemovedDueDepthSuppression  = 2048
 }
 
 public static class WrittenAsFlagsExtensions
 {
-
-    public static bool IsEmpty(this WrittenAsFlags flags)   => flags == Empty;
-    public static bool HasAsNullFLag(this WrittenAsFlags flags)   => (flags & AsNull) > 0;
-    public static bool HasAsStringFlag(this WrittenAsFlags flags) => (flags & AsString) > 0;
-    public static bool HasAsValueFlag(this WrittenAsFlags flags) => (flags & AsValue) > 0;
-    public static bool HasAsSimpleFlag(this WrittenAsFlags flags) => (flags & AsSimple) > 0;
-    public static bool HasAsCollectionFlag(this WrittenAsFlags flags) => (flags & AsCollection) > 0;
-    public static bool HasAsMapCollectionFlag(this WrittenAsFlags flags) => (flags & AsMapCollection) > 0;
-    public static bool HasAsComplexFlag(this WrittenAsFlags flags) => (flags & AsComplex) > 0;
+    public static bool IsEmpty(this WrittenAsFlags flags)                  => flags == Empty;
+    public static bool HasAsNullFLag(this WrittenAsFlags flags)            => (flags & AsNull) > 0;
+    public static bool HasAsStringFlag(this WrittenAsFlags flags)          => (flags & AsString) > 0;
+    public static bool HasAsValueFlag(this WrittenAsFlags flags)           => (flags & AsValue) > 0;
+    public static bool HasAsSimpleFlag(this WrittenAsFlags flags)          => (flags & AsSimple) > 0;
+    public static bool HasAsCollectionFlag(this WrittenAsFlags flags)      => (flags & AsCollection) > 0;
+    public static bool HasAsMapCollectionFlag(this WrittenAsFlags flags)   => (flags & AsMapCollection) > 0;
+    public static bool HasAsComplexFlag(this WrittenAsFlags flags)         => (flags & AsComplex) > 0;
     public static bool HasUpgradedToComplexFlag(this WrittenAsFlags flags) => (flags & UpgradedToComplex) > 0;
 
-    public static bool SupportsMultipleFields(this WrittenAsFlags flags) => 
+    public static bool SupportsMultipleFields(this WrittenAsFlags flags) =>
         flags.HasAsComplexFlag() || flags.HasAsMapCollectionFlag();
-    
+
     public static WrittenAsFlags WrittenAsFromFirstCharacter(this char firstChar) =>
         firstChar switch
         {

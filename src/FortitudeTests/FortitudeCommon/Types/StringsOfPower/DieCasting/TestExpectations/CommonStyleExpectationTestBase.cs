@@ -49,17 +49,9 @@ public abstract class CommonStyleExpectationTestBase : CommonExpectationBase
 
         IStringBuilder sb;
 
-        if (NextTestStyleOptions == null)
-        {
-            sb = SourceTheOnStringStringBuilder(usingStringBuilder);
-            MyTheOneString.ReInitialize(sb, stringStyle);
-        }
-        else
-        {
-            NextTestStyleOptions.NewLineStyle = "\n";
-            MyTheOneString.ClearAndReinitialize(NextTestStyleOptions);
-            sb = MyTheOneString.WriteBuffer;
-        }
+        ResetOneStringWithSettings(MyTheOneString, NextTestStyleOptions);
+        sb = SourceTheOnStringStringBuilder(usingStringBuilder);
+        MyTheOneString.ReInitialize(sb, stringStyle);
 
         var stringBearer                = formatExpectation.TestStringBearer;
         var resultWithVisibleWhiteSpace = Recycler.Borrow<CharArrayStringBuilder>();

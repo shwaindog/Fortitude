@@ -211,6 +211,7 @@ public class SpanFormattableUnitFieldRevisitTests : CommonStyleExpectationTestBa
            , new StyleOptions(CompactJson)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
+                , InstanceTrackingAllAsStringHaveLocalTracking = false
              });
     }
 
@@ -233,6 +234,7 @@ public class SpanFormattableUnitFieldRevisitTests : CommonStyleExpectationTestBa
            , new StyleOptions(PrettyJson)
              {
                  InstanceTrackingIncludeSpanFormattableClasses = true
+               , InstanceTrackingAllAsStringHaveLocalTracking  = false
              });
     }
     

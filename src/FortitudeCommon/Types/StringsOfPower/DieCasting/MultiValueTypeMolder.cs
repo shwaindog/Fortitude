@@ -17,13 +17,14 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower vesselOfStringOfPower
+      , Type typeVisitedAs
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
-        Initialize(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeName
+        Initialize(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeVisitedAs, typeName
                                        , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
     }
 

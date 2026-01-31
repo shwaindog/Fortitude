@@ -1,4 +1,5 @@
-﻿using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+﻿using System.Diagnostics;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.CollectionField;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
@@ -17,14 +18,15 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
     (
         object instanceOrContainer
       , Type typeBeingBuilt
-      , TheOneString owning
+      , TheOneString master
+      , Type typeVisitedAs
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
-        InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, owning, typeName, remainingGraphDepth
+        InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName, remainingGraphDepth
                                       , moldGraphVisit, writeMethodType, createFormatFlags);
         WrittenAs = WrittenAsFlags.AsComplex;
         return this;
@@ -60,6 +62,7 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
 
     public UnitField.SelectTypeField<ComplexPocoTypeMold> Field
     {
+        [DebuggerStepThrough]
         get => addField ??= State.Recycler.Borrow<UnitField.SelectTypeField<ComplexPocoTypeMold>>().Initialize(State);
         protected set => addField = value;
     }

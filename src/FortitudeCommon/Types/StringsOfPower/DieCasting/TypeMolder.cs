@@ -41,6 +41,7 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
+      , Type typeVisitedAs
       , string? typeName
       , int remainingGraphDepth
       , VisitResult visitResult
@@ -49,6 +50,7 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
         PortableState.InstanceOrContainer = instanceOrContainer;
         PortableState.TypeBeingBuilt      = typeBeingBuilt;
         PortableState.Master              = master;
+        PortableState.TypeVisitedAs       = typeVisitedAs;
         PortableState.TypeName            = typeName;
         PortableState.RemainingGraphDepth = remainingGraphDepth;
         PortableState.CompleteResult      = null;
@@ -71,6 +73,7 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
     public bool BuildingInstanceEquals<T>(T check) => PortableState.InstanceOrContainer.Equals(check);
 
     public Type TypeBeingBuilt => PortableState.TypeBeingBuilt;
+    public Type TypeVisitAs => PortableState.TypeVisitedAs;
 
     public StyleOptions Settings => PortableState.Master.Settings;
 
@@ -97,11 +100,13 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
 
     protected override void InheritedStateReset()
     {
+        PortableState.TypeBeingBuilt    = null!;
+        PortableState.TypeVisitedAs     = null!;
         PortableState.Master            = null!;
         PortableState.TypeName          = null!;
         PortableState.CompleteResult    = null;
         PortableState.CreateFormatFlags = DefaultCallerTypeFlags;
-        PortableState.MoldGraphVisit    = VisitResult.Empty;
+        PortableState.MoldGraphVisit    = VisitResult.VisitNotChecked;
         
         if (PortableState.InstanceOrContainer is IRecyclableStructContainer recyclableStructContainer)
         {
@@ -121,6 +126,8 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
     {
         public object InstanceOrContainer { get; set; } = null!;
         public Type TypeBeingBuilt { get; set; } = null!;
+        
+        public Type TypeVisitedAs { get; set; } = null!;
         public string? TypeName { get; set; }
 
         public WrittenAsFlags WrittenAsFlags { get; set; }
@@ -147,11 +154,6 @@ public interface ITypeBuilderComponentSource
 public interface IMigratableTypeBuilderComponentSource
 {
     IMigratableTypeMolderDieCast MigratableMoldState { get; }
-}
-
-public interface ITypeBuilderComponentSource<out T> : ITypeBuilderComponentSource where T : TypeMolder
-{
-    ITypeMolderDieCast<T> KnownTypeMoldState { get; }
 }
 
 public static class StyledTypeBuilderExtensions

@@ -61,10 +61,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
     public bool AddedContextOnThisCall { get; set; }
 
-    public IStyledTypeFormatting ContextStartPushToNext()
+    public IStyledTypeFormatting ContextStartPushToNext(StyleOptions withStyleOptions)
     {
         var next = Clone();
         next.PreviousContext = this;
+        next.StyleOptions    = withStyleOptions;
         return next;
     }
 
@@ -692,6 +693,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             Debugger.Break();
             Gb.AppendContent(refId.ToString());
         }
+        if (liveMoldInternal != null) { liveMoldInternal.WrittenAsFlags |= WrittenAsFlags.WithInstanceId; }
         if (!alreadySupportsMultipleFields)
         {
             if (needsBracesWrap)
@@ -757,6 +759,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         AppendFieldName(sb, "$ref");
         AppendFieldValueSeparator();
         FormatFieldContents(sb, refId, "", createTypeFlags);
+        moldInternal.WrittenAsFlags |= WrittenAsFlags.WithReferenceToInstanceId; 
 
         if (!alreadySupportsMultipleFields && !needsBracesWrap) { Gb.AppendContent(RndBrktCls); }
         else

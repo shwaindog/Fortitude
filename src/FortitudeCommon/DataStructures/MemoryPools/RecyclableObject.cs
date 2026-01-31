@@ -18,7 +18,9 @@ public class UsesRecycler : IUsesRecycler
 {
     [JsonIgnore] public virtual IRecycler? Recycler { get; set; }
 
-    protected IRecycler AlwaysRecycler => Recycler ?? DataStructures.MemoryPools.Recycler.ThreadStaticRecycler;
+    protected IRecycler AlwaysRecycler => Recycler ?? StaticAlwaysRecycler;
+
+    protected static IRecycler StaticAlwaysRecycler => DataStructures.MemoryPools.Recycler.ThreadStaticRecycler;
 }
 
 public class ExplicitUsesRecycler : IUsesRecycler

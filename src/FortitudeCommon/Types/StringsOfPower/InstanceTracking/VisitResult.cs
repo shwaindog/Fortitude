@@ -5,9 +5,9 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
 public record struct VisitResult
 (
-    int CurrentVisitIndex = -1
+    int RegistryId = -1
+  , int CurrentVisitIndex = -1
   , int InstanceId = 0
-  , bool NewlyAssigned = false
   , int FirstVisitIndex = -1
   , int FirstInstanceMatchVisitIndex = -1  
   , int LastNodeVisitIndex = -1
@@ -15,13 +15,14 @@ public record struct VisitResult
   , bool IsBaseOfInitial = false )
 {
     
-    public bool IsEmpty => CurrentVisitIndex < 0;
+    public bool NoVisitCheckDone => RegistryId < -1;
 
     public bool IsARevisit { get; set; } = InstanceId > 0 && !IsBaseOfInitial && FirstInstanceMatchVisitIndex >= 0;
-    
-    public static VisitResult Empty => new ();
 
-    public VisitResult WithCountAsRevisitSetTo(bool countAsRevisit)
+    public static readonly VisitResult VisitNotChecked = new (-2, -1);
+    public static readonly VisitResult NoVisitCheckRequired = new (-1, -1);
+
+    public VisitResult WithIsARevisitSetTo(bool countAsRevisit)
     {
         return this with { IsARevisit = countAsRevisit };
     }

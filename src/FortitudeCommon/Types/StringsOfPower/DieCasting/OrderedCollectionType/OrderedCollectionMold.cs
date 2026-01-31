@@ -14,13 +14,14 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
+      , Type typeVisitedAs
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
-        Initialize(instanceOrContainer, typeBeingBuilt, master, typeName
+        Initialize(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
                  , remainingGraphDepth, moldGraphVisit, writeMethodType
                  , createFormatFlags | AsCollection);
         WrittenAs = WrittenAsFlags.AsCollection;
@@ -74,6 +75,7 @@ public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCo
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
+      , Type typeVisitedAs
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
@@ -81,7 +83,7 @@ public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCo
       , FormatFlags createFormatFlags)
     {
         InitializeOrderedCollectionBuilder
-            (instanceOrContainer, typeBeingBuilt, master, typeName
+            (instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
            , remainingGraphDepth, moldGraphVisit, writeMethodType
            , createFormatFlags | AsCollection);
 
@@ -106,6 +108,7 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
+      , Type typeVisitedAs  
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
@@ -113,7 +116,7 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
       , FormatFlags createFormatFlags)
     {
         InitializeOrderedCollectionBuilder
-            (instanceOrContainer, typeBeingBuilt, master, typeName
+            (instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
            , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags | AsCollection);
 
         return this;

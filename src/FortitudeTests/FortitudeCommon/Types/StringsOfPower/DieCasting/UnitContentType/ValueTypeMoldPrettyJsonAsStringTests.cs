@@ -69,7 +69,7 @@ public class ContentTypeMoldPrettyJsonAsStringTests : ContentTypeMoldAsStringTes
 
     [TestMethod]
     [DynamicData(nameof(NonNullCloakedBearerExpectAsString), typeof(ContentTypeMoldAsStringTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void PrettyJsonNonNullCloakedBearerAsString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)=> 
+    public void PrettyJsonNonNullCloakedBearerAsString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
@@ -87,6 +87,15 @@ public class ContentTypeMoldPrettyJsonAsStringTests : ContentTypeMoldAsStringTes
     [DynamicData(nameof(NullStringBearerExpectAsString), typeof(ContentTypeMoldAsStringTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
     public void PrettyJsonNullStringBearerAsString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)=> 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
+
+
+    protected override StyleOptions SetTestStyleOptionsValue(StyleOptions? testBaseStyleOptions = null)
+    {
+        testBaseStyleOptions = base.SetTestStyleOptionsValue(testBaseStyleOptions);
+        testBaseStyleOptions.AsStringAlwaysWritesAsCompact = false;
+        
+        return testBaseStyleOptions;
+    }
     
     [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()

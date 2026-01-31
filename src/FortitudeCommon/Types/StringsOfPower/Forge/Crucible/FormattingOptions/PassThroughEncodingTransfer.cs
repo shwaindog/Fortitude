@@ -24,7 +24,7 @@ public class PassThroughEncodingTransfer : RecyclableObject, IEncodingTransfer
             if (ReferenceEquals(FinalEncoder, this)) return this;
             return layoutEncoder ?? FinalEncoder;
         }
-        private set => layoutEncoder = value;
+        set => layoutEncoder = value;
     }
 
     public IEncodingTransfer WithAttachedLayoutEncoder(IEncodingTransfer toAttach)

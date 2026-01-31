@@ -147,19 +147,19 @@ public static class FieldContentHandlingExtensions
 
     public static bool HasNullBecomesEmptyFlag(this FormatFlags flags) => (flags & NullBecomesEmpty) > 0;
 
-    public static bool ShowSwitchToLogFormatting(this FormatFlags flags) =>
+    public static bool HasAttemptSwitchToLogFormatting(this FormatFlags flags) =>
         (flags & (ToLogStyle | AttemptStyleSwitch)) == (ToLogStyle | AttemptStyleSwitch);
 
-    public static bool ShouldSwitchToJsonFormatting(this FormatFlags flags) =>
+    public static bool HasAttemptSwitchToJsonFormatting(this FormatFlags flags) =>
         (flags & (ToJsonStyle | AttemptStyleSwitch)) == (ToJsonStyle | AttemptStyleSwitch);
 
-    public static bool ShouldSwitchToJsamlFormatting(this FormatFlags flags) =>
+    public static bool HasAttemptSwitchToJsamlFormatting(this FormatFlags flags) =>
         (flags & (ToJsamlStyle | AttemptStyleSwitch)) == (ToJsamlStyle | AttemptStyleSwitch);
 
-    public static bool ShouldSwitchToAngleMlFormatting(this FormatFlags flags) =>
+    public static bool HasAttemptSwitchToAngleMlFormatting(this FormatFlags flags) =>
         (flags & (ToAngleMlStyle | AttemptStyleSwitch)) == (ToAngleMlStyle | AttemptStyleSwitch);
 
-    public static bool ShouldSwitchToCustomFormatting(this FormatFlags flags) =>
+    public static bool HasAttemptSwitchToCustomFormatting(this FormatFlags flags) =>
         (flags & (ToCustomStyle | AttemptStyleSwitch)) == (ToCustomStyle | AttemptStyleSwitch);
 
     public static bool ShouldSwitchToCompactLayout(this FormatFlags flags) =>
@@ -206,17 +206,22 @@ public static class FieldContentHandlingExtensions
     public static bool HasAsEmbeddedContentFlags(this FormatFlags flags)                 => (flags & AsEmbeddedContent) == AsEmbeddedContent;
     public static bool DoesNotHaveAsEmbeddedContentFlags(this FormatFlags flags)         => (flags & AsEmbeddedContent) != AsEmbeddedContent;
 
-    public static StringStyle UpdateStringStyle(this FormatFlags flags, StringStyle existingStyle)
+    public static StringStyle UpdateStringStyle(this FormatFlags flags, StyleOptions newStyleOptions)
     {
-        if (flags.ShowSwitchToLogFormatting())
+        var existingStyle = newStyleOptions.Style;
+        if (flags.HasAttemptSwitchToLogFormatting())
         {
             existingStyle &= ~StringStyle.Json;
             existingStyle |= StringStyle.Log;
         }
-        if (flags.ShouldSwitchToJsonFormatting())
+        if (flags.HasAttemptSwitchToJsonFormatting())
         {
             existingStyle &= ~StringStyle.Log;
             existingStyle |= StringStyle.Json;
+        }
+        if (flags.HasAsStringContentFlag() && newStyleOptions.AsStringAlwaysWritesAsCompact)
+        {
+            flags |= ToCompact | AttemptStyleSwitch;
         }
         if (flags.ShouldSwitchToCompactLayout())
         {

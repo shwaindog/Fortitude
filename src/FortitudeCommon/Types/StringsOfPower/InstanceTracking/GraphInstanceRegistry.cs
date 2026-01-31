@@ -2,15 +2,22 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Collections;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
 namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
-public class GraphInstanceRegistry(ITheOneString master) : IList<GraphNodeVisit>
+public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
 {
     protected readonly List<GraphNodeVisit> OrderedObjectGraph = new(64);
 
-    protected int NextObjVisitedRefId   = 1;
+    private ISecretStringOfPower master;
+
+    public int RegistryId { get; private set; } = -1;
+
+    public int ThisRegistryNextRefId { get; set; } = 1;
+
     public int CurrentGraphNodeIndex { get; set; } = -1;
 
     public GraphNodeVisit? CurrentNode =>
@@ -21,7 +28,15 @@ public class GraphInstanceRegistry(ITheOneString master) : IList<GraphNodeVisit>
     public int CurrentDepth => CurrentNode?.GraphDepth ?? -1;
     
     public int RemainingDepth => (CurrentNode?.RemainingGraphDepth ?? master.Settings.DefaultGraphMaxDepth);
-    
+
+    public GraphInstanceRegistry Initialize(ISecretStringOfPower masterOfTheString, int asStringEnterCount = -1)
+    {
+        master     = masterOfTheString;
+        RegistryId = asStringEnterCount;
+
+        return this;
+    }
+
     public void ClearObjectVisitedGraph()
     {
         for (var i = 0; i < OrderedObjectGraph.Count; i++)
@@ -31,7 +46,7 @@ public class GraphInstanceRegistry(ITheOneString master) : IList<GraphNodeVisit>
             OrderedObjectGraph[i] = new GraphNodeVisit();
         }
         OrderedObjectGraph.Clear();
-        NextObjVisitedRefId   = 1;
+        ThisRegistryNextRefId   = 1;
         CurrentGraphNodeIndex = -1;
     }
     
@@ -43,7 +58,7 @@ public class GraphInstanceRegistry(ITheOneString master) : IList<GraphNodeVisit>
         set => UseReferenceEqualsForVisited = !value;
     }
     
-    public int NextRefId() => NextObjVisitedRefId++;
+    public int NextRefId() => master.GetNextVisitedReferenceId(RegistryId);
     
     public bool WasVisitOnSameOrBaseType(Type objAsType, GraphNodeVisit startToLast)
     {
@@ -98,7 +113,7 @@ public class GraphInstanceRegistry(ITheOneString master) : IList<GraphNodeVisit>
     
     public VisitResult SourceGraphVisitRefId<T>(T toStyle, Type type, FormatFlags formatFlags)
     {
-        if (type.IsValueType || toStyle == null) return VisitResult.Empty;
+        if (type.IsValueType || toStyle == null) return VisitResult.VisitNotChecked;
         return SourceGraphVisitRefId((object)toStyle, type, formatFlags);
     }
 
@@ -120,11 +135,22 @@ public class GraphInstanceRegistry(ITheOneString master) : IList<GraphNodeVisit>
         OrderedObjectGraph[visitIndex] = OrderedObjectGraph[visitIndex].UpdateVisitRemoveFormatFlags(flagsToRemove);
     }
 
+    public void UpdateVisitEncoders(int visitIndex, IEncodingTransfer contentEncoder, IEncodingTransfer layoutEncoder)
+    {
+        if (visitIndex >= OrderedObjectGraph.Count || visitIndex < 0) return;
+        OrderedObjectGraph[visitIndex] = OrderedObjectGraph[visitIndex].UpdateVisitEncoders(contentEncoder, layoutEncoder);
+    }
+
+    public void RemoveVisitAt(int visitIndex)
+    {
+        if (visitIndex >= OrderedObjectGraph.Count || visitIndex < 0) return;
+        OrderedObjectGraph.RemoveAt(visitIndex);
+    }
+
     private VisitResult SourceGraphVisitRefId(object objToStyle, Type type, FormatFlags formatFlags)
     {
-        if (type.IsValueType) return VisitResult.Empty;
+        if (type.IsValueType) return VisitResult.VisitNotChecked;
         var foundRefId              = 0;
-        var newlyAssigned           = false;
         var isBaseOfFound           = false;
         var firstInstanceIndex      = -1;
         var firstMatchInstanceIndex = -1;
@@ -145,7 +171,6 @@ public class GraphInstanceRegistry(ITheOneString master) : IList<GraphNodeVisit>
                      && !formatFlags.HasNoRevisitCheck() )
                     {
                         foundRefId            = NextRefId();
-                        newlyAssigned         = true;
                         OrderedObjectGraph[i] = graphNodeVisit.SetRefId(foundRefId);
                         thisVisitRepeatCount  = 0;
                     }
@@ -175,7 +200,7 @@ public class GraphInstanceRegistry(ITheOneString master) : IList<GraphNodeVisit>
             }
         }
         
-        return new VisitResult( OrderedObjectGraph.Count, foundRefId, newlyAssigned
+        return new VisitResult( RegistryId, OrderedObjectGraph.Count, foundRefId
                              , firstInstanceIndex, firstMatchInstanceIndex, lastInstanceIndex, thisVisitRepeatCount, isBaseOfFound);
     }
 
@@ -225,5 +250,11 @@ public class GraphInstanceRegistry(ITheOneString master) : IList<GraphNodeVisit>
     {
         get => OrderedObjectGraph[index];
         set => OrderedObjectGraph[index] = value;
+    }
+
+    public override void StateReset()
+    {
+        ClearObjectVisitedGraph();
+        base.StateReset();
     }
 }

@@ -8,12 +8,21 @@ using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 
+public interface ITypeBuilderComponentSource<out T> : ITypeBuilderComponentSource where T : TypeMolder
+{
+    ITypeMolderDieCast<T> KnownTypeMoldState { get; }
+    
+    
+    bool AppendGraphFields();
+}
+
 public interface IStateTransitioningTransitioningKnownTypeMolder : IDisposable
 {
     void Initialize(
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
+      , Type typeVisitedAs
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
@@ -21,12 +30,15 @@ public interface IStateTransitioningTransitioningKnownTypeMolder : IDisposable
       , FormatFlags createFormatFlags);
 
     void Free();
+    
+    
 }
 
 public interface INextStateTransitioningKnownTypeMolder<out TMold> : IStateTransitioningTransitioningKnownTypeMolder
     where TMold : TypeMolder
 {
     TMold Initialize(IStateTransitioningTransitioningKnownTypeMolder previousStateTransitioning);
+
 }
 
 public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponentSource<TMold>, IStateTransitioningTransitioningKnownTypeMolder
@@ -38,13 +50,14 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
+      , Type typeVisitedAs
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
-        InitializeStyledTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeName, remainingGraphDepth
+        InitializeStyledTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName, remainingGraphDepth
                                   , moldGraphVisit, createFormatFlags);
 
         SourceBuilderComponentAccess(writeMethodType);
@@ -68,7 +81,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
     {
         if (PortableState.CreateFormatFlags.HasSuppressOpening()) return;
         StartFormattingTypeOpening();
-        AppendGraphFields();
+        MyAppendGraphFields();
     }
 
     public override void FinishTypeOpening()
@@ -109,7 +122,9 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         return result;
     }
 
-    protected bool AppendGraphFields()
+    protected bool MyAppendGraphFields() => ((ITypeBuilderComponentSource<TMold>)this).AppendGraphFields();
+
+    bool ITypeBuilderComponentSource<TMold>.AppendGraphFields()
     {
         var msf         = MoldStateField;
         var createFlags = msf.CreateMoldFormatFlags;

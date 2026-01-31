@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Xml;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
@@ -14,6 +15,16 @@ public record struct FormattingState
   , FormatFlags OriginalCreateFormatFlags
   , int IndentChars
   , IStyledTypeFormatting Formatter
-  , IEncodingTransfer? GraphEncoder
-  , IEncodingTransfer? ParentEncoder
-);
+  , IEncodingTransfer ContentEncoder
+  , IEncodingTransfer LayoutEncoder
+)
+{
+    public FormattingState UpdateEncoders(IEncodingTransfer contentEncoder, IEncodingTransfer layoutEncoder)
+    {
+        return this with
+        {
+            ContentEncoder = contentEncoder
+          , LayoutEncoder = layoutEncoder
+        };
+    }
+};
