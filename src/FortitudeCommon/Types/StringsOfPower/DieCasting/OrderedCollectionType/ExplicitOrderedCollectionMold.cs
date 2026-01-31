@@ -16,13 +16,14 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
+      , Type typeVisitedAs
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags )
     {
-        InitializeOrderedCollectionBuilder(instanceOrContainer, typeBeingBuilt, master, typeName
+        InitializeOrderedCollectionBuilder(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
                                          , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
 
         return this;

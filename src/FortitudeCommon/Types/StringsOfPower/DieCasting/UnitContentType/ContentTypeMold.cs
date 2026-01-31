@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Diagnostics;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
@@ -17,22 +18,41 @@ public class ContentTypeMold<TContentMold, TToContentMold> : TransitioningTypeMo
         object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master
+      , Type typeVisitedAs
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WriteMethodType writeMethodType  
       , FormatFlags createFormatFlags)
     {
-        Initialize(instanceOrContainer, typeBeingBuilt, master, typeName
+        Initialize(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
                  , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
 
         return this;
     }
 
-    protected ContentTypeDieCast<TContentMold, TToContentMold> Msf => (ContentTypeDieCast<TContentMold, TToContentMold>)MoldStateField!;
+    protected ContentTypeDieCast<TContentMold, TToContentMold> Msf
+    {
+        [DebuggerStepThrough]
+        get => (ContentTypeDieCast<TContentMold, TToContentMold>)MoldStateField!;
+    }
 
     public override bool IsComplexType => Msf.SupportsMultipleFields;
 
+    public virtual bool IsSimpleMold => true;
+
+    public override void StartTypeOpening()
+    {
+        if (PortableState.MoldGraphVisit.NoVisitCheckDone || PortableState.CreateFormatFlags.HasSuppressOpening()) return;
+        StartFormattingTypeOpening();
+        MyAppendGraphFields();
+    }
+
+    public override void FinishTypeOpening()
+    {
+        if (PortableState.MoldGraphVisit.NoVisitCheckDone || PortableState.CreateFormatFlags.HasSuppressOpening()) return;
+        CompleteTypeOpeningToTypeFields();
+    }
 
     public override void StartFormattingTypeOpening()
     {
@@ -62,6 +82,15 @@ public class ContentTypeMold<TContentMold, TToContentMold> : TransitioningTypeMo
 
     public override void AppendClosing()
     {
+
+        if (Msf.CurrentWriteMethod.SupportsMultipleFields())
+        {
+            WrittenAs = WrittenAsFlags.AsComplex;
+        }
+        else
+        {
+            WrittenAs = WrittenAsFlags.AsSimple;
+        }
         var formatter = MoldStateField!.StyleFormatter;
         if (IsComplexType)
         {

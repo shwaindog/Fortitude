@@ -105,13 +105,10 @@ public class ContentTypeMoldCompactLogAsStringTests : ContentTypeMoldAsStringTes
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
     {
-        var compactLogTemplate =
-            condition.HasComplexTypeFlag()
-         || expectation.GetType().ExtendsGenericBaseType(typeof(NullableStringBearerExpect<>))
-                ? IsLogIgnoredTypeName(tos.Settings, className)
-                    ? (propertyName.IsNotEmpty() ? "{{ {1}: {2} }}" : "{{ {2} }}")
-                    : (propertyName.IsNotEmpty() ? "{0} {{ {1}: {2} }}" : "{0} {{ {2} }}")
-                : "{0}= {2}";
+        var compactLogTemplate = 
+            condition.HasComplexTypeFlag() && className.IsStringBearerOrNullableCached() 
+                    ? "({0}) {{ {1}: {2} }}"
+                    : "({0}) {2}" ;
 
         var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
 
@@ -125,10 +122,10 @@ public class ContentTypeMoldCompactLogAsStringTests : ContentTypeMoldAsStringTes
     protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
     {
-        var compactLogTemplate =
-            IsLogIgnoredTypeName(tos.Settings, className)
-                ? "\"{{ {1}}}\""
-                : "\"{0} {{ {1}}}\"";
+        var  compactLogTemplate = 
+        IsLogIgnoredTypeName(tos.Settings, className)
+            ? "\"{{ {1}}}\""
+            : "\"{0} {{ {1}}}\"";
 
         var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
         if (!expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))

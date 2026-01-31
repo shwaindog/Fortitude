@@ -32,6 +32,8 @@ public static class WriteMethodTypeExtensions
     public static bool IsKeyedCollectionType(this WriteMethodType value)         => value == MoldKeyedCollectionType; 
     public static bool IsExplicitKeyedCollectionType(this WriteMethodType value) => value == MoldExplicitKeyedCollectionType;
 
+    public static bool IsContentType(this WriteMethodType value) => value.IsComplexContentType() || value.IsdSimpleContentType();
+
 
     public static bool SupportsMultipleFields(this WriteMethodType value) =>
         value switch

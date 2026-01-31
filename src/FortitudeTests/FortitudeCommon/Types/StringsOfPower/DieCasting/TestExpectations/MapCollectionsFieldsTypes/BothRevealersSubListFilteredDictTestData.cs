@@ -590,7 +590,7 @@ public partial class BothRevealersDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                         ComplexStructContentAsValueSpanFormattable<decimal>= 27.183: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=       http://fourth-value.com/
+                         (ComplexStructContentAsValueSpanFormattable<decimal>) 27.183: (FieldSpanFormattableAlwaysAddStructStringBearer<Uri>)       http://fourth-value.com/
                          }
                         """.RemoveLineEndings()
                     }
@@ -608,7 +608,7 @@ public partial class BothRevealersDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                       , """
                         {
-                          ComplexStructContentAsValueSpanFormattable<decimal>= 27.183: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=       http://fourth-value.com/
+                          (ComplexStructContentAsValueSpanFormattable<decimal>) 27.183: (FieldSpanFormattableAlwaysAddStructStringBearer<Uri>)       http://fourth-value.com/
                         }
                         """.Dos2Unix()
                     }
@@ -633,11 +633,11 @@ public partial class BothRevealersDictTestData
                         new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                         ComplexStructContentAsValueSpanFormattable<decimal>= 3.142: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=
+                         (ComplexStructContentAsValueSpanFormattable<decimal>) 3.142: (FieldSpanFormattableAlwaysAddStructStringBearer<Uri>)
                                 http://first-value.com/,
-                         ComplexStructContentAsValueSpanFormattable<decimal>= 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=
+                         (ComplexStructContentAsValueSpanFormattable<decimal>) 2.718: (FieldSpanFormattableAlwaysAddStructStringBearer<Uri>)
                                http://second-value.com/,
-                         ComplexStructContentAsValueSpanFormattable<decimal>= 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=
+                         (ComplexStructContentAsValueSpanFormattable<decimal>) 31.416: (FieldSpanFormattableAlwaysAddStructStringBearer<Uri>)
                                 http://third-value.com/
                          }
                         """.RemoveLineEndings()
@@ -658,9 +658,9 @@ public partial class BothRevealersDictTestData
                         new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                       , """
                         {
-                          ComplexStructContentAsValueSpanFormattable<decimal>= 3.142: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=        http://first-value.com/,
-                          ComplexStructContentAsValueSpanFormattable<decimal>= 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=       http://second-value.com/,
-                          ComplexStructContentAsValueSpanFormattable<decimal>= 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=        http://third-value.com/
+                          (ComplexStructContentAsValueSpanFormattable<decimal>) 3.142: (FieldSpanFormattableAlwaysAddStructStringBearer<Uri>)        http://first-value.com/,
+                          (ComplexStructContentAsValueSpanFormattable<decimal>) 2.718: (FieldSpanFormattableAlwaysAddStructStringBearer<Uri>)       http://second-value.com/,
+                          (ComplexStructContentAsValueSpanFormattable<decimal>) 31.416: (FieldSpanFormattableAlwaysAddStructStringBearer<Uri>)        http://third-value.com/
                         }
                         """.Dos2Unix()
                     }
@@ -687,11 +687,11 @@ public partial class BothRevealersDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                         ComplexContentAsValueSpanFormattable<decimal>= 3.142: FieldSpanFormattableAlwaysAddStringBearer<Uri>=
+                         (ComplexContentAsValueSpanFormattable<decimal>) 3.142: (FieldSpanFormattableAlwaysAddStringBearer<Uri>)
                                 http://first-value.com/,
-                         ComplexContentAsValueSpanFormattable<decimal>= 2.718: FieldSpanFormattableAlwaysAddStringBearer<Uri>=
+                         (ComplexContentAsValueSpanFormattable<decimal>) 2.718: (FieldSpanFormattableAlwaysAddStringBearer<Uri>)
                                http://second-value.com/,
-                         ComplexContentAsValueSpanFormattable<decimal>= 31.416: FieldSpanFormattableAlwaysAddStringBearer<Uri>=
+                         (ComplexContentAsValueSpanFormattable<decimal>) 31.416: (FieldSpanFormattableAlwaysAddStringBearer<Uri>)
                                 http://third-value.com/
                          }
                         """.RemoveLineEndings()
@@ -712,9 +712,9 @@ public partial class BothRevealersDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                       , """
                         {
-                          ComplexContentAsValueSpanFormattable<decimal>= 3.142: FieldSpanFormattableAlwaysAddStringBearer<Uri>=        http://first-value.com/,
-                          ComplexContentAsValueSpanFormattable<decimal>= 2.718: FieldSpanFormattableAlwaysAddStringBearer<Uri>=       http://second-value.com/,
-                          ComplexContentAsValueSpanFormattable<decimal>= 31.416: FieldSpanFormattableAlwaysAddStringBearer<Uri>=        http://third-value.com/
+                          (ComplexContentAsValueSpanFormattable<decimal>) 3.142: (FieldSpanFormattableAlwaysAddStringBearer<Uri>)        http://first-value.com/,
+                          (ComplexContentAsValueSpanFormattable<decimal>) 2.718: (FieldSpanFormattableAlwaysAddStringBearer<Uri>)       http://second-value.com/,
+                          (ComplexContentAsValueSpanFormattable<decimal>) 31.416: (FieldSpanFormattableAlwaysAddStringBearer<Uri>)        http://third-value.com/
                         }
                         """.Dos2Unix()
                     }
@@ -741,10 +741,10 @@ public partial class BothRevealersDictTestData
                         new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                         ComplexContentAsValueSpanFormattable<decimal>= 3.142: null,
-                         ComplexContentAsValueSpanFormattable<decimal>= 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=
+                         (ComplexContentAsValueSpanFormattable<decimal>) 3.142: null,
+                         (ComplexContentAsValueSpanFormattable<decimal>) 2.718: (FieldSpanFormattableAlwaysAddStructStringBearer<Uri>)
                                http://second-value.com/,
-                         ComplexContentAsValueSpanFormattable<decimal>= 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=
+                         (ComplexContentAsValueSpanFormattable<decimal>) 31.416: (FieldSpanFormattableAlwaysAddStructStringBearer<Uri>)
                                 http://third-value.com/
                          }
                         """.RemoveLineEndings()
@@ -765,9 +765,9 @@ public partial class BothRevealersDictTestData
                         new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                       , """
                         {
-                          ComplexContentAsValueSpanFormattable<decimal>= 3.142: null,
-                          ComplexContentAsValueSpanFormattable<decimal>= 2.718: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=       http://second-value.com/,
-                          ComplexContentAsValueSpanFormattable<decimal>= 31.416: FieldSpanFormattableAlwaysAddStructStringBearer<Uri>=        http://third-value.com/
+                          (ComplexContentAsValueSpanFormattable<decimal>) 3.142: null,
+                          (ComplexContentAsValueSpanFormattable<decimal>) 2.718: (FieldSpanFormattableAlwaysAddStructStringBearer<Uri>)       http://second-value.com/,
+                          (ComplexContentAsValueSpanFormattable<decimal>) 31.416: (FieldSpanFormattableAlwaysAddStructStringBearer<Uri>)        http://third-value.com/
                         }
                         """.Dos2Unix()
                     }

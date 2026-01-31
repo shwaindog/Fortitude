@@ -11,7 +11,7 @@ public interface IEncodingTransfer : IRecyclableObject, ICloneable<IEncodingTran
 
     EncodingType Type { get; }
     
-    IEncodingTransfer LayoutEncoder { get; }
+    IEncodingTransfer LayoutEncoder { get; set; }
 
     IEncodingTransfer WithAttachedLayoutEncoder(IEncodingTransfer toAttach);
 

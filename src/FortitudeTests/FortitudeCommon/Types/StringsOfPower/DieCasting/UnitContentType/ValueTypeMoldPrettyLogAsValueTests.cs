@@ -96,23 +96,21 @@ public class ContentTypeMoldPrettyLogAsValueTests : ContentTypeMoldAsValueTests
     public void PrettyLogNullStringBearerAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
-    // [TestMethod]
+    [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(StringBuilderTestData.AllStringBuilderExpectations[5], ScaffoldingRegistry.AllScaffoldingTypes[1380]);
+        ExecuteIndividualScaffoldExpectation(CloakedBearerTestData.AllCloakedBearerExpectations[8], ScaffoldingRegistry.AllScaffoldingTypes[1250]
+                                           , StringBuilderType.MutableString);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
     {
-        var prettyLogTemplate =
-            condition.HasComplexTypeFlag()
-         || expectation.GetType().ExtendsGenericBaseType(typeof(NullableStringBearerExpect<>))
-                ? IsLogIgnoredTypeName(tos.Settings, className)
-                    ? (propertyName.IsNotEmpty() ? "{{{1}{2}{3}{1}}}" : "{{ {2} }}")
-                    : (propertyName.IsNotEmpty() ? "{0} {{{1}{2}{3}{1}}}" : "{0} {{ {2} }}")
-                : "{0}= {3}";
+        var prettyLogTemplate = 
+            condition.HasComplexTypeFlag() && className.IsStringBearerOrNullableCached() 
+                ? "({0}) {{{1}{2}{3}{1}}}"
+                : "({0}) {3}" ;
 
         var maybeNewLine = "";
         var maybeIndent  = "";

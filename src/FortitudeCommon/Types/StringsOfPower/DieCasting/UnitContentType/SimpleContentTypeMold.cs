@@ -15,13 +15,14 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, Simp
             object instanceOrContainer
           , Type typeBeingBuilt
           , ISecretStringOfPower master
+          , Type typeVisitedAs
           , string? typeName
           , int remainingGraphDepth
           , VisitResult moldGraphVisit
           , WriteMethodType writeMethodType  
           , FormatFlags createFormatFlags)
     {
-        InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeName
+        InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
                                  , remainingGraphDepth,  moldGraphVisit, writeMethodType, createFormatFlags);
 
         return this;
@@ -36,12 +37,32 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, Simp
 
     public override void StartFormattingTypeOpening()
     {
-      Msf.StyleFormatter.StartContentTypeOpening(Msf, Msf.CreateMoldFormatFlags);
+      if (Msf.CurrentWriteMethod.SupportsMultipleFields())
+        Msf.StyleFormatter.StartComplexTypeOpening(Msf, Msf.CreateMoldFormatFlags);
+      else
+        Msf.StyleFormatter.StartContentTypeOpening(Msf, Msf.CreateMoldFormatFlags);
+    }
+    
+    public override void FinishTypeOpening()
+    {
+      if (Msf.CurrentWriteMethod != WriteMethodType.MoldSimpleContentType)
+      {
+        Msf.Master.UpdateVisitWriteMethod(MoldVisit.RegistryId, MoldVisit.CurrentVisitIndex, Msf.CurrentWriteMethod);  
+      }
+      MoldStateField.StyleFormatter.FinishContentTypeOpening(MoldStateField);
     }
 
     public override void AppendClosing()
     {
-      Msf.StyleFormatter.AppendContentTypeClosing(Msf);
+      var sf = Msf.Sf;
+      if (Msf.CurrentWriteMethod.SupportsMultipleFields())
+      {
+        sf.AppendComplexTypeClosing(MoldStateField);
+      }
+      else
+      {
+        sf.AppendContentTypeClosing(MoldStateField);
+      }
     }
     
     public SimpleContentJoinMold  AsValue(bool value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null

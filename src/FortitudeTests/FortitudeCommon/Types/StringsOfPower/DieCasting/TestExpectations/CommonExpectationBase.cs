@@ -36,8 +36,22 @@ public abstract class CommonExpectationBase
                    .RegisterFactory(() => new MutableString(bufferSize));
         MyTheOneString = new TheOneString().ReInitialize(new CharArrayStringBuilder());
 
-        MyTheOneString.Settings.NewLineStyle = "\n";
-        TheOneString.DefaultSettings.NewLineStyle = "\n";
+    }
+
+    protected virtual StyleOptions SetTestStyleOptionsValue(StyleOptions? testBaseStyleOptions = null)
+    {
+        testBaseStyleOptions ??= new StyleOptions();
+        
+        testBaseStyleOptions.NewLineStyle        = "\n";
+
+        return testBaseStyleOptions;
+    }
+
+    protected virtual void ResetOneStringWithSettings(ITheOneString forOneString, StyleOptions? maybeNotTestInitialized = null)
+    {
+        var testInitializedSettings = SetTestStyleOptionsValue(maybeNotTestInitialized);
+        MyTheOneString.ClearAndReinitialize(testInitializedSettings);
+        TheOneString.DefaultSettings = testInitializedSettings;
     }
 
     protected IStringBuilder GetComparisonBuilder(IStringBuilder subjectOneStringWriteBuffer)

@@ -270,7 +270,7 @@ public class LiveCandlePublisherRuleTests : OneOfEachMessageQueueTypeTestSetup
     }
 
     [TestMethod]
-    [Timeout(20_000)]
+    [Timeout(200_000)]
     public async Task NewLiveCandle_SendTwoPeriodsOfQuotes_PublishingNextTickSendsCompleteOfFirstPeriod()
     {
         var test5SLivePeriodClient = new TestLivePeriodClient

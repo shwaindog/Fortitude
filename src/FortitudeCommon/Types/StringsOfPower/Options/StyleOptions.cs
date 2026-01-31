@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Diagnostics;
 using System.Text;
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
@@ -89,38 +90,40 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     private InputClassFlags? instanceMarkingIncludeInputClassesContents;
     private InputClassFlags? instancesTrackingIncludeInputClasses;
 
-    private char?            indentChar;
-    private int?             indentSize;
-    private bool?            byteSequenceToBase64;
-    private bool?            disableCircularRefCheck;
-    private bool?            charSArraysAsString;
-    private bool?            circularRefUsesRefEquals;
-    private bool?            instanceMarkingMarkInstanceIdOnFirstVisit;
-    private bool?            instanceMarkingMarkVirtualMemoryAddress;
-    private bool?            instanceMarkingMarkRevisitCount;
-    private bool?            instanceMarkingDisabled;
-    private bool?            instanceTrackingDisabled;
-    private int?             instancesTrackingDebuggerBreakOnRevisitCount;
-    private int?             instancesTrackingThrowOnRevisitCount;
-    private string?          newLineStyle;
-    private int?             prettyCollectionsColumnCountWrap;
-    private int?             defaultGraphMaxDepth;
-    private string?          customDateTimeFormatString;
-    private string?          customTimeFormatString;
-    private string?          dateOnlyAsStringFormatString;
-    private string?          dateTimeYyyyMMddTossFormat;
-    private string?          dateTimeYyyyMMddTomsFormat;
-    private string?          dateTimeYyyyMMddTousFormat;
-    private string?          timeHHmmssFormat;
-    private string?          timeHHmmssToMsFormat;
-    private string?          timeHHmmssToUsFormat;
-    private string?          timeHHmmssToTicksFormat;
-    private bool?            writeKeyValuePairsAsCollection;
-    private Range[]?         unicodeEscapingRanges;
-    private Range[]?         exemptEscapingRanges;
-    private string[]?        logSuppressDisplayTypeNames;
-    private string[]?        logSuppressDisplayCollectionNames;
-    private string[]?        logSuppressDisplayCollectionElementNames;
+    private char?     indentChar;
+    private int?      indentSize;
+    private bool?     byteSequenceToBase64;
+    private bool?     disableCircularRefCheck;
+    private bool?     charSArraysAsString;
+    private bool?     circularRefUsesRefEquals;
+    private bool?     instanceMarkingMarkInstanceIdOnFirstVisit;
+    private bool?     instanceMarkingMarkVirtualMemoryAddress;
+    private bool?     instanceMarkingMarkRevisitCount;
+    private bool?     instanceMarkingDisabled;
+    private bool?     instanceTrackingDisabled;
+    private int?      instancesTrackingDebuggerBreakOnRevisitCount;
+    private int?      instancesTrackingThrowOnRevisitCount;
+    private bool?     asStringAlwaysWritesAsCompact;
+    private bool?     asStringSeparateRestartedIndentation;
+    private string?   newLineStyle;
+    private int?      prettyCollectionsColumnCountWrap;
+    private int?      defaultGraphMaxDepth;
+    private string?   customDateTimeFormatString;
+    private string?   customTimeFormatString;
+    private string?   dateOnlyAsStringFormatString;
+    private string?   dateTimeYyyyMMddTossFormat;
+    private string?   dateTimeYyyyMMddTomsFormat;
+    private string?   dateTimeYyyyMMddTousFormat;
+    private string?   timeHHmmssFormat;
+    private string?   timeHHmmssToMsFormat;
+    private string?   timeHHmmssToUsFormat;
+    private string?   timeHHmmssToTicksFormat;
+    private bool?     writeKeyValuePairsAsCollection;
+    private Range[]?  unicodeEscapingRanges;
+    private Range[]?  exemptEscapingRanges;
+    private string[]? logSuppressDisplayTypeNames;
+    private string[]? logSuppressDisplayCollectionNames;
+    private string[]? logSuppressDisplayCollectionElementNames;
 
     private FormatFlags contextContentHandlingFlags;
     private StringStyle?         style;
@@ -647,9 +650,9 @@ public struct StyleOptionsValue : IJsonFormattingOptions
         set => defaultGraphMaxDepth = value;
     }
 
-    public bool InstanceMarkingMarkInstanceIdOnFirstVisit
+    public bool InstanceMarkingAlwaysMarkInstanceIds
     {
-        readonly get => instanceMarkingMarkInstanceIdOnFirstVisit ?? fallbackOptions?.Values.InstanceMarkingMarkInstanceIdOnFirstVisit ?? false;
+        readonly get => instanceMarkingMarkInstanceIdOnFirstVisit ?? fallbackOptions?.Values.InstanceMarkingAlwaysMarkInstanceIds ?? false;
         set => instanceMarkingMarkInstanceIdOnFirstVisit = value;
     }
 
@@ -712,6 +715,14 @@ public struct StyleOptionsValue : IJsonFormattingOptions
         set => instanceMarkingIncludeInputClassesContents = instanceMarkingIncludeInputClassesContents.SetTo(AllInputClasses, value);
     }
 
+    public bool InstanceMarkingAsStringIndependentNumbering
+    {
+        readonly get => instanceMarkingIncludeInputClassesContents.IsAllInputClassesActive() 
+                     ?? fallbackOptions?.Values.InstanceMarkingAsStringIndependentNumbering ?? !Style.IsLog();
+        
+        set => instanceMarkingIncludeInputClassesContents = instanceMarkingIncludeInputClassesContents.SetTo(AsStringClasses, value);
+    }
+
     public bool InstanceMarkingDisabled
     {
         readonly get => instanceMarkingDisabled ?? fallbackOptions?.Values.InstanceMarkingDisabled ?? false;
@@ -772,10 +783,10 @@ public struct StyleOptionsValue : IJsonFormattingOptions
         set => instancesTrackingIncludeInputClasses = instancesTrackingIncludeInputClasses.SetTo(AllInputClasses, value);
     }
 
-    public bool InstanceTrackingAllAsStringClassesAreExempt
+    public bool InstanceTrackingAllAsStringHaveLocalTracking
     {
         readonly get => instancesTrackingIncludeInputClasses.IsAsStringClassesActive() 
-                     ?? fallbackOptions?.Values.InstanceTrackingAllAsStringClassesAreExempt ?? false;
+                     ?? fallbackOptions?.Values.InstanceTrackingAllAsStringHaveLocalTracking ?? !Style.IsLog();
         
         set => instancesTrackingIncludeInputClasses = instancesTrackingIncludeInputClasses.SetTo(AsStringClasses, value);
     }
@@ -794,8 +805,20 @@ public struct StyleOptionsValue : IJsonFormattingOptions
         readonly get => 
             instancesTrackingThrowOnRevisitCount 
          ?? fallbackOptions?.Values.InstancesTrackingThrowOnRevisitCount 
-         ?? DefaultInstanceTrackingDebuggerBreakOnRevisitCount;
+         ?? DefaultInstanceTrackingThrowExceededRevisitCount;
         set => instancesTrackingThrowOnRevisitCount = value;
+    }
+
+    public bool AsStringAlwaysWritesAsCompact
+    {
+        readonly get => asStringAlwaysWritesAsCompact ?? fallbackOptions?.Values.AsStringAlwaysWritesAsCompact ?? !Style.IsLog();
+        set => asStringAlwaysWritesAsCompact = value;
+    }
+
+    public bool AsStringSeparateRestartedIndentation
+    {
+        readonly get => asStringSeparateRestartedIndentation ?? fallbackOptions?.Values.AsStringSeparateRestartedIndentation ?? !Style.IsLog();
+        set => asStringSeparateRestartedIndentation = value;
     }
 
     public StyleOptions? DefaultOptions
@@ -856,6 +879,7 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
 
     public StyleOptionsValue Values
     {
+        [DebuggerStepThrough]
         get => values;
         set
         {
@@ -880,6 +904,7 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
 
     public StringStyle Style
     {
+        [DebuggerStepThrough]
         get => values.Style;
         set
         {
@@ -895,6 +920,7 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
 
     public FormatFlags CurrentContextContentHandling
     {
+        [DebuggerStepThrough]
         get => values.CurrentContextContentHandling;
         set => values.CurrentContextContentHandling = value;
     }
@@ -903,12 +929,14 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
 
     public char IndentChar
     {
+        [DebuggerStepThrough]
         get => values.IndentChar;
         set => values.IndentChar = value;
     }
 
     public int IndentSize
     {
+        [DebuggerStepThrough]
         get => values.IndentSize;
         set => values.IndentSize = value;
     }
@@ -933,176 +961,207 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
 
     public int IndentLevel
     {
+        [DebuggerStepThrough]
         get => Math.Max(0, values.IndentLevel);
         set => values.IndentLevel = value;
     }
 
+    
+    [DebuggerStepThrough]
     public int IndentRepeat(int indentLevel) => values.IndentRepeat(indentLevel);
 
     public string LogInnerDoubleQuoteOpenReplacement
     {
+        [DebuggerStepThrough]
         get => values.LogInnerDoubleQuoteOpenReplacement;
         set => values.LogInnerDoubleQuoteOpenReplacement = value;
     }
 
     public string LogInnerDoubleQuoteCloseReplacement
     {
+        [DebuggerStepThrough]
         get => values.LogInnerDoubleQuoteCloseReplacement;
         set => values.LogInnerDoubleQuoteCloseReplacement = value;
     }
 
     public string MainItemSeparator
     {
+        [DebuggerStepThrough]
         get => values.MainItemSeparator;
         set => values.MainItemSeparator = value;
     }
 
     public string AlternateItemSeparator
     {
+        [DebuggerStepThrough]
         get => values.AlternateItemSeparator;
         set => values.AlternateItemSeparator = value;
     }
 
     public string MainItemPadding
     {
+        [DebuggerStepThrough]
         get => values.MainItemPadding;
         set => values.MainItemPadding = value;
     }
 
     public string AlternateItemPadding
     {
+        [DebuggerStepThrough]
         get => values.AlternateItemPadding;
         set => values.AlternateItemPadding = value;
     }
 
     public string MainFieldSeparator
     {
+        [DebuggerStepThrough]
         get => values.MainFieldSeparator;
         set => values.MainFieldSeparator = value;
     }
 
     public string AlternateFieldSeparator
     {
+        [DebuggerStepThrough]
         get => values.AlternateFieldSeparator;
         set => values.AlternateFieldSeparator = value;
     }
 
     public string MainFieldPadding
     {
+        [DebuggerStepThrough]
         get => values.MainFieldPadding;
         set => values.MainFieldPadding = value;
     }
 
     public string AlternateFieldPadding
     {
+        [DebuggerStepThrough]
         get => values.AlternateFieldPadding;
         set => values.AlternateFieldPadding = value;
     }
 
     public bool NullWritesEmpty
     {
+        [DebuggerStepThrough]
         get => values.NullWritesEmpty;
         set => values.NullWritesEmpty = value;
     }
 
     public bool NullWritesNullString
     {
+        [DebuggerStepThrough]
         get => values.NullWritesNullString;
         set => values.NullWritesNullString = value;
     }
 
     public bool EmptyCollectionWritesNull
     {
+        [DebuggerStepThrough]
         get => values.EmptyCollectionWritesNull;
         set => values.EmptyCollectionWritesNull = value;
     }
     
     public bool EnumsDefaultAsNumber
     {
+        [DebuggerStepThrough]
         get => values.EnumsDefaultAsNumber;
         set => values.EnumsDefaultAsNumber = value;
     }
 
     public bool IgnoreEmptyCollection
     {
+        [DebuggerStepThrough]
         get => values.EmptyCollectionWritesNull;
         set => values.EmptyCollectionWritesNull = value;
     }
 
     public string True
     {
+        [DebuggerStepThrough]
         get => values.True;
         set => values.True = value;
     }
 
     public string False
     {
+        [DebuggerStepThrough]
         get => values.False;
         set => values.False = value;
     }
 
     public bool CharBufferWritesAsCharCollection
     {
+        [DebuggerStepThrough]
         get => values.CharBufferWritesAsCharCollection;
         set => values.CharBufferWritesAsCharCollection = value;
     }
 
     public bool ByteArrayWritesBase64String
     {
+        [DebuggerStepThrough]
         get => values.ByteArrayWritesBase64String;
         set => values.ByteArrayWritesBase64String = value;
     }
 
     public bool WrapValuesInQuotes
     {
+        [DebuggerStepThrough]
         get => values.WrapValuesInQuotes;
         set => values.WrapValuesInQuotes = value;
     }
 
     public Func<IJsonFormattingOptions, IEncodingTransfer> SourceEncodingTransfer
     {
+        [DebuggerStepThrough]
         get => values.SourceEncodingTransfer;
         set => values.SourceEncodingTransfer = value;
     }
 
     public JsonEncodingTransferType JsonEncodingTransferType
     {
+        [DebuggerStepThrough]
         get => values.JsonEncodingTransferType;
         set => values.JsonEncodingTransferType = value;
     }
 
     public (Range, JsonEscapeType, Func<Rune, string>)[] CachedMappingFactoryRanges
     {
+        [DebuggerStepThrough]
         get => values.CachedMappingFactoryRanges;
         set => values.CachedMappingFactoryRanges = value;
     }
 
     public Range[] ExemptEscapingRanges
     {
+        [DebuggerStepThrough]
         get => values.ExemptEscapingRanges;
         set => values.ExemptEscapingRanges = value;
     }
 
     public Range[] UnicodeEscapingRanges
     {
+        [DebuggerStepThrough]
         get => values.UnicodeEscapingRanges;
         set => values.UnicodeEscapingRanges = value;
     }
 
     public EncodingType GraphEncoderType
     {
+        [DebuggerStepThrough]
         get => values.GraphEncoderType;
         set => values.GraphEncoderType = value;
     }
 
     public EncodingType StringEncoder
     {
+        [DebuggerStepThrough]
         get => values.StringEncoderType;
         set => values.StringEncoderType = value;
     }
 
     public ICustomStringFormatter? Formatter 
     {
+        [DebuggerStepThrough]
         get => formatter;
         set
         {
@@ -1119,284 +1178,360 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
 
     public string NewLineStyle
     {
+        [DebuggerStepThrough]
         get => values.NewLineStyle;
         set => values.NewLineStyle = value;
     }
 
     public string NullString
     {
+        [DebuggerStepThrough]
         get => values.NullString;
         set => values.NullString = value;
     }
 
     public TimeStyleFormat TimeFormat
     {
+        [DebuggerStepThrough]
         get => values.TimeFormat;
         set => values.TimeFormat = value;
     }
 
     public string TimeAsStringFormatString
     {
+        [DebuggerStepThrough]
         get => values.TimeAsStringFormatString;
         set => values.TimeAsStringFormatString = value;
     }
 
     public string TimeStringHHmmssFormatString
     {
+        [DebuggerStepThrough]
         get => values.TimeStringHHmmssFormatString;
         set => values.TimeStringHHmmssFormatString = value;
     }
 
     public string TimeStringHHmmssToMsFormatString
     {
+        [DebuggerStepThrough]
         get => values.TimeStringHHmmssToMsFormatString;
         set => values.TimeStringHHmmssToMsFormatString = value;
     }
 
     public string TimeStringHHmmssToUsFormatString
     {
+        [DebuggerStepThrough]
         get => values.TimeStringHHmmssToUsFormatString;
         set => values.TimeStringHHmmssToUsFormatString = value;
     }
 
     public string TimeStringHHmmssToTicksFormatString
     {
+        [DebuggerStepThrough]
         get => values.TimeStringHHmmssToTicksFormatString;
         set => values.TimeStringHHmmssToTicksFormatString = value;
     }
 
     public DateTimeStyleFormat DateDateTimeFormat
     {
+        [DebuggerStepThrough]
         get => values.DateTimeFormat;
         set => values.DateTimeFormat = value;
     }
 
-    public bool DateTimeIsNumber => values.DateTimeIsNumber;
+    public bool DateTimeIsNumber
+    {
+        [DebuggerStepThrough]
+        get => values.DateTimeIsNumber;
+    }
 
-    public bool DateTimeIsString => values.DateTimeIsString;
+    public bool DateTimeIsString
+    {
+        
+        [DebuggerStepThrough]
+        get => values.DateTimeIsString;
+    }
 
     public long DateTimeTicksToNumberPrecision(long timeStampTicks) => values.DateTimeTicksToNumberPrecision(timeStampTicks);
 
     public string DateTimeAsStringFormatString
     {
+        [DebuggerStepThrough]
         get => values.DateTimeAsStringFormatString;
         set => values.DateTimeAsStringFormatString = value;
     }
 
     public string DateOnlyAsStringFormatString
     {
+        [DebuggerStepThrough]
         get => values.DateOnlyAsStringFormatString;
         set => values.DateOnlyAsStringFormatString = value;
     }
 
     public string DateTimeStringYyyyMMddTossFormatString
     {
+        [DebuggerStepThrough]
         get => values.DateTimeStringYyyyMMddToSecFormatString;
         set => values.DateTimeStringYyyyMMddToSecFormatString = value;
     }
 
     public string DateTimeStringYyyyMMddTomsFormatString
     {
+        [DebuggerStepThrough]
         get => values.DateTimeStringYyyyMMddToMsFormatString;
         set => values.DateTimeStringYyyyMMddToMsFormatString = value;
     }
 
     public string DateTimeStringYyyyMMddTousFormatString
     {
+        [DebuggerStepThrough]
         get => values.DateTimeStringYyyyMMddToUsFormatString;
         set => values.DateTimeStringYyyyMMddToUsFormatString = value;
     }
 
     public bool DisableCircularRefCheck
     {
+        [DebuggerStepThrough]
         get => values.DisableCircularRefCheck;
         set => values.DisableCircularRefCheck = value;
     }
 
     public bool CharSArraysAsString
     {
+        [DebuggerStepThrough]
         get => values.CharSArraysAsString;
         set => values.CharSArraysAsString = value;
     }
 
     public bool ByteSequenceToBase64
     {
+        [DebuggerStepThrough]
         get => values.ByteSequenceToBase64;
         set => values.ByteSequenceToBase64 = value;
     }
 
     public bool WriteKeyValuePairsAsCollection
     {
+        [DebuggerStepThrough]
         get => values.WriteKeyValuePairsAsCollection;
         set => values.WriteKeyValuePairsAsCollection = value;
     }
 
     public bool? CircularRefUsesRefEquals
     {
+        [DebuggerStepThrough]
         get => values.CircularRefUsesRefEquals;
         set => values.CircularRefUsesRefEquals = value;
     }
 
     public StyleOptions? DefaultOptions
     {
+        [DebuggerStepThrough]
         get => values.DefaultOptions;
         set => values.DefaultOptions = value;
     }
 
     public CollectionPrettyStyleFormat PrettyCollectionStyle
     {
+        [DebuggerStepThrough]
         get => values.PrettyCollectionStyle;
         set => values.PrettyCollectionStyle = value;
     }
 
     public int PrettyCollectionsColumnContentWidthWrap
     {
+        [DebuggerStepThrough]
         get => values.PrettyCollectionsColumnContentWidthWrap;
         set => values.PrettyCollectionsColumnContentWidthWrap = value;
     }
 
     public string[] LogSuppressDisplayTypeNames
     {
+        [DebuggerStepThrough]
         get => values.LogSuppressDisplayTypeNames;
         set => values.LogSuppressDisplayTypeNames = value;
     }
 
     public string[] LogSuppressDisplayCollectionElementNames
     {
+        [DebuggerStepThrough]
         get => values.LogSuppressDisplayCollectionElementNames;
         set => values.LogSuppressDisplayCollectionElementNames = value;
     }
 
     public string[] LogSuppressDisplayCollectionNames
     {
+        [DebuggerStepThrough]
         get => values.LogSuppressDisplayCollectionNames;
         set => values.LogSuppressDisplayCollectionNames = value;
     }
 
     public int DefaultGraphMaxDepth
     {
+        [DebuggerStepThrough]
         get => values.DefaultGraphMaxDepth;
         set => values.DefaultGraphMaxDepth = value;
     }
 
     public bool InstanceMarkingMarkInstanceIdOnFirstVisit
     {
-        get => values.InstanceMarkingMarkInstanceIdOnFirstVisit;
-        set => values.InstanceMarkingMarkInstanceIdOnFirstVisit = value;
+        [DebuggerStepThrough]
+        get => values.InstanceMarkingAlwaysMarkInstanceIds;
+        set => values.InstanceMarkingAlwaysMarkInstanceIds = value;
     }
 
     public bool InstanceMarkingMarkVirtualMemoryAddress
     {
+        [DebuggerStepThrough]
         get => values.InstanceMarkingMarkVirtualMemoryAddress;
         set => values.InstanceMarkingMarkVirtualMemoryAddress = value;
     }
 
     public bool InstanceMarkingMarkRevisitCount
     {
+        [DebuggerStepThrough]
         get => values.InstanceMarkingMarkRevisitCount;
         set => values.InstanceMarkingMarkRevisitCount = value;
     }
 
     public bool InstanceMarkingIncludeSpanFormattableContents
     {
+        [DebuggerStepThrough]
         get => values.InstanceMarkingIncludeSpanFormattableContents;
         set => values.InstanceMarkingIncludeSpanFormattableContents = value;
     }
 
     public bool InstanceMarkingIncludeStringContents
     {
+        [DebuggerStepThrough]
         get => values.InstanceMarkingIncludeStringContents;
         set => values.InstanceMarkingIncludeStringContents = value;
     }
 
     public bool InstanceMarkingIncludeCharArrayContents
     {
+        [DebuggerStepThrough]
         get => values.InstanceMarkingIncludeCharArrayContents;
         set => values.InstanceMarkingIncludeCharArrayContents = value;
     }
 
     public bool InstanceMarkingIncludeCharSequenceContents
     {
+        [DebuggerStepThrough]
         get => values.InstanceMarkingIncludeCharSequenceContents;
         set => values.InstanceMarkingIncludeCharSequenceContents = value;
     }
 
     public bool InstanceMarkingIncludeStringBuilderContents
     {
+        [DebuggerStepThrough]
         get => values.InstanceMarkingIncludeStringBuilderContents;
         set => values.InstanceMarkingIncludeStringBuilderContents = value;
     }
 
     public bool InstanceMarkingIncludeAllContentOnlyContents
     {
+        [DebuggerStepThrough]
         get => values.InstanceMarkingIncludeAllContentOnlyContents;
         set => values.InstanceMarkingIncludeAllContentOnlyContents = value;
     }
 
+    public bool InstanceMarkingAsStringIndependentNumbering
+    {
+        [DebuggerStepThrough]
+        get => values.InstanceMarkingAsStringIndependentNumbering;
+        set => values.InstanceMarkingAsStringIndependentNumbering = value;
+    }
+
     public bool InstanceMarkingDisabled
     {
+        [DebuggerStepThrough]
         get => values.InstanceMarkingDisabled;
         set => values.InstanceMarkingDisabled = value;
     }
 
     public bool InstanceTrackingDisabled
     {
+        [DebuggerStepThrough]
         get => values.InstanceTrackingDisabled;
         set => values.InstanceTrackingDisabled = value;
     }
 
     public bool InstanceTrackingIncludeSpanFormattableClasses
     {
+        [DebuggerStepThrough]
         get => values.InstanceTrackingIncludeSpanFormattableClasses;
         set => values.InstanceTrackingIncludeSpanFormattableClasses = value;
     }
 
     public bool InstanceTrackingIncludeStringInstances
     {
+        [DebuggerStepThrough]
         get => values.InstanceTrackingIncludeStringInstances;
         set => values.InstanceTrackingIncludeStringInstances = value;
     }
 
     public bool InstanceTrackingIncludeCharArrayInstances
     {
+        [DebuggerStepThrough]
         get => values.InstanceTrackingIncludeCharArrayInstances;
         set => values.InstanceTrackingIncludeCharArrayInstances = value;
     }
 
     public bool InstanceTrackingIncludeCharSequenceInstances
     {
+        [DebuggerStepThrough]
         get => values.InstanceTrackingIncludeCharSequenceInstances;
         set => values.InstanceTrackingIncludeCharSequenceInstances = value;
     }
 
     public bool InstanceTrackingIncludeStringBuilderInstances
     {
+        [DebuggerStepThrough]
         get => values.InstanceTrackingIncludeStringBuilderInstances;
         set => values.InstanceTrackingIncludeStringBuilderInstances = value;
     }
 
     public bool InstanceTrackingIncludeAllExemptClassInstances
     {
+        [DebuggerStepThrough]
         get => values.InstanceTrackingIncludeAllExemptClassInstances;
         set => values.InstanceTrackingIncludeAllExemptClassInstances = value;
     }
 
-    public bool InstanceTrackingAllAsStringClassesAreExempt
+    public bool InstanceTrackingAllAsStringHaveLocalTracking
     {
-        get => values.InstanceTrackingAllAsStringClassesAreExempt;
-        set => values.InstanceTrackingAllAsStringClassesAreExempt = value;
+        [DebuggerStepThrough]
+        get => values.InstanceTrackingAllAsStringHaveLocalTracking;
+        set => values.InstanceTrackingAllAsStringHaveLocalTracking = value;
     }
 
     public int InstancesTrackingDebuggerBreakOnRevisitCount
     {
+        [DebuggerStepThrough]
         get => values.InstancesTrackingDebuggerBreakOnRevisitCount;
         set => values.InstancesTrackingDebuggerBreakOnRevisitCount = value;
     }
 
     public int InstancesTrackingThrowOnRevisitCount
     {
+        [DebuggerStepThrough]
         get => values.InstancesTrackingThrowOnRevisitCount;
         set => values.InstancesTrackingThrowOnRevisitCount = value;
+    }
+
+    public bool AsStringAlwaysWritesAsCompact
+    {
+        [DebuggerStepThrough]
+        get => values.AsStringAlwaysWritesAsCompact;
+        set => values.AsStringAlwaysWritesAsCompact = value;
+    }
+
+    public bool AsStringSeparateRestartedIndentation
+    {
+        [DebuggerStepThrough]
+        get => values.AsStringSeparateRestartedIndentation;
+        set => values.AsStringSeparateRestartedIndentation = value;
     }
 
     object ICloneable.        Clone() => Clone();

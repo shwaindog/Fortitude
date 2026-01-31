@@ -64,6 +64,7 @@ public class ContentJoinTypeMold<TFromMold, TToMold> : KnownTypeMolder<TToMold>,
         MoldStateField.CopyFrom(((ITypeBuilderComponentSource)source).MoldState, copyMergeFlags);
         initialWasComplex        = source.IsComplexType;
         wasUpgradedToComplexType = initialWasComplex && source is SimpleContentTypeMold;
+        
 
         return (TToMold)this;
     }

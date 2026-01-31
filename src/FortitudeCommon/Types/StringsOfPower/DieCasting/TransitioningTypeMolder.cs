@@ -50,6 +50,7 @@ public abstract class TransitioningTypeMolder<TCurrent, TNext> : KnownTypeMolder
         {
             copyFromCurrent.CopyFrom(MoldStateField.StyleTypeBuilder);
         }
+        
         hasTransitioned = true;
         return nextTypeBuilder;
     }
@@ -64,8 +65,7 @@ public abstract class TransitioningTypeMolder<TCurrent, TNext> : KnownTypeMolder
         }
         var currentAppenderIndex = MoldStateField.Master.WriteBuffer.Length;
         var typeWriteRange       = new Range(Index.FromStart(StartIndex), Index.FromStart(currentAppenderIndex));
-        var ignored               = new StateExtractStringRange(TypeName ?? TypeBeingBuilt.CachedCSharpNameWithConstraints()
-                                                              , MoldStateField.Master, typeWriteRange);
+        var ignored               = BuildMoldStringRange(typeWriteRange);
         MoldStateField.DecrementRefCount();
         MoldStateField               = null!;
         ((IRecyclableObject)this).DecrementRefCount();
