@@ -140,8 +140,16 @@ public class ExplicitRecyclableObject : ExplicitUsesRecycler, IRecyclableObject
 
     int IRecyclableObject.DecrementRefCount()
     {
-        if (!MeRecyclable.IsInRecycler && Interlocked.Decrement(ref refCount) <= 0 && MeRecyclable.AutoRecycleAtRefCountZero) MeRecyclable.Recycle();
-        return refCount;
+        return ExplicitDecrementRefCount();
+    }
+
+    protected virtual int ExplicitDecrementRefCount()
+    {
+        var count = 0;
+        if (!MeRecyclable.IsInRecycler 
+         && (count =Interlocked.Decrement(ref refCount)) <= 0 
+         && MeRecyclable.AutoRecycleAtRefCountZero) MeRecyclable.Recycle();
+        return count;
     }
 
     int IRecyclableObject.NonRecyclingDecrementRefCount()

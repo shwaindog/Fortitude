@@ -107,6 +107,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         if (!TypeBeingBuilt.IsValueType &&  !MoldGraphVisit.NoVisitCheckDone && newVisit != null)
         {
             Master.ActiveGraphRegistry.Add(newVisit.Value.SetBufferFirstFieldStart(Master.WriteBuffer.Length, IndentLevel));
+            Master.ActiveGraphRegistry.CurrentGraphNodeIndex = newVisit.Value.ObjVisitIndex;
         }
 
         StyleTypeBuilder.FinishTypeOpening();
@@ -3519,11 +3520,9 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             if (!formatFlags.HasNullBecomesEmptyFlag())
             {
                 var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldInheritFlags();
-                if (withMoldInherited.HasIsFieldNameFlag())
-                {
-                    StyleFormatter.FormatFieldName(Sb, defaultValue, 0, formatString, formatFlags: withMoldInherited | DisableFieldNameDelimiting);
-                }
-                else { StyleFormatter.FormatFieldContents(Sb, defaultValue, 0, formatString, formatFlags: withMoldInherited); }
+                writtenAsFlags = withMoldInherited.HasIsFieldNameFlag()
+                  ? StyleFormatter.FormatFieldName(Sb, defaultValue, 0, formatString, formatFlags: withMoldInherited | DisableFieldNameDelimiting)
+                  : StyleFormatter.FormatFieldContents(Sb, defaultValue, 0, formatString, formatFlags: withMoldInherited);
             }
             if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
             result =

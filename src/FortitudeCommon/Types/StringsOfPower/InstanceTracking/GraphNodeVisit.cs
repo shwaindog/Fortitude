@@ -118,6 +118,15 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
             };
         }
 
+        public GraphNodeVisit ReplaceObjectInstance(object? withMaybeSomething)
+        {
+            return this with
+            {
+                VisitedInstance = withMaybeSomething
+              , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
+            };
+        }
+
         public GraphNodeVisit UpdateVisitEncoders(IEncodingTransfer contentEncoder, IEncodingTransfer layoutEncoder)
         {
             return this with

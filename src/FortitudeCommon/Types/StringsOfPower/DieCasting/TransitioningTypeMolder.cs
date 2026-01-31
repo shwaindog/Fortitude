@@ -50,6 +50,7 @@ public abstract class TransitioningTypeMolder<TCurrent, TNext> : KnownTypeMolder
         {
             copyFromCurrent.CopyFrom(MoldStateField.StyleTypeBuilder);
         }
+        
         hasTransitioned = true;
         return nextTypeBuilder;
     }

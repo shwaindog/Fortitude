@@ -76,6 +76,8 @@ public interface ITypeMolderDieCast : IRecyclableObject, ITransferState
 
     IStringBuilder Sb { get; }
     
+    VisitResult MoldGraphVisit { get; }
+    
     int VisitNumber { get; }
 
     public int DecrementIndent();
@@ -181,7 +183,7 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
 
     TypeMolder.MoldPortableState IMigratableTypeMolderDieCast.PortableState => typeBuilderState;
 
-    protected VisitResult MoldGraphVisit
+    public VisitResult MoldGraphVisit
     {
         
         [DebuggerStepThrough]
@@ -190,9 +192,13 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
         set => typeBuilderState.MoldGraphVisit = value;
     }
 
-    public int VisitNumber => MoldGraphVisit.CurrentVisitIndex;
+    public int VisitNumber
+    {
+        [DebuggerStepThrough]
+        get => MoldGraphVisit.CurrentVisitIndex;
+    }
 
-    
+
     public string? InstanceName
     {
         [DebuggerStepThrough]

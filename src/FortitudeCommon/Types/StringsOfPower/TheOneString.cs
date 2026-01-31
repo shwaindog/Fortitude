@@ -136,6 +136,7 @@ public interface ISecretStringOfPower : ITheOneString
     int  GetNextVisitedReferenceId(int instanceRegistryIndex);
     void RemoveVisitAt(int registryId, int visitIndex);
     int  InstanceIdAtVisit(int registryId, int visitIndex);
+    // void  UpdateTypeMold(int registryId, int visitIndex);
     void PopLastAsStringInstanceRegistry();
 
     ITheOneString AddBaseFieldsStart();
@@ -485,7 +486,13 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     void ISecretStringOfPower.TypeComplete(ITypeMolderDieCast completeType)
     {
-        if (completeType.DecrementRefCount() == 0) { PopCurrentSettings(); }
+        var completeVisitDetails = completeType.MoldGraphVisit;
+        var visitRegId           = completeVisitDetails.RegistryId;
+        var visitIndex =  completeVisitDetails.CurrentVisitIndex;
+        if (completeType.DecrementRefCount() == 0 && visitRegId == asStringEnteredCount && visitIndex >= 0)
+        {
+            PopCurrentSettings(completeVisitDetails);
+        }
     }
 
     public StateExtractStringRange RegisterVisitedInstanceAndConvert(object obj, string? formatString = null
@@ -943,17 +950,22 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         return fullResult.WithIsARevisitSetTo(!shouldIgnore & fullResult.InstanceId > 0 && !fullResult.IsBaseOfInitial);
     }
 
-    protected void PopCurrentSettings()
+    protected void PopCurrentSettings(VisitResult visitIndex)
     {
-        var currentNode = MyActiveGraphRegistry.CurrentNode;
-        if (currentNode != null)
+        if (MyActiveGraphRegistry.RegistryId != visitIndex.RegistryId 
+         || visitIndex.CurrentVisitIndex >= MyActiveGraphRegistry.Count)
         {
-            MyActiveGraphRegistry[MyActiveGraphRegistry.CurrentGraphNodeIndex] =
-                currentNode.Value
-                           .MarkContentEndClearComponentAccess(WriteBuffer.Length, currentNode.Value.WriteMethod);
-            MyActiveGraphRegistry.CurrentGraphNodeIndex = currentNode.Value.ParentVisitIndex;
-            if (MyActiveGraphRegistry.CurrentGraphNodeIndex < 0) { MyActiveGraphRegistry.ClearObjectVisitedGraph(); }
+            Debugger.Break();
         }
+        var currentActiveNode = MyActiveGraphRegistry.CurrentGraphNodeIndex;
+        var currentNode = MyActiveGraphRegistry[visitIndex.CurrentVisitIndex];
+        MyActiveGraphRegistry[currentNode.ObjVisitIndex] =
+            currentNode.MarkContentEndClearComponentAccess(WriteBuffer.Length, currentNode.WriteMethod);
+        if (visitIndex.CurrentVisitIndex == currentActiveNode)
+        {
+            MyActiveGraphRegistry.CurrentGraphNodeIndex = currentNode.ParentVisitIndex;    
+        }
+        if (MyActiveGraphRegistry.CurrentGraphNodeIndex < 0) { MyActiveGraphRegistry.ClearObjectVisitedGraph(); }
     }
 
     VisitResult ISecretStringOfPower.SourceGraphVisitRefId(object? toStyleInstance, Type type, FormatFlags formatFlags)

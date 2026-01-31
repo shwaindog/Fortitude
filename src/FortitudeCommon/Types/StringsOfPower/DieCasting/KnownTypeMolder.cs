@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Diagnostics;
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
@@ -69,7 +70,11 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         ((IRecyclableObject)this).DecrementRefCount();
     }
 
-    protected ITypeMolderDieCast<TMold> State => MoldStateField ?? throw new NullReferenceException("Expected MoldState to be set");
+    protected ITypeMolderDieCast<TMold> State
+    {
+        [DebuggerStepThrough]
+        get => MoldStateField ?? throw new NullReferenceException("Expected MoldState to be set");
+    }
 
     ITypeMolderDieCast ITypeBuilderComponentSource.MoldState =>
         MoldStateField ?? throw new NullReferenceException("Expected MoldState to be set");
@@ -116,9 +121,21 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         var typeWriteRange       = new Range(Index.FromStart(StartIndex), Index.FromStart(currentAppenderIndex));
         var result = BuildMoldStringRange(typeWriteRange);
         PortableState.CompleteResult = result;
-        State.Master.TypeComplete(State);
-        MoldStateField = null!;
-        ((IRecyclableObject)this).DecrementRefCount();
+        var tos  = State.Master;
+        var verifyRemoved = MoldVisit;
+        if (verifyRemoved.RegistryId >= -1 && tos.ActiveGraphRegistry.RegistryId != verifyRemoved.RegistryId)
+        {
+            Debugger.Break();   
+        }
+        tos.TypeComplete(State); // calls DecrementRef count
+        //MoldStateField = null!;
+
+        if (verifyRemoved.CurrentVisitIndex >= 0 
+         && tos.ActiveGraphRegistry.Count > verifyRemoved.CurrentVisitIndex 
+        &&  tos.ActiveGraphRegistry[verifyRemoved.CurrentVisitIndex].TypeBuilderComponentAccess != null)
+        {
+            Debugger.Break();
+        }
         return result;
     }
 

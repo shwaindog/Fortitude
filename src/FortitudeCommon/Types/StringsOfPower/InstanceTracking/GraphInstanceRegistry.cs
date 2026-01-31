@@ -144,7 +144,12 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
     public void RemoveVisitAt(int visitIndex)
     {
         if (visitIndex >= OrderedObjectGraph.Count || visitIndex < 0) return;
-        OrderedObjectGraph.RemoveAt(visitIndex);
+        if (visitIndex == OrderedObjectGraph.Count - 1 && CurrentGraphNodeIndex == visitIndex)
+        {
+            OrderedObjectGraph.RemoveAt(visitIndex);
+            CurrentGraphNodeIndex--;
+        }
+        else { OrderedObjectGraph[visitIndex] = OrderedObjectGraph[visitIndex].ReplaceObjectInstance(null); }
     }
 
     private VisitResult SourceGraphVisitRefId(object objToStyle, Type type, FormatFlags formatFlags)
