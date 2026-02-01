@@ -71,7 +71,11 @@ public static class JsonFormatterExtensions
 
     public static bool IsDoubleQuoteDelimitedSpanFormattable<T>(this T check, ReadOnlySpan<char> fallbackValue, ReadOnlySpan<char> formatString)
     {
-        var typeOfT = typeof(T) == typeof(Type) ? (Type)(object)check! : typeof(T);
+        var typeOfT = check != null 
+            ? check.GetType() 
+            : (typeof(T) == typeof(Type) 
+                ? (Type)(object)check! 
+                : typeof(T));
 
         var formatStringDelmited = formatString.IsDblQtBounded() || formatString.IsSqBrktBounded() || formatString.IsBrcBounded();
         var isSpanFormattableOrNullable = (typeOfT.IsSpanFormattableOrNullableCached());
