@@ -19,6 +19,8 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
     public int ThisRegistryNextRefId { get; set; } = 1;
 
     public int CurrentGraphNodeIndex { get; set; } = -1;
+    
+    public int NextFreeSlot => OrderedObjectGraph.Count;
 
     public GraphNodeVisit? CurrentNode =>
         CurrentGraphNodeIndex >= 0 && CurrentGraphNodeIndex < OrderedObjectGraph.Count
@@ -160,10 +162,11 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
         var firstInstanceIndex      = -1;
         var firstMatchInstanceIndex = -1;
         var lastInstanceIndex       = -1;
-        var thisVisitRepeatCount   = 0;
-        for (var i = 0; i < OrderedObjectGraph.Count; i++)
+        var thisVisitRepeatCount    = 0;
+        var fwdIndex = 0;
+        for (; fwdIndex < OrderedObjectGraph.Count; fwdIndex++)
         {
-            var graphNodeVisit = OrderedObjectGraph[i];
+            var graphNodeVisit = OrderedObjectGraph[fwdIndex];
             if (WasVisitOnSameInstance(objToStyle, graphNodeVisit))
             {
                 if (WasVisitOnSameOrMoreDerivedType(type, graphNodeVisit))
@@ -176,36 +179,37 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
                      && !formatFlags.HasNoRevisitCheck() )
                     {
                         foundRefId            = NextRefId();
-                        OrderedObjectGraph[i] = graphNodeVisit.SetRefId(foundRefId);
+                        OrderedObjectGraph[fwdIndex] = graphNodeVisit.SetRefId(foundRefId);
                         thisVisitRepeatCount  = 0;
                     }
                     if (firstInstanceIndex < 0)
                     {
-                        firstInstanceIndex = i;
+                        firstInstanceIndex = fwdIndex;
                     }
                     if (!graphNodeVisit.CurrentFormatFlags.HasNoRevisitCheck() && !formatFlags.HasNoRevisitCheck())
                     {
-                        firstMatchInstanceIndex = i;
+                        firstMatchInstanceIndex = fwdIndex;
                         break;
                     }
                 }
             }
         }
-        for (var i = OrderedObjectGraph.Count - 1; i >= 0; i--)
+        var bkwdIndex = OrderedObjectGraph.Count - 1;
+        for (; bkwdIndex > fwdIndex; bkwdIndex--)
         {
-            var graphNodeVisit = OrderedObjectGraph[i];
+            var graphNodeVisit = OrderedObjectGraph[bkwdIndex];
             if (WasVisitOnSameInstance(objToStyle, graphNodeVisit))
             {
                 if (WasVisitOnSameOrBaseType(type, graphNodeVisit))
                 {
-                    lastInstanceIndex = i;
+                    lastInstanceIndex = bkwdIndex;
                     thisVisitRepeatCount       = graphNodeVisit.RevisitCount;
                     break;
                 }
             }
         }
         
-        return new VisitResult( RegistryId, OrderedObjectGraph.Count, foundRefId
+        return new VisitResult( RegistryId, NextFreeSlot, foundRefId
                              , firstInstanceIndex, firstMatchInstanceIndex, lastInstanceIndex, thisVisitRepeatCount, isBaseOfFound);
     }
 

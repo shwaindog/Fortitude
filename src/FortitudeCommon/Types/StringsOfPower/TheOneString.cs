@@ -824,7 +824,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
         var newVisit =
             new GraphNodeVisit
-                (asStringEnteredCount, MyActiveGraphRegistry.Count, MyActiveGraphRegistry.CurrentGraphNodeIndex
+                (asStringEnteredCount, MyActiveGraphRegistry.NextFreeSlot, MyActiveGraphRegistry.CurrentGraphNodeIndex
                , visitType, visitType
                , ((ITypeBuilderComponentSource)typeMold).MoldState, writeMethod
                , null, Sb!.Length, IndentLevel, CallerContext, fmtState, formatFlags
@@ -850,7 +850,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
         var newVisit =
             new GraphNodeVisit
-                (asStringEnteredCount, MyActiveGraphRegistry.Count, MyActiveGraphRegistry.CurrentGraphNodeIndex
+                (asStringEnteredCount, MyActiveGraphRegistry.NextFreeSlot, MyActiveGraphRegistry.CurrentGraphNodeIndex
                , toStyle?.GetType() ?? visitType, visitType
                , ((ITypeBuilderComponentSource)typeMold).MoldState, writeMethod
                , wrapped, Sb!.Length, IndentLevel, CallerContext, fmtState, formatFlags

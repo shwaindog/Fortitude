@@ -228,7 +228,7 @@ public class TwoStringBearersSecondAsSimpleCloakedStringContent<TBearer>: IStrin
 
     public PalantírReveal<TBearer> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartSimpleContentType(cloaked)
-           .RevealAsValue (cloaked, ValueFormatString, FormattingFlags)
+           .RevealAsString (cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;

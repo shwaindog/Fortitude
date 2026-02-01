@@ -668,26 +668,26 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         }
                         }",
                         """.RemoveLineEndings()
-                       // +
-                       //  """
-                       //        "FirstStringBearerField": "{\u000a
-                       //          \u0022$id\u0022: \u00222\u0022,\u000a
-                       //          \u0022Name\u0022: \u0022SameOnLeftAndRight\u0022,\u000a
-                       //          \u0022GlobalNodeInstanceId\u0022: 2,\u000a
-                       //          \u0022NodeType\u0022: \u0022BranchNode\u0022,\u000a
-                       //          \u0022Left\u0022: {\u000a
-                       //            \u0022$id\u0022: \u00221\u0022,\u000a
-                       //            \u0022LeafInstanceId\u0022: 1,\u000a
-                       //            \u0022Name\u0022: \u0022SameChild\u0022,\u000a
-                       //            \u0022GlobalNodeInstanceId\u0022: 1,\u000a
-                       //            \u0022NodeType\u0022: \u0022LeafNode\u0022,\u000a
-                       //            \u0022DepthToRoot\u0022: 1\u000a
-                       //          },\u000a
-                       //          \u0022Right\u0022: {\u000a
-                       //            \u0022$ref\u0022: \u00221\u0022\u000a
-                       //          }\u000a
-                       //        }",
-                       //      """.RemoveLineEndings()
+                        // +
+                        //  """
+                        //        "FirstStringBearerField": "{\u000a
+                        //          \u0022$id\u0022: \u00222\u0022,\u000a
+                        //          \u0022Name\u0022: \u0022SameOnLeftAndRight\u0022,\u000a
+                        //          \u0022GlobalNodeInstanceId\u0022: 2,\u000a
+                        //          \u0022NodeType\u0022: \u0022BranchNode\u0022,\u000a
+                        //          \u0022Left\u0022: {\u000a
+                        //            \u0022$id\u0022: \u00221\u0022,\u000a
+                        //            \u0022LeafInstanceId\u0022: 1,\u000a
+                        //            \u0022Name\u0022: \u0022SameChild\u0022,\u000a
+                        //            \u0022GlobalNodeInstanceId\u0022: 1,\u000a
+                        //            \u0022NodeType\u0022: \u0022LeafNode\u0022,\u000a
+                        //            \u0022DepthToRoot\u0022: 1\u000a
+                        //          },\u000a
+                        //          \u0022Right\u0022: {\u000a
+                        //            \u0022$ref\u0022: \u00221\u0022\u000a
+                        //          }\u000a
+                        //        }",
+                        //      """.RemoveLineEndings()
                        +
                         """
                         
@@ -823,7 +823,6 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                       , """ 
                         {
                         "FirstStringBearerField":{
-                        "$id":"2",
                         "Name":"SameOnLeftAndRight",
                         "GlobalNodeInstanceId":2,
                         "NodeType":"BranchNode",
@@ -839,9 +838,22 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         "$ref":"1"
                         }
                         },
-                        "SecondStringBearerField":{
-                        "$ref":"2"
+                        "SecondStringBearerField":"{
+                        \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
+                        \u0022GlobalNodeInstanceId\u0022:2,
+                        \u0022NodeType\u0022:\u0022BranchNode\u0022,
+                        \u0022Left\u0022:{
+                        \u0022$id\u0022:\u00221\u0022,
+                        \u0022LeafInstanceId\u0022:1,
+                        \u0022Name\u0022:\u0022SameChild\u0022,
+                        \u0022GlobalNodeInstanceId\u0022:1,
+                        \u0022NodeType\u0022:\u0022LeafNode\u0022,
+                        \u0022DepthToRoot\u0022:1
+                        },
+                        \u0022Right\u0022:{
+                        \u0022$ref\u0022:\u00221\u0022
                         }
+                        }"
                         }
                         """.RemoveLineEndings()
                     }
@@ -851,7 +863,6 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                       , """ 
                         {
                           "FirstStringBearerField": {
-                            "$id": "2",
                             "Name": "SameOnLeftAndRight",
                             "GlobalNodeInstanceId": 2,
                             "NodeType": "BranchNode",
@@ -867,9 +878,30 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                               "$ref": "1"
                             }
                           },
-                          "SecondStringBearerField": {
-                            "$ref": "2"
-                          }
+                        
+                        """.Dos2Unix()
+                        +
+                        """
+                          "SecondStringBearerField": "{
+                        \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
+                        \u0022GlobalNodeInstanceId\u0022:2,
+                        \u0022NodeType\u0022:\u0022BranchNode\u0022,
+                        \u0022Left\u0022:{
+                        \u0022$id\u0022:\u00221\u0022,
+                        \u0022LeafInstanceId\u0022:1,
+                        \u0022Name\u0022:\u0022SameChild\u0022,
+                        \u0022GlobalNodeInstanceId\u0022:1,
+                        \u0022NodeType\u0022:\u0022LeafNode\u0022,
+                        \u0022DepthToRoot\u0022:1
+                        },
+                        \u0022Right\u0022:{
+                        \u0022$ref\u0022:\u00221\u0022
+                        }
+                        }"
+                        """.RemoveLineEndings()
+                        +
+                        """
+                        
                         }
                         """.Dos2Unix()
                     }
