@@ -35,7 +35,7 @@ public class TwoCharArrayFields: IStringBearer, ISupportFormattingFlags, ISuppor
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(FirstCharArrayField)
@@ -83,7 +83,7 @@ public class TwoCharArraysFirstAsSimpleCloakedValueContent: IStringBearer, ISupp
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(FirstCharArrayField)
@@ -131,7 +131,7 @@ public class TwoCharArraysSecondAsSimpleCloakedValueContent: IStringBearer, ISup
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(FirstCharArrayField)
@@ -179,7 +179,7 @@ public class TwoCharArraysFirstAsSimpleCloakedStringContent: IStringBearer, ISup
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(FirstCharArrayField)
@@ -227,7 +227,7 @@ public class TwoCharArraysSecondAsSimpleCloakedStringContent: IStringBearer, ISu
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(FirstCharArrayField)
@@ -275,7 +275,7 @@ public class TwoCharArraysFirstAsComplexCloakedValueContent: IStringBearer, ISup
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(FirstCharArrayField)
@@ -323,7 +323,7 @@ public class TwoCharArraysSecondAsComplexCloakedValueContent: IStringBearer, ISu
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(FirstCharArrayField)
@@ -371,7 +371,7 @@ public class TwoCharArraysFirstAsComplexCloakedStringContent: IStringBearer, ISu
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(FirstCharArrayField)
@@ -419,7 +419,7 @@ public class TwoCharArraysSecondAsComplexCloakedStringContent: IStringBearer, IS
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(FirstCharArrayField)

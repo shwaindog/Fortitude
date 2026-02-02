@@ -111,7 +111,7 @@ public abstract class OrderedParentNode<TChild> : Node, IReadOnlyParentNode
         }
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .AddBaseRevealStateFields(this)
            .CollectionField.AlwaysRevealAll(nameof(ChildNodes), ChildNodes)

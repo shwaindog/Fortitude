@@ -89,7 +89,7 @@ public class FLogEntryAsyncReceiveConfig : FLogEntryQueueConfig, IMutableFLogEnt
         return hashCode;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(QueueSize), QueueSize)
            .Field.AlwaysAdd(nameof(QueueFullHandling), QueueFullHandling)

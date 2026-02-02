@@ -108,7 +108,7 @@ public class MatchSequenceKeysComparisonConfig : MatchConditionConfig, IMutableM
         return hashCode;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
            .Field.AlwaysAdd(nameof(Lhs), Lhs)

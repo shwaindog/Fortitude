@@ -185,7 +185,7 @@ public class RollingFileAppenderConfig : FileAppenderConfig, IMutableRollingFile
         return hashCode;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(RollAtSize), RollAtSize)
            .Field.AlwaysAdd(nameof(RollFileNameFormat), RollFileNameFormat)

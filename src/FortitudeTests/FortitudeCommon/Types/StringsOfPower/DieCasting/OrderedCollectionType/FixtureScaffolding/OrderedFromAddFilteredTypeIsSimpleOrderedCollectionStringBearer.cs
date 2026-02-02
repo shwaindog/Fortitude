@@ -23,7 +23,7 @@ public class OrderedFromBoolArrayAddFilteredSimpleOrderedCollectionStringBearer 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredBoolArray);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered(OrderedCollectionAddFilteredBoolArray
                       , ElementPredicate
@@ -45,7 +45,7 @@ public class OrderedFromNullableBoolArrayAddFilteredSimpleOrderedCollectionStrin
     public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableBoolArray);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered(OrderedCollectionAddFilteredNullableBoolArray
                       , ElementPredicate
@@ -67,7 +67,7 @@ public class OrderedFromBoolSpanAddFilteredSimpleOrderedCollectionStringBearer :
     public override string PropertyName => nameof(OrderedCollectionAddFilteredBoolSpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered(OrderedCollectionAddFilteredBoolSpan.AsSpan()
                       , ElementPredicate
@@ -89,7 +89,7 @@ public class OrderedFromNullableBoolSpanAddFilteredSimpleOrderedCollectionString
     public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableBoolSpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered(OrderedCollectionAddFilteredNullableBoolSpan.AsSpan()
                       , ElementPredicate
@@ -111,7 +111,7 @@ public class OrderedFromBoolReadOnlySpanAddFilteredSimpleOrderedCollectionString
     public override string PropertyName => nameof(OrderedCollectionAddFilteredBoolReadOnlySpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered((ReadOnlySpan<bool>)OrderedCollectionAddFilteredBoolReadOnlySpan.AsSpan()
                       , ElementPredicate
@@ -133,7 +133,7 @@ public class OrderedFromNullableBoolReadOnlySpanAddFilteredSimpleOrderedCollecti
     public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableBoolReadOnlySpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered((ReadOnlySpan<bool?>)OrderedCollectionAddFilteredNullableBoolReadOnlySpan.AsSpan()
                       , ElementPredicate
@@ -154,7 +154,7 @@ public class OrderedFromBoolListAddFilteredSimpleOrderedCollectionStringBearer :
     public override string PropertyName => nameof(OrderedCollectionAddFilteredBoolList);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered(OrderedCollectionAddFilteredBoolList
                       , ElementPredicate
@@ -177,7 +177,7 @@ public class OrderedFromNullableBoolListAddFilteredSimpleOrderedCollectionString
     public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableBoolList);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered(OrderedCollectionAddFilteredNullableBoolList
                       , ElementPredicate
@@ -200,7 +200,7 @@ public class OrderedFromBoolEnumerableAddFilteredSimpleOrderedCollectionStringBe
     public override string PropertyName => nameof(OrderedCollectionAddFilteredBoolEnumerable);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredEnumerate
                (OrderedCollectionAddFilteredBoolEnumerable
@@ -223,7 +223,7 @@ public class OrderedFromNullableBoolEnumerableAddFilteredSimpleOrderedCollection
     public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableBoolEnumerable);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredEnumerate
                (OrderedCollectionAddFilteredNullableBoolEnumerable
@@ -246,7 +246,7 @@ public class OrderedFromBoolEnumeratorAddFilteredSimpleOrderedCollectionStringBe
     public override string PropertyName => nameof(OrderedCollectionAddFilteredBoolEnumerator);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredEnumerate
                (OrderedCollectionAddFilteredBoolEnumerator
@@ -270,7 +270,7 @@ public class OrderedFromNullableBoolEnumeratorAddFilteredSimpleOrderedCollection
     public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableBoolEnumerator);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredEnumerate
                (OrderedCollectionAddFilteredNullableBoolEnumerator
@@ -294,7 +294,7 @@ public class OrderedFromSpanFormattableArrayAddFilteredSimpleOrderedCollectionSt
     public override string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableArray);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered
                (OrderedCollectionAddFilteredSpanFormattableArray
@@ -318,7 +318,7 @@ public class OrderedFromNullableSpanFormattableArrayAddFilteredSimpleOrderedColl
     public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableSpanFormattableArray);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered
                (OrderedCollectionAddFilteredNullableSpanFormattableArray
@@ -342,7 +342,7 @@ public class OrderedFromSpanFormattableSpanAddFilteredSimpleOrderedCollectionStr
     public override string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableSpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered
                (OrderedCollectionAddFilteredSpanFormattableSpan.AsSpan()
@@ -366,7 +366,7 @@ public class OrderedFromSpanFormattableNullableSpanAddFilteredSimpleOrderedColle
     public override string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableNullableSpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered
                (OrderedCollectionAddFilteredSpanFormattableNullableSpan.AsSpan()
@@ -390,7 +390,7 @@ public class OrderedFromNullableSpanFormattableSpanAddFilteredSimpleOrderedColle
     public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableSpanFormattableSpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered
                (OrderedCollectionAddFilteredNullableSpanFormattableSpan.AsSpan()
@@ -414,7 +414,7 @@ public class OrderedFromSpanFormattableReadOnlySpanAddFilteredSimpleOrderedColle
     public override string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableReadOnlySpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered
                ((ReadOnlySpan<TFmt>)OrderedCollectionAddFilteredSpanFormattableReadOnlySpan.AsSpan()
@@ -438,7 +438,7 @@ public class OrderedFromSpanFormattableNullableReadOnlySpanAddFilteredSimpleOrde
     public override string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableNullableReadOnlySpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered
                ((ReadOnlySpan<TFmt?>)OrderedCollectionAddFilteredSpanFormattableNullableReadOnlySpan.AsSpan()
@@ -462,7 +462,7 @@ public class OrderedFromNullableSpanFormattableReadOnlySpanAddFilteredSimpleOrde
     public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableSpanFormattableReadOnlySpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered
                ((ReadOnlySpan<TFmtStruct?>)OrderedCollectionAddFilteredNullableSpanFormattableReadOnlySpan.AsSpan()
@@ -486,7 +486,7 @@ public class OrderedFromSpanFormattableListAddFilteredSimpleOrderedCollectionStr
     public override string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableList);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered
                (OrderedCollectionAddFilteredSpanFormattableList
@@ -510,7 +510,7 @@ public class OrderedFromNullableSpanFormattableListAddFilteredSimpleOrderedColle
     public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableSpanFormattableList);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered
                (OrderedCollectionAddFilteredNullableSpanFormattableList
@@ -534,7 +534,7 @@ public class OrderedFromSpanFormattableEnumerableAddFilteredSimpleOrderedCollect
     public override string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableEnumerable);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredEnumerate
                (OrderedCollectionAddFilteredSpanFormattableEnumerable
@@ -558,7 +558,7 @@ public class OrderedFromNullableSpanFormattableEnumerableAddFilteredSimpleOrdere
     public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableSpanFormattableEnumerable);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredEnumerate
                (OrderedCollectionAddFilteredNullableSpanFormattableEnumerable
@@ -582,7 +582,7 @@ public class OrderedFromSpanFormattableEnumeratorAddFilteredSimpleOrderedCollect
     public override string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableEnumerator);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredEnumerate
                (OrderedCollectionAddFilteredSpanFormattableEnumerator
@@ -606,7 +606,7 @@ public class OrderedFromNullableSpanFormattableEnumeratorAddFilteredSimpleOrdere
     public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableSpanFormattableEnumerator);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredEnumerate
                (OrderedCollectionAddFilteredNullableSpanFormattableEnumerator
@@ -630,7 +630,7 @@ public class OrderedFromCloakedBearerArrayRevealFilteredSimpleOrderedCollectionS
 
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
                (OrderedCollectionRevealFilteredCloakedBearerArray
@@ -654,7 +654,7 @@ public class OrderedFromNullableCloakedBearerArrayRevealFilteredSimpleOrderedCol
 
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableCloakedBearerArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
                (OrderedCollectionRevealFilteredNullableCloakedBearerArray
@@ -679,7 +679,7 @@ public class OrderedFromCloakedBearerSpanRevealFilteredSimpleOrderedCollectionSt
 
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
                (OrderedCollectionRevealFilteredCloakedBearerSpan.AsSpan()
@@ -704,7 +704,7 @@ public class OrderedFromCloakedBearerNullableSpanRevealFilteredSimpleOrderedColl
 
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerNullableSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
                (OrderedCollectionRevealFilteredCloakedBearerNullableSpan.AsSpan()
@@ -728,7 +728,7 @@ public class OrderedFromNullableCloakedBearerSpanRevealFilteredSimpleOrderedColl
 
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableCloakedBearerSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
                (OrderedCollectionRevealFilteredNullableCloakedBearerSpan.AsSpan()
@@ -753,7 +753,7 @@ public class OrderedFromCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedColl
 
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
                (OrderedCollectionRevealFilteredCloakedBearerReadOnlySpan.AsSpan()
@@ -779,7 +779,7 @@ public class OrderedFromCloakedBearerNullableReadOnlySpanRevealFilteredSimpleOrd
 
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerNullableReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
                (OrderedCollectionRevealFilteredCloakedBearerNullableReadOnlySpan.AsSpan()
@@ -803,7 +803,7 @@ public class OrderedFromNullableCloakedBearerReadOnlySpanRevealFilteredSimpleOrd
 
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableCloakedBearerReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
                (OrderedCollectionRevealFilteredNullableCloakedBearerReadOnlySpan.AsSpan()
@@ -828,7 +828,7 @@ public class OrderedFromCloakedBearerListRevealFilteredSimpleOrderedCollectionSt
 
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
                (OrderedCollectionRevealFilteredCloakedBearerList
@@ -852,7 +852,7 @@ public class OrderedFromNullableCloakedBearerListRevealFilteredSimpleOrderedColl
 
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableCloakedBearerList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
                (OrderedCollectionRevealFilteredNullableCloakedBearerList
@@ -877,7 +877,7 @@ public class OrderedFromCloakedBearerEnumerableRevealFilteredSimpleOrderedCollec
 
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerEnumerable);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFilteredEnumerate
                (OrderedCollectionRevealFilteredCloakedBearerEnumerable
@@ -901,7 +901,7 @@ public class OrderedFromNullableCloakedBearerEnumerableRevealFilteredSimpleOrder
 
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableCloakedBearerEnumerable);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFilteredEnumerate
                (OrderedCollectionRevealFilteredNullableCloakedBearerEnumerable
@@ -926,7 +926,7 @@ public class OrderedFromCloakedBearerEnumeratorRevealFilteredSimpleOrderedCollec
 
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerEnumerator);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFilteredEnumerate
                (OrderedCollectionRevealFilteredCloakedBearerEnumerator
@@ -950,7 +950,7 @@ public class OrderedFromNullableCloakedBearerEnumeratorRevealFilteredSimpleOrder
 
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableCloakedBearerEnumerator);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFilteredEnumerate
                (OrderedCollectionRevealFilteredNullableCloakedBearerEnumerator
@@ -975,7 +975,7 @@ public class OrderedFromStringBearerArrayRevealFilteredSimpleOrderedCollectionSt
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerArray);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
                (OrderedCollectionRevealFilteredStringBearerArray
@@ -999,7 +999,7 @@ public class OrderedFromNullableStringBearerArrayRevealFilteredSimpleOrderedColl
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableStringBearerArray);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
                (OrderedCollectionRevealFilteredNullableStringBearerArray
@@ -1022,7 +1022,7 @@ public class OrderedFromStringBearerSpanRevealFilteredSimpleOrderedCollectionStr
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerSpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
                (OrderedCollectionRevealFilteredStringBearerSpan.AsSpan()
@@ -1046,7 +1046,7 @@ public class OrderedFromStringBearerNullableSpanRevealFilteredSimpleOrderedColle
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerNullableSpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
                (OrderedCollectionRevealFilteredStringBearerNullableSpan.AsSpan()
@@ -1070,7 +1070,7 @@ public class OrderedFromNullableStringBearerSpanRevealFilteredSimpleOrderedColle
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableStringBearerSpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
                (OrderedCollectionRevealFilteredNullableStringBearerSpan.AsSpan()
@@ -1093,7 +1093,7 @@ public class OrderedFromStringBearerReadOnlySpanRevealFilteredSimpleOrderedColle
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerReadOnlySpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
                ((ReadOnlySpan<TBearer>)OrderedCollectionRevealFilteredStringBearerReadOnlySpan.AsSpan()
@@ -1117,7 +1117,7 @@ public class OrderedFromStringBearerNullableReadOnlySpanRevealFilteredSimpleOrde
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerNullableReadOnlySpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
                ((ReadOnlySpan<TBearer?>)OrderedCollectionRevealFilteredStringBearerNullableReadOnlySpan.AsSpan()
@@ -1141,7 +1141,7 @@ public class OrderedFromNullableStringBearerReadOnlySpanRevealFilteredSimpleOrde
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableStringBearerReadOnlySpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
                ((ReadOnlySpan<TBearerStruct?>)OrderedCollectionRevealFilteredNullableStringBearerReadOnlySpan.AsSpan()
@@ -1165,7 +1165,7 @@ public class OrderedFromStringBearerListRevealFilteredSimpleOrderedCollectionStr
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerList);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
                (OrderedCollectionRevealFilteredStringBearerList
@@ -1189,7 +1189,7 @@ public class OrderedFromNullableStringBearerListRevealFilteredSimpleOrderedColle
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableStringBearerList);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
                (OrderedCollectionRevealFilteredNullableStringBearerList
@@ -1213,7 +1213,7 @@ public class OrderedFromStringBearerEnumerableRevealFilteredSimpleOrderedCollect
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerEnumerable);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFilteredEnumerate
                (OrderedCollectionRevealFilteredStringBearerEnumerable
@@ -1237,7 +1237,7 @@ public class OrderedFromNullableStringBearerEnumerableRevealFilteredSimpleOrdere
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableStringBearerEnumerable);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFilteredEnumerate
                (OrderedCollectionRevealFilteredNullableStringBearerEnumerable
@@ -1261,7 +1261,7 @@ public class OrderedFromStringBearerEnumeratorRevealFilteredSimpleOrderedCollect
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerEnumerator);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFilteredEnumerate
                (OrderedCollectionRevealFilteredStringBearerEnumerator
@@ -1285,7 +1285,7 @@ public class OrderedFromNullableStringBearerEnumeratorRevealFilteredSimpleOrdere
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableStringBearerEnumerator);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFilteredEnumerate
                (OrderedCollectionRevealFilteredNullableStringBearerEnumerator
@@ -1309,7 +1309,7 @@ public class OrderedFromStringArrayAddFilteredSimpleOrderedCollectionStringBeare
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringArray);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered
                (OrderedCollectionAddFilteredStringArray
@@ -1333,7 +1333,7 @@ public class OrderedFromStringSpanAddFilteredSimpleOrderedCollectionStringBearer
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringSpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered
                (OrderedCollectionAddFilteredStringSpan.AsSpan()
@@ -1357,7 +1357,7 @@ public class OrderedFromStringNullableSpanAddFilteredSimpleOrderedCollectionStri
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringNullableSpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredNullable
                (OrderedCollectionAddFilteredStringNullableSpan.AsSpan()
@@ -1381,7 +1381,7 @@ public class OrderedFromStringReadOnlySpanAddFilteredSimpleOrderedCollectionStri
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringReadOnlySpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered
                ((ReadOnlySpan<string>)OrderedCollectionAddFilteredStringReadOnlySpan.AsSpan()
@@ -1406,7 +1406,7 @@ public class OrderedFromStringNullableReadOnlySpanAddFilteredSimpleOrderedCollec
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringNullableReadOnlySpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredNullable
                ((ReadOnlySpan<string?>)OrderedCollectionAddFilteredStringNullableReadOnlySpan.AsSpan()
@@ -1431,7 +1431,7 @@ public class OrderedFromStringListAddFilteredSimpleOrderedCollectionStringBearer
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringList);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered
                (OrderedCollectionAddFilteredStringList
@@ -1455,7 +1455,7 @@ public class OrderedFromStringEnumerableAddFilteredSimpleOrderedCollectionString
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringEnumerable);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredEnumerate
                (OrderedCollectionAddFilteredStringEnumerable
@@ -1479,7 +1479,7 @@ public class OrderedFromStringEnumeratorAddFilteredSimpleOrderedCollectionString
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringEnumerator);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredEnumerate
                (OrderedCollectionAddFilteredStringEnumerator
@@ -1503,7 +1503,7 @@ public class OrderedFromCharSequenceArrayAddFilteredSimpleOrderedCollectionStrin
     public override string PropertyName => nameof(OrderedCollectionAddFilteredCharSequenceArray);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredCharSeq
                (OrderedCollectionAddFilteredCharSequenceArray
@@ -1527,7 +1527,7 @@ public class OrderedFromCharSequenceSpanAddFilteredSimpleOrderedCollectionString
     public override string PropertyName => nameof(OrderedCollectionAddFilteredCharSequenceSpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredCharSeq
                (OrderedCollectionAddFilteredCharSequenceSpan.AsSpan()
@@ -1551,7 +1551,7 @@ public class OrderedFromCharSequenceReadOnlySpanAddFilteredSimpleOrderedCollecti
     public override string PropertyName => nameof(OrderedCollectionAddFilteredCharSequenceReadOnlySpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredCharSeq
                ((ReadOnlySpan<TCharSeq>)OrderedCollectionAddFilteredCharSequenceReadOnlySpan.AsSpan()
@@ -1575,7 +1575,7 @@ public class OrderedFromCharSequenceListAddFilteredSimpleOrderedCollectionString
     public override string PropertyName => nameof(OrderedCollectionAddFilteredCharSequenceList);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredCharSeq
                (OrderedCollectionAddFilteredCharSequenceList
@@ -1599,7 +1599,7 @@ public class OrderedFromCharSequenceEnumerableAddFilteredSimpleOrderedCollection
     public override string PropertyName => nameof(OrderedCollectionAddFilteredCharSequenceEnumerable);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredCharSeqEnumerate
                (OrderedCollectionAddFilteredCharSequenceEnumerable
@@ -1623,7 +1623,7 @@ public class OrderedFromCharSequenceEnumeratorAddFilteredSimpleOrderedCollection
     public override string PropertyName => nameof(OrderedCollectionAddFilteredCharSequenceEnumerator);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredCharSeqEnumerate
                (OrderedCollectionAddFilteredCharSequenceEnumerator
@@ -1647,7 +1647,7 @@ public class OrderedFromStringBuilderArrayAddFilteredSimpleOrderedCollectionStri
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderArray);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered
                (OrderedCollectionAddFilteredStringBuilderArray
@@ -1671,7 +1671,7 @@ public class OrderedFromStringBuilderSpanAddFilteredSimpleOrderedCollectionStrin
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderSpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered
                (OrderedCollectionAddFilteredStringBuilderSpan.AsSpan()
@@ -1695,7 +1695,7 @@ public class OrderedFromStringBuilderNullableSpanAddFilteredSimpleOrderedCollect
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderNullableSpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredNullable
                (OrderedCollectionAddFilteredStringBuilderNullableSpan.AsSpan()
@@ -1719,7 +1719,7 @@ public class OrderedFromStringBuilderReadOnlySpanAddFilteredSimpleOrderedCollect
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderReadOnlySpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered
                ((ReadOnlySpan<StringBuilder>)OrderedCollectionAddFilteredStringBuilderReadOnlySpan.AsSpan()
@@ -1743,7 +1743,7 @@ public class OrderedFromStringBuilderNullableReadOnlySpanAddFilteredSimpleOrdere
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderNullableReadOnlySpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredNullable
                ((ReadOnlySpan<StringBuilder?>)OrderedCollectionAddFilteredStringBuilderNullableReadOnlySpan.AsSpan()
@@ -1767,7 +1767,7 @@ public class OrderedFromStringBuilderListAddFilteredSimpleOrderedCollectionStrin
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderList);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFiltered
                (OrderedCollectionAddFilteredStringBuilderList
@@ -1791,7 +1791,7 @@ public class OrderedFromStringBuilderEnumerableAddFilteredSimpleOrderedCollectio
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderEnumerable);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredEnumerate
                (OrderedCollectionAddFilteredStringBuilderEnumerable
@@ -1815,7 +1815,7 @@ public class OrderedFromStringBuilderEnumeratorAddFilteredSimpleOrderedCollectio
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderEnumerator);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredEnumerate
                (OrderedCollectionAddFilteredStringBuilderEnumerator
@@ -1839,7 +1839,7 @@ public class OrderedFromMatchArrayAddFilteredSimpleOrderedCollectionStringBearer
     public override string PropertyName => nameof(OrderedCollectionAddFilteredMatchArray);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredMatch
                (OrderedCollectionAddFilteredMatchArray
@@ -1863,7 +1863,7 @@ public class OrderedFromMatchSpanAddFilteredSimpleOrderedCollectionStringBearer<
     public override string PropertyName => nameof(OrderedCollectionAddFilteredMatchSpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredMatch
                (OrderedCollectionAddFilteredMatchSpan.AsSpan()
@@ -1887,7 +1887,7 @@ public class OrderedFromMatchNullableSpanAddFilteredSimpleOrderedCollectionStrin
     public override string PropertyName => nameof(OrderedCollectionAddFilteredMatchNullableSpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredMatch
                (OrderedCollectionAddFilteredMatchNullableSpan.AsSpan()
@@ -1911,7 +1911,7 @@ public class OrderedFromMatchReadOnlySpanAddFilteredSimpleOrderedCollectionStrin
     public override string PropertyName => nameof(OrderedCollectionAddFilteredMatchReadOnlySpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredMatch
                ((ReadOnlySpan<TAny>)OrderedCollectionAddFilteredMatchReadOnlySpan.AsSpan()
@@ -1935,7 +1935,7 @@ public class OrderedFromMatchNullableReadOnlySpanAddFilteredSimpleOrderedCollect
     public override string PropertyName => nameof(OrderedCollectionAddFilteredMatchNullableReadOnlySpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredMatch
                ((ReadOnlySpan<TAny?>)OrderedCollectionAddFilteredMatchNullableReadOnlySpan.AsSpan()
@@ -1959,7 +1959,7 @@ public class OrderedFromMatchListAddFilteredSimpleOrderedCollectionStringBearer<
     public override string PropertyName => nameof(OrderedCollectionAddFilteredMatchList);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredMatch
                (OrderedCollectionAddFilteredMatchList
@@ -1983,7 +1983,7 @@ public class OrderedFromMatchEnumerableAddFilteredSimpleOrderedCollectionStringB
     public override string PropertyName => nameof(OrderedCollectionAddFilteredMatchEnumerable);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredMatchEnumerate
                (OrderedCollectionAddFilteredMatchEnumerable
@@ -2007,7 +2007,7 @@ public class OrderedFromMatchEnumeratorAddFilteredSimpleOrderedCollectionStringB
     public override string PropertyName => nameof(OrderedCollectionAddFilteredMatchEnumerator);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredMatchEnumerate
                (OrderedCollectionAddFilteredMatchEnumerator
@@ -2030,7 +2030,7 @@ public class OrderedFromObjectArrayAddFilteredSimpleOrderedCollectionStringBeare
     public override string PropertyName => nameof(OrderedCollectionAddFilteredObjectArray);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredObject
                (OrderedCollectionAddFilteredObjectArray
@@ -2054,7 +2054,7 @@ public class OrderedFromObjectSpanAddFilteredSimpleOrderedCollectionStringBearer
     public override string PropertyName => nameof(OrderedCollectionAddFilteredObjectSpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredObject
                (OrderedCollectionAddFilteredObjectSpan.AsSpan()
@@ -2077,7 +2077,7 @@ public class OrderedFromObjectNullableSpanAddFilteredSimpleOrderedCollectionStri
     public override string PropertyName => nameof(OrderedCollectionAddFilteredObjectNullableSpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredObjectNullable
                (OrderedCollectionAddFilteredObjectNullableSpan.AsSpan()
@@ -2101,7 +2101,7 @@ public class OrderedFromObjectReadOnlySpanAddFilteredSimpleOrderedCollectionStri
     public override string PropertyName => nameof(OrderedCollectionAddFilteredObjectReadOnlySpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredObject
                ((ReadOnlySpan<object>)OrderedCollectionAddFilteredObjectReadOnlySpan.AsSpan()
@@ -2124,7 +2124,7 @@ public class OrderedFromObjectNullableReadOnlySpanAddFilteredSimpleOrderedCollec
     public override string PropertyName => nameof(OrderedCollectionAddFilteredObjectNullableReadOnlySpan);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredObjectNullable
                ((ReadOnlySpan<object?>)OrderedCollectionAddFilteredObjectNullableReadOnlySpan.AsSpan()
@@ -2146,7 +2146,7 @@ public class OrderedFromObjectListAddFilteredSimpleOrderedCollectionStringBearer
     public override string PropertyName => nameof(OrderedCollectionAddFilteredObjectList);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredObject
                (OrderedCollectionAddFilteredObjectList
@@ -2169,7 +2169,7 @@ public class OrderedFromObjectEnumerableAddFilteredSimpleOrderedCollectionString
     public override string PropertyName => nameof(OrderedCollectionAddFilteredObjectEnumerable);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredObjectEnumerate
                (OrderedCollectionAddFilteredObjectEnumerable
@@ -2192,7 +2192,7 @@ public class OrderedFromObjectEnumeratorAddFilteredSimpleOrderedCollectionString
     public override string PropertyName => nameof(OrderedCollectionAddFilteredObjectEnumerator);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddFilteredObjectEnumerate
                (OrderedCollectionAddFilteredObjectEnumerator

@@ -508,7 +508,7 @@ public class StandardArrayPropertyFieldClass : IStringBearer
 
     [JsonIgnore] public TestCollectionFieldRevealMode TestCollectionFieldRevealMode { get; set; }
 
-    public StateExtractStringRange RevealState(ITheOneString tos)
+    public AppendSummary RevealState(ITheOneString tos)
     {
         switch (TestCollectionFieldRevealMode)
         {
@@ -523,7 +523,7 @@ public class StandardArrayPropertyFieldClass : IStringBearer
 
     public static IFilterRegistry FilterRegistry { get; set; } = new FilterRegistry(new AddOddRetrieveCountFactory());
 
-    public StateExtractStringRange AlwaysRevealAll(ITheOneString tos)
+    public AppendSummary AlwaysRevealAll(ITheOneString tos)
     {
         using var ctb =
             tos.StartComplexType(this);
@@ -601,7 +601,7 @@ public class StandardArrayPropertyFieldClass : IStringBearer
         return ctb.Complete();
     }
 
-    public StateExtractStringRange WhenPopulatedReveal(ITheOneString tos)
+    public AppendSummary WhenPopulatedReveal(ITheOneString tos)
     {
         using var ctb =
             tos.StartComplexType(this);
@@ -679,7 +679,7 @@ public class StandardArrayPropertyFieldClass : IStringBearer
         return ctb.Complete();
     }
 
-    public StateExtractStringRange AlwaysAddFiltered(ITheOneString tos)
+    public AppendSummary AlwaysAddFiltered(ITheOneString tos)
     {
         using var ctb =
             tos.StartComplexType(this);
@@ -828,7 +828,7 @@ public class StandardArrayPropertyFieldClass : IStringBearer
         return ctb.Complete();
     }
 
-    public StateExtractStringRange WhenPopulatedWithFilterReveal(ITheOneString tos)
+    public AppendSummary WhenPopulatedWithFilterReveal(ITheOneString tos)
     {
         using var ctb = tos.StartComplexType(this);
         ctb.CollectionField.WhenPopulatedWithFilter(nameof(ByteArrayPropield), ByteArrayPropield

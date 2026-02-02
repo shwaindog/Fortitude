@@ -25,7 +25,7 @@ public class ComplexContentAsValueBool : FormattedMoldScaffold<bool>
 
     public override string PropertyName => nameof(BoolComplexContentAsValue);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValue
                (nameof(BoolComplexContentAsValue)
@@ -46,7 +46,7 @@ public class SimpleContentAsValueBool : FormattedMoldScaffold<bool>
 
     public override string PropertyName => "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValue
                (BoolSimpleContentAsValue
@@ -67,7 +67,7 @@ public class ComplexContentAsValueNullableBool : FormattedMoldScaffold<bool?>
 
     public override string PropertyName => nameof(NullableBoolComplexContentAsValue);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this).AsValueOrNull
                (nameof(NullableBoolComplexContentAsValue)
               , NullableBoolComplexContentAsValue
@@ -88,7 +88,7 @@ public class SimpleContentAsValueNullableBool : FormattedMoldScaffold<bool?>
 
     public override string PropertyName => "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrNull
                (NullableBoolSimpleContentAsValue
@@ -113,7 +113,7 @@ public class ComplexContentAsValueSpanFormattable<TFmt> : FormattedMoldScaffold<
 
     public override string PropertyName => nameof(SpanFormattableComplexContentAsValue);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this).AsValue
                (nameof(SpanFormattableComplexContentAsValue)
               , SpanFormattableComplexContentAsValue
@@ -151,7 +151,7 @@ public class SimpleContentAsValueSpanFormattable<TFmt> : FormattedMoldScaffold<T
 
     public override string PropertyName => nameof(SpanFormattableSimpleContentAsValue);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValue
                (SpanFormattableSimpleContentAsValue
@@ -190,7 +190,7 @@ public struct ComplexStructContentAsValueSpanFormattable<TFmt> : ISingleProperty
 
     public string PropertyName => nameof(SpanFormattableComplexStructContentAsValue);
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValue
                (nameof(SpanFormattableComplexStructContentAsValue)
@@ -258,7 +258,7 @@ public struct SimpleStructContentAsValueSpanFormattable<TFmt> : ISinglePropertyT
 
     public string PropertyName => nameof(SpanFormattableSimpleStructContentAsValue);
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValue
                (nameof(SpanFormattableSimpleStructContentAsValue)
@@ -321,7 +321,7 @@ public class ComplexContentAsValueSpanFormattableOrNull<TFmt> : FormattedMoldSca
 
     public override string PropertyName => nameof(SpanFormattableOrNullComplexContentAsValue);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueOrNull
                (nameof(SpanFormattableOrNullComplexContentAsValue)
@@ -344,7 +344,7 @@ public class SimpleContentAsValueSpanFormattableOrNull<TFmt> : FormattedMoldScaf
 
     public override string PropertyName => "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrNull
                (SpanFormattableOrNullSimpleContentAsValue
@@ -367,7 +367,7 @@ public struct ComplexStructContentAsValueSpanFormattableOrNull<TFmt> : ISinglePr
 
     public string PropertyName => nameof(SpanFormattableOrNullComplexStructContentAsValue);
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueOrNull
                (nameof(SpanFormattableOrNullComplexStructContentAsValue)
@@ -412,7 +412,7 @@ public struct SimpleStructContentAsValueSpanFormattableOrNull<TFmt> : ISinglePro
 
     public string PropertyName => nameof(SpanFormattableOrNullSimpleStructContentAsValue);
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrNull
                (SpanFormattableOrNullSimpleStructContentAsValue
@@ -457,7 +457,7 @@ public class ComplexContentAsValueSpanFormattableOrDefault<TFmt> :
 
     public TFmt DefaultValue { get; set; } = default!;
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueOrDefault
                (nameof(SpanFormattableOrDefaultComplexContentAsValue)
@@ -483,7 +483,7 @@ public class SimpleContentAsValueNullableSpanFormattableOrStringDefault<TFmt> :
 
     public string DefaultValue { get; set; } = "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrDefault
                (SpanFormattableOrStringDefaultSimpleContentAsValueNullable
@@ -506,7 +506,7 @@ public class ComplexContentAsValueNullableStructSpanFormattableOrNull<TFmtStruct
 
     public override string PropertyName => nameof(NullableStructSpanFormattableOrNullComplexContentAsValue);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueOrNull
                (nameof(NullableStructSpanFormattableOrNullComplexContentAsValue)
@@ -529,7 +529,7 @@ public class SimpleContentAsValueNullableStructSpanFormattableOrNull<TFmtStruct>
 
     public override string PropertyName => "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrNull
                (NullableStructSpanFormattableOrNullSimpleContentAsValue,
@@ -553,7 +553,7 @@ public class ComplexContentAsValueNullableStructSpanFormattableOrDefault<TFmtStr
 
     public TFmtStruct DefaultValue { get; set; } = default!;
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueOrDefault
                (nameof(NullableStructSpanFormattableOrDefaultComplexContentAsValue)
@@ -579,7 +579,7 @@ public class SimpleContentAsValueNullableStructSpanFormattableOrDefault<TFmtStru
 
     public TFmtStruct DefaultValue { get; set; } = default!;
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrDefault
                (NullableStructSpanFormattableOrDefaultSimpleContentAsValue
@@ -613,7 +613,7 @@ public struct ComplexStructContentAsValueNullableStructSpanFormattableOrStringDe
 
     public string DefaultValue { get; set; } = "";
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this).AsValueOrNull
                (nameof(NullableStructSpanFormattableOrStringDefaultComplexStructContentAsValue)
               , NullableStructSpanFormattableOrStringDefaultComplexStructContentAsValue
@@ -667,7 +667,7 @@ public struct SimpleStructContentAsValueNullableStructSpanFormattableOrStringDef
 
     public string DefaultValue { get; set; } = "";
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this).AsValueOrNull
                (NullableStructSpanFormattableOrStringDefaultSimpleStructContentAsValue
               , tos.CallerContext.FormatString ?? ValueFormatString
@@ -711,7 +711,7 @@ public class ComplexContentAsValueNullableStructSpanFormattableOrStringDefault<T
 
     public string DefaultValue { get; set; } = "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueOrDefault
                ( nameof(NullableStructSpanFormattableOrStringDefaultComplexContentAsValue)
@@ -737,7 +737,7 @@ public class SimpleContentAsValueNullableStructSpanFormattableOrStringDefault<TF
 
     public string DefaultValue { get; set; } = "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrDefault
                (NullableStructSpanFormattableOrStringDefaultSimpleContentAsValue
@@ -762,7 +762,7 @@ public class ComplexContentAsValueCloakedBearer<TCloaked, TRevealBase> :
 
     public override string PropertyName => nameof(CloakedBearerComplexContentAsValue);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .RevealAsValue
                (nameof(CloakedBearerComplexContentAsValue)
@@ -788,7 +788,7 @@ public class SimpleContentAsValueCloakedBearer<TCloaked, TRevealBase> :
 
     public override string PropertyName => "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .RevealAsValue
                (CloakedBearerSimpleContentAsValue
@@ -813,7 +813,7 @@ public class ComplexContentAsValueCloakedBearerOrNull<TCloaked, TRevealBase> :
 
     public override string PropertyName => nameof(CloakedBearerOrNullComplexContentAsValue);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .RevealAsValueOrNull
                (nameof(CloakedBearerOrNullComplexContentAsValue)
@@ -839,7 +839,7 @@ public class SimpleContentAsValueCloakedBearerOrNull<TCloaked, TRevealBase> :
 
     public override string PropertyName => "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .RevealAsValueOrNull
                (CloakedBearerOrNullSimpleContentAsValue
@@ -866,7 +866,7 @@ public class ComplexContentAsValueCloakedBearerOrDefault<TCloaked, TRevealBase> 
 
     public string DefaultValue { get; set; } = "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .RevealAsValueOrDefault
                (nameof(CloakedBearerOrDefaultComplexContentAsValue)
@@ -895,7 +895,7 @@ public class SimpleContentAsValueCloakedBearerOrDefault<TCloaked, TRevealBase> :
 
     public string DefaultValue { get; set; } = "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .RevealAsValueOrDefault
                (CloakedBearerOrDefaultSimpleContentAsValue
@@ -919,7 +919,7 @@ public class ComplexContentAsValueNullableStructCloakedBearer<TCloakedStruct> :
 
     public override string PropertyName => nameof(NullableStructCloakedBearerComplexContentAsValue);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .RevealAsValue
                (nameof(NullableStructCloakedBearerComplexContentAsValue)
@@ -943,7 +943,7 @@ public class SimpleContentAsValueNullableStructCloakedBearer<TCloakedStruct> :
 
     public override string PropertyName => "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .RevealAsValue
                (NullableStructCloakedBearerSimpleContentAsValue
@@ -966,7 +966,7 @@ public class ComplexContentAsValueNullableStructCloakedBearerOrNull<TCloakedStru
 
     public override string PropertyName => nameof(NullableStructCloakedBearerOrNullComplexContentAsValue);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .RevealAsValueOrNull
                (nameof(NullableStructCloakedBearerOrNullComplexContentAsValue)
@@ -990,7 +990,7 @@ public class SimpleContentAsValueNullableCloakedBearerOrNull<TCloakedStruct> :
 
     public override string PropertyName => "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .RevealAsValueOrNull
                (NullableCloakedBearerOrNullSimpleContentAsValue
@@ -1016,7 +1016,7 @@ public class ComplexContentAsValueNullableStructCloakedBearerOrDefault<TCloakedS
 
     public string DefaultValue { get; set; } = "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .RevealAsValueOrDefault
                (nameof(NullableStructCloakedBearerOrDefaultComplexContentAsValue)
@@ -1043,7 +1043,7 @@ public class SimpleContentAsValueNullableCloakedBearerOrDefault<TCloakedStruct> 
 
     public string DefaultValue { get; set; } = "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .RevealAsValueOrDefault
                (NullableCloakedBearerOrDefaultSimpleContentAsValue
@@ -1067,7 +1067,7 @@ public class ComplexContentAsValueStringBearer<TBearer> : ProxyFormattedMoldScaf
 
     public override string PropertyName => nameof(StringBearerComplexContentAsValue);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .RevealAsValue
                (nameof(StringBearerComplexContentAsValue)
@@ -1090,7 +1090,7 @@ public class SimpleContentAsValueStringBearer<TBearer> : ProxyFormattedMoldScaff
 
     public override string PropertyName => nameof(StringBearerSimpleContentAsValue);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .RevealAsValue
                (StringBearerSimpleContentAsValue
@@ -1112,7 +1112,7 @@ public class ComplexContentAsValueStringBearerOrNull<TBearer> : ProxyFormattedMo
 
     public override string PropertyName => nameof(StringBearerOrNullComplexContentAsValue);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .RevealAsValueOrNull
                (nameof(StringBearerOrNullComplexContentAsValue)
@@ -1135,7 +1135,7 @@ public class SimpleContentAsValueStringBearerOrNull<TBearer> : ProxyFormattedMol
 
     public override string PropertyName => nameof(StringBearerOrNullSimpleContentAsValue);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .RevealAsValueOrNull
                (StringBearerOrNullSimpleContentAsValue
@@ -1159,7 +1159,7 @@ public class ComplexContentAsValueStringBearerOrStringDefault<TBearer> : ProxyFo
 
     public string DefaultValue { get; set; } = "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .RevealAsValueOrDefault
                (nameof(StringBearerOrStringDefaultComplexContentAsValue)
@@ -1184,7 +1184,7 @@ public class SimpleContentAsValueStringBearerOrStringDefault<TBearer> : ProxyFor
 
     public string DefaultValue { get; set; } = "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .RevealAsValueOrDefault
                (StringBearerOrStringDefaultSimpleContentAsValue, DefaultValue
@@ -1206,7 +1206,7 @@ public class ComplexContentAsValueNullableStructStringBearer<TBearerStruct> : Pr
 
     public override string PropertyName => nameof(NullableStructStringBearerComplexContentAsValue);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .RevealAsValue
                (nameof(NullableStructStringBearerComplexContentAsValue)
@@ -1229,7 +1229,7 @@ public class SimpleContentAsValueNullableStructStringBearer<TBearerStruct> : Pro
 
     public override string PropertyName => nameof(NullableStructStringBearerSimpleContentAsValue);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .RevealAsValue
                (NullableStructStringBearerSimpleContentAsValue
@@ -1251,7 +1251,7 @@ public class ComplexContentAsValueNullableStructStringBearerOrNull<TBearerStruct
 
     public override string PropertyName => nameof(NullableStructStringBearerOrNullComplexContentAsValue);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .RevealAsValueOrNull
                (nameof(NullableStructStringBearerOrNullComplexContentAsValue)
@@ -1274,7 +1274,7 @@ public class SimpleContentAsValueNullableStructStringBearerOrNull<TBearerStruct>
 
     public override string PropertyName => nameof(NullableStructStringBearerOrNullSimpleContentAsValue);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .RevealAsValueOrNull
                (NullableStructStringBearerOrNullSimpleContentAsValue
@@ -1298,7 +1298,7 @@ public class ComplexContentAsValueNullableStructStringBearerOrStringDefault<TBea
 
     public string DefaultValue { get; set; } = "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .RevealAsValueOrDefault
                (nameof(NullableStructStringBearerOrStringDefaultComplexContentAsValue)
@@ -1324,7 +1324,7 @@ public class SimpleContentAsValueNullableStructStringBearerOrStringDefault<TBear
 
     public string DefaultValue { get; set; } = "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .RevealAsValueOrDefault
                (NullableStructStringBearerOrStringDefaultSimpleContentAsValue
@@ -1353,7 +1353,7 @@ public class ComplexContentAsValueCharSpan : FormattedMoldScaffold<char[]>
         set => Value = value?.ToCharArray()!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValue
                (nameof(CharSpanComplexContentAsValue)
@@ -1382,7 +1382,7 @@ public class SimpleContentAsValueCharSpan : FormattedMoldScaffold<char[]>
         set => Value = value?.ToCharArray()!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValue
                (CharSpanSimpleContentAsValue.AsSpan()
@@ -1413,7 +1413,7 @@ public class ComplexContentAsValueCharSpanOrDefault : FormattedMoldScaffold<char
         set => Value = value?.ToCharArray()!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueOrDefault
                (nameof(CharSpanOrDefaultComplexContentAsValue)
@@ -1445,7 +1445,7 @@ public class SimpleContentAsValueCharSpanOrDefault : FormattedMoldScaffold<char[
         set => Value = value?.ToCharArray()!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrDefault
                (CharSpanOrDefaultSimpleContentAsValue.AsSpan()
@@ -1473,7 +1473,7 @@ public class ComplexContentAsValueCharSpanOrZero : FormattedMoldScaffold<char[]>
         set => Value = value?.ToCharArray()!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueOrZero
                ( nameof(CharSpanOrZeroComplexContentAsValue)
@@ -1501,7 +1501,7 @@ public class SimpleContentAsValueCharSpanOrZero : FormattedMoldScaffold<char[]>
         set => Value = value?.ToCharArray()!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrZero
                (CharSpanOrZeroSimpleContentAsValue.AsSpan()
@@ -1529,7 +1529,7 @@ public class ComplexContentAsValueReadOnlyCharSpan : FormattedMoldScaffold<strin
         set => Value = value!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValue
                (nameof(ReadOnlyCharSpanComplexContentAsValue)
@@ -1560,7 +1560,7 @@ public class SimpleContentAsValueReadOnlyCharSpan : FormattedMoldScaffold<string
         set => Value = value!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrDefault
                ((ReadOnlySpan<char>)ReadOnlyCharSpanSimpleContentAsValue
@@ -1589,7 +1589,7 @@ public class ComplexContentAsValueReadOnlyCharSpanOrNull : FormattedMoldScaffold
         set => Value = value!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueOrNull
                ((ReadOnlySpan<char>)nameof(ReadOnlyCharSpanOrNullComplexContentAsValue)
@@ -1618,7 +1618,7 @@ public class SimpleContentAsValueReadOnlyCharSpanOrNull : FormattedMoldScaffold<
         set => Value = value!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrNull
                ((ReadOnlySpan<char>)ReadOnlyCharSpanOrNullSimpleContentAsValue
@@ -1645,7 +1645,7 @@ public class ComplexContentContentAsValueReadOnlyCharSpanOrZero : FormattedMoldS
         set => Value = value!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueOrZero
                ( nameof(ReadOnlyCharSpanOrZeroComplexContentContentAsValue)
@@ -1673,7 +1673,7 @@ public class SimpleContentAsValueReadOnlyCharSpanOrZero : FormattedMoldScaffold<
         set => Value = value!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrZero
                ((ReadOnlySpan<char>)ReadOnlyCharSpanOrZeroSimpleContentAsValue
@@ -1703,7 +1703,7 @@ public class ComplexContentAsValueReadOnlyCharSpanOrStringDefault : FormattedMol
         set => Value = value!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueOrDefault
                (nameof(ReadOnlyCharSpanOrStringDefaultComplexContentAsValue)
@@ -1735,7 +1735,7 @@ public class SimpleContentAsValueReadOnlyCharSpanOrDefault : FormattedMoldScaffo
         set => Value = value!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrDefault
                ((ReadOnlySpan<char>)ReadOnlyCharSpanOrDefaultSimpleContentAsValue
@@ -1764,7 +1764,7 @@ public class ComplexContentAsValueString : FormattedMoldScaffold<string>
         set => Value = value!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValue
                (nameof(StringComplexContentAsValue)
@@ -1792,7 +1792,7 @@ public class SimpleContentAsValueString : FormattedMoldScaffold<string>, ISuppor
         set => Value = value!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValue
                (StringSimpleContentAsValue
@@ -1820,7 +1820,7 @@ public class ComplexContentAsValueStringOrNull : FormattedMoldScaffold<string>
         set => Value = value!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueOrNull
                (nameof(StringOrNullComplexContentAsValue)
@@ -1849,7 +1849,7 @@ public class SimpleContentAsValueStringOrNull : FormattedMoldScaffold<string>
         set => Value = value!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrNull
                (StringOrNullSimpleContentAsValue
@@ -1876,7 +1876,7 @@ public struct ComplexStructContentAsValueString : ISinglePropertyTestStringBeare
         set => Value = value!;
     }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueOrNull
                (nameof(StringComplexStructContentAsValue)
@@ -1912,7 +1912,7 @@ public struct SimpleStructContentAsValueString : ISinglePropertyTestStringBearer
         set => Value = value!;
     }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrNull
                (StringSimpleStructContentAsValue
@@ -1951,7 +1951,7 @@ public class ComplexContentAsValueStringRange : FormattedMoldScaffold<string>
         set => Value = value!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValue
                (nameof(StringRangeComplexContentAsValue)
@@ -1985,7 +1985,7 @@ public class SimpleContentAsValueStringRange : FormattedMoldScaffold<string>
         set => Value = value!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValue
                (StringRangeSimpleContentAsValue
@@ -2018,7 +2018,7 @@ public class ComplexContentAsValueStringRangeOrNull : FormattedMoldScaffold<stri
         set => Value = value!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueOrNull
                (nameof(StringRangeOrNullComplexContentAsValue)
@@ -2052,7 +2052,7 @@ public class SimpleContentAsValueStringRangeOrNull : FormattedMoldScaffold<strin
         set => Value = value!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrNull
                (StringRangeOrNullSimpleContentAsValue
@@ -2087,7 +2087,7 @@ public class ComplexContentAsValueStringRangeOrDefault : FormattedMoldScaffold<s
         set => Value = value!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueOrDefault
                (nameof(StringRangeOrDefaultComplexContentAsValue)
@@ -2124,7 +2124,7 @@ public class SimpleContentAsValueStringRangeOrDefault : FormattedMoldScaffold<st
         set => Value = value!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrDefault
                (StringRangeOrDefaultSimpleContentAsValue
@@ -2155,7 +2155,7 @@ public class ComplexContentAsValueCharArray : FormattedMoldScaffold<char[]>
         set => Value = value?.ToCharArray() ?? [];
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValue
                (nameof(CharArrayComplexContentAsValue)
@@ -2183,7 +2183,7 @@ public class SimpleContentAsValueCharArray : FormattedMoldScaffold<char[]>, ISup
         set => Value = value?.ToCharArray() ?? [];
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValue
                (CharArraySimpleContentAsValue
@@ -2214,7 +2214,7 @@ public class ComplexContentAsValueCharArrayRange : FormattedMoldScaffold<char[]>
         set => Value = value?.ToCharArray() ?? [];
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValue
                (nameof(CharArrayRangeComplexContentAsValue)
@@ -2248,7 +2248,7 @@ public class SimpleContentAsValueCharArrayRange : FormattedMoldScaffold<char[]>
         set => Value = value?.ToCharArray() ?? [];
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValue
                (CharArrayRangeSimpleContentAsValue
@@ -2281,7 +2281,7 @@ public class ComplexContentAsValueCharArrayRangeOrNull : FormattedMoldScaffold<c
         set => Value = value?.ToCharArray() ?? [];
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueOrNull
                (nameof(CharArrayRangeOrNullComplexContentAsValue)
@@ -2315,7 +2315,7 @@ public class SimpleContentAsValueCharArrayRangeOrNull : FormattedMoldScaffold<ch
         set => Value = value?.ToCharArray() ?? [];
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrNull
                (CharArrayRangeOrNullSimpleContentAsValue
@@ -2350,7 +2350,7 @@ public class ComplexContentAsValueCharArrayRangeOrStringDefault : FormattedMoldS
         set => Value = value?.ToCharArray() ?? [];
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueOrDefault
                (nameof(CharArrayRangeOrStringDefaultComplexContentAsValue)
@@ -2387,7 +2387,7 @@ public class SimpleContentAsValueCharArrayRangeOrStringDefault : FormattedMoldSc
         set => Value = value?.ToCharArray() ?? [];
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrDefault
                (CharArrayRangeOrStringDefaultSimpleContentAsValue
@@ -2427,7 +2427,7 @@ public class ComplexContentAsValueCharSequence<TCharSeq> : FormattedMoldScaffold
         }
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValue
                (nameof(CharSequenceComplexContentAsValue)
@@ -2466,7 +2466,7 @@ public class SimpleContentAsValueCharSequence<TCharSeq> : FormattedMoldScaffold<
         }
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValue
                (CharSequenceSimpleContentAsValue
@@ -2505,7 +2505,7 @@ public class ComplexContentAsValueCharSequenceRange<TCharSeq> : FormattedMoldSca
         }
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValue
                (nameof(CharSequenceRangeComplexContentAsValue)
@@ -2548,7 +2548,7 @@ public class SimpleContentAsValueCharSequenceRange<TCharSeq> : FormattedMoldScaf
         }
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValue
                (CharSequenceRangeSimpleContentAsValue
@@ -2589,7 +2589,7 @@ public class ComplexContentAsValueCharSequenceRangeOrNull<TCharSeq> : FormattedM
         }
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueOrNull
                (nameof(CharSequenceRangeOrNullComplexContentAsValue)
@@ -2631,7 +2631,7 @@ public class SimpleContentAsValueCharSequenceRangeOrNull<TCharSeq> : FormattedMo
         }
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrNull
                (CharSequenceRangeOrNullSimpleContentAsValue
@@ -2675,7 +2675,7 @@ public class ComplexContentAsValueCharSequenceRangeOrStringDefault<TCharSeq> : F
         }
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueOrDefault
                (nameof(CharSequenceRangeOrStringDefaultComplexContentAsValue)
@@ -2720,7 +2720,7 @@ public class SimpleContentAsValueCharSequenceRangeOrStringDefault<TCharSeq> : Fo
         }
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrDefault
                (CharSequenceRangeOrStringDefaultSimpleContentAsValue
@@ -2751,7 +2751,7 @@ public class ComplexContentAsValueStringBuilder : FormattedMoldScaffold<StringBu
         set => Value = new StringBuilder(value);
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValue
                (nameof(StringBuilderComplexContentAsValue)
@@ -2780,7 +2780,7 @@ public class SimpleContentAsValueStringBuilder : FormattedMoldScaffold<StringBui
         set => Value = new StringBuilder(value);
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValue
                (StringBuilderSimpleContentAsValue
@@ -2811,7 +2811,7 @@ public class ComplexContentAsValueStringBuilderRange : FormattedMoldScaffold<Str
         set => Value = new StringBuilder(value);
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValue
                (nameof(StringBuilderRangeComplexContentAsValue)
@@ -2845,7 +2845,7 @@ public class SimpleContentAsValueStringBuilderRange : FormattedMoldScaffold<Stri
         set => Value = new StringBuilder(value);
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValue
                (StringBuilderRangeSimpleContentAsValue
@@ -2878,7 +2878,7 @@ public class ComplexContentAsValueStringBuilderRangeOrNull : FormattedMoldScaffo
         set => Value = new StringBuilder(value);
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueOrNull
                (nameof(StringBuilderRangeOrNullComplexContentAsValue)
@@ -2912,7 +2912,7 @@ public class SimpleContentAsValueStringBuilderRangeOrNull : FormattedMoldScaffol
         set => Value = new StringBuilder(value);
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrNull
                (StringBuilderRangeOrNullSimpleContentAsValue
@@ -2947,7 +2947,7 @@ public class ComplexContentAsValueStringBuilderRangeOrStringDefault : FormattedM
         set => Value = new StringBuilder(value);
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueOrDefault
                (nameof(StringBuilderRangeOrStringDefaultComplexContentAsValue)
@@ -2983,7 +2983,7 @@ public class SimpleContentAsValueStringBuilderRangeOrDefault : FormattedMoldScaf
         set => Value = new StringBuilder(value);
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueOrDefault
                (StringBuilderRangeOrDefaultSimpleContentAsValue
@@ -3007,7 +3007,7 @@ public class ComplexContentAsValueMatch<TAny> : FormattedMoldScaffold<TAny?>
 
     public override string PropertyName => nameof(MatchComplexContentAsValue);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueMatch
                (nameof(MatchComplexContentAsValue)
@@ -3029,7 +3029,7 @@ public class SimpleContentAsValueMatch<TAny> : FormattedMoldScaffold<TAny?>
 
     public override string PropertyName => nameof(MatchSimpleContentAsValue);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueMatch
                (MatchSimpleContentAsValue
@@ -3052,7 +3052,7 @@ public class ComplexContentAsValueMatchOrNull<TAny> : FormattedMoldScaffold<TAny
 
     public string DefaultValue { get; set; } = "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueMatchOrNull
                (nameof(MatchOrNullComplexContentAsValue)
@@ -3076,7 +3076,7 @@ public class SimpleContentAsValueMatchOrNull<TAny> : FormattedMoldScaffold<TAny?
 
     public string DefaultValue { get; set; } = "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueMatchOrNull
                (MatchOrNullSimpleContentAsValue
@@ -3100,7 +3100,7 @@ public class ComplexContentAsValueMatchOrStringDefault<TAny> : FormattedMoldScaf
 
     public string DefaultValue { get; set; } = "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexContentType(this)
            .AsValueMatchOrDefault
                (nameof(MatchOrStringDefaultComplexContentAsValue)
@@ -3126,7 +3126,7 @@ public class SimpleContentAsValueMatchOrStringDefault<TAny> : FormattedMoldScaff
 
     public string DefaultValue { get; set; } = "";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleContentType(this)
            .AsValueMatchOrDefault
                (MatchOrStringDefaultSimpleContentAsValue

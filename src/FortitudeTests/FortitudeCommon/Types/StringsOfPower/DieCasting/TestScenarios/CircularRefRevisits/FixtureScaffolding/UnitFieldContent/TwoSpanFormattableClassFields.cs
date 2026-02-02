@@ -37,7 +37,7 @@ public class TwoSpanFormattableFields<TFmt>: IStringBearer, ISupportFormattingFl
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(FirstSpanFormattableField)
@@ -86,7 +86,7 @@ public class TwoSpanFormattableFirstAsSimpleCloakedValueContent<TFmt>: IStringBe
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(FirstSpanFormattableField)
@@ -135,7 +135,7 @@ public class TwoSpanFormattableSecondAsSimpleCloakedValueContent<TFmt>: IStringB
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(FirstSpanFormattableField)
@@ -184,7 +184,7 @@ public class TwoSpanFormattableFirstAsSimpleCloakedStringContent<TFmt>: IStringB
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(FirstSpanFormattableField)
@@ -233,7 +233,7 @@ public class TwoSpanFormattableSecondAsSimpleCloakedStringContent<TFmt>: IString
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(FirstSpanFormattableField)
@@ -285,7 +285,7 @@ public class TwoSpanFormattableFirstAsComplexCloakedValueContent<TFmt>: IStringB
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(FirstSpanFormattableField)
@@ -342,7 +342,7 @@ public class TwoSpanFormattableSecondAsComplexCloakedValueContent<TFmt>: IString
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(FirstSpanFormattableField)
@@ -394,7 +394,7 @@ public class TwoSpanFormattableFirstAsComplexCloakedStringContent<TFmt>: IString
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(FirstSpanFormattableField)
@@ -447,7 +447,7 @@ public class TwoSpanFormattableSecondAsComplexCloakedStringContent<TFmt>: IStrin
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(FirstSpanFormattableField)

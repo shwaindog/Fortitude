@@ -107,7 +107,7 @@ public class SourceTickerId : ReusableObject<ISourceTickerId>, ISourceTickerId, 
 
     protected string SourceInstrumentIdToString => $"{nameof(SourceInstrumentId)}: {SourceInstrumentId}";
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
+    public virtual AppendSummary RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(SourceId), SourceId)
             .Field.AlwaysAdd(nameof(InstrumentId), InstrumentId)

@@ -176,7 +176,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     WrittenAsFlags CollectionNextItemFormat(IStringBuilder sb, bool? item
       , int retrieveCount, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    WrittenAsFlags CollectionNextItemFormat<TFmt>(IStringBuilder sb, TFmt item
+    AppendSummary CollectionNextItemFormat<TFmt>(ISecretStringOfPower tos, TFmt item
       , int retrieveCount, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable?;
 
@@ -184,25 +184,25 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
       , int retrieveCount, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable;
 
-    WrittenAsFlags CollectionNextItemFormat<TCloaked, TCloakedBase>(ISecretStringOfPower tos, TCloaked? item
+    AppendSummary CollectionNextItemFormat<TCloaked, TCloakedBase>(ISecretStringOfPower tos, TCloaked? item
       , int retrieveCount, PalantírReveal<TCloakedBase> styler, string? formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TCloakedBase?
         where TCloakedBase : notnull;
 
-    WrittenAsFlags CollectionNextItemFormat(IStringBuilder sb, string? item, int retrieveCount, string? formatString = null
+    AppendSummary CollectionNextItemFormat(ISecretStringOfPower tos, string? item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    WrittenAsFlags CollectionNextItemFormat(IStringBuilder sb, char[]? item, int retrieveCount, string? formatString = null
+    AppendSummary CollectionNextItemFormat(ISecretStringOfPower tos, char[]? item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    WrittenAsFlags CollectionNextCharSeqFormat<TCharSeq>(IStringBuilder sb, TCharSeq item, int retrieveCount, string? formatString = null
+    AppendSummary CollectionNextCharSeqFormat<TCharSeq>(ISecretStringOfPower tos, TCharSeq item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence?;
 
-    WrittenAsFlags CollectionNextItemFormat(IStringBuilder sb, StringBuilder? item, int retrieveCount, string? formatString = null
+    AppendSummary CollectionNextItemFormat(ISecretStringOfPower tos, StringBuilder? item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    WrittenAsFlags CollectionNextStringBearerFormat<TBearer>(ISecretStringOfPower tos, TBearer item, int retrieveCount, string? formatString
+    AppendSummary CollectionNextStringBearerFormat<TBearer>(ISecretStringOfPower tos, TBearer item, int retrieveCount, string? formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?;
 
@@ -260,12 +260,12 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     WrittenAsFlags FormatFieldName(IStringBuilder sb, StringBuilder source, int sourceFrom = 0
       , string? formatString = null, int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    StateExtractStringRange FormatFieldName<TCloaked, TRevealBase>(ISecretStringOfPower tos, TCloaked value, PalantírReveal<TRevealBase> valueRevealer
+    AppendSummary FormatFieldName<TCloaked, TRevealBase>(ISecretStringOfPower tos, TCloaked value, PalantírReveal<TRevealBase> valueRevealer
       , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull;
 
-    StateExtractStringRange FormatFieldName<TBearer>(ISecretStringOfPower tos, TBearer styledObj
+    AppendSummary FormatFieldName<TBearer>(ISecretStringOfPower tos, TBearer styledObj
       , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?;
 
     WrittenAsFlags FormatFieldContentsMatch<TAny>(IStringBuilder sb, TAny source, string? formatString = null
@@ -298,12 +298,12 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     WrittenAsFlags FormatFieldContents(IStringBuilder sb, StringBuilder source, int sourceFrom = 0, string? formatString = null
       , int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    StateExtractStringRange FormatFieldContents<TCloaked, TRevealBase>(ISecretStringOfPower tos, TCloaked value, PalantírReveal<TRevealBase> valueRevealer
+    AppendSummary FormatFieldContents<TCloaked, TRevealBase>(ISecretStringOfPower tos, TCloaked value, PalantírReveal<TRevealBase> valueRevealer
       , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull;
 
-    StateExtractStringRange FormatFieldContents<TBearer>(ISecretStringOfPower tos, TBearer styledObj, string? callerFormatString = null
+    AppendSummary FormatFieldContents<TBearer>(ISecretStringOfPower tos, TBearer styledObj, string? callerFormatString = null
       , FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?;
 

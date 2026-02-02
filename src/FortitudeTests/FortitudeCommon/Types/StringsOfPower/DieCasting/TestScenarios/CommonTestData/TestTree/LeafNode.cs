@@ -41,7 +41,7 @@ public class LeafNode : Node, IChildNode
 
     public int LeafInstanceId { get; }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(LeafInstanceId), LeafInstanceId)
            .AddBaseRevealStateFields(this)

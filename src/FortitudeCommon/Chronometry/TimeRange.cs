@@ -121,7 +121,7 @@ public static class TimeRangeExtensions
     public static PalantírReveal<UnboundedTimeRange> UnboundedTimeRangeFormatter
         = FormatUnboundedTimeRangeAppender;
 
-    public static StateExtractStringRange FormatUnboundedTimeRangeAppender(this UnboundedTimeRange timeRange, ITheOneString sbc)
+    public static AppendSummary FormatUnboundedTimeRangeAppender(this UnboundedTimeRange timeRange, ITheOneString sbc)
     {
         return sbc.StartComplexType( timeRange)
            .Field.AlwaysAdd(nameof(timeRange.FromTime), timeRange.FromTime, "{0:yyyy-MM-dd HH:mm:ss}")
@@ -131,7 +131,7 @@ public static class TimeRangeExtensions
     public static PalantírReveal<UnboundedTimeSpanRange> UnboundedTimeSpanRangeFormatter
         = FormatUnboundedTimeSpanRangeAppender;
 
-    public static StateExtractStringRange FormatUnboundedTimeSpanRangeAppender(this UnboundedTimeSpanRange timeRange, ITheOneString sbc)
+    public static AppendSummary FormatUnboundedTimeSpanRangeAppender(this UnboundedTimeSpanRange timeRange, ITheOneString sbc)
     {
         return sbc.StartComplexType(timeRange)
            .Field.AlwaysAdd(nameof(timeRange.LowerLimit), timeRange.LowerLimit, "{0:dd HH:mm:ss}")
@@ -141,7 +141,7 @@ public static class TimeRangeExtensions
     public static PalantírReveal<BoundedTimeRange> BoundedTimeRangeFormatter
         = FormatBoundedTimeRangeAppender;
 
-    public static StateExtractStringRange FormatBoundedTimeRangeAppender(this BoundedTimeRange timeRange, ITheOneString sbc)
+    public static AppendSummary FormatBoundedTimeRangeAppender(this BoundedTimeRange timeRange, ITheOneString sbc)
     {
         return sbc.StartComplexType(timeRange)
            .Field.AlwaysAdd(nameof(timeRange.FromTime), timeRange.FromTime, "{0:yyyy-MM-dd HH:mm:ss}")
@@ -152,7 +152,7 @@ public static class TimeRangeExtensions
     public static PalantírReveal<BoundedTimeSpanRange> BoundedTimeSpanRangeFormatter
         = FormatBoundedTimeSpanRangeAppender;
 
-    public static StateExtractStringRange FormatBoundedTimeSpanRangeAppender(this BoundedTimeSpanRange timeRange, ITheOneString sbc)
+    public static AppendSummary FormatBoundedTimeSpanRangeAppender(this BoundedTimeSpanRange timeRange, ITheOneString sbc)
     {
         return sbc.StartComplexType(timeRange)
            .Field.AlwaysAdd(nameof(timeRange.LowerLimit), timeRange.LowerLimit, "{0:dd HH:mm:ss}")

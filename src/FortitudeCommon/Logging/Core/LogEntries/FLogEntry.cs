@@ -293,7 +293,7 @@ public class FLogEntry : ReusableObject<IFLogEntry>, IMutableFLogEntry
         return this;
     }
 
-    public StateExtractStringRange RevealState(ITheOneString tos)
+    public AppendSummary RevealState(ITheOneString tos)
     {
         using var tb =
             tos.StartComplexType(this)

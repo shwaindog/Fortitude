@@ -36,7 +36,7 @@ public class OrderedRootNode : OrderedParentNode<IChildNode?>
 
     public override int DepthToRoot => 0;
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(RootInstanceId), RootInstanceId)
            .AddBaseRevealStateFields(this)

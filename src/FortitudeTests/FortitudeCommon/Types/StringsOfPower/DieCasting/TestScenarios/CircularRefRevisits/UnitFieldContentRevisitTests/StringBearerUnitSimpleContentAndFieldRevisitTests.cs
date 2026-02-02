@@ -24,6 +24,17 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
         twoSameOneBranchTwoSameLeafNodesOneSimpleCloakedStringOneFieldWithDefaultRevisitSettingsExpect;
     private static InputBearerExpect<TwoStringBearersSecondAsSimpleCloakedStringContent<BinaryBranchNode<LeafNode>>>?
         twoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect;
+    
+    private static InputBearerExpect<TwoStringBearersFields<BinaryBranchNode<LeafNode>>>?
+        twoSameOneBranchTwoSameLeafNodesWithToggleStyleAsStringLocalTrackingExpect;
+    private static InputBearerExpect<TwoStringBearersFirstAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>>>?
+        twoSameOneBranchTwoSameLeafNodesOneSimpleCloakedValueOneFieldWithToggleStyleAsStringLocalTrackingExpect;
+    private static InputBearerExpect<TwoStringBearersSecondAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>>>?
+        twoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedValueWithToggleStyleAsStringLocalTrackingExpect;
+    private static InputBearerExpect<TwoStringBearersFirstAsSimpleCloakedStringContent<BinaryBranchNode<LeafNode>>>?
+        twoSameOneBranchTwoSameLeafNodesOneSimpleCloakedStringOneFieldWithToggleStyleAsStringLocalTrackingxpect;
+    private static InputBearerExpect<TwoStringBearersSecondAsSimpleCloakedStringContent<BinaryBranchNode<LeafNode>>>?
+        twoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedStringWithToggleStyleAsStringLocalTrackingExpect;
 
     [ClassInitialize]
     public static void EnsureBaseClassInitialized(TestContext testContext) =>

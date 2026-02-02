@@ -35,7 +35,7 @@ public class TwoStringFields: IStringBearer, ISupportFormattingFlags, ISupportsV
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(FirstStringField)
@@ -83,7 +83,7 @@ public class TwoStringsFirstAsSimpleCloakedValueContent: IStringBearer, ISupport
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(FirstStringField)
@@ -131,7 +131,7 @@ public class TwoStringsSecondAsSimpleCloakedValueContent: IStringBearer, ISuppor
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(FirstStringField)
@@ -179,7 +179,7 @@ public class TwoStringsFirstAsSimpleCloakedStringContent: IStringBearer, ISuppor
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(FirstStringField)
@@ -227,7 +227,7 @@ public class TwoStringsSecondAsSimpleCloakedStringContent: IStringBearer, ISuppo
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(FirstStringField)
@@ -275,7 +275,7 @@ public class TwoStringsFirstAsComplexCloakedValueContent: IStringBearer, ISuppor
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(FirstStringField)
@@ -323,7 +323,7 @@ public class TwoStringsSecondAsComplexCloakedValueContent: IStringBearer, ISuppo
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(FirstStringField)
@@ -371,7 +371,7 @@ public class TwoStringsFirstAsComplexCloakedStringContent: IStringBearer, ISuppo
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(FirstStringField)
@@ -419,7 +419,7 @@ public class TwoStringsSecondAsComplexCloakedStringContent: IStringBearer, ISupp
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(FirstStringField)

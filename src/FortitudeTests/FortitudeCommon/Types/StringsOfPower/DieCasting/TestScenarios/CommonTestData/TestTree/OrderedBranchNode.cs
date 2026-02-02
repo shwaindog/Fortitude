@@ -39,7 +39,7 @@ public class OrderedBranchNode<TChild> : OrderedParentNode<TChild>, IChildNode
 
     public int BranchInstanceId { get; }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(BranchInstanceId), BranchInstanceId)
            .AddBaseRevealStateFields(this)

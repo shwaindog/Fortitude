@@ -21,7 +21,7 @@ public class FieldKeyValueDictionaryWhenPopulatedWithSelectKeysArrayStringBearer
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeys
                (nameof(WhenPopulatedWithSelectKeysFromArray)
@@ -47,7 +47,7 @@ public class FieldKeyValueDictionaryWhenPopulatedWithSelectKeysSpanStringBearer<
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeys
                (nameof(WhenPopulatedWithSelectKeysFromSpan)
@@ -73,7 +73,7 @@ public class FieldKeyValueDictionaryWhenPopulatedWithSelectKeysReadOnlySpanStrin
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeys
                (nameof(WhenPopulatedWithSelectKeysFromReadOnlySpan)
@@ -99,7 +99,7 @@ public class FieldKeyValueDictionaryWhenPopulatedWithSelectKeysListStringBearer<
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeys
                (nameof(WhenPopulatedWithSelectKeysFromList)
@@ -125,7 +125,7 @@ public class FieldKeyValueDictionaryWhenPopulatedWithSelectKeysEnumerableStringB
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromEnumerable );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeysEnumerate
                (nameof(WhenPopulatedWithSelectKeysFromEnumerable)
@@ -152,7 +152,7 @@ public class FieldKeyValueDictionaryWhenPopulatedWithSelectKeysEnumeratorStringB
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumerator );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeysEnumerate
                (nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumerator)
@@ -180,7 +180,7 @@ public class FieldKeyValueRevealerDictionaryWhenPopulatedWithSelectKeysArrayStri
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromArrayValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeys
                (nameof(WhenPopulatedWithSelectKeysFromArrayValueRevealerKeyFormatString)
@@ -208,7 +208,7 @@ public class FieldKeyStructValueRevealerDictionaryWhenPopulatedWithSelectKeysArr
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromArrayValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeys
                (nameof(WhenPopulatedWithSelectKeysFromArrayValueRevealerKeyFormatString)
@@ -237,7 +237,7 @@ public class FieldKeyValueRevealerDictionaryWhenPopulatedWithSelectKeysSpanStrin
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromSpanValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeys
                (nameof(WhenPopulatedWithSelectKeysFromSpanValueRevealerKeyFormatString)
@@ -265,7 +265,7 @@ public class FieldKeyStructValueRevealerDictionaryWhenPopulatedWithSelectKeysSpa
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromSpanValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeys
                (nameof(WhenPopulatedWithSelectKeysFromSpanValueRevealerKeyFormatString)
@@ -294,7 +294,7 @@ public class FieldKeyValueRevealerDictionaryWhenPopulatedWithSelectKeysReadOnlyS
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeys
                (nameof(WhenPopulatedWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString)
@@ -324,7 +324,7 @@ public class FieldKeyStructValueRevealerDictionaryWhenPopulatedWithSelectKeysRea
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeys
                (nameof(WhenPopulatedWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString)
@@ -355,7 +355,7 @@ public class FieldKeyValueRevealerDictionaryWhenPopulatedWithSelectKeysListStrin
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromListValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeys
                (nameof(WhenPopulatedWithSelectKeysFromListValueRevealerKeyFormatString)
@@ -383,7 +383,7 @@ public class FieldKeyStructValueRevealerDictionaryWhenPopulatedWithSelectKeysLis
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromListValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeys
                (nameof(WhenPopulatedWithSelectKeysFromListValueRevealerKeyFormatString)
@@ -412,7 +412,7 @@ public class FieldKeyValueRevealerDictionaryWhenPopulatedWithSelectKeysEnumerabl
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeysEnumerate
                (nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings)
@@ -441,7 +441,7 @@ public class FieldKeyStructValueRevealerDictionaryWhenPopulatedWithSelectKeysEnu
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeysEnumerate
                (nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings)
@@ -471,7 +471,7 @@ public class FieldKeyValueRevealerDictionaryWhenPopulatedWithSelectKeysEnumerato
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeysEnumerate
                (nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings)
@@ -499,7 +499,7 @@ public class FieldKeyStructValueRevealerDictionaryWhenPopulatedWithSelectKeysEnu
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeysEnumerate
                (nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings)
@@ -529,7 +529,7 @@ public class FieldKeyRevealerValueRevealerDictionaryWhenPopulatedWithSelectKeysA
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromArrayBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeys
                (nameof(WhenPopulatedWithSelectKeysFromArrayBothRevealers)
@@ -558,7 +558,7 @@ public class FieldKeyRevealerStructValueRevealerDictionaryWhenPopulatedWithSelec
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromArrayBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeys
                (nameof(WhenPopulatedWithSelectKeysFromArrayBothRevealers)
@@ -588,7 +588,7 @@ public class FieldKeyRevealerValueRevealerDictionaryWhenPopulatedWithSelectKeysS
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromSpanBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeys
                (nameof(WhenPopulatedWithSelectKeysFromSpanBothRevealers)
@@ -617,7 +617,7 @@ public class FieldKeyRevealerStructValueRevealerDictionaryWhenPopulatedWithSelec
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromSpanBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeys
                (nameof(WhenPopulatedWithSelectKeysFromSpanBothRevealers)
@@ -648,7 +648,7 @@ public class FieldKeyRevealerValueRevealerDictionaryWhenPopulatedWithSelectKeysR
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromReadOnlySpanBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeys
                (nameof(WhenPopulatedWithSelectKeysFromReadOnlySpanBothRevealers)
@@ -678,7 +678,7 @@ public class FieldKeyRevealerStructValueRevealerDictionaryWhenPopulatedWithSelec
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromReadOnlySpanBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeys
                (nameof(WhenPopulatedWithSelectKeysFromReadOnlySpanBothRevealers)
@@ -708,7 +708,7 @@ public class FieldKeyRevealerValueRevealerDictionaryWhenPopulatedWithSelectKeysL
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromListBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeys
                (nameof(WhenPopulatedWithSelectKeysFromListBothRevealers)
@@ -737,7 +737,7 @@ public class FieldKeyRevealerStructValueRevealerDictionaryWhenPopulatedWithSelec
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysFromListBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeys
                (nameof(WhenPopulatedWithSelectKeysFromListBothRevealers)
@@ -767,7 +767,7 @@ public class FieldKeyRevealerValueRevealerDictionaryWhenPopulatedWithSelectKeysE
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumerableBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeysEnumerate
                (nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumerableBothRevealers)
@@ -797,7 +797,7 @@ public class FieldKeyRevealerStructValueRevealerDictionaryWhenPopulatedWithSelec
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumerableBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeysEnumerate
                (nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumerableBothRevealers)
@@ -828,7 +828,7 @@ public class FieldKeyRevealerValueRevealerDictionaryWhenPopulatedWithSelectKeysE
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumeratorBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeysEnumerate
                (nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumeratorBothRevealers)
@@ -857,7 +857,7 @@ public class FieldKeyRevealerStructValueRevealerDictionaryWhenPopulatedWithSelec
 
     public override string PropertyName => nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumeratorBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedWithSelectKeysEnumerate
                (nameof(WhenPopulatedWithSelectKeysKeyValuePairEnumeratorBothRevealers)

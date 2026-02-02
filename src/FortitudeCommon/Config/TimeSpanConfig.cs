@@ -181,7 +181,7 @@ public class TimeSpanConfig: ConfigSection, ITimeSpanConfig
         }
     }
 
-    public StateExtractStringRange RevealState(ITheOneString tos)
+    public AppendSummary RevealState(ITheOneString tos)
     {
         return tos.StartComplexType( this)
            .Field.AlwaysAdd(nameof(Days), Days)

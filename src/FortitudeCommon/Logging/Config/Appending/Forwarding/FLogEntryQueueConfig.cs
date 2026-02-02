@@ -186,7 +186,7 @@ public class FLogEntryQueueConfig : FLogConfig, IMutableFLogEntryQueueConfig
         return hashCode;
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public virtual AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(QueueSize), QueueSize)
            .Field.AlwaysAdd(nameof(QueueFullHandling), QueueFullHandling)

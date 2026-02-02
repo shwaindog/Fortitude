@@ -57,7 +57,7 @@ public class NullAppenderConfig : AppenderDefinitionConfig, INullAppenderConfig
         return hashCode;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .AddBaseRevealStateFields(this).Complete();
 }

@@ -20,7 +20,7 @@ public class FieldKeyValueDictionaryAlwaysWithSelectKeysArrayStringBearer<TKey, 
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromArray)
@@ -46,7 +46,7 @@ public class FieldKeyValueDictionaryAlwaysWithSelectKeysSpanStringBearer<TKey, T
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromSpan)
@@ -72,7 +72,7 @@ public class FieldKeyValueDictionaryAlwaysWithSelectKeysReadOnlySpanStringBearer
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromReadOnlySpan)
@@ -98,7 +98,7 @@ public class FieldKeyValueDictionaryAlwaysWithSelectKeysListStringBearer<TKey, T
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromList)
@@ -124,7 +124,7 @@ public class FieldKeyValueDictionaryAlwaysWithSelectKeysEnumerableStringBearer<T
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromEnumerable );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
                (nameof(AlwaysWithSelectKeysFromEnumerable)
@@ -151,7 +151,7 @@ public class FieldKeyValueDictionaryAlwaysWithSelectKeysEnumeratorStringBearer<T
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumerator );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumerator)
@@ -179,7 +179,7 @@ public class FieldKeyValueRevealerDictionaryAlwaysWithSelectKeysArrayStringBeare
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromArrayValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromArrayValueRevealerKeyFormatString)
@@ -207,7 +207,7 @@ public class FieldKeyStructValueRevealerDictionaryAlwaysWithSelectKeysArrayStrin
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromArrayValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromArrayValueRevealerKeyFormatString)
@@ -236,7 +236,7 @@ public class FieldKeyValueRevealerDictionaryAlwaysWithSelectKeysSpanStringBearer
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromSpanValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromSpanValueRevealerKeyFormatString)
@@ -264,7 +264,7 @@ public class FieldKeyStructValueRevealerDictionaryAlwaysWithSelectKeysSpanString
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromSpanValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromSpanValueRevealerKeyFormatString)
@@ -293,7 +293,7 @@ public class FieldKeyValueRevealerDictionaryAlwaysWithSelectKeysReadOnlySpanStri
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString)
@@ -321,7 +321,7 @@ public class FieldKeyStructValueRevealerDictionaryAlwaysWithSelectKeysReadOnlySp
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString)
@@ -350,7 +350,7 @@ public class FieldKeyValueRevealerDictionaryAlwaysWithSelectKeysListStringBearer
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromListValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromListValueRevealerKeyFormatString)
@@ -378,7 +378,7 @@ public class FieldKeyStructValueRevealerDictionaryAlwaysWithSelectKeysListString
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromListValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromListValueRevealerKeyFormatString)
@@ -407,7 +407,7 @@ public class FieldKeyValueRevealerDictionaryAlwaysWithSelectKeysEnumerableString
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings)
@@ -436,7 +436,7 @@ public class FieldKeyStructValueRevealerDictionaryAlwaysWithSelectKeysEnumerable
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings)
@@ -466,7 +466,7 @@ public class FieldKeyValueRevealerDictionaryAlwaysWithSelectKeysEnumeratorString
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings)
@@ -494,7 +494,7 @@ public class FieldKeyStructValueRevealerDictionaryAlwaysWithSelectKeysEnumerator
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings)
@@ -524,7 +524,7 @@ public class FieldKeyRevealerValueRevealerDictionaryAlwaysWithSelectKeysArrayStr
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromArrayBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromArrayBothRevealers)
@@ -553,7 +553,7 @@ public class FieldKeyRevealerStructValueRevealerDictionaryAlwaysWithSelectKeysAr
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromArrayBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromArrayBothRevealers)
@@ -583,7 +583,7 @@ public class FieldKeyRevealerValueRevealerDictionaryAlwaysWithSelectKeysSpanStri
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromSpanBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromSpanBothRevealers)
@@ -612,7 +612,7 @@ public class FieldKeyRevealerStructValueRevealerDictionaryAlwaysWithSelectKeysSp
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromSpanBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromSpanBothRevealers)
@@ -643,7 +643,7 @@ public class FieldKeyRevealerValueRevealerDictionaryAlwaysWithSelectKeysReadOnly
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromReadOnlySpanBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromReadOnlySpanBothRevealers)
@@ -673,7 +673,7 @@ public class FieldKeyRevealerStructValueRevealerDictionaryAlwaysWithSelectKeysRe
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromReadOnlySpanBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromReadOnlySpanBothRevealers)
@@ -703,7 +703,7 @@ public class FieldKeyRevealerValueRevealerDictionaryAlwaysWithSelectKeysListStri
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromListBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromListBothRevealers)
@@ -732,7 +732,7 @@ public class FieldKeyRevealerStructValueRevealerDictionaryAlwaysWithSelectKeysLi
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysFromListBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeys
                (nameof(AlwaysWithSelectKeysFromListBothRevealers)
@@ -762,7 +762,7 @@ public class FieldKeyRevealerValueRevealerDictionaryAlwaysWithSelectKeysEnumerab
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumerableBothRevealers );
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumerableBothRevealers)
@@ -792,7 +792,7 @@ public class FieldKeyRevealerStructValueRevealerDictionaryAlwaysWithSelectKeysEn
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumerableBothRevealers );
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumerableBothRevealers)
@@ -823,7 +823,7 @@ public class FieldKeyRevealerValueRevealerDictionaryAlwaysWithSelectKeysEnumerat
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorBothRevealers)
@@ -852,7 +852,7 @@ public class FieldKeyRevealerStructValueRevealerDictionaryAlwaysWithSelectKeysEn
 
     public override string PropertyName => nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorBothRevealers), AlwaysWithSelectKeysKeyValuePairEnumeratorBothRevealers

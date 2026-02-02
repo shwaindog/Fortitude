@@ -903,7 +903,7 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
         return CompareTo(toCompare) == 0;
     }
 
-    public StateExtractStringRange RevealState(ITheOneString tos)
+    public AppendSummary RevealState(ITheOneString tos)
     {
         return
             tos.StartComplexContentType(this)

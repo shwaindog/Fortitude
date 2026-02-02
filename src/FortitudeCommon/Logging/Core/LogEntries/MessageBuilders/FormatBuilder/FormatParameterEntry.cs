@@ -798,7 +798,7 @@ public static class FLogAdditionalFormatterParameterEntryExtensions
         where TIFormatEntry : class, IFLogMessageBuilder =>
         ensureRef.ToStringAppender(paramValue, callMemberName);
 
-    public static FLogStringAppender ToStringAppender<TFormatEntryImpl, TIFormatEntry>(this StateExtractStringRange? stb, FLogStringAppender fsa)
+    public static FLogStringAppender ToStringAppender<TFormatEntryImpl, TIFormatEntry>(this AppendSummary? stb, FLogStringAppender fsa)
         where TFormatEntryImpl : FormatParameterEntry<TIFormatEntry, TFormatEntryImpl>, TIFormatEntry
         where TIFormatEntry : class, IFLogMessageBuilder =>
         fsa;

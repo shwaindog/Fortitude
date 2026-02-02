@@ -186,7 +186,7 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
 
     public PalantírReveal<TEnumValue> EnumPalantír { get; }
 
-    public StateExtractStringRange EnumStyler(TEnumValue toFormatEnum, ITheOneString tos)
+    public AppendSummary EnumStyler(TEnumValue toFormatEnum, ITheOneString tos)
     {
         var tb = tos.StartSimpleContentType(toFormatEnum);
         using (var sb = tb.StartDelimitedStringBuilder())
@@ -200,7 +200,7 @@ public class EnumFormatProvider<TEnumValue> : IStructEnumFormatProvider<TEnumVal
         return tb.Complete();
     }
 
-    public StateExtractStringRange EnumStyler(Enum toFormatEnum, ITheOneString tos)
+    public AppendSummary EnumStyler(Enum toFormatEnum, ITheOneString tos)
     {
         return EnumStyler((TEnumValue)toFormatEnum, tos);
     }

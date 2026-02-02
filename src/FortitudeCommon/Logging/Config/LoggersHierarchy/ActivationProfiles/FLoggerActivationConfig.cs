@@ -68,7 +68,7 @@ public class FLoggerActivationConfig : FLogBuildTypeAndDeployEnvConfig, IMutable
         new (this, configRoot, path);
     
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(LoggerActivationFlags), LoggerActivationFlags)
            .AddBaseRevealStateFields(this)

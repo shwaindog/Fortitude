@@ -10,7 +10,7 @@ public class AlwaysEmptyNode : Node, IChildNode
 {
     public IReadOnlyParentNode? Parent { get; set; }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Complete();
 }

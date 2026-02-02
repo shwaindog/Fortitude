@@ -47,11 +47,11 @@ public static class TargetStringBearerRevealState
 
     private static ConcurrentDictionary<Type, TypeCallCount> noOpCalls = new();
 
-    private static StateExtractStringRange NoOpBaseDoesntSupportStyledToString<T>(T _, ITheOneString _1)
+    private static AppendSummary NoOpBaseDoesntSupportStyledToString<T>(T _, ITheOneString _1)
     {
         var callCount = noOpCalls.GetOrAdd(typeof(T), new TypeCallCount(typeof(T)));
         callCount.CallCount++;
-        return new StateExtractStringRange();
+        return new AppendSummary();
     }
 
     public static PalantírReveal<TBase> CreateInvokeMethod<TBase>() where TBase : class, IStringBearer
@@ -109,7 +109,7 @@ public static class TargetStringBearerRevealState
     public static Delegate GetNonVirtualDispatchStyledToString(Type styledToStringType, MethodInfo methodToCall, Type customStyleType)
     {
         var helperMethod =
-            new DynamicMethod($"{styledToStringType.Name}_Styled_ToString", typeof(StateExtractStringRange),
+            new DynamicMethod($"{styledToStringType.Name}_Styled_ToString", typeof(AppendSummary),
                               [styledToStringType, typeof(ITheOneString)], styledToStringType.Module, true);
         var ilGenerator = helperMethod.GetILGenerator();
         ilGenerator.Emit(OpCodes.Ldarg_0);

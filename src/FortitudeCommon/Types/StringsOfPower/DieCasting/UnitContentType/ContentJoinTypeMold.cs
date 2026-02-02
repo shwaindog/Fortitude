@@ -58,7 +58,7 @@ public class ContentJoinTypeMold<TFromMold, TToMold> : KnownTypeMolder<TToMold>,
 
     public TToMold CopyFrom(TFromMold source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        PortableState = ((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.PortableState;
+        PortableState.CopyFrom(((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.PortableState);
         SourceBuilderComponentAccess(((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.CurrentWriteMethod);
 
         MoldStateField.CopyFrom(((ITypeBuilderComponentSource)source).MoldState, copyMergeFlags);

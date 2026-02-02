@@ -23,7 +23,7 @@ public class LogEntriesBatch : ReusableList<IFLogEntry>, ILogEntriesBatch
     public IReadOnlyList<IFLogEntry> AsReadOnly => this;
     public IEnumerable<IFLogEntry> AsEnumerable => this;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexCollectionType(this)
            .LogOnlyField.AlwaysAdd(nameof(RefCount), RefCount)
            .LogOnlyField.AlwaysAdd(nameof(Count), Count)

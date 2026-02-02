@@ -425,7 +425,7 @@ public class TickerConfig : ConfigSection, ITickerConfig
         return hashCode.ToHashCode();
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public virtual AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(InstrumentId), InstrumentId)
             .Field.AlwaysAdd(nameof(InstrumentName), InstrumentName)

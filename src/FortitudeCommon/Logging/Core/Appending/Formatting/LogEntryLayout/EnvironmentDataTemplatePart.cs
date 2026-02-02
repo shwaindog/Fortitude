@@ -101,7 +101,7 @@ public class EnvironmentDataTemplatePart : ITemplatePart, IStringBearer
         return allEnvVariablesExpanded;
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public virtual AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal(nameof(tokenFormatting), tokenFormatting).Complete();
 

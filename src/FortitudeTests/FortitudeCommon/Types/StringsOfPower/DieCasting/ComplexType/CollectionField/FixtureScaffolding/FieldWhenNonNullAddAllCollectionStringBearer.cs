@@ -22,7 +22,7 @@ public class FieldBoolSpanWhenNonNullAddAllStringBearer : FormattedCollectionFie
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllBoolSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllBoolSpan)
@@ -43,7 +43,7 @@ public class FieldNullableBoolSpanWhenNonNullAddAllStringBearer : FormattedColle
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolSpan)
@@ -65,7 +65,7 @@ public class FieldSpanFormattableSpanWhenNonNullAddAllStringBearer<TFmt> : Forma
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableSpan)
@@ -87,7 +87,7 @@ public class FieldSpanFormattableNullableClassSpanWhenNonNullAddAllStringBearer<
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableNullableClassSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableNullableClassSpan)
@@ -110,7 +110,7 @@ public class FieldNullableSpanFormattableSpanWhenNonNullAddAllStringBearer<TFmtS
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableSpan)
@@ -134,7 +134,7 @@ public class FieldCloakedBearerSpanWhenNonNullAddAllStringBearer<TCloaked, TReve
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerSpan)
@@ -159,7 +159,7 @@ public class FieldCloakedBearerNullableClassSpanWhenNonNullAddAllStringBearer<TC
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerNullableSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerNullableSpan)
@@ -183,7 +183,7 @@ public class FieldNullableCloakedBearerSpanWhenNonNullAddAllStringBearer<TCloake
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerSpan)
@@ -206,7 +206,7 @@ public class FieldStringBearerSpanWhenNonNullAddAllStringBearer<TBearer> : Forma
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerSpan)
@@ -228,7 +228,7 @@ public class FieldStringBearerNullableClassSpanWhenNonNullAddAllStringBearer<TBe
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerSpan)
@@ -251,7 +251,7 @@ public class FieldNullableStringBearerSpanWhenNonNullAddAllStringBearer<TBearerS
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerSpan)
@@ -272,7 +272,7 @@ public class FieldStringSpanWhenNonNullAddAllStringBearer : FormattedCollectionF
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringSpan)
@@ -294,7 +294,7 @@ public class FieldStringNullableSpanWhenNonNullAddAllStringBearer : FormattedCol
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllNullable
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringSpan)
@@ -316,7 +316,7 @@ public class FieldCharSequenceSpanWhenNonNullAddAllStringBearer<TCharSeq> : Form
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllCharSeq
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceSpan)
@@ -338,7 +338,7 @@ public class FieldStringBuilderSpanWhenNonNullAddAllStringBearer : FormattedColl
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderSpan)
@@ -360,7 +360,7 @@ public class FieldStringBuilderNullableSpanWhenNonNullAddAllStringBearer : Forma
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllNullable
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderSpan)
@@ -380,7 +380,7 @@ public class FieldMatchSpanWhenNonNullAddAllStringBearer<TAny> : FormattedCollec
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllMatch
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchSpan)
@@ -401,7 +401,7 @@ public class FieldObjectSpanWhenNonNullAddAllStringBearer : FormattedCollectionF
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllObject
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectSpan)
@@ -423,7 +423,7 @@ public class FieldNullableObjectSpanWhenNonNullAddAllStringBearer : FormattedCol
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectNullableRefSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllObjectNullable
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectNullableRefSpan)
@@ -444,7 +444,7 @@ public class FieldBoolReadOnlySpanWhenNonNullAddAllStringBearer : FormattedColle
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllBoolReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllBoolReadOnlySpan)
@@ -466,7 +466,7 @@ public class FieldNullableBoolReadOnlySpanWhenNonNullAddAllStringBearer : Format
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolReadOnlySpan)
@@ -488,7 +488,7 @@ public class FieldSpanFormattableReadOnlySpanWhenNonNullAddAllStringBearer<TFmt>
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableReadOnlySpan)
@@ -510,7 +510,7 @@ public class FieldSpanFormattableNullableClassReadOnlySpanWhenNonNullAddAllStrin
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableNullableRefReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableNullableRefReadOnlySpan)
@@ -533,7 +533,7 @@ public class FieldNullableSpanFormattableReadOnlySpanWhenNonNullAddAllStringBear
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableReadOnlySpan)
@@ -557,7 +557,7 @@ public class FieldCloakedBearerReadOnlySpanWhenNonNullAddAllStringBearer<TCloake
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerReadOnlySpan);
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerReadOnlySpan)
@@ -582,7 +582,7 @@ public class FieldCloakedBearerNullableClassReadOnlySpanWhenNonNullAddAllStringB
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerNullableSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerNullableSpan)
@@ -605,7 +605,7 @@ public class FieldNullableCloakedBearerReadOnlySpanWhenNonNullAddAllStringBearer
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerReadOnlySpan)
@@ -628,7 +628,7 @@ public class FieldStringBearerReadOnlySpanWhenNonNullAddAllStringBearer<TBearer>
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerReadOnlySpan)
@@ -650,7 +650,7 @@ public class FieldStringBearerNullableClassReadOnlySpanWhenNonNullAddAllStringBe
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerReadOnlySpan)
@@ -673,7 +673,7 @@ public class FieldNullableStringBearerReadOnlySpanWhenNonNullAddAllStringBearer<
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerReadOnlySpan)
@@ -694,7 +694,7 @@ public class FieldStringReadOnlySpanWhenNonNullAddAllStringBearer : FormattedCol
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringReadOnlySpan)
@@ -715,7 +715,7 @@ public class FieldStringNullableReadOnlySpanWhenNonNullAddAllStringBearer : Form
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringNullableReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllNullable
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringNullableReadOnlySpan)
@@ -737,7 +737,7 @@ public class FieldCharSequenceReadOnlySpanWhenNonNullAddAllStringBearer<TCharSeq
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllCharSeq
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceReadOnlySpan)
@@ -759,7 +759,7 @@ public class FieldStringBuilderReadOnlySpanWhenNonNullAddAllStringBearer : Forma
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderReadOnlySpan)
@@ -782,7 +782,7 @@ public class FieldStringBuilderNullableReadOnlySpanWhenNonNullAddAllStringBearer
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderNullableReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllNullable
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderNullableReadOnlySpan)
@@ -803,7 +803,7 @@ public class FieldMatchReadOnlySpanWhenNonNullAddAllStringBearer<TAny> : Formatt
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllMatch
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchReadOnlySpan)
@@ -824,7 +824,7 @@ public class FieldObjectReadOnlySpanWhenNonNullAddAllStringBearer : FormattedCol
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllObject
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectSpan)
@@ -846,7 +846,7 @@ public class FieldNullableObjectReadOnlySpanWhenNonNullAddAllStringBearer : Form
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectNullableReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllObjectNullable
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectNullableReadOnlySpan)
@@ -866,7 +866,7 @@ public class FieldBoolArrayWhenNonNullAddAllStringBearer : FormattedCollectionFi
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllBoolArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllBoolArray)
@@ -886,7 +886,7 @@ public class FieldNullableBoolArrayWhenNonNullAddAllStringBearer : FormattedColl
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolArray)
@@ -908,7 +908,7 @@ public class FieldSpanFormattableArrayWhenNonNullAddAllStringBearer<TFmt> : Form
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
            .WhenNonNullAddAll
@@ -932,7 +932,7 @@ public class FieldNullableSpanFormattableArrayWhenNonNullAddAllStringBearer<TStr
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableArray)
@@ -956,7 +956,7 @@ public class FieldCloakedBearerArrayWhenNonNullAddAllStringBearer<TCloaked, TRev
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerArray)
@@ -979,7 +979,7 @@ public class FieldNullableCloakedBearerArrayWhenNonNullAddAllStringBearer<TCloak
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerArray)
@@ -1002,7 +1002,7 @@ public class FieldStringBearerArrayWhenNonNullAddAllStringBearer<TBearer> : Form
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
            .WhenNonNullRevealAll
@@ -1026,7 +1026,7 @@ public class FieldNullableStringBearerArrayWhenNonNullAddAllStringBearer<TBearer
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerArray)
@@ -1047,7 +1047,7 @@ public class FieldStringArrayWhenNonNullAddAllStringBearer : FormattedCollection
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringArray)
@@ -1069,7 +1069,7 @@ public class FieldCharSequenceArrayWhenNonNullAddAllStringBearer<TCharSeq> : For
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllCharSeq
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceArray)
@@ -1091,7 +1091,7 @@ public class FieldStringBuilderArrayWhenNonNullAddAllStringBearer : FormattedCol
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray)
@@ -1112,7 +1112,7 @@ public class FieldMatchArrayWhenNonNullAddAllStringBearer<TAny> : FormattedColle
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllMatch
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderArray)
@@ -1132,7 +1132,7 @@ public class FieldObjectArrayWhenNonNullAddAllStringBearer : FormattedCollection
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllObject
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectArray)
@@ -1152,7 +1152,7 @@ public class FieldBoolListWhenNonNullAddAllStringBearer : FormattedCollectionFie
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllBoolList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllBoolList)
@@ -1173,7 +1173,7 @@ public class FieldNullableBoolListWhenNonNullAddAllStringBearer : FormattedColle
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableBoolList)
@@ -1195,7 +1195,7 @@ public class FieldSpanFormattableListWhenNonNullAddAllStringBearer<TFmt> : Forma
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllSpanFormattableList)
@@ -1218,7 +1218,7 @@ public class FieldNullableSpanFormattableListWhenNonNullAddAllStringBearer<TFmtS
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableSpanFormattableList)
@@ -1242,7 +1242,7 @@ public class FieldCloakedBearerListWhenNonNullAddAllStringBearer<TCloaked, TReve
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCloakedBearerList)
@@ -1265,7 +1265,7 @@ public class FieldNullableCloakedBearerListWhenNonNullAddAllStringBearer<TCloake
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableCloakedBearerList)
@@ -1288,7 +1288,7 @@ public class FieldStringBearerListWhenNonNullAddAllStringBearer<TBearer> : Forma
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBearerList)
@@ -1311,7 +1311,7 @@ public class FieldNullableStringBearerListWhenNonNullAddAllStringBearer<TBearerS
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullRevealAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllNullableStringBearerList)
@@ -1333,7 +1333,7 @@ public class FieldStringListWhenNonNullAddAllStringBearer : FormattedCollectionF
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringList)
@@ -1355,7 +1355,7 @@ public class FieldCharSequenceListWhenNonNullAddAllStringBearer<TCharSeq> : Form
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllCharSeq
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllCharSequenceList)
@@ -1377,7 +1377,7 @@ public class FieldStringBuilderListWhenNonNullAddAllStringBearer : FormattedColl
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAll
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllStringBuilderList)
@@ -1398,7 +1398,7 @@ public class FieldMatchListWhenNonNullAddAllStringBearer<TAny> : FormattedCollec
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllMatch
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllMatchList)
@@ -1419,7 +1419,7 @@ public class FieldObjectListWhenNonNullAddAllStringBearer : FormattedCollectionF
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.WhenNonNullAddAllObject
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddAllObjectList)

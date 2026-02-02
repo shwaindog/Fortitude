@@ -33,7 +33,7 @@ public abstract class MoldScaffoldBase<TValue> : IMoldSupportedValue<TValue>
 {
     protected TValue Val = default!;
     
-    public abstract StateExtractStringRange RevealState(ITheOneString tos);
+    public abstract AppendSummary RevealState(ITheOneString tos);
 
     public abstract string PropertyName { get; }
 

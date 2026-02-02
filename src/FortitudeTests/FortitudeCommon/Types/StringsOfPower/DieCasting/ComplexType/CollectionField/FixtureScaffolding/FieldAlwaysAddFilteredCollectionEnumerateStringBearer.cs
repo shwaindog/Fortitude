@@ -24,7 +24,7 @@ public class FieldBoolEnumerableAlwaysAddFilteredStringBearer : FormattedFiltere
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolEnumerable);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolEnumerable)
@@ -47,7 +47,7 @@ public class FieldNullableBoolEnumerableAlwaysAddFilteredStringBearer : Formatte
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolEnumerable);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolEnumerable)
@@ -71,7 +71,7 @@ public class FieldSpanFormattableEnumerableAlwaysAddFilteredStringBearer<TFmt, T
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableEnumerable);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
            .AlwaysAddFilteredEnumerate
@@ -96,7 +96,7 @@ public class FieldNullableSpanFormattableEnumerableAlwaysAddFilteredStringBearer
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableEnumerable);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableEnumerable)
@@ -121,7 +121,7 @@ public class FieldCloakedBearerEnumerableAlwaysAddFilteredStringBearer<TCloaked,
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerEnumerable);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerEnumerable)
@@ -145,7 +145,7 @@ public class FieldNullableCloakedBearerEnumerableAlwaysAddFilteredStringBearer<T
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerEnumerable);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerEnumerable)
@@ -169,7 +169,7 @@ public class FieldStringBearerEnumerableAlwaysAddFilteredStringBearer<TBearer, T
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerEnumerable);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerEnumerable)
@@ -193,7 +193,7 @@ public class FieldNullableStringBearerEnumerableAlwaysAddFilteredStringBearer<TB
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerEnumerable);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerEnumerable)
@@ -216,7 +216,7 @@ public class FieldStringEnumerableAlwaysAddFilteredStringBearer : FormattedFilte
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringEnumerable);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringEnumerable)
@@ -240,7 +240,7 @@ public class FieldCharSequenceEnumerableAlwaysAddFilteredStringBearer<TCharSeq, 
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceEnumerable);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredCharSeqEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceEnumerable)
@@ -263,7 +263,7 @@ public class FieldStringBuilderEnumerableAlwaysAddFilteredStringBearer
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderEnumerable);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderEnumerable)
@@ -287,7 +287,7 @@ public class FieldMatchEnumerableAlwaysAddFilteredStringBearer<TAny, TAnyFilterB
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchEnumerable);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredMatchEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchEnumerable)
@@ -310,7 +310,7 @@ public class FieldObjectEnumerableAlwaysAddFilteredStringBearer : FormattedFilte
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectEnumerable);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredObjectEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectEnumerable)
@@ -332,7 +332,7 @@ public class FieldBoolEnumeratorAlwaysAddFilteredStringBearer : FormattedFiltere
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolEnumerator);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolEnumerator)
@@ -354,7 +354,7 @@ public class FieldNullableBoolEnumeratorAlwaysAddFilteredStringBearer : Formatte
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolEnumerator);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolEnumerator)
@@ -377,7 +377,7 @@ public class FieldSpanFormattableEnumeratorAlwaysAddFilteredStringBearer<TFmt, T
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableEnumerator);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
            .AlwaysAddFilteredEnumerate
@@ -402,7 +402,7 @@ public class FieldNullableSpanFormattableEnumeratorAlwaysAddFilteredStringBearer
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableEnumerator);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableEnumerator)
@@ -427,7 +427,7 @@ public class FieldCloakedBearerEnumeratorAlwaysAddFilteredStringBearer<TCloaked,
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerEnumerator);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerEnumerator)
@@ -451,7 +451,7 @@ public class FieldNullableCloakedBearerEnumeratorAlwaysAddFilteredStringBearer<T
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerEnumerator);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerEnumerator)
@@ -476,7 +476,7 @@ public class FieldStringBearerEnumeratorAlwaysAddFilteredStringBearer<TBearer, T
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerEnumerator);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerEnumerator)
@@ -500,7 +500,7 @@ public class FieldNullableStringBearerEnumeratorAlwaysAddFilteredStringBearer<TB
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerEnumerator);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerEnumerator)
@@ -523,7 +523,7 @@ public class FieldStringEnumeratorAlwaysAddFilteredStringBearer : FormattedFilte
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringEnumerator);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringEnumerator)
@@ -547,7 +547,7 @@ public class FieldCharSequenceEnumeratorAlwaysAddFilteredStringBearer<TCharSeq, 
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceEnumerator);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredCharSeqEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceEnumerator)
@@ -570,7 +570,7 @@ public class FieldStringBuilderEnumeratorAlwaysAddFilteredStringBearer
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderEnumerator);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderEnumerator)
@@ -594,7 +594,7 @@ public class FieldMatchEnumeratorAlwaysAddFilteredStringBearer<TAny, TAnyFilterB
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchEnumerator);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredMatchEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchEnumerator)
@@ -617,7 +617,7 @@ public class FieldObjectEnumeratorAlwaysAddFilteredStringBearer : FormattedFilte
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectEnumerator);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredObjectEnumerate
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectEnumerator)

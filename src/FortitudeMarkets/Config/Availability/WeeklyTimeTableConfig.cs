@@ -245,7 +245,7 @@ public class WeeklyTimeTableConfig : ConfigSection, IWeeklyTimeTableConfig
         }
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos)
+    public virtual AppendSummary RevealState(ITheOneString tos)
     {
         return tos.StartComplexType(this)
            .Field.AlwaysAddObject(nameof(StartTimes), StartTimes)

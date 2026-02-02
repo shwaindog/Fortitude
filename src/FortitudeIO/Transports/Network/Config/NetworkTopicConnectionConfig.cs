@@ -436,7 +436,7 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
         return hashCode.ToHashCode();
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
+    public virtual AppendSummary RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(ConnectionName), ConnectionName)
             .Field.AlwaysAdd(nameof(TopicName), TopicName)

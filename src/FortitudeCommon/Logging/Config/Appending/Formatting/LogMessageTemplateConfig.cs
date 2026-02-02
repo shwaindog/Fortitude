@@ -114,7 +114,7 @@ public class LogMessageTemplateConfig : FLogConfig, IMutableLogMessageTemplateCo
         return hashCode;
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public virtual AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(LogLevel), LogLevel)
            .Field.AlwaysAdd(nameof(MessageTemplate), MessageTemplate)

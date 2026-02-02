@@ -24,7 +24,7 @@ public class FieldKeyValueDictionaryAlwaysAddFilteredStringBearer<TKey, TValue, 
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredDictionaryBothFormatStrings);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredDictionaryBothFormatStrings)
@@ -50,7 +50,7 @@ public class FieldKeyValueArrayAlwaysAddFilteredStringBearer<TKey, TValue, TKFil
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredArrayBothFormatStrings);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredArrayBothFormatStrings)
@@ -76,7 +76,7 @@ public class FieldKeyValueListAlwaysAddFilteredStringBearer<TKey, TValue, TKFilt
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredListBothFormatStrings);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredListBothFormatStrings)
@@ -102,7 +102,7 @@ public class FieldKeyValueEnumerableAlwaysAddFilteredStringBearer<TKey, TValue, 
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumerableBothFormatStrings);
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumerableBothFormatStrings)
@@ -143,7 +143,7 @@ public class FieldKeyValueEnumeratorAlwaysAddFilteredStringBearer<TKey, TValue, 
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumeratorBothFormatStrings);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumeratorBothFormatStrings)
@@ -170,7 +170,7 @@ public class FieldKeyValueRevealerDictionaryAlwaysAddFilteredStringBearer<TKey, 
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredDictionaryValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredDictionaryValueRevealerKeyFormatString)
@@ -197,7 +197,7 @@ public class FieldKeyStructValueRevealerDictionaryAlwaysAddFilteredStringBearer<
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredDictionaryValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredDictionaryValueRevealerKeyFormatString)
@@ -225,7 +225,7 @@ public class FieldKeyValueRevealerArrayAlwaysAddFilteredStringBearer<TKey, TValu
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredArrayValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredArrayValueRevealerKeyFormatString)
@@ -252,7 +252,7 @@ public class FieldKeyStructValueRevealerArrayAlwaysAddFilteredStringBearer<TKey,
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredArrayStructValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredArrayStructValueRevealerKeyFormatString)
@@ -280,7 +280,7 @@ public class FieldKeyValueRevealerListAlwaysAddFilteredStringBearer<TKey, TValue
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredListValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredListValueRevealerKeyFormatString)
@@ -307,7 +307,7 @@ public class FieldKeyStructValueRevealerListAlwaysAddFilteredStringBearer<TKey, 
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredListValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredListValueRevealerKeyFormatString)
@@ -335,7 +335,7 @@ public class FieldKeyValueRevealerEnumerableAlwaysAddFilteredStringBearer<TKey, 
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumerableValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumerableValueRevealerKeyFormatString)
@@ -362,7 +362,7 @@ public class FieldKeyStructValueRevealerEnumerableAlwaysAddFilteredStringBearer<
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumerableValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumerableValueRevealerKeyFormatString)
@@ -405,7 +405,7 @@ public class FieldKeyValueRevealerEnumeratorAlwaysAddFilteredStringBearer<TKey, 
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumeratorValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumeratorValueRevealerKeyFormatString)
@@ -447,7 +447,7 @@ public class FieldKeyStructValueRevealerEnumeratorAlwaysAddFilteredStringBearer<
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumeratorValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumeratorValueRevealerKeyFormatString)
@@ -476,7 +476,7 @@ public class FieldKeyRevealerValueRevealerDictionaryAlwaysAddFilteredStringBeare
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredDictionaryBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredDictionaryBothRevealers)
@@ -504,7 +504,7 @@ public class FieldKeyRevealerStructValueRevealerDictionaryAlwaysAddFilteredStrin
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredDictionaryBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredDictionaryBothRevealers)
@@ -533,7 +533,7 @@ public class FieldKeyRevealerValueRevealerArrayAlwaysAddFilteredStringBearer<TKe
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredArrayBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredArrayBothRevealers)
@@ -561,7 +561,7 @@ public class FieldStructKeyRevealerValueRevealerArrayAlwaysAddFilteredStringBear
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredArrayBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredArrayBothRevealers)
@@ -589,7 +589,7 @@ public class FieldKeyRevealerStructValueRevealerArrayAlwaysAddFilteredStringBear
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredArrayBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredArrayBothRevealers)
@@ -616,7 +616,7 @@ public class FieldStructKeyRevealerStructValueRevealerArrayAlwaysAddFilteredStri
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredArrayBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredArrayBothRevealers)
@@ -645,7 +645,7 @@ public class FieldKeyRevealerValueRevealerListAlwaysAddFilteredStringBearer<TKey
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredListBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredListBothRevealers)
@@ -673,7 +673,7 @@ public class FieldStructKeyRevealerValueRevealerListAlwaysAddFilteredStringBeare
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredListBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredListBothRevealers)
@@ -701,7 +701,7 @@ public class FieldKeyRevealerStructValueRevealerListAlwaysAddFilteredStringBeare
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredListBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredListBothRevealers)
@@ -728,7 +728,7 @@ public class FieldStructKeyRevealerStructValueRevealerListAlwaysAddFilteredStrin
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredListBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredListBothRevealers)
@@ -757,7 +757,7 @@ public class FieldKeyRevealerValueRevealerEnumerableAlwaysAddFilteredStringBeare
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumerableBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumerableBothRevealers)
@@ -785,7 +785,7 @@ public class FieldStructKeyRevealerValueRevealerEnumerableAlwaysAddFilteredStrin
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumerableBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumerableBothRevealers)
@@ -813,7 +813,7 @@ public class FieldKeyRevealerStructValueRevealerEnumerableAlwaysAddFilteredStrin
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumerableBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumerableBothRevealers)
@@ -840,7 +840,7 @@ public class FieldStructKeyRevealerStructValueRevealerEnumerableAlwaysAddFiltere
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumerableBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumerableBothRevealers)
@@ -884,7 +884,7 @@ public class FieldKeyRevealerValueRevealerEnumeratorAlwaysAddFilteredStringBeare
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumeratorBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumeratorBothRevealers)
@@ -927,7 +927,7 @@ public class FieldStructKeyRevealerValueRevealerEnumeratorAlwaysAddFilteredStrin
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumeratorBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumeratorBothRevealers)
@@ -970,7 +970,7 @@ public class FieldKeyRevealerStructValueRevealerEnumeratorAlwaysAddFilteredStrin
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumeratorBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumeratorBothRevealers)
@@ -1012,7 +1012,7 @@ public class FieldStructKeyRevealerStructValueRevealerEnumeratorAlwaysAddFiltere
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumeratorBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.AlwaysAddFilteredEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldAlwaysAddFilteredEnumeratorBothRevealers)

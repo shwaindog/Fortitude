@@ -635,7 +635,7 @@ public class Person : IStringBearer
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public List<License>? Licenses { get; set; }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public virtual AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(FirstName), FirstName)
             .Field.WhenNonDefaultAdd(nameof(DateOfBirth), DateOfBirth)
@@ -659,7 +659,7 @@ public class Student : EducationAttendee
 
     public Dictionary<string, CourseSubject> Enrollments { get; set; } = new();
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.AlwaysAddCharSeq(nameof(StudentNumber), StudentNumber)
             .KeyedCollectionField.AlwaysAddAll(nameof(Enrollments), Enrollments)
@@ -675,7 +675,7 @@ public class CourseDeliverer : EducationAttendee
 
     public Dictionary<string, CourseSubject> CurrentCourses { get; set; } = new();
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .CollectionField.AlwaysAddAllEnumerate(nameof(EmployeeId), EmployeeId)
             .KeyedCollectionField.AlwaysAddAll(nameof(CurrentCourses), CurrentCourses)
@@ -699,7 +699,7 @@ public class AccredittedInstructor : CourseDeliverer
     }
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .KeyedCollectionField.AlwaysAddAll(nameof(SubjectMaxEntitledGradingLevel), SubjectMaxEntitledGradingLevel)
             .AddBaseRevealStateFields(this)
@@ -733,7 +733,7 @@ public class Lecturer(string officeAddress) : CourseDeliverer
 
     public ConcurrentMap<ICharSequence, StringBuilder> Complaints { get; private set; } = new();
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(OfficeAddress), OfficeAddress)
             .KeyedCollectionField.AlwaysAddAll(nameof(TeachingSubjects), TeachingSubjects)
@@ -754,7 +754,7 @@ public class TradesInstructor(string tradeSkill) : AccredittedInstructor
 
     public string TradeSkill { get; set; } = tradeSkill;
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(TradeSkill), TradeSkill)
             .CollectionField.AlwaysAddAll(nameof(RecentAccreditations), RecentAccreditations)
@@ -772,7 +772,7 @@ public record CourseSubject(string SubjectName) : IStringBearer
 {
     public LinkedList<double?> RecentGrades { get; set; } = new();
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public virtual AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(SubjectName), SubjectName)
             .CollectionField.AlwaysAddAllEnumerate(nameof(RecentGrades), RecentGrades).Complete();
@@ -786,7 +786,7 @@ public record ArtsSubject(string SubjectName) : CourseSubject(SubjectName)
 
     public Lecturer SubjectOwner { get; set; } = null!;
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.AlwaysReveal(nameof(ManagingArtsFaculty), ManagingArtsFaculty)
             .Field.AlwaysReveal(nameof(SubjectOwner), SubjectOwner)
@@ -802,7 +802,7 @@ public record EngineeringSubject(string SubjectName) : CourseSubject(SubjectName
     public Lecturer CourseCoordinator { get; set; } = null!;
     public List<EngineeringSubject>? RequiredPrerequisiteSubjects { get; } = new();
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .CollectionField.WhenPopulatedRevealAll(nameof(RequiredPrerequisiteSubjects), RequiredPrerequisiteSubjects)
             .AddBaseRevealStateFields(this)
@@ -822,7 +822,7 @@ public record TradesSubject(string SubjectName) : CourseSubject(SubjectName)
 
     public AccredittedInstructor SubjectOwner { get; set; } = null!;
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.AlwaysReveal(nameof(RequiredAttendeeLicense), RequiredAttendeeLicense)
             .Field.AlwaysReveal(nameof(RequiredTeacherLicense), RequiredTeacherLicense)
@@ -866,7 +866,7 @@ public abstract class Faculty : IStringBearer
 
     public FacultyType FacultyType { get; set; }
 
-    public abstract StateExtractStringRange RevealState(ITheOneString tos);
+    public abstract AppendSummary RevealState(ITheOneString tos);
 }
 
 public class ArtsFaculty : Faculty
@@ -877,7 +877,7 @@ public class ArtsFaculty : Faculty
 
     public ConcurrentDictionary<ICharSequence, Student> CurrentStudents = new();
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(FacultyType), FacultyType)
             .AddBaseRevealStateFields(this)
@@ -897,7 +897,7 @@ public class TradeSkills : Faculty
 
     public readonly ConcurrentDictionary<decimal, Student> CurrentStudents = new();
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(FacultyType), FacultyType)
             .CollectionField.WhenPopulatedRevealAll(nameof(BoardOfFaculty), BoardOfFaculty)
@@ -916,7 +916,7 @@ public class Engineering : Faculty
 
     public Lecturer DeanOfFaculty { get; set; } = null!;
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(FacultyType), FacultyType)
             .Field.AlwaysAdd(nameof(MajorOfFaculty), MajorOfFaculty)
@@ -940,7 +940,7 @@ public class License : IStringBearer
 
     public Uri PhotoLocation { get; set; } = null!;
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public virtual AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(LicenseNumber), LicenseNumber)
             .CollectionField.AlwaysAddAll(nameof(LicenseChipData), LicenseChipData)
@@ -982,7 +982,7 @@ public class HighVoltageElectriciansLicense : License
 
     public AccredittedInstructor AccreditingBody { get; set; } = null!;
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.WhenNonDefaultAdd(nameof(Issued), Issued)
             .Field.AlwaysAdd(nameof(GradeOfAccess), GradeOfAccess)
@@ -1015,7 +1015,7 @@ public class HighPressureHydraulicsLicense : License
 
     private Dictionary<object, object?>? LicenseDetails { get; set; }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .KeyedCollectionField.WhenNonNullAddAll(nameof(LicenseDetails), LicenseDetails)
             .AddBaseRevealStateFields(this)
@@ -1044,7 +1044,7 @@ public class MotorbikeLicense : License
 
     public char[] LicensePlate { get; set; }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.AlwaysAddObject(nameof(PowerToWeightLimit), PowerToWeightLimit)
             .Field.AlwaysAdd(nameof(LicensePlate), LicensePlate)
@@ -1063,7 +1063,7 @@ public class AutomobileLicense : License
 
     public List<KeyValuePair<DateTime, string>> Citations { get; set; } = new();
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.WhenNonDefaultAdd(nameof(Manual), Manual)
             .CollectionField.AlwaysRevealAll(nameof(CurrentRestrictions), CurrentRestrictions, Restrictions.Styler)
