@@ -14,7 +14,7 @@ public interface ITypeBuilderComponentSource<out T> : ITypeBuilderComponentSourc
     ITypeMolderDieCast<T> KnownTypeMoldState { get; }
     
     
-    bool AppendGraphFields();
+    bool AppendGraphFields(IStyledTypeFormatting usingStyleTypeFormatter);
 }
 
 public interface IStateTransitioningTransitioningKnownTypeMolder : IDisposable
@@ -85,8 +85,8 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
     public override void StartTypeOpening()
     {
         if (PortableState.CreateFormatFlags.HasSuppressOpening()) return;
-        StartFormattingTypeOpening();
-        MyAppendGraphFields();
+        StartFormattingTypeOpening(MoldStateField.StyleFormatter);
+        MyAppendGraphFields(MoldStateField.StyleFormatter);
     }
 
     public override void FinishTypeOpening()
@@ -95,7 +95,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         CompleteTypeOpeningToTypeFields();
     }
 
-    public abstract void StartFormattingTypeOpening();
+    public abstract void StartFormattingTypeOpening(IStyledTypeFormatting usingFormatter);
     public virtual  void CompleteTypeOpeningToTypeFields() { }
 
     public virtual void AppendClosing()
@@ -119,7 +119,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         }
         var currentAppenderIndex = State.Master.WriteBuffer.Length;
         var typeWriteRange       = new Range(Index.FromStart(StartIndex), Index.FromStart(currentAppenderIndex));
-        var result = BuildMoldStringRange(typeWriteRange);
+        var result               = BuildMoldStringRange(typeWriteRange);
         PortableState.CompleteResult = result;
         var tos  = State.Master;
         var verifyRemoved = MoldVisit;
@@ -140,25 +140,25 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         return result;
     }
 
-    protected bool MyAppendGraphFields() => ((ITypeBuilderComponentSource<TMold>)this).AppendGraphFields();
+    protected bool MyAppendGraphFields(IStyledTypeFormatting usingFormatter) => 
+        ((ITypeBuilderComponentSource<TMold>)this).AppendGraphFields(MoldStateField.StyleFormatter);
 
-    bool ITypeBuilderComponentSource<TMold>.AppendGraphFields()
+    bool ITypeBuilderComponentSource<TMold>.AppendGraphFields(IStyledTypeFormatting usingFormatter)
     {
         var msf         = MoldStateField;
         var createFlags = msf.CreateMoldFormatFlags;
         if (msf.StyleTypeBuilder.RevisitedInstanceId != 0)
         {
             var charsWritten =
-                msf.StyleFormatter
+                usingFormatter
                    .AppendExistingReferenceId(msf, msf.StyleTypeBuilder.RevisitedInstanceId, msf.CurrentWriteMethod, createFlags);
             msf.WroteRefId = charsWritten > 0;
         }
         if (MoldStateField.RemainingGraphDepth <= 0)
         {
-            var formatter = msf.StyleFormatter;
 
             var charsWritten =
-                formatter
+                usingFormatter
                     .AppendInstanceInfoField(msf, "$clipped", "maxDepth", msf.CurrentWriteMethod, createFlags);
             if (charsWritten > 0)
             {

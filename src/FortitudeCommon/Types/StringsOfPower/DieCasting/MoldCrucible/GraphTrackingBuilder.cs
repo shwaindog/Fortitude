@@ -81,6 +81,11 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
         set => currentSectionRanges = value;
     }
 
+    public void RemoveCurrentSectionRangesFlags(FormatFlags toRemove)
+    {
+        currentSectionRanges.StartedWithFormatFlags &= ~toRemove;
+    }
+
     public ContentSeparatorRanges SnapshotLastAppendSequence(FormatFlags formatFlags)
     {
         var checkAnyRanges = CurrentSectionRanges.ToContentSeparatorFromEndRanges(IsInModifyOverwriteMode ? overWriteIndex : sb.Length, formatFlags);
@@ -232,6 +237,30 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
         else
             formatter.ContentEncoder.LayoutEncoder.LayoutEncoder.AppendTransfer(content, sb);
         return MarkContentEnd();
+    }
+
+    public int AppendDelimiter(ReadOnlySpan<char> content, IStringBuilder targetSb)
+    {
+        var charsAdded = formatter.ContentEncoder.LayoutEncoder.LayoutEncoder.AppendTransfer(content, targetSb);
+        return charsAdded;
+    }
+
+    public int InsertDelimiter(ReadOnlySpan<char> content, IStringBuilder sb, int atIndex)
+    {
+        var charsInserted = formatter.ContentEncoder.LayoutEncoder.LayoutEncoder.InsertTransfer(content, sb, atIndex);
+        return charsInserted;
+    }
+
+    public int InsertContent(ReadOnlySpan<char> content, IStringBuilder sb, int atIndex)
+    {
+        var charsInserted = formatter.ContentEncoder.LayoutEncoder.InsertTransfer(content, sb, atIndex);
+        return charsInserted;
+    }
+
+    public int AppendContent(ReadOnlySpan<char> content, IStringBuilder targetSb)
+    {
+        var charsAdded = formatter.ContentEncoder.LayoutEncoder.AppendTransfer(content, targetSb);
+        return charsAdded;
     }
 
     public GraphTrackingBuilder AppendContent(string content)

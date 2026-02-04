@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
@@ -35,12 +37,12 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, Simp
                              .InitializeValueBuilderCompAccess(this, PortableState, writeMethod);
     }
 
-    public override void StartFormattingTypeOpening()
+    public override void StartFormattingTypeOpening(IStyledTypeFormatting usingFormatter)
     {
       if (Msf.CurrentWriteMethod.SupportsMultipleFields())
-        Msf.StyleFormatter.StartComplexTypeOpening(Msf, Msf.CreateMoldFormatFlags);
+        usingFormatter.StartComplexTypeOpening(Msf, Msf.CreateMoldFormatFlags);
       else
-        Msf.StyleFormatter.StartContentTypeOpening(Msf, Msf.CreateMoldFormatFlags);
+        usingFormatter.StartContentTypeOpening(Msf, Msf.CreateMoldFormatFlags);
     }
     
     public override void FinishTypeOpening()

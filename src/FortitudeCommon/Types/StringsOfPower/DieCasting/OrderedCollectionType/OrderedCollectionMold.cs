@@ -38,13 +38,13 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
 
     public int TotalCount { get; private set; }
 
-    public override void StartFormattingTypeOpening()
+    public override void StartFormattingTypeOpening(IStyledTypeFormatting usingFormatter)
     {
         if (CompAsOrderedCollection.SupportsMultipleFields) { MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField); }
         else
         {
             var elementType = MoldStateField.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
-            MoldStateField.StyleFormatter.FormatCollectionStart
+            usingFormatter.FormatCollectionStart
                 (MoldStateField, elementType!, true
                , MoldStateField.TypeBeingBuilt, MoldStateField.CreateMoldFormatFlags);
         }

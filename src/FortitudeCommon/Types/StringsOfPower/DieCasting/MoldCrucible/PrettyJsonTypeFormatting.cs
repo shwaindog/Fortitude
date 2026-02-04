@@ -157,10 +157,10 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         return sb;
     }
 
-    public override IStringBuilder FormatCollectionStart(ITypeMolderDieCast moldInternal, Type itemElementType
+    public override IStringBuilder FormatCollectionStart(ITypeMolderDieCast mdc, Type itemElementType
       , bool? hasItems, Type collectionType, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = moldInternal.Sb;
+        var sb = mdc.Sb;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         if (!hasItems.HasValue)
         {
@@ -277,10 +277,10 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         return charsAdded;
     }
 
-    public override IStringBuilder FormatCollectionEnd(ITypeMolderDieCast moldInternal, int? resultsFoundCount, Type itemElementType
+    public override IStringBuilder FormatCollectionEnd(ITypeMolderDieCast mdc, int? resultsFoundCount, Type itemElementType
       , int? totalItemCount, string? formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = moldInternal.Sb;
+        var sb = mdc.Sb;
         CharSpanCollectionScratchBuffer?.DecrementRefCount();
         CharSpanCollectionScratchBuffer = null;
         if (!totalItemCount.HasValue)

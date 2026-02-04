@@ -14,18 +14,18 @@ public enum WrittenAsFlags : ushort
 {
     Empty                       = 0
   , AsNull                      = 1
-  , AsString                    = 1
-  , AsValue                     = 2
-  , AsSimple                    = 4
-  , AsCollection                = 8
-  , AsMapCollection             = 16
-  , AsComplex                   = 32
-  , UpgradedToComplex           = 64
-  , WithInstanceId              = 128
-  , WithReferenceToInstanceId   = 256
-  , WithDepthVmemAddress        = 512
-  , WithClippedDepthSuppression = 1024
-  , RemovedDueDepthSuppression  = 2048
+  , AsString                    = 2
+  , AsValue                     = 4
+  , AsSimple                    = 8
+  , AsCollection                = 16
+  , AsMapCollection             = 32
+  , AsComplex                   = 64
+  , UpgradedToComplex           = 128
+  , WithInstanceId              = 256
+  , WithReferenceToInstanceId   = 512
+  , WithDepthVmemAddress        = 1024
+  , WithClippedDepthSuppression = 2048
+  , RemovedDueDepthSuppression  = 4096
 }
 
 public static class WrittenAsFlagsExtensions

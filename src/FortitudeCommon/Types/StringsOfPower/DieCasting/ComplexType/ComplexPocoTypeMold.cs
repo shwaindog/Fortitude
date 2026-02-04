@@ -34,9 +34,9 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
 
     public override bool IsComplexType => true;
 
-    public override void StartFormattingTypeOpening()
+    public override void StartFormattingTypeOpening(IStyledTypeFormatting usingFormatter)
     {
-        State.StyleFormatter.StartComplexTypeOpening(State, State.CreateMoldFormatFlags);
+        usingFormatter.StartComplexTypeOpening(State, State.CreateMoldFormatFlags);
     }
     
     public override void AppendClosing()

@@ -117,6 +117,12 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
         if (visitIndex >= OrderedObjectGraph.Count || visitIndex < 0) return -1;
         return OrderedObjectGraph[visitIndex].RefId;
     }
+
+    public int TypeBufferStartIndexAtVisit(int visitIndex)
+    {
+        if (visitIndex >= OrderedObjectGraph.Count || visitIndex < 0) return -1;
+        return OrderedObjectGraph[visitIndex].TypeOpenBufferIndex;
+    }
     
     public VisitResult SourceGraphVisitRefId<T>(T toStyle, Type type, FormatFlags formatFlags)
     {
@@ -152,6 +158,13 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
     {
         if (visitIndex >= OrderedObjectGraph.Count || visitIndex < 0) return;
         OrderedObjectGraph[visitIndex] = OrderedObjectGraph[visitIndex].ReplaceObjectInstance(null);
+    }
+
+    public int  UpdateVisitLength(int visitIndex, int deltaLength)
+    {
+        if (visitIndex >= OrderedObjectGraph.Count || visitIndex < 0) return -1;
+        OrderedObjectGraph[visitIndex] = OrderedObjectGraph[visitIndex].UpdateVisitLength(deltaLength);
+        return OrderedObjectGraph[visitIndex].BufferLength;
     }
 
     private VisitResult SourceGraphVisitRefId(object objToStyle, Type type, FormatFlags formatFlags)

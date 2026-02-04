@@ -154,10 +154,10 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         return sb;
     }
 
-    public override IStringBuilder FormatCollectionStart(ITypeMolderDieCast moldInternal, Type itemElementType
+    public override IStringBuilder FormatCollectionStart(ITypeMolderDieCast mdc, Type itemElementType
       , bool? hasItems, Type collectionType, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = moldInternal.Sb;
+        var sb = mdc.Sb;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         if (!hasItems.HasValue)
         {
@@ -176,7 +176,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         }
         Gb.IndentLevel++;
 
-        base.FormatCollectionStart(moldInternal, itemElementType, hasItems, collectionType, formatFlags);
+        base.FormatCollectionStart(mdc, itemElementType, hasItems, collectionType, formatFlags);
         return sb;
     }
 
@@ -224,10 +224,10 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         return charsAdded;
     }
 
-    public override IStringBuilder FormatCollectionEnd(ITypeMolderDieCast moldInternal, int? resultsFoundCount, Type itemElementType
+    public override IStringBuilder FormatCollectionEnd(ITypeMolderDieCast mdc, int? resultsFoundCount, Type itemElementType
       , int? totalItemCount, string? formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = moldInternal.Sb;
+        var sb = mdc.Sb;
         if (!totalItemCount.HasValue)
         {
             if (StyleOptions.NullWritesEmpty)
@@ -257,7 +257,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         Gb.IndentLevel--;
 
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags, true);
-        if (totalItemCount > 0) { AddCollectionElementPadding(moldInternal, itemElementType, totalItemCount.Value, formatFlags); }
+        if (totalItemCount > 0) { AddCollectionElementPadding(mdc, itemElementType, totalItemCount.Value, formatFlags); }
         if (itemElementType == typeof(KeyValuePair<string, JsonNode>))
         {
             Gb.AppendContent(BrcCls);

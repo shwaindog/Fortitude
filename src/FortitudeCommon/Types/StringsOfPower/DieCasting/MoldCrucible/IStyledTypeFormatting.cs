@@ -73,7 +73,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
       , FormatFlags valueFlags = DefaultCallerTypeFlags) where TMold : TypeMolder;
 
     ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(
-        ITypeMolderDieCast<TMold> typeMold
+        ITypeMolderDieCast<TMold> mdc
       , Type keyedCollectionType
       , TKey key
       , TValue? value
@@ -87,7 +87,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
         where TVRevealBase : notnull;
 
     ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(
-        ITypeMolderDieCast<TMold> typeMold
+        ITypeMolderDieCast<TMold> mdc
       , Type keyedCollectionType
       , TKey key
       , TValue? value
@@ -101,7 +101,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
         where TVRevealBase : notnull;
 
     ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
-        ITypeMolderDieCast<TMold> typeMold
+        ITypeMolderDieCast<TMold> mdc
       , Type keyedCollectionType
       , TKey key
       , TValue? value
@@ -117,7 +117,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
         where TVRevealBase : notnull;
 
     ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
-        ITypeMolderDieCast<TMold> typeMold
+        ITypeMolderDieCast<TMold> mdc
       , Type keyedCollectionType
       , TKey? key
       , TValue? value
@@ -133,7 +133,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
         where TVRevealBase : notnull;
 
     ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
-        ITypeMolderDieCast<TMold> typeMold
+        ITypeMolderDieCast<TMold> mdc
       , Type keyedCollectionType
       , TKey key
       , TValue? value
@@ -149,7 +149,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
         where TVRevealBase : notnull;
 
     ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
-        ITypeMolderDieCast<TMold> typeMold
+        ITypeMolderDieCast<TMold> mdc
       , Type keyedCollectionType
       , TKey? key
       , TValue? value
@@ -167,46 +167,46 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder AppendKeyedCollectionNextItem(IStringBuilder sb, Type keyedCollectionType
       , Type keyType, Type valueType, int previousItemNumber, FormatFlags valueFlags = DefaultCallerTypeFlags);
 
-    IStringBuilder FormatCollectionStart(ITypeMolderDieCast moldInternal, Type itemElementType, bool? hasItems, Type collectionType
+    IStringBuilder FormatCollectionStart(ITypeMolderDieCast mdc, Type itemElementType, bool? hasItems, Type collectionType
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    WrittenAsFlags CollectionNextItemFormat(IStringBuilder sb, bool item
+    WrittenAsFlags CollectionNextItemFormat(ITypeMolderDieCast mdc, bool item
       , int retrieveCount, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    WrittenAsFlags CollectionNextItemFormat(IStringBuilder sb, bool? item
+    WrittenAsFlags CollectionNextItemFormat(ITypeMolderDieCast mdc, bool? item
       , int retrieveCount, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    AppendSummary CollectionNextItemFormat<TFmt>(ISecretStringOfPower tos, TFmt item
+    AppendSummary CollectionNextItemFormat<TFmt>(ITypeMolderDieCast mdc, TFmt item
       , int retrieveCount, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable?;
 
-    WrittenAsFlags CollectionNextItemFormat<TFmtStruct>(IStringBuilder sb, TFmtStruct? item
+    WrittenAsFlags CollectionNextItemFormat<TFmtStruct>(ITypeMolderDieCast mdc, TFmtStruct? item
       , int retrieveCount, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable;
 
-    AppendSummary CollectionNextItemFormat<TCloaked, TCloakedBase>(ISecretStringOfPower tos, TCloaked? item
+    AppendSummary CollectionNextItemFormat<TCloaked, TCloakedBase>(ITypeMolderDieCast mdc, TCloaked? item
       , int retrieveCount, PalantírReveal<TCloakedBase> styler, string? formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TCloakedBase?
         where TCloakedBase : notnull;
 
-    AppendSummary CollectionNextItemFormat(ISecretStringOfPower tos, string? item, int retrieveCount, string? formatString = null
+    AppendSummary CollectionNextItemFormat(ITypeMolderDieCast mdc, string? item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    AppendSummary CollectionNextItemFormat(ISecretStringOfPower tos, char[]? item, int retrieveCount, string? formatString = null
+    AppendSummary CollectionNextItemFormat(ITypeMolderDieCast mdc, char[]? item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    AppendSummary CollectionNextCharSeqFormat<TCharSeq>(ISecretStringOfPower tos, TCharSeq item, int retrieveCount, string? formatString = null
+    AppendSummary CollectionNextCharSeqFormat<TCharSeq>(ITypeMolderDieCast mdc, TCharSeq item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence?;
 
-    AppendSummary CollectionNextItemFormat(ISecretStringOfPower tos, StringBuilder? item, int retrieveCount, string? formatString = null
+    AppendSummary CollectionNextItemFormat(ITypeMolderDieCast mdc, StringBuilder? item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    AppendSummary CollectionNextStringBearerFormat<TBearer>(ISecretStringOfPower tos, TBearer item, int retrieveCount, string? formatString
+    AppendSummary CollectionNextStringBearerFormat<TBearer>(ITypeMolderDieCast mdc, TBearer item, int retrieveCount, string? formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?;
 
-    IStringBuilder FormatCollectionEnd(ITypeMolderDieCast moldInternal, int? resultsFoundCount, Type itemElementType, int? totalItemCount
+    IStringBuilder FormatCollectionEnd(ITypeMolderDieCast mdc, int? resultsFoundCount, Type itemElementType, int? totalItemCount
       , string? formatString, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     Range? AddCollectionElementSeparator(ITypeMolderDieCast moldInternal, Type elementType, int nextItemNumber
@@ -220,90 +220,90 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     int SizeFormatFieldName(int sourceLength, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    int InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, Type actualType, int refId, int indexToInsertAt, WriteMethodType writeMethod
-    , FormatFlags createTypeFlags, int currentEnd = -1, ITypeMolderDieCast? liveMoldInternal = null);
+    int InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, int refId, Type actualType, int typeOpenIndex, WriteMethodType writeMethod
+    , int firstFieldIndex, FormatFlags createTypeFlags, int contentLength = -1, ITypeMolderDieCast? liveMoldInternal = null);
     
-    int AppendExistingReferenceId(ITypeMolderDieCast moldInternal, int refId, WriteMethodType writeMethod, FormatFlags createTypeFlags);
+    int AppendExistingReferenceId(ITypeMolderDieCast mdc, int refId, WriteMethodType writeMethod, FormatFlags createTypeFlags);
 
     int AppendInstanceValuesFieldName(Type forType, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    int AppendInstanceInfoField(ITypeMolderDieCast moldInternal, string fieldName, ReadOnlySpan<char> description
+    int AppendInstanceInfoField(ITypeMolderDieCast mdc, string fieldName, ReadOnlySpan<char> description
     , WriteMethodType writeMethod, FormatFlags createTypeFlags);
     
-    WrittenAsFlags AppendFieldName(IStringBuilder sb, ReadOnlySpan<char> fieldName, FormatFlags formatFlags = DefaultCallerTypeFlags);
+    WrittenAsFlags AppendFieldName(ITypeMolderDieCast mdc, ReadOnlySpan<char> fieldName, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    WrittenAsFlags FormatFieldNameMatch<T>(IStringBuilder sb, T source, string? formatString = null
+    WrittenAsFlags FormatFieldNameMatch<T>(ITypeMolderDieCast mdc, T source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    WrittenAsFlags FormatFieldName(IStringBuilder sb, bool source, string? formatString = null
+    WrittenAsFlags FormatFieldName(ITypeMolderDieCast mdc, bool source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    WrittenAsFlags FormatFieldName(IStringBuilder sb, bool? source, string? formatString = null
+    WrittenAsFlags FormatFieldName(ITypeMolderDieCast mdc, bool? source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    WrittenAsFlags FormatFieldName<TFmt>(IStringBuilder sb, TFmt source, string? callerFormatString = null
+    WrittenAsFlags FormatFieldName<TFmt>(ITypeMolderDieCast mdc, TFmt source, string? callerFormatString = null
       , FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?;
 
-    WrittenAsFlags FormatFieldName<TFmtStruct>(IStringBuilder sb, TFmtStruct? source, string? formatString = null
+    WrittenAsFlags FormatFieldName<TFmtStruct>(ITypeMolderDieCast mdc, TFmtStruct? source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable;
 
-    WrittenAsFlags FormatFieldName(IStringBuilder sb, ReadOnlySpan<char> source, int sourceFrom = 0
+    WrittenAsFlags FormatFieldName(ITypeMolderDieCast mdc, ReadOnlySpan<char> source, int sourceFrom = 0
       , string? formatString = null, int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    WrittenAsFlags FormatFieldName(IStringBuilder sb, char[] source, int sourceFrom = 0, string? formatString = null
+    WrittenAsFlags FormatFieldName(ITypeMolderDieCast mdc, char[] source, int sourceFrom = 0, string? formatString = null
       , int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    WrittenAsFlags FormatFieldName(IStringBuilder sb, ICharSequence source, int sourceFrom = 0
+    WrittenAsFlags FormatFieldName(ITypeMolderDieCast mdc, ICharSequence source, int sourceFrom = 0
       , string? formatString = null, int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    WrittenAsFlags FormatFieldName(IStringBuilder sb, StringBuilder source, int sourceFrom = 0
+    WrittenAsFlags FormatFieldName(ITypeMolderDieCast mdc, StringBuilder source, int sourceFrom = 0
       , string? formatString = null, int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    AppendSummary FormatFieldName<TCloaked, TRevealBase>(ISecretStringOfPower tos, TCloaked value, PalantírReveal<TRevealBase> valueRevealer
+    AppendSummary FormatFieldName<TCloaked, TRevealBase>(ITypeMolderDieCast mdc, TCloaked value, PalantírReveal<TRevealBase> valueRevealer
       , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull;
 
-    AppendSummary FormatFieldName<TBearer>(ISecretStringOfPower tos, TBearer styledObj
+    AppendSummary FormatBearerFieldName<TBearer>(ITypeMolderDieCast mdc, TBearer styledObj
       , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?;
 
-    WrittenAsFlags FormatFieldContentsMatch<TAny>(IStringBuilder sb, TAny source, string? formatString = null
+    WrittenAsFlags FormatFieldContentsMatch<TAny>(ITypeMolderDieCast mdc, TAny source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    WrittenAsFlags FormatFieldContents(IStringBuilder sb, bool source, string? formatString = null
+    WrittenAsFlags FormatFieldContents(ITypeMolderDieCast mdc, bool source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    WrittenAsFlags FormatFieldContents(IStringBuilder sb, bool? source, string? formatString = null
+    WrittenAsFlags FormatFieldContents(ITypeMolderDieCast mdc, bool? source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    WrittenAsFlags FormatFieldContents<TFmt>(IStringBuilder sb, TFmt source, string? formatString = null
+    WrittenAsFlags FormatFieldContents<TFmt>(ITypeMolderDieCast mdc, TFmt source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?;
 
-    WrittenAsFlags FormatFieldContents<TFmtStruct>(IStringBuilder sb, TFmtStruct? source, string? formatString = null
+    WrittenAsFlags FormatFieldContents<TFmtStruct>(ITypeMolderDieCast mdc, TFmtStruct? source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable;
 
-    WrittenAsFlags FormatFieldContents(IStringBuilder sb, ReadOnlySpan<char> source, int sourceFrom = 0
+    WrittenAsFlags FormatFieldContents(ITypeMolderDieCast mdc, ReadOnlySpan<char> source, int sourceFrom = 0
       , string? formatString = null, int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    WrittenAsFlags FormatFallbackFieldContents<TAny>(IStringBuilder sb, ReadOnlySpan<char> source, int sourceFrom = 0
+    WrittenAsFlags FormatFallbackFieldContents<TAny>(ITypeMolderDieCast mdc, ReadOnlySpan<char> source, int sourceFrom = 0
       , string? formatString = null, int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    WrittenAsFlags FormatFieldContents(IStringBuilder sb, char[] source, int sourceFrom = 0
+    WrittenAsFlags FormatFieldContents(ITypeMolderDieCast mdc, char[] source, int sourceFrom = 0
       , string? formatString = null, int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    WrittenAsFlags FormatFieldContents(IStringBuilder sb, ICharSequence source, int sourceFrom = 0, string? formatString = null
+    WrittenAsFlags FormatFieldContents(ITypeMolderDieCast mdc, ICharSequence source, int sourceFrom = 0, string? formatString = null
       , int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    WrittenAsFlags FormatFieldContents(IStringBuilder sb, StringBuilder source, int sourceFrom = 0, string? formatString = null
+    WrittenAsFlags FormatFieldContents(ITypeMolderDieCast mdc, StringBuilder source, int sourceFrom = 0, string? formatString = null
       , int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    AppendSummary FormatFieldContents<TCloaked, TRevealBase>(ISecretStringOfPower tos, TCloaked value, PalantírReveal<TRevealBase> valueRevealer
+    AppendSummary FormatFieldContents<TCloaked, TRevealBase>(ITypeMolderDieCast mdc, TCloaked value, PalantírReveal<TRevealBase> valueRevealer
       , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull;
 
-    AppendSummary FormatFieldContents<TBearer>(ISecretStringOfPower tos, TBearer styledObj, string? callerFormatString = null
+    AppendSummary FormatBearerFieldContents<TBearer>(ITypeMolderDieCast mdc, TBearer styledObj, string? callerFormatString = null
       , FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?;
 

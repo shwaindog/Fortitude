@@ -272,6 +272,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual ContentSeparatorRanges AppendContentTypeClosing(ITypeMolderDieCast moldInternal)
     {
         if (moldInternal.CurrentWriteMethod.SupportsMultipleFields()) { return AppendComplexTypeClosing(moldInternal); }
+        if (Gb.HasCommitContent) { Gb.SnapshotLastAppendSequence(Gb.CurrentSectionRanges.StartedWithFormatFlags); }
         Gb.RemoveLastSeparatorAndPadding();
         Gb.StartNextContentSeparatorPaddingSequence(moldInternal.Sb, DefaultCallerTypeFlags);
         return Gb.SnapshotLastAppendSequence(DefaultCallerTypeFlags);
@@ -313,7 +314,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     }
 
     public virtual ContentSeparatorRanges FinishComplexTypeOpening(ITypeMolderDieCast moldInternal
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) => ContentSeparatorRanges.None;
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+    {
+        if (Gb.HasCommitContent) { Gb.SnapshotLastAppendSequence(Gb.CurrentSectionRanges.StartedWithFormatFlags); }
+        return ContentSeparatorRanges.None;
+    }
 
     public virtual int SizeFieldValueSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         LayoutEncoder.CalculateEncodedLength(ClnSpc);
@@ -367,6 +372,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
     public virtual ContentSeparatorRanges AppendComplexTypeClosing(ITypeMolderDieCast moldInternal)
     {
+
+        if (Gb.HasCommitContent) { Gb.SnapshotLastAppendSequence(Gb.CurrentSectionRanges.StartedWithFormatFlags); }
         var sb = moldInternal.Sb;
 
         var previousContentPadSpacing = Gb.LastContentSeparatorPaddingRanges;
@@ -451,7 +458,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     }
 
     public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(
-        ITypeMolderDieCast<TMold> typeMold
+        ITypeMolderDieCast<TMold> mdc
       , Type keyedCollectionType
       , TKey key
       , TValue? value
@@ -464,16 +471,16 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags | IsFieldName);
-        typeMold.FieldEnd();
+        mdc.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags | IsFieldName);
+        mdc.FieldEnd();
 
-        if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-        else { FormatFieldContents(typeMold.Master, value, valueStyler, valueFormatString, valueFlags); }
-        return typeMold;
+        if (value == null) { AppendFormattedNull(mdc.Sb, "", valueFlags); }
+        else { FormatFieldContents(mdc, value, valueStyler, valueFormatString, valueFlags); }
+        return mdc;
     }
 
     public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(
-        ITypeMolderDieCast<TMold> typeMold
+        ITypeMolderDieCast<TMold> mdc
       , Type keyedCollectionType
       , TKey key
       , TValue? value
@@ -486,15 +493,15 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         where TValue : struct, TVRevealBase
         where TVRevealBase : notnull
     {
-        typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags | IsFieldName);
-        typeMold.FieldEnd();
-        if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-        else { FormatFieldContents(typeMold.Master, value.Value, valueStyler, valueFormatString, valueFlags); }
-        return typeMold;
+        mdc.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags | IsFieldName);
+        mdc.FieldEnd();
+        if (value == null) { AppendFormattedNull(mdc.Sb, "", valueFlags); }
+        else { FormatFieldContents(mdc, value.Value, valueStyler, valueFormatString, valueFlags); }
+        return mdc;
     }
 
     public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
-        ITypeMolderDieCast<TMold> typeMold
+        ITypeMolderDieCast<TMold> mdc
       , Type keyedCollectionType
       , TKey key
       , TValue? value
@@ -509,17 +516,17 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        var sb = typeMold.Sb;
+        var sb = mdc.Sb;
         if (key == null) { AppendFormattedNull(sb, ""); }
-        else { keyStyler(key, typeMold.Master); }
-        typeMold.FieldEnd();
-        if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-        else { FormatFieldContents(typeMold.Master, value, valueStyler, valueFormatString, valueFlags); }
-        return typeMold;
+        else { keyStyler(key, mdc.Master); }
+        mdc.FieldEnd();
+        if (value == null) { AppendFormattedNull(mdc.Sb, "", valueFlags); }
+        else { FormatFieldContents(mdc, value, valueStyler, valueFormatString, valueFlags); }
+        return mdc;
     }
 
     public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
-        ITypeMolderDieCast<TMold> typeMold
+        ITypeMolderDieCast<TMold> mdc
       , Type keyedCollectionType
       , TKey? key
       , TValue? value
@@ -534,17 +541,17 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        var sb = typeMold.Sb;
+        var sb = mdc.Sb;
         if (key == null) { AppendFormattedNull(sb, ""); }
-        else { keyStyler(key.Value, typeMold.Master); }
-        typeMold.FieldEnd();
-        if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-        else { FormatFieldContents(typeMold.Master, value, valueStyler, valueFormatString, valueFlags); }
-        return typeMold;
+        else { keyStyler(key.Value, mdc.Master); }
+        mdc.FieldEnd();
+        if (value == null) { AppendFormattedNull(mdc.Sb, "", valueFlags); }
+        else { FormatFieldContents(mdc, value, valueStyler, valueFormatString, valueFlags); }
+        return mdc;
     }
 
     public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
-        ITypeMolderDieCast<TMold> typeMold
+        ITypeMolderDieCast<TMold> mdc
       , Type keyedCollectionType
       , TKey key
       , TValue? value
@@ -559,17 +566,17 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        var sb = typeMold.Sb;
+        var sb = mdc.Sb;
         if (key == null) { AppendFormattedNull(sb, ""); }
-        else { keyStyler(key, typeMold.Master); }
-        typeMold.FieldEnd();
-        if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-        else { FormatFieldContents(typeMold.Master, value.Value, valueStyler, valueFormatString, valueFlags); }
-        return typeMold;
+        else { keyStyler(key, mdc.Master); }
+        mdc.FieldEnd();
+        if (value == null) { AppendFormattedNull(mdc.Sb, "", valueFlags); }
+        else { FormatFieldContents(mdc, value.Value, valueStyler, valueFormatString, valueFlags); }
+        return mdc;
     }
 
     public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
-        ITypeMolderDieCast<TMold> typeMold
+        ITypeMolderDieCast<TMold> mdc
       , Type keyedCollectionType
       , TKey? key
       , TValue? value
@@ -584,13 +591,13 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        var sb = typeMold.Sb;
+        var sb = mdc.Sb;
         if (key == null) { AppendFormattedNull(sb, ""); }
-        else { keyStyler(key.Value, typeMold.Master); }
-        typeMold.FieldEnd();
-        if (value == null) { AppendFormattedNull(typeMold.Sb, "", valueFlags); }
-        else { FormatFieldContents(typeMold.Master, value.Value, valueStyler, valueFormatString, valueFlags); }
-        return typeMold;
+        else { keyStyler(key.Value, mdc.Master); }
+        mdc.FieldEnd();
+        if (value == null) { AppendFormattedNull(mdc.Sb, "", valueFlags); }
+        else { FormatFieldContents(mdc, value.Value, valueStyler, valueFormatString, valueFlags); }
+        return mdc;
     }
 
     public virtual IStringBuilder AppendKeyedCollectionNextItem(IStringBuilder sb, Type keyedCollectionType
@@ -603,10 +610,19 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
     public virtual int SizeFormatFieldName(int sourceLength, FormatFlags formatFlags = DefaultCallerTypeFlags) => sourceLength;
 
-    public virtual int InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, Type actualType, int refId, int indexToInsertAt
-      , WriteMethodType writeMethod, FormatFlags createTypeFlags, int currentEnd = -1, ITypeMolderDieCast? liveMoldInternal = null)
+    public virtual int InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, int refId, Type actualType, int typeOpenIndex
+      , WriteMethodType writeMethod, int indexToInsertAt, FormatFlags createTypeFlags, int contentLength = -1
+      , ITypeMolderDieCast? liveMoldInternal = null)
     {
         var sb              = insertBuilder.Sb;
+        var instanceInfoFormatFlags =
+            StyleOptions.InstanceMarkingWrapInstanceInfoFieldNamesInQuotes
+                ? DefaultCallerTypeFlags
+                : DisableFieldNameDelimiting;
+        var instanceIdFormatFlags =
+            StyleOptions.InstanceMarkingWrapInstanceIdInQuotes
+                ? DefaultCallerTypeFlags
+                : DisableAutoDelimiting;
         var preAppendLength = sb.Length;
 
         var refDigitsCount = refId.NumOfDigits();
@@ -620,7 +636,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var suffixInsertSize              = 0;
 
         // first entry spot maybe removed if empty so backtrack to open add one;
-        var isEmpty = indexToInsertAt - SizeNextFieldPadding(createTypeFlags) + 1 == currentEnd;
+        var firstFieldPad = SizeNextFieldPadding(createTypeFlags);
+        var isEmpty       = indexToInsertAt - firstFieldPad + 1 == typeOpenIndex + contentLength;
         if (!alreadySupportsMultipleFields)
         {
             needsBracesWrap = writeMethod == WriteMethodType.RawContent;
@@ -661,9 +678,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             // after inserted
             prefixInsertSize += SizeFieldSeparatorAndPadding(createTypeFlags);
         }
-        prefixInsertSize += SizeFormatFieldName("$id".Length, createTypeFlags);
+        prefixInsertSize += SizeFormatFieldName("$id".Length, instanceInfoFormatFlags);
         prefixInsertSize += SizeFieldValueSeparator(createTypeFlags);
-        prefixInsertSize += refDigitsCount;
+        prefixInsertSize += SizeFormatFieldContents(refDigitsCount, instanceIdFormatFlags);
 
         insertBuilder.StartInsertAt(indexToInsertAt, prefixInsertSize);
 
@@ -678,8 +695,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             else { Gb.AppendContent(RndBrktOpn); }
         }
         else if (isEmpty) { AddNextFieldPadding(createTypeFlags); }
+        if (instanceInfoFormatFlags.DoesNotHaveDisableFieldNameDelimitingFlag()) Gb.AppendContent(DblQt);
         Gb.AppendContent("$id");
+        if (instanceInfoFormatFlags.DoesNotHaveDisableFieldNameDelimitingFlag()) Gb.AppendContent(DblQt);
         AppendFieldValueSeparator();
+        if (instanceIdFormatFlags.DoesNotHaveDisableAutoDelimiting()) Gb.AppendContent(DblQt);
         Span<char> refSpan = stackalloc char[refDigitsCount];
         if (refId.TryFormat(refSpan, out var charsWritten, ""))
         {
@@ -691,6 +711,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             Debugger.Break();
             Gb.AppendContent(refId.ToString());
         }
+        if (instanceIdFormatFlags.DoesNotHaveDisableAutoDelimiting()) Gb.AppendContent(DblQt);
         if (liveMoldInternal != null) { liveMoldInternal.WrittenAsFlags |= WrittenAsFlags.WithInstanceId; }
         if (!alreadySupportsMultipleFields)
         {
@@ -702,7 +723,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                 suffixInsertSize += SizeNextFieldPadding(createTypeFlags);
                 suffixInsertSize += 1; // close Brace
 
-                insertBuilder.StartInsertAt(currentEnd + prefixInsertSize, suffixInsertSize);
+                insertBuilder.StartInsertAt(indexToInsertAt + contentLength + prefixInsertSize, suffixInsertSize);
                 AddNextFieldPadding(createTypeFlags);
                 Gb.AppendContent(BrcCls);
             }
@@ -726,9 +747,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return Gb.Sb.Length - preAppendLength;
     }
 
-    public virtual int AppendExistingReferenceId(ITypeMolderDieCast moldInternal, int refId, WriteMethodType writeMethod, FormatFlags createTypeFlags)
+    public virtual int AppendExistingReferenceId(ITypeMolderDieCast mdc, int refId, WriteMethodType writeMethod, FormatFlags createTypeFlags)
     {
-        var sb = moldInternal.Sb;
+        var sb = mdc.Sb;
 
         var preAppendLength = sb.Length;
         var needsBracesWrap = false;
@@ -742,37 +763,37 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                             && createTypeFlags.HasSuppressOpening() && createTypeFlags.HasSuppressClosing());
             if (writeMethod == WriteMethodType.MoldSimpleContentType)
             {
-                var actualTypeFullName = moldInternal.TypeBeingBuilt.FullName;
+                var actualTypeFullName = mdc.TypeBeingBuilt.FullName;
                 if (createTypeFlags.HasSuppressOpening() && createTypeFlags.HasSuppressClosing()
                  || StyleOptions.LogSuppressDisplayTypeNames.Any(s => actualTypeFullName?.StartsWith(s) ?? false)) { needsBracesWrap = true; }
             }
             if (needsBracesWrap)
             {
-                moldInternal.CurrentWriteMethod = writeMethod.ToMultiFieldEquivalent();
-                StartComplexTypeOpening(moldInternal, createTypeFlags);
-                FinishComplexTypeOpening(moldInternal, createTypeFlags);
+                mdc.CurrentWriteMethod = writeMethod.ToMultiFieldEquivalent();
+                StartComplexTypeOpening(mdc, createTypeFlags);
+                FinishComplexTypeOpening(mdc, createTypeFlags);
             }
             else { Gb.AppendContent(RndBrktOpn); }
         }
-        AppendFieldName(sb, "$ref");
+        AppendFieldName(mdc, "$ref");
         AppendFieldValueSeparator();
-        FormatFieldContents(sb, refId, "", createTypeFlags);
-        moldInternal.WrittenAsFlags |= WrittenAsFlags.WithReferenceToInstanceId; 
+        FormatFieldContents(mdc, refId, "", createTypeFlags);
+        mdc.WrittenAsFlags |= WrittenAsFlags.WithReferenceToInstanceId; 
 
         if (!alreadySupportsMultipleFields && !needsBracesWrap) { Gb.AppendContent(RndBrktCls); }
         else
         {
-            moldInternal.IsEmpty = false;
+            mdc.IsEmpty = false;
             AddToNextFieldSeparatorAndPadding(createTypeFlags);
         }
         return sb.Length - preAppendLength;
     }
 
-    public virtual int AppendInstanceInfoField(ITypeMolderDieCast moldInternal, string fieldName, ReadOnlySpan<char> description
+    public virtual int AppendInstanceInfoField(ITypeMolderDieCast mdc, string fieldName, ReadOnlySpan<char> description
       , WriteMethodType writeMethod, FormatFlags createTypeFlags)
     {
         if (createTypeFlags.HasNoRevisitCheck()) return 0; // fieldNames are marked with this and
-        var sb = moldInternal.Sb;
+        var sb = mdc.Sb;
 
         var alreadySupportsMultipleFields = writeMethod.SupportsMultipleFields();
         var preAppendLength               = sb.Length;
@@ -786,28 +807,30 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             }
             else { Gb.StartAppendContentAndComplete(RndBrktOpn, sb, DefaultCallerTypeFlags); }
         }
-        AppendFieldName(sb, fieldName);
+        AppendFieldName(mdc, fieldName);
         AppendFieldValueSeparator();
-        FormatFieldContents(sb, description, 0, "\"{0}\"", formatFlags: createTypeFlags);
+        FormatFieldContents(mdc, description, 0, "\"{0}\"", formatFlags: createTypeFlags);
 
         if (!alreadySupportsMultipleFields) { Gb.StartAppendContentAndComplete(RndBrktCls, sb, DefaultCallerTypeFlags); }
         else
         {
-            moldInternal.IsEmpty = false;
+            mdc.IsEmpty = false;
             AddToNextFieldSeparatorAndPadding(createTypeFlags);
         }
         return sb.Length - preAppendLength;
     }
 
-    public virtual WrittenAsFlags AppendFieldName(IStringBuilder sb, ReadOnlySpan<char> fieldName, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public virtual WrittenAsFlags AppendFieldName(ITypeMolderDieCast mdc, ReadOnlySpan<char> fieldName, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
+        var sb         = mdc.Sb;
         Gb.StartAppendContent(fieldName, sb, this, DefaultCallerTypeFlags);
         return WrittenAsFlags.AsValue;
     }
 
-    public virtual WrittenAsFlags FormatFieldNameMatch<TAny>(IStringBuilder sb, TAny source, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldNameMatch<TAny>(ITypeMolderDieCast mdc, TAny source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
+        var sb         = mdc.Sb;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
         if (formatString.IsNotNullOrEmpty())
@@ -818,9 +841,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldName(IStringBuilder sb, bool source, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldName(ITypeMolderDieCast mdc, bool source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
+        var sb         = mdc.Sb;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
         Format(source, sb, formatString ?? "");
@@ -828,9 +852,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldName(IStringBuilder sb, bool? source, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldName(ITypeMolderDieCast mdc, bool? source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
+        var sb         = mdc.Sb;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
         if (source != null)
@@ -841,23 +866,24 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldName<TFmt>(IStringBuilder sb, TFmt source, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldName<TFmt>(ITypeMolderDieCast mdc, TFmt source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
-        return FormatFieldContents(sb, source, formatString, formatFlags);
+        return FormatFieldContents(mdc, source, formatString, formatFlags);
     }
 
-    public virtual WrittenAsFlags FormatFieldName<TFmtStruct>(IStringBuilder sb, TFmtStruct? source, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldName<TFmtStruct>(ITypeMolderDieCast mdc, TFmtStruct? source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
     {
-        return FormatFieldContents(sb, source, formatString, formatFlags);
+        return FormatFieldContents(mdc, source, formatString, formatFlags);
     }
 
-    public virtual WrittenAsFlags FormatFieldName(IStringBuilder sb
+    public virtual WrittenAsFlags FormatFieldName(ITypeMolderDieCast mdc
       , ReadOnlySpan<char> source, int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
+        var sb         = mdc.Sb;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
         base.Format(source, sourceFrom, sb, formatString ?? "", maxTransferCount);
@@ -865,10 +891,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldName(IStringBuilder sb, char[] source
+    public virtual WrittenAsFlags FormatFieldName(ITypeMolderDieCast mdc, char[] source
       , int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
+        var sb         = mdc.Sb;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
         base.Format(source, sourceFrom, sb, formatString ?? "", maxTransferCount);
@@ -876,10 +903,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldName(IStringBuilder sb, ICharSequence source
+    public virtual WrittenAsFlags FormatFieldName(ITypeMolderDieCast mdc, ICharSequence source
       , int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
+        var sb         = mdc.Sb;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
         base.Format(source, sourceFrom, sb, formatString ?? "", maxTransferCount);
@@ -887,10 +915,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldName(IStringBuilder sb, StringBuilder source
+    public virtual WrittenAsFlags FormatFieldName(ITypeMolderDieCast mdc, StringBuilder source
       , int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
+        var sb         = mdc.Sb;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
         base.Format(source, sourceFrom, sb, formatString ?? "", maxTransferCount, formatSwitches: (FormatSwitches)formatFlags);
@@ -898,58 +927,104 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual AppendSummary FormatFieldName<TCloaked, TRevealBase>(ISecretStringOfPower tos, TCloaked value
+    public virtual AppendSummary FormatFieldName<TCloaked, TRevealBase>(ITypeMolderDieCast mdc, TCloaked value
       , PalantírReveal<TRevealBase> valueRevealer, string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        var sb = tos.WriteBuffer;
-        var withMoldInherited = callerFormatFlags
-                              | (tos.CurrentTypeBuilder?.CreateFormatFlags ?? DefaultCallerTypeFlags) & MoldAlwaysInherited;
+        var sb         = mdc.Sb;
+        var withMoldInherited = callerFormatFlags | mdc.CreateMoldFormatFlags.MoldMultiGenerationPassFlags();
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
-        var contentStart = sb.Length;
-        tos.SetCallerFormatString(callerFormatString);
-        tos.SetCallerFormatFlags(withMoldInherited | IsFieldName);
+        mdc.Master.SetCallerFormatString(callerFormatString);
+        mdc.Master.SetCallerFormatFlags(withMoldInherited | IsFieldName);
 
-        var visitNumber = tos.CurrentTypeBuilder?.InstanceTrackingVisitNumber ?? -1;
+        var visitNumber = mdc.MoldGraphVisit.CurrentVisitIndex;
         if (value == null)
         {
+            var startAtNull    = sb.Length;
             var writtenAsFlags = AppendFormattedNull(sb, callerFormatString); 
-            return new AppendSummary(typeof(TCloaked), tos, new Range(contentStart, sb.Length), writtenAsFlags, visitNumber);
+            return new AppendSummary(typeof(TCloaked), mdc.Master, new Range(startAtNull, sb.Length), writtenAsFlags, visitNumber);
         }
         
-        var stateExtractResult = valueRevealer(value, tos);
-        if (sb.Length == contentStart) return tos.EmptyAppendAt(tos.CurrentTypeBuilder!.TypeBeingBuilt, contentStart, value.GetType());
+        var appendSummary = valueRevealer(value, mdc.Master);
+        var contentStart  = appendSummary.StartAt;
+        if (sb.Length == contentStart) return mdc.Master.EmptyAppendAt(mdc.TypeBeingBuilt, contentStart, value.GetType());
+        if (withMoldInherited.HasDisableFieldNameDelimitingFlag() 
+         || mdc.CreateMoldFormatFlags.HasAsStringContentFlag()   
+         || !callerFormatFlags.HasAsStringContentFlag() 
+         || sb[contentStart] == DblQtChar)
+        {
+            Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
+            Gb.MarkContentStart(contentStart);
+            Gb.MarkContentEnd();
+            return appendSummary;
+        }
+        var charsInserted = LayoutEncoder.InsertTransfer(DblQt, sb, contentStart);
+        mdc.Master.ShiftRegisteredFromCharOffset(contentStart, charsInserted);
+        charsInserted += LayoutEncoder.AppendTransfer(DblQt, sb);
+        Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
+        Gb.MarkContentStart(contentStart);
         Gb.MarkContentEnd();
-        return stateExtractResult;
+        if (!mdc.Settings.InstanceTrackingAllAsStringHaveLocalTracking && appendSummary.VisitNumber >= 0)
+        {
+            mdc.Master.UpdateVisitLength(mdc.Master.ActiveGraphRegistry.RegistryId, appendSummary.VisitNumber, charsInserted);
+        }
+        return appendSummary.AddWrittenAsFlags(WrittenAsFlags.AsString).UpdateStringEndRange(charsInserted);
     }
 
-    public virtual AppendSummary FormatFieldName<TBearer>(ISecretStringOfPower tos, TBearer styledObj
+    public virtual AppendSummary FormatBearerFieldName<TBearer>(ITypeMolderDieCast mdc, TBearer styledObj
       , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?
     {
-        var sb = tos.WriteBuffer;
-        var withMoldInherited = callerFormatFlags
-                              | (tos.CurrentTypeBuilder?.CreateFormatFlags ?? DefaultCallerTypeFlags) & MoldAlwaysInherited;
+        var sb         = mdc.Sb;
+        var withMoldInherited = callerFormatFlags | mdc.CreateMoldFormatFlags.MoldMultiGenerationPassFlags();
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
-        var contentStart = sb.Length;
-        tos.SetCallerFormatString(callerFormatString);
-        tos.SetCallerFormatFlags(withMoldInherited | IsFieldName);
+        mdc.Master.SetCallerFormatString(callerFormatString);
+        mdc.Master.SetCallerFormatFlags(withMoldInherited | IsFieldName);
 
-        var visitNumber = tos.CurrentTypeBuilder?.InstanceTrackingVisitNumber ?? -1;
+        var visitNumber = mdc.MoldGraphVisit.CurrentVisitIndex;
         if (styledObj == null)
         {
+            var startAtNull    = sb.Length;
             var writtenAsFlags = AppendFormattedNull(sb, callerFormatString); 
-            return new AppendSummary(typeof(TBearer), tos, new Range(contentStart, sb.Length), writtenAsFlags, visitNumber);
+            return new AppendSummary(typeof(TBearer), mdc.Master, new Range(startAtNull, sb.Length), writtenAsFlags, visitNumber);
         }
-        var stateExtractResult = styledObj.RevealState(tos);
-        if (sb.Length == contentStart) return tos.EmptyAppendAt(tos.CurrentTypeBuilder!.TypeBeingBuilt, contentStart, styledObj.GetType());
+        var appendSummary = styledObj.RevealState(mdc.Master);
+        var contentStart  = appendSummary.StartAt;
+        if (sb.Length == contentStart) return mdc.Master.EmptyAppendAt(mdc.TypeBeingBuilt, contentStart, styledObj.GetType());
+        if (withMoldInherited.HasDisableFieldNameDelimitingFlag() 
+         || !callerFormatFlags.HasAsStringContentFlag() 
+         || sb[contentStart] == DblQtChar)
+        {
+            Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
+            Gb.MarkContentStart(contentStart);
+            Gb.MarkContentEnd();
+            return appendSummary;
+        }
+        var charsInserted = LayoutEncoder.InsertTransfer(DblQt, sb, contentStart);
+        mdc.Master.ShiftRegisteredFromCharOffset(contentStart, charsInserted);
+        charsInserted += LayoutEncoder.AppendTransfer(DblQt, sb);
+        Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
+        Gb.MarkContentStart(contentStart);
         Gb.MarkContentEnd();
-        return stateExtractResult;
+        if (!mdc.Settings.InstanceTrackingAllAsStringHaveLocalTracking && appendSummary.VisitNumber >= 0)
+        {
+            mdc.Master.UpdateVisitLength(mdc.Master.ActiveGraphRegistry.RegistryId, appendSummary.VisitNumber, charsInserted);
+        }
+        return appendSummary.AddWrittenAsFlags(WrittenAsFlags.AsString).UpdateStringEndRange(charsInserted);
     }
 
-    public virtual WrittenAsFlags FormatFieldContentsMatch<TAny>(IStringBuilder sb, TAny source, string? formatString = null
+    public virtual int SizeFormatFieldContents(int sourceLength, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    {
+        var size                                                 = 0;
+        if (formatFlags.DoesNotHaveDisableAutoDelimiting()) size = 2 * LayoutEncoder.CalculateEncodedLength(DblQt);
+        size += sourceLength;
+        return size;
+    }
+
+    public virtual WrittenAsFlags FormatFieldContentsMatch<TAny>(ITypeMolderDieCast mdc, TAny source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
+        var sb         = mdc.Sb;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
         sb.AppendFormat(this, formatString ?? "", source, formatFlags: (FormatSwitches)formatFlags);
@@ -957,9 +1032,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldContents(IStringBuilder sb, bool source, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldContents(ITypeMolderDieCast mdc, bool source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
+        var sb         = mdc.Sb;
         formatString ??= "";
 
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
@@ -984,9 +1060,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldContents(IStringBuilder sb, bool? source, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldContents(ITypeMolderDieCast mdc, bool? source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
+        var sb         = mdc.Sb;
         formatString ??= "";
 
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
@@ -1011,9 +1088,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldContents<TFmt>(IStringBuilder sb, TFmt source, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldContents<TFmt>(ITypeMolderDieCast mdc, TFmt source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
+        var sb         = mdc.Sb;
         formatString ??= "";
 
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
@@ -1051,9 +1129,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldContents<TFmtStruct>(IStringBuilder sb, TFmtStruct? source, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldContents<TFmtStruct>(ITypeMolderDieCast mdc, TFmtStruct? source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
+        var sb         = mdc.Sb;
         formatString ??= "";
 
         if (source == null)
@@ -1061,12 +1140,13 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             return AppendFormattedNull(sb, formatString, formatFlags);
         }
 
-        return FormatFieldContents(sb, source.Value, formatString, formatFlags);
+        return FormatFieldContents(mdc, source.Value, formatString, formatFlags);
     }
 
-    public virtual WrittenAsFlags FormatFieldContents(IStringBuilder sb, ReadOnlySpan<char> source, int sourceFrom = 0, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldContents(ITypeMolderDieCast mdc, ReadOnlySpan<char> source, int sourceFrom = 0, string? formatString = null
       , int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
+        var sb         = mdc.Sb;
         formatString ??= "";
 
         var allowEmptyContent = true;
@@ -1094,19 +1174,21 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFallbackFieldContents<TAny>(IStringBuilder sb, ReadOnlySpan<char> source, int sourceFrom = 0
+    public virtual WrittenAsFlags FormatFallbackFieldContents<TAny>(ITypeMolderDieCast mdc, ReadOnlySpan<char> source, int sourceFrom = 0
       , string? formatString = null, int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
+        var sb         = mdc.Sb;
         formatString ??= "";
 
         formatFlags = ResolveContentFormattingFlags<TAny>(sb, default!, formatFlags, formatString);
 
-        return FormatFieldContents(sb, source, sourceFrom, formatString, maxTransferCount, formatFlags);
+        return FormatFieldContents(mdc, source, sourceFrom, formatString, maxTransferCount, formatFlags);
     }
 
-    public virtual WrittenAsFlags FormatFieldContents(IStringBuilder sb, char[] source, int sourceFrom = 0, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldContents(ITypeMolderDieCast mdc, char[] source, int sourceFrom = 0, string? formatString = null
       , int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
+        var sb         = mdc.Sb;
         formatString ??= "";
 
         var allowEmptyContent = true;
@@ -1136,9 +1218,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldContents(IStringBuilder sb, ICharSequence source, int sourceFrom = 0, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldContents(ITypeMolderDieCast mdc, ICharSequence source, int sourceFrom = 0, string? formatString = null
       , int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
+        var sb         = mdc.Sb;
         formatString ??= "";
 
         var allowEmptyContent = true;
@@ -1166,9 +1249,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldContents(IStringBuilder sb, StringBuilder source, int sourceFrom = 0, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldContents(ITypeMolderDieCast mdc, StringBuilder source, int sourceFrom = 0, string? formatString = null
       , int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
+        var sb         = mdc.Sb;
         formatString ??= "";
 
         var allowEmptyContent = true;
@@ -1196,59 +1280,99 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual AppendSummary FormatFieldContents<TCloaked, TRevealBase>(ISecretStringOfPower tos, TCloaked value
+    public virtual AppendSummary FormatFieldContents<TCloaked, TRevealBase>(ITypeMolderDieCast mdc, TCloaked value
       , PalantírReveal<TRevealBase> valueRevealer, string? callerFormatString = null
       , FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        var sb           = tos.WriteBuffer;
-        var contentStart = sb.Length;
-        tos.SetCallerFormatString(callerFormatString);
-        tos.SetCallerFormatFlags(callerFormatFlags);
+        var sb         = mdc.Sb;
+        var withMoldInherited = callerFormatFlags | mdc.CreateMoldFormatFlags.MoldMultiGenerationPassFlags();
+        Gb.StartNextContentSeparatorPaddingSequence(sb, withMoldInherited | NoRevisitCheck | IsFieldName);
+        mdc.Master.SetCallerFormatString(callerFormatString);
+        mdc.Master.SetCallerFormatFlags(withMoldInherited);
 
-        var visitNumber = tos.CurrentTypeBuilder?.InstanceTrackingVisitNumber ?? -1;
+        var visitNumber = mdc.MoldGraphVisit.CurrentVisitIndex;
         if (value == null)
         {
+            var startAtNull    = sb.Length;
             var writtenAsFlags = AppendFormattedNull(sb, callerFormatString); 
-            return new AppendSummary(typeof(TCloaked), tos, new Range(contentStart, sb.Length), writtenAsFlags, visitNumber);
+            return new AppendSummary(typeof(TCloaked), mdc.Master, new Range(startAtNull, sb.Length), writtenAsFlags, visitNumber);
         }
         
-        var stateExtractResult = valueRevealer(value, tos); 
-        if (sb.Length == contentStart) return tos.EmptyAppendAt(tos.CurrentTypeBuilder!.TypeBeingBuilt, contentStart, value.GetType());
+        var appendSummary = valueRevealer(value, mdc.Master);
+        var contentStart  = appendSummary.StartAt;
+        if (sb.Length == contentStart) return mdc.Master.EmptyAppendAt(mdc.TypeBeingBuilt, contentStart, value.GetType());
+        if (withMoldInherited.HasDisableAutoDelimiting() 
+         || !callerFormatFlags.HasAsStringContentFlag()
+         || mdc.CreateMoldFormatFlags.HasAsStringContentFlag() 
+         || sb[contentStart] == DblQtChar)
+        {
+            Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
+            Gb.MarkContentStart(contentStart);
+            Gb.MarkContentEnd();
+            return appendSummary;
+        }
+        var charsInserted = LayoutEncoder.InsertTransfer(DblQt, sb, contentStart);
+        mdc.Master.ShiftRegisteredFromCharOffset(contentStart, charsInserted);
+        charsInserted += LayoutEncoder.AppendTransfer(DblQt, sb);
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         Gb.MarkContentStart(contentStart);
         Gb.MarkContentEnd();
-        return stateExtractResult;
+        if (!mdc.Settings.InstanceTrackingAllAsStringHaveLocalTracking && appendSummary.VisitNumber >= 0)
+        {
+            mdc.Master.UpdateVisitLength(mdc.Master.ActiveGraphRegistry.RegistryId, appendSummary.VisitNumber, charsInserted);
+        }
+        return appendSummary.AddWrittenAsFlags(WrittenAsFlags.AsString).UpdateStringEndRange(charsInserted);
     }
 
-    public virtual AppendSummary FormatFieldContents<TBearer>(ISecretStringOfPower tos, TBearer styledObj,
+    public virtual AppendSummary FormatBearerFieldContents<TBearer>(ITypeMolderDieCast mdc, TBearer styledObj,
         string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?
     {
-        var sb = tos.WriteBuffer;
+        var sb         = mdc.Sb;
 
-        var contentStart = sb.Length;
-        tos.SetCallerFormatString(callerFormatString);
-        tos.SetCallerFormatFlags(callerFormatFlags);
+        var withMoldInherited = callerFormatFlags | mdc.CreateMoldFormatFlags.MoldMultiGenerationPassFlags();
+        Gb.StartNextContentSeparatorPaddingSequence(sb, withMoldInherited | NoRevisitCheck | IsFieldName);
+        mdc.Master.SetCallerFormatString(callerFormatString);
+        mdc.Master.SetCallerFormatFlags(withMoldInherited);
 
-        var visitNumber = tos.CurrentTypeBuilder?.InstanceTrackingVisitNumber ?? -1;
+        var visitNumber = mdc.MoldGraphVisit.CurrentVisitIndex;
         if (styledObj == null)
         {
+            var startAtNull    = sb.Length;
             var writtenAsFlags = AppendFormattedNull(sb, callerFormatString); 
-            return new AppendSummary(typeof(TBearer), tos, new Range(contentStart, sb.Length), writtenAsFlags, visitNumber);
+            return new AppendSummary(typeof(TBearer), mdc.Master, new Range(startAtNull, sb.Length), writtenAsFlags, visitNumber);
         }
-        var stateExtractResult =  styledObj.RevealState(tos); 
-        if (sb.Length == contentStart) return tos.EmptyAppendAt(tos.CurrentTypeBuilder!.TypeBeingBuilt, contentStart, styledObj.GetType());
+        var appendSummary =  styledObj.RevealState(mdc.Master);
+        var contentStart  = appendSummary.StartAt;
+        if (sb.Length == contentStart) return mdc.Master.EmptyAppendAt(mdc.TypeBeingBuilt, contentStart, styledObj.GetType());
+        if (withMoldInherited.HasDisableAutoDelimiting() 
+         || !callerFormatFlags.HasAsStringContentFlag()
+         || mdc.CreateMoldFormatFlags.HasAsStringContentFlag()    
+         || sb[contentStart] == DblQtChar)
+        {
+            Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
+            Gb.MarkContentStart(contentStart);
+            Gb.MarkContentEnd();
+            return appendSummary;
+        }
+        var charsInserted = LayoutEncoder.InsertTransfer(DblQt, sb, contentStart);
+        mdc.Master.ShiftRegisteredFromCharOffset(contentStart, charsInserted);
+        charsInserted += LayoutEncoder.AppendTransfer(DblQt, sb);
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         Gb.MarkContentStart(contentStart);
         Gb.MarkContentEnd();
-        return stateExtractResult;
+        if (!mdc.Settings.InstanceTrackingAllAsStringHaveLocalTracking && appendSummary.VisitNumber >= 0)
+        {
+            mdc.Master.UpdateVisitLength(mdc.Master.ActiveGraphRegistry.RegistryId, appendSummary.VisitNumber, charsInserted);
+        }
+        return appendSummary.AddWrittenAsFlags(WrittenAsFlags.AsString).UpdateStringEndRange(charsInserted);
     }
 
-    public virtual IStringBuilder FormatCollectionStart(ITypeMolderDieCast moldInternal, Type itemElementType, bool? hasItems, Type collectionType
+    public virtual IStringBuilder FormatCollectionStart(ITypeMolderDieCast mdc, Type itemElementType, bool? hasItems, Type collectionType
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = moldInternal.Sb;
+        var sb = mdc.Sb;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         if (!hasItems.HasValue)
         {
@@ -1266,7 +1390,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         }
         CollectionStart(itemElementType, sb, hasItems.Value, (FormatSwitches)formatFlags);
         if (hasItems == true)
-            AddCollectionElementPadding(moldInternal, itemElementType, 1, formatFlags);
+            AddCollectionElementPadding(mdc, itemElementType, 1, formatFlags);
         else
             Gb.Complete(formatFlags);
         return sb;
@@ -1292,9 +1416,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return charsAdded;
     }
 
-    public WrittenAsFlags CollectionNextItemFormat(IStringBuilder sb, bool item, int retrieveCount, string? formatString = null
+    public WrittenAsFlags CollectionNextItemFormat(ITypeMolderDieCast mdc, bool item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
+        var sb         = mdc.Sb;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
         CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormatSwitches)formatFlags);
@@ -1302,9 +1427,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public WrittenAsFlags CollectionNextItemFormat(IStringBuilder sb, bool? item, int retrieveCount, string? formatString = null
+    public WrittenAsFlags CollectionNextItemFormat(ITypeMolderDieCast mdc, bool? item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
+        var sb         = mdc.Sb;
         if (item == null) { return AppendFormattedNull(sb, formatString, formatFlags); }
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
@@ -1313,160 +1439,154 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public AppendSummary CollectionNextItemFormat<TFmt>(ISecretStringOfPower tos, TFmt item, int retrieveCount, string? formatString = null
+    public AppendSummary CollectionNextItemFormat<TFmt>(ITypeMolderDieCast mdc, TFmt item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
         var actualType = item?.GetType() ?? typeof(TFmt);
-        var sb         = tos.WriteBuffer;
+        var sb         = mdc.Sb;
         var startAt    = sb.Length;
-        var mdc        = tos.CurrentTypeBuilder!;
         if (item == null)
         {
             var writtenAsNull =  AppendFormattedNull(sb, formatString, formatFlags);
-            return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);   
+            return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);   
         }
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
-        FormatFieldContents(sb, item, formatString ?? "", formatFlags);
+        FormatFieldContents(mdc, item, formatString ?? "", formatFlags);
         Gb.MarkContentEnd();
         var writtenAs = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
-        return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
+        return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
     }
 
-    public WrittenAsFlags CollectionNextItemFormat<TFmtStruct>(IStringBuilder sb, TFmtStruct? item, int retrieveCount, string? formatString = null
+    public WrittenAsFlags CollectionNextItemFormat<TFmtStruct>(ITypeMolderDieCast mdc, TFmtStruct? item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
+        var sb         = mdc.Sb;
         if (item == null) { return AppendFormattedNull(sb, formatString, formatFlags); }
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
-        FormatFieldContents(sb, item.Value, formatString ?? "", formatFlags);
+        FormatFieldContents(mdc, item.Value, formatString ?? "", formatFlags);
         Gb.MarkContentEnd();
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual AppendSummary CollectionNextItemFormat<TCloaked, TCloakedBase>(ISecretStringOfPower tos
+    public virtual AppendSummary CollectionNextItemFormat<TCloaked, TCloakedBase>(ITypeMolderDieCast mdc
       , TCloaked? item, int retrieveCount, PalantírReveal<TCloakedBase> styler, string? callerFormatString
       , FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TCloaked : TCloakedBase?
         where TCloakedBase : notnull
     {
         var actualType = item?.GetType() ?? typeof(TCloaked);
-        var sb         = tos.WriteBuffer;
+        var sb         = mdc.Sb;
         var startAt    = sb.Length;
-        var mdc        = tos.CurrentTypeBuilder!;
         if (item == null)
         {
             var writtenAsNull = AppendFormattedNull(sb, callerFormatString);
-            return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);   
+            return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);   
         }
-        tos.SetCallerFormatString(callerFormatString);
-        tos.SetCallerFormatFlags(callerFormatFlags);
+        mdc.Master.SetCallerFormatString(callerFormatString);
+        mdc.Master.SetCallerFormatFlags(callerFormatFlags);
         var contentStart = sb.Length;
-        var stateExtractResult = styler(item, tos);
+        var stateExtractResult = styler(item, mdc.Master);
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         Gb.MarkContentStart(contentStart);
         Gb.MarkContentEnd();
         return stateExtractResult;
     }
 
-    public virtual AppendSummary CollectionNextItemFormat(ISecretStringOfPower tos, string? item, int retrieveCount
+    public virtual AppendSummary CollectionNextItemFormat(ITypeMolderDieCast mdc, string? item, int retrieveCount
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(string);
-        var sb         = tos.WriteBuffer;
+        var sb         = mdc.Sb;
         var startAt    = sb.Length;
-        var mdc        = tos.CurrentTypeBuilder!;
         if (item == null)
         {
             var writtenAsNull = AppendFormattedNull(sb, formatString, formatFlags);
-            return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);   
+            return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);   
         }
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         var contentStart = sb.Length;
         sb.AppendFormat(this, formatString ?? "", item);
         Gb.MarkContentEnd();
         var writtenAs = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
-        return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
+        return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
     }
 
-    public virtual AppendSummary CollectionNextItemFormat(ISecretStringOfPower tos, char[]? item, int retrieveCount
+    public virtual AppendSummary CollectionNextItemFormat(ITypeMolderDieCast mdc, char[]? item, int retrieveCount
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(char[]);
-        var sb         = tos.WriteBuffer;
+        var sb         = mdc.Sb;
         var startAt    = sb.Length;
-        var mdc        = tos.CurrentTypeBuilder!;
         if (item == null)
         {
             var writtenAsNull = AppendFormattedNull(sb, formatString, formatFlags);
-            return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);   
+            return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);   
         }
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         var contentStart = sb.Length;
         sb.AppendFormat(this, formatString ?? "", item);
         Gb.MarkContentEnd();
         var writtenAs = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
-        return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
+        return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
     }
 
-    public virtual AppendSummary CollectionNextCharSeqFormat<TCharSeq>(ISecretStringOfPower tos, TCharSeq item, int retrieveCount
+    public virtual AppendSummary CollectionNextCharSeqFormat<TCharSeq>(ITypeMolderDieCast mdc, TCharSeq item, int retrieveCount
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence?
     {
         var actualType = item?.GetType() ?? typeof(TCharSeq);
-        var sb         = tos.WriteBuffer;
+        var sb         = mdc.Sb;
         var startAt    = sb.Length;
-        var mdc        = tos.CurrentTypeBuilder!;
         if (item == null)
         {
             var writtenAsNull = AppendFormattedNull(sb, formatString, formatFlags);
-            return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);   
+            return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);   
         }
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
         Format(item, 0, sb, formatString ?? "", item.Length);
         Gb.MarkContentEnd();
         var writtenAs = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
-        return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
+        return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
     }
 
-    public virtual AppendSummary CollectionNextItemFormat(ISecretStringOfPower tos, StringBuilder? item, int retrieveCount, string? formatString = null
+    public virtual AppendSummary CollectionNextItemFormat(ITypeMolderDieCast mdc, StringBuilder? item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(StringBuilder);
-        var sb         = tos.WriteBuffer;
+        var sb         = mdc.Sb;
         var startAt    = sb.Length;
-        var mdc        = tos.CurrentTypeBuilder!;
         if (item == null)
         {
             var writtenAsNull = AppendFormattedNull(sb, formatString, formatFlags);
-            return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);   
+            return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);   
         }
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
         Format(item, 0, sb, formatString ?? "", item.Length);
         Gb.MarkContentEnd();
         var writtenAs = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
-        return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
+        return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
     }
 
-    public virtual AppendSummary CollectionNextStringBearerFormat<TBearer>(ISecretStringOfPower tos, TBearer item, int retrieveCount
+    public virtual AppendSummary CollectionNextStringBearerFormat<TBearer>(ITypeMolderDieCast mdc, TBearer item, int retrieveCount
       , string? callerFormatString, FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
         var actualType = item?.GetType() ?? typeof(TBearer);
-        var sb         = tos.WriteBuffer;
+        var sb         = mdc.Sb;
         var startAt    = sb.Length;
-        var mdc        = tos.CurrentTypeBuilder!;
         if (item == null)
         {
             var writtenAsNull = AppendFormattedNull(sb, callerFormatString, callerFormatFlags);
-            return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);
+            return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);
         }
         var contentStart = sb.Length;
-        tos.SetCallerFormatString(callerFormatString);
-        tos.SetCallerFormatFlags(callerFormatFlags);
-        var stateExtractResult =item.RevealState(tos);
+        mdc.Master.SetCallerFormatString(callerFormatString);
+        mdc.Master.SetCallerFormatFlags(callerFormatFlags);
+        var stateExtractResult =item.RevealState(mdc.Master);
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         Gb.MarkContentStart(contentStart);
         Gb.MarkContentEnd();
@@ -1535,10 +1655,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return Gb.Complete(fmtFlags).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
     }
 
-    public virtual IStringBuilder FormatCollectionEnd(ITypeMolderDieCast moldInternal, int? resultsFoundCount, Type itemElementType
+    public virtual IStringBuilder FormatCollectionEnd(ITypeMolderDieCast mdc, int? resultsFoundCount, Type itemElementType
       , int? totalItemCount, string? formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = moldInternal.Sb;
+        var sb = mdc.Sb;
         if (!totalItemCount.HasValue)
         {
             Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags, true);

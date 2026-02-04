@@ -84,7 +84,26 @@ public class InputBearerExpect<TInput> : IInputBearerFormatExpectation, IEnumera
 
     public TInput Input { get; set; }
 
-    public IStringBearer TestStringBearer => Input;
+    public IStringBearer TestStringBearer
+    {
+        get
+        {
+            var toReturn = Input;
+            if (toReturn is ISupportFormattingFlags setsFormatFlags)
+            {
+                setsFormatFlags.FormattingFlags = FormatFlags;
+            }
+            if (toReturn is ISupportSecondFormattingFlags setSecondsFormatFlags)
+            {
+                setSecondsFormatFlags.SecondFormattingFlags = FormatFlags;
+            }
+            if (toReturn is ISupportsValueFormatString setsFormatString)
+            {
+                setsFormatString.ValueFormatString = ValueFormatString;
+            }
+            return Input;
+        }
+    }
 
     public Type InputType { get; } = typeof(TInput);
 

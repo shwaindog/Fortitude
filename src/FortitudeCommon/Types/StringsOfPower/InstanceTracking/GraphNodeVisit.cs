@@ -23,13 +23,15 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
           , ITypeMolderDieCast? TypeBuilderComponentAccess  
           , WriteMethodType writeMethod
           , object? VisitedInstance
-          , int CurrentBufferTypeStart
           , int IndentLevel  
           , CallerContext CallerContext  
           , FormattingState FormattingState
           , FormatFlags CurrentFormatFlags
-          // , int ExcludeRevisitMatchCountDown = 0  
+          , int TypeOpenBufferIndex  
           , int RevisitCount = 0
+          , int FirstFieldBufferIndex = -1
+          , int BufferLength = -1
+          // , int ExcludeRevisitMatchCountDown = 0
           , bool HasInsertedInstanceId = false  
         )
         {
@@ -41,12 +43,14 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
             this.TypeBuilderComponentAccess = TypeBuilderComponentAccess;
             WriteMethod                     = writeMethod;
             this.VisitedInstance            = VisitedInstance;
-            this.CurrentBufferTypeStart     = CurrentBufferTypeStart;
             this.IndentLevel                = IndentLevel;
             this.CallerContext.CopyFrom(CallerContext);
             
-            this.FormattingState    = FormattingState;
-            this.CurrentFormatFlags = CurrentFormatFlags;
+            this.FormattingState       = FormattingState;
+            this.CurrentFormatFlags    = CurrentFormatFlags;
+            this.TypeOpenBufferIndex   = TypeOpenBufferIndex;
+            this.FirstFieldBufferIndex = FirstFieldBufferIndex < 0 ? TypeOpenBufferIndex : FirstFieldBufferIndex;
+            this.BufferLength          = BufferLength;
             
             this.RevisitCount          = RevisitCount;
             this.HasInsertedInstanceId = HasInsertedInstanceId;
@@ -54,88 +58,53 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
         public ITypeMolderDieCast? TypeBuilderComponentAccess { get; init; }
 
-        public GraphNodeVisit SetRefId(int newRefId)
-        {
-            return this with
-            {
-                RefId = newRefId
-              , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
-            };
-        }
+        public GraphNodeVisit SetRefId(int newRefId) => this with { RefId = newRefId };
 
-        public GraphNodeVisit SetHasInsertedRefId(bool toValue)
-        {
-            return this with
-            {
-                HasInsertedInstanceId = toValue
-              , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
-            };
-        }
+        public GraphNodeVisit SetHasInsertedRefId(bool toValue) => this with { HasInsertedInstanceId = toValue };
 
-        public GraphNodeVisit SetBufferFirstFieldStart(int bufferFirstFieldStart, int indentLevel)
-        {
-            return this with
-            {
-               CurrentBufferExpectedFirstFieldStart = bufferFirstFieldStart
-             , IndentLevel  = indentLevel
-            };
-        }
+        public GraphNodeVisit UpdateVisitWriteType(WriteMethodType writeMethod) => this with { WriteMethod = writeMethod };
 
-        public GraphNodeVisit MarkContentEndClearComponentAccess(int contentEndIndex, WriteMethodType writeMethod)
-        {
-            return this with
+        public GraphNodeVisit UpdateVisitAddFormatFlags(FormatFlags flagsToAdd) => this with { CurrentFormatFlags = CurrentFormatFlags | flagsToAdd };
+
+        public GraphNodeVisit SetBufferFirstFieldStart(int bufferFirstFieldStart, int indentLevel) =>
+            this with
             {
-                CurrentBufferTypeEnd = contentEndIndex
+                FirstFieldBufferIndex = bufferFirstFieldStart
+              , IndentLevel  = indentLevel
+            };
+
+        public GraphNodeVisit MarkContentEndClearComponentAccess(int contentEndIndex, WriteMethodType writeMethod) =>
+            this with
+            {
+                BufferLength = contentEndIndex - TypeOpenBufferIndex
               , WriteMethod = writeMethod
               , TypeBuilderComponentAccess = null
-              , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
             };
-        }
 
-        public GraphNodeVisit UpdateVisitWriteType(WriteMethodType writeMethod)
-        {
-            return this with
-            {
-                WriteMethod = writeMethod
-              , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
-            };
-        }
-
-        public GraphNodeVisit UpdateVisitAddFormatFlags(FormatFlags flagsToAdd)
-        {
-            return this with
-            {
-                CurrentFormatFlags = CurrentFormatFlags | flagsToAdd
-              , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
-            };
-        }
-
-        public GraphNodeVisit UpdateVisitRemoveFormatFlags(FormatFlags flagsToRemove)
-        {
-            return this with
+        public GraphNodeVisit UpdateVisitRemoveFormatFlags(FormatFlags flagsToRemove) =>
+            this with
             {
                 CurrentFormatFlags = CurrentFormatFlags & ~flagsToRemove
-              , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
             };
-        }
 
-        public GraphNodeVisit ReplaceObjectInstance(object? withMaybeSomething)
-        {
-            return this with
+        public GraphNodeVisit ReplaceObjectInstance(object? withMaybeSomething) =>
+            this with
             {
                 VisitedInstance = withMaybeSomething
-              , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
             };
-        }
 
-        public GraphNodeVisit UpdateVisitEncoders(IEncodingTransfer contentEncoder, IEncodingTransfer layoutEncoder)
-        {
-            return this with
+        public GraphNodeVisit UpdateVisitEncoders(IEncodingTransfer contentEncoder, IEncodingTransfer layoutEncoder) =>
+            this with
             {
                 FormattingState = FormattingState.UpdateEncoders(contentEncoder, layoutEncoder)
-              , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
             };
-        }
+
+        public GraphNodeVisit UpdateVisitLength(int deltaLength) =>
+            this with
+            {
+                BufferLength = BufferLength + deltaLength
+            };
+        
         //
         // public GraphNodeVisit DecrementExcludeRevisitCountDown()
         // {
@@ -146,19 +115,16 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
         //     };
         // }
 
-        public GraphNodeVisit ShiftTypeBufferIndex(int amountToShift)
-        {
-            return this with
+        public GraphNodeVisit ShiftTypeBufferIndex(int amountToShift) =>
+            this with
             {
-                CurrentBufferTypeStart = CurrentBufferTypeStart + amountToShift
-                , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart + amountToShift
-                , CurrentBufferTypeEnd = CurrentBufferTypeEnd != -1 ? CurrentBufferTypeEnd + amountToShift : -1
+                TypeOpenBufferIndex = TypeOpenBufferIndex + amountToShift
+              , FirstFieldBufferIndex = FirstFieldBufferIndex + amountToShift
             };
-        }
 
-        public int CurrentBufferTypeEnd { get; init; } = -1;
+        public int BufferLength { get; init; } = 0;
 
-        public int CurrentBufferExpectedFirstFieldStart { get; init; }
+        public int FirstFieldBufferIndex { get; init; }
         
         public int RegistryId { get; init; }
         public int ObjVisitIndex { get; init; }
@@ -167,7 +133,7 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
         public Type ActualType { get; init; }
         public WriteMethodType WriteMethod { get; init; }
         public object? VisitedInstance { get; init; }
-        public int CurrentBufferTypeStart { get; init; }
+        public int TypeOpenBufferIndex { get; init; }
         public CallerContext CallerContext { get; init; }
         public FormattingState FormattingState { get; init; }
         
@@ -194,31 +160,5 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
                 recyclableStructContainerObject.DecrementRefCount();
             }
             CallerContext.Clear();
-        }
-
-        // ReSharper disable ParameterHidesMember
-        // ReSharper disable InconsistentNaming
-        public readonly void Deconstruct(out int ObjVisitIndex
-              , out int ParentVisitIndex
-              , out Type VisitedAsType
-              , out Type ActualType
-              , out WriteMethodType WriteMethod
-              , out object? VisitedInstance
-              , out int CurrentBufferTypeStart
-              , out CallerContext CallerContext
-              , out FormattingState FormattingState
-            )
-            // ReSharper restore ParameterHidesMember
-            // ReSharper restore InconsistentNaming
-        {
-            ObjVisitIndex          = this.ObjVisitIndex;
-            ParentVisitIndex       = this.ParentVisitIndex;
-            VisitedAsType          = this.VisitedAsType;
-            ActualType             = this.ActualType;
-            WriteMethod            = this.WriteMethod;
-            VisitedInstance        = this.VisitedInstance;
-            CurrentBufferTypeStart = this.CurrentBufferTypeStart;
-            CallerContext          = this.CallerContext;
-            FormattingState        = this.FormattingState;
         }
     }

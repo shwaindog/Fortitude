@@ -183,6 +183,7 @@ public static class FieldContentHandlingExtensions
     public static bool HasExcludeWhenPrettyLayout(this FormatFlags flags)  => (flags & (WhenPretty | Exclude)) == (WhenPretty | Exclude);
     public static bool HasExcludeWhenCompactLayout(this FormatFlags flags) => (flags & (WhenCompact | Exclude)) == (WhenCompact | Exclude);
     public static bool HasDisableAutoDelimiting(this FormatFlags flags)    => (flags & DisableAutoDelimiting) > 0;
+    public static bool DoesNotHaveDisableAutoDelimiting(this FormatFlags flags)    => (flags & DisableAutoDelimiting) == 0;
     public static bool ShouldDelimit(this FormatFlags flags)               => (flags & EnsureFormattedDelimited) > 0;
 
     public static bool HasEachItemOnlyOneLineFlag(this FormatFlags flags)                => (flags & EachItemOnlyOneLine) > 0;
@@ -236,6 +237,23 @@ public static class FieldContentHandlingExtensions
         return existingStyle;
     }
 
-    public static FormatFlags MoldInheritFlags(this FormatFlags moldCreatedFlags) =>
-        moldCreatedFlags & (IsFieldName | DisableFieldNameDelimiting | OnOneLine | DisableAutoDelimiting | AsStringContent | AsValueContent);
+    public static FormatFlags MoldSingleGenerationPassFlags(this FormatFlags moldCreatedFlags) =>
+        moldCreatedFlags  & (NoRevisitCheck | LogSuppressTypeNames) | moldCreatedFlags.MoldMultiGenerationInheritFlags();
+
+    public static FormatFlags MoldCallerPassFlags(this FormatFlags moldCreatedFlags) =>
+        moldCreatedFlags  & (NoRevisitCheck | LogSuppressTypeNames) | moldCreatedFlags.MoldMultiGenerationInheritFlags();
+
+    public static FormatFlags MoldRemoveSingleGenerationPassFlags(this FormatFlags moldCreatedFlags) =>
+        moldCreatedFlags  & ~(NoRevisitCheck | LogSuppressTypeNames);
+
+    public static FormatFlags MoldMultiGenerationInheritFlags(this FormatFlags moldCreatedFlags) =>
+        moldCreatedFlags  & 
+        (IsFieldName | DisableFieldNameDelimiting | OnOneLine | DisableAutoDelimiting | AsStringContent | AsValueContent| LogSuppressTypeNames);
+    
+    public static FormatFlags MoldMultiGenerationPassFlags(this FormatFlags moldCreatedFlags) =>
+        moldCreatedFlags  & 
+        (IsFieldName | DisableFieldNameDelimiting | OnOneLine | DisableAutoDelimiting | AsStringContent | AsValueContent);
+
+    public static FormatFlags MoldInheritFlags(this FormatFlags? moldCreatedFlags) =>
+        (moldCreatedFlags ?? DefaultCallerTypeFlags).MoldSingleGenerationPassFlags();
 }
