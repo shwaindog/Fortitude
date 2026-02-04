@@ -554,7 +554,7 @@ public class MessageQueue : IMessageQueue
         LatestMessageFinishedProcessing = queueEventTime;
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
+    public virtual AppendSummary RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(Name), Name)
             .Field.AlwaysAdd(nameof(Id), Id)

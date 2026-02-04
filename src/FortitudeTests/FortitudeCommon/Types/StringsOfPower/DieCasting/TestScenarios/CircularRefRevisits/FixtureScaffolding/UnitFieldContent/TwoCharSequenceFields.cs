@@ -38,7 +38,7 @@ public class TwoCharSequenceFields<TCharSeq>: IStringBearer, ISupportFormattingF
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAddCharSeq
                (nameof(FirstCharSequenceField)
@@ -87,7 +87,7 @@ public class TwoCharSequencesFirstAsSimpleCloakedValueContent<TCharSeq>: IString
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(FirstCharSequenceField)
@@ -136,7 +136,7 @@ public class TwoCharSequencesSecondAsSimpleCloakedValueContent<TCharSeq>: IStrin
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAddCharSeq
                (nameof(FirstCharSequenceField)
@@ -185,7 +185,7 @@ public class TwCharSequencesFirstAsSimpleCloakedStringContent<TCharSeq>: IString
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(FirstCharSequenceField)
@@ -234,7 +234,7 @@ public class TwoCharSequencesSecondAsSimpleCloakedStringContent<TCharSeq>: IStri
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAddCharSeq
                (nameof(FirstCharSequenceField)
@@ -283,7 +283,7 @@ public class TwoCharSequencesFirstAsComplexCloakedValueContent<TCharSeq>: IStrin
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(FirstCharSequenceField)
@@ -332,7 +332,7 @@ public class TwoCharSequencesSecondAsComplexCloakedValueContent<TCharSeq>: IStri
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAddCharSeq
                (nameof(FirstCharSequenceField)
@@ -381,7 +381,7 @@ public class TwoCharSequencesFirstAsComplexCloakedStringContent<TCharSeq>: IStri
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(FirstCharSequenceField)
@@ -430,7 +430,7 @@ public class TwoCharSequencesSecondAsComplexCloakedStringContent<TCharSeq>: IStr
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAddCharSeq
                (nameof(FirstCharSequenceField)

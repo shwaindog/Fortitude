@@ -109,7 +109,7 @@ public class FLoggerRootConfig : FLoggerTreeCommonConfig, IMutableFLoggerRootCon
         }
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(Name), Name)
            .Field.AlwaysAdd(nameof(LogLevel), LogLevel.ToString())

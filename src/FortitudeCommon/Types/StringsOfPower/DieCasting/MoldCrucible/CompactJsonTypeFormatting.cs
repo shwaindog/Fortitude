@@ -430,6 +430,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         }
         else { AddToNextFieldSeparatorAndPadding(createTypeFlags); }
         Gb = toRestore;
+        // toRestore.AddHighWaterMark();
         return sb.Length - preAppendLength;
     }
 
@@ -635,7 +636,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual StateExtractStringRange FormatFieldName<TCloaked, TRevealBase>(ISecretStringOfPower tos, TCloaked value
+    public virtual AppendSummary FormatFieldName<TCloaked, TRevealBase>(ISecretStringOfPower tos, TCloaked value
       , PalantírReveal<TRevealBase> valueRevealer, string? callerFormatString = null
       , FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
@@ -649,16 +650,16 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         tos.SetCallerFormatString(callerFormatString);
         tos.SetCallerFormatFlags(withMoldInherited | NoRevisitCheck | IsFieldName);
 
-        StateExtractStringRange stateExtractResult;
+        AppendSummary stateExtractResult;
 
         var visitNumber = tos.CurrentTypeBuilder?.InstanceTrackingVisitNumber ?? -1;
         if (value == null)
         {
             var writtenAsFlags = AppendFormattedNull(sb, "", withMoldInherited);
-            return new StateExtractStringRange(typeof(TCloaked), tos, new Range(contentStart, sb.Length), writtenAsFlags, visitNumber);
+            return new AppendSummary(typeof(TCloaked), tos, new Range(contentStart, sb.Length), writtenAsFlags, visitNumber);
         }
         else { stateExtractResult = valueRevealer(value, tos); }
-        if (sb.Length == contentStart) return StateExtractStringRange.EmptyAppendAt(typeof(TCloaked), contentStart, visitNumber);
+        if (sb.Length == contentStart) return tos.EmptyAppendAt(tos.CurrentTypeBuilder!.TypeBeingBuilt, contentStart, value.GetType());
         ProcessAppendedRange(sb, contentStart);
         if (withMoldInherited.HasDisableFieldNameDelimitingFlag() || sb[contentStart] == DblQtChar)
         {
@@ -671,7 +672,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         return stateExtractResult.AddWrittenAsFlags(WrittenAsFlags.AsString);
     }
 
-    public virtual StateExtractStringRange FormatFieldName<TBearer>(ISecretStringOfPower tos, TBearer styledObj, string? callerFormatString = null
+    public virtual AppendSummary FormatFieldName<TBearer>(ISecretStringOfPower tos, TBearer styledObj, string? callerFormatString = null
       , FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?
     {
         var sb = tos.WriteBuffer;
@@ -681,16 +682,16 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         var contentStart = sb.Length;
         tos.SetCallerFormatString(callerFormatString);
         tos.SetCallerFormatFlags(withMoldInherited | NoRevisitCheck | IsFieldName);
-        StateExtractStringRange stateExtractResult;
+        AppendSummary stateExtractResult;
 
         var visitNumber = tos.CurrentTypeBuilder?.InstanceTrackingVisitNumber ?? -1;
         if (styledObj == null)
         {
             var writtenAsFlags = AppendFormattedNull(sb, "");
-            return new StateExtractStringRange(typeof(TBearer), tos, new Range(contentStart, sb.Length), writtenAsFlags, visitNumber);
+            return new AppendSummary(typeof(TBearer), tos, new Range(contentStart, sb.Length), writtenAsFlags, visitNumber);
         }
         else { stateExtractResult = styledObj.RevealState(tos); }
-        if (sb.Length == contentStart) return StateExtractStringRange.EmptyAppendAt(typeof(TBearer), contentStart, visitNumber);
+        if (sb.Length == contentStart) return tos.EmptyAppendAt(tos.CurrentTypeBuilder!.TypeBeingBuilt, contentStart, styledObj.GetType());
         ProcessAppendedRange(sb, contentStart);
         if (withMoldInherited.HasDisableFieldNameDelimitingFlag() || sb[contentStart] == DblQtChar)
         {
@@ -1009,7 +1010,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         return writtenAsFlags;
     }
 
-    public virtual StateExtractStringRange FormatFieldContents<TCloaked, TRevealBase>(ISecretStringOfPower tos, TCloaked value
+    public virtual AppendSummary FormatFieldContents<TCloaked, TRevealBase>(ISecretStringOfPower tos, TCloaked value
       , PalantírReveal<TRevealBase> valueRevealer, string? callerFormatString = null
       , FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
@@ -1023,11 +1024,11 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         if (value == null)
         {
             var writtenAsFlags = AppendFormattedNull(sb, "");
-            return new StateExtractStringRange(typeof(TCloaked), tos, new Range(contentStart, sb.Length), writtenAsFlags
+            return new AppendSummary(typeof(TCloaked), tos, new Range(contentStart, sb.Length), writtenAsFlags
                                              , visitNumber);
         }
         var stateExtractResult = valueRevealer(value, tos);
-        if (sb.Length == contentStart) return StateExtractStringRange.EmptyAppendAt(typeof(TCloaked), contentStart, visitNumber);
+        if (sb.Length == contentStart) return tos.EmptyAppendAt(tos.CurrentTypeBuilder!.TypeBeingBuilt , contentStart, value.GetType());
         // if (sb.Length != contentStart) ProcessAppendedRange(sb, contentStart);
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         Gb.MarkContentStart(contentStart);
@@ -1035,7 +1036,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         return stateExtractResult;
     }
 
-    public virtual StateExtractStringRange FormatFieldContents<TBearer>(ISecretStringOfPower tos, TBearer styledObj, string? callerFormatString = null
+    public virtual AppendSummary FormatFieldContents<TBearer>(ISecretStringOfPower tos, TBearer styledObj, string? callerFormatString = null
       , FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?
     {
         var sb           = tos.WriteBuffer;
@@ -1047,10 +1048,10 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         if (styledObj == null)
         {
             var writtenAsFlags = AppendFormattedNull(sb, callerFormatString);
-            return new StateExtractStringRange(typeof(TBearer), tos, new Range(contentStart, sb.Length), writtenAsFlags, visitNumber);
+            return new AppendSummary(typeof(TBearer), tos, new Range(contentStart, sb.Length), writtenAsFlags, visitNumber);
         }
         var stateExtractResult = styledObj.RevealState(tos);
-        if (sb.Length == contentStart) return StateExtractStringRange.EmptyAppendAt(typeof(TBearer), contentStart, visitNumber);
+        if (sb.Length == contentStart) return tos.EmptyAppendAt(tos.CurrentTypeBuilder!.TypeBeingBuilt, contentStart, styledObj.GetType());
         if (sb.Length != contentStart) ProcessAppendedRange(sb, contentStart);
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         Gb.MarkContentStart(contentStart);
@@ -1487,10 +1488,18 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public WrittenAsFlags CollectionNextItemFormat<TFmt>(IStringBuilder sb, TFmt item, int retrieveCount, string? formatString = null
+    public AppendSummary CollectionNextItemFormat<TFmt>(ISecretStringOfPower tos, TFmt item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
-        if (item == null) { return AppendFormattedNull(sb, formatString, formatFlags); }
+        var actualType = item?.GetType() ?? typeof(TFmt);
+        var sb         = tos.WriteBuffer;
+        var startAt    = sb.Length;
+        var mdc        = tos.CurrentTypeBuilder!;
+        if (item == null)
+        {
+            var writtenAsNull =  AppendFormattedNull(sb, formatString, formatFlags);
+            return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);   
+        }
         var typeofT = item.GetType();
         formatString ??= "";
         var contentStart = sb.Length;
@@ -1504,7 +1513,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags, true);
         Gb.MarkContentStart(contentStart);
         Gb.MarkContentEnd();
-        return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
+        var writtenAs = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
+        return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
     }
 
     public WrittenAsFlags CollectionNextItemFormat<TFmtStruct>(IStringBuilder sb, TFmtStruct? item, int retrieveCount, string? formatString = null
@@ -1527,46 +1537,71 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags CollectionNextItemFormat<TCloaked, TCloakedBase>(ISecretStringOfPower tos
+    public virtual AppendSummary CollectionNextItemFormat<TCloaked, TCloakedBase>(ISecretStringOfPower tos
       , TCloaked? item, int retrieveCount, PalantírReveal<TCloakedBase> styler, string? callerFormatString
       , FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TCloaked : TCloakedBase?
         where TCloakedBase : notnull
     {
-        var sb = tos.WriteBuffer;
-        if (item == null) { return AppendFormattedNull(sb, callerFormatString); }
+        var actualType = item?.GetType() ?? typeof(TCloaked);
+        var sb         = tos.WriteBuffer;
+        var startAt    = sb.Length;
+        var mdc        = tos.CurrentTypeBuilder!;
+        if (item == null)
+        {
+            var writtenAsNull = AppendFormattedNull(sb, callerFormatString);
+            return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);   
+        }
 
         var contentStart = sb.Length;
         tos.SetCallerFormatString(callerFormatString);
         tos.SetCallerFormatFlags(callerFormatFlags);
         var stateExtractResult = styler(item, tos);
-        var writtenAs          = stateExtractResult.WrittenAs;
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         Gb.MarkContentStart(contentStart);
         Gb.MarkContentEnd();
-        return writtenAs;
+        return stateExtractResult;
     }
 
-    public virtual WrittenAsFlags CollectionNextItemFormat(IStringBuilder sb, string? item, int retrieveCount, string? formatString = null
+    public virtual AppendSummary CollectionNextItemFormat(ISecretStringOfPower tos, string? item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (item == null) { return AppendFormattedNull(sb, formatString, formatFlags); }
+        var actualType = typeof(string);
+        var sb         = tos.WriteBuffer;
+        var startAt    = sb.Length;
+        var mdc        = tos.CurrentTypeBuilder!;
+        if (item == null)
+        {
+            var writtenAsNull = AppendFormattedNull(sb, formatString, formatFlags);
+            return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);   
+        }
         var contentStart = sb.Length;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         if (formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
         Format(item, 0, sb, formatString ?? "");
         if (formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
         Gb.MarkContentEnd();
-        return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
+        var writtenAs = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
+        return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
     }
 
-    public virtual WrittenAsFlags CollectionNextItemFormat(IStringBuilder sb, char[]? item, int retrieveCount, string? formatString = null
+    public virtual AppendSummary CollectionNextItemFormat(ISecretStringOfPower tos, char[]? item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (item == null) { return AppendFormattedNull(sb, formatString, formatFlags); }
+        var actualType = typeof(char[]);
+        var sb         = tos.WriteBuffer;
+        var startAt    = sb.Length;
+        var mdc        = tos.CurrentTypeBuilder!;
+        if (item == null)
+        {
+            var writtenAsNull = AppendFormattedNull(sb, formatString, formatFlags);
+            return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);   
+        }
         if (formatFlags.HasAsCollectionFlag())
         {
-            return FormatFieldContents(sb, item, 0, formatString, formatFlags: formatFlags) | WrittenAsFlags.AsCollection;
+            var writtenAsCollection = FormatFieldContents(sb, item, 0, formatString, formatFlags: formatFlags) | WrittenAsFlags.AsCollection;
+            return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsCollection, actualType);   
+            
         }
         var contentStart = sb.Length;
 
@@ -1576,16 +1611,26 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags, true);
         Gb.MarkContentStart(contentStart);
         Gb.MarkContentEnd();
-        return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
+        var writtenAs = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
+        return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
     }
 
-    public virtual WrittenAsFlags CollectionNextCharSeqFormat<TCharSeq>(IStringBuilder sb, TCharSeq? item, int retrieveCount
+    public virtual AppendSummary CollectionNextCharSeqFormat<TCharSeq>(ISecretStringOfPower tos, TCharSeq? item, int retrieveCount
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence?
     {
-        if (item == null) { return AppendFormattedNull(sb, formatString, formatFlags); }
+        var actualType = item?.GetType() ?? typeof(TCharSeq);
+        var sb         = tos.WriteBuffer;
+        var startAt    = sb.Length;
+        var mdc        = tos.CurrentTypeBuilder!;
+        if (item == null)
+        {
+            var writtenAsNull = AppendFormattedNull(sb, formatString, formatFlags);
+            return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);   
+        }
         if (formatFlags.HasAsCollectionFlag())
         {
-            return WrittenAsFlags.AsCollection | FormatFieldContents(sb, item, 0, formatString, formatFlags: formatFlags);
+            var writtenAsCollection = WrittenAsFlags.AsCollection | FormatFieldContents(sb, item, 0, formatString, formatFlags: formatFlags);
+            return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsCollection, actualType);   
         }
         var contentStart = sb.Length;
         if (formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
@@ -1594,37 +1639,53 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags, true);
         Gb.MarkContentStart(contentStart);
         Gb.MarkContentEnd();
-        return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
+        var writtenAs = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
+        return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
     }
 
-    public virtual WrittenAsFlags CollectionNextItemFormat(IStringBuilder sb, StringBuilder? item
+    public virtual AppendSummary CollectionNextItemFormat(ISecretStringOfPower tos, StringBuilder? item
       , int retrieveCount, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (item == null) { return AppendFormattedNull(sb, formatString, formatFlags); }
+        var actualType = typeof(StringBuilder);
+        var sb         = tos.WriteBuffer;
+        var startAt    = sb.Length;
+        var mdc        = tos.CurrentTypeBuilder!;
+        if (item == null)
+        {
+            var writtenAsNull = AppendFormattedNull(sb, formatString, formatFlags);
+            return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);   
+        }
         var contentStart = sb.Length;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         if (formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
         Format(item, 0, sb, formatString ?? "");
         if (formatFlags.DoesNotHaveAsValueContentFlag()) sb.Append(DblQt);
         Gb.MarkContentEnd();
-        return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
+        var writtenAs = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
+        return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
     }
 
-    public virtual WrittenAsFlags CollectionNextStringBearerFormat<TBearer>(ISecretStringOfPower tos, TBearer item, int retrieveCount
+    public virtual AppendSummary CollectionNextStringBearerFormat<TBearer>(ISecretStringOfPower tos, TBearer item, int retrieveCount
       , string? callerFormatString, FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
-        var sb = tos.WriteBuffer;
-        if (item == null) { return AppendFormattedNull(sb, ""); }
+        var actualType = item?.GetType() ?? typeof(TBearer);
+        var sb         = tos.WriteBuffer;
+        var startAt    = sb.Length;
+        var mdc        = tos.CurrentTypeBuilder!;
+        if (item == null)
+        {
+            var writtenAsNull = AppendFormattedNull(sb, callerFormatString, callerFormatFlags);
+            return tos.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);
+        }
         var contentStart = sb.Length;
         tos.SetCallerFormatString(callerFormatString);
         tos.SetCallerFormatFlags(callerFormatFlags);
         var stateExtractResult = item.RevealState(tos);
-        var writtenAs          = stateExtractResult.WrittenAs;
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         Gb.MarkContentStart(contentStart);
         Gb.MarkContentEnd();
-        return writtenAs;
+        return stateExtractResult;
     }
 
     public virtual IStringBuilder AddCollectionElementSeparator(IStringBuilder sb, Type elementType, int nextItemNumber

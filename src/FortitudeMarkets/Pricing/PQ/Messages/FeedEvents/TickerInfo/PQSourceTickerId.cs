@@ -436,7 +436,7 @@ public class PQSourceTickerId : ReusableObject<ISourceTickerId>, IPQSourceTicker
 
     protected string UpdateFlagsToString => $"{nameof(UpdatedFlags)}: {UpdatedFlags}";
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
+    public virtual AppendSummary RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(SourceInstrumentId), SourceInstrumentId)
             .Field.AlwaysAdd(nameof(SourceId), SourceId)

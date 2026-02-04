@@ -246,7 +246,7 @@ public class AsyncQueuesInitConfig : FLogConfig, IMutableAsyncQueuesInitConfig
         }
     }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(AsyncProcessingType), AsyncProcessingType)
            .Field.AlwaysAdd(nameof(DefaultQueueCapacity), DefaultQueueCapacity)

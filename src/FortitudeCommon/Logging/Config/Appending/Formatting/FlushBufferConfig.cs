@@ -145,7 +145,7 @@ public class FlushBufferConfig : FLogConfig, IMutableFlushBufferConfig
         return hashCode;
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public virtual AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(WriteTriggeredAtBufferPercentage), WriteTriggeredAtBufferPercentage)
            .Field.AlwaysReveal(nameof(WriteTriggeredAfterTimeSpan), WriteTriggeredAfterTimeSpan)

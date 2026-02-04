@@ -118,7 +118,7 @@ public class ForwardingAppenderConfig : AppenderDefinitionConfig, IMutableForwar
         return hashCode;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .AddBaseRevealStateFields(this)
            .Field.AlwaysReveal(nameof(ForwardToAppenders), ForwardToAppenders).Complete();

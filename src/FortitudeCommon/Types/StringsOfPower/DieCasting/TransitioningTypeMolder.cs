@@ -57,7 +57,7 @@ public abstract class TransitioningTypeMolder<TCurrent, TNext> : KnownTypeMolder
 
     public IMigratableTypeMolderDieCast MigratableMoldState => MoldStateField;
 
-    public override StateExtractStringRange Complete()
+    public override AppendSummary Complete()
     {
         if (!hasTransitioned)
         {

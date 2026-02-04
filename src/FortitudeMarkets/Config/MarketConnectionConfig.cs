@@ -353,7 +353,7 @@ public class MarketConnectionConfig : ConfigSection, IMarketConnectionConfig
         }
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public virtual AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(ConnectionName), ConnectionName)
             .Field.AlwaysAdd(nameof(SourceId), SourceId)

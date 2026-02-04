@@ -463,7 +463,7 @@ public class PricingInstrumentId : SourceTickerId, IPricingInstrumentId
         $"{nameof(MarketClassification)}: {MarketClassification}, {nameof(Category)}: {Category}, {nameof(SourcePublishLocation)}: {SourcePublishLocation}, " +
         $"{nameof(AdapterReceiveLocation)}: {AdapterReceiveLocation}, {nameof(ClientReceiveLocation)}: {ClientReceiveLocation}";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) => 
+    public override AppendSummary RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
             .AddBaseRevealStateFields(this)
             .Field.AlwaysReveal(nameof(CoveringPeriod), CoveringPeriod, DiscreetTimePeriod.Styler)

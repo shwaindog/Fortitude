@@ -199,7 +199,7 @@ public class LogEntryDataTemplatePart : ITemplatePart, IStringBearer
         }
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public virtual AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .AddBaseRevealStateFields(this).Complete();
 

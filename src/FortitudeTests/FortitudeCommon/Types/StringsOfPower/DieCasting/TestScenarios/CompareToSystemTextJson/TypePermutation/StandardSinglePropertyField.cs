@@ -309,7 +309,7 @@ public class StandardSinglePropertyFieldClass : IStringBearer
 
     [JsonIgnore] public TestFieldRevealMode TestFieldRevealMode { get; set; }
 
-    public StateExtractStringRange RevealState(ITheOneString tos)
+    public AppendSummary RevealState(ITheOneString tos)
     {
         switch (TestFieldRevealMode)
         {
@@ -322,7 +322,7 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         }
     }
 
-    public StateExtractStringRange AlwaysRevealAll(ITheOneString tos)
+    public AppendSummary AlwaysRevealAll(ITheOneString tos)
     {
         using var ctb =
             tos.StartComplexType(this);
@@ -404,7 +404,7 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         return ctb.Complete();
     }
 
-    public StateExtractStringRange WhenNonDefaultReveal(ITheOneString tos)
+    public AppendSummary WhenNonDefaultReveal(ITheOneString tos)
     {
         using var ctb =
             tos.StartComplexType(this);
@@ -486,7 +486,7 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         return ctb.Complete();
     }
 
-    public StateExtractStringRange WhenNonNullReveal(ITheOneString tos)
+    public AppendSummary WhenNonNullReveal(ITheOneString tos)
     {
         using var ctb =
             tos.StartComplexType(this);
@@ -568,7 +568,7 @@ public class StandardSinglePropertyFieldClass : IStringBearer
         return ctb.Complete();
     }
 
-    public StateExtractStringRange WhenNonNullOrDefaultReveal(ITheOneString tos)
+    public AppendSummary WhenNonNullOrDefaultReveal(ITheOneString tos)
     {
         using var ctb =
             tos.StartComplexType(this);

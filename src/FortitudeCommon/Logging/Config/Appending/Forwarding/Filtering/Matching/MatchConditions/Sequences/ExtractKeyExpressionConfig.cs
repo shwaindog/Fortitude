@@ -109,7 +109,7 @@ public class ExtractKeyExpressionConfig : FLogConfig, IMutableExtractKeyExpressi
         return hashCode;
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public virtual AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(KeyName), KeyName)
            .Field.AlwaysAdd(nameof(ExtractRegEx), ExtractRegEx)

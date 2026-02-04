@@ -49,7 +49,7 @@ public class QueueContext : IQueueContext
     public IMessageQueueList<IMessageQueue> GetEventQueues(MessageQueueType selector) =>
         configureMessageBus.AllMessageQueues.SelectEventQueues(selector);
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
+    public virtual AppendSummary RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
             .Field.AlwaysReveal(nameof(RegisteredOn), RegisteredOn)
             .Field.AlwaysReveal(nameof(QueueTimer), QueueTimer)

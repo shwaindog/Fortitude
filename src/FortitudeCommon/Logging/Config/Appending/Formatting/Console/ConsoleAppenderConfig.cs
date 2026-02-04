@@ -120,7 +120,7 @@ public class ConsoleAppenderConfig : BufferingFormatAppenderConfig, IMutableCons
         return hashCode;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .AddBaseRevealStateFields(this)
            .Field.AlwaysAdd(nameof(DisableColoredConsole), DisableColoredConsole)

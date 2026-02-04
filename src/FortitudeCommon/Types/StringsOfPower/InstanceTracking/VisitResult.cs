@@ -14,16 +14,26 @@ public record struct VisitResult
   , int LastRevisitCount = -1
   , bool IsBaseOfInitial = false )
 {
+
+    public const int NoVisitCheckPerformedRegistryId = -3;
+    public const int NoVisitCheckRequiredRegistryId = -2;
     
-    public bool NoVisitCheckDone => RegistryId < -1;
+    public bool NoVisitCheckDone => RegistryId <= NoVisitCheckPerformedRegistryId;
+
+    public bool NoRegistrationRequired => RegistryId == NoVisitCheckRequiredRegistryId || CurrentVisitIndex < 0;
 
     public bool IsARevisit { get; set; } = InstanceId > 0 && !IsBaseOfInitial && FirstInstanceMatchVisitIndex >= 0;
 
-    public static readonly VisitResult VisitNotChecked = new (-2, -1);
-    public static readonly VisitResult NoVisitCheckRequired = new (-1, -1);
+    public static readonly VisitResult VisitNotChecked = new (NoVisitCheckPerformedRegistryId, -1);
+    
 
     public VisitResult WithIsARevisitSetTo(bool countAsRevisit)
     {
         return this with { IsARevisit = countAsRevisit };
+    }
+    
+    public VisitResult WitCurrentVisitIndexSetTo(int updatedIndex)
+    {
+        return this with { CurrentVisitIndex = updatedIndex };
     }
 }

@@ -20,7 +20,7 @@ public class FieldKeyValueDictionaryWhenNonNullAddWithSelectKeysArrayStringBeare
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeys
                (nameof(WhenNonNullAddWithSelectKeysFromArray)
@@ -46,7 +46,7 @@ public class FieldKeyValueDictionaryWhenNonNullAddWithSelectKeysSpanStringBearer
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeys
                (nameof(WhenNonNullAddWithSelectKeysFromSpan)
@@ -72,7 +72,7 @@ public class FieldKeyValueDictionaryWhenNonNullAddWithSelectKeysReadOnlySpanStri
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeys
                (nameof(WhenNonNullAddWithSelectKeysFromReadOnlySpan)
@@ -98,7 +98,7 @@ public class FieldKeyValueDictionaryWhenNonNullAddWithSelectKeysListStringBearer
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeys
                (nameof(WhenNonNullAddWithSelectKeysFromList)
@@ -124,7 +124,7 @@ public class FieldKeyValueDictionaryWhenNonNullAddWithSelectKeysEnumerableString
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromEnumerable );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
                (nameof(WhenNonNullAddWithSelectKeysFromEnumerable)
@@ -151,7 +151,7 @@ public class FieldKeyValueDictionaryWhenNonNullAddWithSelectKeysEnumeratorString
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumerator );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
                (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumerator)
@@ -179,7 +179,7 @@ public class FieldKeyValueRevealerDictionaryWhenNonNullAddWithSelectKeysArrayStr
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromArrayValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeys
                (nameof(WhenNonNullAddWithSelectKeysFromArrayValueRevealerKeyFormatString)
@@ -207,7 +207,7 @@ public class FieldKeyStructValueRevealerDictionaryWhenNonNullAddWithSelectKeysAr
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromArrayValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeys
                (nameof(WhenNonNullAddWithSelectKeysFromArrayValueRevealerKeyFormatString)
@@ -237,7 +237,7 @@ public class FieldKeyValueRevealerDictionaryWhenNonNullAddWithSelectKeysSpanStri
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromSpanValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeys
                (nameof(WhenNonNullAddWithSelectKeysFromSpanValueRevealerKeyFormatString)
@@ -266,7 +266,7 @@ public class FieldKeyStructValueRevealerDictionaryWhenNonNullAddWithSelectKeysSp
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromSpanValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeys
                (nameof(WhenNonNullAddWithSelectKeysFromSpanValueRevealerKeyFormatString)
@@ -295,7 +295,7 @@ public class FieldKeyValueRevealerDictionaryWhenNonNullAddWithSelectKeysReadOnly
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeys
                (nameof(WhenNonNullAddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString)
@@ -323,7 +323,7 @@ public class FieldKeyStructValueRevealerDictionaryWhenNonNullAddWithSelectKeysRe
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeys
                (nameof(WhenNonNullAddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString)
@@ -352,7 +352,7 @@ public class FieldKeyValueRevealerDictionaryWhenNonNullAddWithSelectKeysListStri
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromListValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeys
                (nameof(WhenNonNullAddWithSelectKeysFromListValueRevealerKeyFormatString)
@@ -380,7 +380,7 @@ public class FieldKeyStructValueRevealerDictionaryWhenNonNullAddWithSelectKeysLi
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromListValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeys
                (nameof(WhenNonNullAddWithSelectKeysFromListValueRevealerKeyFormatString)
@@ -409,7 +409,7 @@ public class FieldKeyValueRevealerDictionaryWhenNonNullAddWithSelectKeysEnumerab
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
                (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings)
@@ -438,7 +438,7 @@ public class FieldKeyStructValueRevealerDictionaryWhenNonNullAddWithSelectKeysEn
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
                (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings)
@@ -468,7 +468,7 @@ public class FieldKeyValueRevealerDictionaryWhenNonNullAddWithSelectKeysEnumerat
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
                (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings)
@@ -496,7 +496,7 @@ public class FieldKeyStructValueRevealerDictionaryWhenNonNullAddWithSelectKeysEn
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
                (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings)
@@ -526,7 +526,7 @@ public class FieldKeyRevealerValueRevealerDictionaryWhenNonNullAddWithSelectKeys
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromArrayBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeys
                (nameof(WhenNonNullAddWithSelectKeysFromArrayBothRevealers)
@@ -555,7 +555,7 @@ public class FieldKeyRevealerStructValueRevealerDictionaryWhenNonNullAddWithSele
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromArrayBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeys
                (nameof(WhenNonNullAddWithSelectKeysFromArrayBothRevealers)
@@ -585,7 +585,7 @@ public class FieldKeyRevealerValueRevealerDictionaryWhenNonNullAddWithSelectKeys
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromSpanBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeys
                (nameof(WhenNonNullAddWithSelectKeysFromSpanBothRevealers)
@@ -614,7 +614,7 @@ public class FieldKeyRevealerStructValueRevealerDictionaryWhenNonNullAddWithSele
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromSpanBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeys
                (nameof(WhenNonNullAddWithSelectKeysFromSpanBothRevealers)
@@ -645,7 +645,7 @@ public class FieldKeyRevealerValueRevealerDictionaryWhenNonNullAddWithSelectKeys
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromReadOnlySpanBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeys
                (nameof(WhenNonNullAddWithSelectKeysFromReadOnlySpanBothRevealers)
@@ -675,7 +675,7 @@ public class FieldKeyRevealerStructValueRevealerDictionaryWhenNonNullAddWithSele
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromReadOnlySpanBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeys
                (nameof(WhenNonNullAddWithSelectKeysFromReadOnlySpanBothRevealers)
@@ -705,7 +705,7 @@ public class FieldKeyRevealerValueRevealerDictionaryWhenNonNullAddWithSelectKeys
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromListBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeys
                (nameof(WhenNonNullAddWithSelectKeysFromListBothRevealers)
@@ -734,7 +734,7 @@ public class FieldKeyRevealerStructValueRevealerDictionaryWhenNonNullAddWithSele
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromListBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeys
                (nameof(WhenNonNullAddWithSelectKeysFromListBothRevealers)
@@ -764,7 +764,7 @@ public class FieldKeyRevealerValueRevealerDictionaryWhenNonNullAddWithSelectKeys
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumerableBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
                (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumerableBothRevealers)
@@ -794,7 +794,7 @@ public class FieldKeyRevealerStructValueRevealerDictionaryWhenNonNullAddWithSele
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumerableBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
                (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumerableBothRevealers)
@@ -825,7 +825,7 @@ public class FieldKeyRevealerValueRevealerDictionaryWhenNonNullAddWithSelectKeys
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
                (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorBothRevealers)
@@ -854,7 +854,7 @@ public class FieldKeyRevealerStructValueRevealerDictionaryWhenNonNullAddWithSele
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
                (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorBothRevealers)

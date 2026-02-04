@@ -75,7 +75,7 @@ public abstract class MatchConditionConfig : FLogConfig, IMutableMatchConditionC
         return hashCode;
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public virtual AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(CheckConditionType), CheckConditionType)
            .Complete();

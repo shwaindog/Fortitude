@@ -194,7 +194,7 @@ public class AsyncQueueConfig : FLogConfig, IMutableAsyncQueueConfig
         }
     }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(QueueNumber), QueueNumber)
            .Field.AlwaysAdd(nameof(QueueType), QueueType)

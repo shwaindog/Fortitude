@@ -194,7 +194,7 @@ public class TradingServerConfig : ConfigSection, ITradingServerConfig
         return hashCode.ToHashCode();
     }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) => 
+    public AppendSummary RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(ConnectionName), ConnectionName)
             .Field.AlwaysAdd(nameof(ParentConnectionName), ParentConnectionName)

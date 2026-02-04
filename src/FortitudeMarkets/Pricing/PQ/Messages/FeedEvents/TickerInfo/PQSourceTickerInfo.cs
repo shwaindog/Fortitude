@@ -885,7 +885,7 @@ public class PQSourceTickerInfo : PQPricingInstrumentId, IPQSourceTickerInfo
         $"{nameof(MaximumPublishedLayers)}: {MaximumPublishedLayers}, {nameof(LastTradedFlags)}: {LastTradedFlags}, " +
         $"{nameof(QuoteBehaviorFlags)}: {QuoteBehaviorFlags}";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) => 
+    public override AppendSummary RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
             .AddBaseRevealStateFields(this)
             .Field.AlwaysAdd(nameof(RoundingPrecision), RoundingPrecision)

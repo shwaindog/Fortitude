@@ -143,7 +143,7 @@ public class SequenceHandleActionConfig : FLogConfig, IMutableSequenceHandleActi
         return hashCode;
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public virtual AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullReveal(nameof(SendMessage), SendMessage)
            .Field.WhenNonNullReveal(nameof(SendToAppender), SendToAppender)

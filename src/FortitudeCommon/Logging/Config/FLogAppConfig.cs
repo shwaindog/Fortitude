@@ -187,7 +187,7 @@ public class FLogAppConfig : FLoggerMatchedAppenders, IMutableFLogAppConfig
         }
     }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal(nameof(ConfigSourcesLookup), ConfigSourcesLookup)
            .Field.AlwaysReveal(nameof(Appenders), Appenders)

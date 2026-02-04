@@ -20,7 +20,7 @@ public class KeyedFromKeyValueDictionaryAddWithSelectKeysArrayStringBearer<TKey,
 
     public override string PropertyName => nameof(AddWithSelectKeysFromArrayBothFormatStrings);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeys
                (AddWithSelectKeysFromArrayBothFormatStrings
@@ -45,7 +45,7 @@ public class KeyedFromKeyValueDictionaryAddWithSelectKeysSpanStringBearer<TKey, 
 
     public override string PropertyName => nameof(AddWithSelectKeysFromSpanBothFormatStrings);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeys
                (AddWithSelectKeysFromSpanBothFormatStrings
@@ -70,7 +70,7 @@ public class KeyedFromKeyValueDictionaryAddWithSelectKeysReadOnlySpanStringBeare
 
     public override string PropertyName => nameof(AddWithSelectKeysFromReadOnlySpanBothFormatStrings);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeys
                (AddWithSelectKeysFromReadOnlySpanBothFormatStrings
@@ -95,7 +95,7 @@ public class KeyedFromKeyValueDictionaryAddWithSelectKeysListStringBearer<TKey, 
 
     public override string PropertyName => nameof(AddWithSelectKeysFromListBothFormatStrings);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeys
                (AddWithSelectKeysFromListBothFormatStrings
@@ -120,7 +120,7 @@ public class KeyedFromKeyValueDictionaryAddWithSelectKeysEnumerableStringBearer<
 
     public override string PropertyName => nameof(AddWithSelectKeysFromEnumerableBothFormatStrings );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeysEnumerate
                (AddWithSelectKeysFromEnumerableBothFormatStrings
@@ -146,7 +146,7 @@ public class KeyedFromKeyValueDictionaryAddWithSelectKeysEnumeratorStringBearer<
 
     public override string PropertyName => nameof(AddWithSelectKeysKeyValuePairEnumeratorBothFormatStrings );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeysEnumerate
                (AddWithSelectKeysKeyValuePairEnumeratorBothFormatStrings
@@ -173,7 +173,7 @@ public class KeyedFromKeyValueRevealerDictionaryAddWithSelectKeysArrayStringBear
 
     public override string PropertyName => nameof(AddWithSelectKeysFromArrayValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeys
                (AddWithSelectKeysFromArrayValueRevealerKeyFormatString
@@ -200,7 +200,7 @@ public class KeyedFromKeyStructValueRevealerDictionaryAddWithSelectKeysArrayStri
 
     public override string PropertyName => nameof(AddWithSelectKeysFromArrayValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeys
                (AddWithSelectKeysFromArrayValueRevealerKeyFormatString
@@ -228,7 +228,7 @@ public class KeyedFromKeyValueRevealerDictionaryAddWithSelectKeysSpanStringBeare
 
     public override string PropertyName => nameof(AddWithSelectKeysFromSpanValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeys
                (AddWithSelectKeysFromSpanValueRevealerKeyFormatString
@@ -255,7 +255,7 @@ public class KeyedFromKeyStructValueRevealerDictionaryAddWithSelectKeysSpanStrin
 
     public override string PropertyName => nameof(AddWithSelectKeysFromSpanValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeys
                (AddWithSelectKeysFromSpanValueRevealerKeyFormatString
@@ -284,7 +284,7 @@ public class KeyedFromKeyValueRevealerDictionaryAddWithSelectKeysReadOnlySpanStr
 
     public override string PropertyName => nameof(AddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeys
                (AddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString
@@ -312,7 +312,7 @@ public class KeyedFromKeyStructValueRevealerDictionaryAddWithSelectKeysReadOnlyS
 
     public override string PropertyName => nameof(AddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeys
                (AddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString
@@ -340,7 +340,7 @@ public class KeyedFromKeyValueRevealerDictionaryAddWithSelectKeysListStringBeare
 
     public override string PropertyName => nameof(AddWithSelectKeysFromListValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeys
                (AddWithSelectKeysFromListValueRevealerKeyFormatString
@@ -367,7 +367,7 @@ public class KeyedFromKeyStructValueRevealerDictionaryAddWithSelectKeysListStrin
 
     public override string PropertyName => nameof(AddWithSelectKeysFromListValueRevealerKeyFormatString );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeys
                (AddWithSelectKeysFromListValueRevealerKeyFormatString
@@ -396,7 +396,7 @@ public class KeyedFromKeyValueRevealerDictionaryAddWithSelectKeysEnumerableStrin
 
     public override string PropertyName => nameof(AddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeysEnumerate
                (AddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings
@@ -425,7 +425,7 @@ public class KeyedFromKeyStructValueRevealerDictionaryAddWithSelectKeysEnumerabl
 
     public override string PropertyName => nameof(AddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeysEnumerate
                (AddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings
@@ -455,7 +455,7 @@ public class KeyedFromKeyValueRevealerDictionaryAddWithSelectKeysEnumeratorStrin
 
     public override string PropertyName => nameof(AddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeysEnumerate
                (AddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings
@@ -483,7 +483,7 @@ public class KeyedFromKeyStructValueRevealerDictionaryAddWithSelectKeysEnumerato
 
     public override string PropertyName => nameof(AddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeysEnumerate
                (AddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings
@@ -512,7 +512,7 @@ public class KeyedFromKeyRevealerValueRevealerDictionaryAddWithSelectKeysArraySt
 
     public override string PropertyName => nameof(AddWithSelectKeysFromArrayBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeys
                (AddWithSelectKeysFromArrayBothRevealers
@@ -540,7 +540,7 @@ public class KeyedFromKeyRevealerStructValueRevealerDictionaryAddWithSelectKeysA
 
     public override string PropertyName => nameof(AddWithSelectKeysFromArrayBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeys
                (AddWithSelectKeysFromArrayBothRevealers
@@ -569,7 +569,7 @@ public class KeyedFromKeyRevealerValueRevealerDictionaryAddWithSelectKeysSpanStr
 
     public override string PropertyName => nameof(AddWithSelectKeysFromSpanBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeys
                (AddWithSelectKeysFromSpanBothRevealers
@@ -597,7 +597,7 @@ public class KeyedFromKeyRevealerStructValueRevealerDictionaryAddWithSelectKeysS
 
     public override string PropertyName => nameof(AddWithSelectKeysFromSpanBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeys
                (AddWithSelectKeysFromSpanBothRevealers
@@ -627,7 +627,7 @@ public class KeyedFromKeyRevealerValueRevealerDictionaryAddWithSelectKeysReadOnl
 
     public override string PropertyName => nameof(AddWithSelectKeysFromReadOnlySpanBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeys
                (AddWithSelectKeysFromReadOnlySpanBothRevealers
@@ -656,7 +656,7 @@ public class KeyedFromKeyRevealerStructValueRevealerDictionaryAddWithSelectKeysR
 
     public override string PropertyName => nameof(AddWithSelectKeysFromReadOnlySpanBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeys
                (AddWithSelectKeysFromReadOnlySpanBothRevealers
@@ -685,7 +685,7 @@ public class KeyedFromKeyRevealerValueRevealerDictionaryAddWithSelectKeysListStr
 
     public override string PropertyName => nameof(AddWithSelectKeysFromListBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeys
                (AddWithSelectKeysFromListBothRevealers
@@ -713,7 +713,7 @@ public class KeyedFromKeyRevealerStructValueRevealerDictionaryAddWithSelectKeysL
 
     public override string PropertyName => nameof(AddWithSelectKeysFromListBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeys
                (AddWithSelectKeysFromListBothRevealers
@@ -743,7 +743,7 @@ public class KeyedFromKeyRevealerValueRevealerDictionaryAddWithSelectKeysEnumera
 
     public override string PropertyName => nameof(AddWithSelectKeysKeyValuePairEnumerableBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeysEnumerate
                (AddWithSelectKeysKeyValuePairEnumerableBothRevealers
@@ -772,7 +772,7 @@ public class KeyedFromKeyRevealerStructValueRevealerDictionaryAddWithSelectKeysE
 
     public override string PropertyName => nameof(AddWithSelectKeysKeyValuePairEnumerableBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeysEnumerate
                (AddWithSelectKeysKeyValuePairEnumerableBothRevealers
@@ -803,7 +803,7 @@ public class KeyedFromKeyRevealerValueRevealerDictionaryAddWithSelectKeysEnumera
 
     public override string PropertyName => nameof(AddWithSelectKeysKeyValuePairEnumeratorBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeysEnumerate
                (AddWithSelectKeysKeyValuePairEnumeratorBothRevealers
@@ -831,7 +831,7 @@ public class KeyedFromKeyRevealerStructValueRevealerDictionaryAddWithSelectKeysE
 
     public override string PropertyName => nameof(AddWithSelectKeysKeyValuePairEnumeratorBothRevealers );
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddWithSelectKeysEnumerate
                (AddWithSelectKeysKeyValuePairEnumeratorBothRevealers

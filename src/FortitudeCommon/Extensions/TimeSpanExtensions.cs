@@ -12,7 +12,7 @@ public static class TimeSpanExtensions
 
     public static PalantírReveal<TimeSpan> StylerComplexType(this TimeSpan _) => TimeSpanStyler;
 
-    public static StateExtractStringRange FormatTimeSpanAsStructAppender(this TimeSpan timeSpan, ITheOneString sbc)
+    public static AppendSummary FormatTimeSpanAsStructAppender(this TimeSpan timeSpan, ITheOneString sbc)
     {
         return
         sbc.StartComplexType(timeSpan)

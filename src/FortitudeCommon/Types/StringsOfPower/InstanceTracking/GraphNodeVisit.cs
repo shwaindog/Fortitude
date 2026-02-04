@@ -27,7 +27,8 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
           , int IndentLevel  
           , CallerContext CallerContext  
           , FormattingState FormattingState
-          , FormatFlags CurrentFormatFlags  
+          , FormatFlags CurrentFormatFlags
+          // , int ExcludeRevisitMatchCountDown = 0  
           , int RevisitCount = 0
           , bool HasInsertedInstanceId = false  
         )
@@ -135,6 +136,15 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
               , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
             };
         }
+        //
+        // public GraphNodeVisit DecrementExcludeRevisitCountDown()
+        // {
+        //     return this with
+        //     {
+        //         ExcludeRevisitMatchCountDown = ExcludeRevisitMatchCountDown - 1
+        //       , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
+        //     };
+        // }
 
         public GraphNodeVisit ShiftTypeBufferIndex(int amountToShift)
         {
@@ -162,6 +172,8 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
         public FormattingState FormattingState { get; init; }
         
         public FormatFlags CurrentFormatFlags { get; init; }
+        
+        // public int ExcludeRevisitMatchCountDown { get; init; }
         
         public int RevisitCount { get; init; }
         

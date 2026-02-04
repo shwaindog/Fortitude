@@ -143,7 +143,7 @@ public class AppenderReferenceConfig : FLogConfig, IMutableAppenderReferenceConf
         }
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public virtual AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullOrDefaultAdd(nameof(AppenderName), AppenderName)
            .Field.WhenNonNullOrDefaultAdd(nameof(AppenderType), AppenderType)

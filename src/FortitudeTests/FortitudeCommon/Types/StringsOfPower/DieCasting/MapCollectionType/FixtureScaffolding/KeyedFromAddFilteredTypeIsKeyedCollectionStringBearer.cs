@@ -25,7 +25,7 @@ public class KeyedFromDictionaryKeyValueAddFilteredStringBearer<TKey, TValue, TK
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothFormatStrings);
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothFormatStrings
@@ -50,7 +50,7 @@ public class KeyedFromArrayKeyValueAddFilteredStringBearer<TKey, TValue, TKFilte
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothFormatStrings);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothFormatStrings
@@ -75,7 +75,7 @@ public class KeyedFromListKeyValueAddFilteredStringBearer<TKey, TValue, TKFilter
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothFormatStrings);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothFormatStrings
@@ -100,7 +100,7 @@ public class KeyedFromEnumerableKeyValueAddFilteredStringBearer<TKey, TValue, TK
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothFormatStrings);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothFormatStrings
@@ -140,7 +140,7 @@ public class KeyedFromEnumeratorKeyValueAddFilteredStringBearer<TKey, TValue, TK
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothFormatStrings);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothFormatStrings
@@ -166,7 +166,7 @@ public class KeyedFromDictionaryKeyValueRevealerAddFilteredStringBearer<TKey, TV
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryValueRevealerKeyFormatString
@@ -192,7 +192,7 @@ public class KeyedFromDictionaryKeyStructValueRevealerAddFilteredStringBearer<TK
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryValueRevealerKeyFormatString
@@ -219,7 +219,7 @@ public class KeyedFromArrayKeyValueRevealerAddFilteredStringBearer<TKey, TValue,
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayValueRevealerKeyFormatString
@@ -245,7 +245,7 @@ public class KeyedFromArrayKeyStructValueRevealerAddFilteredStringBearer<TKey, T
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayValueRevealerKeyFormatString
@@ -272,7 +272,7 @@ public class KeyedFromListKeyValueRevealerAddFilteredStringBearer<TKey, TValue, 
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredListValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredListValueRevealerKeyFormatString
@@ -298,7 +298,7 @@ public class KeyedFromListKeyStructValueRevealerAddFilteredStringBearer<TKey, TV
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredListValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredListValueRevealerKeyFormatString
@@ -325,7 +325,7 @@ public class KeyedFromEnumerableKeyValueRevealerAddFilteredStringBearer<TKey, TV
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableValueRevealerKeyFormatString
@@ -351,7 +351,7 @@ public class KeyedFromEnumerableKeyStructValueRevealerAddFilteredStringBearer<TK
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableValueRevealerKeyFormatString
@@ -393,7 +393,7 @@ public class KeyedFromEnumeratorKeyValueRevealerAddFilteredStringBearer<TKey, TV
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorValueRevealerKeyFormatString
@@ -434,7 +434,7 @@ public class KeyedFromEnumeratorKeyStructValueRevealerAddFilteredStringBearer<TK
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorValueRevealerKeyFormatString
@@ -462,7 +462,7 @@ public class KeyedFromDictionaryKeyRevealerValueRevealerAddFilteredStringBearer<
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothRevealers
@@ -489,7 +489,7 @@ public class KeyedFromDictionaryKeyRevealerStructValueRevealerAddFilteredStringB
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothRevealers
@@ -517,7 +517,7 @@ public class KeyedFromArrayKeyRevealerValueRevealerAddFilteredStringBearer<TKey,
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers
@@ -544,7 +544,7 @@ public class KeyedFromArrayStructKeyRevealerValueRevealerAddFilteredStringBearer
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers
@@ -571,7 +571,7 @@ public class KeyedFromArrayKeyRevealerStructValueRevealerAddFilteredStringBearer
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers
@@ -597,7 +597,7 @@ public class KeyedFromArrayStructKeyRevealerStructValueRevealerAddFilteredString
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers
@@ -625,7 +625,7 @@ public class KeyedFromListKeyRevealerValueRevealerAddFilteredStringBearer<TKey, 
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers
@@ -652,7 +652,7 @@ public class KeyedFromListStructKeyRevealerValueRevealerAddFilteredStringBearer<
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers
@@ -679,7 +679,7 @@ public class KeyedFromListKeyRevealerStructValueRevealerAddFilteredStringBearer<
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers
@@ -705,7 +705,7 @@ public class KeyedFromListStructKeyRevealerStructValueRevealerAddFilteredStringB
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFiltered
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers
@@ -733,7 +733,7 @@ public class KeyedFromEnumerableKeyRevealerValueRevealerAddFilteredStringBearer<
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers
@@ -760,7 +760,7 @@ public class KeyedFromEnumerableStructKeyRevealerValueRevealerAddFilteredStringB
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers
@@ -787,7 +787,7 @@ public class KeyedFromEnumerableKeyRevealerStructValueRevealerAddFilteredStringB
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers
@@ -813,7 +813,7 @@ public class KeyedFromEnumerableStructKeyRevealerStructValueRevealerAddFilteredS
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers
@@ -856,7 +856,7 @@ public class KeyedFromEnumeratorKeyRevealerValueRevealerAddFilteredStringBearer<
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers
@@ -898,7 +898,7 @@ public class KeyedFromEnumeratorStructKeyRevealerValueRevealerAddFilteredStringB
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers
@@ -940,7 +940,7 @@ public class KeyedFromEnumeratorKeyRevealerStructValueRevealerAddFilteredStringB
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers
@@ -981,7 +981,7 @@ public class KeyedFromEnumeratorStructKeyRevealerStructValueRevealerAddFilteredS
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddFilteredEnumerate
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers

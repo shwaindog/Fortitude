@@ -22,7 +22,7 @@ public class FieldNullableBoolWhenNonNullStringBearer : FormattedMoldScaffold<bo
 
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddNullableBool);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
                (nameof(ComplexTypeFieldWhenNonNullAddNullableBool)
@@ -44,7 +44,7 @@ public class FieldSpanFormattableWhenNonNullStringBearer<TFmt> : FormattedMoldSc
 
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddSpanFormattableAs);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
                (nameof(ComplexTypeFieldWhenNonNullAddSpanFormattableAs)
@@ -65,7 +65,7 @@ public class FieldNullableSpanFormattableWhenNonNullStringBearer<TFmtStruct> : F
 
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddNullableSpanFormattableAs);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
                (nameof(ComplexTypeFieldWhenNonNullAddNullableSpanFormattableAs)
@@ -87,7 +87,7 @@ public class FieldCloakedBearerWhenNonNullStringBearer<TTCloaked, TRevealBase> :
 
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullRevealCloakedBearerAs);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullReveal
                (nameof(ComplexTypeFieldWhenNonNullRevealCloakedBearerAs)
@@ -108,7 +108,7 @@ public class FieldNullableCloakedBearerWhenNonNullStringBearer<TCloakedStruct> :
 
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullRevealNullableCloakedBearerAs);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullReveal
                (nameof(ComplexTypeFieldWhenNonNullRevealNullableCloakedBearerAs),
@@ -129,7 +129,7 @@ public class FieldStringBearerWhenNonNullStringBearer<TBearer> : ProxyFormattedM
 
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullRevealStringBearerAs);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullReveal
                (nameof(ComplexTypeFieldWhenNonNullRevealStringBearerAs)
@@ -150,7 +150,7 @@ public class FieldNullableStringBearerWhenNonNullStringBearer<TBearerStruct> : P
 
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullRevealNullableStringBearerAs);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullReveal
                (nameof(ComplexTypeFieldWhenNonNullRevealNullableStringBearerAs)
@@ -179,7 +179,7 @@ public class FieldCharSpanWhenNonNullStringBearer : FormattedMoldScaffold<char[]
         set => Value = value?.ToCharArray()!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
                (nameof(ComplexTypeFieldWhenNonNullAddCharSpanAs)
@@ -208,7 +208,7 @@ public class FieldCharReadOnlySpanWhenNonNullStringBearer : FormattedMoldScaffol
         set => Value = value!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
                (nameof(ComplexTypeFieldWhenNonNullAddReadOnlyCharSpanAs)
@@ -235,7 +235,7 @@ public class FieldStringWhenNonNullStringBearer : FormattedMoldScaffold<string?>
         set => Value = value;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
                (nameof(ComplexTypeFieldWhenNonNullAddStringAs)
@@ -266,7 +266,7 @@ public class FieldStringRangeWhenNonNullStringBearer : FormattedMoldScaffold<str
         set => Value = value;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
                (nameof(ComplexTypeFieldWhenNonNullAddStringRangeAs)
@@ -293,7 +293,7 @@ public class FieldCharArrayWhenNonNullStringBearer : FormattedMoldScaffold<char[
         set => Value = value?.ToCharArray();
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
                (nameof(ComplexTypeFieldWhenNonNullAddCharArrayAs)
@@ -324,7 +324,7 @@ public class FieldCharArrayRangeWhenNonNullStringBearer : FormattedMoldScaffold<
         set => Value = value?.ToCharArray();
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
                (nameof(ComplexTypeFieldWhenNonNullAddCharArrayRangeAs)
@@ -359,7 +359,7 @@ public class FieldCharSequenceWhenNonNullStringBearer<TCharSeq> : FormattedMoldS
         }
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAddCharSeq
                (nameof(ComplexTypeFieldWhenNonNullAddCharSequenceAs)
@@ -399,7 +399,7 @@ public class FieldCharSequenceRangeWhenNonNullStringBearer<TCharSeq> : Formatted
         }
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAddCharSeq
                (nameof(ComplexTypeFieldWhenNonNullAddCharSequenceRangeAs)
@@ -426,7 +426,7 @@ public class FieldStringBuilderWhenNonNullStringBearer : FormattedMoldScaffold<S
         set => Value = new StringBuilder(value);
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
                (nameof(ComplexTypeFieldWhenNonNullAddStringBuilderAs)
@@ -459,7 +459,7 @@ public class FieldStringBuilderRangeWhenNonNullStringBearer : FormattedMoldScaff
         set => Value = new StringBuilder(value);
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAdd
                (nameof(ComplexTypeFieldWhenNonNullAddStringBuilderRangeAs)
@@ -480,7 +480,7 @@ public class FieldMatchWhenNonNullStringBearer<TAny> : FormattedMoldScaffold<TAn
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddMatch);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAddMatch
                (nameof(ComplexTypeFieldWhenNonNullAddMatch)
@@ -501,7 +501,7 @@ public class FieldObjectWhenNonNullStringBearer : FormattedMoldScaffold<object?>
     public override string PropertyName => nameof(ComplexTypeFieldWhenNonNullAddObject);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.WhenNonNullAddObject
                (nameof(ComplexTypeFieldWhenNonNullAddObject)

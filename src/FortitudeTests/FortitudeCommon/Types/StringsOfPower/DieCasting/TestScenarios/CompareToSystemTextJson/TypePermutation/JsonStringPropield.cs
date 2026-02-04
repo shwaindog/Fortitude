@@ -19,7 +19,7 @@ public class JsonStringPropertyClass : IStringBearer
 
     public string JsonStringPropield { get; set; } = null!;
 
-    public StateExtractStringRange RevealState(ITheOneString tos)
+    public AppendSummary RevealState(ITheOneString tos)
     {
         var ctb = tos.StartComplexType(this);
         ctb.Field.AlwaysAdd(nameof(JsonStringPropield), JsonStringPropield);

@@ -22,7 +22,7 @@ public class FieldBoolSpanAlwaysAddFilteredStringBearer : FormattedFilteredColle
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolSpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolSpan)
@@ -47,7 +47,7 @@ public class FieldNullableBoolSpanAlwaysAddFilteredStringBearer : FormattedFilte
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolSpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolSpan)
@@ -72,7 +72,7 @@ public class FieldSpanFormattableSpanAlwaysAddFilteredStringBearer<TFmt, TFmtBas
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableSpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableSpan)
@@ -98,7 +98,7 @@ public class FieldSpanFormattableNullableClassSpanAlwaysAddFilteredStringBearer<
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableNullableSpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableNullableSpan)
@@ -124,7 +124,7 @@ public class FieldNullableSpanFormattableSpanAlwaysAddFilteredStringBearer<TFmtS
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableSpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableSpan)
@@ -150,7 +150,7 @@ public class FieldCloakedBearerSpanAlwaysAddFilteredStringBearer<TCloaked, TCloa
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerSpan);
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerSpan)
@@ -176,7 +176,7 @@ public class FieldCloakedBearerNullableClassSpanAlwaysAddFilteredStringBearer<TC
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerNullableSpan);
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerNullableSpan)
@@ -199,7 +199,7 @@ public class FieldNullableCloakedBearerSpanAlwaysAddFilteredStringBearer<TCloake
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerSpan);
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerSpan)
@@ -225,7 +225,7 @@ public class FieldStringBearerSpanAlwaysAddFilteredStringBearer<TBearer, TBearer
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerSpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerSpan)
@@ -250,7 +250,7 @@ public class FieldStringBearerNullableClassSpanAlwaysAddFilteredStringBearer<TBe
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerNullableSpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerNullableSpan)
@@ -275,7 +275,7 @@ public class FieldNullableStringBearerSpanAlwaysAddFilteredStringBearer<TBearerS
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerSpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerSpan)
@@ -299,7 +299,7 @@ public class FieldStringSpanAlwaysAddFilteredStringBearer : FormattedFilteredCol
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringSpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringSpan)
@@ -324,7 +324,7 @@ public class FieldStringNullableSpanAlwaysAddFilteredStringBearer : FormattedFil
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringSpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
            .AlwaysAddFilteredNullable
@@ -351,7 +351,7 @@ public class FieldCharSequenceSpanAlwaysAddFilteredStringBearer<TCharSeq, TCharS
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceSpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredCharSeq
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceSpan)
@@ -376,7 +376,7 @@ public class FieldStringBuilderSpanAlwaysAddFilteredStringBearer : FormattedFilt
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderSpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderSpan)
@@ -401,7 +401,7 @@ public class FieldStringBuilderNullableSpanAlwaysAddFilteredStringBearer
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBuilderSpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBuilderSpan)
@@ -427,7 +427,7 @@ public class FieldMatchSpanAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchSpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredMatch
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchSpan)
@@ -452,7 +452,7 @@ public class FieldObjectSpanAlwaysAddFilteredStringBearer : FormattedFilteredCol
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectSpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredObject
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectSpan)
@@ -476,7 +476,7 @@ public class FieldNullableObjectSpanAlwaysAddFilteredStringBearer : FormattedFil
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableObjectSpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredObjectNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableObjectSpan)
@@ -500,7 +500,7 @@ public class FieldBoolReadOnlySpanAlwaysAddFilteredStringBearer : FormattedFilte
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolReadOnlySpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolReadOnlySpan)
@@ -525,7 +525,7 @@ public class FieldNullableBoolReadOnlySpanAlwaysAddFilteredStringBearer : Format
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolReadOnlySpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolReadOnlySpan)
@@ -551,7 +551,7 @@ public class FieldSpanFormattableReadOnlySpanAlwaysAddFilteredStringBearer<TFmt,
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableReadOnlySpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableReadOnlySpan)
@@ -577,7 +577,7 @@ public class FieldSpanFormattableNullableClassReadOnlySpanAlwaysAddFilteredStrin
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableNullableReadOnlySpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableNullableReadOnlySpan)
@@ -603,7 +603,7 @@ public class FieldNullableSpanFormattableReadOnlySpanAlwaysAddFilteredStringBear
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableReadOnlySpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableReadOnlySpan)
@@ -629,7 +629,7 @@ public class FieldCloakedBearerReadOnlySpanAlwaysAddFilteredStringBearer<TCloake
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerReadOnlySpan);
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerReadOnlySpan)
@@ -655,7 +655,7 @@ public class FieldCloakedBearerNullableClassReadOnlySpanAlwaysAddFilteredStringB
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerNullableReadOnlySpan);
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerNullableReadOnlySpan)
@@ -680,7 +680,7 @@ public class FieldNullableCloakedBearerReadOnlySpanAlwaysAddFilteredStringBearer
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerReadOnlySpan);
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerReadOnlySpan)
@@ -706,7 +706,7 @@ public class FieldStringBearerReadOnlySpanAlwaysAddFilteredStringBearer<TBearer,
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerReadOnlySpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerReadOnlySpan)
@@ -731,7 +731,7 @@ public class FieldStringBearerNullableClassReadOnlySpanAlwaysAddFilteredStringBe
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerNullableReadOnlySpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerNullableReadOnlySpan)
@@ -756,7 +756,7 @@ public class FieldNullableStringBearerReadOnlySpanAlwaysAddFilteredStringBearer<
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerReadOnlySpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerReadOnlySpan),
@@ -780,7 +780,7 @@ public class FieldStringReadOnlySpanAlwaysAddFilteredStringBearer : FormattedFil
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringReadOnlySpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringReadOnlySpan)
@@ -805,7 +805,7 @@ public class FieldStringNullableReadOnlySpanAlwaysAddFilteredStringBearer
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringReadOnlySpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringReadOnlySpan),
@@ -831,7 +831,7 @@ public class FieldCharSequenceReadOnlySpanAlwaysAddFilteredStringBearer<TCharSeq
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceReadOnlySpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredCharSeq
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceReadOnlySpan)
@@ -857,7 +857,7 @@ public class FieldStringBuilderReadOnlySpanAlwaysAddFilteredStringBearer
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderReadOnlySpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderReadOnlySpan)
@@ -882,7 +882,7 @@ public class FieldStringBuilderNullableReadOnlySpanAlwaysAddFilteredStringBearer
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBuilderReadOnlySpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBuilderReadOnlySpan)
@@ -908,7 +908,7 @@ public class FieldMatchReadOnlySpanAlwaysAddFilteredStringBearer<TAny, TAnyFilte
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchReadOnlySpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredMatch
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchReadOnlySpan)
@@ -933,7 +933,7 @@ public class FieldObjectReadOnlySpanAlwaysAddFilteredStringBearer : FormattedFil
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectReadOnlySpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredObject
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectReadOnlySpan)
@@ -957,7 +957,7 @@ public class FieldNullableObjectReadOnlySpanAlwaysAddFilteredStringBearer
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableObjectReadOnlySpan);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredObjectNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableObjectReadOnlySpan)
@@ -981,7 +981,7 @@ public class FieldBoolArrayAlwaysAddFilteredStringBearer : FormattedFilteredColl
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolArray);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolArray)
@@ -1006,7 +1006,7 @@ public class FieldNullableBoolArrayAlwaysAddFilteredStringBearer : FormattedFilt
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolArray);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolArray)
@@ -1031,7 +1031,7 @@ public class FieldSpanFormattableArrayAlwaysAddFilteredStringBearer<TFmt, TFmtBa
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableArray);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableArray)
@@ -1057,7 +1057,7 @@ public class FieldNullableSpanFormattableArrayAlwaysAddFilteredStringBearer<TFmt
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableArray);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableArray)
@@ -1083,7 +1083,7 @@ public class FieldCloakedBearerArrayAlwaysAddFilteredStringBearer<TCloaked, TClo
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerArray);
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerArray)
@@ -1107,7 +1107,7 @@ public class FieldNullableCloakedBearerArrayAlwaysAddFilteredStringBearer<TCloak
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerArray);
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerArray)
@@ -1133,7 +1133,7 @@ public class FieldStringBearerArrayAlwaysAddFilteredStringBearer<TBearer, TBeare
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerArray);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerArray)
@@ -1158,7 +1158,7 @@ public class FieldNullableStringBearerArrayAlwaysAddFilteredStringBearer<TBearer
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerArray);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerArray)
@@ -1182,7 +1182,7 @@ public class FieldStringArrayAlwaysAddFilteredStringBearer : FormattedFilteredCo
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringArray);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringArray)
@@ -1208,7 +1208,7 @@ public class FieldCharSequenceArrayAlwaysAddFilteredStringBearer<TCharSeq, TChar
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceArray);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredCharSeq
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceArray)
@@ -1233,7 +1233,7 @@ public class FieldStringBuilderArrayAlwaysAddFilteredStringBearer
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderArray);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
            .AlwaysAddFiltered
@@ -1260,7 +1260,7 @@ public class FieldMatchArrayAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchArray);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
            .AlwaysAddFilteredMatch
@@ -1286,7 +1286,7 @@ public class FieldObjectArrayAlwaysAddFilteredStringBearer
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectArray);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredObject
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectArray)
@@ -1310,7 +1310,7 @@ public class FieldBoolListAlwaysAddFilteredStringBearer : FormattedFilteredColle
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolList);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolList)
@@ -1335,7 +1335,7 @@ public class FieldNullableBoolListAlwaysAddFilteredStringBearer : FormattedFilte
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolList)
@@ -1361,7 +1361,7 @@ public class FieldSpanFormattableListAlwaysAddFilteredStringBearer<TFmt, TFmtBas
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableList);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
            .AlwaysAddFiltered
@@ -1388,7 +1388,7 @@ public class FieldNullableSpanFormattableListAlwaysAddFilteredStringBearer<TFmtS
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableList);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableSpanFormattableList)
@@ -1414,7 +1414,7 @@ public class FieldCloakedBearerListAlwaysAddFilteredStringBearer<TCloaked, TCloa
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerList);
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCloakedBearerList)
@@ -1438,7 +1438,7 @@ public class FieldNullableCloakedBearerListAlwaysAddFilteredStringBearer<TCloake
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerList);
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableCloakedBearerList)
@@ -1464,7 +1464,7 @@ public class FieldStringBearerListAlwaysAddFilteredStringBearer<TBearer, TBearer
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerList);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBearerList)
@@ -1489,7 +1489,7 @@ public class FieldNullableStringBearerListAlwaysAddFilteredStringBearer<TBearerS
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerList);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableStringBearerList)
@@ -1513,7 +1513,7 @@ public class FieldStringListAlwaysAddFilteredStringBearer : FormattedFilteredCol
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringList);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringList)
@@ -1539,7 +1539,7 @@ public class FieldCharSequenceListAlwaysAddFilteredStringBearer<TCharSeq, TCharS
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceList);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredCharSeq
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceList)
@@ -1564,7 +1564,7 @@ public class FieldStringBuilderListAlwaysAddFilteredStringBearer
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderList);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFiltered
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderList)
@@ -1590,7 +1590,7 @@ public class FieldMatchListAlwaysAddFilteredStringBearer<TAny, TAnyFilterBase>
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchList);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredMatch
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchList)
@@ -1615,7 +1615,7 @@ public class FieldObjectListAlwaysAddFilteredStringBearer : FormattedFilteredCol
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectList);
 
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddFilteredObject
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectList)

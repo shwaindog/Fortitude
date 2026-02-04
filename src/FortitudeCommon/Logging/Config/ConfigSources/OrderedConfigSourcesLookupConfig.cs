@@ -281,7 +281,7 @@ public class OrderedConfigSourcesLookupConfig : FLogConfig, IAppendableOrderedCo
         return hashCode;
     }
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
            .AddAll(priorityConfigSources)
            .Complete();

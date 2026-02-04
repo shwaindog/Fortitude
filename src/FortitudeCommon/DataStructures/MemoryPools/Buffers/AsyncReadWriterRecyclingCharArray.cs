@@ -480,7 +480,7 @@ public class AsyncReadWriterRecyclingCharArray : ReusableObject<AsyncReadWriterR
         return this;
     }
 
-    public StateExtractStringRange RevealState(ITheOneString tos)
+    public AppendSummary RevealState(ITheOneString tos)
     {
         return
          tos.StartComplexContentType(this)

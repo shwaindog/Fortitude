@@ -105,7 +105,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
 
     protected TMold Me => (TMold)(TypeMolder)this;
 
-    public override StateExtractStringRange Complete()
+    public override AppendSummary Complete()
     {
         if (State == null) { throw new NullReferenceException("Expected MoldState to be set"); }
         if (PortableState.CreateFormatFlags.DoesNotHaveSuppressClosing())
@@ -123,7 +123,8 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         PortableState.CompleteResult = result;
         var tos  = State.Master;
         var verifyRemoved = MoldVisit;
-        if (verifyRemoved.RegistryId >= -1 && tos.ActiveGraphRegistry.RegistryId != verifyRemoved.RegistryId)
+        if (verifyRemoved.RegistryId >= -1 
+         && (tos.ActiveGraphRegistry.RegistryId != verifyRemoved.RegistryId || verifyRemoved.CurrentVisitIndex >= tos.ActiveGraphRegistry.Count))
         {
             Debugger.Break();   
         }

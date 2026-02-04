@@ -25,7 +25,7 @@ public static class FLogCallLocationExtensions
     public static PalantírReveal<FLogCallLocation> Styler(this FLogCallLocation callLoc) => FLogCallLocationStyler;
 
 
-    public static StateExtractStringRange FormatFlogLevelAppender(this FLogCallLocation callLoc, ITheOneString sbc) =>
+    public static AppendSummary FormatFlogLevelAppender(this FLogCallLocation callLoc, ITheOneString sbc) =>
         sbc.StartComplexType(callLoc)
            .Field.AlwaysAdd(nameof(callLoc.MemberName), callLoc.MemberName)
            .Field.AlwaysAdd(nameof(callLoc.SourceLineNumber), callLoc.SourceLineNumber)

@@ -359,7 +359,7 @@ public class Candle : ReusableObject<ICandle>, IMutableCandle, IDoublyLinkedList
         }
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public virtual AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(TimeBoundaryPeriod), TimeBoundaryPeriod)
             .Field.AlwaysAdd(nameof(PeriodStartTime), PeriodStartTime, "{0:O}")

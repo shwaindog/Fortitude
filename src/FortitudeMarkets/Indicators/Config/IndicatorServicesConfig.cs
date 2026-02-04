@@ -91,7 +91,7 @@ public class IndicatorServicesConfig : ConfigSection, IIndicatorServicesConfig
         set => ignoreSuppressWarnings = new PersistenceConfig(value, ConfigRoot, $"{Path}{Split}{nameof(PersistenceConfig)}");
     }
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
+    public virtual AppendSummary RevealState(ITheOneString tos) => 
         tos.StartComplexType(this)
             .Field.AlwaysReveal(nameof(MarketsConfig), MarketsConfig)
             .Field.AlwaysReveal(nameof(TimeSeriesFileRepositoryConfig), TimeSeriesFileRepositoryConfig)

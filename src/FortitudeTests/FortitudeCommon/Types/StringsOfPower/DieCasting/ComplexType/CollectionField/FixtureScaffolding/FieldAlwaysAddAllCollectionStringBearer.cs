@@ -22,7 +22,7 @@ public class FieldBoolSpanAlwaysAddAllStringBearer : FormattedCollectionFieldMol
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolSpan)
@@ -44,7 +44,7 @@ public class FieldNullableBoolSpanAlwaysAddAllStringBearer : FormattedCollection
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolSpan)
@@ -67,7 +67,7 @@ public class FieldSpanFormattableSpanAlwaysAddAllStringBearer<TFmt> : FormattedC
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableStructSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableStructSpan)
@@ -90,7 +90,7 @@ public class FieldSpanFormattableNullableClassSpanAlwaysAddAllStringBearer<TFmt>
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableNullableClassSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableNullableClassSpan)
@@ -113,7 +113,7 @@ public class FieldNullableSpanFormattableSpanAlwaysAddAllStringBearer<TFmtStruct
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableSpan)
@@ -138,7 +138,7 @@ public class FieldCloakedBearerSpanAlwaysAddAllStringBearer<TCloaked, TRevealBas
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerSpan)
@@ -163,7 +163,7 @@ public class FieldCloakedBearerNullableClassSpanAlwaysAddAllStringBearer<TCloake
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerNullableSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerNullableSpan)
@@ -187,7 +187,7 @@ public class FieldNullableCloakedBearerSpanAlwaysAddAllStringBearer<TCloakedStru
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerSpan)
@@ -210,7 +210,7 @@ public class FieldStringBearerSpanAlwaysAddAllStringBearer<TBearer> : FormattedC
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerSpan)
@@ -233,7 +233,7 @@ public class FieldStringBearerNullableClassSpanAlwaysAddAllStringBearer<TBearer>
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerSpan)
@@ -256,7 +256,7 @@ public class FieldNullableStringBearerSpanAlwaysAddAllStringBearer<TBearerStruct
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerSpan)
@@ -278,7 +278,7 @@ public class FieldStringSpanAlwaysAddAllStringBearer : FormattedCollectionFieldM
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllStringSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringSpan)
@@ -300,7 +300,7 @@ public class FieldStringNullableSpanAlwaysAddAllStringBearer : FormattedCollecti
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllStringSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringSpan)
@@ -323,7 +323,7 @@ public class FieldCharSequenceSpanAlwaysAddAllStringBearer<TCharSeq> : Formatted
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllCharSeq
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceSpan)
@@ -346,7 +346,7 @@ public class FieldStringBuilderSpanAlwaysAddAllStringBearer : FormattedCollectio
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderSpan)
@@ -369,7 +369,7 @@ public class FieldStringBuilderNullableSpanAlwaysAddAllStringBearer : FormattedC
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderSpan)
@@ -391,7 +391,7 @@ public class FieldMatchSpanAlwaysAddAllStringBearer<TAny> : FormattedCollectionF
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllMatch
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchSpan)
@@ -413,7 +413,7 @@ public class FieldObjectSpanAlwaysAddAllStringBearer : FormattedCollectionFieldM
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllObject
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectSpan)
@@ -435,7 +435,7 @@ public class FieldNullableObjectSpanAlwaysAddAllStringBearer : FormattedCollecti
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableObjectSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllObjectNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableObjectSpan)
@@ -457,7 +457,7 @@ public class FieldBoolReadOnlySpanAlwaysAddAllStringBearer : FormattedCollection
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolReadOnlySpan)
@@ -479,7 +479,7 @@ public class FieldNullableBoolReadOnlySpanAlwaysAddAllStringBearer : FormattedCo
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolReadOnlySpan)
@@ -502,7 +502,7 @@ public class FieldSpanFormattableReadOnlySpanAlwaysAddAllStringBearer<TFmt> : Fo
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableReadOnlySpan)
@@ -525,7 +525,7 @@ public class FieldSpanFormattableNullableClassReadOnlySpanAlwaysAddAllStringBear
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableNullableRefReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableNullableRefReadOnlySpan)
@@ -549,7 +549,7 @@ public class FieldNullableSpanFormattableReadOnlySpanAlwaysAddAllStringBearer<TF
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableReadOnlySpan)
@@ -574,7 +574,7 @@ public class FieldCloakedBearerReadOnlySpanAlwaysAddAllStringBearer<TCloaked, TR
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerReadOnlySpan)
@@ -599,7 +599,7 @@ public class FieldCloakedBearerNullableClassReadOnlySpanAlwaysAddAllStringBearer
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerNullableSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerNullableSpan)
@@ -622,7 +622,7 @@ public class FieldNullableCloakedBearerReadOnlySpanAlwaysAddAllStringBearer<TClo
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerReadOnlySpan)
@@ -645,7 +645,7 @@ public class FieldStringBearerReadOnlySpanAlwaysAddAllStringBearer<TBearer> : Fo
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerReadOnlySpan)
@@ -668,7 +668,7 @@ public class FieldStringBearerNullableClassReadOnlySpanAlwaysAddAllStringBearer<
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerReadOnlySpan)
@@ -692,7 +692,7 @@ public class FieldNullableStringBearerReadOnlySpanAlwaysAddAllStringBearer<TBear
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerReadOnlySpan)
@@ -714,7 +714,7 @@ public class FieldStringReadOnlySpanAlwaysAddAllStringBearer : FormattedCollecti
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllStringReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringReadOnlySpan)
@@ -736,7 +736,7 @@ public class FieldStringNullableReadOnlySpanAlwaysAddAllStringBearer : Formatted
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllStringNullableReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringNullableReadOnlySpan)
@@ -759,7 +759,7 @@ public class FieldCharSequenceReadOnlySpanAlwaysAddAllStringBearer<TCharSeq> : F
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllCharSeq
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceReadOnlySpan)
@@ -783,7 +783,7 @@ public class FieldStringBuilderReadOnlySpanAlwaysAddAllStringBearer : FormattedC
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderReadOnlySpan)
@@ -806,7 +806,7 @@ public class FieldStringBuilderNullableReadOnlySpanAlwaysAddAllStringBearer : Fo
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderNullableReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderNullableReadOnlySpan)
@@ -828,7 +828,7 @@ public class FieldMatchReadOnlySpanAlwaysAddAllStringBearer<TAny> : FormattedCol
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllMatch
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchReadOnlySpan)
@@ -850,7 +850,7 @@ public class FieldObjectReadOnlySpanAlwaysAddAllStringBearer : FormattedCollecti
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectSpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllObject
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectSpan)
@@ -872,7 +872,7 @@ public class FieldNullableObjectReadOnlySpanAlwaysAddAllStringBearer : Formatted
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableObjectReadOnlySpan);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllObjectNullable
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableObjectReadOnlySpan)
@@ -893,7 +893,7 @@ public class FieldBoolArrayAlwaysAddAllStringBearer : FormattedCollectionFieldMo
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolArray)
@@ -914,7 +914,7 @@ public class FieldNullableBoolArrayAlwaysAddAllStringBearer : FormattedCollectio
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolArray)
@@ -937,7 +937,7 @@ public class FieldSpanFormattableArrayAlwaysAddAllStringBearer<TFmt> : Formatted
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableArray)
@@ -960,7 +960,7 @@ public class FieldNullableSpanFormattableArrayAlwaysAddAllStringBearer<TFmtStruc
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableArray)
@@ -985,7 +985,7 @@ public class FieldCloakedBearerArrayAlwaysAddAllStringBearer<TCloaked, TRevealBa
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerArray)
@@ -1009,7 +1009,7 @@ public class FieldNullableCloakedBearerArrayAlwaysAddAllStringBearer<TCloakedStr
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerArray)
@@ -1033,7 +1033,7 @@ public class FieldStringBearerArrayAlwaysAddAllStringBearer<TBearer> : Formatted
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerArray)
@@ -1056,7 +1056,7 @@ public class FieldNullableStringBearerArrayAlwaysAddAllStringBearer<TBearerStruc
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerArray)
@@ -1077,7 +1077,7 @@ public class FieldStringArrayAlwaysAddAllStringBearer : FormattedCollectionField
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllStringArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringArray)
@@ -1100,7 +1100,7 @@ public class FieldCharSequenceArrayAlwaysAddAllStringBearer<TCharSeq> : Formatte
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllCharSeq
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceArray)
@@ -1122,7 +1122,7 @@ public class FieldStringBuilderArrayAlwaysAddAllStringBearer : FormattedCollecti
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderArray)
@@ -1143,7 +1143,7 @@ public class FieldMatchArrayAlwaysAddAllStringBearer<TAny> : FormattedCollection
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllMatch
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchArray)
@@ -1164,7 +1164,7 @@ public class FieldObjectArrayAlwaysAddAllStringBearer : FormattedCollectionField
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableObjectArray);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllObject
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableObjectArray)
@@ -1185,7 +1185,7 @@ public class FieldBoolListAlwaysAddAllStringBearer : FormattedCollectionFieldMol
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolList)
@@ -1205,7 +1205,7 @@ public class FieldNullableBoolListAlwaysAddAllStringBearer : FormattedCollection
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolList)
@@ -1227,7 +1227,7 @@ public class FieldSpanFormattableListAlwaysAddAllStringBearer<TFmt> : FormattedC
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllSpanFormattableList)
@@ -1251,7 +1251,7 @@ public class FieldNullableSpanFormattableListAlwaysAddAllStringBearer<TFmtStruct
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableSpanFormattableList)
@@ -1276,7 +1276,7 @@ public class FieldCloakedBearerListAlwaysAddAllStringBearer<TCloaked, TRevealBas
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCloakedBearerList)
@@ -1299,7 +1299,7 @@ public class FieldNullableCloakedBearerListAlwaysAddAllStringBearer<TCloakedStru
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableCloakedBearerList)
@@ -1322,7 +1322,7 @@ public class FieldStringBearerListAlwaysAddAllStringBearer<TBearer> : FormattedC
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBearerList)
@@ -1346,7 +1346,7 @@ public class FieldNullableStringBearerListAlwaysAddAllStringBearer<TBearerStruct
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysRevealAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableStringBearerList)
@@ -1368,7 +1368,7 @@ public class FieldStringListAlwaysAddAllStringBearer : FormattedCollectionFieldM
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllStringList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringList)
@@ -1391,7 +1391,7 @@ public class FieldCharSequenceListAlwaysAddAllStringBearer<TCharSeq> : Formatted
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllCharSeq
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceList)
@@ -1414,7 +1414,7 @@ public class FieldStringBuilderListAlwaysAddAllStringBearer : FormattedCollectio
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAll
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderList)
@@ -1435,7 +1435,7 @@ public class FieldMatchListAlwaysAddAllStringBearer<TAny> : FormattedCollectionF
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllMatch
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchList)
@@ -1457,7 +1457,7 @@ public class FieldObjectListAlwaysAddAllStringBearer : FormattedCollectionFieldM
 
     public override string PropertyName => nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectList);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField.AlwaysAddAllObject
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectList)

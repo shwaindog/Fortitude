@@ -6,7 +6,7 @@ using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
 namespace FortitudeCommon.Types.StringsOfPower;
 
-public delegate StateExtractStringRange PalantírReveal<in TToStyle>(TToStyle toStyle, ITheOneString toAppendTo)
+public delegate AppendSummary PalantírReveal<in TToStyle>(TToStyle toStyle, ITheOneString toAppendTo)
     where TToStyle : notnull;
 
 public interface IStringBearerRevelStateProvider<in TToStyle> : IStringBearerFormattableProvider where TToStyle : notnull

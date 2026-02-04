@@ -452,7 +452,7 @@ public class PQTickInstant : ReusableObject<ITickInstant>, IPQTickInstant, IClon
 
     protected string UpdatedFlagsToString => $"{nameof(UpdatedFlags)}: {UpdatedFlags}";
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) => 
+    public virtual AppendSummary RevealState(ITheOneString tos) => 
     tos.StartComplexType(this)
         .Field.AlwaysAdd(nameof(SingleTickValue), SingleTickValue)
         .Field.WhenNonDefaultAdd(nameof(UpdatedFlags), UpdatedFlags)
@@ -1023,7 +1023,7 @@ public class PQPublishableTickInstant : PQReusableMessage, IPQPublishableTickIns
 
     protected string UpdatedFlagsToString => $"{nameof(UpdatedFlags)}: {UpdatedFlags}";
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.AlwaysReveal(nameof(PQSourceTickerInfo), PQSourceTickerInfo)
             .Field.AlwaysAdd(nameof(PQSequenceId), PQSequenceId)

@@ -983,7 +983,7 @@ public abstract class PQReusableMessage : ReusableObject<IFeedEventStatusUpdate>
     protected string JustFeedStatusToStringMembers =>
         $"{nameof(FeedMarketConnectivityStatus)}: {FeedMarketConnectivityStatus}, {nameof(FeedSyncStatus)}: {FeedSyncStatus}, {nameof(PQSequenceId)}: {PQSequenceId}";
 
-    public virtual StateExtractStringRange RevealState(ITheOneString tos) =>
+    public virtual AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(FeedMarketConnectivityStatus), FeedMarketConnectivityStatus)
             .Field.AlwaysAdd(nameof(FeedSyncStatus), FeedSyncStatus)

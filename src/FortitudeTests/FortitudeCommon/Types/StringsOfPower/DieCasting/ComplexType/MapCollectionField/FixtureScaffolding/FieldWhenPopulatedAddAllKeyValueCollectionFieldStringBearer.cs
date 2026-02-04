@@ -23,7 +23,7 @@ public class FieldKeyValueDictionaryFormatStringsWhenPopulatedAddAllStringBearer
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllDictionaryBothFormatStrings);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAll
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllDictionaryBothFormatStrings)
@@ -47,7 +47,7 @@ public class FieldKeyValuePairArrayBothFormatStringsWhenPopulatedAddAllStringBea
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllArrayBothFormatStrings);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAll
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllArrayBothFormatStrings)
@@ -71,7 +71,7 @@ public class FieldKeyValueListWhenPopulatedAddAllStringBearer<TKey, TValue> :
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllListBothFormatStrings);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAll
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllListBothFormatStrings)
@@ -95,7 +95,7 @@ public class FieldKeyValueEnumerableWhenPopulatedAddAllStringBearer<TKey, TValue
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumerableBothFormatStrings);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumerableBothFormatStrings)
@@ -134,7 +134,7 @@ public class FieldKeyValueEnumeratorWhenPopulatedAddAllStringBearer<TKey, TValue
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumeratorBothFormatStrings);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumeratorBothFormatStrings)
@@ -160,7 +160,7 @@ public class FieldKeyValueRevealerDictionaryWhenPopulatedAddAllStringBearer<TKey
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllDictionaryValueRevealerKeyFormatString);
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAll
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllDictionaryValueRevealerKeyFormatString)
@@ -186,7 +186,7 @@ public class FieldKeyStructValueRevealerDictionaryWhenPopulatedAddAllStringBeare
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllDictionaryValueRevealerKeyFormatString);
     
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAll
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllDictionaryValueRevealerKeyFormatString)
@@ -213,7 +213,7 @@ public class FieldKeyValueRevealerArrayWhenPopulatedAddAllStringBearer<TKey, TVa
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllArrayValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAll
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllArrayValueRevealerKeyFormatString)
@@ -239,7 +239,7 @@ public class FieldKeyStructValueRevealerArrayWhenPopulatedAddAllStringBearer<TKe
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllArrayValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAll
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllArrayValueRevealerKeyFormatString)
@@ -266,7 +266,7 @@ public class FieldKeyValueRevealerListWhenPopulatedAddAllStringBearer<TKey, TVal
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllListValueRevealerKeyFormatStrings);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAll
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllListValueRevealerKeyFormatStrings)
@@ -292,7 +292,7 @@ public class FieldKeyStructValueRevealerListWhenPopulatedAddAllStringBearer<TKey
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllListValueRevealerKeyFormatStrings);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAll
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllListValueRevealerKeyFormatStrings)
@@ -319,7 +319,7 @@ public class FieldKeyValueRevealerEnumerableWhenPopulatedAddAllStringBearer<TKey
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumerableValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumerableValueRevealerKeyFormatString)
@@ -345,7 +345,7 @@ public class FieldKeyStructValueRevealerEnumerableWhenPopulatedAddAllStringBeare
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumerableValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumerableValueRevealerKeyFormatString)
@@ -387,7 +387,7 @@ public class FieldKeyValueRevealerEnumeratorWhenPopulatedAddAllStringBearer<TKey
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumeratorValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumeratorValueRevealerKeyFormatString)
@@ -428,7 +428,7 @@ public class FieldKeyStructValueRevealerEnumeratorWhenPopulatedAddAllStringBeare
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumeratorValueRevealerKeyFormatString);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumeratorValueRevealerKeyFormatString)
@@ -456,7 +456,7 @@ public class FieldKeyRevealerValueRevealerDictionaryWhenPopulatedAddAllStringBea
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllDictionaryBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAll
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllDictionaryBothRevealers)
@@ -483,7 +483,7 @@ public class FieldKeyRevealerStructValueRevealerDictionaryWhenPopulatedAddAllStr
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllDictionaryBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAll
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllDictionaryBothRevealers)
@@ -511,7 +511,7 @@ public class FieldKeyRevealerValueRevealerArrayWhenPopulatedAddAllStringBearer<T
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllArrayBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAll
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllArrayBothRevealers)
@@ -538,7 +538,7 @@ public class FieldStructKeyRevealerValueRevealerArrayWhenPopulatedAddAllStringBe
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllArrayBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAll
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllArrayBothRevealers)
@@ -565,7 +565,7 @@ public class FieldKeyRevealerStructValueRevealerArrayWhenPopulatedAddAllStringBe
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllArrayBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAll
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllArrayBothRevealers)
@@ -591,7 +591,7 @@ public class FieldStructKeyRevealerStructValueRevealerArrayWhenPopulatedAddAllSt
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllArrayBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAll
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllArrayBothRevealers)
@@ -619,7 +619,7 @@ public class FieldKeyRevealerValueRevealerListWhenPopulatedAddAllStringBearer<TK
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllListBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAll
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllListBothRevealers)
@@ -646,7 +646,7 @@ public class FieldStructKeyRevealerValueRevealerListWhenPopulatedAddAllStringBea
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllListBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAll
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllListBothRevealers)
@@ -673,7 +673,7 @@ public class FieldKeyRevealerStructValueRevealerListWhenPopulatedAddAllStringBea
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllListBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAll
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllListBothRevealers)
@@ -699,7 +699,7 @@ public class FieldStructKeyRevealerStructValueRevealerListWhenPopulatedAddAllStr
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllListBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAll
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllListBothRevealers)
@@ -727,7 +727,7 @@ public class FieldKeyRevealerValueRevealerEnumerableWhenPopulatedAddAllStringBea
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumerableBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumerableBothRevealers)
@@ -754,7 +754,7 @@ public class FieldStructKeyRevealerValueRevealerEnumerableWhenPopulatedAddAllStr
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumerableBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumerableBothRevealers)
@@ -781,7 +781,7 @@ public class FieldKeyRevealerStructValueRevealerEnumerableWhenPopulatedAddAllStr
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumerableBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumerableBothRevealers)
@@ -807,7 +807,7 @@ public class FieldStructKeyRevealerStructValueRevealerEnumerableWhenPopulatedAdd
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumerableBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumerableBothRevealers)
@@ -850,7 +850,7 @@ public class FieldKeyRevealerValueRevealerEnumeratorWhenPopulatedAddAllStringBea
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumeratorBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumeratorBothRevealers)
@@ -892,7 +892,7 @@ public class FieldStructKeyRevealerValueRevealerEnumeratorWhenPopulatedAddAllStr
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumeratorBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumeratorBothRevealers)
@@ -934,7 +934,7 @@ public class FieldKeyRevealerStructValueRevealerEnumeratorWhenPopulatedAddAllStr
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumeratorBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumeratorBothRevealers)
@@ -975,7 +975,7 @@ public class FieldStructKeyRevealerStructValueRevealerEnumeratorWhenPopulatedAdd
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumeratorBothRevealers);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .KeyedCollectionField.WhenPopulatedAddAllEnumerate
                (nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedAddAllEnumeratorBothRevealers)

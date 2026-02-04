@@ -42,7 +42,7 @@ public class BinaryBranchNode<TChild> : OrderedParentNode<TChild>, IChildNode
 
     public IReadOnlyParentNode? Parent { get; set; }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            // to skip over a base RevealState cast derived type to that as AddBaseRevealStateFields will then go to it's base type
            .AddBaseRevealStateFields((OrderedParentNode<TChild>)this)

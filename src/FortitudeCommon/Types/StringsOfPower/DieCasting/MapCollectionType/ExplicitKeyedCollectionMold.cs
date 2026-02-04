@@ -310,5 +310,5 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
         return this;
     }
     
-    public StateExtractStringRange AppendCollectionComplete() => Complete();
+    public AppendSummary AppendCollectionComplete() => Complete();
 }

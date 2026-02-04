@@ -25,7 +25,7 @@ public class FieldBoolAlwaysAddStringBearer : FormattedMoldScaffold<bool>
 
     public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddBool);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(ComplexTypeFieldAlwaysAddBool)
@@ -45,7 +45,7 @@ public class FieldNullableBoolAlwaysAddStringBearer : FormattedMoldScaffold<bool
 
     public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddNullableBool);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(ComplexTypeFieldAlwaysAddNullableBool)
@@ -78,7 +78,7 @@ public class FieldSpanFormattableAlwaysAddStringBearer<TFmt> : FormattedMoldScaf
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(ComplexTypeFieldAlwaysAddSpanFormattable)
@@ -136,7 +136,7 @@ public struct FieldSpanFormattableAlwaysAddStructStringBearer<TFmt> : IMoldSuppo
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(ComplexTypeFieldAlwaysAddSpanFormattableFromStruct)
@@ -183,7 +183,7 @@ public class FieldNullableSpanFormattableAlwaysAddStringBearer<TFmtStruct> : For
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(ComplexTypeFieldAlwaysAddNullableSpanFormattable)
@@ -243,7 +243,7 @@ public struct FieldNullableSpanFormattableAlwaysAddStructStringBearer<TFmtStruct
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(ComplexTypeFieldAlwaysAddNullableSpanFormattableFromStruct)
@@ -287,7 +287,7 @@ public class FieldCloakedBearerAlwaysAddStringBearer<TTCloaked, TRevealBase> : V
     public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddCloakedBearerAs);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(ComplexTypeFieldAlwaysAddCloakedBearerAs)
@@ -310,7 +310,7 @@ public class FieldNullableCloakedBearerAlwaysAddStringBearer<TCloakedStruct> : V
     public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddCloakedBearerStructAs);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(ComplexTypeFieldAlwaysAddCloakedBearerStructAs)
@@ -331,7 +331,7 @@ public class FieldStringBearerAlwaysAddStringBearer<TBearer> : ProxyFormattedMol
 
     public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddStringBearerAs);
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(ComplexTypeFieldAlwaysAddStringBearerAs)
@@ -353,7 +353,7 @@ public class FieldNullableStringBearerAlwaysAddStringBearer<TBearerStruct> : Pro
     public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddStringBearerStructAs);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
                (nameof(ComplexTypeFieldAlwaysAddStringBearerStructAs)
@@ -382,7 +382,7 @@ public class FieldCharSpanAlwaysAddStringBearer : FormattedMoldScaffold<char[]>
         set => Value = value?.ToCharArray()!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(ComplexTypeFieldAlwaysAddCharSpanAs)
@@ -410,7 +410,7 @@ public class FieldCharReadOnlySpanAlwaysAddStringBearer : FormattedMoldScaffold<
         set => Value = value!;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(ComplexTypeFieldAlwaysAddReadOnlyCharSpanAs)
@@ -440,7 +440,7 @@ public class FieldStringAlwaysAddStringBearer : FormattedMoldScaffold<string?>
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(ComplexTypeFieldAlwaysAddString)
@@ -500,7 +500,7 @@ public struct FieldStringAlwaysAddStructStringBearer : IMoldSupportedValue<strin
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public StateExtractStringRange RevealState(ITheOneString tos) =>
+    public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(ComplexTypeFieldAlwaysAddStringFromStruct)
@@ -552,7 +552,7 @@ public class FieldStringRangeAlwaysAddStringBearer : FormattedMoldScaffold<strin
         set => Value = value;
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(ComplexTypeFieldAlwaysAddStringRangeAs)
@@ -580,7 +580,7 @@ public class FieldCharArrayAlwaysAddStringBearer : FormattedMoldScaffold<char[]?
         set => Value = value?.ToCharArray();
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(ComplexTypeFieldAlwaysAddCharArrayAs)
@@ -612,7 +612,7 @@ public class FieldCharArrayRangeAlwaysAddStringBearer : FormattedMoldScaffold<ch
         set => Value = value?.ToCharArray();
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(ComplexTypeFieldAlwaysAddCharArrayRangeAs)
@@ -648,7 +648,7 @@ public class FieldCharSequenceAlwaysAddStringBearer<TCharSeq> : FormattedMoldSca
         }
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAddCharSeq
                (nameof(ComplexTypeFieldAlwaysAddCharSequenceAs)
@@ -688,7 +688,7 @@ public class FieldCharSequenceRangeAlwaysAddStringBearer<TCharSeq> : FormattedMo
         }
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAddCharSeq
                (nameof(ComplexTypeFieldAlwaysAddCharSequenceRangeAs)
@@ -716,7 +716,7 @@ public class FieldStringBuilderAlwaysAddStringBearer : FormattedMoldScaffold<Str
         set => Value = new StringBuilder(value);
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(ComplexTypeFieldAlwaysAddStringBuilderAs)
@@ -750,7 +750,7 @@ public class FieldStringBuilderRangeAlwaysAddStringBearer : FormattedMoldScaffol
         set => Value = new StringBuilder(value);
     }
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
                (nameof(ComplexTypeFieldAlwaysAddStringBuilderRangeAs)
@@ -771,7 +771,7 @@ public class FieldMatchAlwaysAddStringBearer<TAny> : FormattedMoldScaffold<TAny?
     public override string PropertyName => nameof(ComplexTypeFieldAlwaysAddMatch);
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAddMatch
                (nameof(ComplexTypeFieldAlwaysAddMatch)
@@ -793,7 +793,7 @@ public class FieldObjectAlwaysAddStringBearer : FormattedMoldScaffold<object?>
 
 
 
-    public override StateExtractStringRange RevealState(ITheOneString tos) =>
+    public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAddObject
                (nameof(ComplexTypeFieldAlwaysAddObject)
