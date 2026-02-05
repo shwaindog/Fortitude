@@ -1139,7 +1139,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     public int GetNextVisitedReferenceId(int instanceRegistryIndex)
     {
-        if (instanceRegistryIndex >= 0
+        if ( instanceRegistryIndex >= 0
          && AsStringInstanceVisitRegistry != null
          && AsStringInstanceVisitRegistry.Count > instanceRegistryIndex
          && Settings.InstanceMarkingAsStringIndependentNumbering)

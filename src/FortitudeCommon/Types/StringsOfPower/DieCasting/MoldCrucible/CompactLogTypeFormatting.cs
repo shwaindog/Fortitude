@@ -316,7 +316,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual ContentSeparatorRanges FinishComplexTypeOpening(ITypeMolderDieCast moldInternal
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (Gb.HasCommitContent) { Gb.SnapshotLastAppendSequence(Gb.CurrentSectionRanges.StartedWithFormatFlags); }
+        if (Gb.CurrentSectionRanges.HasNonZeroLengthContent) { Gb.SnapshotLastAppendSequence(Gb.CurrentSectionRanges.StartedWithFormatFlags); }
         return ContentSeparatorRanges.None;
     }
 
@@ -373,7 +373,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual ContentSeparatorRanges AppendComplexTypeClosing(ITypeMolderDieCast moldInternal)
     {
 
-        if (Gb.HasCommitContent) { Gb.SnapshotLastAppendSequence(Gb.CurrentSectionRanges.StartedWithFormatFlags); }
+        if (Gb.CurrentSectionRanges.HasNonZeroLengthContent) { Gb.SnapshotLastAppendSequence(Gb.CurrentSectionRanges.StartedWithFormatFlags); }
         var sb = moldInternal.Sb;
 
         var previousContentPadSpacing = Gb.LastContentSeparatorPaddingRanges;
@@ -1313,11 +1313,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             Gb.MarkContentEnd();
             return appendSummary;
         }
+        Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
+        Gb.MarkContentStart(contentStart);
         var charsInserted = LayoutEncoder.InsertTransfer(DblQt, sb, contentStart);
         mdc.Master.ShiftRegisteredFromCharOffset(contentStart, charsInserted);
         charsInserted += LayoutEncoder.AppendTransfer(DblQt, sb);
-        Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
-        Gb.MarkContentStart(contentStart);
         Gb.MarkContentEnd();
         if (!mdc.Settings.InstanceTrackingAllAsStringHaveLocalTracking && appendSummary.VisitNumber >= 0)
         {
@@ -1356,11 +1356,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             Gb.MarkContentEnd();
             return appendSummary;
         }
+        Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
+        Gb.MarkContentStart(contentStart);
         var charsInserted = LayoutEncoder.InsertTransfer(DblQt, sb, contentStart);
         mdc.Master.ShiftRegisteredFromCharOffset(contentStart, charsInserted);
         charsInserted += LayoutEncoder.AppendTransfer(DblQt, sb);
-        Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
-        Gb.MarkContentStart(contentStart);
         Gb.MarkContentEnd();
         if (!mdc.Settings.InstanceTrackingAllAsStringHaveLocalTracking && appendSummary.VisitNumber >= 0)
         {

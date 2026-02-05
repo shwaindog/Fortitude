@@ -289,7 +289,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
     public virtual ContentSeparatorRanges AppendComplexTypeClosing(ITypeMolderDieCast moldInternal)
     {
         var fmtFlags = moldInternal.CreateMoldFormatFlags;
-        if (Gb.HasCommitContent) { Gb.SnapshotLastAppendSequence(Gb.CurrentSectionRanges.StartedWithFormatFlags); }
+        if (Gb.CurrentSectionRanges.HasNonZeroLengthContent) { Gb.SnapshotLastAppendSequence(Gb.CurrentSectionRanges.StartedWithFormatFlags); }
         if (fmtFlags.HasSuppressClosing()) return ContentSeparatorRanges.None;
 
         var sb = moldInternal.Sb;

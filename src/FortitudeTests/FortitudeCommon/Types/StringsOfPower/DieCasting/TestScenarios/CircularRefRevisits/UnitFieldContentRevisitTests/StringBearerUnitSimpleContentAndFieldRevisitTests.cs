@@ -3,6 +3,7 @@
 
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
+using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CircularRefRevisits.FixtureScaffolding.UnitFieldContent;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData.TestTree;
@@ -16,9 +17,9 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestSce
 public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectationTestBase
 {
     private static InputBearerExpect<TwoStringBearersFields<BinaryBranchNode<LeafNode>>>?
-        twoSameOneBranchTwoSameLeafNodesFieldsWithDefaultRevisitSettingsExpect;
+        twoSameOneBranchTwoSameLeafNodeFieldsWithDefaultRevisitSettingsExpect;
     private static InputBearerExpect<TwoStringBearersFields<BinaryBranchNode<LeafNode>>>?
-        twoSameOneBranchTwoSameLeafNodesAsStringFieldsWithDefaultRevisitSettingsExpect;
+        twoSameOneBranchTwoSameLeafNodeAsStringFieldsWithDefaultRevisitSettingsExpect;
     private static InputBearerExpect<TwoStringBearersFirstAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>>>?
         twoSameOneBranchTwoSameLeafNodesOneSimpleCloakedValueOneFieldWithDefaultRevisitSettingsExpect;
     private static InputBearerExpect<TwoStringBearersSecondAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>>>?
@@ -27,9 +28,9 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
         twoSameOneBranchTwoSameLeafNodesOneSimpleCloakedStringOneFieldWithDefaultRevisitSettingsExpect;
     private static InputBearerExpect<TwoStringBearersSecondAsSimpleCloakedStringContent<BinaryBranchNode<LeafNode>>>?
         twoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect;
-    
+
     private static InputBearerExpect<TwoStringBearersFields<BinaryBranchNode<LeafNode>>>?
-        twoSameOneBranchTwoSameLeafNodesWithToggleStyleAsStringLocalTrackingExpect;
+        twoSameOneBranchTwoSameLeafNodeAsStringFieldsWithToggleStyleAsStringLocalTrackingExpect;
     private static InputBearerExpect<TwoStringBearersFirstAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>>>?
         twoSameOneBranchTwoSameLeafNodesOneSimpleCloakedValueOneFieldWithToggleStyleAsStringLocalTrackingExpect;
     private static InputBearerExpect<TwoStringBearersSecondAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>>>?
@@ -67,7 +68,7 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
     {
         get
         {
-            return twoSameOneBranchTwoSameLeafNodesFieldsWithDefaultRevisitSettingsExpect ??=
+            return twoSameOneBranchTwoSameLeafNodeFieldsWithDefaultRevisitSettingsExpect ??=
                 new InputBearerExpect<TwoStringBearersFields<BinaryBranchNode<LeafNode>>>(TwoSameOneBranchTwoSameLeafFields)
                 {
                     {
@@ -214,159 +215,159 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
     {
         get
         {
-            return twoSameOneBranchTwoSameLeafNodesAsStringFieldsWithDefaultRevisitSettingsExpect ??=
+            return twoSameOneBranchTwoSameLeafNodeAsStringFieldsWithDefaultRevisitSettingsExpect ??=
                 new InputBearerExpect<TwoStringBearersFields<BinaryBranchNode<LeafNode>>>
                     (TwoSameOneBranchTwoSameLeafFields, formatFlags: FormatFlags.AsStringContent)
-                {
                     {
-                        new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
-                      , """
-                        TwoStringBearersFields<BinaryBranchNode<LeafNode>> {
-                         FirstStringBearerField: "BinaryBranchNode<LeafNode> {
-                         $id: 2,
-                         Name: "SameOnLeftAndRight",
-                         GlobalNodeInstanceId: 2,
-                         NodeType: NodeType.BranchNode,
-                         Left: LeafNode {
-                         $id: 1,
-                         LeafInstanceId: 1,
-                         Name: "SameChild",
-                         GlobalNodeInstanceId: 1,
-                         NodeType: NodeType.LeafNode,
-                         DepthToRoot: 1
-                         },
-                         Right: LeafNode {
-                         $ref: 1
-                         }
-                         }",
-                         SecondStringBearerField: "BinaryBranchNode<LeafNode> {
-                         $ref: 2
-                         }"
-                         }
-                        """.RemoveLineEndings()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
-                      , """
-                        TwoStringBearersFields<BinaryBranchNode<LeafNode>> {
-                          FirstStringBearerField: "BinaryBranchNode<LeafNode> {
-                            $id: 2,
-                            Name: "SameOnLeftAndRight",
-                            GlobalNodeInstanceId: 2,
-                            NodeType: NodeType.BranchNode,
-                            Left: LeafNode {
-                              $id: 1,
-                              LeafInstanceId: 1,
-                              Name: "SameChild",
-                              GlobalNodeInstanceId: 1,
-                              NodeType: NodeType.LeafNode,
-                              DepthToRoot: 1
-                            },
-                            Right: LeafNode {
-                              $ref: 1
+                        {
+                            new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
+                          , """
+                            TwoStringBearersFields<BinaryBranchNode<LeafNode>> {
+                             FirstStringBearerField: "BinaryBranchNode<LeafNode> {
+                             $id: 2,
+                             Name: "SameOnLeftAndRight",
+                             GlobalNodeInstanceId: 2,
+                             NodeType: NodeType.BranchNode,
+                             Left: LeafNode {
+                             $id: 1,
+                             LeafInstanceId: 1,
+                             Name: "SameChild",
+                             GlobalNodeInstanceId: 1,
+                             NodeType: NodeType.LeafNode,
+                             DepthToRoot: 1
+                             },
+                             Right: LeafNode {
+                             $ref: 1
+                             }
+                             }",
+                             SecondStringBearerField: "BinaryBranchNode<LeafNode> {
+                             $ref: 2
+                             }"
+                             }
+                            """.RemoveLineEndings()
+                        }
+                       ,
+                        {
+                            new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
+                          , """
+                            TwoStringBearersFields<BinaryBranchNode<LeafNode>> {
+                              FirstStringBearerField: "BinaryBranchNode<LeafNode> {
+                                $id: 2,
+                                Name: "SameOnLeftAndRight",
+                                GlobalNodeInstanceId: 2,
+                                NodeType: NodeType.BranchNode,
+                                Left: LeafNode {
+                                  $id: 1,
+                                  LeafInstanceId: 1,
+                                  Name: "SameChild",
+                                  GlobalNodeInstanceId: 1,
+                                  NodeType: NodeType.LeafNode,
+                                  DepthToRoot: 1
+                                },
+                                Right: LeafNode {
+                                  $ref: 1
+                                }
+                              }",
+                              SecondStringBearerField: "BinaryBranchNode<LeafNode> {
+                                $ref: 2
+                              }"
                             }
-                          }",
-                          SecondStringBearerField: "BinaryBranchNode<LeafNode> {
-                            $ref: 2
-                          }"
+                            """.Dos2Unix()
                         }
-                        """.Dos2Unix()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
-                      , """
+                       ,
                         {
-                        "FirstStringBearerField":"{
-                        \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
-                        \u0022GlobalNodeInstanceId\u0022:2,
-                        \u0022NodeType\u0022:\u0022BranchNode\u0022,
-                        \u0022Left\u0022:{
-                        \u0022$id\u0022:\u00221\u0022,
-                        \u0022LeafInstanceId\u0022:1,
-                        \u0022Name\u0022:\u0022SameChild\u0022,
-                        \u0022GlobalNodeInstanceId\u0022:1,
-                        \u0022NodeType\u0022:\u0022LeafNode\u0022,
-                        \u0022DepthToRoot\u0022:1
-                        },
-                        \u0022Right\u0022:{
-                        \u0022$ref\u0022:\u00221\u0022
+                            new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
+                          , """
+                            {
+                            "FirstStringBearerField":"{
+                            \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
+                            \u0022GlobalNodeInstanceId\u0022:2,
+                            \u0022NodeType\u0022:\u0022BranchNode\u0022,
+                            \u0022Left\u0022:{
+                            \u0022$id\u0022:\u00221\u0022,
+                            \u0022LeafInstanceId\u0022:1,
+                            \u0022Name\u0022:\u0022SameChild\u0022,
+                            \u0022GlobalNodeInstanceId\u0022:1,
+                            \u0022NodeType\u0022:\u0022LeafNode\u0022,
+                            \u0022DepthToRoot\u0022:1
+                            },
+                            \u0022Right\u0022:{
+                            \u0022$ref\u0022:\u00221\u0022
+                            }
+                            }",
+                            "SecondStringBearerField":"{
+                            \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
+                            \u0022GlobalNodeInstanceId\u0022:2,
+                            \u0022NodeType\u0022:\u0022BranchNode\u0022,
+                            \u0022Left\u0022:{
+                            \u0022$id\u0022:\u00221\u0022,
+                            \u0022LeafInstanceId\u0022:1,
+                            \u0022Name\u0022:\u0022SameChild\u0022,
+                            \u0022GlobalNodeInstanceId\u0022:1,
+                            \u0022NodeType\u0022:\u0022LeafNode\u0022,
+                            \u0022DepthToRoot\u0022:1
+                            },
+                            \u0022Right\u0022:{
+                            \u0022$ref\u0022:\u00221\u0022
+                            }
+                            }"
+                            }
+                            """.RemoveLineEndings()
                         }
-                        }",
-                        "SecondStringBearerField":"{
-                        \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
-                        \u0022GlobalNodeInstanceId\u0022:2,
-                        \u0022NodeType\u0022:\u0022BranchNode\u0022,
-                        \u0022Left\u0022:{
-                        \u0022$id\u0022:\u00221\u0022,
-                        \u0022LeafInstanceId\u0022:1,
-                        \u0022Name\u0022:\u0022SameChild\u0022,
-                        \u0022GlobalNodeInstanceId\u0022:1,
-                        \u0022NodeType\u0022:\u0022LeafNode\u0022,
-                        \u0022DepthToRoot\u0022:1
-                        },
-                        \u0022Right\u0022:{
-                        \u0022$ref\u0022:\u00221\u0022
-                        }
-                        }"
-                        }
-                        """.RemoveLineEndings()
-                    }
-                   ,
-                    {
-                        new EK(AlwaysWrites | AcceptsStringBearer, PrettyJson)
-                      , """ 
+                       ,
                         {
-                        
-                        """.Dos2Unix()
-                        +
-                        """
-                          "FirstStringBearerField": "{
-                        \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
-                        \u0022GlobalNodeInstanceId\u0022:2,
-                        \u0022NodeType\u0022:\u0022BranchNode\u0022,
-                        \u0022Left\u0022:{
-                        \u0022$id\u0022:\u00221\u0022,
-                        \u0022LeafInstanceId\u0022:1,
-                        \u0022Name\u0022:\u0022SameChild\u0022,
-                        \u0022GlobalNodeInstanceId\u0022:1,
-                        \u0022NodeType\u0022:\u0022LeafNode\u0022,
-                        \u0022DepthToRoot\u0022:1
-                        },
-                        \u0022Right\u0022:{
-                        \u0022$ref\u0022:\u00221\u0022
-                        }
-                        }",
-                        """.RemoveLineEndings()
-                        +
-                        "\n"
-                       +
-                        """
-                          "SecondStringBearerField": "{
-                        \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
-                        \u0022GlobalNodeInstanceId\u0022:2,
-                        \u0022NodeType\u0022:\u0022BranchNode\u0022,
-                        \u0022Left\u0022:{
-                        \u0022$id\u0022:\u00221\u0022,
-                        \u0022LeafInstanceId\u0022:1,
-                        \u0022Name\u0022:\u0022SameChild\u0022,
-                        \u0022GlobalNodeInstanceId\u0022:1,
-                        \u0022NodeType\u0022:\u0022LeafNode\u0022,
-                        \u0022DepthToRoot\u0022:1
-                        },
-                        \u0022Right\u0022:{
-                        \u0022$ref\u0022:\u00221\u0022
-                        }
-                        }"
-                        """.RemoveLineEndings()
-                       +
-                        """
+                            new EK(AlwaysWrites | AcceptsStringBearer, PrettyJson)
+                          , """ 
+                            {
 
+                            """.Dos2Unix()
+                           +
+                            """
+                                  "FirstStringBearerField": "{
+                                \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
+                                \u0022GlobalNodeInstanceId\u0022:2,
+                                \u0022NodeType\u0022:\u0022BranchNode\u0022,
+                                \u0022Left\u0022:{
+                                \u0022$id\u0022:\u00221\u0022,
+                                \u0022LeafInstanceId\u0022:1,
+                                \u0022Name\u0022:\u0022SameChild\u0022,
+                                \u0022GlobalNodeInstanceId\u0022:1,
+                                \u0022NodeType\u0022:\u0022LeafNode\u0022,
+                                \u0022DepthToRoot\u0022:1
+                                },
+                                \u0022Right\u0022:{
+                                \u0022$ref\u0022:\u00221\u0022
+                                }
+                                }",
+                                """.RemoveLineEndings()
+                           +
+                            "\n"
+                           +
+                            """
+                                  "SecondStringBearerField": "{
+                                \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
+                                \u0022GlobalNodeInstanceId\u0022:2,
+                                \u0022NodeType\u0022:\u0022BranchNode\u0022,
+                                \u0022Left\u0022:{
+                                \u0022$id\u0022:\u00221\u0022,
+                                \u0022LeafInstanceId\u0022:1,
+                                \u0022Name\u0022:\u0022SameChild\u0022,
+                                \u0022GlobalNodeInstanceId\u0022:1,
+                                \u0022NodeType\u0022:\u0022LeafNode\u0022,
+                                \u0022DepthToRoot\u0022:1
+                                },
+                                \u0022Right\u0022:{
+                                \u0022$ref\u0022:\u00221\u0022
+                                }
+                                }"
+                                """.RemoveLineEndings()
+                           +
+                            """
+
+                                }
+                                """.Dos2Unix()
                         }
-                        """.Dos2Unix()
-                    }
-                };
+                    };
         }
     }
 
@@ -838,7 +839,7 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         }
                         }
                         """.RemoveLineEndings()
-                        
+
                         // removed on default \u0022$id\u0022:\u00222\u0022,
                     }
                    ,
@@ -850,23 +851,23 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         """.Dos2Unix()
                        +
                         """
-                          "FirstStringBearerField": "{
-                        \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
-                        \u0022GlobalNodeInstanceId\u0022:2,
-                        \u0022NodeType\u0022:\u0022BranchNode\u0022,
-                        \u0022Left\u0022:{
-                        \u0022$id\u0022:\u00221\u0022,
-                        \u0022LeafInstanceId\u0022:1,
-                        \u0022Name\u0022:\u0022SameChild\u0022,
-                        \u0022GlobalNodeInstanceId\u0022:1,
-                        \u0022NodeType\u0022:\u0022LeafNode\u0022,
-                        \u0022DepthToRoot\u0022:1
-                        },
-                        \u0022Right\u0022:{
-                        \u0022$ref\u0022:\u00221\u0022
-                        }
-                        }",
-                        """.RemoveLineEndings()
+                              "FirstStringBearerField": "{
+                            \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
+                            \u0022GlobalNodeInstanceId\u0022:2,
+                            \u0022NodeType\u0022:\u0022BranchNode\u0022,
+                            \u0022Left\u0022:{
+                            \u0022$id\u0022:\u00221\u0022,
+                            \u0022LeafInstanceId\u0022:1,
+                            \u0022Name\u0022:\u0022SameChild\u0022,
+                            \u0022GlobalNodeInstanceId\u0022:1,
+                            \u0022NodeType\u0022:\u0022LeafNode\u0022,
+                            \u0022DepthToRoot\u0022:1
+                            },
+                            \u0022Right\u0022:{
+                            \u0022$ref\u0022:\u00221\u0022
+                            }
+                            }",
+                            """.RemoveLineEndings()
                         // +
                         //  """
                         //        "FirstStringBearerField": "{\u000a
@@ -889,25 +890,25 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         //      """.RemoveLineEndings()
                        +
                         """
-                        
-                          "SecondStringBearerField": {
-                            "Name": "SameOnLeftAndRight",
-                            "GlobalNodeInstanceId": 2,
-                            "NodeType": "BranchNode",
-                            "Left": {
-                              "$id": "1",
-                              "LeafInstanceId": 1,
-                              "Name": "SameChild",
-                              "GlobalNodeInstanceId": 1,
-                              "NodeType": "LeafNode",
-                              "DepthToRoot": 1
-                            },
-                            "Right": {
-                              "$ref": "1"
+
+                              "SecondStringBearerField": {
+                                "Name": "SameOnLeftAndRight",
+                                "GlobalNodeInstanceId": 2,
+                                "NodeType": "BranchNode",
+                                "Left": {
+                                  "$id": "1",
+                                  "LeafInstanceId": 1,
+                                  "Name": "SameChild",
+                                  "GlobalNodeInstanceId": 1,
+                                  "NodeType": "LeafNode",
+                                  "DepthToRoot": 1
+                                },
+                                "Right": {
+                                  "$ref": "1"
+                                }
+                              }
                             }
-                          }
-                        }
-                        """.Dos2Unix()
+                            """.Dos2Unix()
                     }
                 };
         }
@@ -1077,32 +1078,32 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                               "$ref": "1"
                             }
                           },
-                        
+
                         """.Dos2Unix()
-                        +
+                       +
                         """
-                          "SecondStringBearerField": "{
-                        \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
-                        \u0022GlobalNodeInstanceId\u0022:2,
-                        \u0022NodeType\u0022:\u0022BranchNode\u0022,
-                        \u0022Left\u0022:{
-                        \u0022$id\u0022:\u00221\u0022,
-                        \u0022LeafInstanceId\u0022:1,
-                        \u0022Name\u0022:\u0022SameChild\u0022,
-                        \u0022GlobalNodeInstanceId\u0022:1,
-                        \u0022NodeType\u0022:\u0022LeafNode\u0022,
-                        \u0022DepthToRoot\u0022:1
-                        },
-                        \u0022Right\u0022:{
-                        \u0022$ref\u0022:\u00221\u0022
-                        }
-                        }"
-                        """.RemoveLineEndings()
-                        +
+                              "SecondStringBearerField": "{
+                            \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
+                            \u0022GlobalNodeInstanceId\u0022:2,
+                            \u0022NodeType\u0022:\u0022BranchNode\u0022,
+                            \u0022Left\u0022:{
+                            \u0022$id\u0022:\u00221\u0022,
+                            \u0022LeafInstanceId\u0022:1,
+                            \u0022Name\u0022:\u0022SameChild\u0022,
+                            \u0022GlobalNodeInstanceId\u0022:1,
+                            \u0022NodeType\u0022:\u0022LeafNode\u0022,
+                            \u0022DepthToRoot\u0022:1
+                            },
+                            \u0022Right\u0022:{
+                            \u0022$ref\u0022:\u00221\u0022
+                            }
+                            }"
+                            """.RemoveLineEndings()
+                       +
                         """
-                        
-                        }
-                        """.Dos2Unix()
+
+                            }
+                            """.Dos2Unix()
                     }
                 };
         }
@@ -1111,24 +1112,396 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
     [TestMethod]
     public void TwoSameOneBranchTwoSameLeafNodesOneFieldOneCloakedStringWithDefaultRevisitSettingsCompactLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect, CompactLog);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect
+                                           , CompactLog);
     }
 
     [TestMethod]
     public void TwoSameOneBranchTwoSameLeafNodesOneFieldOneCloakedStringWithDefaultRevisitSettingsCompactJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect, CompactJson);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect
+                                           , CompactJson);
     }
 
     [TestMethod]
     public void TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsPrettyLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect, PrettyLog);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect
+                                           , PrettyLog);
     }
 
     [TestMethod]
     public void TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsPrettyJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect, PrettyJson);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect
+                                           , PrettyJson);
+    }
+    //
+    // public static InputBearerExpect<TwoStringBearersFields<BinaryBranchNode<LeafNode>>>
+    //     TwoSameOneBranchTwoSameLeafNodeFieldsWithToggleStyleAsStringLocalTrackingExpect
+    // {
+    //     get
+    //     {
+    //         return twoSameOneBranchTwoSameLeafNodeFieldsWithToggleStyleAsStringLocalTrackingExpect ??=
+    //             new InputBearerExpect<TwoStringBearersFields<BinaryBranchNode<LeafNode>>>(TwoSameOneBranchTwoSameLeafFields)
+    //             {
+    //                 {
+    //                     new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
+    //                   , """
+    //                     TwoStringBearersFields<BinaryBranchNode<LeafNode>> {
+    //                      FirstStringBearerField: BinaryBranchNode<LeafNode> {
+    //                      $id: 2,
+    //                      Name: "SameOnLeftAndRight",
+    //                      GlobalNodeInstanceId: 2,
+    //                      NodeType: NodeType.BranchNode,
+    //                      Left: LeafNode {
+    //                      $id: 1,
+    //                      LeafInstanceId: 1,
+    //                      Name: "SameChild",
+    //                      GlobalNodeInstanceId: 1,
+    //                      NodeType: NodeType.LeafNode,
+    //                      DepthToRoot: 1
+    //                      },
+    //                      Right: LeafNode {
+    //                      $ref: 1
+    //                      }
+    //                      },
+    //                      SecondStringBearerField: BinaryBranchNode<LeafNode> {
+    //                      $ref: 2
+    //                      }
+    //                      }
+    //                     """.RemoveLineEndings()
+    //                 }
+    //                ,
+    //                 {
+    //                     new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
+    //                   , """
+    //                     TwoStringBearersFields<BinaryBranchNode<LeafNode>> {
+    //                       FirstStringBearerField: BinaryBranchNode<LeafNode> {
+    //                         $id: 2,
+    //                         Name: "SameOnLeftAndRight",
+    //                         GlobalNodeInstanceId: 2,
+    //                         NodeType: NodeType.BranchNode,
+    //                         Left: LeafNode {
+    //                           $id: 1,
+    //                           LeafInstanceId: 1,
+    //                           Name: "SameChild",
+    //                           GlobalNodeInstanceId: 1,
+    //                           NodeType: NodeType.LeafNode,
+    //                           DepthToRoot: 1
+    //                         },
+    //                         Right: LeafNode {
+    //                           $ref: 1
+    //                         }
+    //                       },
+    //                       SecondStringBearerField: BinaryBranchNode<LeafNode> {
+    //                         $ref: 2
+    //                       }
+    //                     }
+    //                     """.Dos2Unix()
+    //                 }
+    //                ,
+    //                 {
+    //                     new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
+    //                   , """
+    //                     {
+    //                     "FirstStringBearerField":{
+    //                     "$id":"2",
+    //                     "Name":"SameOnLeftAndRight",
+    //                     "GlobalNodeInstanceId":2,
+    //                     "NodeType":"BranchNode",
+    //                     "Left":{
+    //                     "$id":"1",
+    //                     "LeafInstanceId":1,
+    //                     "Name":"SameChild",
+    //                     "GlobalNodeInstanceId":1,
+    //                     "NodeType":"LeafNode",
+    //                     "DepthToRoot":1
+    //                     },
+    //                     "Right":{
+    //                     "$ref":"1"
+    //                     }
+    //                     },
+    //                     "SecondStringBearerField":{
+    //                     "$ref":"2"
+    //                     }
+    //                     }
+    //                     """.RemoveLineEndings()
+    //                 }
+    //                ,
+    //                 {
+    //                     new EK(AlwaysWrites | AcceptsStringBearer, PrettyJson)
+    //                   , """
+    //                     {
+    //                       "FirstStringBearerField": {
+    //                         "$id": "2",
+    //                         "Name": "SameOnLeftAndRight",
+    //                         "GlobalNodeInstanceId": 2,
+    //                         "NodeType": "BranchNode",
+    //                         "Left": {
+    //                           "$id": "1",
+    //                           "LeafInstanceId": 1,
+    //                           "Name": "SameChild",
+    //                           "GlobalNodeInstanceId": 1,
+    //                           "NodeType": "LeafNode",
+    //                           "DepthToRoot": 1
+    //                         },
+    //                         "Right": {
+    //                           "$ref": "1"
+    //                         }
+    //                       },
+    //                       "SecondStringBearerField": {
+    //                         "$ref": "2"
+    //                       }
+    //                     }
+    //                     """.Dos2Unix()
+    //                 }
+    //             };
+    //     }
+    // }
+
+    [TestMethod]
+    public void TwoSameOneBranchTwoSameLeafNodeFieldsWithToggleStyleAsStringLocalTrackingCompactLogFormatTest()
+    {
+        ExecuteIndividualScaffoldExpectationWithOptions(TwoSameOneBranchTwoSameLeafNodesFieldsWithDefaultRevisitSettingsExpect
+                                                      , new StyleOptions(CompactLog)
+                                                        {
+                                                            InstanceTrackingAllAsStringHaveLocalTracking = true
+                                                        });
+    }
+
+    [TestMethod]
+    public void TwoSameOneBranchTwoSameLeafNodeFieldsWithToggleStyleAsStringLocalTrackingCompactJsonFormatTest()
+    {
+        ExecuteIndividualScaffoldExpectationWithOptions(TwoSameOneBranchTwoSameLeafNodesFieldsWithDefaultRevisitSettingsExpect
+                                                      , new StyleOptions(CompactJson)
+                                                        {
+                                                            InstanceTrackingAllAsStringHaveLocalTracking = false
+                                                        });
+    }
+
+    [TestMethod]
+    public void TwoSameOneBranchTwoSameLeafNodeFieldsWithToggleStyleAsStringLocalTrackingPrettyLogFormatTest()
+    {
+        ExecuteIndividualScaffoldExpectationWithOptions(TwoSameOneBranchTwoSameLeafNodesFieldsWithDefaultRevisitSettingsExpect
+                                                      , new StyleOptions(PrettyLog)
+                                                        {
+                                                            InstanceTrackingAllAsStringHaveLocalTracking = true
+                                                        });
+    }
+
+    [TestMethod]
+    public void TwoSameOneBranchTwoSameLeafNodeFieldsWithToggleStyleAsStringLocalTrackingPrettyJsonFormatTest()
+    {
+        ExecuteIndividualScaffoldExpectationWithOptions(TwoSameOneBranchTwoSameLeafNodesFieldsWithDefaultRevisitSettingsExpect
+                                                      , new StyleOptions(PrettyJson)
+                                                        {
+                                                            InstanceTrackingAllAsStringHaveLocalTracking = false
+                                                        });
+    }
+
+    public static InputBearerExpect<TwoStringBearersFields<BinaryBranchNode<LeafNode>>>
+        TwoSameOneBranchTwoSameLeafNodeAsStringFieldsWithToggleStyleAsStringLocalTrackingExpect
+    {
+        get
+        {
+            return twoSameOneBranchTwoSameLeafNodeAsStringFieldsWithToggleStyleAsStringLocalTrackingExpect ??=
+                new InputBearerExpect<TwoStringBearersFields<BinaryBranchNode<LeafNode>>>
+                    (TwoSameOneBranchTwoSameLeafFields, formatFlags: FormatFlags.AsStringContent)
+                    {
+                        {
+                            new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
+                          , """
+                            TwoStringBearersFields<BinaryBranchNode<LeafNode>> {
+                             FirstStringBearerField: "BinaryBranchNode<LeafNode> {
+                             Name: "SameOnLeftAndRight",
+                             GlobalNodeInstanceId: 2,
+                             NodeType: NodeType.BranchNode,
+                             Left: LeafNode {
+                             $id: 1,
+                             LeafInstanceId: 1,
+                             Name: "SameChild",
+                             GlobalNodeInstanceId: 1,
+                             NodeType: NodeType.LeafNode,
+                             DepthToRoot: 1
+                             },
+                             Right: LeafNode {
+                             $ref: 1
+                             }
+                             }",
+                             SecondStringBearerField: "BinaryBranchNode<LeafNode> {
+                             Name: "SameOnLeftAndRight",
+                             GlobalNodeInstanceId: 2,
+                             NodeType: NodeType.BranchNode,
+                             Left: LeafNode {
+                             $id: 2,
+                             LeafInstanceId: 1,
+                             Name: "SameChild",
+                             GlobalNodeInstanceId: 1,
+                             NodeType: NodeType.LeafNode,
+                             DepthToRoot: 1
+                             },
+                             Right: LeafNode {
+                             $ref: 2
+                             }
+                             }"
+                             }
+                            """.RemoveLineEndings()
+                        }
+                       ,
+                        {
+                            new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
+                          , """
+                            TwoStringBearersFields<BinaryBranchNode<LeafNode>> {
+                              FirstStringBearerField: "BinaryBranchNode<LeafNode> {
+                                Name: "SameOnLeftAndRight",
+                                GlobalNodeInstanceId: 2,
+                                NodeType: NodeType.BranchNode,
+                                Left: LeafNode {
+                                  $id: 1,
+                                  LeafInstanceId: 1,
+                                  Name: "SameChild",
+                                  GlobalNodeInstanceId: 1,
+                                  NodeType: NodeType.LeafNode,
+                                  DepthToRoot: 1
+                                },
+                                Right: LeafNode {
+                                  $ref: 1
+                                }
+                              }",
+                              SecondStringBearerField: "BinaryBranchNode<LeafNode> {
+                                Name: "SameOnLeftAndRight",
+                                GlobalNodeInstanceId: 2,
+                                NodeType: NodeType.BranchNode,
+                                Left: LeafNode {
+                                  $id: 2,
+                                  LeafInstanceId: 1,
+                                  Name: "SameChild",
+                                  GlobalNodeInstanceId: 1,
+                                  NodeType: NodeType.LeafNode,
+                                  DepthToRoot: 1
+                                },
+                                Right: LeafNode {
+                                  $ref: 2
+                                }
+                              }"
+                            }
+                            """.Dos2Unix()
+                        }
+                       ,
+                        {
+                            new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
+                          , """
+                            {
+                            "FirstStringBearerField":"{
+                            \u0022$id\u0022:\u00222\u0022,
+                            \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
+                            \u0022GlobalNodeInstanceId\u0022:2,
+                            \u0022NodeType\u0022:\u0022BranchNode\u0022,
+                            \u0022Left\u0022:{
+                            \u0022$id\u0022:\u00221\u0022,
+                            \u0022LeafInstanceId\u0022:1,
+                            \u0022Name\u0022:\u0022SameChild\u0022,
+                            \u0022GlobalNodeInstanceId\u0022:1,
+                            \u0022NodeType\u0022:\u0022LeafNode\u0022,
+                            \u0022DepthToRoot\u0022:1
+                            },
+                            \u0022Right\u0022:{
+                            \u0022$ref\u0022:\u00221\u0022
+                            }
+                            }",
+                            "SecondStringBearerField":"{
+                            \u0022$ref\u0022:\u00222\u0022
+                            }"
+                            }
+                            """.RemoveLineEndings()
+                        }
+                       ,
+                        {
+                            new EK(AlwaysWrites | AcceptsStringBearer, PrettyJson)
+                          , """ 
+                            {
+
+                            """.Dos2Unix()
+                           +
+                            """
+                                  "FirstStringBearerField": "{
+                                \u0022$id\u0022:\u00222\u0022,
+                                \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
+                                \u0022GlobalNodeInstanceId\u0022:2,
+                                \u0022NodeType\u0022:\u0022BranchNode\u0022,
+                                \u0022Left\u0022:{
+                                \u0022$id\u0022:\u00221\u0022,
+                                \u0022LeafInstanceId\u0022:1,
+                                \u0022Name\u0022:\u0022SameChild\u0022,
+                                \u0022GlobalNodeInstanceId\u0022:1,
+                                \u0022NodeType\u0022:\u0022LeafNode\u0022,
+                                \u0022DepthToRoot\u0022:1
+                                },
+                                \u0022Right\u0022:{
+                                \u0022$ref\u0022:\u00221\u0022
+                                }
+                                }",
+                                """.RemoveLineEndings()
+                           +
+                            "\n"
+                           +
+                            """
+                                  "SecondStringBearerField": "{
+                                \u0022$ref\u0022:\u00222\u0022
+                                }"
+                                """.RemoveLineEndings()
+                           +
+                            """
+
+                                }
+                                """.Dos2Unix()
+                        }
+                    };
+        }
+    }
+
+    [TestMethod]
+    public void TwoSameOneBranchTwoSameLeafNodeAsStringFieldsWithToggleStyleAsStringLocalTrackingCompactLogFormatTest()
+    {
+        ExecuteIndividualScaffoldExpectationWithOptions
+            (TwoSameOneBranchTwoSameLeafNodeAsStringFieldsWithToggleStyleAsStringLocalTrackingExpect
+           , new StyleOptions(CompactLog)
+             {
+                 InstanceTrackingAllAsStringHaveLocalTracking = true
+             });
+    }
+
+    [TestMethod]
+    public void TwoSameOneBranchTwoSameLeafNodeAsStringFieldsWithToggleStyleAsStringLocalTrackingCompactJsonFormatTest()
+    {
+        ExecuteIndividualScaffoldExpectationWithOptions
+            (TwoSameOneBranchTwoSameLeafNodeAsStringFieldsWithToggleStyleAsStringLocalTrackingExpect
+           , new StyleOptions(CompactJson)
+             {
+                 InstanceTrackingAllAsStringHaveLocalTracking = false
+             });
+    }
+
+    [TestMethod]
+    public void TwoSameOneBranchTwoSameLeafNodeAsStringFieldsWithToggleStyleAsStringLocalTrackingPrettyLogFormatTest()
+    {
+        ExecuteIndividualScaffoldExpectationWithOptions
+            (TwoSameOneBranchTwoSameLeafNodeAsStringFieldsWithToggleStyleAsStringLocalTrackingExpect
+           , new StyleOptions(PrettyLog)
+             {
+                 InstanceTrackingAllAsStringHaveLocalTracking = true
+             });
+    }
+
+    [TestMethod]
+    public void TwoSameOneBranchTwoSameLeafNodeAsStringFieldsWithToggleStyleAsStringLocalTrackingPrettyJsonFormatTest()
+    {
+        ExecuteIndividualScaffoldExpectationWithOptions
+            (TwoSameOneBranchTwoSameLeafNodeAsStringFieldsWithToggleStyleAsStringLocalTrackingExpect
+           , new StyleOptions(PrettyJson)
+             {
+                 InstanceTrackingAllAsStringHaveLocalTracking = false
+             });
     }
 }
