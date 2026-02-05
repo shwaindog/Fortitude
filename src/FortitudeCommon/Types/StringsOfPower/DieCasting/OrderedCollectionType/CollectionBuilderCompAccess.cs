@@ -25,7 +25,7 @@ public class CollectionBuilderCompAccess<TOCMold> : TypeMolderDieCast<TOCMold> w
     {
         if (SupportsMultipleFields)
         {
-            StyleFormatter.AppendFieldName( Sb, "$values");
+            StyleFormatter.AppendFieldName( this, "$values");
             StyleFormatter.AppendFieldValueSeparator();
             if(hasAny == true)
                 StyleFormatter.FormatCollectionStart(this, elementType, hasAny, TypeBeingBuilt);

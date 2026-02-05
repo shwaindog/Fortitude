@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
@@ -35,12 +36,12 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
 
     public override bool IsComplexType => true;
 
-    public override void StartFormattingTypeOpening()
+    public override void StartFormattingTypeOpening(IStyledTypeFormatting usingFormatter)
     {
         var keyValueTypes       = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!;
         var typeCreateFlags = stb.CreateMoldFormatFlags;
-        MoldStateField.StyleFormatter.AppendKeyedCollectionStart(MoldStateField.Sb, MoldStateField.TypeBeingBuilt, keyValueTypes.Value.Key
-                                                           , keyValueTypes.Value.Value, typeCreateFlags);
+        usingFormatter.AppendKeyedCollectionStart(MoldStateField.Sb, MoldStateField.TypeBeingBuilt, keyValueTypes.Value.Key
+                                                , keyValueTypes.Value.Value, typeCreateFlags);
     }
 
     public override void CompleteTypeOpeningToTypeFields() { }

@@ -19,9 +19,10 @@ public partial class SelectTypeField<TMold> where TMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAdd(value != null && value != defaultValue, fieldName, value,  formatString, formatFlags);
 
-    public TMold WhenNonNullOrDefaultAdd<TFmt>(ReadOnlySpan<char> fieldName, TFmt? value, TFmt defaultValue = default(TFmt)
+    public TMold WhenNonNullOrDefaultAdd<TFmt>(ReadOnlySpan<char> fieldName, TFmt value, TFmt defaultValue = default!
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
+      where TFmt : ISpanFormattable?  =>
         WhenConditionMetAdd(value != null && !Equals(value, defaultValue), fieldName, value,  formatString, formatFlags);
 
     public TMold WhenNonNullOrDefaultAdd<TFmtStruct>(ReadOnlySpan<char> fieldName, TFmtStruct? value, TFmtStruct? defaultValue = null

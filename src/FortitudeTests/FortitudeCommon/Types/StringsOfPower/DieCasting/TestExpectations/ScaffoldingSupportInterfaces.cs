@@ -19,6 +19,11 @@ public interface ISupportFormattingFlags
     [JsonIgnore] FormatFlags FormattingFlags { get; set; }
 }
 
+public interface ISupportSecondFormattingFlags
+{
+    [JsonIgnore] FormatFlags SecondFormattingFlags { get; set; }
+}
+
 public interface ISinglePropertyTestStringBearer : IStringBearer, ISupportFormattingFlags
 {
     [JsonIgnore] string PropertyName { get; }

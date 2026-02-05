@@ -99,6 +99,8 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     private bool?     instanceMarkingMarkInstanceIdOnFirstVisit;
     private bool?     instanceMarkingMarkVirtualMemoryAddress;
     private bool?     instanceMarkingMarkRevisitCount;
+    private bool?     instanceMarkingWrapInstanceIdInQuotes;
+    private bool?     instanceMarkingWrapInstanceInfoFieldNamesInQuotes;
     private bool?     instanceMarkingDisabled;
     private bool?     instanceTrackingDisabled;
     private int?      instancesTrackingDebuggerBreakOnRevisitCount;
@@ -721,6 +723,18 @@ public struct StyleOptionsValue : IJsonFormattingOptions
                      ?? fallbackOptions?.Values.InstanceMarkingAsStringIndependentNumbering ?? !Style.IsLog();
         
         set => instanceMarkingIncludeInputClassesContents = instanceMarkingIncludeInputClassesContents.SetTo(AsStringClasses, value);
+    }
+
+    public bool InstanceMarkingWrapInstanceIdInQuotes
+    {
+        readonly get => instanceMarkingWrapInstanceIdInQuotes ?? fallbackOptions?.Values.InstanceMarkingWrapInstanceIdInQuotes ?? Style.IsJson();
+        set => instanceMarkingWrapInstanceIdInQuotes = value;
+    }
+
+    public bool InstanceMarkingWrapInstanceInfoFieldNamesInQuotes
+    {
+        readonly get => instanceMarkingWrapInstanceInfoFieldNamesInQuotes ?? fallbackOptions?.Values.InstanceMarkingWrapInstanceInfoFieldNamesInQuotes ?? Style.IsJson();
+        set => instanceMarkingWrapInstanceInfoFieldNamesInQuotes = value;
     }
 
     public bool InstanceMarkingDisabled
@@ -1448,6 +1462,20 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
         [DebuggerStepThrough]
         get => values.InstanceMarkingDisabled;
         set => values.InstanceMarkingDisabled = value;
+    }
+
+    public bool InstanceMarkingWrapInstanceIdInQuotes
+    {
+        [DebuggerStepThrough]
+        get => values.InstanceMarkingWrapInstanceIdInQuotes;
+        set => values.InstanceMarkingWrapInstanceIdInQuotes = value;
+    }
+
+    public bool InstanceMarkingWrapInstanceInfoFieldNamesInQuotes
+    {
+        [DebuggerStepThrough]
+        get => values.InstanceMarkingWrapInstanceInfoFieldNamesInQuotes;
+        set => values.InstanceMarkingWrapInstanceInfoFieldNamesInQuotes = value;
     }
 
     public bool InstanceTrackingDisabled

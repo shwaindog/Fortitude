@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
@@ -30,12 +31,12 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
         return this;
     }
     
-    public override void StartFormattingTypeOpening()
+    public override void StartFormattingTypeOpening(IStyledTypeFormatting usingFormatter)
     {
       if (Msf.CurrentWriteMethod == WriteMethodType.MoldComplexContentType)
-        MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField, Msf.CreateMoldFormatFlags);
+        usingFormatter.StartComplexTypeOpening(MoldStateField, Msf.CreateMoldFormatFlags);
       else
-        MoldStateField.StyleFormatter.StartContentTypeOpening(MoldStateField);
+        usingFormatter.StartContentTypeOpening(MoldStateField);
     }
 
     public override void FinishTypeOpening()

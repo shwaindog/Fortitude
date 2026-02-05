@@ -31,14 +31,13 @@ public class RawContentMold : KnownTypeMolder<RawContentMold>
 
     public override bool IsComplexType => Msf.SupportsMultipleFields;
 
-    public override void StartFormattingTypeOpening()
+    public override void StartFormattingTypeOpening(IStyledTypeFormatting usingFormatter)
     {
         var msf = MoldStateField;
-        msf.Sf.Gb.StartNextContentSeparatorPaddingSequence(msf.Sb, msf.CreateMoldFormatFlags);
+        usingFormatter.Gb.StartNextContentSeparatorPaddingSequence(msf.Sb, msf.CreateMoldFormatFlags);
         if (msf.CurrentWriteMethod.SupportsMultipleFields())
         {
-            var formatter = msf.Sf;
-            formatter.StartComplexTypeOpening(msf);
+            usingFormatter.StartComplexTypeOpening(msf);
         }
     }
 

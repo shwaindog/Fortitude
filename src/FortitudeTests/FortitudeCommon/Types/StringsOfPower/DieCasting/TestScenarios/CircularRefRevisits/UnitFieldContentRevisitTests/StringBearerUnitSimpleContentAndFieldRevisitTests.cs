@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CircularRefRevisits.FixtureScaffolding.UnitFieldContent;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData.TestTree;
@@ -15,7 +16,9 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestSce
 public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectationTestBase
 {
     private static InputBearerExpect<TwoStringBearersFields<BinaryBranchNode<LeafNode>>>?
-        twoSameOneBranchTwoSameLeafNodesWithDefaultRevisitSettingsExpect;
+        twoSameOneBranchTwoSameLeafNodesFieldsWithDefaultRevisitSettingsExpect;
+    private static InputBearerExpect<TwoStringBearersFields<BinaryBranchNode<LeafNode>>>?
+        twoSameOneBranchTwoSameLeafNodesAsStringFieldsWithDefaultRevisitSettingsExpect;
     private static InputBearerExpect<TwoStringBearersFirstAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>>>?
         twoSameOneBranchTwoSameLeafNodesOneSimpleCloakedValueOneFieldWithDefaultRevisitSettingsExpect;
     private static InputBearerExpect<TwoStringBearersSecondAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>>>?
@@ -60,11 +63,11 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
     }
 
     public static InputBearerExpect<TwoStringBearersFields<BinaryBranchNode<LeafNode>>>
-        TwoSameOneBranchTwoSameLeafFieldsWithDefaultRevisitSettingsExpect
+        TwoSameOneBranchTwoSameLeafNodesFieldsWithDefaultRevisitSettingsExpect
     {
         get
         {
-            return twoSameOneBranchTwoSameLeafNodesWithDefaultRevisitSettingsExpect ??=
+            return twoSameOneBranchTwoSameLeafNodesFieldsWithDefaultRevisitSettingsExpect ??=
                 new InputBearerExpect<TwoStringBearersFields<BinaryBranchNode<LeafNode>>>(TwoSameOneBranchTwoSameLeafFields)
                 {
                     {
@@ -185,25 +188,210 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
     [TestMethod]
     public void TwoSameOneBranchTwoSameLeafFieldsWithDefaultRevisitSettingsCompactLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafFieldsWithDefaultRevisitSettingsExpect, CompactLog);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesFieldsWithDefaultRevisitSettingsExpect, CompactLog);
     }
 
     [TestMethod]
     public void TwoSameOneBranchTwoSameLeafFieldsWithDefaultRevisitSettingsCompactJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafFieldsWithDefaultRevisitSettingsExpect, CompactJson);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesFieldsWithDefaultRevisitSettingsExpect, CompactJson);
     }
 
     [TestMethod]
     public void TwoSameOneBranchTwoSameLeafFieldsWithDefaultRevisitSettingsPrettyLogFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafFieldsWithDefaultRevisitSettingsExpect, PrettyLog);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesFieldsWithDefaultRevisitSettingsExpect, PrettyLog);
     }
 
     [TestMethod]
     public void TwoSameOneBranchTwoSameLeafFieldsWithDefaultRevisitSettingsPrettyJsonFormatTest()
     {
-        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafFieldsWithDefaultRevisitSettingsExpect, PrettyJson);
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesFieldsWithDefaultRevisitSettingsExpect, PrettyJson);
+    }
+
+    public static InputBearerExpect<TwoStringBearersFields<BinaryBranchNode<LeafNode>>>
+        TwoSameOneBranchTwoSameLeafNodesAsStringFieldsWithDefaultRevisitSettingsExpect
+    {
+        get
+        {
+            return twoSameOneBranchTwoSameLeafNodesAsStringFieldsWithDefaultRevisitSettingsExpect ??=
+                new InputBearerExpect<TwoStringBearersFields<BinaryBranchNode<LeafNode>>>
+                    (TwoSameOneBranchTwoSameLeafFields, formatFlags: FormatFlags.AsStringContent)
+                {
+                    {
+                        new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
+                      , """
+                        TwoStringBearersFields<BinaryBranchNode<LeafNode>> {
+                         FirstStringBearerField: "BinaryBranchNode<LeafNode> {
+                         $id: 2,
+                         Name: "SameOnLeftAndRight",
+                         GlobalNodeInstanceId: 2,
+                         NodeType: NodeType.BranchNode,
+                         Left: LeafNode {
+                         $id: 1,
+                         LeafInstanceId: 1,
+                         Name: "SameChild",
+                         GlobalNodeInstanceId: 1,
+                         NodeType: NodeType.LeafNode,
+                         DepthToRoot: 1
+                         },
+                         Right: LeafNode {
+                         $ref: 1
+                         }
+                         }",
+                         SecondStringBearerField: "BinaryBranchNode<LeafNode> {
+                         $ref: 2
+                         }"
+                         }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
+                      , """
+                        TwoStringBearersFields<BinaryBranchNode<LeafNode>> {
+                          FirstStringBearerField: "BinaryBranchNode<LeafNode> {
+                            $id: 2,
+                            Name: "SameOnLeftAndRight",
+                            GlobalNodeInstanceId: 2,
+                            NodeType: NodeType.BranchNode,
+                            Left: LeafNode {
+                              $id: 1,
+                              LeafInstanceId: 1,
+                              Name: "SameChild",
+                              GlobalNodeInstanceId: 1,
+                              NodeType: NodeType.LeafNode,
+                              DepthToRoot: 1
+                            },
+                            Right: LeafNode {
+                              $ref: 1
+                            }
+                          }",
+                          SecondStringBearerField: "BinaryBranchNode<LeafNode> {
+                            $ref: 2
+                          }"
+                        }
+                        """.Dos2Unix()
+                    }
+                   ,
+                    {
+                        new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
+                      , """
+                        {
+                        "FirstStringBearerField":"{
+                        \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
+                        \u0022GlobalNodeInstanceId\u0022:2,
+                        \u0022NodeType\u0022:\u0022BranchNode\u0022,
+                        \u0022Left\u0022:{
+                        \u0022$id\u0022:\u00221\u0022,
+                        \u0022LeafInstanceId\u0022:1,
+                        \u0022Name\u0022:\u0022SameChild\u0022,
+                        \u0022GlobalNodeInstanceId\u0022:1,
+                        \u0022NodeType\u0022:\u0022LeafNode\u0022,
+                        \u0022DepthToRoot\u0022:1
+                        },
+                        \u0022Right\u0022:{
+                        \u0022$ref\u0022:\u00221\u0022
+                        }
+                        }",
+                        "SecondStringBearerField":"{
+                        \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
+                        \u0022GlobalNodeInstanceId\u0022:2,
+                        \u0022NodeType\u0022:\u0022BranchNode\u0022,
+                        \u0022Left\u0022:{
+                        \u0022$id\u0022:\u00221\u0022,
+                        \u0022LeafInstanceId\u0022:1,
+                        \u0022Name\u0022:\u0022SameChild\u0022,
+                        \u0022GlobalNodeInstanceId\u0022:1,
+                        \u0022NodeType\u0022:\u0022LeafNode\u0022,
+                        \u0022DepthToRoot\u0022:1
+                        },
+                        \u0022Right\u0022:{
+                        \u0022$ref\u0022:\u00221\u0022
+                        }
+                        }"
+                        }
+                        """.RemoveLineEndings()
+                    }
+                   ,
+                    {
+                        new EK(AlwaysWrites | AcceptsStringBearer, PrettyJson)
+                      , """ 
+                        {
+                        
+                        """.Dos2Unix()
+                        +
+                        """
+                          "FirstStringBearerField": "{
+                        \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
+                        \u0022GlobalNodeInstanceId\u0022:2,
+                        \u0022NodeType\u0022:\u0022BranchNode\u0022,
+                        \u0022Left\u0022:{
+                        \u0022$id\u0022:\u00221\u0022,
+                        \u0022LeafInstanceId\u0022:1,
+                        \u0022Name\u0022:\u0022SameChild\u0022,
+                        \u0022GlobalNodeInstanceId\u0022:1,
+                        \u0022NodeType\u0022:\u0022LeafNode\u0022,
+                        \u0022DepthToRoot\u0022:1
+                        },
+                        \u0022Right\u0022:{
+                        \u0022$ref\u0022:\u00221\u0022
+                        }
+                        }",
+                        """.RemoveLineEndings()
+                        +
+                        "\n"
+                       +
+                        """
+                          "SecondStringBearerField": "{
+                        \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
+                        \u0022GlobalNodeInstanceId\u0022:2,
+                        \u0022NodeType\u0022:\u0022BranchNode\u0022,
+                        \u0022Left\u0022:{
+                        \u0022$id\u0022:\u00221\u0022,
+                        \u0022LeafInstanceId\u0022:1,
+                        \u0022Name\u0022:\u0022SameChild\u0022,
+                        \u0022GlobalNodeInstanceId\u0022:1,
+                        \u0022NodeType\u0022:\u0022LeafNode\u0022,
+                        \u0022DepthToRoot\u0022:1
+                        },
+                        \u0022Right\u0022:{
+                        \u0022$ref\u0022:\u00221\u0022
+                        }
+                        }"
+                        """.RemoveLineEndings()
+                       +
+                        """
+
+                        }
+                        """.Dos2Unix()
+                    }
+                };
+        }
+    }
+
+    [TestMethod]
+    public void TwoSameOneBranchTwoSameLeafNodesAsStringFieldsWithDefaultRevisitSettingsCompactLogFormatTest()
+    {
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesAsStringFieldsWithDefaultRevisitSettingsExpect, CompactLog);
+    }
+
+    [TestMethod]
+    public void TwoSameOneBranchTwoSameLeafNodesAsStringFieldsWithDefaultRevisitSettingsCompactJsonFormatTest()
+    {
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesAsStringFieldsWithDefaultRevisitSettingsExpect, CompactJson);
+    }
+
+    [TestMethod]
+    public void TwoSameOneBranchTwoSameLeafNodesAsStringFieldsWithDefaultRevisitSettingsPrettyLogFormatTest()
+    {
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesAsStringFieldsWithDefaultRevisitSettingsExpect, PrettyLog);
+    }
+
+    [TestMethod]
+    public void TwoSameOneBranchTwoSameLeafNodesAsStringFieldsWithDefaultRevisitSettingsPrettyJsonFormatTest()
+    {
+        ExecuteIndividualScaffoldExpectation(TwoSameOneBranchTwoSameLeafNodesAsStringFieldsWithDefaultRevisitSettingsExpect, PrettyJson);
     }
 
     public static TwoStringBearersFirstAsSimpleCloakedValueContent<BinaryBranchNode<LeafNode>>

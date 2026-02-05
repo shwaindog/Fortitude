@@ -3,7 +3,9 @@
 
 using System.Diagnostics;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
@@ -40,11 +42,18 @@ public class ContentTypeMold<TContentMold, TToContentMold> : TransitioningTypeMo
 
     public virtual bool IsSimpleMold => true;
 
+    
     public override void StartTypeOpening()
     {
         if (PortableState.MoldGraphVisit.NoVisitCheckDone || PortableState.CreateFormatFlags.HasSuppressOpening()) return;
-        StartFormattingTypeOpening();
-        MyAppendGraphFields();
+        var usingFormatter = (CreateFormatFlags.HasAsStringContentFlag()
+                           && Msf.CurrentWriteMethod == WriteMethodType.MoldComplexContentType
+                           && Msf.StyleFormatter.LayoutEncoder.Type != EncodingType.PassThrough)
+            ? Msf.StyleFormatter.PreviousContextOrThis
+            : Msf.StyleFormatter;
+      
+        StartFormattingTypeOpening(usingFormatter);
+        MyAppendGraphFields(usingFormatter);
     }
 
     public override void FinishTypeOpening()
@@ -53,16 +62,15 @@ public class ContentTypeMold<TContentMold, TToContentMold> : TransitioningTypeMo
         CompleteTypeOpeningToTypeFields();
     }
 
-    public override void StartFormattingTypeOpening()
+    public override void StartFormattingTypeOpening(IStyledTypeFormatting usingFormatter)
     {
-        var formatter         = Msf!.StyleFormatter;
         if (Msf.SupportsMultipleFields)
         {
-            formatter.StartComplexTypeOpening(Msf);
+            usingFormatter.StartComplexTypeOpening(Msf);
         }
         else
         {
-            formatter.StartContentTypeOpening(Msf);
+            usingFormatter.StartContentTypeOpening(Msf);
         }
     }
 

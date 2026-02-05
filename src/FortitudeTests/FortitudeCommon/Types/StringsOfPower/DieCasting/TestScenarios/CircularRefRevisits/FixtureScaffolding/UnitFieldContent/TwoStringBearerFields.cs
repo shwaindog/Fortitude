@@ -9,8 +9,8 @@ using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpecta
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CircularRefRevisits.FixtureScaffolding.UnitFieldContent;
 
-public class TwoStringBearersFields<TBearer>: IStringBearer, ISupportFormattingFlags, ISupportsValueFormatString
-  , IPalantirRevealerFactory<TBearer> 
+public class TwoStringBearersFields<TBearer>: IStringBearer, ISupportFormattingFlags, ISupportsValueFormatString, ISupportsKeyFormatString
+    , ISupportSecondFormattingFlags, IPalantirRevealerFactory<TBearer> 
     where TBearer : class, IStringBearer
 {
     public TwoStringBearersFields()
@@ -46,11 +46,15 @@ public class TwoStringBearersFields<TBearer>: IStringBearer, ISupportFormattingF
            .Field.AlwaysReveal
                (nameof(SecondStringBearerField)
               , SecondStringBearerField
-              , ValueFormatString, FormattingFlags)
+              , ValueFormatString, SecondFormattingFlags)
            .Complete();
     
     public string? ValueFormatString { get; set; }
+
+    public string? KeyFormatString { get; set; }
     public FormatFlags FormattingFlags { get; set; }
+    
+    public FormatFlags SecondFormattingFlags { get; set; }
     
     public override string ToString() => 
         $"{GetType().CachedCSharpNameNoConstraints()}(" +

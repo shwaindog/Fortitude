@@ -18,6 +18,8 @@ public record struct VisitResult
     public const int NoVisitCheckPerformedRegistryId = -3;
     public const int NoVisitCheckRequiredRegistryId = -2;
     
+    public bool HasRegisteredVisit => RegistryId >= -1 && CurrentVisitIndex >= 0;
+    
     public bool NoVisitCheckDone => RegistryId <= NoVisitCheckPerformedRegistryId;
 
     public bool NoRegistrationRequired => RegistryId == NoVisitCheckRequiredRegistryId || CurrentVisitIndex < 0;

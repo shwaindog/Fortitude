@@ -34,7 +34,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
     {
         if (CompAsOrderedCollection.SkipBody) return this;
         CompAsOrderedCollection.StyleFormatter
-                               .CollectionNextItemFormat(CompAsOrderedCollection.Sb, element, ++ResultCount, formatString ?? "", formatFlags);
+                               .CollectionNextItemFormat(CompAsOrderedCollection, element, ++ResultCount, formatString ?? "", formatFlags);
         return AppendNextCollectionItemSeparator();
     }
 
@@ -53,7 +53,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
         CompAsOrderedCollection.StyleFormatter
-                               .CollectionNextItemFormat(CompAsOrderedCollection.Sb, element, ++ResultCount, formatString ?? "", formatFlags | AsCollection);
+                               .CollectionNextItemFormat(CompAsOrderedCollection, element, ++ResultCount, formatString ?? "", formatFlags | AsCollection);
         return AppendNextCollectionItemSeparator();
     }
 
@@ -71,7 +71,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection.Master, element, ++ResultCount, formatString ?? "", formatFlags | AsCollection);
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++ResultCount, formatString ?? "", formatFlags | AsCollection);
         return AppendNextCollectionItemSeparator();
     }
 
@@ -89,7 +89,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection.Sb, element, ++ResultCount, formatString ?? "", formatFlags | AsCollection);
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++ResultCount, formatString ?? "", formatFlags | AsCollection);
         return AppendNextCollectionItemSeparator();
     }
 
@@ -109,7 +109,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection.Master, element, ++ResultCount
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++ResultCount
                                                                       , palantírReveal, formatString, formatFlags);
         return AppendNextCollectionItemSeparator();
     }
@@ -130,7 +130,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
         CompAsOrderedCollection.StyleFormatter
-                               .CollectionNextItemFormat(CompAsOrderedCollection.Master, element.Value, ++ResultCount
+                               .CollectionNextItemFormat(CompAsOrderedCollection, element.Value, ++ResultCount
                                                        , palantírReveal, formatString, formatFlags);
         return AppendNextCollectionItemSeparator();
     }
@@ -150,7 +150,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
         CompAsOrderedCollection.StyleFormatter
-                               .CollectionNextStringBearerFormat(CompAsOrderedCollection.Master, element, ++ResultCount
+                               .CollectionNextStringBearerFormat(CompAsOrderedCollection, element, ++ResultCount
                                                                , formatString, formatFlags);
         return AppendNextCollectionItemSeparator();
     }
@@ -170,7 +170,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
         CompAsOrderedCollection.StyleFormatter
-                               .CollectionNextStringBearerFormat(CompAsOrderedCollection.Master, element.Value
+                               .CollectionNextStringBearerFormat(CompAsOrderedCollection, element.Value
                                                                , ++ResultCount, formatString, formatFlags);
         return AppendNextCollectionItemSeparator();
     }
@@ -189,7 +189,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection.Master, element, ++ResultCount, formatString, formatFlags);
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++ResultCount, formatString, formatFlags);
         return AppendNextCollectionItemSeparator();
     }
 
@@ -207,7 +207,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextCharSeqFormat(CompAsOrderedCollection.Master, element, ++ResultCount, formatString, formatFlags);
+        CompAsOrderedCollection.StyleFormatter.CollectionNextCharSeqFormat(CompAsOrderedCollection, element, ++ResultCount, formatString, formatFlags);
         return AppendNextCollectionItemSeparator();
     }
 
@@ -225,7 +225,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
             }
             return CompAsOrderedCollection.StyleTypeBuilder;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection.Master, element, ++ResultCount, formatString, formatFlags);
+        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++ResultCount, formatString, formatFlags);
         return AppendNextCollectionItemSeparator();
     }
 

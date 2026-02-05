@@ -2,8 +2,8 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.DataStructures.MemoryPools;
-using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 
@@ -14,18 +14,17 @@ public abstract class TransitioningTypeMolder<TCurrent, TNext> : KnownTypeMolder
 {
     private bool hasTransitioned;
 
-    public override void StartFormattingTypeOpening()
+    public override void StartFormattingTypeOpening(IStyledTypeFormatting usingFormatter)
     {
-        var formatter = MoldStateField.StyleFormatter;
         if (IsComplexType)
         {
-            formatter.StartComplexTypeOpening(MoldStateField);
-            formatter.FinishComplexTypeOpening(MoldStateField);
+            usingFormatter.StartComplexTypeOpening(MoldStateField);
+            usingFormatter.FinishComplexTypeOpening(MoldStateField);
         }
         else
         {
-            formatter.StartContentTypeOpening(MoldStateField);
-            formatter.FinishContentTypeOpening(MoldStateField);
+            usingFormatter.StartContentTypeOpening(MoldStateField);
+            usingFormatter.FinishContentTypeOpening(MoldStateField);
         }
     }
 
@@ -80,6 +79,7 @@ public abstract class TransitioningTypeMolder<TCurrent, TNext> : KnownTypeMolder
     public virtual TNext CopyFrom(TCurrent? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source == null) return TransitionToNextMold();
+        OriginalStartIndex    = source.StartIndex;
         PortableState = ((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.PortableState;
         SourceBuilderComponentAccess(((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.CurrentWriteMethod);
         MoldStateField.CopyFrom(source.MoldStateField, copyMergeFlags);
