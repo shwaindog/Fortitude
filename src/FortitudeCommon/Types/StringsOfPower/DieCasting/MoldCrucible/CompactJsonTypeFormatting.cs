@@ -230,10 +230,10 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
     public virtual ContentSeparatorRanges AppendContentTypeClosing(ITypeMolderDieCast moldInternal) =>
         AppendComplexTypeClosing(moldInternal);
 
-    public virtual ContentSeparatorRanges StartComplexTypeOpening(ITypeMolderDieCast moldInternal
+    public virtual ContentSeparatorRanges StartComplexTypeOpening(ITypeMolderDieCast mdc
       , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         formatFlags.DoesNotHaveSuppressOpening()
-            ? Gb.StartAppendContentAndComplete(BrcOpn, moldInternal.Sb, formatFlags)
+            ? Gb.StartAppendContentAndComplete(BrcOpn, mdc.Sb, formatFlags)
             : ContentSeparatorRanges.None;
 
     public virtual ContentSeparatorRanges FinishComplexTypeOpening(ITypeMolderDieCast moldInternal

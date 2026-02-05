@@ -27,10 +27,10 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
 
     public override string Name => nameof(CompactJsonTypeFormatting);
 
-    public override ContentSeparatorRanges StartComplexTypeOpening(ITypeMolderDieCast moldInternal
+    public override ContentSeparatorRanges StartComplexTypeOpening(ITypeMolderDieCast mdc
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = moldInternal.Sb;
+        var sb = mdc.Sb;
         if (formatFlags.DoesNotHaveAsEmbeddedContentFlags())
         {
             Gb.IndentLevel++;

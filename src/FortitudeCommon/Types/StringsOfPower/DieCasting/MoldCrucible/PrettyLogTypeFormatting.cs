@@ -23,29 +23,32 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
 
     public override string Name => nameof(CompactJsonTypeFormatting);
 
-    public override ContentSeparatorRanges StartComplexTypeOpening(ITypeMolderDieCast moldInternal
+    public override ContentSeparatorRanges StartComplexTypeOpening(ITypeMolderDieCast mdc
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb                = moldInternal.Sb;
-        var alternativeName   = moldInternal.InstanceName;
-        var buildingType      = moldInternal.TypeBeingBuilt;
+        var sb                = mdc.Sb;
+        var alternativeName   = mdc.InstanceName;
+        var buildingType      = mdc.TypeBeingBuilt;
         var buildTypeFullName = buildingType.FullName ?? "";
 
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
 
-        if (moldInternal.CreateMoldFormatFlags.HasSuppressOpening()) return Gb.Complete(formatFlags);
+        var mergedFlags = formatFlags | mdc.CreateMoldFormatFlags;
 
-        if (moldInternal.CreateMoldFormatFlags.DoesNotHaveLogSuppressTypeNamesFlag() &&
-            (formatFlags.DoesNotHaveLogSuppressTypeNamesFlag()
-          && (formatFlags.HasAddTypeNameFieldFlag()
+        if (mergedFlags.HasSuppressOpening()) return Gb.Complete(formatFlags);
+
+        if (mergedFlags.DoesNotHaveLogSuppressTypeNamesFlag() 
+         && (mergedFlags.DoesNotHaveLogSuppressTypeNamesFlag()
+          && (mergedFlags.HasAddTypeNameFieldFlag()
            || !StyleOptions.LogSuppressDisplayTypeNames.Any(s => buildTypeFullName.StartsWith(s)))))
         {
-            var isComplexContentType = moldInternal.CurrentWriteMethod.IsContentType();
+            var isComplexContentType = mdc.CurrentWriteMethod.IsContentType();
             if (isComplexContentType)
             {
                 Gb.AppendContent(RndBrktOpn);
             }
             buildingType.AppendShortNameInCSharpFormat(sb);
+            mdc.WroteTypeName = true;
             if (isComplexContentType)
             {
                 Gb.AppendContent(RndBrktCls);

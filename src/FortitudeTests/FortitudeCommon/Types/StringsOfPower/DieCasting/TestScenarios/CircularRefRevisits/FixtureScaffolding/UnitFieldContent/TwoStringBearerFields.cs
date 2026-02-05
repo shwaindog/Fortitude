@@ -5,6 +5,7 @@ using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CircularRefRevisits.FixtureScaffolding.UnitFieldContent;
@@ -288,9 +289,12 @@ public class TwoStringBearersFirstAsComplexCloakedValueContent<TBearer> : IStrin
       , { new StringBuilder("ThirdKey"), true }
     };
 
+    private readonly int[] logOnlyArray = [1, 2, 3];
+
     public PalantírReveal<TBearer> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(cloaked)
            .RevealAsValue($"CloakedRevealer{nameof(FirstStringBearerField)}", cloaked, ValueFormatString, FormattingFlags)
+           .LogOnlyCollectionField.AlwaysAddAll(nameof(logOnlyArray), logOnlyArray)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
@@ -337,9 +341,17 @@ public class TwoStringBearersSecondAsComplexCloakedValueContent<TBearer> : IStri
     public TBearer? FirstStringBearerField { get; set; }
     public TBearer? SecondStringBearerField { get; set; }
 
+    private readonly Dictionary<string, int> logOnlyMap = new Dictionary<string, int>()
+    {
+        { "FirstKey", 1 }
+      , { "SecondKey", 2 }
+      , { "ThirdKey", 3 }
+    };
+
     public PalantírReveal<TBearer> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(cloaked)
            .RevealAsValue($"CloakedRevealer{nameof(SecondStringBearerField)}", cloaked, ValueFormatString, FormattingFlags)
+           .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logOnlyMap), logOnlyMap)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
@@ -385,10 +397,13 @@ public class TwoStringBearersFirstAsComplexCloakedStringContent<TBearer> : IStri
 
     public TBearer? FirstStringBearerField { get; set; }
     public TBearer? SecondStringBearerField { get; set; }
+    
+    private readonly StringBuilder logOnlyStringBuilder = new ("For your eyes only");
 
     public PalantírReveal<TBearer> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(cloaked)
            .RevealAsString($"CloakedRevealer{nameof(FirstStringBearerField)}", cloaked, ValueFormatString, FormattingFlags)
+           .LogOnlyField.AlwaysAdd(nameof(logOnlyStringBuilder), logOnlyStringBuilder)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
@@ -435,9 +450,13 @@ public class TwoStringBearersSecondAsComplexCloakedStringContent<TBearer> : IStr
     public TBearer? FirstStringBearerField { get; set; }
     public TBearer? SecondStringBearerField { get; set; }
 
+
+    private readonly List<MutableString> logOnlyList = [new ("FirstCharSeq"), new ("SecondCharSeq"), new ("ThirdCharSeq")];
+
     public PalantírReveal<TBearer> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(cloaked)
            .RevealAsString($"CloakedRevealer{nameof(SecondStringBearerField)}", cloaked, ValueFormatString, FormattingFlags)
+           .LogOnlyCollectionField.AlwaysAddAllCharSeq(nameof(logOnlyList), logOnlyList)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;

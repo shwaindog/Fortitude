@@ -720,7 +720,8 @@ public struct StyleOptionsValue : IJsonFormattingOptions
     public bool InstanceMarkingAsStringIndependentNumbering
     {
         readonly get => instanceMarkingIncludeInputClassesContents.IsAllInputClassesActive() 
-                     ?? fallbackOptions?.Values.InstanceMarkingAsStringIndependentNumbering ?? Style.IsJson();
+                     ?? fallbackOptions?.Values.InstanceMarkingAsStringIndependentNumbering ?? 
+                        InstanceTrackingAllAsStringHaveLocalTracking && Style.IsJson();
         
         set => instanceMarkingIncludeInputClassesContents = instanceMarkingIncludeInputClassesContents.SetTo(AsStringClasses, value);
     }

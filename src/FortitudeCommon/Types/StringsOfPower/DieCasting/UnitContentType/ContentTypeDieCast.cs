@@ -1317,14 +1317,16 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
                                 (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, maybeComplex)
                                , formatString)
                           | AsValueContent;
-        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
-
+        
+        
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
         if (valueEqualsBuildingType)
         {
             if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
             resolvedFlags |= NoRevisitCheck;
         }
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
+
 
         AppendSummary result;
         if (!callContext.HasFormatChange)

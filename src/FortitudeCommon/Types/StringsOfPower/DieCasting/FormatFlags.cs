@@ -43,59 +43,59 @@ public enum FormatFlags : ulong
   , UseAltFieldPadding   = 0x08_00_00_00
   , NextFieldOnSameLine  = 0x08_00_00_00
 
-  , ToCompact            = 0x00_10_00_00_00
-  , WhenCompact          = 0x00_10_00_00_00
-  , ToPretty             = 0x00_20_00_00_00
-  , WhenPretty           = 0x00_20_00_00_00
-  , LayoutMask           = 0x00_30_00_00_00
-  , WhenLogStyle         = 0x00_40_00_00_00
-  , ToLogStyle           = 0x00_40_00_00_00
-  , WhenJsonStyle        = 0x00_80_00_00_00
-  , ToJsonStyle          = 0x00_80_00_00_00
-  , WhenJsamlStyle       = 0x01_00_00_00_00 // Not implemented just reserving          
-  , ToJsamlStyle         = 0x01_00_00_00_00 // Not implemented just reserving          
-  , WhenAngleMlStyle     = 0x02_00_00_00_00 // Not implemented just reserving          
-  , ToAngleMlStyle       = 0x02_00_00_00_00 // Not implemented just reserving          
-  , WhenCustomStyle      = 0x04_00_00_00_00 // Not implemented just reserving - One custom style to implement Diagraph 
-  , ToCustomStyle        = 0x04_00_00_00_00 // Not implemented just reserving - One custom style to implement Diagraph 
-  , StyleMask            = 0x07_C0_00_00_00
-  , AttemptStyleSwitch   = 0x08_00_00_00_00
-  , Exclude              = 0x10_00_00_00_00
-  , OnlyInclude          = 0x20_00_00_00_00
-  , InvertIncludeExclude = 0x40_00_00_00_00
-  , IsFieldName          = 0x80_00_00_00_00
+  , ToCompact                           = 0x00_10_00_00_00
+  , WhenCompact                         = 0x00_10_00_00_00
+  , ToPretty                            = 0x00_20_00_00_00
+  , WhenPretty                          = 0x00_20_00_00_00
+  , LayoutMask                          = 0x00_30_00_00_00
+  , WhenLogStyle                        = 0x00_40_00_00_00
+  , ToLogStyle                          = 0x00_40_00_00_00
+  , WhenJsonStyle                       = 0x00_80_00_00_00
+  , ToJsonStyle                         = 0x00_80_00_00_00
+  , WhenJsamlStyle                      = 0x01_00_00_00_00 // Not implemented just reserving          
+  , ToJsamlStyle                        = 0x01_00_00_00_00 // Not implemented just reserving          
+  , WhenAngleMlStyle                    = 0x02_00_00_00_00 // Not implemented just reserving          
+  , ToAngleMlStyle                      = 0x02_00_00_00_00 // Not implemented just reserving          
+  , WhenCustomStyle                     = 0x04_00_00_00_00 // Not implemented just reserving - One custom style to implement Diagraph 
+  , ToCustomStyle                       = 0x04_00_00_00_00 // Not implemented just reserving - One custom style to implement Diagraph 
+  , StyleMask                           = 0x07_C0_00_00_00
+  , AttemptStyleSwitch                  = 0x08_00_00_00_00
+  , Exclude                             = 0x10_00_00_00_00
+  , OnlyInclude                         = 0x20_00_00_00_00
+  , InvertIncludeExclude                = 0x40_00_00_00_00
+  , IsFieldName                         = 0x80_00_00_00_00
 
-  , DisableFieldNameDelimiting = 0x00_01_00_00_00_00_00
-  , AddTypeNameField           = 0x00_02_00_00_00_00_00
-  , AddNamespace               = 0x00_04_00_00_00_00_00
-  , ContentAllowEmpty          = 0x00_08_00_00_00_00_00
-  , ContentAllowNull           = 0x00_10_00_00_00_00_00
-  , ContentAllowNumber         = 0x00_20_00_00_00_00_00
-  , ContentAllowText           = 0x00_40_00_00_00_00_00
-  , ContentAllowAnyValueType   = 0x00_78_00_00_00_00_00
-  , ContentAllowComplexType    = 0x00_80_00_00_00_00_00
-  , ValidateEnabled            = 0x01_00_00_00_00_00_00
-  , ValidateDisabled           = 0x02_00_00_00_00_00_00
-  , ViolationWritesAlert       = 0x04_00_00_00_00_00_00
-  , ViolationDebuggerBreak     = 0x08_00_00_00_00_00_00
-  , ViolationThrowsException   = 0x10_00_00_00_00_00_00
+  , DisableFieldNameDelimiting    = 0x00_01_00_00_00_00_00
+  , AddTypeNameField              = 0x00_02_00_00_00_00_00
+  , AddNamespace                  = 0x00_04_00_00_00_00_00
+  , ContentAllowEmpty             = 0x00_08_00_00_00_00_00
+  , ContentAllowNull              = 0x00_10_00_00_00_00_00
+  , ContentAllowNumber            = 0x00_20_00_00_00_00_00
+  , ContentAllowText              = 0x00_40_00_00_00_00_00
+  , ContentAllowAnyValueType      = 0x00_78_00_00_00_00_00
+  , ContentAllowComplexType       = 0x00_80_00_00_00_00_00
+  , ValidateEnabled               = 0x01_00_00_00_00_00_00
+  , ValidateDisabled              = 0x02_00_00_00_00_00_00
+  , ViolationWritesAlert          = 0x04_00_00_00_00_00_00
+  , ViolationDebuggerBreak        = 0x08_00_00_00_00_00_00
+  , ViolationThrowsException      = 0x10_00_00_00_00_00_00
     
-  , PrettyWrapAtLineWidth    = 0x01_00_00_00_00_00_00_00
-  , PrettyWrapAtContentWidth = 0x02_00_00_00_00_00_00_00
-  , LogSuppressTypeNames     = 0x08_00_00_00_00_00_00_00
-  , SuppressOpening          = 0x10_00_00_00_00_00_00_00
-  , SuppressClosing          = 0x20_00_00_00_00_00_00_00
-  , AsEmbeddedContent        = 0x38_00_00_00_00_00_00_00
+  , PrettyWrapAtLineWidth      = 0x01_00_00_00_00_00_00_00
+  , PrettyWrapAtContentWidth   = 0x02_00_00_00_00_00_00_00
+  , LogSuppressTypeNames       = 0x08_00_00_00_00_00_00_00
+  , SuppressOpening            = 0x10_00_00_00_00_00_00_00
+  , SuppressClosing            = 0x20_00_00_00_00_00_00_00
+  , AsEmbeddedContent          = 0x38_00_00_00_00_00_00_00
 }
 
 public static class FieldContentHandlingExtensions
 {
-    public const FormatFlags None = 0;
-    public const FormatFlags  MoldAlwaysInherited = AsStringContent | AsValueContent ;
-    
-    public const FormatFlags  MoldCallerBlockableInherited = 
+    public const FormatFlags None                = 0;
+    public const FormatFlags MoldAlwaysInherited = AsStringContent | AsValueContent;
+
+    public const FormatFlags MoldCallerBlockableInherited =
         MoldAlwaysInherited | OnOneLine | EachItemOnlyOneLine | UseAltItemSeparator | UseAltItemPadding
-        | ReformatMultiLine | PrettyWrapAtLineWidth | PrettyWrapAtContentWidth;
+      | ReformatMultiLine | PrettyWrapAtLineWidth | PrettyWrapAtContentWidth;
 
     public static bool HasEncodeBounds(this FormatFlags flags)                     => (flags & EncodeBounds) > 0;
     public static bool HasEncodeAll(this FormatFlags flags)                        => (flags & EncodeAll) == EncodeAll;
@@ -180,11 +180,11 @@ public static class FieldContentHandlingExtensions
     public static bool HasExcludeWhenAngleMlStyle(this FormatFlags flags) => (flags & (WhenAngleMlStyle | Exclude)) == (WhenAngleMlStyle | Exclude);
     public static bool HasExcludeWhenCustomStyle(this FormatFlags flags)  => (flags & (WhenCustomStyle | Exclude)) == (WhenCustomStyle | Exclude);
 
-    public static bool HasExcludeWhenPrettyLayout(this FormatFlags flags)  => (flags & (WhenPretty | Exclude)) == (WhenPretty | Exclude);
-    public static bool HasExcludeWhenCompactLayout(this FormatFlags flags) => (flags & (WhenCompact | Exclude)) == (WhenCompact | Exclude);
-    public static bool HasDisableAutoDelimiting(this FormatFlags flags)    => (flags & DisableAutoDelimiting) > 0;
-    public static bool DoesNotHaveDisableAutoDelimiting(this FormatFlags flags)    => (flags & DisableAutoDelimiting) == 0;
-    public static bool ShouldDelimit(this FormatFlags flags)               => (flags & EnsureFormattedDelimited) > 0;
+    public static bool HasExcludeWhenPrettyLayout(this FormatFlags flags)       => (flags & (WhenPretty | Exclude)) == (WhenPretty | Exclude);
+    public static bool HasExcludeWhenCompactLayout(this FormatFlags flags)      => (flags & (WhenCompact | Exclude)) == (WhenCompact | Exclude);
+    public static bool HasDisableAutoDelimiting(this FormatFlags flags)         => (flags & DisableAutoDelimiting) > 0;
+    public static bool DoesNotHaveDisableAutoDelimiting(this FormatFlags flags) => (flags & DisableAutoDelimiting) == 0;
+    public static bool ShouldDelimit(this FormatFlags flags)                    => (flags & EnsureFormattedDelimited) > 0;
 
     public static bool HasEachItemOnlyOneLineFlag(this FormatFlags flags)                => (flags & EachItemOnlyOneLine) > 0;
     public static bool HasNoRevisitCheck(this FormatFlags flags)                         => (flags & NoRevisitCheck) > 0;
@@ -220,10 +220,7 @@ public static class FieldContentHandlingExtensions
             existingStyle &= ~StringStyle.Log;
             existingStyle |= StringStyle.Json;
         }
-        if (flags.HasAsStringContentFlag() && newStyleOptions.AsStringAlwaysWritesAsCompact)
-        {
-            flags |= ToCompact | AttemptStyleSwitch;
-        }
+        if (flags.HasAsStringContentFlag() && newStyleOptions.AsStringAlwaysWritesAsCompact) { flags |= ToCompact | AttemptStyleSwitch; }
         if (flags.ShouldSwitchToCompactLayout())
         {
             existingStyle &= ~StringStyle.Pretty;
@@ -238,20 +235,20 @@ public static class FieldContentHandlingExtensions
     }
 
     public static FormatFlags MoldSingleGenerationPassFlags(this FormatFlags moldCreatedFlags) =>
-        moldCreatedFlags  & (NoRevisitCheck | LogSuppressTypeNames) | moldCreatedFlags.MoldMultiGenerationInheritFlags();
+        moldCreatedFlags & (NoRevisitCheck | LogSuppressTypeNames) | moldCreatedFlags.MoldMultiGenerationInheritFlags();
 
     public static FormatFlags MoldCallerPassFlags(this FormatFlags moldCreatedFlags) =>
-        moldCreatedFlags  & (NoRevisitCheck | LogSuppressTypeNames) | moldCreatedFlags.MoldMultiGenerationInheritFlags();
+        moldCreatedFlags & (NoRevisitCheck | LogSuppressTypeNames) | moldCreatedFlags.MoldMultiGenerationInheritFlags();
 
     public static FormatFlags MoldRemoveSingleGenerationPassFlags(this FormatFlags moldCreatedFlags) =>
-        moldCreatedFlags  & ~(NoRevisitCheck | LogSuppressTypeNames);
+        moldCreatedFlags & ~(NoRevisitCheck | LogSuppressTypeNames);
 
     public static FormatFlags MoldMultiGenerationInheritFlags(this FormatFlags moldCreatedFlags) =>
-        moldCreatedFlags  & 
-        (IsFieldName | DisableFieldNameDelimiting | OnOneLine | DisableAutoDelimiting | AsStringContent | AsValueContent| LogSuppressTypeNames);
-    
+        moldCreatedFlags &
+        (IsFieldName | DisableFieldNameDelimiting | OnOneLine | DisableAutoDelimiting | AsStringContent | AsValueContent | LogSuppressTypeNames);
+
     public static FormatFlags MoldMultiGenerationPassFlags(this FormatFlags moldCreatedFlags) =>
-        moldCreatedFlags  & 
+        moldCreatedFlags &
         (IsFieldName | DisableFieldNameDelimiting | OnOneLine | DisableAutoDelimiting | AsStringContent | AsValueContent);
 
     public static FormatFlags MoldInheritFlags(this FormatFlags? moldCreatedFlags) =>
