@@ -2338,7 +2338,6 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
     {
         var startAt = Sb.Length;
 
-        WrittenAsFlags writtenAs;
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
@@ -2374,7 +2373,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
         if (value == null && formatFlags.HasNullBecomesEmptyFlag()) 
             return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, WrittenAsFlags.Empty, typeof(string));
-        writtenAs = AppendNull(formatString, formatFlags);
+        var writtenAs = AppendNull(formatString, formatFlags);
         return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, writtenAs, typeof(string));
     }
 
