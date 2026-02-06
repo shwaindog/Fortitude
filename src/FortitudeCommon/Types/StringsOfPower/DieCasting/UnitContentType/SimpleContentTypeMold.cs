@@ -209,8 +209,9 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, Simp
     , FormatFlags formatFlags = AsValueContent) =>
       Msf.FieldValueOrDefaultNext("", value, defaultValue, false, formatString ?? "", formatFlags);
     
-    public SimpleContentJoinMold  AsValue(string value, FormatFlags formatFlags = AsValueContent) =>
-      Msf.FieldValueOrDefaultNext("", value, "0", false, "", formatFlags);
+    public SimpleContentJoinMold  AsValue(string value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    , FormatFlags formatFlags = AsValueContent) =>
+      Msf.FieldValueOrDefaultNext("", value, 0, int.MaxValue, "0",  formatString ?? "", formatFlags);
 
     public SimpleContentJoinMold  AsValue(string value, int startIndex, int length = int.MaxValue
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -447,12 +448,12 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, Simp
     public SimpleContentJoinMold  AsString(string value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
-      Msf.FieldStringOrDefaultNext("", value, "", false, formatString ?? "", formatFlags);
+      Msf.FieldStringOrDefaultNext("", value, 0, int.MaxValue,  "", formatString ?? "", formatFlags);
 
     public SimpleContentJoinMold  AsStringOrNull(string? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
-      Msf.FieldStringOrDefaultNext("", value, "", true, formatString ?? "", formatFlags);
+      Msf.FieldStringOrDefaultNext("", value, 0, int.MaxValue, "", formatString ?? "", formatFlags);
 
     public SimpleContentJoinMold  AsString(string value, int startIndex
     , int length = int.MaxValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null

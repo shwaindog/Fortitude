@@ -313,8 +313,6 @@ public static class StyledTypeBuilderExtensions
         where TExt : TypeMolder where TFmt : ISpanFormattable?
     {
         var actualType = value?.GetType() ?? typeof(TFmt);
-        var sb         = mdc.Sb;
-        var startAt    = sb.Length;
         if (!mdc.Master.ContinueGivenFormattingFlags(formatFlags) || mdc.HasSkipField(actualType, fieldName, formatFlags))
         {
             return mdc.Master.EmptyAppendAt(mdc.TypeBeingBuilt, mdc.Sb.Length, actualType);
@@ -652,20 +650,67 @@ public static class StyledTypeBuilderExtensions
       , int fromIndex = 0, int length = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder
     {
-        var sb = mdc.Sb;
-        var startAt = sb.Length;
+        var sb         = mdc.Sb;
+        var startAt    = sb.Length;
+        var actualType = typeof(string);
         if (value == null)
         {
             var writtenAsNull = mdc.StyleFormatter.AppendFormattedNull(sb, formatString, formatFlags);
             return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, typeof(string));
         }
-        formatFlags = mdc.StyleFormatter.ResolveContentFormattingFlags(mdc.Sb, "InputIsCharSpan", formatFlags, formatString);
+        if (!formatFlags.HasNoRevisitCheck() && mdc.Settings.InstanceTrackingIncludeStringInstances)
+        {
+            return mdc.AppendFormattedWithRefenceTracking(value, formatString, fromIndex, length, formatFlags);
+        }
+        var writtenAs = mdc.AppendFormattedNoReferenceTracking(value, formatString, fromIndex, length, formatFlags);
+        return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
+    }
+
+    public static AppendSummary AppendFormattedWithRefenceTracking
+    (this ITypeMolderDieCast mdc, string value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
+      , int fromIndex = 0, int length = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    {
+        var actualType = typeof(string);
+        var sb         = mdc.Sb;
+        var startAt    = sb.Length;
+        if (!formatFlags.HasNoRevisitCheck() 
+         && mdc.Settings.InstanceTrackingIncludeSpanFormattableClasses)
+        {
+            var preAppendLength      = mdc.Sb.Length;
+            var registeredForRevisit = mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, formatFlags);
+            var writtenAsTracking    = WrittenAsFlags.Empty; 
+            if (!registeredForRevisit.ShouldSuppressBody || mdc.Settings.InstanceMarkingIncludeStringContents)
+            {
+                if (!formatFlags.HasIsFieldNameFlag())
+                {
+                    if (registeredForRevisit.ShouldSuppressBody)
+                    {
+                        mdc.StyleFormatter.AppendInstanceValuesFieldName(typeof(string), formatFlags);
+                    }
+                }
+                writtenAsTracking = mdc.AppendFormattedNoReferenceTracking(value, formatString, fromIndex, length, formatFlags);
+            }
+            var graphBuilder = mdc.Sf.Gb;
+            graphBuilder.Complete(formatFlags);
+            var stateExtractResult = registeredForRevisit.Complete();
+            graphBuilder.StartNextContentSeparatorPaddingSequence(mdc.Sb, formatFlags, true);
+            graphBuilder.MarkContentStart(preAppendLength);
+            graphBuilder.MarkContentEnd(mdc.Sb.Length);
+            return stateExtractResult.AddWrittenAsFlags(writtenAsTracking);
+        }
+        var writtenAs = mdc.AppendFormattedNoReferenceTracking(value, formatString, fromIndex, length, formatFlags);
+        return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
+    }
+
+    public static WrittenAsFlags AppendFormattedNoReferenceTracking
+    (this ITypeMolderDieCast mdc, string value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
+      , int fromIndex = 0, int length = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    {
+        formatFlags = mdc.StyleFormatter.ResolveContentFormattingFlags(mdc.Sb, value, formatFlags, formatString);
         var cappedFrom = Math.Max(0, Math.Min(value.Length, fromIndex));
-        var writtenAs = formatFlags.HasIsFieldNameFlag()
+        return formatFlags.HasIsFieldNameFlag()
             ? mdc.StyleFormatter.FormatFieldName(mdc, value, cappedFrom, formatString, length, formatFlags)
             : mdc.StyleFormatter.FormatFieldContents(mdc, value, cappedFrom, formatString, length, formatFlags);
-        
-        return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, typeof(string));
     }
 
     public static AppendSummary AppendCharArrayField<TExt>
