@@ -63,6 +63,8 @@ public struct ContentSeparatorPaddingRangeTracking
     }
 
     public bool HasContent => this is { FromStartContentStart: not null, FromStartContentEnd: not null };
+    public bool HasNonZeroLengthContent => this is { FromStartContentStart: > 0, FromStartContentEnd: > 0  } 
+                                        && FromStartContentEnd > FromStartContentStart;
     public bool HasSeparator => this is { FromStartContentEnd: not null, FromStartSeparatorEnd: not null };
     public bool HasPadding => this is  { FromStartPaddingEnd: not null } 
                                    and ({ FromStartSeparatorEnd: not null } 

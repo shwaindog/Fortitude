@@ -230,10 +230,10 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
     public virtual ContentSeparatorRanges AppendContentTypeClosing(ITypeMolderDieCast moldInternal) =>
         AppendComplexTypeClosing(moldInternal);
 
-    public virtual ContentSeparatorRanges StartComplexTypeOpening(ITypeMolderDieCast moldInternal
+    public virtual ContentSeparatorRanges StartComplexTypeOpening(ITypeMolderDieCast mdc
       , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         formatFlags.DoesNotHaveSuppressOpening()
-            ? Gb.StartAppendContentAndComplete(BrcOpn, moldInternal.Sb, formatFlags)
+            ? Gb.StartAppendContentAndComplete(BrcOpn, mdc.Sb, formatFlags)
             : ContentSeparatorRanges.None;
 
     public virtual ContentSeparatorRanges FinishComplexTypeOpening(ITypeMolderDieCast moldInternal
@@ -289,7 +289,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
     public virtual ContentSeparatorRanges AppendComplexTypeClosing(ITypeMolderDieCast moldInternal)
     {
         var fmtFlags = moldInternal.CreateMoldFormatFlags;
-        if (Gb.HasCommitContent) { Gb.SnapshotLastAppendSequence(Gb.CurrentSectionRanges.StartedWithFormatFlags); }
+        if (Gb.CurrentSectionRanges.HasNonZeroLengthContent) { Gb.SnapshotLastAppendSequence(Gb.CurrentSectionRanges.StartedWithFormatFlags); }
         if (fmtFlags.HasSuppressClosing()) return ContentSeparatorRanges.None;
 
         var sb = moldInternal.Sb;

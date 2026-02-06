@@ -65,7 +65,9 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
         set => UseReferenceEqualsForVisited = !value;
     }
     
-    public int NextRefId() => master.GetNextVisitedReferenceId(RegistryId);
+    public int NextRefId() => RegistryId == -1 
+        ? ThisRegistryNextRefId++
+        : master.GetNextVisitedReferenceId(RegistryId);
     
     public bool WasVisitOnSameOrBaseType(Type objAsType, GraphNodeVisit startToLast)
     {

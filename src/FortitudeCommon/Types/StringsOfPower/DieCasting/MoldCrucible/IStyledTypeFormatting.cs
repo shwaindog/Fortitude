@@ -41,7 +41,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     ContentSeparatorRanges AppendContentTypeClosing(ITypeMolderDieCast moldInternal);
 
-    ContentSeparatorRanges StartComplexTypeOpening(ITypeMolderDieCast moldInternal, FormatFlags formatFlags = DefaultCallerTypeFlags);
+    ContentSeparatorRanges StartComplexTypeOpening(ITypeMolderDieCast mdc, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     ContentSeparatorRanges FinishComplexTypeOpening(ITypeMolderDieCast moldInternal, FormatFlags formatFlags = DefaultCallerTypeFlags);
 

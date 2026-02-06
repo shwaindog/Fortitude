@@ -54,7 +54,7 @@ public static class InputClassFlagsExtensions
     
     public static InputClassFlags? SetTo(this InputClassFlags? flags, InputClassFlags toToggle, bool setOrUnsetValue) => 
         flags == null 
-             ? setOrUnsetValue ? toToggle : null
+             ? setOrUnsetValue ? toToggle : None
              : setOrUnsetValue ? flags | toToggle : flags & ~toToggle;
 
     public static bool HasAllOf(this InputClassFlags flags, InputClassFlags checkAllFound)    => (flags & checkAllFound) == checkAllFound;
