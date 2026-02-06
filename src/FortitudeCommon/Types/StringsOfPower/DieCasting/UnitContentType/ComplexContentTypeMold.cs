@@ -471,12 +471,12 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
     public ContentWithLogOnlyMold AsString(ReadOnlySpan<char> nonJsonfieldName, string value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
-      Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, "", false, formatString ?? "", formatFlags);
+      Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, 0, value?.Length ?? int.MaxValue, "", formatString ?? "", formatFlags);
 
     public ContentWithLogOnlyMold AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, string? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
-      Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, "", true, formatString ?? "", formatFlags);
+      Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, 0, value?.Length ?? int.MaxValue, "", formatString ?? "", formatFlags);
 
     public ContentWithLogOnlyMold AsString(ReadOnlySpan<char> nonJsonfieldName, string value, int startIndex
     , int length = int.MaxValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -495,7 +495,7 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
     public ContentWithLogOnlyMold AsString(ReadOnlySpan<char> nonJsonfieldName, char[] value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
-      Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, 0, int.MaxValue, "", formatString ?? "", formatFlags);
+      Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, 0, value?.Length ?? int.MaxValue, "", formatString ?? "", formatFlags);
 
     public ContentWithLogOnlyMold AsString(ReadOnlySpan<char> nonJsonfieldName, char[] value, int startIndex = 0
     , int length = int.MaxValue , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null

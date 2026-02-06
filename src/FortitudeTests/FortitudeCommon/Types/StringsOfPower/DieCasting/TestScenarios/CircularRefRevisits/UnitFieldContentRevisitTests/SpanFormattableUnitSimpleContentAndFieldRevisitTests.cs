@@ -5,7 +5,6 @@ using System.Net;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
-using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CircularRefRevisits.FixtureScaffolding;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CircularRefRevisits.FixtureScaffolding.UnitFieldContent;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData.TestTree;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
@@ -78,8 +77,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress>
-                         {
+                        TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress> {
                          FirstSpanFormattableField: 127.0.0.1,
                          SecondSpanFormattableField: 127.0.0.1
                          }
@@ -165,8 +163,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>
-                         {
+                        TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress> {
                          FirstSpanFormattableField: 127.0.0.1,
                          SecondSpanFormattableField: 127.0.0.1
                          }
@@ -253,8 +250,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>
-                         {
+                        TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress> {
                          FirstSpanFormattableField: "127.0.0.1",
                          SecondSpanFormattableField: 127.0.0.1
                          }
@@ -341,8 +337,7 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>
-                         {
+                        TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress> {
                          FirstSpanFormattableField: 127.0.0.1,
                          SecondSpanFormattableField: "127.0.0.1"
                          }
@@ -418,17 +413,14 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress>
-                         {
+                        TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress> {
                          FirstSpanFormattableField:
                          {
                          $id: 1,
                          $values: 127.0.0.1
                          },
-                         SecondSpanFormattableField:
-                         {
-                         $ref:
-                         1
+                         SecondSpanFormattableField: {
+                         $ref: 1
                          }
                          }
                         """.RemoveLineEndings()
@@ -453,15 +445,12 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
                       , """ 
                         {
-                        "FirstSpanFormattableField":
-                        {
+                        "FirstSpanFormattableField":{
                         "$id":"1",
                         "$values":"127.0.0.1"
                         },
-                        "SecondSpanFormattableField":
-                        {
-                        "$ref":
-                        "1"
+                        "SecondSpanFormattableField":{
+                        "$ref":"1"
                         }
                         }
                         """.RemoveLineEndings()
@@ -540,17 +529,13 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>
-                         {
-                         FirstSpanFormattableField:
-                         {
+                        TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress> {
+                         FirstSpanFormattableField: {
                          $id: 1,
                          $values: 127.0.0.1
                          },
-                         SecondSpanFormattableField:
-                         {
-                         $ref:
-                         1
+                         SecondSpanFormattableField: {
+                         $ref: 1
                          }
                          }
                         """.RemoveLineEndings()
@@ -575,13 +560,11 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
                       , """ 
                         {
-                        "FirstSpanFormattableField":
-                        {
+                        "FirstSpanFormattableField":{
                         "$id":"1",
                         "$values":"127.0.0.1"
                         },
-                        "SecondSpanFormattableField":
-                        {
+                        "SecondSpanFormattableField":{
                         "$ref":"1"
                         }
                         }
@@ -663,17 +646,13 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>
-                         {
-                         FirstSpanFormattableField:
-                         {
+                        TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress> {
+                         FirstSpanFormattableField: {
                          $id: 1,
                          $values: "127.0.0.1"
                          },
-                         SecondSpanFormattableField:
-                         {
-                         $ref:
-                         1
+                         SecondSpanFormattableField: {
+                         $ref: 1
                          }
                          }
                         """.RemoveLineEndings()
@@ -698,15 +677,12 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
                       , """ 
                         {
-                        "FirstSpanFormattableField":
-                        {
+                        "FirstSpanFormattableField":{
                         "$id":"1",
                         "$values":"127.0.0.1"
                         },
-                        "SecondSpanFormattableField":
-                        {
-                        "$ref":
-                        "1"
+                        "SecondSpanFormattableField":{
+                        "$ref":"1"
                         }
                         }
                         """.RemoveLineEndings()
@@ -787,15 +763,12 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>
-                         {
-                         FirstSpanFormattableField:
-                         {
+                        TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress> {
+                         FirstSpanFormattableField: {
                          $id: 1,
                          $values: 127.0.0.1
                          },
-                         SecondSpanFormattableField:
-                         {
+                         SecondSpanFormattableField: {
                          $ref: 1
                          }
                          }
@@ -821,15 +794,12 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
                       , """ 
                         {
-                        "FirstSpanFormattableField":
-                        {
+                        "FirstSpanFormattableField":{
                         "$id":"1",
                         "$values":"127.0.0.1"
                         },
-                        "SecondSpanFormattableField":
-                        {
-                        "$ref":
-                        "1"
+                        "SecondSpanFormattableField":{
+                        "$ref":"1"
                         }
                         }
                         """.RemoveLineEndings()
@@ -908,15 +878,12 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress>
-                         {
-                         FirstSpanFormattableField:
-                         {
+                        TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress> {
+                         FirstSpanFormattableField: {
                          $id: 1,
                          $values: 127.0.0.1
                          },
-                         SecondSpanFormattableField:
-                         {
+                         SecondSpanFormattableField: {
                          $ref: 1,
                          $values: 127.0.0.1
                          }
@@ -944,13 +911,11 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
                       , """ 
                         {
-                        "FirstSpanFormattableField":
-                        {
+                        "FirstSpanFormattableField":{
                         "$id":"1",
                         "$values":"127.0.0.1"
                         },
-                        "SecondSpanFormattableField":
-                        {
+                        "SecondSpanFormattableField":{
                         "$ref":"1",
                         "$values":"127.0.0.1"
                         }
@@ -1036,15 +1001,12 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress>
-                         {
-                         FirstSpanFormattableField:
-                         {
+                        TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress> {
+                         FirstSpanFormattableField: {
                          $id: 1,
                          $values: 127.0.0.1
                          },
-                         SecondSpanFormattableField:
-                         {
+                         SecondSpanFormattableField: {
                          $ref: 1,
                          $values: 127.0.0.1
                          }
@@ -1072,13 +1034,11 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
                       , """ 
                         {
-                        "FirstSpanFormattableField":
-                        {
+                        "FirstSpanFormattableField":{
                         "$id":"1",
                         "$values":"127.0.0.1"
                         },
-                        "SecondSpanFormattableField":
-                        {
+                        "SecondSpanFormattableField":{
                         "$ref":"1",
                         "$values":"127.0.0.1"
                         }
@@ -1166,15 +1126,12 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress>
-                         {
-                         FirstSpanFormattableField:
-                         {
+                        TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress> {
+                         FirstSpanFormattableField: {
                          $id: 1,
                          $values: "127.0.0.1"
                          },
-                         SecondSpanFormattableField:
-                         {
+                         SecondSpanFormattableField: {
                          $ref: 1,
                          $values: 127.0.0.1
                          }
@@ -1202,13 +1159,11 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
                       , """ 
                         {
-                        "FirstSpanFormattableField":
-                        {
+                        "FirstSpanFormattableField":{
                         "$id":"1",
                         "$values":"127.0.0.1"
                         },
-                        "SecondSpanFormattableField":
-                        {
+                        "SecondSpanFormattableField":{
                         "$ref":"1",
                         "$values":"127.0.0.1"
                         }
@@ -1296,15 +1251,12 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress>
-                         {
-                         FirstSpanFormattableField:
-                         {
+                        TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress> {
+                         FirstSpanFormattableField: {
                          $id: 1,
                          $values: 127.0.0.1
                          },
-                         SecondSpanFormattableField:
-                         {
+                         SecondSpanFormattableField: {
                          $ref: 1,
                          $values: "127.0.0.1"
                          }
@@ -1332,13 +1284,11 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
                       , """ 
                         {
-                        "FirstSpanFormattableField":
-                        {
+                        "FirstSpanFormattableField":{
                         "$id":"1",
                         "$values":"127.0.0.1"
                         },
-                        "SecondSpanFormattableField":
-                        {
+                        "SecondSpanFormattableField":{
                         "$ref":"1",
                         "$values":"127.0.0.1"
                         }
