@@ -15,7 +15,7 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestSce
 [TestClass]
 public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectationTestBase
 {
-    private static InputBearerExpect<TwoCharArrayFields>? twoSameStringFieldsWithDefaultRevisitSettingsExpect;
+    private static InputBearerExpect<TwoCharArrayFields>? twoSameCharArrayFieldsWithDefaultRevisitSettingsExpect;
     private static InputBearerExpect<TwoCharArraysFirstAsSimpleCloakedValueContent>?
         twoSameCharArraysOneSimpleCloakedValueOneFieldWithDefaultRevisitSettingsExpect;
     private static InputBearerExpect<TwoCharArraysSecondAsSimpleCloakedValueContent>?
@@ -25,7 +25,7 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
     private static InputBearerExpect<TwoCharArraysSecondAsSimpleCloakedStringContent>?
         twoSameCharArraysOneFieldOneSimpleCloakedStringWithDefaultRevisitSettingsExpect;
     
-    private static InputBearerExpect<TwoCharArrayFields>? twoSameStringFieldsShowRevisitInstanceIdsOnlyExpect;
+    private static InputBearerExpect<TwoCharArrayFields>? twoSameCharArrayFieldsShowRevisitInstanceIdsOnlyExpect;
     private static InputBearerExpect<TwoCharArraysFirstAsSimpleCloakedValueContent>?
         twoSameCharArraysOneSimpleCloakedValueOneFieldShowRevisitInstanceIdsExpect;
     private static InputBearerExpect<TwoCharArraysSecondAsSimpleCloakedValueContent>?
@@ -35,7 +35,7 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
     private static InputBearerExpect<TwoCharArraysSecondAsSimpleCloakedStringContent>?
         twoSameCharArraysOneFieldOneSimpleCloakedStringShowRevisitInstanceIdsExpect;
     
-    private static InputBearerExpect<TwoCharArrayFields>? twoSameFieldsShowRevisitsAndValuesExpect;
+    private static InputBearerExpect<TwoCharArrayFields>? twoSameCharArrayFieldsShowRevisitsAndValuesExpect;
     private static InputBearerExpect<TwoCharArraysFirstAsSimpleCloakedValueContent>?
         twoSameCharArraysOneSimpleCloakedValueOneFieldShowRevisitAndValuesExpect;
     private static InputBearerExpect<TwoCharArraysSecondAsSimpleCloakedValueContent>?
@@ -71,7 +71,7 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
     {
         get
         {
-            return twoSameStringFieldsWithDefaultRevisitSettingsExpect ??=
+            return twoSameCharArrayFieldsWithDefaultRevisitSettingsExpect ??=
                 new InputBearerExpect<TwoCharArrayFields>(TwoCharArraysFields)
                 {
                     {
@@ -494,7 +494,7 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
     {
         get
         {
-            return twoSameStringFieldsShowRevisitInstanceIdsOnlyExpect ??=
+            return twoSameCharArrayFieldsShowRevisitInstanceIdsOnlyExpect ??=
                 new InputBearerExpect<TwoCharArrayFields>(TwoCharArraysFields)
                 {
                     {
@@ -1074,7 +1074,7 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
     {
         get
         {
-            return twoSameFieldsShowRevisitsAndValuesExpect ??=
+            return twoSameCharArrayFieldsShowRevisitsAndValuesExpect ??=
                 new InputBearerExpect<TwoCharArrayFields>(TwoCharArraysFields)
                 {
                     {

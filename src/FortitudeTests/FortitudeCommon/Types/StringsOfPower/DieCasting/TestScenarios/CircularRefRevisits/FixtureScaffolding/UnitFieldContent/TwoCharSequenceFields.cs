@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
@@ -11,7 +12,6 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestSce
 
 
 public class TwoCharSequenceFields<TCharSeq>: IStringBearer, ISupportFormattingFlags, ISupportsValueFormatString
-  , IPalantirRevealerFactory<TCharSeq> 
     where TCharSeq : class, ICharSequence
 {
     public TwoCharSequenceFields()
@@ -28,15 +28,6 @@ public class TwoCharSequenceFields<TCharSeq>: IStringBearer, ISupportFormattingF
 
     public TCharSeq? FirstCharSequenceField { get; set; }
     public TCharSeq? SecondCharSequenceField { get; set; }
-
-    public PalantírReveal<TCharSeq> CreateRevealer => (cloaked, tos) =>
-        tos.StartComplexType(cloaked)
-           .Field.AlwaysAddCharSeq
-               ($"CloakedRevealer{nameof(SecondCharSequenceField)}"
-              , cloaked, ValueFormatString)
-           .Complete();
-
-    public Delegate CreateRevealerDelegate => CreateRevealer;
 
     public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
@@ -229,7 +220,7 @@ public class TwoCharSequencesSecondAsSimpleCloakedStringContent<TCharSeq>: IStri
 
     public PalantírReveal<TCharSeq> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartSimpleContentType(cloaked)
-           .AsValue (cloaked, ValueFormatString, FormattingFlags)
+           .AsString(cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
@@ -276,9 +267,12 @@ public class TwoCharSequencesFirstAsComplexCloakedValueContent<TCharSeq>: IStrin
     public TCharSeq? FirstCharSequenceField { get; set; }
     public TCharSeq? SecondCharSequenceField { get; set; }
 
+    private readonly int[] logOnlyArray = [1, 2, 3];
+
     public PalantírReveal<TCharSeq> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(cloaked)
-           .AsValue (nameof(FirstCharSequenceField), cloaked, ValueFormatString, FormattingFlags)
+           .AsValue ($"CloakedRevealer{nameof(FirstCharSequenceField)}", cloaked, ValueFormatString, FormattingFlags)
+           .LogOnlyCollectionField.AlwaysAddAll(nameof(logOnlyArray),logOnlyArray)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
@@ -325,9 +319,17 @@ public class TwoCharSequencesSecondAsComplexCloakedValueContent<TCharSeq>: IStri
     public TCharSeq? FirstCharSequenceField { get; set; }
     public TCharSeq? SecondCharSequenceField { get; set; }
 
+    private readonly Dictionary<string, int> logOnlyMap = new Dictionary<string, int>()
+    {
+        { "FirstKey", 1 }
+      , { "SecondKey", 2 }
+      , { "ThirdKey", 3 }
+    };
+
     public PalantírReveal<TCharSeq> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(cloaked)
-           .AsValue (nameof(SecondCharSequenceField), cloaked, ValueFormatString, FormattingFlags)
+           .AsValue ($"CloakedRevealer{nameof(SecondCharSequenceField)}", cloaked, ValueFormatString, FormattingFlags)
+           .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logOnlyMap), logOnlyMap)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
@@ -373,10 +375,13 @@ public class TwoCharSequencesFirstAsComplexCloakedStringContent<TCharSeq>: IStri
 
     public TCharSeq? FirstCharSequenceField { get; set; }
     public TCharSeq? SecondCharSequenceField { get; set; }
+    
+    private readonly StringBuilder logOnlyStringBuilder = new ("For your eyes only");
 
     public PalantírReveal<TCharSeq> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(cloaked)
-           .AsString (nameof(FirstCharSequenceField), cloaked, ValueFormatString, FormattingFlags)
+           .AsString ($"CloakedRevealer{nameof(FirstCharSequenceField)}", cloaked, ValueFormatString, FormattingFlags)
+           .LogOnlyField.AlwaysAdd(nameof(logOnlyStringBuilder), logOnlyStringBuilder)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
@@ -423,9 +428,13 @@ public class TwoCharSequencesSecondAsComplexCloakedStringContent<TCharSeq>: IStr
     public TCharSeq? FirstCharSequenceField { get; set; }
     public TCharSeq? SecondCharSequenceField { get; set; }
 
+
+    private readonly List<MutableString> logOnlyList = [new ("FirstCharSeq"), new ("SecondCharSeq"), new ("ThirdCharSeq")];
+
     public PalantírReveal<TCharSeq> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(cloaked)
-           .AsString (nameof(SecondCharSequenceField), cloaked, ValueFormatString, FormattingFlags)
+           .AsString ($"CloakedRevealer{nameof(SecondCharSequenceField)}", cloaked, ValueFormatString, FormattingFlags)
+           .LogOnlyCollectionField.AlwaysAddAllCharSeq(nameof(logOnlyList), logOnlyList)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
