@@ -5,46 +5,38 @@ using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CircularRefRevisits.FixtureScaffolding.UnitFieldContent;
 
 
-public class TwoStringBuilderFields: IStringBearer, ISupportFormattingFlags, ISupportsValueFormatString,  IPalantirRevealerFactory<StringBuilder>
+public class TwoStringBuilderFields: IStringBearer, ISupportFormattingFlags, ISupportsValueFormatString
 {
     public TwoStringBuilderFields()
     {
-        FirstStringField  = null!;
-        SecondStringField = null!;
+        FirstStringBuilderField  = null!;
+        SecondStringBuilderField = null!;
     }
 
     public TwoStringBuilderFields(StringBuilder? first, StringBuilder? second)
     {
-        FirstStringField  = first;
-        SecondStringField = second;
+        FirstStringBuilderField  = first;
+        SecondStringBuilderField = second;
     }
 
-    public StringBuilder? FirstStringField { get; set; }
-    public StringBuilder? SecondStringField { get; set; }
-
-    public PalantírReveal<StringBuilder> CreateRevealer => (cloaked, tos) =>
-        tos.StartComplexType(cloaked)
-           .Field.AlwaysAdd
-               ($"CloakedRevealer{nameof(SecondStringField)}"
-              , cloaked, ValueFormatString)
-           .Complete();
-
-    public Delegate CreateRevealerDelegate => CreateRevealer;
+    public StringBuilder? FirstStringBuilderField { get; set; }
+    public StringBuilder? SecondStringBuilderField { get; set; }
 
     public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
-               (nameof(FirstStringField)
-              , FirstStringField
+               (nameof(FirstStringBuilderField)
+              , FirstStringBuilderField
               , ValueFormatString, FormattingFlags)
            .Field.AlwaysAdd
-               (nameof(SecondStringField)
-              , SecondStringField
+               (nameof(SecondStringBuilderField)
+              , SecondStringBuilderField
               , ValueFormatString, FormattingFlags)
            .Complete();
     
@@ -53,8 +45,8 @@ public class TwoStringBuilderFields: IStringBearer, ISupportFormattingFlags, ISu
     
     public override string ToString() => 
         $"{GetType().CachedCSharpNameNoConstraints()}(" +
-        $"{nameof(FirstStringField)}:{FirstStringField}, " +
-        $"{nameof(SecondStringField)}:{SecondStringField})";
+        $"{nameof(FirstStringBuilderField)}:{FirstStringBuilderField}, " +
+        $"{nameof(SecondStringBuilderField)}:{SecondStringBuilderField})";
 }
 
 public class TwoStringBuildersFirstAsSimpleCloakedValueContent: IStringBearer, ISupportFormattingFlags, ISupportsValueFormatString
@@ -64,21 +56,21 @@ public class TwoStringBuildersFirstAsSimpleCloakedValueContent: IStringBearer, I
     
     public TwoStringBuildersFirstAsSimpleCloakedValueContent()
     {
-        FirstStringField  = null!;
-        SecondStringField = null!;
+        FirstStringBuilderField  = null!;
+        SecondStringBuilderField = null!;
     }
 
     public TwoStringBuildersFirstAsSimpleCloakedValueContent(StringBuilder? first, StringBuilder? second)
     {
-        FirstStringField  = first;
-        SecondStringField = second;
+        FirstStringBuilderField  = first;
+        SecondStringBuilderField = second;
     }
 
-    public StringBuilder? FirstStringField { get; set; }
-    public StringBuilder? SecondStringField { get; set; }
+    public StringBuilder? FirstStringBuilderField { get; set; }
+    public StringBuilder? SecondStringBuilderField { get; set; }
 
     public PalantírReveal<StringBuilder> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
-        tos.StartSimpleContentType(FirstStringField)
+        tos.StartSimpleContentType(FirstStringBuilderField)
            .AsValue (cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
@@ -87,12 +79,12 @@ public class TwoStringBuildersFirstAsSimpleCloakedValueContent: IStringBearer, I
     public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
-               (nameof(FirstStringField)
-              , FirstStringField, CreateRevealer
+               (nameof(FirstStringBuilderField)
+              , FirstStringBuilderField, CreateRevealer
               , ValueFormatString, FormattingFlags)
            .Field.AlwaysAdd
-               (nameof(SecondStringField)
-              , SecondStringField
+               (nameof(SecondStringBuilderField)
+              , SecondStringBuilderField
               , ValueFormatString, FormattingFlags)
            .Complete();
     
@@ -101,8 +93,8 @@ public class TwoStringBuildersFirstAsSimpleCloakedValueContent: IStringBearer, I
     
     public override string ToString() => 
         $"{GetType().CachedCSharpNameNoConstraints()}(" +
-        $"{nameof(FirstStringField)}:{FirstStringField}, " +
-        $"{nameof(SecondStringField)}:{SecondStringField})";
+        $"{nameof(FirstStringBuilderField)}:{FirstStringBuilderField}, " +
+        $"{nameof(SecondStringBuilderField)}:{SecondStringBuilderField})";
 }
 
 public class TwoStringBuildersSecondAsSimpleCloakedValueContent: IStringBearer, ISupportFormattingFlags, ISupportsValueFormatString
@@ -112,21 +104,21 @@ public class TwoStringBuildersSecondAsSimpleCloakedValueContent: IStringBearer, 
     
     public TwoStringBuildersSecondAsSimpleCloakedValueContent()
     {
-        FirstStringField  = null!;
-        SecondStringField = null!;
+        FirstStringBuilderField  = null!;
+        SecondStringBuilderField = null!;
     }
 
     public TwoStringBuildersSecondAsSimpleCloakedValueContent(StringBuilder? first, StringBuilder? second)
     {
-        FirstStringField  = first;
-        SecondStringField = second;
+        FirstStringBuilderField  = first;
+        SecondStringBuilderField = second;
     }
 
-    public StringBuilder? FirstStringField { get; set; }
-    public StringBuilder? SecondStringField { get; set; }
+    public StringBuilder? FirstStringBuilderField { get; set; }
+    public StringBuilder? SecondStringBuilderField { get; set; }
 
     public PalantírReveal<StringBuilder> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
-        tos.StartSimpleContentType(SecondStringField)
+        tos.StartSimpleContentType(SecondStringBuilderField)
            .AsValue (cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
@@ -135,12 +127,12 @@ public class TwoStringBuildersSecondAsSimpleCloakedValueContent: IStringBearer, 
     public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
-               (nameof(FirstStringField)
-              , FirstStringField
+               (nameof(FirstStringBuilderField)
+              , FirstStringBuilderField
               , ValueFormatString, FormattingFlags)
            .Field.AlwaysReveal
-               (nameof(SecondStringField)
-              , SecondStringField, CreateRevealer
+               (nameof(SecondStringBuilderField)
+              , SecondStringBuilderField, CreateRevealer
               , ValueFormatString, FormattingFlags)
            .Complete();
     
@@ -149,8 +141,8 @@ public class TwoStringBuildersSecondAsSimpleCloakedValueContent: IStringBearer, 
     
     public override string ToString() => 
         $"{GetType().CachedCSharpNameNoConstraints()}(" +
-        $"{nameof(FirstStringField)}:{FirstStringField}, " +
-        $"{nameof(SecondStringField)}:{SecondStringField})";
+        $"{nameof(FirstStringBuilderField)}:{FirstStringBuilderField}, " +
+        $"{nameof(SecondStringBuilderField)}:{SecondStringBuilderField})";
 }
 
 public class TwoStringBuildersFirstAsSimpleCloakedStringContent: IStringBearer, ISupportFormattingFlags, ISupportsValueFormatString
@@ -160,21 +152,21 @@ public class TwoStringBuildersFirstAsSimpleCloakedStringContent: IStringBearer, 
     
     public TwoStringBuildersFirstAsSimpleCloakedStringContent()
     {
-        FirstStringField  = null!;
-        SecondStringField = null!;
+        FirstStringBuilderField  = null!;
+        SecondStringBuilderField = null!;
     }
 
     public TwoStringBuildersFirstAsSimpleCloakedStringContent(StringBuilder? first, StringBuilder? second)
     {
-        FirstStringField  = first;
-        SecondStringField = second;
+        FirstStringBuilderField  = first;
+        SecondStringBuilderField = second;
     }
 
-    public StringBuilder? FirstStringField { get; set; }
-    public StringBuilder? SecondStringField { get; set; }
+    public StringBuilder? FirstStringBuilderField { get; set; }
+    public StringBuilder? SecondStringBuilderField { get; set; }
 
     public PalantírReveal<StringBuilder> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
-        tos.StartSimpleContentType(FirstStringField)
+        tos.StartSimpleContentType(FirstStringBuilderField)
            .AsString (cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
@@ -183,12 +175,12 @@ public class TwoStringBuildersFirstAsSimpleCloakedStringContent: IStringBearer, 
     public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
-               (nameof(FirstStringField)
-              , FirstStringField, CreateRevealer
+               (nameof(FirstStringBuilderField)
+              , FirstStringBuilderField, CreateRevealer
               , ValueFormatString, FormattingFlags)
            .Field.AlwaysAdd
-               (nameof(SecondStringField)
-              , SecondStringField
+               (nameof(SecondStringBuilderField)
+              , SecondStringBuilderField
               , ValueFormatString, FormattingFlags)
            .Complete();
     
@@ -197,8 +189,8 @@ public class TwoStringBuildersFirstAsSimpleCloakedStringContent: IStringBearer, 
     
     public override string ToString() => 
         $"{GetType().CachedCSharpNameNoConstraints()}(" +
-        $"{nameof(FirstStringField)}:{FirstStringField}, " +
-        $"{nameof(SecondStringField)}:{SecondStringField})";
+        $"{nameof(FirstStringBuilderField)}:{FirstStringBuilderField}, " +
+        $"{nameof(SecondStringBuilderField)}:{SecondStringBuilderField})";
 }
 
 public class TwoStringBuildersSecondAsSimpleCloakedStringContent: IStringBearer, ISupportFormattingFlags, ISupportsValueFormatString
@@ -208,21 +200,21 @@ public class TwoStringBuildersSecondAsSimpleCloakedStringContent: IStringBearer,
     
     public TwoStringBuildersSecondAsSimpleCloakedStringContent()
     {
-        FirstStringField  = null!;
-        SecondStringField = null!;
+        FirstStringBuilderField  = null!;
+        SecondStringBuilderField = null!;
     }
 
     public TwoStringBuildersSecondAsSimpleCloakedStringContent(StringBuilder? first, StringBuilder? second)
     {
-        FirstStringField  = first;
-        SecondStringField = second;
+        FirstStringBuilderField  = first;
+        SecondStringBuilderField = second;
     }
 
-    public StringBuilder? FirstStringField { get; set; }
-    public StringBuilder? SecondStringField { get; set; }
+    public StringBuilder? FirstStringBuilderField { get; set; }
+    public StringBuilder? SecondStringBuilderField { get; set; }
 
     public PalantírReveal<StringBuilder> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
-        tos.StartSimpleContentType(SecondStringField)
+        tos.StartSimpleContentType(SecondStringBuilderField)
            .AsString (cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
@@ -231,12 +223,12 @@ public class TwoStringBuildersSecondAsSimpleCloakedStringContent: IStringBearer,
     public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
-               (nameof(FirstStringField)
-              , FirstStringField
+               (nameof(FirstStringBuilderField)
+              , FirstStringBuilderField
               , ValueFormatString, FormattingFlags)
            .Field.AlwaysReveal
-               (nameof(SecondStringField)
-              , SecondStringField, CreateRevealer
+               (nameof(SecondStringBuilderField)
+              , SecondStringBuilderField, CreateRevealer
               , ValueFormatString, FormattingFlags)
            .Complete();
     
@@ -245,8 +237,8 @@ public class TwoStringBuildersSecondAsSimpleCloakedStringContent: IStringBearer,
     
     public override string ToString() => 
         $"{GetType().CachedCSharpNameNoConstraints()}(" +
-        $"{nameof(FirstStringField)}:{FirstStringField}, " +
-        $"{nameof(SecondStringField)}:{SecondStringField})";
+        $"{nameof(FirstStringBuilderField)}:{FirstStringBuilderField}, " +
+        $"{nameof(SecondStringBuilderField)}:{SecondStringBuilderField})";
 }
 
 public class TwoStringBuildersFirstAsComplexCloakedValueContent: IStringBearer, ISupportFormattingFlags, ISupportsValueFormatString
@@ -256,22 +248,25 @@ public class TwoStringBuildersFirstAsComplexCloakedValueContent: IStringBearer, 
     
     public TwoStringBuildersFirstAsComplexCloakedValueContent()
     {
-        FirstStringField  = null!;
-        SecondStringField = null!;
+        FirstStringBuilderField  = null!;
+        SecondStringBuilderField = null!;
     }
 
     public TwoStringBuildersFirstAsComplexCloakedValueContent(StringBuilder? first, StringBuilder? second)
     {
-        FirstStringField  = first;
-        SecondStringField = second;
+        FirstStringBuilderField  = first;
+        SecondStringBuilderField = second;
     }
 
-    public StringBuilder? FirstStringField { get; set; }
-    public StringBuilder? SecondStringField { get; set; }
+    public StringBuilder? FirstStringBuilderField { get; set; }
+    public StringBuilder? SecondStringBuilderField { get; set; }
+
+    private readonly int[] logOnlyArray = [1, 2, 3];
 
     public PalantírReveal<StringBuilder> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
-        tos.StartComplexContentType(FirstStringField)
-           .AsValue (nameof(FirstStringField), cloaked, ValueFormatString, FormattingFlags)
+        tos.StartComplexContentType(FirstStringBuilderField)
+           .AsValue ($"CloakedRevealer{nameof(FirstStringBuilderField)}", cloaked, ValueFormatString, FormattingFlags)
+           .LogOnlyCollectionField.AlwaysAddAll(nameof(logOnlyArray),logOnlyArray)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
@@ -279,12 +274,12 @@ public class TwoStringBuildersFirstAsComplexCloakedValueContent: IStringBearer, 
     public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
-               (nameof(FirstStringField)
-              , FirstStringField, CreateRevealer
+               (nameof(FirstStringBuilderField)
+              , FirstStringBuilderField, CreateRevealer
               , ValueFormatString, FormattingFlags)
            .Field.AlwaysAdd
-               (nameof(SecondStringField)
-              , SecondStringField
+               (nameof(SecondStringBuilderField)
+              , SecondStringBuilderField
               , ValueFormatString, FormattingFlags)
            .Complete();
     
@@ -293,8 +288,8 @@ public class TwoStringBuildersFirstAsComplexCloakedValueContent: IStringBearer, 
     
     public override string ToString() => 
         $"{GetType().CachedCSharpNameNoConstraints()}(" +
-        $"{nameof(FirstStringField)}:{FirstStringField}, " +
-        $"{nameof(SecondStringField)}:{SecondStringField})";
+        $"{nameof(FirstStringBuilderField)}:{FirstStringBuilderField}, " +
+        $"{nameof(SecondStringBuilderField)}:{SecondStringBuilderField})";
 }
 
 public class TwoStringBuildersSecondAsComplexCloakedValueContent: IStringBearer, ISupportFormattingFlags, ISupportsValueFormatString
@@ -304,22 +299,30 @@ public class TwoStringBuildersSecondAsComplexCloakedValueContent: IStringBearer,
     
     public TwoStringBuildersSecondAsComplexCloakedValueContent()
     {
-        FirstStringField  = null!;
-        SecondStringField = null!;
+        FirstStringBuilderField  = null!;
+        SecondStringBuilderField = null!;
     }
 
     public TwoStringBuildersSecondAsComplexCloakedValueContent(StringBuilder? first, StringBuilder? second)
     {
-        FirstStringField  = first;
-        SecondStringField = second;
+        FirstStringBuilderField  = first;
+        SecondStringBuilderField = second;
     }
 
-    public StringBuilder? FirstStringField { get; set; }
-    public StringBuilder? SecondStringField { get; set; }
+    public StringBuilder? FirstStringBuilderField { get; set; }
+    public StringBuilder? SecondStringBuilderField { get; set; }
+
+    private readonly Dictionary<string, int> logOnlyMap = new Dictionary<string, int>()
+    {
+        { "FirstKey", 1 }
+      , { "SecondKey", 2 }
+      , { "ThirdKey", 3 }
+    };
 
     public PalantírReveal<StringBuilder> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
-        tos.StartComplexContentType(SecondStringField)
-           .AsValue (nameof(SecondStringField), cloaked, ValueFormatString, FormattingFlags)
+        tos.StartComplexContentType(SecondStringBuilderField)
+           .AsValue ($"CloakedRevealer{nameof(SecondStringBuilderField)}", cloaked, ValueFormatString, FormattingFlags)
+           .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logOnlyMap), logOnlyMap)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
@@ -327,12 +330,12 @@ public class TwoStringBuildersSecondAsComplexCloakedValueContent: IStringBearer,
     public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
-               (nameof(FirstStringField)
-              , FirstStringField
+               (nameof(FirstStringBuilderField)
+              , FirstStringBuilderField
               , ValueFormatString, FormattingFlags)
            .Field.AlwaysReveal
-               (nameof(SecondStringField)
-              , SecondStringField, CreateRevealer
+               (nameof(SecondStringBuilderField)
+              , SecondStringBuilderField, CreateRevealer
               , ValueFormatString, FormattingFlags)
            .Complete();
     
@@ -341,8 +344,8 @@ public class TwoStringBuildersSecondAsComplexCloakedValueContent: IStringBearer,
     
     public override string ToString() => 
         $"{GetType().CachedCSharpNameNoConstraints()}(" +
-        $"{nameof(FirstStringField)}:{FirstStringField}, " +
-        $"{nameof(SecondStringField)}:{SecondStringField})";
+        $"{nameof(FirstStringBuilderField)}:{FirstStringBuilderField}, " +
+        $"{nameof(SecondStringBuilderField)}:{SecondStringBuilderField})";
 }
 
 public class TwoStringBuildersFirstAsComplexCloakedStringContent: IStringBearer, ISupportFormattingFlags, ISupportsValueFormatString
@@ -352,22 +355,25 @@ public class TwoStringBuildersFirstAsComplexCloakedStringContent: IStringBearer,
     
     public TwoStringBuildersFirstAsComplexCloakedStringContent()
     {
-        FirstStringField  = null!;
-        SecondStringField = null!;
+        FirstStringBuilderField  = null!;
+        SecondStringBuilderField = null!;
     }
 
     public TwoStringBuildersFirstAsComplexCloakedStringContent(StringBuilder? first, StringBuilder? second)
     {
-        FirstStringField  = first;
-        SecondStringField = second;
+        FirstStringBuilderField  = first;
+        SecondStringBuilderField = second;
     }
 
-    public StringBuilder? FirstStringField { get; set; }
-    public StringBuilder? SecondStringField { get; set; }
+    public StringBuilder? FirstStringBuilderField { get; set; }
+    public StringBuilder? SecondStringBuilderField { get; set; }
+    
+    private readonly StringBuilder logOnlyStringBuilder = new ("For your eyes only");
 
     public PalantírReveal<StringBuilder> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
-        tos.StartComplexContentType(FirstStringField)
-           .AsString (nameof(FirstStringField), cloaked, ValueFormatString, FormattingFlags)
+        tos.StartComplexContentType(FirstStringBuilderField)
+           .AsString ($"CloakedRevealer{nameof(FirstStringBuilderField)}", cloaked, ValueFormatString, FormattingFlags)
+           .LogOnlyField.AlwaysAdd(nameof(logOnlyStringBuilder), logOnlyStringBuilder)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
@@ -375,12 +381,12 @@ public class TwoStringBuildersFirstAsComplexCloakedStringContent: IStringBearer,
     public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysReveal
-               (nameof(FirstStringField)
-              , FirstStringField, CreateRevealer
+               (nameof(FirstStringBuilderField)
+              , FirstStringBuilderField, CreateRevealer
               , ValueFormatString, FormattingFlags)
            .Field.AlwaysAdd
-               (nameof(SecondStringField)
-              , SecondStringField
+               (nameof(SecondStringBuilderField)
+              , SecondStringBuilderField
               , ValueFormatString, FormattingFlags)
            .Complete();
     
@@ -389,8 +395,8 @@ public class TwoStringBuildersFirstAsComplexCloakedStringContent: IStringBearer,
     
     public override string ToString() => 
         $"{GetType().CachedCSharpNameNoConstraints()}(" +
-        $"{nameof(FirstStringField)}:{FirstStringField}, " +
-        $"{nameof(SecondStringField)}:{SecondStringField})";
+        $"{nameof(FirstStringBuilderField)}:{FirstStringBuilderField}, " +
+        $"{nameof(SecondStringBuilderField)}:{SecondStringBuilderField})";
 }
 
 public class TwoStringBuildersSecondAsComplexCloakedStringContent: IStringBearer, ISupportFormattingFlags, ISupportsValueFormatString
@@ -400,22 +406,26 @@ public class TwoStringBuildersSecondAsComplexCloakedStringContent: IStringBearer
     
     public TwoStringBuildersSecondAsComplexCloakedStringContent()
     {
-        FirstStringField  = null!;
-        SecondStringField = null!;
+        FirstStringBuilderField  = null!;
+        SecondStringBuilderField = null!;
     }
 
     public TwoStringBuildersSecondAsComplexCloakedStringContent(StringBuilder? first, StringBuilder? second)
     {
-        FirstStringField  = first;
-        SecondStringField = second;
+        FirstStringBuilderField  = first;
+        SecondStringBuilderField = second;
     }
 
-    public StringBuilder? FirstStringField { get; set; }
-    public StringBuilder? SecondStringField { get; set; }
+    public StringBuilder? FirstStringBuilderField { get; set; }
+    public StringBuilder? SecondStringBuilderField { get; set; }
+
+
+    private readonly List<MutableString> logOnlyList = [new ("FirstCharSeq"), new ("SecondCharSeq"), new ("ThirdCharSeq")];
 
     public PalantírReveal<StringBuilder> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
-        tos.StartComplexContentType(SecondStringField)
-           .AsString (nameof(SecondStringField), cloaked, ValueFormatString, FormattingFlags)
+        tos.StartComplexContentType(SecondStringBuilderField)
+           .AsString ($"CloakedRevealer{nameof(SecondStringBuilderField)}", cloaked, ValueFormatString, FormattingFlags)
+           .LogOnlyCollectionField.AlwaysAddAllCharSeq(nameof(logOnlyList), logOnlyList)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
@@ -423,12 +433,12 @@ public class TwoStringBuildersSecondAsComplexCloakedStringContent: IStringBearer
     public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .Field.AlwaysAdd
-               (nameof(FirstStringField)
-              , FirstStringField
+               (nameof(FirstStringBuilderField)
+              , FirstStringBuilderField
               , ValueFormatString, FormattingFlags)
            .Field.AlwaysReveal
-               (nameof(SecondStringField)
-              , SecondStringField, CreateRevealer
+               (nameof(SecondStringBuilderField)
+              , SecondStringBuilderField, CreateRevealer
               , ValueFormatString, FormattingFlags)
            .Complete();
     
@@ -437,6 +447,6 @@ public class TwoStringBuildersSecondAsComplexCloakedStringContent: IStringBearer
     
     public override string ToString() => 
         $"{GetType().CachedCSharpNameNoConstraints()}(" +
-        $"{nameof(FirstStringField)}:{FirstStringField}, " +
-        $"{nameof(SecondStringField)}:{SecondStringField})";
+        $"{nameof(FirstStringBuilderField)}:{FirstStringBuilderField}, " +
+        $"{nameof(SecondStringBuilderField)}:{SecondStringBuilderField})";
 }
