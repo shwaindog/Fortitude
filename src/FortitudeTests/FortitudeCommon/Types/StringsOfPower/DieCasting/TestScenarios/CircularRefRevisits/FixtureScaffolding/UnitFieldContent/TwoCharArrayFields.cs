@@ -1,9 +1,11 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Text;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
+using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CircularRefRevisits.FixtureScaffolding.UnitFieldContent;
@@ -268,9 +270,12 @@ public class TwoCharArraysFirstAsComplexCloakedValueContent: IStringBearer, ISup
     public char[]? FirstCharArrayField { get; set; }
     public char[]? SecondCharArrayField { get; set; }
 
+    private readonly int[] logOnlyArray = [1, 2, 3];
+
     public PalantírReveal<char[]> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(FirstCharArrayField)
-           .AsValue (nameof(FirstCharArrayField), cloaked, ValueFormatString, FormattingFlags)
+           .AsValue ($"CloakedRevealer{nameof(FirstCharArrayField)}", cloaked, ValueFormatString, FormattingFlags)
+           .LogOnlyCollectionField.AlwaysAddAll(nameof(logOnlyArray),logOnlyArray)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
@@ -316,9 +321,17 @@ public class TwoCharArraysSecondAsComplexCloakedValueContent: IStringBearer, ISu
     public char[]? FirstCharArrayField { get; set; }
     public char[]? SecondCharArrayField { get; set; }
 
+    private readonly Dictionary<string, int> logOnlyMap = new Dictionary<string, int>()
+    {
+        { "FirstKey", 1 }
+      , { "SecondKey", 2 }
+      , { "ThirdKey", 3 }
+    };
+
     public PalantírReveal<char[]> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(SecondCharArrayField)
-           .AsValue (nameof(SecondCharArrayField), cloaked, ValueFormatString, FormattingFlags)
+           .AsValue ($"CloakedRevealer{nameof(SecondCharArrayField)}", cloaked, ValueFormatString, FormattingFlags)
+           .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logOnlyMap), logOnlyMap)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
@@ -363,10 +376,13 @@ public class TwoCharArraysFirstAsComplexCloakedStringContent: IStringBearer, ISu
 
     public char[]? FirstCharArrayField { get; set; }
     public char[]? SecondCharArrayField { get; set; }
+    
+    private readonly StringBuilder logOnlyStringBuilder = new ("For your eyes only");
 
     public PalantírReveal<char[]> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(FirstCharArrayField)
-           .AsString (nameof(FirstCharArrayField), cloaked, ValueFormatString, FormattingFlags)
+           .AsString ($"CloakedRevealer{nameof(FirstCharArrayField)}", cloaked, ValueFormatString, FormattingFlags)
+           .LogOnlyField.AlwaysAdd(nameof(logOnlyStringBuilder), logOnlyStringBuilder)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
@@ -412,9 +428,13 @@ public class TwoCharArraysSecondAsComplexCloakedStringContent: IStringBearer, IS
     public char[]? FirstCharArrayField { get; set; }
     public char[]? SecondCharArrayField { get; set; }
 
+
+    private readonly List<MutableString> logOnlyList = [new ("FirstCharSeq"), new ("SecondCharSeq"), new ("ThirdCharSeq")];
+
     public PalantírReveal<char[]> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(SecondCharArrayField)
-           .AsString (nameof(SecondCharArrayField), cloaked, ValueFormatString, FormattingFlags)
+           .AsString ($"CloakedRevealer{nameof(SecondCharArrayField)}", cloaked, ValueFormatString, FormattingFlags)
+           .LogOnlyCollectionField.AlwaysAddAllCharSeq(nameof(logOnlyList), logOnlyList)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;

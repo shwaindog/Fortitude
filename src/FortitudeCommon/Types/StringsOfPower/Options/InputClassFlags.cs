@@ -30,11 +30,11 @@ public static class InputClassFlagsExtensions
     public static bool HasAsStringClassesFlag(this InputClassFlags flags) => (flags & AsStringClasses) > 0;
     
     
-    public static bool IsSpanFormattableClassActive(this InputClassFlags flags) => (flags & SpanFormattableClass | AllInputClasses) > 0;
-    public static bool IsStringClassActive(this InputClassFlags flags) => (flags & StringClass | AllInputClasses) > 0;
-    public static bool IsCharArrayClassActive(this InputClassFlags flags) => (flags & StringClass | AllInputClasses) > 0;
-    public static bool IsCharSequenceClassActive(this InputClassFlags flags) => (flags & CharSequenceClass | AllInputClasses) > 0;
-    public static bool IsStringBuilderClassActive(this InputClassFlags flags) => (flags & StringBuilderClass | AllInputClasses) > 0;
+    public static bool IsSpanFormattableClassActive(this InputClassFlags flags) => (flags & (SpanFormattableClass | AllInputClasses)) > 0;
+    public static bool IsStringClassActive(this InputClassFlags flags) => (flags & (StringClass | AllInputClasses)) > 0;
+    public static bool IsCharArrayClassActive(this InputClassFlags flags) => (flags & (CharArrayClass | AllInputClasses)) > 0;
+    public static bool IsCharSequenceClassActive(this InputClassFlags flags) => (flags & (CharSequenceClass | AllInputClasses)) > 0;
+    public static bool IsStringBuilderClassActive(this InputClassFlags flags) => (flags & (StringBuilderClass | AllInputClasses)) > 0;
     
     
     public static bool? IsSpanFormattableClassActive(this InputClassFlags? flags) => flags?.IsSpanFormattableClassActive();
