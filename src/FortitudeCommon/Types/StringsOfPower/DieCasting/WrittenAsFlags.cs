@@ -12,36 +12,62 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 [Flags]
 public enum WrittenAsFlags : ushort
 {
-    Empty                       = 0
-  , AsNull                      = 1
-  , AsString                    = 2
-  , AsValue                     = 4
-  , AsSimple                    = 8
-  , AsCollection                = 16
-  , AsMapCollection             = 32
-  , AsComplex                   = 64
-  , UpgradedToComplex           = 128
-  , WithInstanceId              = 256
-  , WithReferenceToInstanceId   = 512
-  , WithDepthVmemAddress        = 1024
-  , WithClippedDepthSuppression = 2048
-  , RemovedDueDepthSuppression  = 4096
+    Empty                       = 0x00_00
+  , AsNull                      = 0x00_01
+  , AsRaw                       = 0x00_02
+  , AsString                    = 0x00_04
+  , AsValue                     = 0x00_08
+  , AsContent                   = 0x00_10
+  , AsCollection                = 0x00_20
+  , AsMapCollection             = 0x00_40
+  , AsSimple                    = 0x00_80
+  , AsComplex                   = 0x01_00
+  , UpgradedToComplex           = 0x02_00
+  , WithInstanceId              = 0x04_00
+  , WithReferenceToInstanceId   = 0x08_00
+  , WithDepthVmemAddress        = 0x10_00
+  , WithClippedDepthSuppression = 0x20_00
+  , RemovedDueDepthSuppression  = 0x40_00
 }
 
 public static class WrittenAsFlagsExtensions
 {
     public static bool IsEmpty(this WrittenAsFlags flags)                  => flags == Empty;
     public static bool HasAsNullFLag(this WrittenAsFlags flags)            => (flags & AsNull) > 0;
+    public static bool HasAsRawFlag(this WrittenAsFlags flags)                    => (flags & AsRaw) > 0;
     public static bool HasAsStringFlag(this WrittenAsFlags flags)          => (flags & AsString) > 0;
     public static bool HasAsValueFlag(this WrittenAsFlags flags)           => (flags & AsValue) > 0;
-    public static bool HasAsSimpleFlag(this WrittenAsFlags flags)          => (flags & AsSimple) > 0;
+    public static bool HasAsContentFlag(this WrittenAsFlags flags)          => (flags & AsContent) > 0;
     public static bool HasAsCollectionFlag(this WrittenAsFlags flags)      => (flags & AsCollection) > 0;
     public static bool HasAsMapCollectionFlag(this WrittenAsFlags flags)   => (flags & AsMapCollection) > 0;
+    public static bool HasAsSimpleFlag(this WrittenAsFlags flags)         => (flags & AsSimple) > 0;
     public static bool HasAsComplexFlag(this WrittenAsFlags flags)         => (flags & AsComplex) > 0;
     public static bool HasUpgradedToComplexFlag(this WrittenAsFlags flags) => (flags & UpgradedToComplex) > 0;
 
+    public static bool HasAllOf(this WrittenAsFlags flags, WrittenAsFlags checkAllFound)    => (flags & checkAllFound) == checkAllFound;
+    public static bool HasNoneOf(this WrittenAsFlags flags, WrittenAsFlags checkNonAreSet)  => (flags & checkNonAreSet) == 0;
+    public static bool HasAnyOf(this WrittenAsFlags flags, WrittenAsFlags checkAnyAreFound) => (flags & checkAnyAreFound) > 0;
+    public static bool IsExactly(this WrittenAsFlags flags, WrittenAsFlags checkAllFound)   => flags == checkAllFound;
+    
+    public static WrittenAsFlags ToMultiFieldEquivalent(this WrittenAsFlags value) =>
+        value switch
+        {
+           _ when value.HasAsSimpleFlag() => (value & ~AsSimple) | AsComplex
+          , _                            => value
+        };
+    
+    public static WrittenAsFlags ToNoFieldEquivalent(this WrittenAsFlags value) =>
+        value switch
+        {
+            _ when value.HasAsComplexFlag() => (value & ~AsComplex) | AsSimple
+          , _                           => value
+        };
+
+    public static bool NoFieldNames(this WrittenAsFlags value) =>
+        value.HasNoneOf(AsComplex | AsMapCollection) || value.HasAnyOf(AsSimple | AsRaw | AsNull);
+
     public static bool SupportsMultipleFields(this WrittenAsFlags flags) =>
-        flags.HasAsComplexFlag() || flags.HasAsMapCollectionFlag();
+        flags.HasAnyOf(AsComplex | AsMapCollection);
 
     public static WrittenAsFlags WrittenAsFromFirstCharacter(this char firstChar) =>
         firstChar switch

@@ -364,7 +364,7 @@ public static class TypeExtensions
         type != null && (type.IsSpanFormattableCached() || type.IsNullableSpanFormattableCached());
 
     public static bool IsStringBearerOrNullableCached(this Type? type) =>
-        type != null && TypeIsNullableSpanFormattableCache.GetOrAdd(type, t => t.IsStringBearerOrNullable());
+        type != null && TypeIsStringBearerCache.GetOrAdd(type, t => t.IsStringBearerOrNullable());
 
     public static bool IsStringBearerOrNullable(this Type type) =>
         type.IsStringBearer() || type.IsNullableStringBearer();

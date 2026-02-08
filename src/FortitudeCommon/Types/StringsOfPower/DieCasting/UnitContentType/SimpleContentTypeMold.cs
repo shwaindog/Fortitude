@@ -5,6 +5,7 @@ using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.WrittenAsFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 
@@ -21,7 +22,7 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, Simp
           , string? typeName
           , int remainingGraphDepth
           , VisitResult moldGraphVisit
-          , WriteMethodType writeMethodType  
+          , WrittenAsFlags writeMethodType  
           , FormatFlags createFormatFlags)
     {
         InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
@@ -30,7 +31,7 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, Simp
         return this;
     }
 
-    protected override void SourceBuilderComponentAccess(WriteMethodType writeMethod)
+    protected override void SourceBuilderComponentAccess(WrittenAsFlags writeMethod)
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
         MoldStateField = recycler.Borrow<ContentTypeDieCast<SimpleContentTypeMold, SimpleContentJoinMold>>()
@@ -47,7 +48,7 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, Simp
     
     public override void FinishTypeOpening()
     {
-      if (Msf.CurrentWriteMethod != WriteMethodType.MoldSimpleContentType)
+      if (Msf.CurrentWriteMethod.HasNoneOf(AsSimple))
       {
         Msf.Master.UpdateVisitWriteMethod(MoldVisit.RegistryId, MoldVisit.CurrentVisitIndex, Msf.CurrentWriteMethod);  
       }
@@ -209,8 +210,9 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, Simp
     , FormatFlags formatFlags = AsValueContent) =>
       Msf.FieldValueOrDefaultNext("", value, defaultValue, false, formatString ?? "", formatFlags);
     
-    public SimpleContentJoinMold  AsValue(string value, FormatFlags formatFlags = AsValueContent) =>
-      Msf.FieldValueOrDefaultNext("", value, "0", false, "", formatFlags);
+    public SimpleContentJoinMold  AsValue(string value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    , FormatFlags formatFlags = AsValueContent) =>
+      Msf.FieldValueOrDefaultNext("", value, 0, int.MaxValue, "0",  formatString ?? "", formatFlags);
 
     public SimpleContentJoinMold  AsValue(string value, int startIndex, int length = int.MaxValue
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -447,12 +449,12 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, Simp
     public SimpleContentJoinMold  AsString(string value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
-      Msf.FieldStringOrDefaultNext("", value, "", false, formatString ?? "", formatFlags);
+      Msf.FieldStringOrDefaultNext("", value, 0, int.MaxValue,  "", formatString ?? "", formatFlags);
 
     public SimpleContentJoinMold  AsStringOrNull(string? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
-      Msf.FieldStringOrDefaultNext("", value, "", true, formatString ?? "", formatFlags);
+      Msf.FieldStringOrDefaultNext("", value, 0, int.MaxValue, "", formatString ?? "", formatFlags);
 
     public SimpleContentJoinMold  AsString(string value, int startIndex
     , int length = int.MaxValue, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null

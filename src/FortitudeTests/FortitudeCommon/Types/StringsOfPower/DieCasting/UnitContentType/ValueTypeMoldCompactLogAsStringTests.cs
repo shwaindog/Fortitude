@@ -98,7 +98,7 @@ public class ContentTypeMoldCompactLogAsStringTests : ContentTypeMoldAsStringTes
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(StringBearerTestData.AllStringBearerExpectations[26], ScaffoldingRegistry.AllScaffoldingTypes[1210]
+        ExecuteIndividualScaffoldExpectation(BoolTestData.AllBoolExpectations[3], ScaffoldingRegistry.AllScaffoldingTypes[1200]
                                            , StringBuilderType.CharArrayStringBuilder);
     }
 

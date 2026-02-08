@@ -31,7 +31,7 @@ public interface ITypeMolderDieCast : IRecyclableObject, ITransferState
 
     ushort IndentLevel { get; }
     
-    WriteMethodType CurrentWriteMethod { get; set; }
+    WrittenAsFlags CurrentWriteMethod { get; set; }
 
     bool SupportsMultipleFields { get; }
 
@@ -151,10 +151,10 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
     public TExt StyleTypeBuilder { get; private set; } = null!;
 
     private TypeMolder.MoldPortableState typeBuilderState = null!;
-    private WriteMethodType              currentWriteMethod;
+    private WrittenAsFlags               currentWriteMethod;
 
     public TypeMolderDieCast<TExt> Initialize
-        (TExt externalTypeBuilder, TypeMolder.MoldPortableState typeBuilderPortableState, WriteMethodType writeMethod)
+        (TExt externalTypeBuilder, TypeMolder.MoldPortableState typeBuilderPortableState, WrittenAsFlags writeMethod)
     {
         StyleTypeBuilder    = externalTypeBuilder;
         typeBuilderState    = typeBuilderPortableState;
@@ -245,9 +245,9 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
 
     public ushort IndentLevel => (ushort)typeBuilderState.Master.IndentLevel;
 
-    public WriteMethodType InitialWriteMethod { get; private set; }
+    public WrittenAsFlags InitialWriteMethod { get; private set; }
 
-    public WriteMethodType CurrentWriteMethod
+    public WrittenAsFlags CurrentWriteMethod
     {
         get => currentWriteMethod;
         set
@@ -390,8 +390,8 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
 
     public override void StateReset()
     {
-        InitialWriteMethod = WriteMethodType.None;
-        currentWriteMethod = WriteMethodType.None;
+        InitialWriteMethod = WrittenAsFlags.Empty;
+        currentWriteMethod = WrittenAsFlags.Empty;
         moldFlags          = IsEmptyFlag;
         StyleTypeBuilder   = null!;
         typeBuilderState   = null!;

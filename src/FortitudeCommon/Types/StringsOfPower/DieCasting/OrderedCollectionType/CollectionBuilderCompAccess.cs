@@ -9,7 +9,7 @@ public class CollectionBuilderCompAccess<TOCMold> : TypeMolderDieCast<TOCMold> w
 {
 
     public CollectionBuilderCompAccess<TOCMold> InitializeOrderCollectionComponentAccess
-        (TOCMold externalTypeBuilder, TypeMolder.MoldPortableState typeBuilderPortableState, WriteMethodType writeMethod)
+        (TOCMold externalTypeBuilder, TypeMolder.MoldPortableState typeBuilderPortableState, WrittenAsFlags writeMethod)
     {
         writeMethod = typeBuilderPortableState.MoldGraphVisit.IsARevisit 
                    || writeMethod.SupportsMultipleFields() && typeBuilderPortableState.Master.Style.IsLog()

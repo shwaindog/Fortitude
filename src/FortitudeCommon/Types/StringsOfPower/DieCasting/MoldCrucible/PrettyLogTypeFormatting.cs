@@ -42,7 +42,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
           && (mergedFlags.HasAddTypeNameFieldFlag()
            || !StyleOptions.LogSuppressDisplayTypeNames.Any(s => buildTypeFullName.StartsWith(s)))))
         {
-            var isComplexContentType = mdc.CurrentWriteMethod.IsContentType();
+            var isComplexContentType = mdc.CurrentWriteMethod.HasAsContentFlag();
             if (isComplexContentType)
             {
                 Gb.AppendContent(RndBrktOpn);

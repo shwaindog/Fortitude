@@ -1281,8 +1281,9 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         var wasSuccessful = customStringFormatter.TryFormat(arg0, this, format, formatFlags);
         if (wasSuccessful != 0) return this;
         var preAppendLen = sb.Length;
-        sb.AppendFormat(format, arg0);
-        if (preAppendLen < sb.Length) customStringFormatter.ProcessAppendedRange(this, preAppendLen);
+        if (format.IsValidFormatString()) { sb.AppendFormat(format, arg0); }
+        else { sb.Append(arg0); }
+        if (preAppendLen < sb.Length) customStringFormatter.ProcessAppendedRange(this, preAppendLen, formatFlags);
         return this;
     }
 

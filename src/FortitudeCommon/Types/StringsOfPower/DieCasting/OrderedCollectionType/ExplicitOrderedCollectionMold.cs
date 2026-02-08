@@ -20,7 +20,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , WriteMethodType writeMethodType  
+      , WrittenAsFlags writeMethodType  
       , FormatFlags createFormatFlags )
     {
         InitializeOrderedCollectionBuilder(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
@@ -255,7 +255,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
 
     public AppendSummary AppendCollectionComplete() => Complete();
 
-    protected override void SourceBuilderComponentAccess(WriteMethodType writeMethod)
+    protected override void SourceBuilderComponentAccess(WrittenAsFlags writeMethod)
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
         MoldStateField = recycler.Borrow<CollectionBuilderCompAccess<ExplicitOrderedCollectionMold<TElement>>>()

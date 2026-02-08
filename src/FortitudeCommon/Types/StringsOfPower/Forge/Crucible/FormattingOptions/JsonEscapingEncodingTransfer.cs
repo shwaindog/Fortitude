@@ -141,7 +141,7 @@ public class JsonEscapingEncodingTransfer : ReusableObject<JsonEscapingEncodingT
         return toBuild;
     }
 
-    protected int ProcessRune(Rune toMap, IStringBuilder destSb, int destStartIndex, bool isInsert = false)
+    protected int ProcessRune(Rune toMap, IStringBuilder destSb, int destStartIndex)
     {
         var codePoint = toMap.Value;
 
@@ -154,12 +154,6 @@ public class JsonEscapingEncodingTransfer : ReusableObject<JsonEscapingEncodingT
             if (exemptRange.WithinRange(codePoint))
             {
                 var numOfChars = toMap.EncodeToUtf16(encoded);
-                if (isInsert)
-                {
-                    var oldLength = destSb.Length;
-                    destSb.Length += numOfChars;
-                    for (var j = oldLength - 1; j >= destStartIndex; j--) { destSb[j + numOfChars] = destSb[j]; }
-                }
                 for (var j = 0; j < numOfChars; j++) { destSb[destStartIndex + j] = encoded[j]; }
                 return numOfChars;
             }
@@ -172,13 +166,6 @@ public class JsonEscapingEncodingTransfer : ReusableObject<JsonEscapingEncodingT
             {
                 var mappedValue = mappedValues[codePoint - offset];
                 var numOfChars  = mappedValue.Length;
-                if (isInsert)
-                {
-                    var oldLength = destSb.Length;
-                    destSb.Length += numOfChars;
-                    for (var j = oldLength - 1; j >= destStartIndex; j--) { destSb[j + numOfChars] = destSb[j]; }
-                }
-                else { destSb.Length += numOfChars - 1; }
                 for (var j = 0; j < numOfChars; j++) { destSb[destStartIndex + j] = mappedValue[j]; }
                 return numOfChars;
             }
@@ -190,7 +177,6 @@ public class JsonEscapingEncodingTransfer : ReusableObject<JsonEscapingEncodingT
             {
                 var numOfChars   = toMap.EncodeToUtf16(twoChars);
                 var escapeLength = 6 * numOfChars;
-                destSb.Length += escapeLength - 1;
                 encoded[0]    =  '\\';
                 encoded[1]    =  'u';
                 encoded.AppendLowestShortAsLowerHex(twoChars[0], 2);
@@ -200,29 +186,11 @@ public class JsonEscapingEncodingTransfer : ReusableObject<JsonEscapingEncodingT
                     encoded[7] = 'u';
                     encoded.AppendLowestShortAsLowerHex(twoChars[1], 8);
                 }
-                if (isInsert)
-                {
-                    var oldLength = destSb.Length;
-                    destSb.Length += numOfChars;
-                    for (var j = oldLength - 1; j >= destStartIndex; j--) { destSb[j + numOfChars] = destSb[j]; }
-                }
-                if (isInsert)
-                {
-                    var oldLength = destSb.Length;
-                    destSb.Length += numOfChars;
-                    for (var j = oldLength - 1; j >= destStartIndex; j--) { destSb[j + numOfChars] = destSb[j]; }
-                }
                 for (var j = 0; j < escapeLength; j++) { destSb[destStartIndex + j] = encoded[j]; }
                 return escapeLength;
             }
         }
         var unmodifiedChars = toMap.EncodeToUtf16(encoded);
-        if (isInsert)
-        {
-            var oldLength = destSb.Length;
-            destSb.Length += unmodifiedChars;
-            for (var j = oldLength - 1; j >= destStartIndex; j--) { destSb[j + unmodifiedChars] = destSb[j]; }
-        }
         for (var j = 0; j < unmodifiedChars; j++) { destSb[destStartIndex + j] = encoded[j]; }
         return unmodifiedChars;
     }
@@ -280,7 +248,7 @@ public class JsonEscapingEncodingTransfer : ReusableObject<JsonEscapingEncodingT
         return unmodifiedChars;
     }
 
-    protected int ProcessRune(Rune toMap, Span<char> destSpan, int destStartIndex, int preAppendDestSpanEnd = int.MaxValue, bool isInsert = false)
+    protected int ProcessRune(Rune toMap, Span<char> destSpan, int destStartIndex)
     {
         var        codePoint = toMap.Value;
         Span<char> twoChars  = stackalloc char[2];
@@ -292,12 +260,6 @@ public class JsonEscapingEncodingTransfer : ReusableObject<JsonEscapingEncodingT
             {
                 var subSpan    = destSpan[destStartIndex..];
                 var numOfChars = 0;
-                if (isInsert)
-                {
-                    var oldLength = preAppendDestSpanEnd;
-                    numOfChars = toMap.IsBmp ? 1 : 2;
-                    for (var j = oldLength - 1; j >= destStartIndex; j--) { destSpan[j + numOfChars] = destSpan[j]; }
-                }
                 numOfChars = toMap.EncodeToUtf16(subSpan);
                 return numOfChars;
             }
@@ -310,11 +272,6 @@ public class JsonEscapingEncodingTransfer : ReusableObject<JsonEscapingEncodingT
             {
                 var mappedValue = mappedValues[codePoint - offset];
                 var numOfChars  = mappedValue.Length;
-                if (isInsert)
-                {
-                    var oldLength = preAppendDestSpanEnd;
-                    for (var j = oldLength - 1; j >= destStartIndex; j--) { destSpan[j + numOfChars] = destSpan[j]; }
-                }
                 for (var j = 0; j < numOfChars; j++) { destSpan[destStartIndex + j] = mappedValue[j]; }
                 return numOfChars;
             }
@@ -337,12 +294,6 @@ public class JsonEscapingEncodingTransfer : ReusableObject<JsonEscapingEncodingT
                 }
                 return escapeLength;
             }
-        }
-        if (isInsert)
-        {
-            var oldLength  = preAppendDestSpanEnd;
-            var numOfChars = toMap.IsBmp ? 1 : 2;
-            for (var j = oldLength - 1; j >= destStartIndex; j--) { destSpan[j + numOfChars] = destSpan[j]; }
         }
         var unmodifiedSpan = destSpan[destStartIndex..];
         return toMap.EncodeToUtf16(unmodifiedSpan);
@@ -646,7 +597,7 @@ public class JsonEscapingEncodingTransfer : ReusableObject<JsonEscapingEncodingT
 
     protected int CountEncodedChars(Rune toMap, Span<char> dummyBuffer)
     {
-        return ProcessRune(toMap, dummyBuffer, 0, 1, false);
+        return ProcessRune(toMap, dummyBuffer, 0);
     }
 
     public int CalculateEncodedLength(ReadOnlySpan<char> source, int sourceFrom = 0, int maxTransferCount = int.MaxValue)
@@ -889,18 +840,26 @@ public class JsonEscapingEncodingTransfer : ReusableObject<JsonEscapingEncodingT
         var i      = Math.Clamp(sourceFrom, 0, source.Length);
         var end    = Math.Clamp(capLen + i, i, source.Length);
 
-        sb.EnsureCapacity(CalculateEncodedLength(source, sourceFrom, capLen));
+        var encodedSize = CalculateEncodedLength(source, sourceFrom, capLen);
+        sb.EnsureCapacity(encodedSize);
 
         var  originalLength = sb.Length;
         bool isAppend       = false;
-        if (destStartIndex == int.MaxValue || destStartIndex > sb.Length)
+        var  desti          = Math.Clamp(destStartIndex, 0, sb.Length);
+        if (destStartIndex == int.MaxValue || destStartIndex >= sb.Length)
         {
-            destStartIndex = originalLength;
-            isAppend       = true;
+            sb.Length += encodedSize;
+            desti     =  originalLength;
         }
-        else if (destStartIndex < sb.Length)
+        else if(isInsert)
         {
-            if (destStartIndex + end > sb.Length) { sb.Length = destStartIndex + end; }
+            sb.Length      += encodedSize;
+            var oldLength = originalLength;
+            for (var j = oldLength - 1; j >= destStartIndex; j--) { sb[j + encodedSize] = sb[j]; }
+        }
+        else
+        {
+            sb.Length = Math.Max(originalLength, destStartIndex + encodedSize);
         }
         int countAdded = 0;
         for (; i < end; i++)
@@ -909,29 +868,23 @@ public class JsonEscapingEncodingTransfer : ReusableObject<JsonEscapingEncodingT
             if (iChar.IsSingleCharRune())
             {
                 var iRune = new Rune(iChar);
-                int appended;
-                if (isAppend) { appended = ProcessAppendRune(iRune, sb); }
-                else
-                {
-                    if (destStartIndex + countAdded + 6 > sb.Length) { sb.Length = destStartIndex + countAdded + 6; }
-                    appended = ProcessRune(iRune, sb, destStartIndex + countAdded, isInsert);
-                }
-                countAdded += appended;
+                var added = ProcessRune(iRune, sb, desti);
+                countAdded += added;
+                desti      += added;
             }
             else if (i + 1 < end)
             {
                 var iRune = new Rune(iChar, source[++i]);
-                int appended;
-                if (isAppend) { appended = ProcessAppendRune(iRune, sb); }
-                else
-                {
-                    if (destStartIndex + countAdded + 12 > sb.Length) { sb.Length = destStartIndex + countAdded + 12; }
-                    appended = ProcessRune(iRune, sb, destStartIndex + countAdded, isInsert);
-                }
-                countAdded += appended;
+                var added = ProcessRune(iRune, sb, desti);
+                countAdded += added;
+                desti      += added;
             }
         }
-        if (!isAppend && !isInsert) { sb.Length = Math.Max(originalLength, destStartIndex + countAdded); }
+        // if (!isAppend && !isInsert)
+        // {
+        //     sb.Length = Math.Max(originalLength, destStartIndex + countAdded);
+        //     return Math.Max(0, destStartIndex + countAdded - originalLength);
+        // }
         return countAdded;
     }
 
@@ -940,17 +893,24 @@ public class JsonEscapingEncodingTransfer : ReusableObject<JsonEscapingEncodingT
     {
         var sourceAppendLen = source.Length;
 
-        var capLen = Math.Clamp(maxTransferCount, 0, sourceAppendLen);
-        var i      = Math.Clamp(sourceFrom, 0, sourceAppendLen);
-        var end    = Math.Clamp(capLen + i, 0, sourceAppendLen);
-        var desti  = destStartIndex;
+        var capLen      = Math.Clamp(maxTransferCount, 0, sourceAppendLen);
+        var i           = Math.Clamp(sourceFrom, 0, sourceAppendLen);
+        var end         = Math.Clamp(capLen + i, 0, sourceAppendLen);
+        var desti       = destStartIndex;
+        
+        var encodedSize = CalculateEncodedLength(source, sourceFrom, capLen);
+        if(isInsert)
+        {
+            var oldLength = preAppendDestSpanEnd;
+            for (var j = oldLength - 1; j >= destStartIndex; j--) { destination[j + encodedSize] = destination[j]; }
+        }
         for (; i < end && desti < destination.Length; i++)
         {
             var iChar = source[i];
             if (iChar.IsSingleCharRune())
             {
                 var iRune = new Rune(iChar);
-                desti += ProcessRune(iRune, destination, desti, preAppendDestSpanEnd, isInsert);
+                desti += ProcessRune(iRune, destination, desti);
             }
             else if (i + 1 < end && desti + 1 < destination.Length)
             {
@@ -976,7 +936,7 @@ public class JsonEscapingEncodingTransfer : ReusableObject<JsonEscapingEncodingT
         int destStartIndex = int.MaxValue, int maxTransferCount = int.MaxValue)
     {
         var preTransferLen = destSb.Length;
-        if (!parentJsonOptions.CharBufferWritesAsCharCollection)
+        if (parentJsonOptions.CharBufferWritesAsCharCollection)
         {
             int j;
             var capLen     = Math.Clamp(maxTransferCount, 0, source.Length);
@@ -1005,7 +965,7 @@ public class JsonEscapingEncodingTransfer : ReusableObject<JsonEscapingEncodingT
     public virtual int Transfer(ICustomStringFormatter stringFormatter, char[] source, int sourceFrom, Span<char> destSpan, int destStartIndex = 0
       , int maxTransferCount = int.MaxValue)
     {
-        if (!parentJsonOptions.CharBufferWritesAsCharCollection)
+        if (parentJsonOptions.CharBufferWritesAsCharCollection)
         {
             var charsAdded = 0;
             var capLen     = Math.Clamp(maxTransferCount, 0, source.Length);

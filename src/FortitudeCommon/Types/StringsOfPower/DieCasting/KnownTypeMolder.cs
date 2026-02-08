@@ -27,7 +27,7 @@ public interface IStateTransitioningTransitioningKnownTypeMolder : IDisposable
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , WriteMethodType writeMethodType  
+      , WrittenAsFlags writeMethodType  
       , FormatFlags createFormatFlags);
 
     void Free();
@@ -55,7 +55,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , WriteMethodType writeMethodType  
+      , WrittenAsFlags writeMethodType  
       , FormatFlags createFormatFlags)
     {
         InitializeStyledTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName, remainingGraphDepth
@@ -92,11 +92,11 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
     public override void FinishTypeOpening()
     {
         if (PortableState.CreateFormatFlags.HasSuppressOpening()) return;
-        CompleteTypeOpeningToTypeFields();
+        CompleteTypeOpeningToTypeFields(MoldStateField.StyleFormatter);
     }
 
     public abstract void StartFormattingTypeOpening(IStyledTypeFormatting usingFormatter);
-    public virtual  void CompleteTypeOpeningToTypeFields() { }
+    public virtual  void CompleteTypeOpeningToTypeFields(IStyledTypeFormatting usingFormatter) { }
 
     public virtual void AppendClosing()
     {
@@ -177,12 +177,12 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         return false;
     }
 
-    protected virtual void SourceBuilderComponentAccess(WriteMethodType writeMethodType)
+    protected virtual void SourceBuilderComponentAccess(WrittenAsFlags currentWriteMethod)
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
         MoldStateField =
             recycler.Borrow<TypeMolderDieCast<TMold>>()
-                    .Initialize((TMold)(ITypeBuilderComponentSource<TMold>)this, PortableState, writeMethodType);
+                    .Initialize((TMold)(ITypeBuilderComponentSource<TMold>)this, PortableState, currentWriteMethod);
     }
 
     protected override void InheritedStateReset()

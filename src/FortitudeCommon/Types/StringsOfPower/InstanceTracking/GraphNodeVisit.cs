@@ -21,7 +21,7 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
           , Type ActualType
           , Type VisitedAsType
           , ITypeMolderDieCast? TypeBuilderComponentAccess  
-          , WriteMethodType writeMethod
+          , WrittenAsFlags WrittenAs
           , object? VisitedInstance
           , int IndentLevel  
           , CallerContext CallerContext  
@@ -31,7 +31,6 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
           , int RevisitCount = 0
           , int FirstFieldBufferIndex = -1
           , int BufferLength = -1
-          // , int ExcludeRevisitMatchCountDown = 0
           , bool HasInsertedInstanceId = false  
         )
         {
@@ -41,7 +40,6 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
             this.ActualType                 = ActualType;
             this.ObjVisitIndex              = ObjVisitIndex;
             this.TypeBuilderComponentAccess = TypeBuilderComponentAccess;
-            WriteMethod                     = writeMethod;
             this.VisitedInstance            = VisitedInstance;
             this.IndentLevel                = IndentLevel;
             this.CallerContext.CopyFrom(CallerContext);
@@ -51,6 +49,7 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
             this.TypeOpenBufferIndex   = TypeOpenBufferIndex;
             this.FirstFieldBufferIndex = FirstFieldBufferIndex < 0 ? TypeOpenBufferIndex : FirstFieldBufferIndex;
             this.BufferLength          = BufferLength;
+            this.WrittenAs             = WrittenAs;
             
             this.RevisitCount          = RevisitCount;
             this.HasInsertedInstanceId = HasInsertedInstanceId;
@@ -62,7 +61,7 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
         public GraphNodeVisit SetHasInsertedRefId(bool toValue) => this with { HasInsertedInstanceId = toValue };
 
-        public GraphNodeVisit UpdateVisitWriteType(WriteMethodType writeMethod) => this with { WriteMethod = writeMethod };
+        public GraphNodeVisit UpdateVisitWriteType(WrittenAsFlags writtenAs) => this with { WrittenAs = writtenAs };
 
         public GraphNodeVisit UpdateVisitAddFormatFlags(FormatFlags flagsToAdd) => this with { CurrentFormatFlags = CurrentFormatFlags | flagsToAdd };
 
@@ -73,11 +72,11 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
               , IndentLevel  = indentLevel
             };
 
-        public GraphNodeVisit MarkContentEndClearComponentAccess(int contentEndIndex, WriteMethodType writeMethod) =>
+        public GraphNodeVisit MarkContentEndClearComponentAccess(int contentEndIndex, WrittenAsFlags writtenAsFlags) =>
             this with
             {
                 BufferLength = contentEndIndex - TypeOpenBufferIndex
-              , WriteMethod = writeMethod
+              , WrittenAs = writtenAsFlags
               , TypeBuilderComponentAccess = null
             };
 
@@ -104,16 +103,6 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
             {
                 BufferLength = BufferLength + deltaLength
             };
-        
-        //
-        // public GraphNodeVisit DecrementExcludeRevisitCountDown()
-        // {
-        //     return this with
-        //     {
-        //         ExcludeRevisitMatchCountDown = ExcludeRevisitMatchCountDown - 1
-        //       , CurrentBufferExpectedFirstFieldStart = CurrentBufferExpectedFirstFieldStart
-        //     };
-        // }
 
         public GraphNodeVisit ShiftTypeBufferIndex(int amountToShift) =>
             this with
@@ -131,7 +120,6 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
         public int ParentVisitIndex { get; init; }
         public Type VisitedAsType { get; init; }
         public Type ActualType { get; init; }
-        public WriteMethodType WriteMethod { get; init; }
         public object? VisitedInstance { get; init; }
         public int TypeOpenBufferIndex { get; init; }
         public CallerContext CallerContext { get; init; }
@@ -139,13 +127,13 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
         
         public FormatFlags CurrentFormatFlags { get; init; }
         
-        // public int ExcludeRevisitMatchCountDown { get; init; }
-        
         public int RevisitCount { get; init; }
         
         public int IndentLevel { get; init; }
         
         public bool HasInsertedInstanceId { get; init; }
+        
+        public WrittenAsFlags WrittenAs { get; init; }
         public int GraphDepth => FormattingState.GraphDepth;
         public int RemainingGraphDepth => FormattingState.RemainingGraphDepth;
 

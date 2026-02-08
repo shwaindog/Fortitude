@@ -11,9 +11,9 @@ namespace FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 public class DefaultStringFormatter : CustomStringFormatter, ICustomStringFormatter
 {
 
-    public override int ProcessAppendedRange(IStringBuilder sb, int fromIndex) => 0;
+    public override int ProcessAppendedRange(IStringBuilder sb, int fromIndex, FormatSwitches formatSwitches = DefaultCallerTypeFlags) => 0;
 
-    public override int ProcessAppendedRange(Span<char> destSpan, int fromIndex, int length) => 0;
+    public override int ProcessAppendedRange(Span<char> destSpan, int fromIndex, int length, FormatSwitches formatSwitches = DefaultCallerTypeFlags) => 0;
 
     public override int FormatReadOnlySpan<TFmt>(ReadOnlySpan<TFmt?> arg0, IStringBuilder sb, string? formatString = null
       , FormatSwitches formatSwitches = EncodeInnerContent) where TFmt : default

@@ -43,8 +43,8 @@ public interface ICustomStringFormatter : IReusableObject<ICustomStringFormatter
     FormatSwitches ResolveStringFormattingFlags<T>(char lastNonWhiteSpace, T input, FormatSwitches callerFormattingFlags
       , string formatString = "");
 
-    int ProcessAppendedRange(IStringBuilder sb, int fromIndex);
-    int ProcessAppendedRange(Span<char> destSpan, int fromIndex, int length);
+    int ProcessAppendedRange(IStringBuilder sb, int fromIndex, FormatSwitches formatSwitches = DefaultCallerTypeFlags);
+    int ProcessAppendedRange(Span<char> destSpan, int fromIndex, int length, FormatSwitches formatSwitches = DefaultCallerTypeFlags);
 
     int Format(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder sb, ReadOnlySpan<char> formatString, int maxTransferCount = int.MaxValue
       , FormatSwitches formatFlags = EncodeInnerContent);

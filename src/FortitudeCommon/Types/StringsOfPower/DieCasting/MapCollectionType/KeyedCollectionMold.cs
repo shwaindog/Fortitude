@@ -23,7 +23,7 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , WriteMethodType writeMethodType  
+      , WrittenAsFlags writeMethodType  
       , FormatFlags createFormatFlags )
     {
         InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeVisitedAs, typeName
@@ -43,7 +43,7 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
         usingFormatter.AppendKeyedCollectionStart(MoldStateField.Sb, MoldStateField.TypeBeingBuilt, keyValueTypes.Value.Key, keyValueTypes.Value.Value);
     }
 
-    public override void CompleteTypeOpeningToTypeFields() { }
+    public override void CompleteTypeOpeningToTypeFields(IStyledTypeFormatting usingFormatter) { }
 
     public override void AppendClosing()
     {

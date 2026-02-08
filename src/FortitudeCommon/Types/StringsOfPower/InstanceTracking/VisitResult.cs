@@ -5,7 +5,7 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
 public record struct VisitResult
 (
-    int RegistryId = -1
+    int RegistryId = VisitResult.NoVisitCheckPerformedRegistryId
   , int CurrentVisitIndex = -1
   , int InstanceId = 0
   , int FirstVisitIndex = -1
