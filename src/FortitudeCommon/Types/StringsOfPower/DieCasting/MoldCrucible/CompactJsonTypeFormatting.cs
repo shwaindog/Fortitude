@@ -14,6 +14,7 @@ using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FieldContentHandlingExtensions;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.WrittenAsFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
@@ -124,6 +125,14 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         setFlags |= (FormatFlags)ResolveStringFormattingFlags
             (sb.LastNonWhiteChar(), input, (FormatSwitches)setFlags, formatString);
         if (isFieldName) { setFlags |= EnsureFormattedDelimited; }
+        if (!callerFormattingFlags.HasContentTreatmentFlags() && typeof(T) == typeof(object))
+        {
+            var actualType = input?.GetType() ?? typeof(object);
+            if (!actualType.IsSpanFormattableCached() && !actualType.IsStringBearer() || actualType.IsAnyTypeHoldingChars())
+            {
+                setFlags |= EnsureFormattedDelimited;
+            }
+        }
 
         return setFlags;
     }
@@ -193,19 +202,21 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         return modifiedFlags | AsStringContent;
     }
 
-    public FormatFlags GetFormatterContentHandlingFlags<T>(ITheOneString tos, T forValue, Type actualType, WriteMethodType proposedWriteType
+    public FormatFlags GetFormatterContentHandlingFlags<T>(ITheOneString tos, T forValue, Type actualType, WrittenAsFlags proposedWriteType
       , VisitResult visitResult, FormatFlags formatFlags) =>
         GetFormatterContentHandlingFlags(tos, actualType, proposedWriteType, visitResult, formatFlags);
 
-    public FormatFlags GetFormatterContentHandlingFlags(ITheOneString tos, Type actualType, WriteMethodType proposedWriteType
+    public FormatFlags GetFormatterContentHandlingFlags(ITheOneString tos, Type actualType, WrittenAsFlags proposedWriteType
       , VisitResult visitResult, FormatFlags formatFlags)
     {
         var resolvedFlags = formatFlags;
 
         switch (proposedWriteType)
         {
-            case WriteMethodType.MoldSimpleContentType:
-            case WriteMethodType.MoldComplexContentType:
+            case AsContent | AsComplex | AsRaw:
+            case AsContent | AsComplex:
+            case AsContent | AsSimple | AsRaw:
+            case AsContent | AsSimple:
                 resolvedFlags |= formatFlags | ContentAllowText | ContentAllowText | ContentAllowAnyValueType;
                 if (visitResult.IsARevisit)
                 {
@@ -242,9 +253,11 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
     public virtual int SizeFieldValueSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         LayoutEncoder.CalculateEncodedLength(Cln);
 
-    public virtual SeparatorPaddingRanges AppendFieldValueSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-        Gb.AppendSeparator(Cln)
-          .SnapshotLastAppendSequence(formatFlags).SeparatorPaddingRange!.Value;
+    public virtual SeparatorPaddingRanges AppendFieldValueSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags)
+    {
+        return Gb.AppendSeparator(Cln)
+                 .SnapshotLastAppendSequence(formatFlags).SeparatorPaddingRange ?? new SeparatorPaddingRanges();
+    }
 
     public virtual int SizeToNextFieldSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -314,12 +327,12 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
     {
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         formatString ??= "";
-        var writeFlags                = WrittenAsFlags.AsNull;
+        var writeFlags                = AsNull;
         var fieldNameShouldAddDbltQts = !formatString.IsDblQtBounded() && !formatFlags.HasDisableAutoDelimiting();
         if (formatFlags.HasIsFieldNameFlag() && fieldNameShouldAddDbltQts)
         {
             Gb.AppendDelimiter(DblQt);
-            writeFlags |= WrittenAsFlags.AsString;
+            writeFlags |= AsString;
         }
         if (formatString.HasFormatStringPadding() || formatString.PrefixSuffixLength() > 0)
         {
@@ -338,7 +351,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
     }
 
     public virtual int InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, int refId, Type actualType, int typeOpenIndex
-      , WriteMethodType writeMethod, int indexToInsertAt, FormatFlags createTypeFlags, int contentLength = -1
+      , WrittenAsFlags writtenAs, int indexToInsertAt, FormatFlags createTypeFlags, int contentLength = -1
       , ITypeMolderDieCast? liveMoldInternal = null)
     {
         if (createTypeFlags.HasNoRevisitCheck()) return 0;
@@ -362,13 +375,13 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
 
         var prefixInsertSize = 0;
 
-        var alreadySupportsMultipleFields = writeMethod.SupportsMultipleFields();
+        var alreadySupportsMultipleFields = writtenAs.SupportsMultipleFields();
         // first entry spot maybe removed if empty so backtrack to open add one;
         var firstFieldPad = SizeNextFieldPadding(createTypeFlags);
         var isEmpty       = contentLength == 2;
         if (!alreadySupportsMultipleFields)
         {
-            if (liveMoldInternal != null) { liveMoldInternal.CurrentWriteMethod = writeMethod.ToMultiFieldEquivalent(); }
+            if (liveMoldInternal != null) { liveMoldInternal.CurrentWriteMethod = writtenAs.ToMultiFieldEquivalent(); }
             isEmpty          =  true;
             prefixInsertSize += 1; // {
             Gb.IndentLevel++;
@@ -403,6 +416,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
             AddNextFieldPadding(createTypeFlags);
         }
         else if (isEmpty) { AddNextFieldPadding(createTypeFlags); }
+        Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags, true);
+        Gb.MarkContentStart(indexToInsertAt);
         if (instanceInfoFormatFlags.DoesNotHaveDisableFieldNameDelimitingFlag()) Gb.AppendContent(DblQt);
         Gb.AppendContent("$id");
         if (instanceInfoFormatFlags.DoesNotHaveDisableFieldNameDelimitingFlag()) Gb.AppendContent(DblQt);
@@ -429,7 +444,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
                 Gb.IndentLevel--;
                 var suffixInsertSize = SizeNextFieldPadding(createTypeFlags);
                 suffixInsertSize += 1; // }
-                insertBuilder.StartInsertAt(indexToInsertAt + contentLength + prefixInsertSize, suffixInsertSize);
+                insertBuilder.StartInsertAt(typeOpenIndex + contentLength + prefixInsertSize, suffixInsertSize);
                 AddNextFieldPadding(createTypeFlags);
                 Gb.AppendContent(BrcCls);
             }
@@ -455,7 +470,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         return Gb.Sb.Length - preAppendLength;
     }
 
-    public virtual int AppendExistingReferenceId(ITypeMolderDieCast mdc, int refId, WriteMethodType writeMethod, FormatFlags createTypeFlags)
+    public virtual int AppendExistingReferenceId(ITypeMolderDieCast mdc, int refId, WrittenAsFlags currentWriteMethod, FormatFlags createTypeFlags)
     {
         if (createTypeFlags.HasNoRevisitCheck() || createTypeFlags.HasIsFieldNameFlag()) return 0;
         var sb = mdc.Sb;
@@ -469,18 +484,18 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
                 : DisableAutoDelimiting;
         
         var formatFlags = createTypeFlags.HasAsStringContentFlag()
-                       && mdc.CurrentWriteMethod == WriteMethodType.MoldComplexContentType
+                       && mdc.CurrentWriteMethod.HasAsComplexFlag()
                        && LayoutEncoder.Type != EncodingType.PassThrough
             ? createTypeFlags & ~(AsStringContent | EncodeBounds)
             : createTypeFlags;
 
 
-        var alreadySupportsMultipleFields = writeMethod.SupportsMultipleFields()
+        var alreadySupportsMultipleFields = currentWriteMethod.SupportsMultipleFields()
                                          || formatFlags.DoesNotHaveSuppressOpening() && formatFlags.DoesNotHaveSuppressClosing();
         var preAppendLength = sb.Length;
         if (!alreadySupportsMultipleFields)
         {
-            mdc.CurrentWriteMethod = writeMethod.ToMultiFieldEquivalent();
+            mdc.CurrentWriteMethod = currentWriteMethod.ToMultiFieldEquivalent();
             StartComplexTypeOpening(mdc, formatFlags);
             FinishComplexTypeOpening(mdc, formatFlags);
         }
@@ -503,21 +518,21 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
     }
 
     public virtual int AppendInstanceInfoField(ITypeMolderDieCast mdc, string fieldName, ReadOnlySpan<char> description
-      , WriteMethodType writeMethod, FormatFlags createTypeFlags)
+      , WrittenAsFlags currentWriteMethod, FormatFlags createTypeFlags)
     {
         if (createTypeFlags.HasIsFieldNameFlag()) return 0; // fieldNames are marked with this and
         var sb = mdc.Sb;
         var formatter = createTypeFlags.HasAsStringContentFlag()
-                     && mdc.CurrentWriteMethod == WriteMethodType.MoldComplexContentType
+                     && mdc.CurrentWriteMethod.HasAsComplexFlag()
                      && LayoutEncoder.Type != EncodingType.PassThrough
             ? PreviousContextOrThis
             : this;
 
-        var alreadySupportsMultipleFields = writeMethod.SupportsMultipleFields();
+        var alreadySupportsMultipleFields = currentWriteMethod.SupportsMultipleFields();
         var preAppendLength               = sb.Length;
         if (!alreadySupportsMultipleFields)
         {
-            mdc.CurrentWriteMethod = writeMethod.ToMultiFieldEquivalent();
+            mdc.CurrentWriteMethod = currentWriteMethod.ToMultiFieldEquivalent();
             StartComplexTypeOpening(mdc, createTypeFlags);
             FinishComplexTypeOpening(mdc, createTypeFlags);
         }
@@ -548,7 +563,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         var writtenAsFlags = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
         if (formatFlags.DoesNotHaveDisableFieldNameDelimitingFlag())
         {
-            writtenAsFlags |= WrittenAsFlags.AsString;
+            writtenAsFlags |= AsString;
             if (addAsDelimiter)
                 Gb.AppendDelimiter(DblQt);
             else
@@ -576,7 +591,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         var writtenAsFlags = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
         if (formatFlags.DoesNotHaveDisableFieldNameDelimitingFlag() && !formatString.IsDblQtBounded())
         {
-            writtenAsFlags |= WrittenAsFlags.AsString;
+            writtenAsFlags |= AsString;
             if (addAsDelimiter)
                 Gb.AppendDelimiter(DblQt);
             else
@@ -604,7 +619,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         var writtenAsFlags = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
         if (formatFlags.DoesNotHaveDisableFieldNameDelimitingFlag() && !formatString.IsDblQtBounded())
         {
-            writtenAsFlags |= WrittenAsFlags.AsString;
+            writtenAsFlags |= AsString;
             if (addAsDelimiter)
                 Gb.AppendDelimiter(DblQt);
             else
@@ -632,7 +647,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         var writtenAsFlags = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
         if (formatFlags.DoesNotHaveDisableFieldNameDelimitingFlag() && !formatString.IsDblQtBounded())
         {
-            writtenAsFlags |= WrittenAsFlags.AsString;
+            writtenAsFlags |= AsString;
             if (addAsDelimiter)
                 Gb.AppendDelimiter(DblQt);
             else
@@ -660,7 +675,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         var writtenAsFlags = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
         if (formatFlags.DoesNotHaveDisableFieldNameDelimitingFlag() && !formatString.IsDblQtBounded())
         {
-            writtenAsFlags |= WrittenAsFlags.AsString;
+            writtenAsFlags |= AsString;
             if (addAsDelimiter)
                 Gb.AppendDelimiter(DblQt);
             else
@@ -818,7 +833,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         ProcessAppendedRange(sb, contentStart);
         if (withMoldInherited.HasDisableFieldNameDelimitingFlag()
          || mdc.CreateMoldFormatFlags.HasAsStringContentFlag()
-         || sb.WrittenAsFromFirstCharacters(contentStart, Gb) == WrittenAsFlags.AsString)
+         || sb.WrittenAsFromFirstCharacters(contentStart, Gb) == AsString)
         {
             Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
             Gb.MarkContentStart(contentStart);
@@ -841,7 +856,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         {
             mdc.Master.UpdateVisitLength(mdc.Master.ActiveGraphRegistry.RegistryId, appendSummary.VisitNumber, charsInserted);
         }
-        return appendSummary.AddWrittenAsFlags(WrittenAsFlags.AsString).UpdateStringEndRange(charsInserted);
+        return appendSummary.AddWrittenAsFlags(AsString).UpdateStringEndRange(charsInserted);
     }
 
     public virtual AppendSummary FormatBearerFieldName<TBearer>(ITypeMolderDieCast mdc, TBearer styledObj, string? callerFormatString = null
@@ -867,7 +882,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         ProcessAppendedRange(sb, contentStart);
         if (withMoldInherited.HasDisableFieldNameDelimitingFlag()
          || mdc.CreateMoldFormatFlags.HasAsStringContentFlag()
-         || sb.WrittenAsFromFirstCharacters(contentStart, Gb) == WrittenAsFlags.AsString)
+         || sb.WrittenAsFromFirstCharacters(contentStart, Gb) == AsString)
         {
             Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
             Gb.MarkContentStart(contentStart);
@@ -890,7 +905,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         {
             mdc.Master.UpdateVisitLength(mdc.Master.ActiveGraphRegistry.RegistryId, appendSummary.VisitNumber, charsInserted);
         }
-        return appendSummary.AddWrittenAsFlags(WrittenAsFlags.AsString).UpdateStringEndRange(charsInserted);
+        return appendSummary.AddWrittenAsFlags(AsString).UpdateStringEndRange(charsInserted);
     }
 
     public virtual int SizeFormatFieldContents(int sourceLength, FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -912,15 +927,20 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         var    contentStart   = sb.Length;
         if (source is JsonNode jsonNode) { rawValue = jsonNode.ToJsonString(); }
         else { rawValue                             = source.ToString() ?? ""; }
-        if (formatFlags.ShouldDelimit()) 
+        var fmtStringDblQtBounded = formatString.IsDblQtBounded();
+        var shouldDelimit         = formatFlags.ShouldDelimit();
+        var fmtSwitches           = (FormatSwitches)formatFlags;
+        var isNotAsValue                     = !fmtSwitches.HasAsValueContentFlag();
+        if (isNotAsValue) { fmtSwitches |= FormatSwitches.AsStringContent; }
+        if (shouldDelimit && !fmtStringDblQtBounded && isNotAsValue) 
         {
             if (addAsDelimiter)
                 Gb.AppendDelimiter(DblQt);
             else
                 Gb.AppendContent(DblQt);
         }
-        sb.AppendFormat(this, formatString ?? "{0}", rawValue, (FormatSwitches)formatFlags);
-        if (formatFlags.ShouldDelimit()) 
+        sb.AppendFormat(this, formatString ?? "", source, fmtSwitches);
+        if (shouldDelimit && !fmtStringDblQtBounded && isNotAsValue) 
         {
             if (addAsDelimiter)
                 Gb.AppendDelimiter(DblQt);
@@ -998,7 +1018,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         WrittenAsFlags writtenAsFlags = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
         if (formatFlags.ShouldDelimit() && (!formatString.IsDblQtBounded() || formatFlags.HasEncodeBounds()))
         {
-            writtenAsFlags |= WrittenAsFlags.AsString;
+            writtenAsFlags |= AsString;
             if (addAsDelimiter)
                 Gb.AppendDelimiter(DblQt);
             else
@@ -1048,7 +1068,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
             WrittenAsFlags writtenAsFlags = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
             if (formatFlags.ShouldDelimit() && (!formatString.IsDblQtBounded() || formatFlags.HasEncodeBounds()))
             {
-                writtenAsFlags |= WrittenAsFlags.AsString;
+                writtenAsFlags |= AsString;
                 if (addAsDelimiter)
                     Gb.AppendDelimiter(DblQt);
                 else
@@ -1138,7 +1158,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
             WrittenAsFlags writtenAsFlags = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
             if (formatFlags.ShouldDelimit() && (!formatString.IsDblQtBounded() || formatFlags.HasEncodeBounds()))
             {
-                writtenAsFlags |= WrittenAsFlags.AsString;
+                writtenAsFlags |= AsString;
                 if (addAsDelimiter)
                     Gb.AppendDelimiter(DblQt);
                 else
@@ -1225,7 +1245,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         WrittenAsFlags writtenAsFlags = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
         if (formatFlags.ShouldDelimit() && (!formatString.IsDblQtBounded() || formatFlags.HasEncodeBounds()))
         {
-            writtenAsFlags |= WrittenAsFlags.AsString;
+            writtenAsFlags |= AsString;
             if (addAsDelimiter)
                 Gb.AppendDelimiter(DblQt);
             else
@@ -1259,7 +1279,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         if (!callerFormatFlags.HasAsStringContentFlag()
          || mdc.CreateMoldFormatFlags.HasAsStringContentFlag()
          || withMoldInherited.HasDisableAutoDelimiting()
-         || sb.WrittenAsFromFirstCharacters(contentStart, Gb) == WrittenAsFlags.AsString)
+         || sb.WrittenAsFromFirstCharacters(contentStart, Gb) == AsString)
         {
             Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
             Gb.MarkContentStart(contentStart);
@@ -1282,7 +1302,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         {
             mdc.Master.UpdateVisitLength(mdc.Master.ActiveGraphRegistry.RegistryId, appendSummary.VisitNumber, charsInserted);
         }
-        return appendSummary.AddWrittenAsFlags(WrittenAsFlags.AsString).UpdateStringEndRange(charsInserted);
+        return appendSummary.AddWrittenAsFlags(AsString).UpdateStringEndRange(charsInserted);
     }
 
     public virtual AppendSummary FormatBearerFieldContents<TBearer>(ITypeMolderDieCast mdc, TBearer styledObj, string? callerFormatString = null
@@ -1307,7 +1327,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         if (!callerFormatFlags.HasAsStringContentFlag()
          || withMoldInherited.HasDisableAutoDelimiting()
          || mdc.CreateMoldFormatFlags.HasAsStringContentFlag()
-         || sb.WrittenAsFromFirstCharacters(contentStart, Gb) == WrittenAsFlags.AsString)
+         || sb.WrittenAsFromFirstCharacters(contentStart, Gb) == AsString)
         {
             Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
             Gb.MarkContentStart(contentStart);
@@ -1330,7 +1350,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         {
             mdc.Master.UpdateVisitLength(mdc.Master.ActiveGraphRegistry.RegistryId, appendSummary.VisitNumber, charsInserted);
         }
-        return appendSummary.AddWrittenAsFlags(WrittenAsFlags.AsString).UpdateStringEndRange(charsInserted);
+        return appendSummary.AddWrittenAsFlags(AsString).UpdateStringEndRange(charsInserted);
     }
 
 

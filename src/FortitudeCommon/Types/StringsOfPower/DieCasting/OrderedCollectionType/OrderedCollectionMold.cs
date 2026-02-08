@@ -18,7 +18,7 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , WriteMethodType writeMethodType  
+      , WrittenAsFlags writeMethodType  
       , FormatFlags createFormatFlags)
     {
         Initialize(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
@@ -50,7 +50,7 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
         }
     }
 
-    public override void CompleteTypeOpeningToTypeFields() { }
+    public override void CompleteTypeOpeningToTypeFields(IStyledTypeFormatting usingFormatter) { }
 
     public override void AppendClosing()
     {
@@ -79,7 +79,7 @@ public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCo
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , WriteMethodType writeMethodType  
+      , WrittenAsFlags writeMethodType  
       , FormatFlags createFormatFlags)
     {
         InitializeOrderedCollectionBuilder
@@ -90,7 +90,7 @@ public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCo
         return this;
     }
 
-    protected override void SourceBuilderComponentAccess(WriteMethodType writeMethod)
+    protected override void SourceBuilderComponentAccess(WrittenAsFlags writeMethod)
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
         MoldStateField = recycler.Borrow<CollectionBuilderCompAccess<SimpleOrderedCollectionMold>>()
@@ -112,7 +112,7 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , WriteMethodType writeMethodType  
+      , WrittenAsFlags writeMethodType  
       , FormatFlags createFormatFlags)
     {
         InitializeOrderedCollectionBuilder
@@ -124,7 +124,7 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
 
     public override bool IsComplexType => true;
 
-    protected override void SourceBuilderComponentAccess(WriteMethodType writeMethod)
+    protected override void SourceBuilderComponentAccess(WrittenAsFlags writeMethod)
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
         MoldStateField = recycler.Borrow<CollectionBuilderCompAccess<ComplexOrderedCollectionMold>>()

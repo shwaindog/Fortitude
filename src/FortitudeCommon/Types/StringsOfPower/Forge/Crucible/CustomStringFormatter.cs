@@ -225,8 +225,8 @@ public abstract class CustomStringFormatter : RecyclableObject, ICustomStringFor
     protected virtual bool TryAddCustomStyledToStringProvider(Type registeredType, IStringBearerFormattableProvider toRegister) =>
         GlobalCustomStyledToStringFormattableProviders.TryAdd(registeredType, toRegister);
 
-    public abstract int ProcessAppendedRange(IStringBuilder sb, int fromIndex);
-    public abstract int ProcessAppendedRange(Span<char> destSpan, int fromIndex, int length);
+    public abstract int ProcessAppendedRange(IStringBuilder sb, int fromIndex, FormatSwitches formatSwitches = DefaultCallerTypeFlags);
+    public abstract int ProcessAppendedRange(Span<char> destSpan, int fromIndex, int length, FormatSwitches formatSwitches = DefaultCallerTypeFlags);
 
     public virtual int Format(ReadOnlySpan<char> source, int sourceFrom, IStringBuilder sb, ReadOnlySpan<char> formatString
       , int maxTransferCount = int.MaxValue, FormatSwitches formatSwitches = EncodeInnerContent)

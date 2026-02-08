@@ -232,7 +232,7 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     private bool IsSquareBracketsEnclosed(Span<char> toCheck) => toCheck[0] == SqBrktOpnChar && toCheck[^1] == SqBrktClsChar;
 
 
-    public override int ProcessAppendedRange(IStringBuilder sb, int fromIndex)
+    public override int ProcessAppendedRange(IStringBuilder sb, int fromIndex, FormatSwitches formatSwitches = DefaultCallerTypeFlags)
     {
         var originalSbLen = sb.Length;
         var appendLen     = originalSbLen - fromIndex;
@@ -240,21 +240,26 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var scratchFull = stackalloc char[appendLen + 2].ResetMemory();
             for (int i = 0; i < appendLen; i++) { scratchFull[i + 1] = sb[fromIndex + i]; }
-            return ProcessAppended(sb, scratchFull, fromIndex);
+            return ProcessAppended(sb, scratchFull, fromIndex, formatSwitches);
         }
         var largeScrachBuffer = (appendLen + 2).SourceRecyclingCharArray();
         var fullSpan          = largeScrachBuffer.RemainingAsSpan();
         largeScrachBuffer.Insert(1, sb, fromIndex, appendLen);
         var boundedScratchSpan = fullSpan[0.. (appendLen + 2)];
-        var change             = ProcessAppended(sb, boundedScratchSpan, fromIndex);
+        var change             = ProcessAppended(sb, boundedScratchSpan, fromIndex, formatSwitches);
         largeScrachBuffer.DecrementRefCount();
         return change;
     }
 
-    private int ProcessAppended(IStringBuilder sb, Span<char> scratchFull, int fromIndex)
+    private int ProcessAppended(IStringBuilder sb, Span<char> scratchFull, int fromIndex, FormatSwitches formatSwitches = DefaultCallerTypeFlags)
     {
         var originalSbLen = sb.Length;
         var justAppended  = scratchFull[1..^1];
+        if (formatSwitches.HasAsStringContentFlag())
+        {
+            var addedChars = ContentEncoder.OverwriteTransfer(justAppended, 0,sb, fromIndex, justAppended.Length);
+            return addedChars;
+        }
         if (IsBracesEnclosed(justAppended) || IsSquareBracketsEnclosed(justAppended)) { return 0; }
         if (IsDoubleQuoteEnclosed(justAppended))
         {
@@ -272,40 +277,43 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         return sb.Length - originalSbLen;
     }
 
-    public override int ProcessAppendedRange(Span<char> destSpan, int fromIndex, int length)
+    public override int ProcessAppendedRange(Span<char> destSpan, int fromIndex, int length, FormatSwitches formatSwitches = DefaultCallerTypeFlags)
     {
-        var appendLen = length - fromIndex;
-        if (appendLen < 4096)
+        if (length < 4096)
         {
-            var scratchFull = stackalloc char[appendLen + 2].ResetMemory();
-            for (int i = 0; i < appendLen; i++) { scratchFull[i + 1] = destSpan[fromIndex + i]; }
-            return ProcessAppended(destSpan, scratchFull, fromIndex, length);
+            var scratchFull = stackalloc char[length + 2].ResetMemory();
+            for (int i = 0; i < length; i++) { scratchFull[i + 1] = destSpan[fromIndex + i]; }
+            return ProcessAppended(destSpan, scratchFull, fromIndex, length, formatSwitches);
         }
-        var largeScrachBuffer = (appendLen + 2).SourceRecyclingCharArray();
+        var largeScrachBuffer = (length + 2).SourceRecyclingCharArray();
         var fullSpan          = largeScrachBuffer.RemainingAsSpan();
-        largeScrachBuffer.Insert(1, destSpan, fromIndex, appendLen);
-        var boundedScratchSpan = fullSpan[0.. (appendLen + 2)];
-        var change             = ProcessAppended(destSpan, boundedScratchSpan, fromIndex, length);
+        largeScrachBuffer.Insert(1, destSpan, fromIndex, length);
+        var boundedScratchSpan = fullSpan[0.. (length + 2)];
+        var change             = ProcessAppended(destSpan, boundedScratchSpan, fromIndex, length, formatSwitches);
         largeScrachBuffer.DecrementRefCount();
         return change;
     }
 
-    private int ProcessAppended(Span<char> destSpan, Span<char> scratchFull, int fromIndex, int length)
+    private int ProcessAppended(Span<char> destSpan, Span<char> scratchFull, int fromIndex, int length, FormatSwitches formatSwitches = DefaultCallerTypeFlags)
     {
-        var appendLen    = length - fromIndex;
         var justAppended = scratchFull[1..^1];
+        if (formatSwitches.HasAsStringContentFlag())
+        {
+            var addedChars = ContentEncoder.OverwriteTransfer(justAppended, 0,destSpan, fromIndex, justAppended.Length);
+            return addedChars - length;
+        }
         if (IsBracesEnclosed(justAppended) || IsSquareBracketsEnclosed(justAppended)) { return 0; }
         if (IsDoubleQuoteEnclosed(justAppended))
         {
             var charsAdded = ContentEncoder.OverwriteTransfer(justAppended, 0, destSpan, fromIndex, justAppended.Length);
-            return charsAdded - appendLen;
+            return charsAdded - length;
         }
         if (JsonOptions.WrapValuesInQuotes)
         {
             scratchFull[0]  = '\"';
             scratchFull[^1] = '\"';
             var charsAdded = ContentEncoder.OverwriteTransfer(scratchFull, 0, destSpan, fromIndex, scratchFull.Length);
-            return charsAdded - appendLen;
+            return charsAdded - length;
         }
         return 0;
     }

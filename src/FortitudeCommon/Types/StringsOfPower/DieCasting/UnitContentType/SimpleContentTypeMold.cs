@@ -5,6 +5,7 @@ using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.WrittenAsFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 
@@ -21,7 +22,7 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, Simp
           , string? typeName
           , int remainingGraphDepth
           , VisitResult moldGraphVisit
-          , WriteMethodType writeMethodType  
+          , WrittenAsFlags writeMethodType  
           , FormatFlags createFormatFlags)
     {
         InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
@@ -30,7 +31,7 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, Simp
         return this;
     }
 
-    protected override void SourceBuilderComponentAccess(WriteMethodType writeMethod)
+    protected override void SourceBuilderComponentAccess(WrittenAsFlags writeMethod)
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
         MoldStateField = recycler.Borrow<ContentTypeDieCast<SimpleContentTypeMold, SimpleContentJoinMold>>()
@@ -47,7 +48,7 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, Simp
     
     public override void FinishTypeOpening()
     {
-      if (Msf.CurrentWriteMethod != WriteMethodType.MoldSimpleContentType)
+      if (Msf.CurrentWriteMethod.HasNoneOf(AsSimple))
       {
         Msf.Master.UpdateVisitWriteMethod(MoldVisit.RegistryId, MoldVisit.CurrentVisitIndex, Msf.CurrentWriteMethod);  
       }

@@ -1020,8 +1020,17 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         if (wasSuccessful != 0) return this;
 
         var preAppendLen = Length;
-        AppendFormatHelper(null, format, new ReadOnlySpan<object?>(in arg0));
-        if (preAppendLen < Length) customStringFormatter.ProcessAppendedRange(ca.BackingArray.AsSpan(), preAppendLen, Length);
+        if (format.IsValidFormatString())
+            AppendFormatHelper(null, format, new ReadOnlySpan<object?>(in arg0));
+        else
+            Append(arg0);
+        if (preAppendLen < Length)
+        {
+            var addedChars = Length - preAppendLen;
+            var encodedSize      = customStringFormatter.ContentEncoder.CalculateEncodedLength(this, preAppendLen, addedChars);
+            EnsureCapacity(encodedSize);
+            ca.Length += customStringFormatter.ProcessAppendedRange(ca.BackingArray.AsSpan(), preAppendLen, addedChars, formatFlags);
+        }
         return this;
     }
 
@@ -1210,7 +1219,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
 
     public int EnsureCapacity(int requiredRemainingCapacity)
     {
-        CharArray(requiredRemainingCapacity);
+        ca =  CharArray(requiredRemainingCapacity);
         return ca.RemainingCapacity;
     }
 

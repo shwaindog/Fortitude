@@ -22,7 +22,7 @@ public class ContentJoinTypeMold<TFromMold, TToMold> : KnownTypeMolder<TToMold>,
         throw new NotImplementedException("Should never be called!");
     }
 
-    public override void CompleteTypeOpeningToTypeFields()
+    public override void CompleteTypeOpeningToTypeFields(IStyledTypeFormatting usingFormatter)
     {
         throw new NotImplementedException("Should never be called!");
     }

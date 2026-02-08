@@ -7,6 +7,7 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.WrittenAsFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 
@@ -23,7 +24,7 @@ public class ContentTypeMold<TContentMold, TToContentMold> : TransitioningTypeMo
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , WriteMethodType writeMethodType  
+      , WrittenAsFlags writeMethodType  
       , FormatFlags createFormatFlags)
     {
         Initialize(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
@@ -47,7 +48,7 @@ public class ContentTypeMold<TContentMold, TToContentMold> : TransitioningTypeMo
     {
         if (PortableState.MoldGraphVisit.NoVisitCheckDone || PortableState.CreateFormatFlags.HasSuppressOpening()) return;
         var usingFormatter = (CreateFormatFlags.HasAsStringContentFlag()
-                           && Msf.CurrentWriteMethod == WriteMethodType.MoldComplexContentType
+                           && Msf.CurrentWriteMethod.HasAllOf(AsComplex | AsContent)
                            && Msf.StyleFormatter.LayoutEncoder.Type != EncodingType.PassThrough)
             ? Msf.StyleFormatter.PreviousContextOrThis
             : Msf.StyleFormatter;
@@ -59,7 +60,12 @@ public class ContentTypeMold<TContentMold, TToContentMold> : TransitioningTypeMo
     public override void FinishTypeOpening()
     {
         if (PortableState.MoldGraphVisit.NoVisitCheckDone || PortableState.CreateFormatFlags.HasSuppressOpening()) return;
-        CompleteTypeOpeningToTypeFields();
+        var usingFormatter = (CreateFormatFlags.HasAsStringContentFlag()
+                           && Msf.CurrentWriteMethod.HasAllOf(AsComplex | AsContent)
+                           && Msf.StyleFormatter.LayoutEncoder.Type != EncodingType.PassThrough)
+            ? Msf.StyleFormatter.PreviousContextOrThis
+            : Msf.StyleFormatter;
+        CompleteTypeOpeningToTypeFields(usingFormatter);
     }
 
     public override void StartFormattingTypeOpening(IStyledTypeFormatting usingFormatter)
@@ -74,7 +80,7 @@ public class ContentTypeMold<TContentMold, TToContentMold> : TransitioningTypeMo
         }
     }
 
-    public override void CompleteTypeOpeningToTypeFields()
+    public override void CompleteTypeOpeningToTypeFields(IStyledTypeFormatting usingFormatter)
     {
         var formatter = Msf!.StyleFormatter;
         if (IsComplexType)
@@ -92,11 +98,11 @@ public class ContentTypeMold<TContentMold, TToContentMold> : TransitioningTypeMo
 
         if (Msf.CurrentWriteMethod.SupportsMultipleFields())
         {
-            WrittenAs = WrittenAsFlags.AsComplex;
+            WrittenAs = AsComplex;
         }
         else
         {
-            WrittenAs = WrittenAsFlags.AsSimple;
+            WrittenAs = AsContent;
         }
         var formatter = MoldStateField!.StyleFormatter;
         if (IsComplexType)

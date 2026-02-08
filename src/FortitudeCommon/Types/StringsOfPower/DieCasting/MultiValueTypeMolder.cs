@@ -21,7 +21,7 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , WriteMethodType writeMethodType  
+      , WrittenAsFlags writeMethodType  
       , FormatFlags createFormatFlags )
     {
         Initialize(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeVisitedAs, typeName

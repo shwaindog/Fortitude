@@ -165,6 +165,37 @@ public readonly struct SplitJoinRange : ISpanFormattable
 
 public static class ExtendedSpanFormattableExtensions
 {
+    public const   string NopFormatFormatString = "{0}";
+
+    public static bool IsValidFormatString(this ReadOnlySpan<char> check)
+    {
+        return (check.Length > 0 && HasOpenBraceNumberCloseBrace(check));
+    }
+
+    public static bool IsValidFormatString(this string? check)
+    {
+        return (check is { Length: > 0 } && HasOpenBraceNumberCloseBrace(check));
+    }
+
+    private static bool HasOpenBraceNumberCloseBrace(this ReadOnlySpan<char> toCheck)
+    {
+        var indexOfBrcOpn = toCheck.IndexOf('{');
+        if (indexOfBrcOpn < 0) return false;
+        var remainingSpan = toCheck[indexOfBrcOpn..];
+        var indexOfBrcCls = remainingSpan.IndexOf('}');
+        if (indexOfBrcCls < 0) return false;
+        remainingSpan = toCheck[..indexOfBrcCls];
+        for (var i = 1; i < remainingSpan.Length; i++)
+        {
+            var checkChar = remainingSpan[i];
+            if (checkChar.IsDigit())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     public static FormatStringType ExtractExtendedStringFormatStages
     (this ReadOnlySpan<char> toCheck, out ReadOnlySpan<char> formatPrefix, out ReadOnlySpan<char> identifier, out Range extendedSliceLengthRange
       , out ReadOnlySpan<char> layout, out SplitJoinRange extendedSplitJoinRange, out ReadOnlySpan<char> format, out ReadOnlySpan<char> formatSuffix

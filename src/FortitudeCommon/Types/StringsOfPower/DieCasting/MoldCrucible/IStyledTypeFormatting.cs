@@ -47,8 +47,8 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     SeparatorPaddingRanges AppendFieldValueSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    FormatFlags          GetFormatterContentHandlingFlags<T>(ITheOneString tos, T forValue, Type actualType, WriteMethodType proposedWriteType, VisitResult visitResult, FormatFlags formatFlags);
-    FormatFlags          GetFormatterContentHandlingFlags(ITheOneString tos, Type actualType, WriteMethodType proposedWriteType, VisitResult visitResult, FormatFlags formatFlags);
+    FormatFlags          GetFormatterContentHandlingFlags<T>(ITheOneString tos, T forValue, Type actualType, WrittenAsFlags proposedWriteType, VisitResult visitResult, FormatFlags formatFlags);
+    FormatFlags          GetFormatterContentHandlingFlags(ITheOneString tos, Type actualType, WrittenAsFlags proposedWriteType, VisitResult visitResult, FormatFlags formatFlags);
     int                    SizeToNextFieldSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
     Range?                 AddToNextFieldSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
     int                    SizeNextFieldPadding(FormatFlags formatFlags = DefaultCallerTypeFlags);
@@ -220,15 +220,15 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     int SizeFormatFieldName(int sourceLength, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    int InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, int refId, Type actualType, int typeOpenIndex, WriteMethodType writeMethod
+    int InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, int refId, Type actualType, int typeOpenIndex, WrittenAsFlags writtenAs
     , int firstFieldIndex, FormatFlags createTypeFlags, int contentLength = -1, ITypeMolderDieCast? liveMoldInternal = null);
     
-    int AppendExistingReferenceId(ITypeMolderDieCast mdc, int refId, WriteMethodType writeMethod, FormatFlags createTypeFlags);
+    int AppendExistingReferenceId(ITypeMolderDieCast mdc, int refId, WrittenAsFlags currentWriteMethod, FormatFlags createTypeFlags);
 
     int AppendInstanceValuesFieldName(Type forType, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     int AppendInstanceInfoField(ITypeMolderDieCast mdc, string fieldName, ReadOnlySpan<char> description
-    , WriteMethodType writeMethod, FormatFlags createTypeFlags);
+    , WrittenAsFlags currentWriteMethod, FormatFlags createTypeFlags);
     
     WrittenAsFlags AppendFieldName(ITypeMolderDieCast mdc, ReadOnlySpan<char> fieldName, FormatFlags formatFlags = DefaultCallerTypeFlags);
 

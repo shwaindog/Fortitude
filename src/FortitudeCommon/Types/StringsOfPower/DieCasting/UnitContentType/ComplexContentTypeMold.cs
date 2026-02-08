@@ -7,6 +7,7 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.WrittenAsFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 
@@ -22,7 +23,7 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , WriteMethodType writeMethodType  
+      , WrittenAsFlags writeMethodType  
       , FormatFlags createFormatFlags )
     {
         InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
@@ -33,7 +34,7 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
     
     public override void StartFormattingTypeOpening(IStyledTypeFormatting usingFormatter)
     {
-      if (Msf.CurrentWriteMethod == WriteMethodType.MoldComplexContentType)
+      if (Msf.CurrentWriteMethod.HasAllOf(AsComplex | AsContent))
         usingFormatter.StartComplexTypeOpening(MoldStateField, Msf.CreateMoldFormatFlags);
       else
         usingFormatter.StartContentTypeOpening(MoldStateField);
@@ -41,7 +42,7 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
 
     public override void FinishTypeOpening()
     {
-      if (Msf.CurrentWriteMethod != WriteMethodType.MoldComplexContentType)
+      if (Msf.CurrentWriteMethod.HasNoneOf(AsComplex))
       {
         Msf.Master.UpdateVisitWriteMethod(MoldVisit.RegistryId, MoldVisit.CurrentVisitIndex, Msf.CurrentWriteMethod);  
       }
@@ -64,7 +65,7 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
     public override bool IsComplexType => Msf.IsLog;
     public override bool IsSimpleMold => false;
 
-    protected override void SourceBuilderComponentAccess(WriteMethodType writeMethod)
+    protected override void SourceBuilderComponentAccess(WrittenAsFlags writeMethod)
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
         MoldStateField = recycler.Borrow<ContentTypeDieCast<ComplexContentTypeMold, ContentWithLogOnlyMold>>()

@@ -12,18 +12,13 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
 {
     protected readonly List<GraphNodeVisit> OrderedObjectGraph = new(64);
 
-    private ISecretStringOfPower master;
-    private int                  currentGraphNodeIndex = -1;
+    private ISecretStringOfPower master = null!;
 
     public int RegistryId { get; private set; } = -1;
 
     public int ThisRegistryNextRefId { get; set; } = 1;
 
-    public int CurrentGraphNodeIndex
-    {
-        get => currentGraphNodeIndex;
-        set => currentGraphNodeIndex = value;
-    }
+    public int CurrentGraphNodeIndex { get; set; } = -1;
 
     public int NextFreeSlot => OrderedObjectGraph.Count;
 
@@ -132,10 +127,10 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
         return SourceGraphVisitRefId((object)toStyle, type, formatFlags);
     }
 
-    public void UpdateVisitWriteMethod(int visitIndex, WriteMethodType newWriteMethod)
+    public void UpdateVisitWriteMethod(int visitIndex, WrittenAsFlags writeAs)
     {
         if (visitIndex >= OrderedObjectGraph.Count || visitIndex < 0) return;
-        OrderedObjectGraph[visitIndex] = OrderedObjectGraph[visitIndex].UpdateVisitWriteType(newWriteMethod);
+        OrderedObjectGraph[visitIndex] = OrderedObjectGraph[visitIndex].UpdateVisitWriteType(writeAs);
     }
 
     public void UpdateVisitAddFormatFlags(int visitIndex, FormatFlags flagsToAdd)
@@ -194,17 +189,9 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
                      && !graphNodeVisit.CurrentFormatFlags.HasNoRevisitCheck()
                      && !formatFlags.HasNoRevisitCheck() )
                     {
-                        // if (graphNodeVisit.ExcludeRevisitMatchCountDown > 0)
-                        // {
-                        //     OrderedObjectGraph[fwdIndex] = graphNodeVisit.DecrementExcludeRevisitCountDown();
-                        //     skipThisOccurence            = true;
-                        // }
-                        // else
-                        // {
-                            foundRefId                   = NextRefId();
-                            OrderedObjectGraph[fwdIndex] = graphNodeVisit.SetRefId(foundRefId);
-                            thisVisitRepeatCount         = 0;
-                        // }
+                        foundRefId                   = NextRefId();
+                        OrderedObjectGraph[fwdIndex] = graphNodeVisit.SetRefId(foundRefId);
+                        thisVisitRepeatCount         = 0;
                     }
                     if (firstInstanceIndex < 0)
                     {

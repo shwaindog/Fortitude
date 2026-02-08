@@ -1,14 +1,17 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
-using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
+using FortitudeCommon.Types.StringsOfPower.Options;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 
 public class RawContentMold : KnownTypeMolder<RawContentMold>
 {
+    private bool isDefaultSuppressOpenCloseType;
+    
     public RawContentMold InitializeRawContentTypeBuilder
     (
         object instanceOrContainer
@@ -18,11 +21,12 @@ public class RawContentMold : KnownTypeMolder<RawContentMold>
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , WriteMethodType writeMethodType  
+      , WrittenAsFlags writeMethodType
       , FormatFlags createFormatFlags)
     {
         Initialize(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
                  , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
+
 
         return this;
     }
@@ -35,32 +39,49 @@ public class RawContentMold : KnownTypeMolder<RawContentMold>
     {
         var msf = MoldStateField;
         usingFormatter.Gb.StartNextContentSeparatorPaddingSequence(msf.Sb, msf.CreateMoldFormatFlags);
-        if (msf.CurrentWriteMethod.SupportsMultipleFields())
+        var typeBeingBuilt = msf.TypeBeingBuilt;
+        isDefaultSuppressOpenCloseType = typeBeingBuilt.IsInputConstructionTypeCached();
+        if (!isDefaultSuppressOpenCloseType && MoldStateField.Style.IsLog())
+        {
+            MoldStateField.CurrentWriteMethod = msf.CurrentWriteMethod.SupportsMultipleFields() 
+                ?  WrittenAsFlags.AsComplex | WrittenAsFlags.AsContent | WrittenAsFlags.AsRaw
+                : WrittenAsFlags.AsSimple | WrittenAsFlags.AsContent | WrittenAsFlags.AsRaw;
+        }
+        if(msf.CurrentWriteMethod.HasAsComplexFlag())
         {
             usingFormatter.StartComplexTypeOpening(msf);
         }
+        if(msf.CurrentWriteMethod.HasAllOf(WrittenAsFlags.AsSimple | WrittenAsFlags.AsContent))
+        {
+            usingFormatter.StartContentTypeOpening(msf);
+        }
     }
 
-    public override void CompleteTypeOpeningToTypeFields()
+    public override void CompleteTypeOpeningToTypeFields(IStyledTypeFormatting usingFormatter)
     {
+        var msf         = State;
+        if(msf.CurrentWriteMethod.HasAsComplexFlag())
+        {
+            usingFormatter.FinishComplexTypeOpening(msf);
+        }
+        if(msf.CurrentWriteMethod.HasAllOf(WrittenAsFlags.AsSimple | WrittenAsFlags.AsContent))
+        {
+            usingFormatter.FinishContentTypeOpening(msf);
+        }
     }
 
     public override void AppendClosing()
     {
         var msf         = State;
         var writeMethod = msf.CurrentWriteMethod;
-        if (writeMethod.SupportsMultipleFields())
+        if(writeMethod.HasAsComplexFlag())
         {
+            msf.WrittenAsFlags = WrittenAsFlags.AsComplex;
             var sf = msf.StyleFormatter;
-            var gb = sf.Gb;
-            if (sf.ContentEncoder.Type != sf.LayoutEncoder.Type)
-            {
-                sf = sf.PreviousContextOrThis;
-            }
+            if (sf.ContentEncoder.Type != sf.LayoutEncoder.Type) { sf = sf.PreviousContextOrThis; }
             sf.AppendComplexTypeClosing(msf);
         }
-        
+
         msf.Sf.Gb.MarkContentEnd();
     }
-
 }

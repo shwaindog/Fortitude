@@ -30,23 +30,15 @@ public class TwoStringFields: IStringBearer, ISupportFormattingFlags, ISupportsV
 
     public PalantírReveal<string> CreateRevealer => (cloaked, tos) =>
         tos.StartComplexType(cloaked)
-           .Field.AlwaysAdd
-               ($"CloakedRevealer{nameof(SecondStringField)}"
-              , cloaked, ValueFormatString)
+           .Field.AlwaysAdd($"CloakedRevealer{nameof(SecondStringField)}", cloaked, ValueFormatString)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
     public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysAdd
-               (nameof(FirstStringField)
-              , FirstStringField
-              , ValueFormatString, FormattingFlags)
-           .Field.AlwaysAdd
-               (nameof(SecondStringField)
-              , SecondStringField
-              , ValueFormatString, FormattingFlags)
+           .Field.AlwaysAdd(nameof(FirstStringField), FirstStringField, ValueFormatString, FormattingFlags)
+           .Field.AlwaysAdd(nameof(SecondStringField), SecondStringField, ValueFormatString, FormattingFlags)
            .Complete();
     
     public string? ValueFormatString { get; set; }
@@ -80,21 +72,15 @@ public class TwoStringsFirstAsSimpleCloakedValueContent: IStringBearer, ISupport
 
     public PalantírReveal<string> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartSimpleContentType(FirstStringField)
-           .AsValue (cloaked, ValueFormatString, FormattingFlags)
+           .AsValue(cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
     public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysReveal
-               (nameof(FirstStringField)
-              , FirstStringField, CreateRevealer
-              , ValueFormatString, FormattingFlags)
-           .Field.AlwaysAdd
-               (nameof(SecondStringField)
-              , SecondStringField
-              , ValueFormatString, FormattingFlags)
+           .Field.AlwaysReveal(nameof(FirstStringField), FirstStringField, CreateRevealer, ValueFormatString, FormattingFlags)
+           .Field.AlwaysAdd(nameof(SecondStringField), SecondStringField, ValueFormatString, FormattingFlags)
            .Complete();
     
     public string? ValueFormatString { get; set; }
@@ -128,21 +114,15 @@ public class TwoStringsSecondAsSimpleCloakedValueContent: IStringBearer, ISuppor
 
     public PalantírReveal<string> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartSimpleContentType(SecondStringField)
-           .AsValue (cloaked, ValueFormatString, FormattingFlags)
+           .AsValue(cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
     public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysAdd
-               (nameof(FirstStringField)
-              , FirstStringField
-              , ValueFormatString, FormattingFlags)
-           .Field.AlwaysReveal
-               (nameof(SecondStringField)
-              , SecondStringField, CreateRevealer
-              , ValueFormatString, FormattingFlags)
+           .Field.AlwaysAdd(nameof(FirstStringField), FirstStringField, ValueFormatString, FormattingFlags)
+           .Field.AlwaysReveal(nameof(SecondStringField), SecondStringField, CreateRevealer, ValueFormatString, FormattingFlags)
            .Complete();
     
     public string? ValueFormatString { get; set; }
@@ -176,21 +156,15 @@ public class TwoStringsFirstAsSimpleCloakedStringContent: IStringBearer, ISuppor
 
     public PalantírReveal<string> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartSimpleContentType(FirstStringField)
-           .AsString (cloaked, ValueFormatString, FormattingFlags)
+           .AsString(cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
     public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysReveal
-               (nameof(FirstStringField)
-              , FirstStringField, CreateRevealer
-              , ValueFormatString, FormattingFlags)
-           .Field.AlwaysAdd
-               (nameof(SecondStringField)
-              , SecondStringField
-              , ValueFormatString, FormattingFlags)
+           .Field.AlwaysReveal(nameof(FirstStringField), FirstStringField, CreateRevealer, ValueFormatString, FormattingFlags)
+           .Field.AlwaysAdd(nameof(SecondStringField), SecondStringField, ValueFormatString, FormattingFlags)
            .Complete();
     
     public string? ValueFormatString { get; set; }
@@ -224,21 +198,15 @@ public class TwoStringsSecondAsSimpleCloakedStringContent: IStringBearer, ISuppo
 
     public PalantírReveal<string> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartSimpleContentType(SecondStringField)
-           .AsString (cloaked, ValueFormatString, FormattingFlags)
+           .AsString(cloaked, ValueFormatString, FormattingFlags)
            .Complete();
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
     public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysAdd
-               (nameof(FirstStringField)
-              , FirstStringField
-              , ValueFormatString, FormattingFlags)
-           .Field.AlwaysReveal
-               (nameof(SecondStringField)
-              , SecondStringField, CreateRevealer
-              , ValueFormatString, FormattingFlags)
+           .Field.AlwaysAdd(nameof(FirstStringField), FirstStringField, ValueFormatString, FormattingFlags)
+           .Field.AlwaysReveal(nameof(SecondStringField), SecondStringField, CreateRevealer, ValueFormatString, FormattingFlags)
            .Complete();
     
     public string? ValueFormatString { get; set; }
@@ -274,7 +242,7 @@ public class TwoStringsFirstAsComplexCloakedValueContent: IStringBearer, ISuppor
 
     public PalantírReveal<string> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(FirstStringField)
-           .AsValue ("CloakedRevealer" + nameof(FirstStringField), cloaked, ValueFormatString, FormattingFlags)
+           .AsValue($"CloakedRevealer{nameof(FirstStringField)}", cloaked, ValueFormatString, FormattingFlags)
            .LogOnlyCollectionField.AlwaysAddAll(nameof(logOnlyArray),logOnlyArray)
            .Complete();
 
@@ -282,14 +250,8 @@ public class TwoStringsFirstAsComplexCloakedValueContent: IStringBearer, ISuppor
 
     public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysReveal
-               (nameof(FirstStringField)
-              , FirstStringField, CreateRevealer
-              , ValueFormatString, FormattingFlags)
-           .Field.AlwaysAdd
-               (nameof(SecondStringField)
-              , SecondStringField
-              , ValueFormatString, FormattingFlags)
+           .Field.AlwaysReveal(nameof(FirstStringField), FirstStringField, CreateRevealer, ValueFormatString, FormattingFlags)
+           .Field.AlwaysAdd(nameof(SecondStringField), SecondStringField, ValueFormatString, FormattingFlags)
            .Complete();
     
     public string? ValueFormatString { get; set; }
@@ -330,7 +292,7 @@ public class TwoStringsSecondAsComplexCloakedValueContent: IStringBearer, ISuppo
 
     public PalantírReveal<string> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(SecondStringField)
-           .AsValue ("CloakedRevealer" + nameof(SecondStringField), cloaked, ValueFormatString, FormattingFlags)
+           .AsValue($"CloakedRevealer{nameof(SecondStringField)}", cloaked, ValueFormatString, FormattingFlags)
            .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logOnlyMap), logOnlyMap)
            .Complete();
 
@@ -338,14 +300,8 @@ public class TwoStringsSecondAsComplexCloakedValueContent: IStringBearer, ISuppo
 
     public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysAdd
-               (nameof(FirstStringField)
-              , FirstStringField
-              , ValueFormatString, FormattingFlags)
-           .Field.AlwaysReveal
-               (nameof(SecondStringField)
-              , SecondStringField, CreateRevealer
-              , ValueFormatString, FormattingFlags)
+           .Field.AlwaysAdd(nameof(FirstStringField), FirstStringField, ValueFormatString, FormattingFlags)
+           .Field.AlwaysReveal(nameof(SecondStringField), SecondStringField, CreateRevealer, ValueFormatString, FormattingFlags)
            .Complete();
     
     public string? ValueFormatString { get; set; }
@@ -381,7 +337,7 @@ public class TwoStringsFirstAsComplexCloakedStringContent: IStringBearer, ISuppo
 
     public PalantírReveal<string> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(FirstStringField)
-           .AsString ("CloakedRevealer" + nameof(FirstStringField), cloaked, ValueFormatString, FormattingFlags)
+           .AsString($"CloakedRevealer{nameof(FirstStringField)}", cloaked, ValueFormatString, FormattingFlags)
            .LogOnlyField.AlwaysAdd(nameof(logOnlyStringBuilder), logOnlyStringBuilder)
            .Complete();
 
@@ -389,14 +345,8 @@ public class TwoStringsFirstAsComplexCloakedStringContent: IStringBearer, ISuppo
 
     public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysReveal
-               (nameof(FirstStringField)
-              , FirstStringField, CreateRevealer
-              , ValueFormatString, FormattingFlags)
-           .Field.AlwaysAdd
-               (nameof(SecondStringField)
-              , SecondStringField
-              , ValueFormatString, FormattingFlags)
+           .Field.AlwaysReveal(nameof(FirstStringField), FirstStringField, CreateRevealer, ValueFormatString, FormattingFlags)
+           .Field.AlwaysAdd(nameof(SecondStringField), SecondStringField, ValueFormatString, FormattingFlags)
            .Complete();
     
     public string? ValueFormatString { get; set; }
@@ -433,7 +383,7 @@ public class TwoStringsSecondAsComplexCloakedStringContent: IStringBearer, ISupp
 
     public PalantírReveal<string> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(SecondStringField)
-           .AsString ("CloakedRevealer" + nameof(SecondStringField), cloaked, ValueFormatString, FormattingFlags)
+           .AsString($"CloakedRevealer{nameof(SecondStringField)}", cloaked, ValueFormatString, FormattingFlags)
            .LogOnlyCollectionField.AlwaysAddAllCharSeq(nameof(logOnlyList), logOnlyList)
            .Complete();
 
@@ -441,14 +391,8 @@ public class TwoStringsSecondAsComplexCloakedStringContent: IStringBearer, ISupp
 
     public AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .Field.AlwaysAdd
-               (nameof(FirstStringField)
-              , FirstStringField
-              , ValueFormatString, FormattingFlags)
-           .Field.AlwaysReveal
-               (nameof(SecondStringField)
-              , SecondStringField, CreateRevealer
-              , ValueFormatString, FormattingFlags)
+           .Field.AlwaysAdd(nameof(FirstStringField), FirstStringField, ValueFormatString, FormattingFlags)
+           .Field.AlwaysReveal(nameof(SecondStringField), SecondStringField, CreateRevealer, ValueFormatString, FormattingFlags)
            .Complete();
     
     public string? ValueFormatString { get; set; }

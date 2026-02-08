@@ -23,7 +23,7 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , WriteMethodType writeMethodType  
+      , WrittenAsFlags writeMethodType  
       , FormatFlags createFormatFlags )
     {
         InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeVisitedAs, typeName, remainingGraphDepth
@@ -44,7 +44,7 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
                                                 , keyValueTypes.Value.Value, typeCreateFlags);
     }
 
-    public override void CompleteTypeOpeningToTypeFields() { }
+    public override void CompleteTypeOpeningToTypeFields(IStyledTypeFormatting usingFormatter) { }
 
     public override void AppendClosing()
     {

@@ -69,13 +69,15 @@ public abstract class Node : INode
         }
     }
 
-    public virtual AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .Field.AlwaysAdd(nameof(Name), Name)
-           .Field.AlwaysAdd(nameof(GlobalNodeInstanceId), GlobalNodeInstanceId)
-           .Field.AlwaysAdd(nameof(NodeType), NodeType)
-           .Field.WhenNonDefaultAdd(nameof(DepthToRoot), DepthToRoot)
-           .Complete();
+    public virtual AppendSummary RevealState(ITheOneString tos)
+    {
+        var md = tos.StartComplexType(this);
+        md.Field.AlwaysAdd(nameof(Name), Name);
+        md.Field.AlwaysAdd(nameof(GlobalNodeInstanceId), GlobalNodeInstanceId);
+        md.Field.AlwaysAdd(nameof(NodeType), NodeType);
+        md.Field.WhenNonDefaultAdd(nameof(DepthToRoot), DepthToRoot);
+        return md.Complete();
+    }
 
     public bool Equals(INode? other)
     {

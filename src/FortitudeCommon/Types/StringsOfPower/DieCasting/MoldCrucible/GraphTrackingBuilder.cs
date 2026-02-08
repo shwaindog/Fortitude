@@ -71,7 +71,8 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
         overWriteEndIndex = insertAt + insertShiftAmount;
         sb.EnsureCapacity(insertShiftAmount);
         sb.ShiftRightAt(insertAt, insertShiftAmount);
-
+        StartNextContentSeparatorPaddingSequence(sb, FormatFlags.DefaultCallerTypeFlags, true);
+        MarkContentStart(insertAt);
         return this;
     }
 
@@ -93,6 +94,11 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
         {
             PenUltimateContentSeparatorPaddingRanges = LastContentSeparatorPaddingRanges;
             LastContentSeparatorPaddingRanges        = checkAnyRanges;
+        }
+        if (IsInModifyOverwriteMode)
+        {
+            StartNextContentSeparatorPaddingSequence(sb, FormatFlags.DefaultCallerTypeFlags, true);
+            MarkContentStart(overWriteIndex);
         }
         AllowEmptyContent = false;
         ResetCurrent(FormatFlags.DefaultCallerTypeFlags);

@@ -709,6 +709,14 @@ public struct StyleOptionsValue : IJsonFormattingOptions
         set => instanceMarkingIncludeInputClassesContents = instanceMarkingIncludeInputClassesContents.SetTo(StringBuilderClass, value);
     }
 
+    public bool InstanceMarkingIncludeObjectToStringContents
+    {
+        readonly get => InstanceMarkingIncludeAllContentOnlyContents || (instanceMarkingIncludeInputClassesContents.IsObjectToStringClassActive() 
+                     ?? fallbackOptions?.Values.InstanceMarkingIncludeObjectToStringContents ?? false);
+        
+        set => instanceMarkingIncludeInputClassesContents = instanceMarkingIncludeInputClassesContents.SetTo(ObjectToStringClass, value);
+    }
+
     public bool InstanceMarkingIncludeAllContentOnlyContents
     {
         readonly get => instanceMarkingIncludeInputClassesContents.IsAllInputClassesActive() 
@@ -1442,6 +1450,13 @@ public class StyleOptions : ExplicitRecyclableObject, IJsonFormattingOptions, IT
         [DebuggerStepThrough]
         get => values.InstanceMarkingIncludeStringBuilderContents;
         set => values.InstanceMarkingIncludeStringBuilderContents = value;
+    }
+
+    public bool InstanceMarkingIncludeObjectToStringContents
+    {
+        [DebuggerStepThrough]
+        get => values.InstanceMarkingIncludeObjectToStringContents;
+        set => values.InstanceMarkingIncludeObjectToStringContents = value;
     }
 
     public bool InstanceMarkingIncludeAllContentOnlyContents
