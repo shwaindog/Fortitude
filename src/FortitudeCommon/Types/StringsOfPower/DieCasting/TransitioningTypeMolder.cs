@@ -47,7 +47,7 @@ public abstract class TransitioningTypeMolder<TCurrent, TNext> : KnownTypeMolder
 
         if (nextTypeBuilder is IMigrateFrom<TCurrent, TNext> copyFromCurrent)
         {
-            copyFromCurrent.CopyFrom(MoldStateField.StyleTypeBuilder);
+            copyFromCurrent.CopyFrom(MoldStateField.Mold);
         }
         
         hasTransitioned = true;

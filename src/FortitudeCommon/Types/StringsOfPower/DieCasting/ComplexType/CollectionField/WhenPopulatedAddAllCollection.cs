@@ -535,7 +535,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerator<bool?>? value
@@ -560,7 +560,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedAddAllEnumerate<TFmt>(string fieldName, IEnumerator<TFmt?>? value
@@ -586,7 +586,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedAddAllEnumerate<TFmtStruct>(string fieldName, IEnumerator<TFmtStruct?>? value
@@ -612,7 +612,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedRevealAllEnumerate<TCloaked, TRevealBase>
@@ -638,7 +638,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedRevealAllEnumerate<TCloakedStruct>
@@ -663,7 +663,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedRevealAllEnumerate<TBearer>(string fieldName
@@ -689,7 +689,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedRevealAllEnumerate<TBearerStruct>(string fieldName
@@ -715,7 +715,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
 
@@ -741,7 +741,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedAddAllCharSeqEnumerate<TCharSeq>(string fieldName, IEnumerator<TCharSeq?>? value
@@ -766,7 +766,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedAddAllEnumerate(string fieldName, IEnumerator<StringBuilder?>? value
@@ -791,7 +791,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedAddAllMatchEnumerate<TAny>(string fieldName, IEnumerator<TAny?>? value
@@ -816,7 +816,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eoctb.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     [CallsObjectToString]

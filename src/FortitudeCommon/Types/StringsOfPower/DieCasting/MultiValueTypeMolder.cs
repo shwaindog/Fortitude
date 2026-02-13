@@ -53,10 +53,10 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
     {
         var msf              = MoldStateField;
         var markPreBodyStart = msf.Sb.Length;
-        if (msf.SkipBody) return msf.StyleTypeBuilder;
+        if (msf.SkipBody) return msf.Mold;
         msf.Master.AddBaseFieldsStart();
         TargetStringBearerRevealState.CallBaseStyledToStringIfSupported(thisType, msf.Master);
-        if (msf.Sb.Length > markPreBodyStart)
+        if (msf.Sb.Length > markPreBodyStart && msf.Sf.Gb.LastContentSeparatorPaddingRanges.SeparatorPaddingRange == null)
         {
             msf.Sf.Gb.StartNextContentSeparatorPaddingSequence(msf.Sb, FormatFlags.DefaultCallerTypeFlags);
             msf.Sf.AddToNextFieldSeparatorAndPadding();

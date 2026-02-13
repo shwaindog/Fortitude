@@ -96,12 +96,12 @@ public class OrderedCollectionMoldPrettyJsonTests : OrderedCollectionMoldTests
     public void FilteredPrettyJsonStringBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
     
-    // [TestMethod]
+    [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(NumberCollectionsTestData.AllNumberCollectionsExpectations[0]
-                                           , ScaffoldingRegistry.AllScaffoldingTypes[1068], StringBuilderType.CharArrayStringBuilder);
+        ExecuteIndividualScaffoldExpectation(BoolCollectionsTestData.AllBoolCollectionExpectations[3], ScaffoldingRegistry.AllScaffoldingTypes[1002]
+                                           , StringBuilderType.MutableString);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName

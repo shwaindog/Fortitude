@@ -11,6 +11,8 @@
     <FileVersion>$(Version)</FileVersion>
     <Version>$(Version)</Version>
     <Title>Common Library Classes and Extension methods for the Fortitude Library suite</Title>
+    <Configurations>Debug;Release;DebugInstrumented;ReleaseInstrumented</Configurations>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

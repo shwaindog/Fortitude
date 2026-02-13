@@ -99,12 +99,12 @@ public class OrderedCollectionMoldCompactLogTests : OrderedCollectionMoldTests
     public void FilteredCompactLogStringBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
     
-    // [TestMethod]
+    [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(NumberCollectionsTestData.AllNumberCollectionsExpectations[5]
-                                           , ScaffoldingRegistry.AllScaffoldingTypes[1123], StringBuilderType.CharArrayStringBuilder);
+        ExecuteIndividualScaffoldExpectation(BoolCollectionsTestData.AllBoolCollectionExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[1005]
+                                           , StringBuilderType.MutableString);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName

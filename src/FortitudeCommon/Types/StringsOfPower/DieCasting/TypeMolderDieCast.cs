@@ -18,7 +18,7 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 public interface ITypeMolderDieCast : IRecyclableObject, ITransferState
 {
     
-    TypeMolder TypeMolder { get; }
+    TypeMolder Mold { get; }
 
     ISecretStringOfPower Master { get; }
 
@@ -41,6 +41,15 @@ public interface ITypeMolderDieCast : IRecyclableObject, ITransferState
     // bool WriteAsContent { get; set; }
     bool WroteRefId { get; set; }
     bool WroteTypeName { get; set; }
+    bool WroteCollectionName { get; set; }
+    bool WroteTypeOpen { get; set; }
+    bool WroteTypeClose { get; set; }
+    bool SuppressTypeOpen { get; set; }
+    bool SuppressTypeClose { get; set; }
+    bool WroteCollectionOpen { get; set; }
+    bool WroteCollectionClose { get; set; }
+    bool SuppressCollectionOpen { get; set; }
+    bool SuppressCollectionClose { get; set; }
     
     int LastStartNewLineContentPos { get; }
 
@@ -67,8 +76,6 @@ public interface ITypeMolderDieCast : IRecyclableObject, ITransferState
     IStyledTypeFormatting Sf { get; }
 
     int RemainingGraphDepth { get; set; }
-    
-    WrittenAsFlags WrittenAsFlags { get; set; }
 
     StringStyle Style { get; }
 
@@ -80,10 +87,10 @@ public interface ITypeMolderDieCast : IRecyclableObject, ITransferState
     
     int VisitNumber { get; }
 
-    public int DecrementIndent();
-    public int IncrementIndent();
+    int DecrementIndent();
+    int IncrementIndent();
 
-    public void UnSetIgnoreFlag(FormatFlags flagToUnset);
+    void UnSetIgnoreFlag(FormatFlags flagToUnset);
     void        SetUntrackedVisit();
 
     new IRecycler Recycler { get; }
@@ -96,82 +103,41 @@ public interface IMigratableTypeMolderDieCast : ITypeMolderDieCast, ITransferSta
 
 public interface ITypeMolderDieCast<out T> : IMigratableTypeMolderDieCast where T : TypeMolder
 {
-    T StyleTypeBuilder { get; }
+    new T Mold { get; }
 
     T WasSkipped(Type actualType, ReadOnlySpan<char> fieldName
       , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags);
-}
-
-[Flags]
-public enum TypeMoldFlags : ushort
-{
-    None       = 0x00_00
-  , IsEmptyFlag    = 0x00_01  
-  , IsCompleteFlag = 0x00_02 
-  , SkipBodyFlag   = 0x00_04 
-  , SkipFieldsFlag = 0x00_08
-    
-  // , WriteAsAttributeFlag = 0x00_10 
-  // , WriteAsContentFlag   = 0x00_20
-  // , WriteAsComplexFlag   = 0x00_40  
-  , WroteTypeNameFlag    = 0x00_80
-  , WroteRefIdFlag       = 0x01_00    
-  , WroteTypeOpenFlag    = 0x02_00 
-  , WroteTypeCloseFlag   = 0x04_00 
-  , WasDepthClippedFlag   = 0x08_00 
-}
-
-public static class TypeMoldFlagsExtensions 
-{
-    
-    public static bool HasIsEmptyFlag(this TypeMoldFlags flags)          => (flags & IsEmptyFlag) > 0;
-    public static bool HasIsCompleteFlag(this TypeMoldFlags flags)       => (flags & IsCompleteFlag) > 0;
-    public static bool HasSkipBodyFlag(this TypeMoldFlags flags)         => (flags & SkipBodyFlag) > 0;
-    public static bool HasSkipFieldsFlag(this TypeMoldFlags flags)        => (flags & SkipFieldsFlag) > 0;
-
-    // public static bool HasWriteAsAttributeFlag(this TypeMoldFlags flags) => (flags & WriteAsAttributeFlag) > 0;
-    // public static bool HasWriteAsContentFlag(this TypeMoldFlags flags)   => (flags & WriteAsContentFlag) > 0;
-    // public static bool HasWriteAsComplexFlag(this TypeMoldFlags flags)   => (flags & WriteAsComplexFlag) > 0;
-    public static bool HasWroteTypeNameFlag(this TypeMoldFlags flags)    => (flags & WroteTypeNameFlag) > 0;
-    public static bool HasWroteRefIdFlag(this TypeMoldFlags flags)       => (flags & WroteRefIdFlag) > 0;
-    public static bool HasWroteTypeOpenFlag(this TypeMoldFlags flags)    => (flags & WroteTypeOpenFlag) > 0;
-    public static bool HasWroteTypeCloseFlag(this TypeMoldFlags flags)    => (flags & WroteTypeCloseFlag) > 0;
-    public static bool HasWasDepthClippedFlag(this TypeMoldFlags flags)    => (flags & WasDepthClippedFlag) > 0;
 }
 
 public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt>
     where TExt : TypeMolder
 {
     private TypeMoldFlags moldFlags = IsEmptyFlag;
-    TypeMolder ITypeMolderDieCast.TypeMolder => StyleTypeBuilder;
+    TypeMolder ITypeMolderDieCast.Mold => Mold;
     
-
-    protected bool HasJsonFields;
-
-    public TExt StyleTypeBuilder { get; private set; } = null!;
+    public TExt Mold { get; private set; } = null!;
 
     private TypeMolder.MoldPortableState typeBuilderState = null!;
-    private WrittenAsFlags               currentWriteMethod;
 
     public TypeMolderDieCast<TExt> Initialize
         (TExt externalTypeBuilder, TypeMolder.MoldPortableState typeBuilderPortableState, WrittenAsFlags writeMethod)
     {
-        StyleTypeBuilder    = externalTypeBuilder;
+        Mold    = externalTypeBuilder;
         typeBuilderState    = typeBuilderPortableState;
         RemainingGraphDepth = typeBuilderPortableState.RemainingGraphDepth;
 
         var typeOfTExt = typeof(TExt);
-        HasJsonFields = typeOfTExt == typeof(ComplexPocoTypeMold)
+        var hasJsonFields = typeOfTExt == typeof(ComplexPocoTypeMold)
                      || typeOfTExt == typeof(KeyedCollectionMold)
                      || typeof(MultiValueTypeMolder<TExt>).IsAssignableFrom(typeOfTExt);
 
         var fmtFlags = typeBuilderPortableState.CreateFormatFlags;
         var hasBeenVisitedBefore = MoldGraphVisit.IsARevisit;
         SkipBody   = hasBeenVisitedBefore && fmtFlags.DoesNotHaveIsFieldNameFlag();
-        SkipFields = hasBeenVisitedBefore || (Style.IsJson() && !HasJsonFields);
+        SkipFields = hasBeenVisitedBefore || (Style.IsJson() && !hasJsonFields);
 
         InitialWriteMethod = writeMethod;
-        currentWriteMethod = writeMethod;
+        CurrentWriteMethod = writeMethod;
         return this;
     }
     
@@ -195,7 +161,7 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
     public int VisitNumber
     {
         [DebuggerStepThrough]
-        get => MoldGraphVisit.CurrentVisitIndex;
+        get => MoldGraphVisit.VisitId.VisitIndex;
     }
 
 
@@ -217,13 +183,6 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
         get => typeBuilderState.TypeVisitedAs;
     }
 
-    public WrittenAsFlags WrittenAsFlags
-    {
-        [DebuggerStepThrough]
-        get => typeBuilderState.WrittenAsFlags;
-        set => typeBuilderState.WrittenAsFlags = value;
-    }
-
     public FormatFlags CallerContentHandling => Master.CallerContext.FormatFlags;
     public FormatFlags CreateMoldFormatFlags
     {
@@ -234,8 +193,8 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
             if (typeBuilderState.CreateFormatFlags == value) return;
             var oldValues = typeBuilderState.CreateFormatFlags;
             typeBuilderState.CreateFormatFlags = value;
-            Master.UpdateVisitRemoveFormatFlags(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, oldValues);
-            Master.UpdateVisitAddFormatFlags(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, value);
+            Master.UpdateVisitRemoveFormatFlags(MoldGraphVisit.VisitId, oldValues);
+            Master.UpdateVisitAddFormatFlags(MoldGraphVisit.VisitId, value);
         }
     }
 
@@ -249,12 +208,16 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
 
     public WrittenAsFlags CurrentWriteMethod
     {
-        get => currentWriteMethod;
+        get => typeBuilderState.WrittenAsFlags;
         set
         {
-            if (currentWriteMethod == value) return;
-            currentWriteMethod = value;
-            Master.UpdateVisitWriteMethod(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, value);
+            if (typeBuilderState.WrittenAsFlags == value) return;
+            if (value.HasAsSimpleFlag() && value.HasAsComplexFlag())
+            {
+                value &= ~(typeBuilderState.WrittenAsFlags & (WrittenAsFlags.AsSimple | WrittenAsFlags.AsComplex));
+            }
+            typeBuilderState.WrittenAsFlags = value;
+            Master.UpdateVisitWriteMethod(MoldGraphVisit.VisitId, value);
         }
     }
 
@@ -263,34 +226,92 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
     public bool IsEmpty
     {
         get => moldFlags.HasIsEmptyFlag();
-        set => moldFlags ^= !value && IsEmpty || value && !IsEmpty ? IsEmptyFlag : None;
+        set => moldFlags = moldFlags.SetTo(IsEmptyFlag, value);
     }
     
     public bool WroteRefId
     {
         get => moldFlags.HasWroteRefIdFlag();
-        set => moldFlags ^= !value && WroteRefId || value && !WroteRefId ? WroteRefIdFlag : None;
+        set => moldFlags = moldFlags.SetTo(WroteRefIdFlag, value);
     }
     
     public bool WasDepthClipped
     {
         get => moldFlags.HasWasDepthClippedFlag();
-        set => moldFlags ^= !value && WasDepthClipped || value && !WasDepthClipped ? WasDepthClippedFlag : None;
+        set => moldFlags = moldFlags.SetTo(WasDepthClippedFlag, value);
     }
     
     public bool WroteTypeName
     {
         get => moldFlags.HasWroteTypeNameFlag();
-        set => moldFlags ^= !value && WroteTypeName || value && !WroteTypeName ? WroteTypeNameFlag : None;
+        set => moldFlags = moldFlags.SetTo(WroteTypeNameFlag, value);
+    }
+    
+    public bool WroteTypeOpen
+    {
+        get => moldFlags.HasWroteTypeOpenFlag();
+        set => moldFlags = moldFlags.SetTo(WroteTypeOpenFlag, value);
+    }
+    
+    public bool WroteTypeClose
+    {
+        get => moldFlags.HasWroteTypeCloseFlag();
+        set => moldFlags = moldFlags.SetTo(WroteTypeCloseFlag, value);
+    }
+    
+    public bool SuppressTypeOpen
+    {
+        get => moldFlags.HasSuppressedTypeOpenFlag();
+        set => moldFlags = moldFlags.SetTo(SuppressedTypeOpenFlag, value);
+    }
+    
+    public bool SuppressTypeClose
+    {
+        get => moldFlags.HasSuppressedTypeCloseFlag();
+        set => moldFlags = moldFlags.SetTo(SuppressedTypeCloseFlag, value);
+    }
+    
+    public bool WroteCollectionName
+    {
+        get => moldFlags.HasWroteCollectionNameFlag();
+        set => moldFlags = moldFlags.SetTo(WroteCollectionNameFlag, value);
+    }
+    
+    public bool WroteCollectionOpen
+    {
+        get => moldFlags.HasWroteCollectionOpenFlag();
+        set => moldFlags = moldFlags.SetTo(WroteCollectionOpenFlag, value);
+    }
+    
+    public bool WroteCollectionClose
+    {
+        get => moldFlags.HasWroteCollectionCloseFlag();
+        set => moldFlags = moldFlags.SetTo(WroteCollectionCloseFlag, value);
+    }
+    
+    public bool SuppressCollectionOpen
+    {
+        get => moldFlags.HasSuppressedCollectionOpenFlag();
+        set => moldFlags = moldFlags.SetTo(SuppressedCollectionOpenFlag, value);
+    }
+    
+    public bool SuppressCollectionClose
+    {
+        get => moldFlags.HasSuppressedCollectionCloseFlag();
+        set => moldFlags = moldFlags.SetTo(SuppressedCollectionCloseFlag, value);
     }
     
 
     public char IndentChar => Settings.IndentChar;
 
-    public IStyledTypeFormatting StyleFormatter => typeBuilderState.Master.CurrentStyledTypeFormatter;
+    public IStyledTypeFormatting StyleFormatter
+    {
+        [DebuggerStepThrough]
+        get => typeBuilderState.Master.CurrentStyledTypeFormatter;
+    }
     public IStyledTypeFormatting Sf => StyleFormatter;
 
-    public bool IsComplete => StyleTypeBuilder.IsComplete;
+    public bool IsComplete => Mold.IsComplete;
 
     public bool SkipBody
     {
@@ -317,15 +338,15 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
       , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags)
 
     {
-        return StyleTypeBuilder;
+        return Mold;
     }
     
-    public bool BuildingInstanceEquals<T>(T check) => StyleTypeBuilder.BuildingInstanceEquals(check);
+    public bool BuildingInstanceEquals<T>(T check) => Mold.BuildingInstanceEquals(check);
 
     public StyleOptions Settings
     {
         [DebuggerStepThrough]
-        get { return typeBuilderState.Master.Settings; }
+        get => typeBuilderState.Master.Settings;
     }
 
     public int DecrementIndent()
@@ -363,11 +384,15 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
         typeBuilderState.MoldGraphVisit = VisitResult.VisitNotChecked;
     }
 
+    public override string ToString() => 
+        $"{Mold.GetType().Name}_{TypeBeingVisitedAs?.Name ?? "NoType"}_{TypeBeingBuilt?.Name ?? "NoType"}" +
+        $"_{MoldGraphVisit}_[{CurrentWriteMethod}]_[{CreateMoldFormatFlags}]";
+
     public ITheOneString Complete()
     {
         if (!typeBuilderState.IsComplete)
         {
-            typeBuilderState.CompleteResult = StyleTypeBuilder.Complete();
+            typeBuilderState.CompleteResult = Mold.Complete();
             //OwningAppender.AddTypeEnd(StyleTypeBuilder);
         }
         return Master;
@@ -379,11 +404,21 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
     public virtual ITypeMolderDieCast CopyFrom(ITypeMolderDieCast? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source == null) return this;
-        RemainingGraphDepth = source.RemainingGraphDepth;
-        CurrentWriteMethod      = source.CurrentWriteMethod;
-        SkipBody            = source.SkipBody;
-        SkipFields          =  source.SkipFields;
+        CreateMoldFormatFlags      = source.CreateMoldFormatFlags;
+        CurrentWriteMethod         = source.CurrentWriteMethod;
+        MoldGraphVisit             = source.MoldGraphVisit;
+        RemainingGraphDepth        = source.RemainingGraphDepth;
+        SkipBody                   = source.SkipBody;
+        SkipFields                 = source.SkipFields;
         LastStartNewLineContentPos = source.LastStartNewLineContentPos;
+        IsEmpty                    = source.IsEmpty;
+        WroteRefId                 = source.WroteRefId;
+        WasDepthClipped            = source.WasDepthClipped;
+        WroteTypeName              = source.WroteTypeName;
+        WroteTypeOpen              = source.WroteTypeOpen;
+        WroteTypeClose             = source.WroteTypeClose;
+        WroteCollectionOpen        = source.WroteCollectionOpen;
+        WroteCollectionClose       = source.WroteCollectionClose;
 
         return this;
     }
@@ -391,9 +426,8 @@ public class TypeMolderDieCast<TExt> : RecyclableObject, ITypeMolderDieCast<TExt
     public override void StateReset()
     {
         InitialWriteMethod = WrittenAsFlags.Empty;
-        currentWriteMethod = WrittenAsFlags.Empty;
         moldFlags          = IsEmptyFlag;
-        StyleTypeBuilder   = null!;
+        Mold   = null!;
         typeBuilderState   = null!;
         base.StateReset();
     }

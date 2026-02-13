@@ -415,7 +415,7 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
         {
             if (lastRange.ContentRange == null && penUltimateRange != null)
             {
-                sepPaddingLen = penUltimateRange.Value.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
+                sepPaddingLen = penUltimateRange.Value.SeparatorPaddingRange?.CappedLength(sb.Length) ?? 0;
                 if (sepPaddingLen > 0)
                 {
                     if (IsInModifyOverwriteMode) { overWriteIndex -= sepPaddingLen; }
@@ -428,7 +428,7 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
                 ? (IsInModifyOverwriteMode ? sb[overWriteIndex - 1] : sb[^1])
                 : '\0';
         }
-        sepPaddingLen = lastRange.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
+        sepPaddingLen = lastRange.SeparatorPaddingRange?.CappedLength(sb.Length) ?? 0;
         if (sepPaddingLen > 0)
         {
             if (IsInModifyOverwriteMode) { overWriteIndex -= sepPaddingLen; }
@@ -437,7 +437,7 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
         }
         if (lastRange.ContentRange == null && penUltimateRange != null)
         {
-            sepPaddingLen = penUltimateRange.Value.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
+            sepPaddingLen = penUltimateRange.Value.SeparatorPaddingRange?.CappedLength(sb.Length) ?? 0;
             if (sepPaddingLen > 0)
             {
                 if (IsInModifyOverwriteMode) { overWriteIndex -= sepPaddingLen; }
@@ -461,7 +461,7 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
         {
             if (lastRange.ContentRange == null && penUltimateRange != null)
             {
-                sepPaddingLen = lastRange.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
+                sepPaddingLen = lastRange.SeparatorPaddingRange?.CappedLength(sb.Length) ?? 0;
                 if (sepPaddingLen > 0)
                 {
                     if (IsInModifyOverwriteMode) { overWriteIndex -= sepPaddingLen; }
@@ -471,7 +471,7 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
             }
             return destIndex > 0 ? (IsInModifyOverwriteMode ? destSpan[Math.Max(0, overWriteIndex - 1)] : destSpan[destIndex - 1]) : '\0';
         }
-        sepPaddingLen = lastRange.SeparatorPaddingRange?.Length(destIndex) ?? 0;
+        sepPaddingLen = lastRange.SeparatorPaddingRange?.CappedLength(destIndex) ?? 0;
         if (sepPaddingLen > 0)
         {
             if (IsInModifyOverwriteMode) { overWriteIndex -= sepPaddingLen; }
@@ -480,7 +480,7 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
         }
         if (lastRange.ContentRange == null && penUltimateRange != null)
         {
-            sepPaddingLen = lastRange.SeparatorPaddingRange?.Length(sb.Length) ?? 0;
+            sepPaddingLen = lastRange.SeparatorPaddingRange?.CappedLength(sb.Length) ?? 0;
             if (sepPaddingLen > 0)
             {
                 if (IsInModifyOverwriteMode) { overWriteIndex -= sepPaddingLen; }

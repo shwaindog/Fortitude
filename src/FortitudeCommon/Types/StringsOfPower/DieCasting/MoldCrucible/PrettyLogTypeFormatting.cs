@@ -57,18 +57,8 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         }
         Gb.IndentLevel++;
         Gb.AppendContent(BrcOpn);
-        if (formatFlags.CanAddNewLine())
-        {
-            Gb.AppendPadding(StyleOptions.NewLineStyle);
-            if (!formatFlags.HasNoWhitespacesToNextFlag())
-            {
-                Gb
-                    .AppendPadding
-                        (StyleOptions.IndentChar, StyleOptions.IndentRepeat(Gb.IndentLevel));
-            }
-        }
 
-        return Gb.Complete(formatFlags);
+        return AddNextFieldPadding(formatFlags);
     }
 
     public override int SizeNextFieldPadding(FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -97,9 +87,9 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         return Gb.Complete(formatFlags);
     }
 
-    public override ContentSeparatorRanges AppendComplexTypeClosing(ITypeMolderDieCast moldInternal)
+    public override ContentSeparatorRanges AppendComplexTypeClosing(ITypeMolderDieCast mdc)
     {
-        var sb = moldInternal.Sb;
+        var sb = mdc.Sb;
 
         var previousContentPadSpacing = Gb.LastContentSeparatorPaddingRanges;
         var lastNonWhiteSpace         = Gb.RemoveLastSeparatorAndPadding();
@@ -157,30 +147,32 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         return sb;
     }
 
-    public override IStringBuilder FormatCollectionStart(ITypeMolderDieCast mdc, Type itemElementType
+    public override ContentSeparatorRanges StartFormatCollectionOpen(ITypeMolderDieCast mdc, Type itemElementType
       , bool? hasItems, Type collectionType, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = mdc.Sb;
-        Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
-        if (!hasItems.HasValue)
+        if (hasItems != true || mdc.WroteCollectionOpen)
         {
-            Gb.MarkContentEnd();
-            return sb;
+            return ContentSeparatorRanges.None;
         }
+        mdc.WroteCollectionClose = false;
 
         // Log always shows each collection and field name
         // if (formatFlags.DoesNotHaveSuppressOpening())
         // {
-        if ((itemElementType == typeof(char) && StyleOptions.CharBufferWritesAsCharCollection)
-         || (itemElementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String))
+        if (!mdc.SkipBody)
         {
-            Gb.AppendContent(DblQt);
-            return sb;
+            var sb = mdc.Sb;
+            Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
+            if ((itemElementType == typeof(char) && StyleOptions.CharBufferWritesAsCharCollection)
+             || (itemElementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String))
+            {
+                Gb.AppendContent(DblQt);
+                return Gb.Complete(formatFlags);
+            }
+            Gb.IndentLevel++;
         }
-        Gb.IndentLevel++;
 
-        base.FormatCollectionStart(mdc, itemElementType, hasItems, collectionType, formatFlags);
-        return sb;
+        return base.StartFormatCollectionOpen(mdc, itemElementType, hasItems, collectionType, formatFlags);
     }
 
     public override ContentSeparatorRanges AddCollectionElementPadding(ITypeMolderDieCast moldInternal, Type elementType, int nextItemNumber
@@ -231,18 +223,32 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
       , int? totalItemCount, string? formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var sb = mdc.Sb;
-        if (!totalItemCount.HasValue)
+        if (mdc.SkipBody || mdc.WroteCollectionClose)
         {
-            if (StyleOptions.NullWritesEmpty)
+            if (Gb.CurrentSectionRanges.HasNonZeroLengthContent) { Gb.SnapshotLastAppendSequence(Gb.CurrentSectionRanges.StartedWithFormatFlags); }
+            Gb.RemoveLastSeparatorAndPadding();
+            return sb;
+        }
+        mdc.WroteCollectionClose = true;
+        if (!(totalItemCount > 0))
+        {
+            if (totalItemCount.HasValue || StyleOptions.NullWritesEmpty)
             {
                 Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
-                CollectionStart(itemElementType, sb, false, (FormatSwitches)formatFlags);
+                if(!mdc.WroteCollectionOpen) CollectionStart(itemElementType, sb, true, (FormatSwitches)formatFlags);
+                else Gb.IndentLevel--;
                 CollectionEnd(itemElementType, sb, 0, (FormatSwitches)formatFlags);
                 Gb.Complete(formatFlags);
             }
-            else { AppendFormattedNull(sb, formatString, formatFlags); }
+            else
+            {
+                AppendFormattedNull(sb, formatString, formatFlags);
+                if(mdc.WroteCollectionOpen) Gb.IndentLevel--;
+            }
+            mdc.WroteCollectionOpen = false;
             return sb;
         }
+        mdc.WroteCollectionOpen = false;
         CharSpanCollectionScratchBuffer?.DecrementRefCount();
         CharSpanCollectionScratchBuffer = null;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags, true);
@@ -264,9 +270,8 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         if (itemElementType == typeof(KeyValuePair<string, JsonNode>))
         {
             Gb.AppendContent(BrcCls);
-            return sb;
         }
-        Gb.AppendContent(SqBrktCls);
+        Gb.StartAppendContentAndComplete(SqBrktCls, sb, formatFlags);
         // }
         return sb;
     }

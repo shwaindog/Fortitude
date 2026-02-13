@@ -97,11 +97,11 @@ public class OrderedCollectionMoldCompactJsonTests : OrderedCollectionMoldTests
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     
-    // [TestMethod]
+    [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(BoolCollectionsTestData.AllBoolCollectionExpectations[2], ScaffoldingRegistry.AllScaffoldingTypes[1020]
+        ExecuteIndividualScaffoldExpectation(BoolCollectionsTestData.AllBoolCollectionExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[1001]
                                            , StringBuilderType.MutableString);
     }
 

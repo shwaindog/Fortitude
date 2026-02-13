@@ -39,7 +39,7 @@ public partial class KeyedCollectionMold
             }
             ItemCount = value.Length;
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue>(
@@ -66,7 +66,7 @@ public partial class KeyedCollectionMold
             }
             ItemCount = value.Count;
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue>(
@@ -92,7 +92,7 @@ public partial class KeyedCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue>(
@@ -121,7 +121,7 @@ public partial class KeyedCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TVRevealBase>(
@@ -169,7 +169,7 @@ public partial class KeyedCollectionMold
             }
             ItemCount = value.Length;
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue>(KeyValuePair<TKey, TValue?>[]? value
@@ -196,7 +196,7 @@ public partial class KeyedCollectionMold
             }
             ItemCount = value.Length;
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TVRevealBase>
@@ -224,7 +224,7 @@ public partial class KeyedCollectionMold
             }
             ItemCount = value.Count;
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue> (
@@ -252,7 +252,7 @@ public partial class KeyedCollectionMold
             }
             ItemCount = value.Count;
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue, TVRevealBase>(
@@ -280,7 +280,7 @@ public partial class KeyedCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue>(
@@ -307,7 +307,7 @@ public partial class KeyedCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue, TVRevealBase>(
@@ -338,7 +338,7 @@ public partial class KeyedCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue>(
@@ -368,7 +368,7 @@ public partial class KeyedCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TKRevealBase, TVRevealBase>(
@@ -442,7 +442,7 @@ public partial class KeyedCollectionMold
             }
             ItemCount = value.Length;
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TVRevealBase>(
@@ -471,7 +471,7 @@ public partial class KeyedCollectionMold
             }
             ItemCount = value.Length;
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TKRevealBase>(
@@ -500,7 +500,7 @@ public partial class KeyedCollectionMold
             }
             ItemCount = value.Length;
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue>(
@@ -528,7 +528,7 @@ public partial class KeyedCollectionMold
             }
             ItemCount = value.Length;
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TKRevealBase, TVRevealBase>(
@@ -558,7 +558,7 @@ public partial class KeyedCollectionMold
             }
             ItemCount = value.Count;
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TVRevealBase>(
@@ -587,7 +587,7 @@ public partial class KeyedCollectionMold
             }
             ItemCount = value.Count;
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TKRevealBase>(
@@ -616,7 +616,7 @@ public partial class KeyedCollectionMold
             }
             ItemCount = value.Count;
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue>(
@@ -644,7 +644,7 @@ public partial class KeyedCollectionMold
             }
             ItemCount = value.Count;
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue, TKRevealBase, TVRevealBase>(
@@ -673,7 +673,7 @@ public partial class KeyedCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue, TVRevealBase>(
@@ -701,7 +701,7 @@ public partial class KeyedCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue, TKRevealBase>(
@@ -729,7 +729,7 @@ public partial class KeyedCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue>(
@@ -756,7 +756,7 @@ public partial class KeyedCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue, TKRevealBase, TVRevealBase>(
@@ -788,7 +788,7 @@ public partial class KeyedCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue, TVRevealBase>(
@@ -819,7 +819,7 @@ public partial class KeyedCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue, TKRevealBase>(
@@ -850,7 +850,7 @@ public partial class KeyedCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddAllEnumerate<TKey, TValue>(
@@ -880,6 +880,6 @@ public partial class KeyedCollectionMold
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 }

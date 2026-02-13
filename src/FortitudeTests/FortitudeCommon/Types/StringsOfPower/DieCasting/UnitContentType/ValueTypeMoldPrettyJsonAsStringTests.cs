@@ -160,7 +160,7 @@ public class ContentTypeMoldPrettyJsonAsStringTests : ContentTypeMoldAsStringTes
             maybeIndent  = "  ";
             expectValue.Replace("\"", "\\u0022");
             expectValue  = (condition.HasComplexTypeFlag() && expectValue.IsBrcBounded() 
-                ? expectValue.IndentSubsequentLines() 
+                ? expectValue.IndentSubsequentLines(tos.Settings.NewLineStyle) 
                 : expectValue);
         }
         else { expectValue.Clear(); }

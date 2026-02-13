@@ -114,5 +114,5 @@ public abstract class Node : INode
 
 public interface IChildNode : INode
 {
-    IReadOnlyParentNode? Parent { get; set; }
+    INode? Parent { get; set; }
 }

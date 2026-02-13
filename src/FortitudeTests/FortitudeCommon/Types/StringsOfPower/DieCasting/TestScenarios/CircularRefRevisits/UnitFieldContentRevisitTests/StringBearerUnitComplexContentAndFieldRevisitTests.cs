@@ -6,6 +6,7 @@ using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CircularRefRevisits.FixtureScaffolding.UnitFieldContent;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData.TestTree;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData.TestTree.ComplexFieldCollection;
 using static FortitudeCommon.Types.StringsOfPower.Options.StringStyle;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations.ScaffoldingStringBuilderInvokeFlags;
 
@@ -15,18 +16,18 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestSce
 [TestClass]
 public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExpectationTestBase
 {
-    private static InputBearerExpect<TwoStringBearersFirstAsComplexCloakedValueContent<BinaryBranchNode<LeafNode>>>?
+    private static InputBearerExpect<TwoStringBearersFirstAsComplexCloakedValueContent<BinaryBranchNodeAsField<LeafNode>>>?
         twoSameOneBranchTwoSameLeafNodesOneComplexCloakedValueOneFieldWithDefaultRevisitSettingsExpect;
-    private static InputBearerExpect<TwoStringBearersSecondAsComplexCloakedValueContent<BinaryBranchNode<LeafNode>>>?
+    private static InputBearerExpect<TwoStringBearersSecondAsComplexCloakedValueContent<BinaryBranchNodeAsField<LeafNode>>>?
         twoSameOneBranchTwoSameLeafNodesOneFieldOneComplexCloakedValueWithDefaultRevisitSettingsExpect;
-    private static InputBearerExpect<TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>>>?
+    private static InputBearerExpect<TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>>>?
         twoSameOneBranchTwoSameLeafNodesOneComplexCloakedStringOneFieldWithDefaultRevisitSettingsExpect;
-    private static InputBearerExpect<TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>>>?
+    private static InputBearerExpect<TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>>>?
         twoSameOneBranchTwoSameLeafNodesOneFieldOneComplexCloakedStringWithDefaultRevisitSettingsExpect;
 
-    private static InputBearerExpect<TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>>>?
+    private static InputBearerExpect<TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>>>?
         twoSameOneBranchTwoSameLeafNodesOneComplexCloakedStringOneFieldWithToggleStyleAsStringLocalTrackingExpect;
-    private static InputBearerExpect<TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>>>?
+    private static InputBearerExpect<TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>>>?
         twoSameOneBranchTwoSameLeafNodesOneFieldOneComplexCloakedStringWithToggleStyleAsStringLocalTrackingExpect;
 
     [ClassInitialize]
@@ -41,33 +42,33 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
         Node.ResetInstanceIds();
     }
 
-    public static TwoStringBearersFirstAsComplexCloakedValueContent<BinaryBranchNode<LeafNode>>
+    public static TwoStringBearersFirstAsComplexCloakedValueContent<BinaryBranchNodeAsField<LeafNode>>
         TwoSameOneBranchTwoSameLeafNodesOneComplexCloakedValueOneField
     {
         get
         {
             var child           = new LeafNode("SameChild");
-            var secondFieldSame = new BinaryBranchNode<LeafNode>("SameOnLeftAndRight", child, child);
+            var secondFieldSame = new BinaryBranchNodeAsField<LeafNode>("SameOnLeftAndRight", child, child);
             var twoSameOneBranchNodeTwoSameLeafNodes =
-                new TwoStringBearersFirstAsComplexCloakedValueContent<BinaryBranchNode<LeafNode>>(secondFieldSame, secondFieldSame);
+                new TwoStringBearersFirstAsComplexCloakedValueContent<BinaryBranchNodeAsField<LeafNode>>(secondFieldSame, secondFieldSame);
             return twoSameOneBranchNodeTwoSameLeafNodes;
         }
     }
 
-    public static InputBearerExpect<TwoStringBearersFirstAsComplexCloakedValueContent<BinaryBranchNode<LeafNode>>>
+    public static InputBearerExpect<TwoStringBearersFirstAsComplexCloakedValueContent<BinaryBranchNodeAsField<LeafNode>>>
         TwoSameOneBranchTwoSameLeafNodesOneComplexCloakedValueOneFieldWithDefaultRevisitSettingsExpect
     {
         get
         {
             return twoSameOneBranchTwoSameLeafNodesOneComplexCloakedValueOneFieldWithDefaultRevisitSettingsExpect ??=
-                new InputBearerExpect<TwoStringBearersFirstAsComplexCloakedValueContent<BinaryBranchNode<LeafNode>>>(
+                new InputBearerExpect<TwoStringBearersFirstAsComplexCloakedValueContent<BinaryBranchNodeAsField<LeafNode>>>(
                  TwoSameOneBranchTwoSameLeafNodesOneComplexCloakedValueOneField)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoStringBearersFirstAsComplexCloakedValueContent<BinaryBranchNode<LeafNode>> {
-                         FirstStringBearerField: (BinaryBranchNode<LeafNode>) {
+                        TwoStringBearersFirstAsComplexCloakedValueContent<BinaryBranchNodeAsField<LeafNode>> {
+                         FirstStringBearerField: (BinaryBranchNodeAsField<LeafNode>) {
                          $id: 2,
                          CloakedRevealerFirstStringBearerField: {
                          Name: "SameOnLeftAndRight",
@@ -91,7 +92,7 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
                          3
                          ]
                          },
-                         SecondStringBearerField: BinaryBranchNode<LeafNode> {
+                         SecondStringBearerField: BinaryBranchNodeAsField<LeafNode> {
                          $ref: 2
                          }
                          }
@@ -101,8 +102,8 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        TwoStringBearersFirstAsComplexCloakedValueContent<BinaryBranchNode<LeafNode>> {
-                          FirstStringBearerField: (BinaryBranchNode<LeafNode>) {
+                        TwoStringBearersFirstAsComplexCloakedValueContent<BinaryBranchNodeAsField<LeafNode>> {
+                          FirstStringBearerField: (BinaryBranchNodeAsField<LeafNode>) {
                             $id: 2,
                             CloakedRevealerFirstStringBearerField: {
                               Name: "SameOnLeftAndRight",
@@ -126,7 +127,7 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
                               3
                             ]
                           },
-                          SecondStringBearerField: BinaryBranchNode<LeafNode> {
+                          SecondStringBearerField: BinaryBranchNodeAsField<LeafNode> {
                             $ref: 2
                           }
                         }
@@ -220,33 +221,33 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
                                            , PrettyJson);
     }
 
-    public static TwoStringBearersSecondAsComplexCloakedValueContent<BinaryBranchNode<LeafNode>>
+    public static TwoStringBearersSecondAsComplexCloakedValueContent<BinaryBranchNodeAsField<LeafNode>>
         TwoSameOneBranchTwoSameLeafNodesOneFieldOneComplexCloakedValue
     {
         get
         {
             var child           = new LeafNode("SameChild");
-            var secondFieldSame = new BinaryBranchNode<LeafNode>("SameOnLeftAndRight", child, child);
+            var secondFieldSame = new BinaryBranchNodeAsField<LeafNode>("SameOnLeftAndRight", child, child);
             var twoSameOneBranchTwoSameLeafNodesOneFieldsOneCloaked
-                = new TwoStringBearersSecondAsComplexCloakedValueContent<BinaryBranchNode<LeafNode>>(secondFieldSame, secondFieldSame);
+                = new TwoStringBearersSecondAsComplexCloakedValueContent<BinaryBranchNodeAsField<LeafNode>>(secondFieldSame, secondFieldSame);
             return twoSameOneBranchTwoSameLeafNodesOneFieldsOneCloaked;
         }
     }
 
-    public static InputBearerExpect<TwoStringBearersSecondAsComplexCloakedValueContent<BinaryBranchNode<LeafNode>>>
+    public static InputBearerExpect<TwoStringBearersSecondAsComplexCloakedValueContent<BinaryBranchNodeAsField<LeafNode>>>
         TwoSameOneBranchTwoSameLeafNodesOneFieldOneComplexCloakedValueWithDefaultRevisitSettingsExpect
     {
         get
         {
             return twoSameOneBranchTwoSameLeafNodesOneFieldOneComplexCloakedValueWithDefaultRevisitSettingsExpect ??=
-                new InputBearerExpect<TwoStringBearersSecondAsComplexCloakedValueContent<BinaryBranchNode<LeafNode>>>(
+                new InputBearerExpect<TwoStringBearersSecondAsComplexCloakedValueContent<BinaryBranchNodeAsField<LeafNode>>>(
                  TwoSameOneBranchTwoSameLeafNodesOneFieldOneComplexCloakedValue)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoStringBearersSecondAsComplexCloakedValueContent<BinaryBranchNode<LeafNode>> {
-                         FirstStringBearerField: BinaryBranchNode<LeafNode> {
+                        TwoStringBearersSecondAsComplexCloakedValueContent<BinaryBranchNodeAsField<LeafNode>> {
+                         FirstStringBearerField: BinaryBranchNodeAsField<LeafNode> {
                          $id: 2,
                          Name: "SameOnLeftAndRight",
                          GlobalNodeInstanceId: 2,
@@ -263,7 +264,7 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
                          $ref: 1
                          }
                          },
-                         SecondStringBearerField: (BinaryBranchNode<LeafNode>) {
+                         SecondStringBearerField: (BinaryBranchNodeAsField<LeafNode>) {
                          $ref: 2
                          }
                          }
@@ -273,8 +274,8 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        TwoStringBearersSecondAsComplexCloakedValueContent<BinaryBranchNode<LeafNode>> {
-                          FirstStringBearerField: BinaryBranchNode<LeafNode> {
+                        TwoStringBearersSecondAsComplexCloakedValueContent<BinaryBranchNodeAsField<LeafNode>> {
+                          FirstStringBearerField: BinaryBranchNodeAsField<LeafNode> {
                             $id: 2,
                             Name: "SameOnLeftAndRight",
                             GlobalNodeInstanceId: 2,
@@ -291,7 +292,7 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
                               $ref: 1
                             }
                           },
-                          SecondStringBearerField: (BinaryBranchNode<LeafNode>) {
+                          SecondStringBearerField: (BinaryBranchNodeAsField<LeafNode>) {
                             $ref: 2
                           }
                         }
@@ -385,33 +386,33 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
                                            , PrettyJson);
     }
 
-    public static TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>>
+    public static TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>>
         TwoSameOneBranchTwoSameLeafNodesOneComplexCloakedStringOneField
     {
         get
         {
             var child           = new LeafNode("SameChild");
-            var secondFieldSame = new BinaryBranchNode<LeafNode>("SameOnLeftAndRight", child, child);
+            var secondFieldSame = new BinaryBranchNodeAsField<LeafNode>("SameOnLeftAndRight", child, child);
             var twoSameOneBranchTwoSameLeafNodesOneCloakedOneFields =
-                new TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>>(secondFieldSame, secondFieldSame);
+                new TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>>(secondFieldSame, secondFieldSame);
             return twoSameOneBranchTwoSameLeafNodesOneCloakedOneFields;
         }
     }
 
-    public static InputBearerExpect<TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>>>
+    public static InputBearerExpect<TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>>>
         TwoSameOneBranchTwoSameLeafNodesOneComplexCloakedStringOneFieldsWithDefaultRevisitSettingsExpect
     {
         get
         {
             return twoSameOneBranchTwoSameLeafNodesOneComplexCloakedStringOneFieldWithDefaultRevisitSettingsExpect ??=
-                new InputBearerExpect<TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>>>(
+                new InputBearerExpect<TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>>>(
                  TwoSameOneBranchTwoSameLeafNodesOneComplexCloakedStringOneField)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>> {
-                         FirstStringBearerField: (BinaryBranchNode<LeafNode>) {
+                        TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>> {
+                         FirstStringBearerField: (BinaryBranchNodeAsField<LeafNode>) {
                          $id: 2,
                          CloakedRevealerFirstStringBearerField: "{
                          Name: "SameOnLeftAndRight",
@@ -431,7 +432,7 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
                          }",
                          logOnlyStringBuilder: "For your eyes only"
                          },
-                         SecondStringBearerField: BinaryBranchNode<LeafNode> {
+                         SecondStringBearerField: BinaryBranchNodeAsField<LeafNode> {
                          $ref: 2
                          }
                          }
@@ -441,8 +442,8 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>> {
-                          FirstStringBearerField: (BinaryBranchNode<LeafNode>) {
+                        TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>> {
+                          FirstStringBearerField: (BinaryBranchNodeAsField<LeafNode>) {
                             $id: 2,
                             CloakedRevealerFirstStringBearerField: "{
                               Name: "SameOnLeftAndRight",
@@ -462,7 +463,7 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
                             }",
                             logOnlyStringBuilder: "For your eyes only"
                           },
-                          SecondStringBearerField: BinaryBranchNode<LeafNode> {
+                          SecondStringBearerField: BinaryBranchNodeAsField<LeafNode> {
                             $ref: 2
                           }
                         }
@@ -610,33 +611,33 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
                                            , PrettyJson);
     }
 
-    public static TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>>
+    public static TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>>
         TwoSameOneBranchTwoSameLeafNodesOneFieldOneComplexCloakedString
     {
         get
         {
             var child           = new LeafNode("SameChild");
-            var secondFieldSame = new BinaryBranchNode<LeafNode>("SameOnLeftAndRight", child, child);
+            var secondFieldSame = new BinaryBranchNodeAsField<LeafNode>("SameOnLeftAndRight", child, child);
             var twoSameOneBranchTwoSameLeafNodesOneFieldsOneCloakedString
-                = new TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>>(secondFieldSame, secondFieldSame);
+                = new TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>>(secondFieldSame, secondFieldSame);
             return twoSameOneBranchTwoSameLeafNodesOneFieldsOneCloakedString;
         }
     }
 
-    public static InputBearerExpect<TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>>>
+    public static InputBearerExpect<TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>>>
         TwoSameOneBranchTwoSameLeafNodesOneFieldOneComplexCloakedStringWithDefaultRevisitSettingsExpect
     {
         get
         {
             return twoSameOneBranchTwoSameLeafNodesOneFieldOneComplexCloakedStringWithDefaultRevisitSettingsExpect ??=
-                new InputBearerExpect<TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>>>(
+                new InputBearerExpect<TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>>>(
                  TwoSameOneBranchTwoSameLeafNodesOneFieldOneComplexCloakedString)
                 {
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>> {
-                         FirstStringBearerField: BinaryBranchNode<LeafNode> {
+                        TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>> {
+                         FirstStringBearerField: BinaryBranchNodeAsField<LeafNode> {
                          $id: 2,
                          Name: "SameOnLeftAndRight",
                          GlobalNodeInstanceId: 2,
@@ -653,7 +654,7 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
                          $ref: 1
                          }
                          },
-                         SecondStringBearerField: (BinaryBranchNode<LeafNode>) { $ref: 2 }
+                         SecondStringBearerField: (BinaryBranchNodeAsField<LeafNode>) { $ref: 2 }
                          }
                         """.RemoveLineEndings()
                     }
@@ -661,8 +662,8 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>> {
-                          FirstStringBearerField: BinaryBranchNode<LeafNode> {
+                        TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>> {
+                          FirstStringBearerField: BinaryBranchNodeAsField<LeafNode> {
                             $id: 2,
                             Name: "SameOnLeftAndRight",
                             GlobalNodeInstanceId: 2,
@@ -679,7 +680,7 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
                               $ref: 1
                             }
                           },
-                          SecondStringBearerField: (BinaryBranchNode<LeafNode>) {
+                          SecondStringBearerField: (BinaryBranchNodeAsField<LeafNode>) {
                             $ref: 2
                           }
                         }
@@ -894,20 +895,20 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
              });
     }
 
-    public static InputBearerExpect<TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>>>
+    public static InputBearerExpect<TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>>>
         TwoSameOneBranchTwoSameLeafNodesOneComplexCloakedStringOneFieldWithToggleStyleAsStringLocalTrackingExpect
     {
         get
         {
             return twoSameOneBranchTwoSameLeafNodesOneComplexCloakedStringOneFieldWithToggleStyleAsStringLocalTrackingExpect ??=
-                new InputBearerExpect<TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>>>
+                new InputBearerExpect<TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>>>
                     (TwoSameOneBranchTwoSameLeafNodesOneComplexCloakedStringOneField)
                     {
                         {
                             new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                           , """
-                            TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>> {
-                             FirstStringBearerField: (BinaryBranchNode<LeafNode>) {
+                            TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>> {
+                             FirstStringBearerField: (BinaryBranchNodeAsField<LeafNode>) {
                              CloakedRevealerFirstStringBearerField: "{
                              Name: "SameOnLeftAndRight",
                              GlobalNodeInstanceId: 2,
@@ -926,7 +927,7 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
                              }",
                              logOnlyStringBuilder: "For your eyes only"
                              },
-                             SecondStringBearerField: BinaryBranchNode<LeafNode> {
+                             SecondStringBearerField: BinaryBranchNodeAsField<LeafNode> {
                              Name: "SameOnLeftAndRight",
                              GlobalNodeInstanceId: 2,
                              NodeType: NodeType.BranchNode,
@@ -949,8 +950,8 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
                         {
                             new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                           , """
-                            TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>> {
-                              FirstStringBearerField: (BinaryBranchNode<LeafNode>) {
+                            TwoStringBearersFirstAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>> {
+                              FirstStringBearerField: (BinaryBranchNodeAsField<LeafNode>) {
                                 CloakedRevealerFirstStringBearerField: "{
                                   Name: "SameOnLeftAndRight",
                                   GlobalNodeInstanceId: 2,
@@ -969,7 +970,7 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
                                 }",
                                 logOnlyStringBuilder: "For your eyes only"
                               },
-                              SecondStringBearerField: BinaryBranchNode<LeafNode> {
+                              SecondStringBearerField: BinaryBranchNodeAsField<LeafNode> {
                                 Name: "SameOnLeftAndRight",
                                 GlobalNodeInstanceId: 2,
                                 NodeType: NodeType.BranchNode,
@@ -1103,20 +1104,20 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
              });
     }
 
-    public static InputBearerExpect<TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>>>
+    public static InputBearerExpect<TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>>>
         TwoSameOneBranchTwoSameLeafNodesOneFieldOneComplexCloakedStringWithToggleStyleAsStringLocalTrackingExpect
     {
         get
         {
             return twoSameOneBranchTwoSameLeafNodesOneFieldOneComplexCloakedStringWithToggleStyleAsStringLocalTrackingExpect ??=
-                new InputBearerExpect<TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>>>
+                new InputBearerExpect<TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>>>
                     (TwoSameOneBranchTwoSameLeafNodesOneFieldOneComplexCloakedString)
                     {
                         {
                             new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                           , """
-                            TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>> {
-                             FirstStringBearerField: BinaryBranchNode<LeafNode> {
+                            TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>> {
+                             FirstStringBearerField: BinaryBranchNodeAsField<LeafNode> {
                              Name: "SameOnLeftAndRight",
                              GlobalNodeInstanceId: 2,
                              NodeType: NodeType.BranchNode,
@@ -1132,7 +1133,7 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
                              $ref: 1
                              }
                              },
-                             SecondStringBearerField: (BinaryBranchNode<LeafNode>) {
+                             SecondStringBearerField: (BinaryBranchNodeAsField<LeafNode>) {
                              CloakedRevealerSecondStringBearerField: "{
                              Name: "SameOnLeftAndRight",
                              GlobalNodeInstanceId: 2,
@@ -1158,8 +1159,8 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
                         {
                             new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                           , """
-                            TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNode<LeafNode>> {
-                              FirstStringBearerField: BinaryBranchNode<LeafNode> {
+                            TwoStringBearersSecondAsComplexCloakedStringContent<BinaryBranchNodeAsField<LeafNode>> {
+                              FirstStringBearerField: BinaryBranchNodeAsField<LeafNode> {
                                 Name: "SameOnLeftAndRight",
                                 GlobalNodeInstanceId: 2,
                                 NodeType: NodeType.BranchNode,
@@ -1175,7 +1176,7 @@ public class StringBearerUnitComplexContentAndFieldRevisitTests : CommonStyleExp
                                   $ref: 1
                                 }
                               },
-                              SecondStringBearerField: (BinaryBranchNode<LeafNode>) {
+                              SecondStringBearerField: (BinaryBranchNodeAsField<LeafNode>) {
                                 CloakedRevealerSecondStringBearerField: "{
                                   Name: "SameOnLeftAndRight",
                                   GlobalNodeInstanceId: 2,

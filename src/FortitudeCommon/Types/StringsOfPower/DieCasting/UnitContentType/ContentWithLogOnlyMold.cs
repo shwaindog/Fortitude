@@ -43,9 +43,11 @@ public class ContentWithLogOnlyMold : ContentJoinTypeMold<ComplexContentTypeMold
                 hasAddedContentFinishLogFieldSeparator = true;
             }
             return logOnlyInternalCollectionField ??=
-                PortableState.Master.Recycler
-                             .Borrow<ComplexType.CollectionField.SelectTypeCollectionField<ContentWithLogOnlyMold>>()
-                             .Initialize(MoldStateField);
+                PortableState
+                    .Master
+                    .Recycler
+                    .Borrow<ComplexType.CollectionField.SelectTypeCollectionField<ContentWithLogOnlyMold>>()
+                    .Initialize(MoldStateField);
         }
     }
 
@@ -60,9 +62,11 @@ public class ContentWithLogOnlyMold : ContentJoinTypeMold<ComplexContentTypeMold
                 hasAddedContentFinishLogFieldSeparator = true;
             }
             return logOnlyInternalMapCollectionField ??=
-                PortableState.Master.Recycler
-                             .Borrow<ComplexType.MapCollectionField.SelectTypeKeyedCollectionField<ContentWithLogOnlyMold>>()
-                             .Initialize(MoldStateField);
+                PortableState
+                    .Master
+                    .Recycler
+                    .Borrow<ComplexType.MapCollectionField.SelectTypeKeyedCollectionField<ContentWithLogOnlyMold>>()
+                    .Initialize(MoldStateField);
         }
     }
 

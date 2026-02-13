@@ -15,12 +15,11 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
         public bool IsValueType => ActualType.IsValueType;
 
         public GraphNodeVisit(
-            int RegistryId
-          , int ObjVisitIndex
-          , int ParentVisitIndex
+            VisitId NodeVisitId
+          , VisitId ParentVisitId
           , Type ActualType
           , Type VisitedAsType
-          , ITypeMolderDieCast? TypeBuilderComponentAccess  
+          , ITypeMolderDieCast? MoldState  
           , WrittenAsFlags WrittenAs
           , object? VisitedInstance
           , int IndentLevel  
@@ -34,14 +33,13 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
           , bool HasInsertedInstanceId = false  
         )
         {
-            this.RegistryId                 = RegistryId;
-            this.ParentVisitIndex           = ParentVisitIndex;
-            this.VisitedAsType              = VisitedAsType;
-            this.ActualType                 = ActualType;
-            this.ObjVisitIndex              = ObjVisitIndex;
-            this.TypeBuilderComponentAccess = TypeBuilderComponentAccess;
-            this.VisitedInstance            = VisitedInstance;
-            this.IndentLevel                = IndentLevel;
+            this.NodeVisitId     = NodeVisitId;
+            this.ParentVisitId   = ParentVisitId;
+            this.VisitedAsType   = VisitedAsType;
+            this.ActualType      = ActualType;
+            this.MoldState       = MoldState;
+            this.VisitedInstance = VisitedInstance;
+            this.IndentLevel     = IndentLevel;
             this.CallerContext.CopyFrom(CallerContext);
             
             this.FormattingState       = FormattingState;
@@ -55,7 +53,7 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
             this.HasInsertedInstanceId = HasInsertedInstanceId;
         }
 
-        public ITypeMolderDieCast? TypeBuilderComponentAccess { get; init; }
+        public ITypeMolderDieCast? MoldState { get; init; }
 
         public GraphNodeVisit SetRefId(int newRefId) => this with { RefId = newRefId };
 
@@ -72,12 +70,18 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
               , IndentLevel  = indentLevel
             };
 
+        public GraphNodeVisit UpdateIndentLevel(int indentLevel) =>
+            this with
+            {
+                IndentLevel  = indentLevel
+            };
+
         public GraphNodeVisit MarkContentEndClearComponentAccess(int contentEndIndex, WrittenAsFlags writtenAsFlags) =>
             this with
             {
                 BufferLength = contentEndIndex - TypeOpenBufferIndex
               , WrittenAs = writtenAsFlags
-              , TypeBuilderComponentAccess = null
+              , MoldState = null
             };
 
         public GraphNodeVisit UpdateVisitRemoveFormatFlags(FormatFlags flagsToRemove) =>
@@ -115,9 +119,8 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
         public int FirstFieldBufferIndex { get; init; }
         
-        public int RegistryId { get; init; }
-        public int ObjVisitIndex { get; init; }
-        public int ParentVisitIndex { get; init; }
+        public VisitId NodeVisitId { get; init; }
+        public VisitId ParentVisitId { get; init; }
         public Type VisitedAsType { get; init; }
         public Type ActualType { get; init; }
         public object? VisitedInstance { get; init; }
@@ -140,6 +143,10 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
         public IStyledTypeFormatting Formatter => FormattingState.Formatter;
         public IEncodingTransfer ContentEncoder => FormattingState.ContentEncoder;
         public IEncodingTransfer LayoutEncoder => FormattingState.LayoutEncoder;
+
+        public override string ToString() => 
+        $"GraphNodeVisit {{ MoldType: {MoldState?.Mold?.GetType().Name ?? "Cleared" } {nameof(NodeVisitId)}: {NodeVisitId}," +
+        $" {nameof(ParentVisitId)}: {ParentVisitId}{nameof(VisitedAsType)}: {VisitedAsType.Name}:  {nameof(ActualType)}: {ActualType.Name}:    }}";
 
         public void Reset()
         {

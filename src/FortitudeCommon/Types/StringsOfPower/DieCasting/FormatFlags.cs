@@ -235,13 +235,13 @@ public static class FieldContentHandlingExtensions
     }
 
     public static FormatFlags MoldSingleGenerationPassFlags(this FormatFlags moldCreatedFlags) =>
-        moldCreatedFlags & (NoRevisitCheck | LogSuppressTypeNames) | moldCreatedFlags.MoldMultiGenerationInheritFlags();
+        moldCreatedFlags & (NoRevisitCheck | LogSuppressTypeNames | AsCollection) | moldCreatedFlags.MoldMultiGenerationInheritFlags();
 
     public static FormatFlags MoldCallerPassFlags(this FormatFlags moldCreatedFlags) =>
-        moldCreatedFlags & (NoRevisitCheck | LogSuppressTypeNames) | moldCreatedFlags.MoldMultiGenerationInheritFlags();
+        moldCreatedFlags & (NoRevisitCheck | LogSuppressTypeNames | AsCollection) | moldCreatedFlags.MoldMultiGenerationInheritFlags();
 
     public static FormatFlags MoldRemoveSingleGenerationPassFlags(this FormatFlags moldCreatedFlags) =>
-        moldCreatedFlags & ~(NoRevisitCheck | LogSuppressTypeNames);
+        moldCreatedFlags & ~(NoRevisitCheck | LogSuppressTypeNames | AsCollection);
 
     public static FormatFlags MoldMultiGenerationInheritFlags(this FormatFlags moldCreatedFlags) =>
         moldCreatedFlags &
