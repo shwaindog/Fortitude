@@ -76,7 +76,7 @@ public class RawContentMold : KnownTypeMolder<RawContentMold>
         var writeMethod = msf.CurrentWriteMethod;
         if(writeMethod.HasAsComplexFlag())
         {
-            msf.WrittenAsFlags = WrittenAsFlags.AsComplex;
+            msf.CurrentWriteMethod = WrittenAsFlags.AsComplex;
             var sf = msf.StyleFormatter;
             if (sf.ContentEncoder.Type != sf.LayoutEncoder.Type) { sf = sf.PreviousContextOrThis; }
             sf.AppendComplexTypeClosing(msf);

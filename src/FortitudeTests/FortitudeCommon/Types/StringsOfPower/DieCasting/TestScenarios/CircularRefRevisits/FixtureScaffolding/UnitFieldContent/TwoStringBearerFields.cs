@@ -401,10 +401,12 @@ public class TwoStringBearersFirstAsComplexCloakedStringContent<TBearer> : IStri
     private readonly StringBuilder logOnlyStringBuilder = new ("For your eyes only");
 
     public PalantírReveal<TBearer> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
-        tos.StartComplexContentType(cloaked)
-           .RevealAsString($"CloakedRevealer{nameof(FirstStringBearerField)}", cloaked, ValueFormatString, FormattingFlags)
-           .LogOnlyField.AlwaysAdd(nameof(logOnlyStringBuilder), logOnlyStringBuilder)
-           .Complete();
+    {
+        var cct = tos.StartComplexContentType(cloaked);
+        var cwlom = cct.RevealAsString($"CloakedRevealer{nameof(FirstStringBearerField)}", cloaked, ValueFormatString, FormattingFlags);
+        cwlom.LogOnlyField.AlwaysAdd(nameof(logOnlyStringBuilder), logOnlyStringBuilder);
+        return cwlom.Complete();
+    };
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 

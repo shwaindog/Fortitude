@@ -24,7 +24,6 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
         Initialize(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
                  , remainingGraphDepth, moldGraphVisit, writeMethodType
                  , createFormatFlags | AsCollection);
-        WrittenAs = WrittenAsFlags.AsCollection;
 
         stb = CompAsOrderedCollection;
 
@@ -37,32 +36,50 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
     public int ResultCount { get; set; }
 
     public int TotalCount { get; private set; }
+    
+    protected Type ElementType { get; set; }
 
     public override void StartFormattingTypeOpening(IStyledTypeFormatting usingFormatter)
     {
-        if (CompAsOrderedCollection.SupportsMultipleFields) { MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField); }
+        if (CompAsOrderedCollection.SupportsMultipleFields)
+        {
+            MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField);
+        }
         else
         {
-            var elementType = MoldStateField.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
-            usingFormatter.FormatCollectionStart
+            var elementType = MoldStateField.Mold.TypeBeingBuilt.GetIterableElementType();
+            usingFormatter.StartFormatCollectionOpen
                 (MoldStateField, elementType!, true
                , MoldStateField.TypeBeingBuilt, MoldStateField.CreateMoldFormatFlags);
         }
     }
 
-    public override void CompleteTypeOpeningToTypeFields(IStyledTypeFormatting usingFormatter) { }
-
-    public override void AppendClosing()
+    public override void CompleteTypeOpeningToTypeFields(IStyledTypeFormatting usingFormatter)
     {
-        var formatter = MoldStateField.StyleFormatter;
         if (CompAsOrderedCollection.SupportsMultipleFields)
         {
-            formatter.AppendComplexTypeClosing(MoldStateField);
+            MoldStateField.StyleFormatter.FinishComplexTypeOpening(MoldStateField);
         }
         else
         {
-            var elementType = MoldStateField.StyleTypeBuilder.TypeBeingBuilt.GetIterableElementType();
-            formatter.FormatCollectionEnd(MoldStateField, ResultCount, elementType!, ResultCount, "", MoldStateField.CreateMoldFormatFlags);
+            var elementType = MoldStateField.Mold.TypeBeingBuilt.GetIterableElementType();
+            usingFormatter.FinishFormatCollectionOpen
+                (MoldStateField, elementType!, true
+               , MoldStateField.TypeBeingBuilt, MoldStateField.CreateMoldFormatFlags);
+        }
+    }
+
+    public override void AppendClosing()
+    {
+        if (CompAsOrderedCollection.SupportsMultipleFields)
+        {
+            State.StyleFormatter.AppendComplexTypeClosing(State);
+        }
+        else
+        {
+            var formatter   = MoldStateField.StyleFormatter;
+            var elementType = State.Mold.TypeBeingBuilt.GetIterableElementType();
+            formatter.FormatCollectionEnd(State, ResultCount, elementType!, ResultCount, "", MoldStateField.CreateMoldFormatFlags);
         }
     }
 
@@ -94,7 +111,7 @@ public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCo
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
         MoldStateField = recycler.Borrow<CollectionBuilderCompAccess<SimpleOrderedCollectionMold>>()
-                                 .InitializeOrderCollectionComponentAccess(this, PortableState, writeMethod);
+                                 .InitializeOrderCollectionComponentAccess(this, PortableState, writeMethod, true);
     }
 }
 
@@ -128,7 +145,7 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
         MoldStateField = recycler.Borrow<CollectionBuilderCompAccess<ComplexOrderedCollectionMold>>()
-                                 .InitializeOrderCollectionComponentAccess(this, PortableState, writeMethod);
+                                 .InitializeOrderCollectionComponentAccess(this, PortableState, writeMethod, false);
     }
 
     public ComplexType.UnitField.SelectTypeField<ComplexOrderedCollectionMold> LogOnlyField =>
@@ -151,9 +168,18 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
         base.InheritedStateReset();
     }
 
-    public ComplexOrderedCollectionMold AddBaseFieldsStart()
+    public ComplexOrderedCollectionMold AddBaseRevealStateFields<T>(T thisType) where T : IStringBearer
     {
+        var msf              = MoldStateField;
+        var markPreBodyStart = msf.Sb.Length;
+        if (msf.SkipBody) return msf.Mold;
+        
         MoldStateField.Master.AddBaseFieldsStart();
+        TargetStringBearerRevealState.CallBaseStyledToStringIfSupported(thisType, msf.Master);
+        if (msf.Sb.Length > markPreBodyStart)
+        {
+            msf.Sf.AddToNextFieldSeparatorAndPadding();
+        }
 
         return Me;
     }

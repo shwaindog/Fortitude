@@ -4,7 +4,7 @@
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData.TestTree;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData.TestTree.ComplexFieldCollection;
 
 
 public interface IReadOnlyParentNode : INode
@@ -12,17 +12,17 @@ public interface IReadOnlyParentNode : INode
     IEnumerable<IChildNode?>? ChildNodes { get; }
 }
 
-public abstract class OrderedParentNode<TChild> : Node, IReadOnlyParentNode
+public abstract class OrderedParentNodeAsField<TChild> : Node, IReadOnlyParentNode
     where TChild : class?, IChildNode?
 {
     private List<TChild>? childNodes;
 
-    protected OrderedParentNode()
+    protected OrderedParentNodeAsField()
     {
         NodeType = NodeType.RootNode;
     }
 
-    protected OrderedParentNode(List<TChild>? childNodes) : this()
+    protected OrderedParentNodeAsField(List<TChild>? childNodes) : this()
     {
         ChildNodes = childNodes;
         if (childNodes != null)
@@ -37,7 +37,7 @@ public abstract class OrderedParentNode<TChild> : Node, IReadOnlyParentNode
         }
     }
 
-    protected OrderedParentNode(params TChild[] children) : this()
+    protected OrderedParentNodeAsField(params TChild[] children) : this()
     {
         childNodes = children.ToList();
         foreach (var child in childNodes)
@@ -49,7 +49,7 @@ public abstract class OrderedParentNode<TChild> : Node, IReadOnlyParentNode
         }
     }
 
-    protected OrderedParentNode(string name, params TChild[] children) : base(name)
+    protected OrderedParentNodeAsField(string name, params TChild[] children) : base(name)
     {
         childNodes = children.ToList();
         foreach (var child in childNodes)
@@ -61,7 +61,7 @@ public abstract class OrderedParentNode<TChild> : Node, IReadOnlyParentNode
         }
     }
 
-    protected OrderedParentNode(string name, int? instId, params TChild[] children) : base(name, instId)
+    protected OrderedParentNodeAsField(string name, int? instId, params TChild[] children) : base(name, instId)
     {
         childNodes = children.ToList();
         foreach (var child in childNodes)
@@ -73,7 +73,7 @@ public abstract class OrderedParentNode<TChild> : Node, IReadOnlyParentNode
         }
     }
 
-    protected OrderedParentNode(List<TChild> childNodes, string name, int? instId = null) : base(name, instId)
+    protected OrderedParentNodeAsField(List<TChild> childNodes, string name, int? instId = null) : base(name, instId)
     {
         ChildNodes = childNodes;
         NodeType   = NodeType.RootNode;

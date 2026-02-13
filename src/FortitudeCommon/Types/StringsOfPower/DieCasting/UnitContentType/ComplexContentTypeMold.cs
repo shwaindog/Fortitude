@@ -44,7 +44,7 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
     {
       if (Msf.CurrentWriteMethod.HasNoneOf(AsComplex))
       {
-        Msf.Master.UpdateVisitWriteMethod(MoldVisit.RegistryId, MoldVisit.CurrentVisitIndex, Msf.CurrentWriteMethod);  
+        Msf.Master.UpdateVisitWriteMethod(MoldVisit.VisitId, Msf.CurrentWriteMethod);  
       }
       base.FinishTypeOpening();
     }

@@ -214,8 +214,7 @@ public class OrderedFromBoolEnumeratorAddAllSimpleOrderedCollectionStringBearer 
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllEnumerate(OrderedCollectionAddAllBoolEnumerator
-                          , ValueFormatString, FormattingFlags)
+           .AddAllEnumerate(OrderedCollectionAddAllBoolEnumerator, ValueFormatString, FormattingFlags)
            .Complete();
 }
 

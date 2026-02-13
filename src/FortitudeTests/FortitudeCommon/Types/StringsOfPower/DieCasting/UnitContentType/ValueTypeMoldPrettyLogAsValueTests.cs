@@ -122,7 +122,7 @@ public class ContentTypeMoldPrettyLogAsValueTests : ContentTypeMoldAsValueTests
             maybeIndent  = "  ";
             var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
             if (propertyName.IsNotEmpty() && condition.HasComplexTypeFlag()) nextExpect.Append(propertyName).Append(": ");
-            if (condition.HasComplexTypeFlag() && expectValue.HasAnyPairedBrc()) expectValue.IndentSubsequentLines();
+            if (condition.HasComplexTypeFlag() && expectValue.HasAnyPairedBrc()) expectValue.IndentSubsequentLines(tos.Settings.NewLineStyle);
             nextExpect.Append(expectValue);
             expectValue.DecrementRefCount();
             expectValue = nextExpect;
@@ -151,7 +151,7 @@ public class ContentTypeMoldPrettyLogAsValueTests : ContentTypeMoldAsValueTests
             maybeIndent  = "  ";
             var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
             nextExpect.Append(propertyName).Append(": ");
-            if (condition.HasComplexTypeFlag() && expectValue.HasAnyPairedBrc()) expectValue.IndentSubsequentLines();
+            if (condition.HasComplexTypeFlag() && expectValue.HasAnyPairedBrc()) expectValue.IndentSubsequentLines(tos.Settings.NewLineStyle);
             nextExpect.Append(expectValue);
             expectValue.DecrementRefCount();
             expectValue = nextExpect;

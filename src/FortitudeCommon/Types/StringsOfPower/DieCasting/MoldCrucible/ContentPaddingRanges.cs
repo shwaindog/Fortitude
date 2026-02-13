@@ -3,7 +3,6 @@
 
 using System.Runtime.CompilerServices;
 using FortitudeCommon.Extensions;
-using FortitudeCommon.Types.StringsOfPower.Forge;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
@@ -30,13 +29,21 @@ public readonly record struct SeparatorPaddingRanges(Range? SeparatorRange = nul
         return new SeparatorPaddingRanges(separatorRange);
     }
 
-    public int Length(int entireLength) => EntireRange?.Length(entireLength) ?? 0;
+    public int CappedLength(int entireLength) => EntireRange?.Length(entireLength) ?? 0;
+    
+    public int Length => CappedLength(int.MaxValue);
 };
 
 public readonly record struct ContentSeparatorRanges(FormatFlags PreviousFormatFlags, Range? ContentRange
   , SeparatorPaddingRanges? SeparatorPaddingRange = null)
 {
     public static ContentSeparatorRanges None => new ();
+    
+    public bool HasContent => ContentRange is not null;
+    
+    public bool HasNonZeroLengthContent => (ContentRange?.Length() ?? 0) > 0;
+
+    public int Length => ContentRange?.Length() ?? 0 + SeparatorPaddingRange?.Length ?? 0;
 };
 
 public static class ContentSeparatorRangesExtensions

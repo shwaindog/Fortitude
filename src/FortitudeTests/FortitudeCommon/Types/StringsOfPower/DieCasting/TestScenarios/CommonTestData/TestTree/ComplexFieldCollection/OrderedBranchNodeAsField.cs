@@ -4,9 +4,9 @@
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData.TestTree;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData.TestTree.ComplexFieldCollection;
 
-public class OrderedBranchNode<TChild> : OrderedParentNode<TChild>, IChildNode
+public class OrderedBranchNodeAsField<TChild> : OrderedParentNodeAsField<TChild>, IChildNode
     where TChild : class?, IChildNode?
 {
 
@@ -15,19 +15,20 @@ public class OrderedBranchNode<TChild> : OrderedParentNode<TChild>, IChildNode
         BranchNodeInstanceId = 0;
     }
 
-    public OrderedBranchNode()
+    public OrderedBranchNodeAsField()
     {
         NodeType             = NodeType.BranchNode;
         BranchInstanceId = Interlocked.Increment(ref BranchNodeInstanceId);
     }
 
-    public OrderedBranchNode(List<TChild> childNodes, IReadOnlyParentNode? parent = null) : base(childNodes)
+    public OrderedBranchNodeAsField(List<TChild> childNodes, IReadOnlyParentNode? parent = null) : base(childNodes)
     {
         NodeType             = NodeType.BranchNode;
         BranchInstanceId = Interlocked.Increment(ref BranchNodeInstanceId);
     }
 
-    public OrderedBranchNode(List<TChild> childNodes, string name, IReadOnlyParentNode? parent = null, int? instId = null) : base(childNodes, name, instId)
+    public OrderedBranchNodeAsField(List<TChild> childNodes, string name, IReadOnlyParentNode? parent = null, int? instId = null) 
+        : base(childNodes, name, instId)
     {
         NodeType = NodeType.BranchNode;
         Parent   = parent;
@@ -35,7 +36,7 @@ public class OrderedBranchNode<TChild> : OrderedParentNode<TChild>, IChildNode
         BranchInstanceId = Interlocked.Increment(ref BranchNodeInstanceId);
     }
 
-    public IReadOnlyParentNode? Parent { get; set; }
+    public INode? Parent { get; set; }
 
     public int BranchInstanceId { get; }
 

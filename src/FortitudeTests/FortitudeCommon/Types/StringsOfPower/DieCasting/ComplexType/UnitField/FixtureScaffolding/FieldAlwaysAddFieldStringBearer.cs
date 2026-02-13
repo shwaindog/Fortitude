@@ -126,11 +126,12 @@ public struct FieldSpanFormattableAlwaysAddStructStringBearer<TFmt> : IMoldSuppo
             var formatString    = ValueFormatString;
             var contentHandling = FormattingFlags;
             return (cloaked, tos) =>
-                tos.StartComplexType(cloaked)
-                   .Field.AlwaysAdd
-                       ($"CloakedRevealer{nameof(ComplexTypeFieldAlwaysAddSpanFormattableFromStruct)}"
-                      , cloaked, formatString, contentHandling)
-                   .Complete();
+            {
+                var ctm = tos.StartComplexType(cloaked);
+                ctm.Field.AlwaysAdd($"CloakedRevealer{nameof(ComplexTypeFieldAlwaysAddSpanFormattableFromStruct)}"
+                             , cloaked, formatString, contentHandling);
+                return ctm.Complete();
+            };
         }
     }
 

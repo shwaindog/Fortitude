@@ -57,7 +57,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         var actualType = value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
             return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags, keyFormatString ?? "");
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags, keyFormatString ?? "");
         if (value != null)
         {
             var hasValue  = value.MoveNext();
@@ -75,7 +75,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                 return stb.AddGoToNext();
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedAddAll<TKey, TValue, TVRevealBase>(
@@ -191,7 +191,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         var actualType = value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
             return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags, keyFormatString ?? "");
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags, keyFormatString ?? "");
         if (value != null)
         {
             var hasValue = value.MoveNext();
@@ -209,7 +209,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                 return stb.AddGoToNext();
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedAddAllEnumerate<TKey, TValue>(
@@ -224,7 +224,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         var actualType = value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue?>>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
             return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags, keyFormatString ?? "");
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags, keyFormatString ?? "");
         if (value != null)
         {
             var hasValue = value.MoveNext();
@@ -242,7 +242,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                 return stb.AddGoToNext();
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedAddAll<TKey, TValue, TKRevealBase, TVRevealBase>(
@@ -457,7 +457,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         var actualType = value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
             return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
             var hasValue = value.MoveNext();
@@ -475,7 +475,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                 return stb.AddGoToNext();
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedAddAllEnumerate<TKey, TValue, TVRevealBase>(
@@ -492,7 +492,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         var actualType = value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
             return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
             var hasValue = value.MoveNext();
@@ -510,7 +510,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                 return stb.AddGoToNext();
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedAddAllEnumerate<TKey, TValue, TKRevealBase>(
@@ -527,7 +527,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         var actualType = value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
             return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
             var hasValue = value.MoveNext();
@@ -545,7 +545,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                 return stb.AddGoToNext();
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedAddAllEnumerate<TKey, TValue>(
@@ -561,7 +561,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         var actualType = value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey?, TValue?>>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) 
             return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormattingFlags(stb.Sb, value, formatFlags);
+        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
         if (value != null)
         {
             var hasValue = value.MoveNext();
@@ -579,6 +579,6 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
                 return stb.AddGoToNext();
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 }

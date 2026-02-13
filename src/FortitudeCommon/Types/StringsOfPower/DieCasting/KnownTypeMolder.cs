@@ -31,15 +31,12 @@ public interface IStateTransitioningTransitioningKnownTypeMolder : IDisposable
       , FormatFlags createFormatFlags);
 
     void Free();
-    
-    
 }
 
 public interface INextStateTransitioningKnownTypeMolder<out TMold> : IStateTransitioningTransitioningKnownTypeMolder
     where TMold : TypeMolder
 {
     TMold Initialize(IStateTransitioningTransitioningKnownTypeMolder previousStateTransitioning);
-
 }
 
 public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponentSource<TMold>, IStateTransitioningTransitioningKnownTypeMolder
@@ -114,8 +111,13 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         }
         else
         {
-            State.Sf.Gb.RemoveLastSeparatorAndPadding();
-            State.Sf.Gb.AddHighWaterMark();
+            var gb = State.Sf.Gb;
+            var hasUncommited = gb.CurrentSectionRanges.HasContent;
+            if (!hasUncommited && !gb.LastContentSeparatorPaddingRanges.HasNonZeroLengthContent)
+            {
+                gb.RemoveLastSeparatorAndPadding();
+            }
+            else if (hasUncommited) { gb.Complete(State.CreateMoldFormatFlags); }
         }
         var currentAppenderIndex = State.Master.WriteBuffer.Length;
         var typeWriteRange       = new Range(Index.FromStart(StartIndex), Index.FromStart(currentAppenderIndex));
@@ -123,17 +125,18 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         PortableState.CompleteResult = result;
         var tos  = State.Master;
         var verifyRemoved = MoldVisit;
-        if (verifyRemoved.RegistryId >= -1 
-         && (tos.ActiveGraphRegistry.RegistryId != verifyRemoved.RegistryId || verifyRemoved.CurrentVisitIndex >= tos.ActiveGraphRegistry.Count))
+        if (verifyRemoved.VisitId.RegistryId >= -1 
+         && (tos.ActiveGraphRegistry.RegistryId != verifyRemoved.VisitId.RegistryId 
+          || verifyRemoved.VisitId.VisitIndex >= tos.ActiveGraphRegistry.Count))
         {
             Debugger.Break();   
         }
         tos.TypeComplete(State); // calls DecrementRef count
         //MoldStateField = null!;
 
-        if (verifyRemoved.CurrentVisitIndex >= 0 
-         && tos.ActiveGraphRegistry.Count > verifyRemoved.CurrentVisitIndex 
-        &&  tos.ActiveGraphRegistry[verifyRemoved.CurrentVisitIndex].TypeBuilderComponentAccess != null)
+        if (verifyRemoved.VisitId.RegistryId >= -1 && verifyRemoved.VisitId.VisitIndex >= 0 
+         && tos.ActiveGraphRegistry.Count > verifyRemoved.VisitId.VisitIndex 
+        &&  tos.ActiveGraphRegistry[verifyRemoved.VisitId.VisitIndex].MoldState != null)
         {
             Debugger.Break();
         }
@@ -147,11 +150,11 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
     {
         var msf         = MoldStateField;
         var createFlags = msf.CreateMoldFormatFlags;
-        if (msf.StyleTypeBuilder.RevisitedInstanceId != 0)
+        if (msf.Mold.RevisitedInstanceId != 0)
         {
             var charsWritten =
                 usingFormatter
-                   .AppendExistingReferenceId(msf, msf.StyleTypeBuilder.RevisitedInstanceId, msf.CurrentWriteMethod, createFlags);
+                   .AppendExistingReferenceId(msf, msf.Mold.RevisitedInstanceId, msf.CurrentWriteMethod, createFlags);
             msf.WroteRefId = charsWritten > 0;
         }
         if (MoldStateField.RemainingGraphDepth <= 0)

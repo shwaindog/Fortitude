@@ -114,7 +114,7 @@ public class ContentTypeMoldPrettyJsonAsValueTests : ContentTypeMoldAsValueTests
         {
             maybeNewLine = "\n";
             maybeIndent  = "  ";
-            if(condition.HasComplexTypeFlag() && expectValue.IsBrcBounded()) expectValue.IndentSubsequentLines();
+            if(condition.HasComplexTypeFlag() && expectValue.IsBrcBounded()) expectValue.IndentSubsequentLines(tos.Settings.NewLineStyle);
         }
 
         else { expectValue.Clear(); }

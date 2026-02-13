@@ -28,6 +28,8 @@ Expect updates to follow to increase testing and add inter-BusRules instance com
     <NeutralLanguage>en</NeutralLanguage>
     <FileVersion>$(Version)</FileVersion>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <Configurations>Debug;Release;DebugInstrumented;ReleaseInstrumented</Configurations>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

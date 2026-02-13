@@ -136,7 +136,7 @@ public class SelectTypeFieldPrettyJsonTests : SelectTypeFieldTests
             maybeNewLine = "\n";
             maybeIndent  = "  ";
             var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
-            nextExpect.Append("\"").Append(propertyName).Append("\": ").Append(expectValue.IndentSubsequentLines());
+            nextExpect.Append("\"").Append(propertyName).Append("\": ").Append(expectValue.IndentSubsequentLines(tos.Settings.NewLineStyle));
             expectValue.DecrementRefCount();
             expectValue = nextExpect;
         }

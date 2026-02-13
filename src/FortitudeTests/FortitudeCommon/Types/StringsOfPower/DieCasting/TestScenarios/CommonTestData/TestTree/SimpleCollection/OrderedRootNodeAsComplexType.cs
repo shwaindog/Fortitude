@@ -4,9 +4,9 @@
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData.TestTree;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData.TestTree.SimpleCollection;
 
-public class OrderedRootNode : OrderedParentNode<IChildNode?>
+public class OrderedRootNodeAsComplexType : OrderedParentNodeAsSimpleCollection<IChildNode?>
 {
 
     public static void ResetRootInstanceIds()
@@ -14,19 +14,19 @@ public class OrderedRootNode : OrderedParentNode<IChildNode?>
         RootNodeInstanceId = 0;
     }
 
-    public OrderedRootNode()
+    public OrderedRootNodeAsComplexType()
     {
         NodeType           = NodeType.RootNode;
         RootInstanceId = Interlocked.Increment(ref RootNodeInstanceId);
     }
 
-    public OrderedRootNode(List<IChildNode?> childNodes) : this()
+    public OrderedRootNodeAsComplexType(List<IChildNode?> childNodes) : this()
     {
         ChildNodes         = childNodes;
         RootInstanceId = Interlocked.Increment(ref RootNodeInstanceId);
     }
 
-    public OrderedRootNode(List<IChildNode?> childNodes, string name, int? instId = null) : base(childNodes, name, instId)
+    public OrderedRootNodeAsComplexType(List<IChildNode?> childNodes, string name, int? instId = null) : base(childNodes, name, instId)
     {
         NodeType           = NodeType.RootNode;
         RootInstanceId = Interlocked.Increment(ref RootNodeInstanceId);
@@ -36,9 +36,11 @@ public class OrderedRootNode : OrderedParentNode<IChildNode?>
 
     public override int DepthToRoot => 0;
     
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .Field.AlwaysAdd(nameof(RootInstanceId), RootInstanceId)
-           .AddBaseRevealStateFields(this)
-           .Complete();
+    public override AppendSummary RevealState(ITheOneString tos)
+    {
+        var ctm = tos.StartComplexType(this);
+        ctm.Field.AlwaysAdd(nameof(RootInstanceId), RootInstanceId);
+        ctm.AddBaseRevealStateFields(this);
+        return ctm.Complete();
+    }
 }

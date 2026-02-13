@@ -2,7 +2,6 @@
 using System.Text;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
-using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.WrittenAsFlags;
@@ -50,7 +49,7 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, Simp
     {
       if (Msf.CurrentWriteMethod.HasNoneOf(AsSimple))
       {
-        Msf.Master.UpdateVisitWriteMethod(MoldVisit.RegistryId, MoldVisit.CurrentVisitIndex, Msf.CurrentWriteMethod);  
+        Msf.Master.UpdateVisitWriteMethod(MoldVisit.VisitId, Msf.CurrentWriteMethod);  
       }
       MoldStateField.StyleFormatter.FinishContentTypeOpening(MoldStateField);
     }

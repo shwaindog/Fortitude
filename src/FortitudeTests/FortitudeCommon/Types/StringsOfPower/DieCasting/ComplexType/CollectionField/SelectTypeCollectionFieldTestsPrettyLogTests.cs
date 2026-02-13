@@ -141,7 +141,7 @@ public class SelectTypeCollectionFieldPrettyLogTests : SelectTypeCollectionField
                 var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
                 nextExpect.Append(propertyName).Append(": (");
                 orderedListExpectation.CollectionCallType.AppendShortNameInCSharpFormat(nextExpect).Append(") ");
-                nextExpect.Append(expectValue.IndentSubsequentLines());
+                nextExpect.Append(expectValue.IndentSubsequentLines(tos.Settings.NewLineStyle));
                 expectValue.DecrementRefCount();
                 expectValue = nextExpect;
             }
@@ -149,7 +149,7 @@ public class SelectTypeCollectionFieldPrettyLogTests : SelectTypeCollectionField
             {
                 var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
                 nextExpect.Append(propertyName).Append(": ")
-                          .Append(expectValue.IndentSubsequentLines());
+                          .Append(expectValue.IndentSubsequentLines(tos.Settings.NewLineStyle));
                 expectValue.DecrementRefCount();
                 expectValue = nextExpect;
             }

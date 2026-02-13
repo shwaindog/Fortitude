@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Collections;
+using System.Diagnostics;
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
@@ -14,11 +15,30 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
 
     private ISecretStringOfPower master = null!;
 
-    public int RegistryId { get; private set; } = -1;
+    public sbyte RegistryId { get; private set; } = -1;
 
     public int ThisRegistryNextRefId { get; set; } = 1;
 
     public int CurrentGraphNodeIndex { get; set; } = -1;
+
+    public VisitId CurrentGraphNodeVisitId => new (RegistryId, CurrentGraphNodeIndex);
+
+    public int TryCurrentGraphNodeChecked(VisitId toSetTo)
+    {
+        if (toSetTo.RegistryId == VisitId.NoVisitCheckRequiredRegistryId) return 0;
+        if (toSetTo.RegistryId != RegistryId)
+        {
+            Debugger.Break();
+            return -2;
+        }
+        if (toSetTo.VisitIndex < 0 || toSetTo.VisitIndex >= OrderedObjectGraph.Count)
+        {
+            Debugger.Break();
+            return -1;
+        }
+        CurrentGraphNodeIndex = toSetTo.VisitIndex;
+        return 1;
+    }
 
     public int NextFreeSlot => OrderedObjectGraph.Count;
 
@@ -31,7 +51,7 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
     
     public int RemainingDepth => (CurrentNode?.RemainingGraphDepth ?? master.Settings.DefaultGraphMaxDepth);
 
-    public GraphInstanceRegistry Initialize(ISecretStringOfPower masterOfTheString, int asStringEnterCount = -1)
+    public GraphInstanceRegistry Initialize(ISecretStringOfPower masterOfTheString, sbyte asStringEnterCount = -1)
     {
         master     = masterOfTheString;
         RegistryId = asStringEnterCount;
@@ -121,10 +141,10 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
         return OrderedObjectGraph[visitIndex].TypeOpenBufferIndex;
     }
     
-    public VisitResult SourceGraphVisitRefId<T>(T toStyle, Type type, FormatFlags formatFlags)
+    public VisitResult SourceGraphVisitRefId<T>(VisitId requesterVisitId, T toStyle, Type type, FormatFlags formatFlags)
     {
         if (type.IsValueType || toStyle == null) return VisitResult.VisitNotChecked;
-        return SourceGraphVisitRefId((object)toStyle, type, formatFlags);
+        return SourceGraphVisitRefId(requesterVisitId, (object)toStyle, type, formatFlags);
     }
 
     public void UpdateVisitWriteMethod(int visitIndex, WrittenAsFlags writeAs)
@@ -164,7 +184,7 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
         return OrderedObjectGraph[visitIndex].BufferLength;
     }
 
-    private VisitResult SourceGraphVisitRefId(object objToStyle, Type type, FormatFlags formatFlags)
+    private VisitResult SourceGraphVisitRefId(VisitId requesterVisitId, object objToStyle, Type type, FormatFlags formatFlags)
     {
         if (type.IsValueType) return VisitResult.VisitNotChecked;
         var foundRefId              = 0;
@@ -205,7 +225,7 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
                 }
             }
         }
-        var bkwdIndex = OrderedObjectGraph.Count - 1;
+        var bkwdIndex = (sbyte)(OrderedObjectGraph.Count - 1);
         for (; bkwdIndex > fwdIndex; bkwdIndex--)
         {
             var graphNodeVisit = OrderedObjectGraph[bkwdIndex];
@@ -220,13 +240,13 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
             }
         }
         
-        return new VisitResult( RegistryId, NextFreeSlot, foundRefId
+        return new VisitResult( new VisitId( RegistryId, NextFreeSlot), requesterVisitId, foundRefId
                              , firstInstanceIndex, firstMatchInstanceIndex, lastInstanceIndex, thisVisitRepeatCount, isBaseOfFound);
     }
 
-    public VisitResult VisitNotChecked => VisitResult.VisitNotChecked;
+    public VisitResult VisitNotChecked(VisitId requesterVisitId) => new ( new VisitId(VisitId.NoVisitCheckPerformedRegistryId, NextFreeSlot), requesterVisitId);
     
-    public VisitResult VisitCheckNotRequired(int? visitIndex = null) => new ( VisitResult.NoVisitCheckRequiredRegistryId, visitIndex ?? NextFreeSlot);
+    public VisitResult VisitCheckNotRequired(VisitId requesterVisitId) => new ( new VisitId(VisitId.NoVisitCheckRequiredRegistryId, NextFreeSlot), requesterVisitId);
 
     IEnumerator IEnumerable.           GetEnumerator() => GetEnumerator();
 
@@ -234,6 +254,7 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
 
     public void Add(GraphNodeVisit item)
     {
+        // Console.Out.WriteLine("Registering " + item);
         OrderedObjectGraph.Add(item);
     }
     

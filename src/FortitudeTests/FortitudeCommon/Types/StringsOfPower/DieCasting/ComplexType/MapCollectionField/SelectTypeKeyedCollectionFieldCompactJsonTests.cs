@@ -76,12 +76,12 @@ public class SelectTypeKeyedCollectionFieldCompactJsonTests : SelectTypeKeyedCol
         (IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
-    // [TestMethod] 
+    [TestMethod] 
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(SimpleDictTestData.AllUnfilteredSimpleDictExpectations[9]
-                                           , ScaffoldingRegistry.AllScaffoldingTypes[728], StringBuilderType.CharArrayStringBuilder);
+        ExecuteIndividualScaffoldExpectation(SimpleDictTestData.AllPredicateFilteredSimpleDictExpectations[20]
+                                           , ScaffoldingRegistry.AllScaffoldingTypes[685], StringBuilderType.MutableString);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName

@@ -41,33 +41,30 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         Sf.Gb.MarkContentEnd();
     }
 
-    protected void RegisterBuildInstanceOnActiveRegistry<TContentValue>(TContentValue toBeAdded, FormatFlags withFlags)
+    protected (WrittenAsFlags, FormatFlags) RegisterBuildInstanceOnActiveRegistry<TContentValue>(TContentValue toBeAdded, FormatFlags withFlags)
     {
+        VisitResult visitResult;
         if (!TypeBeingBuilt.IsValueType)
         {
-            MoldGraphVisit = !Master.IsExemptFromCircularRefNodeTracking(TypeBeingVisitedAs)
+            MoldGraphVisit = visitResult = !Master.IsExemptFromCircularRefNodeTracking(TypeBeingVisitedAs)
                 ? Master.SourceGraphVisitRefIdUpdateGraph(InstanceOrContainer, TypeBeingVisitedAs, CreateMoldFormatFlags)
-                : Master.ActiveGraphRegistry.VisitCheckNotRequired();
+                : Master.ActiveGraphRegistry.VisitCheckNotRequired(MoldGraphVisit.RequesterVisitId);
         }
-        else { MoldGraphVisit = Master.ActiveGraphRegistry.VisitCheckNotRequired(); }
+        else { MoldGraphVisit = visitResult = Master.ActiveGraphRegistry.VisitCheckNotRequired(MoldGraphVisit.RequesterVisitId); }
 
-        var proposedWriteMethod = (!StyleTypeBuilder.IsSimpleMold || (MoldGraphVisit.IsARevisit || RemainingGraphDepth <= 0))
+        var proposedWriteMethod = (!Mold.IsSimpleMold || (MoldGraphVisit.IsARevisit || RemainingGraphDepth <= 0))
             ? AsComplex | AsContent
             : AsSimple | AsContent;
 
         var addType = toBeAdded?.GetType() ?? typeof(TContentValue);
-        var nextCreateFlags
-            = Sf.GetFormatterContentHandlingFlags(Master, toBeAdded, addType
-                                                , proposedWriteMethod, MoldGraphVisit, withFlags);
+        var (newWriteAsFlags, nextCreateFlags)
+            = Sf.ResolveMoldWriteAsFormatFlags(Master, toBeAdded, addType
+                                             , proposedWriteMethod, MoldGraphVisit, withFlags);
 
-        var newWriteMethod = nextCreateFlags.HasContentAllowComplexType() || StyleTypeBuilder.IsComplexType
-            ? proposedWriteMethod.ToMultiFieldEquivalent()
-            : proposedWriteMethod.ToNoFieldEquivalent();
-
-        if (CurrentWriteMethod != newWriteMethod)
+        if (CurrentWriteMethod != newWriteAsFlags)
         {
             var newFlags = CreateMoldFormatFlags;
-            if (newWriteMethod.HasAllOf(AsComplex | AsContent))
+            if (newWriteAsFlags.HasAllOf(AsComplex | AsContent))
             {
                 newFlags &= ~(SuppressOpening | SuppressClosing);
                 newFlags |= ContentAllowComplexType;
@@ -79,7 +76,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             }
 
             CreateMoldFormatFlags = newFlags;
-            CurrentWriteMethod    = newWriteMethod;
+            CurrentWriteMethod    = newWriteAsFlags;
         }
 
         var isAsStringOrAsValue = withFlags & (AsStringContent | AsValueContent);
@@ -93,68 +90,71 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
                                              , Settings.IndentSize, Sf, Sf.ContentEncoder, Sf.LayoutEncoder);
 
             newVisit =
-                new GraphNodeVisit(reg.RegistryId, reg.Count, reg.CurrentGraphNodeIndex
+                new GraphNodeVisit(visitResult.VisitId, visitResult.RequesterVisitId
                                  , InstanceOrContainer?.GetType() ?? TypeBeingBuilt, TypeBeingVisitedAs
-                                 , this, newWriteMethod, InstanceOrContainer
+                                 , this, newWriteAsFlags, InstanceOrContainer
                                  , IndentLevel, Master.CallerContext, fmtState, CreateMoldFormatFlags | isAsStringOrAsValue
                                  , Sb.Length, MoldGraphVisit.LastRevisitCount + 1);
         }
 
-        StyleTypeBuilder.StartTypeOpening();
-        
-        if (!TypeBeingBuilt.IsValueType && !MoldGraphVisit.NoVisitCheckDone && newVisit != null)
+        Mold.StartTypeOpening();
+
+        if (newVisit != null && Master.ActiveGraphRegistry.RegistryId == visitResult.VisitId.RegistryId
+                             && visitResult.VisitId.VisitIndex == Master.ActiveGraphRegistry.Count)
         {
             Master.ActiveGraphRegistry.Add(newVisit.Value.SetBufferFirstFieldStart(Master.WriteBuffer.Length, IndentLevel));
-            Master.ActiveGraphRegistry.CurrentGraphNodeIndex = newVisit.Value.ObjVisitIndex;
+            Master.ActiveGraphRegistry.CurrentGraphNodeIndex = newVisit.Value.NodeVisitId.VisitIndex;
         }
 
-        StyleTypeBuilder.FinishTypeOpening();
+        Mold.FinishTypeOpening();
         CreateMoldFormatFlags |= isAsStringOrAsValue;
 
         var fmtFlags             = CreateMoldFormatFlags;
         var hasBeenVisitedBefore = MoldGraphVisit.IsARevisit;
         SkipBody   = hasBeenVisitedBefore && fmtFlags.DoesNotHaveIsFieldNameFlag();
-        SkipFields = hasBeenVisitedBefore || !Style.IsLog();
+        SkipFields = SkipBody || !Style.IsLog();
 
         if (SkipBody && hasBeenVisitedBefore)
         {
-            if(addType.IsString() && Settings.InstanceMarkingIncludeStringContents)
+            if (addType.IsString() && Settings.InstanceMarkingIncludeStringContents)
             {
                 SkipBody   = false;
                 SkipFields = !Style.IsLog();
-                return;
+                return (newWriteAsFlags, nextCreateFlags);
             }
-            if(!addType.IsValueType && TypeBeingBuilt.IsSpanFormattableCached()
-                                    && Settings.InstanceMarkingIncludeSpanFormattableContents)
+            if (!addType.IsValueType && TypeBeingBuilt.IsSpanFormattableCached()
+                                     && Settings.InstanceMarkingIncludeSpanFormattableContents)
             {
                 SkipBody   = false;
                 SkipFields = !Style.IsLog();
-                return;
+                return (newWriteAsFlags, nextCreateFlags);
             }
-            if(addType.IsCharSequence() && Settings.InstanceMarkingIncludeCharSequenceContents)
+            if (addType.IsCharSequence() && Settings.InstanceMarkingIncludeCharSequenceContents)
             {
                 SkipBody   = false;
                 SkipFields = !Style.IsLog();
-                return;
+                return (newWriteAsFlags, nextCreateFlags);
             }
-            if(addType.IsStringBuilder() && Settings.InstanceMarkingIncludeStringBuilderContents)
+            if (addType.IsStringBuilder() && Settings.InstanceMarkingIncludeStringBuilderContents)
             {
                 SkipBody   = false;
                 SkipFields = !Style.IsLog();
-                return;
+                return (newWriteAsFlags, nextCreateFlags);
             }
-            if(addType.IsCharArray() && Settings.InstanceMarkingIncludeCharArrayContents)
+            if (addType.IsCharArray() && Settings.InstanceMarkingIncludeCharArrayContents)
             {
                 SkipBody   = false;
                 SkipFields = !Style.IsLog();
-                return;
+                return (newWriteAsFlags, nextCreateFlags);
             }
-            if(!addType.IsStringBearerOrNullableCached() && !addType.IsSpanFormattableOrNullableCached() && Settings.InstanceMarkingIncludeObjectToStringContents)
+            if (!addType.IsStringBearerOrNullableCached() && !addType.IsSpanFormattableOrNullableCached() &&
+                Settings.InstanceMarkingIncludeObjectToStringContents)
             {
                 SkipBody   = false;
                 SkipFields = !Style.IsLog();
             }
         }
+        return (newWriteAsFlags, nextCreateFlags);
     }
 
     private Action<IScopeDelimitedStringBuilder>? OnFinishedWithStringBuilder { get; set; }
@@ -185,8 +185,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
 
         var moldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, moldInherited), formatString)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, "", formatString, moldInherited), formatString)
                           | AsValueContent;
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
 
@@ -196,9 +196,9 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         {
             AppendSummary appendSum;
             using (callContext) { appendSum = VettedAppendBoolContent(value, formatString, resolvedFlags); }
-            if (!actualType.IsValueType && appendSum.VisitNumber >= 0)
+            if (!actualType.IsValueType && appendSum.VisitNumber.VisitIndex >= 0)
             {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
+                Master.UpdateVisitEncoders(appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
             }
         }
         return ConditionalValueTypeSuffix();
@@ -215,8 +215,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
 
         var moldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, "", formatString, moldInherited), formatString)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, "", formatString, moldInherited), formatString)
                           | AsValueContent;
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
         if (!callContext.HasFormatChange)
@@ -225,12 +225,12 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         {
             AppendSummary appendSum;
             using (callContext) { appendSum = VettedAppendBoolContent(value, formatString, resolvedFlags); }
-            if (!actualType.IsValueType && appendSum.VisitNumber >= 0)
+            if (!actualType.IsValueType && appendSum.VisitNumber.VisitIndex >= 0)
             {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
+                Master.UpdateVisitEncoders(appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
             }
         }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public TToContentMold FieldStringNext(ReadOnlySpan<char> nonJsonfieldName, bool? value, string formatString = ""
@@ -247,8 +247,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         var fieldNameFormatter = Sf;
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, "", formatString, withMoldInherited)
                                , formatString)
                           | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
@@ -266,9 +266,9 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         {
             AppendSummary appendSum;
             using (callContext) { appendSum = VettedAppendBoolContent(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
-            if (!actualType.IsValueType && !Settings.InstanceTrackingAllAsStringHaveLocalTracking && appendSum.VisitNumber >= 0)
+            if (!actualType.IsValueType && !Settings.InstanceTrackingAllAsStringHaveLocalTracking && appendSum.VisitNumber.VisitIndex >= 0)
             {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
+                Master.UpdateVisitEncoders(appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
             }
         }
         return ConditionalValueTypeSuffix();
@@ -285,8 +285,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             return WasSkipped(actualType, "", formatFlags);
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, "", formatString, withMoldInherited)
                                , formatString)
                           | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
@@ -298,12 +298,12 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         {
             AppendSummary appendSum;
             using (callContext) { appendSum = VettedAppendBoolContent(value, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
-            if (!actualType.IsValueType && !Settings.InstanceTrackingAllAsStringHaveLocalTracking && appendSum.VisitNumber >= 0)
+            if (!actualType.IsValueType && !Settings.InstanceTrackingAllAsStringHaveLocalTracking && appendSum.VisitNumber.VisitIndex >= 0)
             {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
+                Master.UpdateVisitEncoders(appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
             }
         }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public AppendSummary VettedAppendBoolContent(bool? value, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags
@@ -349,22 +349,23 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
 
         var moldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags();
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, moldInherited), formatString);
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, moldInherited), formatString);
 
         if (!actualType.IsValueType && BuildingInstanceEquals(value))
         {
-            var valueVisit = MoldGraphVisit;
-            var valueFormatAs = Sf.GetFormatterContentHandlingFlags
-                (Master, value, value?.GetType() ?? typeof(TFmt), CurrentWriteMethod, valueVisit, formatFlags);
-            if (!CurrentWriteMethod.SupportsMultipleFields()
-             && valueFormatAs.HasContentAllowComplexType()
-             && Settings.InstanceTrackingIncludeSpanFormattableClasses)
-            {
-                Master.UpdateVisitAddFormatFlags(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, NoRevisitCheck);
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
-            else { resolvedFlags |= NoRevisitCheck; }
+            // var valueVisit = MoldGraphVisit;
+            // var valueFormatAs = Sf.ResolveMoldWriteAsFormatFlags
+            //     (Master, value, value?.GetType() ?? typeof(TFmt), CurrentWriteMethod, valueVisit, formatFlags);
+            // if (!CurrentWriteMethod.SupportsMultipleFields()
+            //  && valueFormatAs.HasContentAllowComplexType()
+            //  && Settings.InstanceTrackingIncludeSpanFormattableClasses)
+            // {
+            //     Master.UpdateVisitAddFormatFlags(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, NoRevisitCheck);
+            //     Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, Sf.ContentEncoder, Sf.LayoutEncoder);
+            // }
+            // else { resolvedFlags |= NoRevisitCheck; }
+            resolvedFlags |= NoRevisitCheck;
         }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
 
@@ -374,9 +375,9 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         {
             AppendSummary appendSum;
             using (callContext) { appendSum = VettedAppendSpanFormattableContent(value, defaultValue, formatString, resolvedFlags); }
-            if (!actualType.IsValueType && appendSum.VisitNumber >= 0)
+            if (!actualType.IsValueType && appendSum.VisitNumber.VisitIndex >= 0)
             {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
+                Master.UpdateVisitEncoders(appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
             }
         }
         return ConditionalValueTypeSuffix();
@@ -394,20 +395,21 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
 
         var moldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags();
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, moldInherited), formatString);
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+            (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, moldInherited), formatString);
         if (!actualType.IsValueType && BuildingInstanceEquals(value))
         {
-            var valueVisit = MoldGraphVisit;
-            var valueFormatAs = Sf.GetFormatterContentHandlingFlags
-                (Master, value, value?.GetType() ?? typeof(TFmt), CurrentWriteMethod, valueVisit, formatFlags);
-            if (!CurrentWriteMethod.SupportsMultipleFields()
-             && valueFormatAs.HasContentAllowComplexType()
-             && Settings.InstanceTrackingIncludeSpanFormattableClasses)
-            {
-                Master.UpdateVisitAddFormatFlags(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, NoRevisitCheck);
-            }
-            else { resolvedFlags |= NoRevisitCheck; }
+            // var valueVisit = MoldGraphVisit;
+            // var valueFormatAs = Sf.ResolveMoldWriteAsFormatFlags
+            //     (Master, value, value?.GetType() ?? typeof(TFmt), CurrentWriteMethod, valueVisit, formatFlags);
+            // if (!CurrentWriteMethod.SupportsMultipleFields()
+            //  && valueFormatAs.HasContentAllowComplexType()
+            //  && Settings.InstanceTrackingIncludeSpanFormattableClasses)
+            // {
+            //     Master.UpdateVisitAddFormatFlags(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, NoRevisitCheck);
+            // }
+            // else { resolvedFlags |= NoRevisitCheck; }
+            resolvedFlags |= NoRevisitCheck;
         }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
 
@@ -417,12 +419,12 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         {
             AppendSummary appendSum;
             using (callContext) { appendSum = VettedAppendSpanFormattableContent(value, defaultValue, formatString, resolvedFlags); }
-            if (!actualType.IsValueType && appendSum.VisitNumber >= 0)
+            if (!actualType.IsValueType && appendSum.VisitNumber.VisitIndex >= 0)
             {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
+                Master.UpdateVisitEncoders(appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
             }
         }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public TToContentMold FieldStringOrDefaultNext<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value
@@ -444,20 +446,18 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         var fieldNameFormatter = Sf;
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
-        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
+        var contentTypeWriteAs = CurrentWriteMethod;
+        var callContext        = Master.ResolveContextForCallerFlags(resolvedFlags);
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
             RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags);
         if (!actualType.IsValueType && valueEqualsBuildingType)
         {
-            if (Settings.InstanceTrackingAllAsStringHaveLocalTracking)
-            {
-                Master.RemoveVisitAt(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex);
-            }
+            if (Settings.InstanceTrackingAllAsStringHaveLocalTracking) { Master.RemoveVisitAt(MoldGraphVisit.VisitId); }
             else { resolvedFlags |= NoRevisitCheck; }
         }
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0)
@@ -483,17 +483,18 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         {
             if (valueEqualsBuildingType)
             {
-                if (!CurrentWriteMethod.SupportsMultipleFields() && appendSum.WrittenAs.SupportsMultipleFields())
+                if (!contentTypeWriteAs.SupportsMultipleFields() && appendSum.WrittenAs.SupportsMultipleFields())
                 {
-                    Master.UpdateVisitAddFormatFlags(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, NoRevisitCheck);
-                    Master.UpdateVisitRemoveFormatFlags(MoldGraphVisit.RegistryId, appendSum.VisitNumber, NoRevisitCheck);
+                    Master.UpdateVisitAddFormatFlags(MoldGraphVisit.VisitId, NoRevisitCheck);
+                    Master.UpdateVisitRemoveFormatFlags(appendSum.VisitNumber, NoRevisitCheck);
                 }
-                else { Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, Sf.ContentEncoder, Sf.LayoutEncoder); }
-            } 
-            else 
+                else { Master.UpdateVisitEncoders(MoldGraphVisit.VisitId, Sf.ContentEncoder, Sf.LayoutEncoder); }
+            }
+            else
             {
-                if (!CurrentWriteMethod.SupportsMultipleFields() &&  !appendSum.WrittenAs.SupportsMultipleFields() && appendSum.VisitNumber >= 0)
-                    Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
+                if (!contentTypeWriteAs.SupportsMultipleFields() && !appendSum.WrittenAs.SupportsMultipleFields() &&
+                    appendSum.VisitNumber.VisitIndex >= 0)
+                    Master.UpdateVisitEncoders(appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
             }
         }
         return ConditionalValueTypeSuffix();
@@ -513,33 +514,35 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             return WasSkipped(actualType, "", formatFlags);
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
 
-        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
+        var contentTypeWriteAs = CurrentWriteMethod;
+        var callContext        = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
             RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags);
         if (!actualType.IsValueType && valueEqualsBuildingType)
         {
-            var valueVisit = MoldGraphVisit;
-            var valueFormatAs = Sf.GetFormatterContentHandlingFlags
-                (Master, value, value?.GetType() ?? typeof(TFmt), CurrentWriteMethod, valueVisit, formatFlags);
-            if (!CurrentWriteMethod.SupportsMultipleFields()
-             && valueFormatAs.HasContentAllowComplexType()
-             && Settings.InstanceTrackingIncludeSpanFormattableClasses)
-            {
-                Master.UpdateVisitAddFormatFlags(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, NoRevisitCheck);
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
-            else { resolvedFlags |= NoRevisitCheck; }
-            if (Settings.InstanceTrackingAllAsStringHaveLocalTracking)
-            {
-                Master.RemoveVisitAt(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex);
-            }
+            // var valueVisit = MoldGraphVisit;
+            // var valueFormatAs = Sf.ResolveMoldWriteAsFormatFlags
+            //     (Master, value, value?.GetType() ?? typeof(TFmt), CurrentWriteMethod, valueVisit, formatFlags);
+            // if (!CurrentWriteMethod.SupportsMultipleFields()
+            //  && valueFormatAs.HasContentAllowComplexType()
+            //  && Settings.InstanceTrackingIncludeSpanFormattableClasses)
+            // {
+            //     Master.UpdateVisitAddFormatFlags(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, NoRevisitCheck);
+            //     Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, Sf.ContentEncoder, Sf.LayoutEncoder);
+            // }
+            // else { resolvedFlags |= NoRevisitCheck; }
+            resolvedFlags |= NoRevisitCheck;
+            // if (Settings.InstanceTrackingAllAsStringHaveLocalTracking)
+            // {
+            //     Master.RemoveVisitAt(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex);
+            // }
         }
         AppendSummary appendSum;
         if (!callContext.HasFormatChange)
@@ -555,20 +558,21 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         {
             if (valueEqualsBuildingType)
             {
-                if (!CurrentWriteMethod.SupportsMultipleFields() && appendSum.WrittenAs.SupportsMultipleFields())
+                if (!contentTypeWriteAs.SupportsMultipleFields() && appendSum.WrittenAs.SupportsMultipleFields())
                 {
-                    Master.UpdateVisitAddFormatFlags(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, NoRevisitCheck);
-                    Master.UpdateVisitRemoveFormatFlags(MoldGraphVisit.RegistryId, appendSum.VisitNumber, NoRevisitCheck);
+                    Master.UpdateVisitAddFormatFlags(MoldGraphVisit.VisitId, NoRevisitCheck);
+                    Master.UpdateVisitRemoveFormatFlags(appendSum.VisitNumber, NoRevisitCheck);
                 }
-                else { Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, Sf.ContentEncoder, Sf.LayoutEncoder); }
-            } 
-            else 
+                else { Master.UpdateVisitEncoders(MoldGraphVisit.VisitId, Sf.ContentEncoder, Sf.LayoutEncoder); }
+            }
+            else
             {
-                if (!CurrentWriteMethod.SupportsMultipleFields() &&  !appendSum.WrittenAs.SupportsMultipleFields() && appendSum.VisitNumber >= 0)
-                    Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
+                if (!contentTypeWriteAs.SupportsMultipleFields() && !appendSum.WrittenAs.SupportsMultipleFields() &&
+                    appendSum.VisitNumber.VisitIndex >= 0)
+                    Master.UpdateVisitEncoders(appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
             }
         }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public AppendSummary VettedAppendSpanFormattableContent<TFmt>(TFmt value
@@ -602,6 +606,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
         var result = this.AppendFormattedOrNull(value, formatString, formatFlags);
         if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
+        CurrentWriteMethod |= result.WrittenAs & ~(AsSimple | AsComplex) | (formatFlags.HasAsStringContentFlag() ? AsString : AsValue);
         return result;
     }
 
@@ -619,11 +624,10 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
 
         var moldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, moldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, moldInherited)
                                , formatString)
                           | AsValueContent;
-
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
         if (!callContext.HasFormatChange)
             VettedAppendNullableStructSpanFormattableContent(value, defaultValue, formatString, resolvedFlags | AsValueContent);
@@ -634,9 +638,9 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             {
                 appendSum = VettedAppendNullableStructSpanFormattableContent(value, defaultValue, formatString, resolvedFlags | AsValueContent);
             }
-            if (!actualType.IsValueType && appendSum.VisitNumber >= 0)
+            if (!actualType.IsValueType && appendSum.VisitNumber.VisitIndex >= 0)
             {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
+                Master.UpdateVisitEncoders(appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
             }
         }
         return ConditionalValueTypeSuffix();
@@ -654,8 +658,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
 
         var moldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, moldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, moldInherited)
                                , formatString)
                           | AsValueContent;
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
@@ -668,12 +672,12 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             {
                 appendSum = VettedAppendNullableStructSpanFormattableContent(value, defaultValue, formatString, resolvedFlags | AsValueContent);
             }
-            if (!actualType.IsValueType && appendSum.VisitNumber >= 0)
+            if (!actualType.IsValueType && appendSum.VisitNumber.VisitIndex >= 0)
             {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
+                Master.UpdateVisitEncoders(appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
             }
         }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public TToContentMold FieldStringOrDefaultNext<TFmtStruct>(ReadOnlySpan<char> nonJsonfieldName, TFmtStruct? value
@@ -692,8 +696,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         var fieldNameFormatter = Sf;
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsStringContent;
 
@@ -730,8 +734,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             return WasSkipped(actualType, "", formatFlags);
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsStringContent;
 
@@ -749,12 +753,12 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
                 appendSum = VettedAppendNullableStructSpanFormattableContent(value, defaultValue, formatString, resolvedFlags, addStartDblQt
                                                                            , addEndDblQt);
             }
-            if (!actualType.IsValueType && !Settings.InstanceTrackingAllAsStringHaveLocalTracking && appendSum.VisitNumber >= 0)
+            if (!actualType.IsValueType && !Settings.InstanceTrackingAllAsStringHaveLocalTracking && appendSum.VisitNumber.VisitIndex >= 0)
             {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
+                Master.UpdateVisitEncoders(appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
             }
         }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public AppendSummary VettedAppendNullableStructSpanFormattableContent<TFmtStruct>(TFmtStruct? value, string? defaultValue = null
@@ -790,6 +794,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         var writtenAs = formatFlags.HasIsFieldNameFlag()
             ? StyleFormatter.FormatFieldName(this, value, formatString, formatFlags)
             : StyleFormatter.FormatFieldContents(this, value, formatString, formatFlags);
+        CurrentWriteMethod |= writtenAs & ~(AsSimple | AsComplex) | (formatFlags.HasAsStringContentFlag() ? AsString : AsValue);
         if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, writtenAs, actualType);
     }
@@ -801,46 +806,32 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         where TRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(TCloaked);
-        ContentType = actualType;
-        RegisterBuildInstanceOnActiveRegistry(value, formatFlags | AsValueContent);
+        ContentType               = actualType;
+        var (_, valueCreateFlags) = RegisterBuildInstanceOnActiveRegistry(value, formatFlags | AsValueContent);
 
         if (!Master.ContinueGivenFormattingFlags(formatFlags)
          || HasSkipBody(actualType, nonJsonfieldName, formatFlags)) { return WasSkipped(actualType, nonJsonfieldName, formatFlags); }
 
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
 
-        var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var maybeComplex      = withMoldInherited & ~(SuppressOpening | SuppressClosing);
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, maybeComplex)
-                               , formatString)
-                          | AsValueContent;
+        var withMoldInherited       = valueCreateFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
+        var maybeComplex            = withMoldInherited & ~(SuppressOpening | SuppressClosing);
+        var resolvedFlags           = maybeComplex | StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, maybeComplex);
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
         if (valueEqualsBuildingType)
         {
             if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
-            resolvedFlags |= NoRevisitCheck;
+            if (!CurrentWriteMethod.SupportsMultipleFields()
+             && valueCreateFlags.HasContentAllowComplexType()
+             && MoldGraphVisit.HasRegisteredVisit) { Master.UpdateVisitAddFormatFlags(MoldGraphVisit.VisitId, NoRevisitCheck); }
+            else { resolvedFlags |= NoRevisitCheck; }
         }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
 
         if (!callContext.HasFormatChange) { VettedAppendCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags); }
         else
         {
-            AppendSummary result;
-            using (callContext) { result = VettedAppendCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags); }
-
-            if (result.VisitNumber >= 0)
-            {
-                var visit = MoldGraphVisit;
-                if (!CurrentWriteMethod.SupportsMultipleFields()
-                 && result.WrittenAs.SupportsMultipleFields()
-                 && (Master.InstanceIdAtVisit(visit.RegistryId, visit.CurrentVisitIndex) <= 0 || !valueEqualsBuildingType))
-                {
-                    Master.UpdateVisitAddFormatFlags(visit.RegistryId, visit.CurrentVisitIndex, NoRevisitCheck);
-                    Master.UpdateVisitRemoveFormatFlags(visit.RegistryId, result.VisitNumber, NoRevisitCheck);
-                }
-                else { Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
-            }
+            using (callContext) { VettedAppendCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags); }
         }
 
         return ConditionalValueTypeSuffix();
@@ -861,8 +852,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
         var maybeComplex      = withMoldInherited & ~(SuppressOpening | SuppressClosing);
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, maybeComplex)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, maybeComplex)
                                , formatString)
                           | AsValueContent;
         var callContext             = Master.ResolveContextForCallerFlags(resolvedFlags);
@@ -875,22 +866,9 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         if (!callContext.HasFormatChange) { VettedAppendCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags); }
         else
         {
-            AppendSummary result;
-            using (callContext) { result = VettedAppendCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags); }
-            if (result.VisitNumber >= 0)
-            {
-                var visit = MoldGraphVisit;
-                if (!CurrentWriteMethod.SupportsMultipleFields()
-                 && result.WrittenAs.SupportsMultipleFields()
-                 && (Master.InstanceIdAtVisit(visit.RegistryId, visit.CurrentVisitIndex) <= 0 || !valueEqualsBuildingType))
-                {
-                    Master.UpdateVisitAddFormatFlags(visit.RegistryId, visit.CurrentVisitIndex, NoRevisitCheck);
-                    Master.UpdateVisitRemoveFormatFlags(visit.RegistryId, result.VisitNumber, NoRevisitCheck);
-                }
-                else { Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
-            }
+            using (callContext) { VettedAppendCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags); }
         }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public TToContentMold FieldStringRevealOrDefaultNext<TCloaked, TRevealBase>(ReadOnlySpan<char> nonJsonfieldName
@@ -913,8 +891,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         var fieldNameFormatter = Sf;
 
         var maybeComplex = formatFlags & ~(SuppressOpening | SuppressClosing) | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, maybeComplex)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString, maybeComplex)
                                , formatString)
                           | AsStringContent;
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
@@ -923,10 +901,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         if (valueEqualsBuildingType)
         {
             if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
-            if (Settings.InstanceTrackingAllAsStringHaveLocalTracking)
-            {
-                Master.RemoveVisitAt(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex);
-            }
+            if (Settings.InstanceTrackingAllAsStringHaveLocalTracking) { Master.RemoveVisitAt(MoldGraphVisit.VisitId); }
             else { resolvedFlags |= NoRevisitCheck; }
         }
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0)
@@ -941,27 +916,10 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
         else
         {
-            AppendSummary result;
             using (callContext)
             {
-                result = VettedAppendCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags, addStartDblQt
-                                                        , addEndDblQt);
-            }
-            if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
-            {
-                if (result.VisitNumber >= 0)
-                {
-                    var visit = MoldGraphVisit;
-                    if (!CurrentWriteMethod.SupportsMultipleFields()
-                     && !callContext.HasFormatChange
-                     && result.WrittenAs.SupportsMultipleFields()
-                     && Master.InstanceIdAtVisit(visit.RegistryId, visit.CurrentVisitIndex) <= 0)
-                    {
-                        Master.UpdateVisitAddFormatFlags(visit.RegistryId, visit.CurrentVisitIndex, NoRevisitCheck);
-                        Master.UpdateVisitRemoveFormatFlags(visit.RegistryId, result.VisitNumber, NoRevisitCheck);
-                    }
-                    else { Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
-                }
+                VettedAppendCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags, addStartDblQt
+                                               , addEndDblQt);
             }
         }
         return ConditionalValueTypeSuffix();
@@ -982,9 +940,10 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         {
             return WasSkipped(actualType, "", formatFlags);
         }
-        var maybeComplex = ((formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags()) & ~(SuppressOpening | SuppressClosing)) | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, maybeComplex)
+        var maybeComplex = ((formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags()) & ~(SuppressOpening | SuppressClosing)) |
+                           AsStringContent;
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString, maybeComplex)
                                , formatString)
                           | AsStringContent;
 
@@ -996,39 +955,35 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         if (valueEqualsBuildingType)
         {
             if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
-            if (Settings.InstanceTrackingAllAsStringHaveLocalTracking)
-            {
-                Master.RemoveVisitAt(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex);
-            }
+            if (Settings.InstanceTrackingAllAsStringHaveLocalTracking) { Master.RemoveVisitAt(MoldGraphVisit.VisitId); }
             else { resolvedFlags |= NoRevisitCheck; }
         }
         if (!callContext.HasFormatChange)
             VettedAppendCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
         else
         {
-            AppendSummary result;
             using (callContext)
             {
-                result = VettedAppendCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags, addStartDblQt
-                                                        , addEndDblQt);
+                VettedAppendCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
             }
 
-            if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
-            {
-                if (result.VisitNumber >= 0)
-                {
-                    var visit = MoldGraphVisit;
-                    if (!CurrentWriteMethod.SupportsMultipleFields()
-                     && !callContext.HasFormatChange
-                     && result.WrittenAs.SupportsMultipleFields()
-                     && Master.InstanceIdAtVisit(visit.RegistryId, visit.CurrentVisitIndex) <= 0)
-                    {
-                        Master.UpdateVisitAddFormatFlags(visit.RegistryId, visit.CurrentVisitIndex, NoRevisitCheck);
-                        Master.UpdateVisitRemoveFormatFlags(visit.RegistryId, result.VisitNumber, NoRevisitCheck);
-                    }
-                    else { Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
-                }
-            }
+            // if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
+            // {
+            //     Master.UpdateVisitWriteMethod(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, contentTypeWriteAs);
+            //     // if (result.VisitNumber >= 0)
+            //     // {
+            //     //     var visit = MoldGraphVisit;
+            //     //     if (!contentTypeWriteAs.SupportsMultipleFields()
+            //     //      && !callContext.HasFormatChange
+            //     //      && result.WrittenAs.SupportsMultipleFields()
+            //     //      && Master.InstanceIdAtVisit(visit.RegistryId, visit.CurrentVisitIndex) <= 0)
+            //     //     {
+            //     //         Master.UpdateVisitAddFormatFlags(visit.RegistryId, visit.CurrentVisitIndex, NoRevisitCheck);
+            //     //         Master.UpdateVisitRemoveFormatFlags(visit.RegistryId, result.VisitNumber, NoRevisitCheck);
+            //     //     }
+            //     //     else { Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
+            //     // }
+            // }
         }
         return ConditionalValueTypeSuffix();
     }
@@ -1064,8 +1019,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
                 writtenAsFlags = AsNull;
             }
             result =
-                new AppendSummary(StyleTypeBuilder.GetType(), Master, new Range(startedAt, Sb.Length)
-                                , writtenAsFlags, -1, typeof(TCloaked?));
+                new AppendSummary(Mold.GetType(), Master, new Range(startedAt, Sb.Length)
+                                , writtenAsFlags, VisitId.NoVisitRequiredId, typeof(TCloaked?));
         }
         else
         {
@@ -1075,7 +1030,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
                 : StyleFormatter.FormatFieldContents(this, value, palantírReveal, formatString, formatFlags);
             if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
         }
-        WrittenAsFlags |= AsString | result.WrittenAs;
+        CurrentWriteMethod |= result.WrittenAs & ~(AsSimple | AsComplex) | (formatFlags.HasAsStringContentFlag() ? AsString : AsValue);
         return result;
     }
 
@@ -1094,8 +1049,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsValueContent;
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
@@ -1103,24 +1058,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             VettedAppendNullableStructCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags);
         else
         {
-            AppendSummary result;
-            using (callContext)
-            {
-                result = VettedAppendNullableStructCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags);
-            }
-            if (result.VisitNumber >= 0)
-            {
-                var visit = MoldGraphVisit;
-                if (!CurrentWriteMethod.SupportsMultipleFields()
-                 && !callContext.HasFormatChange
-                 && result.WrittenAs.SupportsMultipleFields()
-                 && Master.InstanceIdAtVisit(visit.RegistryId, visit.CurrentVisitIndex) <= 0)
-                {
-                    Master.UpdateVisitAddFormatFlags(visit.RegistryId, visit.CurrentVisitIndex, NoRevisitCheck);
-                    Master.UpdateVisitRemoveFormatFlags(visit.RegistryId, result.VisitNumber, NoRevisitCheck);
-                }
-                else { Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
-            }
+            using (callContext) { VettedAppendNullableStructCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags); }
         }
 
         return ConditionalValueTypeSuffix();
@@ -1138,8 +1076,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             return WasSkipped(actualType, "", formatFlags);
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsValueContent;
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
@@ -1147,26 +1085,9 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             VettedAppendNullableStructCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags);
         else
         {
-            AppendSummary result;
-            using (callContext)
-            {
-                result = VettedAppendNullableStructCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags);
-            }
-            if (result.VisitNumber >= 0)
-            {
-                var visit = MoldGraphVisit;
-                if (!CurrentWriteMethod.SupportsMultipleFields()
-                 && !callContext.HasFormatChange
-                 && result.WrittenAs.SupportsMultipleFields()
-                 && Master.InstanceIdAtVisit(visit.RegistryId, visit.CurrentVisitIndex) <= 0)
-                {
-                    Master.UpdateVisitAddFormatFlags(visit.RegistryId, visit.CurrentVisitIndex, NoRevisitCheck);
-                    Master.UpdateVisitRemoveFormatFlags(visit.RegistryId, result.VisitNumber, NoRevisitCheck);
-                }
-                else { Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
-            }
+            using (callContext) { VettedAppendNullableStructCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags); }
         }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public TToContentMold FieldStringRevealOrDefaultNext<TCloakedStruct>(ReadOnlySpan<char> nonJsonfieldName, TCloakedStruct? value
@@ -1184,10 +1105,10 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             return WasSkipped(actualType, nonJsonfieldName, formatFlags);
         }
 
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
                                 (Sb, value
-                               , StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString
-                                                                                    , formatFlags | AsStringContent), formatString)
+                               , StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString
+                                                                                , formatFlags | AsStringContent), formatString)
                           | AsStringContent;
 
 
@@ -1197,7 +1118,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             Sf.FormatFieldName(this, nonJsonfieldName);
             Sf.AppendFieldValueSeparator();
         }
-        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
+        var contentTypeWriteAs = CurrentWriteMethod;
+        var callContext        = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         if (!callContext.HasFormatChange)
         {
@@ -1214,18 +1136,18 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             }
             if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
             {
-                if (result.VisitNumber >= 0)
+                if (result.VisitNumber.VisitIndex >= 0)
                 {
                     var visit = MoldGraphVisit;
-                    if (!CurrentWriteMethod.SupportsMultipleFields()
+                    if (!contentTypeWriteAs.SupportsMultipleFields()
                      && !callContext.HasFormatChange
                      && result.WrittenAs.SupportsMultipleFields()
-                     && Master.InstanceIdAtVisit(visit.RegistryId, visit.CurrentVisitIndex) <= 0)
+                     && Master.InstanceIdAtVisit(visit.VisitId) <= 0)
                     {
-                        Master.UpdateVisitAddFormatFlags(visit.RegistryId, visit.CurrentVisitIndex, NoRevisitCheck);
-                        Master.UpdateVisitRemoveFormatFlags(visit.RegistryId, result.VisitNumber, NoRevisitCheck);
+                        Master.UpdateVisitAddFormatFlags(visit.VisitId, NoRevisitCheck);
+                        Master.UpdateVisitRemoveFormatFlags(result.VisitNumber, NoRevisitCheck);
                     }
-                    else { Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
+                    else { Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
                 }
             }
         }
@@ -1246,9 +1168,9 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         {
             return WasSkipped(actualType, "", formatFlags);
         }
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
                                 (Sb, value
-                               , StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, formatFlags | AsStringContent)
+                               , StyleFormatter.ResolveContentAsStringFormatFlags(value, "", formatString, formatFlags | AsStringContent)
                                , formatString)
                           | AsStringContent;
 
@@ -1260,30 +1182,13 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
                                                          , addEndDblQt);
         else
         {
-            AppendSummary result;
             using (callContext)
             {
-                result = VettedAppendNullableStructCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags
-                                                                      , addStartDblQt, addEndDblQt);
-            }
-            if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
-            {
-                if (result.VisitNumber >= 0)
-                {
-                    var visit = MoldGraphVisit;
-                    if (!CurrentWriteMethod.SupportsMultipleFields()
-                     && !callContext.HasFormatChange
-                     && result.WrittenAs.SupportsMultipleFields()
-                     && Master.InstanceIdAtVisit(visit.RegistryId, visit.CurrentVisitIndex) <= 0)
-                    {
-                        Master.UpdateVisitAddFormatFlags(visit.RegistryId, visit.CurrentVisitIndex, NoRevisitCheck);
-                        Master.UpdateVisitRemoveFormatFlags(visit.RegistryId, result.VisitNumber, NoRevisitCheck);
-                    }
-                    else { Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
-                }
+                VettedAppendNullableStructCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags
+                                                             , addStartDblQt, addEndDblQt);
             }
         }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public AppendSummary VettedAppendNullableStructCloakedBearerContent<TCloakedStruct>(TCloakedStruct? value
@@ -1318,16 +1223,16 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
                 AppendNull("", formatFlags);
                 writtenAsFlags = AsNull;
             }
-            WrittenAsFlags |= AsString | writtenAsFlags;
-            return new AppendSummary(StyleTypeBuilder.GetType(), Master, new Range(startedAt, Sb.Length)
-                                   , writtenAsFlags, -1, typeof(TCloakedStruct?));
+            CurrentWriteMethod |= AsString | writtenAsFlags;
+            return new AppendSummary(Mold.GetType(), Master, new Range(startedAt, Sb.Length)
+                                   , writtenAsFlags, VisitId.NoVisitRequiredId, typeof(TCloakedStruct?));
         }
         if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
         var result = formatFlags.HasIsFieldNameFlag()
             ? StyleFormatter.FormatFieldName(this, value.Value, palantírReveal, formatString, formatFlags)
             : StyleFormatter.FormatFieldContents(this, value.Value, palantírReveal, formatString, formatFlags);
         if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
-        WrittenAsFlags |= AsString | result.WrittenAs;
+        CurrentWriteMethod |= (result.WrittenAs & ~(AsSimple | AsComplex)) | (formatFlags.HasAsStringContentFlag() ? AsString : AsValue);
         return result;
     }
 
@@ -1336,55 +1241,35 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         where TBearer : IStringBearer?
     {
         var actualType = value?.GetType() ?? typeof(TBearer);
-        ContentType = actualType;
-        RegisterBuildInstanceOnActiveRegistry(value, formatFlags | AsValueContent);
+        ContentType               = actualType;
+        var (_, valueCreateFlags) = RegisterBuildInstanceOnActiveRegistry(value, formatFlags | AsValueContent);
 
         if (!Master.ContinueGivenFormattingFlags(formatFlags)
          || HasSkipBody(actualType, nonJsonfieldName, formatFlags)) { return WasSkipped(actualType, nonJsonfieldName, formatFlags); }
 
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
 
-        var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
+        var withMoldInherited = valueCreateFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
         var maybeComplex      = withMoldInherited & ~(SuppressOpening | SuppressClosing);
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, maybeComplex)
-                               , formatString)
-                          | AsValueContent;
-        
-        
+        var resolvedFlags     = maybeComplex | StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, maybeComplex);
+
+
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
         if (valueEqualsBuildingType)
         {
             if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
-            resolvedFlags |= NoRevisitCheck;
+            if (!CurrentWriteMethod.SupportsMultipleFields()
+             && valueCreateFlags.HasContentAllowComplexType()
+             && MoldGraphVisit.HasRegisteredVisit) { Master.UpdateVisitAddFormatFlags(MoldGraphVisit.VisitId, NoRevisitCheck); }
+            else { resolvedFlags |= NoRevisitCheck; }
         }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
 
-        AppendSummary result;
-        if (!callContext.HasFormatChange)
-        {
-            result = VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString);
-        }
+        if (!callContext.HasFormatChange) { VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString); }
         else
         {
-            using (callContext) { result = VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString); }
-        }
-        if (result.VisitNumber >= 0)
-        {
-            var visit = MoldGraphVisit;
-            if (!CurrentWriteMethod.SupportsMultipleFields()
-             && !callContext.HasFormatChange
-             && result.WrittenAs.SupportsMultipleFields()
-             && Master.InstanceIdAtVisit(visit.RegistryId, visit.CurrentVisitIndex) <= 0)
-            {
-                Master.UpdateVisitAddFormatFlags(visit.RegistryId, visit.CurrentVisitIndex, NoRevisitCheck);
-                Master.UpdateVisitRemoveFormatFlags(visit.RegistryId, result.VisitNumber, NoRevisitCheck);
-            }
-            else if (callContext.HasFormatChange)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
+            using (callContext) { VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString); }
         }
         return ConditionalValueTypeSuffix();
     }
@@ -1402,8 +1287,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
         var maybeComplex      = withMoldInherited & ~(SuppressOpening | SuppressClosing);
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, maybeComplex)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, maybeComplex)
                                , formatString)
                           | AsValueContent;
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
@@ -1412,31 +1297,14 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
             resolvedFlags |= NoRevisitCheck;
         }
-        var           callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
-        AppendSummary result;
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
         if (!callContext.HasFormatChange)
-            result = VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString);
+            VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString);
         else
         {
-            using (callContext) { result = VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString); }
+            using (callContext) { VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString); }
         }
-        if (result.VisitNumber >= 0)
-        {
-            var visit = MoldGraphVisit;
-            if (!CurrentWriteMethod.SupportsMultipleFields()
-             && !callContext.HasFormatChange
-             && result.WrittenAs.SupportsMultipleFields()
-             && Master.InstanceIdAtVisit(visit.RegistryId, visit.CurrentVisitIndex) <= 0)
-            {
-                Master.UpdateVisitAddFormatFlags(visit.RegistryId, visit.CurrentVisitIndex, NoRevisitCheck);
-                Master.UpdateVisitRemoveFormatFlags(visit.RegistryId, result.VisitNumber, NoRevisitCheck);
-            }
-            else if (callContext.HasFormatChange)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
-        }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public TToContentMold FieldStringRevealOrDefaultNext<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value
@@ -1446,9 +1314,12 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
     {
         var actualType = value?.GetType() ?? typeof(TBearer);
         ContentType = actualType;
-        var valueEqualsBuildingType = BuildingInstanceEquals(value);
+        var         valueEqualsBuildingType = BuildingInstanceEquals(value);
+        FormatFlags valueCreateFlags        = DefaultCallerTypeFlags;
         if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking || !valueEqualsBuildingType)
-            RegisterBuildInstanceOnActiveRegistry(value, formatFlags | AsStringContent);
+        {
+            (_, valueCreateFlags) = RegisterBuildInstanceOnActiveRegistry(value, formatFlags | AsStringContent);
+        }
 
         if (!Master.ContinueGivenFormattingFlags(formatFlags) || HasSkipBody(actualType, nonJsonfieldName, formatFlags))
         {
@@ -1457,57 +1328,38 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
 
         var fieldNameFormatter = Sf;
 
-        var maybeComplex = ((formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags()) & ~(SuppressOpening | SuppressClosing)) | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, maybeComplex)
+        var withMoldInherited = valueCreateFlags | formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsStringContent;
+        var maybeComplex      = withMoldInherited & ~(SuppressOpening | SuppressClosing);
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString, maybeComplex)
                                , formatString)
                           | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
-            RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags);
+        {
+            (_, valueCreateFlags) = RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags);
+
+            resolvedFlags |= valueCreateFlags;
+        }
         if (valueEqualsBuildingType)
         {
             if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
-            if (Settings.InstanceTrackingAllAsStringHaveLocalTracking)
-            {
-                Master.RemoveVisitAt(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex);
-            }
-            else { resolvedFlags |= NoRevisitCheck; }
+            resolvedFlags |= NoRevisitCheck;
         }
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0)
         {
             Sf.PreviousContextOrThis.FormatFieldName(this, nonJsonfieldName);
             fieldNameFormatter.AppendFieldValueSeparator();
         }
-        AppendSummary result;
         if (!callContext.HasFormatChange)
-            result = VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
+            VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
         else
         {
             using (callContext)
             {
-                result = VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
-            }
-        }
-        if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
-        {
-            if (result.VisitNumber >= 0)
-            {
-                var visit = MoldGraphVisit;
-                if (!CurrentWriteMethod.SupportsMultipleFields()
-                 && !callContext.HasFormatChange
-                 && result.WrittenAs.SupportsMultipleFields()
-                 && Master.InstanceIdAtVisit(visit.RegistryId, visit.CurrentVisitIndex) <= 0)
-                {
-                    Master.UpdateVisitAddFormatFlags(visit.RegistryId, visit.CurrentVisitIndex, NoRevisitCheck);
-                    Master.UpdateVisitRemoveFormatFlags(visit.RegistryId, result.VisitNumber, NoRevisitCheck);
-                }
-                else if (callContext.HasFormatChange)
-                {
-                    Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-                }
+                VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
             }
         }
 
@@ -1525,56 +1377,34 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         {
             return WasSkipped(actualType, "", formatFlags);
         }
-        var maybeComplex = ((formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags()) & ~(SuppressOpening | SuppressClosing)) | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, maybeComplex)
+        var maybeComplex = ((formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags()) & ~(SuppressOpening | SuppressClosing)) |
+                           AsStringContent;
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString, maybeComplex)
                                , formatString)
                           | AsStringContent;
 
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
-        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
+        var callContext        = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
             RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags);
         if (valueEqualsBuildingType)
         {
             if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
-            if (Settings.InstanceTrackingAllAsStringHaveLocalTracking)
-            {
-                Master.RemoveVisitAt(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex);
-            }
+            if (Settings.InstanceTrackingAllAsStringHaveLocalTracking) { Master.UpdateVisitAddFormatFlags(MoldGraphVisit.VisitId, NoRevisitCheck); }
         }
 
-        AppendSummary result;
         if (!callContext.HasFormatChange)
-            result = VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
+            VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
         else
         {
             using (callContext)
             {
-                result = VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
+                VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
             }
         }
-        if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
-        {
-            if (result.VisitNumber >= 0)
-            {
-                var visit = MoldGraphVisit;
-                if (!CurrentWriteMethod.SupportsMultipleFields()
-                 && !callContext.HasFormatChange
-                 && result.WrittenAs.SupportsMultipleFields()
-                 && Master.InstanceIdAtVisit(visit.RegistryId, visit.CurrentVisitIndex) <= 0)
-                {
-                    Master.UpdateVisitAddFormatFlags(visit.RegistryId, visit.CurrentVisitIndex, NoRevisitCheck);
-                    Master.UpdateVisitRemoveFormatFlags(visit.RegistryId, result.VisitNumber, NoRevisitCheck);
-                }
-                else if (callContext.HasFormatChange)
-                {
-                    Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-                }
-            }
-        }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public AppendSummary VettedAppendStringBearerContent<TBearer>(TBearer value, string? defaultValue = null
@@ -1610,16 +1440,16 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
                 AppendNull("", formatFlags);
                 writtenAsFlags = AsNull;
             }
-            WrittenAsFlags |= AsString | writtenAsFlags;
-            return new AppendSummary(StyleTypeBuilder.GetType(), Master, new Range(startedAt, Sb.Length)
-                                   , writtenAsFlags, -1, typeof(TBearer));
+            CurrentWriteMethod |= AsString | writtenAsFlags;
+            return new AppendSummary(Mold.GetType(), Master, new Range(startedAt, Sb.Length)
+                                   , writtenAsFlags, VisitId.NoVisitRequiredId, typeof(TBearer));
         }
         if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
         var result = formatFlags.HasIsFieldNameFlag()
             ? StyleFormatter.FormatBearerFieldName(this, value, formatString, formatFlags)
             : StyleFormatter.FormatBearerFieldContents(this, value, formatString, formatFlags);
         if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
-        WrittenAsFlags |= AsString | result.WrittenAs;
+        CurrentWriteMethod |= AsString | (result.WrittenAs & ~(AsSimple | AsComplex)) | (formatFlags.HasAsStringContentFlag() ? AsString : AsValue);
         return result;
     }
 
@@ -1637,8 +1467,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsValueContent;
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
@@ -1646,27 +1476,13 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         {
             if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
         }
-        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
+        var callContext        = Master.ResolveContextForCallerFlags(resolvedFlags);
 
-        AppendSummary result;
         if (!callContext.HasFormatChange)
-            result = VettedAppendNullableStructStringBearerContent(value, defaultValue, resolvedFlags, formatString);
+            VettedAppendNullableStructStringBearerContent(value, defaultValue, resolvedFlags, formatString);
         else
         {
-            using (callContext) { result = VettedAppendNullableStructStringBearerContent(value, defaultValue, resolvedFlags, formatString); }
-        }
-        var visit = MoldGraphVisit;
-        if (!CurrentWriteMethod.SupportsMultipleFields()
-         && !callContext.HasFormatChange
-         && !result.WrittenAs.SupportsMultipleFields()
-         && Master.InstanceIdAtVisit(visit.RegistryId, visit.CurrentVisitIndex) <= 0)
-        {
-            Master.UpdateVisitAddFormatFlags(visit.RegistryId, visit.CurrentVisitIndex, NoRevisitCheck);
-            Master.UpdateVisitRemoveFormatFlags(visit.RegistryId, result.VisitNumber, NoRevisitCheck);
-        }
-        else if (callContext.HasFormatChange)
-        {
-            Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, Sf.ContentEncoder, Sf.LayoutEncoder);
+            using (callContext) { VettedAppendNullableStructStringBearerContent(value, defaultValue, resolvedFlags, formatString); }
         }
         return ConditionalValueTypeSuffix();
     }
@@ -1683,8 +1499,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             return WasSkipped(actualType, "", formatFlags);
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsValueContent;
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
@@ -1692,29 +1508,15 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         {
             if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
         }
-        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
+        var callContext        = Master.ResolveContextForCallerFlags(resolvedFlags);
 
-        AppendSummary result;
         if (!callContext.HasFormatChange)
-            result = VettedAppendNullableStructStringBearerContent(value, defaultValue, resolvedFlags, formatString);
+            VettedAppendNullableStructStringBearerContent(value, defaultValue, resolvedFlags, formatString);
         else
         {
-            using (callContext) { result = VettedAppendNullableStructStringBearerContent(value, defaultValue, resolvedFlags, formatString); }
+            using (callContext) { VettedAppendNullableStructStringBearerContent(value, defaultValue, resolvedFlags, formatString); }
         }
-        var visit = MoldGraphVisit;
-        if (!CurrentWriteMethod.SupportsMultipleFields()
-         && !callContext.HasFormatChange
-         && !result.WrittenAs.SupportsMultipleFields()
-         && Master.InstanceIdAtVisit(visit.RegistryId, visit.CurrentVisitIndex) <= 0)
-        {
-            Master.UpdateVisitAddFormatFlags(visit.RegistryId, visit.CurrentVisitIndex, NoRevisitCheck);
-            Master.UpdateVisitRemoveFormatFlags(visit.RegistryId, result.VisitNumber, NoRevisitCheck);
-        }
-        else if (callContext.HasFormatChange)
-        {
-            Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, Sf.ContentEncoder, Sf.LayoutEncoder);
-        }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public TToContentMold FieldStringRevealOrDefaultNext<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName
@@ -1733,9 +1535,10 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
 
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
 
-        var maybeComplex = ((formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags()) & ~(SuppressOpening | SuppressClosing)) | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, maybeComplex)
+        var maybeComplex = ((formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags()) & ~(SuppressOpening | SuppressClosing)) |
+                           AsStringContent;
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString, maybeComplex)
                                , formatString)
                           | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
@@ -1746,33 +1549,15 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
-        AppendSummary result;
         if (!callContext.HasFormatChange)
-            result = VettedAppendNullableStructStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
+            VettedAppendNullableStructStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
         else
         {
             using (callContext)
             {
-                result = VettedAppendNullableStructStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
+                VettedAppendNullableStructStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
             }
         }
-        if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
-        {
-            var visit = MoldGraphVisit;
-            if (!CurrentWriteMethod.SupportsMultipleFields()
-             && !callContext.HasFormatChange
-             && !result.WrittenAs.SupportsMultipleFields()
-             && Master.InstanceIdAtVisit(visit.RegistryId, visit.CurrentVisitIndex) <= 0)
-            {
-                Master.UpdateVisitAddFormatFlags(visit.RegistryId, visit.CurrentVisitIndex, NoRevisitCheck);
-                Master.UpdateVisitRemoveFormatFlags(visit.RegistryId, result.VisitNumber, NoRevisitCheck);
-            }
-            else if (callContext.HasFormatChange)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
-        }
-
         return ConditionalValueTypeSuffix();
     }
 
@@ -1787,9 +1572,10 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         {
             return WasSkipped(actualType, "", formatFlags);
         }
-        var maybeComplex = ((formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags()) & ~(SuppressOpening | SuppressClosing)) | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, maybeComplex)
+        var maybeComplex = ((formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags()) & ~(SuppressOpening | SuppressClosing)) |
+                           AsStringContent;
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString, maybeComplex)
                                , formatString)
                           | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
@@ -1801,33 +1587,16 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
-        AppendSummary result;
         if (!callContext.HasFormatChange)
-            result = VettedAppendNullableStructStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
+            VettedAppendNullableStructStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
         else
         {
             using (callContext)
             {
-                result = VettedAppendNullableStructStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
+                VettedAppendNullableStructStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
             }
         }
-        if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
-        {
-            var visit = MoldGraphVisit;
-            if (!CurrentWriteMethod.SupportsMultipleFields()
-             && !callContext.HasFormatChange
-             && !result.WrittenAs.SupportsMultipleFields()
-             && Master.InstanceIdAtVisit(visit.RegistryId, visit.CurrentVisitIndex) <= 0)
-            {
-                Master.UpdateVisitAddFormatFlags(visit.RegistryId, visit.CurrentVisitIndex, NoRevisitCheck);
-                Master.UpdateVisitRemoveFormatFlags(visit.RegistryId, result.VisitNumber, NoRevisitCheck);
-            }
-            else if (callContext.HasFormatChange)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
-        }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public AppendSummary VettedAppendNullableStructStringBearerContent<TBearerStruct>(TBearerStruct? value, string? defaultValue = null
@@ -1861,16 +1630,16 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
                 AppendNull("", formatFlags);
                 writtenAsFlags = AsNull;
             }
-            WrittenAsFlags |= AsString | writtenAsFlags;
-            return new AppendSummary(StyleTypeBuilder.GetType(), Master, new Range(startedAt, Sb.Length)
-                                   , writtenAsFlags, -1, typeof(TBearerStruct));
+            CurrentWriteMethod |= AsString | writtenAsFlags;
+            return new AppendSummary(Mold.GetType(), Master, new Range(startedAt, Sb.Length)
+                                   , writtenAsFlags, VisitId.NoVisitRequiredId, typeof(TBearerStruct));
         }
         if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
         var result = formatFlags.HasIsFieldNameFlag()
             ? StyleFormatter.FormatBearerFieldName(this, value.Value, formatString, formatFlags)
             : StyleFormatter.FormatBearerFieldContents(this, value.Value, formatString, formatFlags);
         if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
-        WrittenAsFlags |= AsString | result.WrittenAs;
+        CurrentWriteMethod |= (result.WrittenAs & ~(AsSimple | AsComplex)) | (formatFlags.HasAsStringContentFlag() ? AsString : AsValue);
         return result;
     }
 
@@ -1887,8 +1656,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, "Span", StyleFormatter.ResolveContentAsValueFormattingFlags("Span", "", formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, "Span", StyleFormatter.ResolveContentAsValueFormatFlags("Span", "", formatString, withMoldInherited)
                                , formatString)
                           | AsValueContent;
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
@@ -1912,8 +1681,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             return WasSkipped(actualType, "", formatFlags);
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, "Span", StyleFormatter.ResolveContentAsValueFormattingFlags("Span", "", formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, "Span", StyleFormatter.ResolveContentAsValueFormatFlags("Span", "", formatString, withMoldInherited)
                                , formatString)
                           | AsValueContent;
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
@@ -1923,7 +1692,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         {
             using (callContext) { VettedAppendCharSpanContent(value, fallbackValue, emptyIsNull, formatString, resolvedFlags); }
         }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public TToContentMold FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, Span<char> value, ReadOnlySpan<char> defaultValue
@@ -1942,8 +1711,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-            (Sb, "Span", StyleFormatter.ResolveContentAsStringFormattingFlags("Span", "", formatString, withMoldInherited), formatString);
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+            (Sb, "Span", StyleFormatter.ResolveContentAsStringFormatFlags("Span", "", formatString, withMoldInherited), formatString);
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
         if (!callContext.HasFormatChange)
@@ -1969,8 +1738,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             return WasSkipped(actualType, "", formatFlags);
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, "Span", StyleFormatter.ResolveContentAsStringFormattingFlags("Span", "", formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, "Span", StyleFormatter.ResolveContentAsStringFormatFlags("Span", "", formatString, withMoldInherited)
                                , formatString)
                           | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
@@ -1984,7 +1753,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
                 VettedAppendCharSpanContent(value, defaultValue, isEmptyNull, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
             }
         }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public WrittenAsFlags VettedAppendCharSpanContent(Span<char> value, ReadOnlySpan<char> defaultValue, bool isEmptyNull, string formatString = ""
@@ -2032,9 +1801,9 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
             (Sb, "ReadOnlySpan"
-           , StyleFormatter.ResolveContentAsValueFormattingFlags("ReadOnlySpan", "", formatString, withMoldInherited)
+           , StyleFormatter.ResolveContentAsValueFormatFlags("ReadOnlySpan", "", formatString, withMoldInherited)
            , formatString) | AsValueContent;
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
         if (!callContext.HasFormatChange)
@@ -2057,9 +1826,9 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             return WasSkipped(actualType, "", formatFlags);
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
             (Sb, "ReadOnlySpan"
-           , StyleFormatter.ResolveContentAsValueFormattingFlags("ReadOnlySpan", "", formatString, withMoldInherited)
+           , StyleFormatter.ResolveContentAsValueFormatFlags("ReadOnlySpan", "", formatString, withMoldInherited)
            , formatString) | AsValueContent;
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
         if (!callContext.HasFormatChange)
@@ -2069,7 +1838,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             using (callContext) { VettedAppendReadOnlyCharSpanContent(value, fallbackValue, emptyIsNull, formatString, resolvedFlags); }
         }
 
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public TToContentMold FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, ReadOnlySpan<char> value
@@ -2088,9 +1857,9 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
 
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
             (Sb, "ReadOnlySpan"
-           , StyleFormatter.ResolveContentAsStringFormattingFlags("ReadOnlySpan", "", formatString, withMoldInherited)
+           , StyleFormatter.ResolveContentAsStringFormatFlags("ReadOnlySpan", "", formatString, withMoldInherited)
            , formatString) | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
@@ -2118,9 +1887,9 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             return WasSkipped(actualType, "", formatFlags);
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
             (Sb, "ReadOnlySpan"
-           , StyleFormatter.ResolveContentAsStringFormattingFlags("ReadOnlySpan", "", formatString, withMoldInherited)
+           , StyleFormatter.ResolveContentAsStringFormatFlags("ReadOnlySpan", "", formatString, withMoldInherited)
            , formatString) | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
@@ -2136,7 +1905,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             }
         }
 
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public WrittenAsFlags VettedAppendReadOnlyCharSpanContent(ReadOnlySpan<char> value, ReadOnlySpan<char> defaultValue, bool isEmptyNull
@@ -2183,20 +1952,18 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
 
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsValueContent;
-        if (BuildingInstanceEquals(value))
-        {
-            resolvedFlags |= NoRevisitCheck;
-        }
-        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0)
+            this.FieldNameJoin(nonJsonfieldName);
         else if (MoldGraphVisit.IsARevisit && SupportsMultipleFields && Settings.InstanceMarkingIncludeStringContents)
         {
             Sf.AppendInstanceValuesFieldName(actualType, formatFlags);
         }
-        
+
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         AppendSummary result;
@@ -2208,10 +1975,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
         if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
         {
-            if (result.VisitNumber >= 0)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
+            if (result.VisitNumber.VisitIndex >= 0) { Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
         }
 
         return ConditionalValueTypeSuffix();
@@ -2228,14 +1992,11 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             return WasSkipped(actualType, "", formatFlags);
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsValueContent;
-        if (BuildingInstanceEquals(value))
-        {
-            resolvedFlags |= NoRevisitCheck;
-        }
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         AppendSummary result;
@@ -2247,12 +2008,9 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
         if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
         {
-            if (result.VisitNumber >= 0)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
+            if (result.VisitNumber.VisitIndex >= 0) { Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
         }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public TToContentMold FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, string? value, int startIndex, int length
@@ -2273,8 +2031,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         var fieldNameFormatter = Sf;
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
@@ -2282,10 +2040,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
             RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags);
-        if (valueEqualsBuildingType)
-        {
-            resolvedFlags |= NoRevisitCheck;
-        }
+        if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0)
         {
             fieldNameFormatter.FormatFieldName(this, nonJsonfieldName);
@@ -2301,14 +2056,14 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             result = VettedAppendStringContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
         else
         {
-            using (callContext) { result = VettedAppendStringContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
+            using (callContext)
+            {
+                result = VettedAppendStringContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+            }
         }
         if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
         {
-            if (result.VisitNumber >= 0)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
+            if (result.VisitNumber.VisitIndex >= 0) { Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
         }
         return ConditionalValueTypeSuffix();
     }
@@ -2327,8 +2082,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             return WasSkipped(actualType, "", formatFlags);
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
@@ -2336,26 +2091,23 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
             RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags);
-        if (valueEqualsBuildingType)
-        {
-            resolvedFlags |= NoRevisitCheck;
-        }
+        if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
 
         AppendSummary result;
         if (!callContext.HasFormatChange)
             result = VettedAppendStringContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
         else
         {
-            using (callContext) { result = VettedAppendStringContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
+            using (callContext)
+            {
+                result = VettedAppendStringContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+            }
         }
         if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
         {
-            if (result.VisitNumber >= 0)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
+            if (result.VisitNumber.VisitIndex >= 0) { Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
         }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public AppendSummary VettedAppendStringContent(string? value, int startIndex, int length
@@ -2397,7 +2149,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
                 return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, Empty, typeof(string));
             }
         }
-        if (value == null && formatFlags.HasNullBecomesEmptyFlag()) 
+        if (value == null && formatFlags.HasNullBecomesEmptyFlag())
             return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, Empty, typeof(string));
         var writtenAs = AppendNull(formatString, formatFlags);
         return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, writtenAs, typeof(string));
@@ -2413,21 +2165,19 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         if (!Master.ContinueGivenFormattingFlags(formatFlags)
          || HasSkipBody(actualType, nonJsonfieldName, formatFlags)) { return WasSkipped(actualType, nonJsonfieldName, formatFlags); }
 
-        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0)
+            this.FieldNameJoin(nonJsonfieldName);
         else if (MoldGraphVisit.IsARevisit && SupportsMultipleFields && Settings.InstanceMarkingIncludeCharArrayContents)
         {
             Sf.AppendInstanceValuesFieldName(actualType, formatFlags);
         }
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsValueContent;
-        if (BuildingInstanceEquals(value))
-        {
-            resolvedFlags |= NoRevisitCheck;
-        }
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         AppendSummary result;
@@ -2439,10 +2189,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
         if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
         {
-            if (result.VisitNumber >= 0)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
+            if (result.VisitNumber.VisitIndex >= 0) { Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
         }
         return ConditionalValueTypeSuffix();
     }
@@ -2459,14 +2206,11 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             return WasSkipped(actualType, "", formatFlags);
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsValueContent;
-        if (BuildingInstanceEquals(value))
-        {
-            resolvedFlags |= NoRevisitCheck;
-        }
+        if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         AppendSummary result;
@@ -2478,12 +2222,9 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
         if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
         {
-            if (result.VisitNumber >= 0)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
+            if (result.VisitNumber.VisitIndex >= 0) { Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
         }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public TToContentMold FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, char[]? value, int startIndex, int length
@@ -2504,15 +2245,12 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         var fieldNameFormatter = Sf;
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
-        if (valueEqualsBuildingType)
-        {
-            resolvedFlags |= NoRevisitCheck;
-        }
+        if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
@@ -2532,14 +2270,15 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             result = VettedAppendCharArrayContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
         else
         {
-            using (callContext) { result = VettedAppendCharArrayContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
+            using (callContext)
+            {
+                result = VettedAppendCharArrayContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt
+                                                    , addEndDblQt);
+            }
         }
         if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
         {
-            if (result.VisitNumber >= 0)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
+            if (result.VisitNumber.VisitIndex >= 0) { Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
         }
         return ConditionalValueTypeSuffix();
     }
@@ -2558,14 +2297,11 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             return WasSkipped(actualType, "", formatFlags);
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsStringContent;
-        if (valueEqualsBuildingType)
-        {
-            resolvedFlags |= NoRevisitCheck;
-        }
+        if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
@@ -2577,16 +2313,17 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             result = VettedAppendCharArrayContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
         else
         {
-            using (callContext) { result = VettedAppendCharArrayContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
+            using (callContext)
+            {
+                result = VettedAppendCharArrayContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt
+                                                    , addEndDblQt);
+            }
         }
         if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
         {
-            if (result.VisitNumber >= 0)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
+            if (result.VisitNumber.VisitIndex >= 0) { Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
         }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public AppendSummary VettedAppendCharArrayContent(char[]? value, int startIndex, int length
@@ -2604,8 +2341,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             {
                 if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
                 writtenAs = formatFlags.HasIsFieldNameFlag()
-                  ? StyleFormatter.FormatFieldName(this, value, capStart, formatString, capLength , formatFlags: formatFlags)
-                  : StyleFormatter.FormatFieldContents(this, value, capStart, formatString, capLength, formatFlags: formatFlags);
+                    ? StyleFormatter.FormatFieldName(this, value, capStart, formatString, capLength, formatFlags: formatFlags)
+                    : StyleFormatter.FormatFieldContents(this, value, capStart, formatString, capLength, formatFlags: formatFlags);
                 if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
                 return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, writtenAs, typeof(char[]));
             }
@@ -2631,8 +2368,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
                 return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, Empty, typeof(char[]));
             }
         }
-        if (formatFlags.HasNullBecomesEmptyFlag()) 
-            return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, Empty, typeof(char[]));
+        if (formatFlags.HasNullBecomesEmptyFlag()) return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, Empty, typeof(char[]));
         writtenAs = AppendNull(formatString, formatFlags);
         return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, writtenAs, typeof(char[]));
     }
@@ -2648,22 +2384,20 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         if (!Master.ContinueGivenFormattingFlags(formatFlags)
          || HasSkipBody(actualType, nonJsonfieldName, formatFlags)) { return WasSkipped(actualType, nonJsonfieldName, formatFlags); }
 
-        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0)
+            this.FieldNameJoin(nonJsonfieldName);
         else if (MoldGraphVisit.IsARevisit && SupportsMultipleFields && Settings.InstanceMarkingIncludeCharSequenceContents)
         {
             Sf.AppendInstanceValuesFieldName(actualType, formatFlags);
         }
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsValueContent;
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
-        if (valueEqualsBuildingType)
-        {
-            resolvedFlags |= NoRevisitCheck;
-        }
+        if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         AppendSummary result;
@@ -2675,10 +2409,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
         if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
         {
-            if (result.VisitNumber >= 0)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
+            if (result.VisitNumber.VisitIndex >= 0) { Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
         }
         return ConditionalValueTypeSuffix();
     }
@@ -2695,15 +2426,12 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             return WasSkipped(actualType, "", formatFlags);
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsValueContent;
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
-        if (valueEqualsBuildingType)
-        {
-            resolvedFlags |= NoRevisitCheck;
-        }
+        if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         AppendSummary result;
@@ -2715,12 +2443,9 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
         if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
         {
-            if (result.VisitNumber >= 0)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
+            if (result.VisitNumber.VisitIndex >= 0) { Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
         }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public TToContentMold FieldStringOrDefaultNext<TCharSeq>(ReadOnlySpan<char> nonJsonfieldName, TCharSeq value, int startIndex
@@ -2742,15 +2467,12 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         var fieldNameFormatter = Sf;
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
-        if (valueEqualsBuildingType)
-        {
-            resolvedFlags |= NoRevisitCheck;
-        }
+        if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
@@ -2764,20 +2486,22 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         {
             fieldNameFormatter.AppendInstanceValuesFieldName(actualType, formatFlags);
         }
-        
+
         AppendSummary result;
         if (!callContext.HasFormatChange)
-            result = VettedAppendCharSequenceContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+            result = VettedAppendCharSequenceContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt
+                                                   , addEndDblQt);
         else
         {
-            using (callContext) { result = VettedAppendCharSequenceContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
+            using (callContext)
+            {
+                result = VettedAppendCharSequenceContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt
+                                                       , addEndDblQt);
+            }
         }
         if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
         {
-            if (result.VisitNumber >= 0)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
+            if (result.VisitNumber.VisitIndex >= 0) { Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
         }
         return ConditionalValueTypeSuffix();
     }
@@ -2797,35 +2521,34 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             return WasSkipped(actualType, "", formatFlags);
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
-        if (valueEqualsBuildingType)
-        {
-            resolvedFlags |= NoRevisitCheck;
-        }
+        if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
             RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags);
-        
+
         AppendSummary result;
         if (!callContext.HasFormatChange)
-            result = VettedAppendCharSequenceContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+            result = VettedAppendCharSequenceContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt
+                                                   , addEndDblQt);
         else
         {
-            using (callContext) { result = VettedAppendCharSequenceContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
+            using (callContext)
+            {
+                result = VettedAppendCharSequenceContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt
+                                                       , addEndDblQt);
+            }
         }
         if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
         {
-            if (result.VisitNumber >= 0)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
+            if (result.VisitNumber.VisitIndex >= 0) { Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
         }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public AppendSummary VettedAppendCharSequenceContent<TCharSeq>(TCharSeq value, int startIndex, int length
@@ -2845,8 +2568,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             {
                 if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
                 writtenAs = formatFlags.HasIsFieldNameFlag()
-                    ? StyleFormatter.FormatFieldName(this, value, capStart, formatString, capLength , formatFlags: formatFlags)
-                    : StyleFormatter.FormatFieldContents(this, value, capStart, formatString, capLength, formatFlags: formatFlags); 
+                    ? StyleFormatter.FormatFieldName(this, value, capStart, formatString, capLength, formatFlags: formatFlags)
+                    : StyleFormatter.FormatFieldContents(this, value, capStart, formatString, capLength, formatFlags: formatFlags);
                 if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
                 return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, writtenAs, actualType);
             }
@@ -2872,7 +2595,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
                 return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, Empty, actualType);
             }
         }
-        if (value == null && formatFlags.HasNullBecomesEmptyFlag()) 
+        if (value == null && formatFlags.HasNullBecomesEmptyFlag())
             return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, Empty, actualType);
         writtenAs = AppendNull(formatString, formatFlags);
 
@@ -2889,24 +2612,22 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         if (!Master.ContinueGivenFormattingFlags(formatFlags)
          || HasSkipBody(actualType, nonJsonfieldName, formatFlags)) { return WasSkipped(actualType, nonJsonfieldName, formatFlags); }
 
-        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0)
+            this.FieldNameJoin(nonJsonfieldName);
         else if (MoldGraphVisit.IsARevisit && SupportsMultipleFields && Settings.InstanceMarkingIncludeStringBuilderContents)
         {
             Sf.AppendInstanceValuesFieldName(actualType, formatFlags);
         }
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsValueContent;
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
-        if (valueEqualsBuildingType)
-        {
-            resolvedFlags |= NoRevisitCheck;
-        }
+        if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
-        
+
         AppendSummary result;
         if (!callContext.HasFormatChange)
             result = VettedAppendStringBuilderContent(value, startIndex, length, defaultValue, formatString, resolvedFlags);
@@ -2916,10 +2637,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
         if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
         {
-            if (result.VisitNumber >= 0)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
+            if (result.VisitNumber.VisitIndex >= 0) { Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
         }
         return ConditionalValueTypeSuffix();
     }
@@ -2935,17 +2653,14 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             return WasSkipped(actualType, "", formatFlags);
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsValueContent;
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
-        if (valueEqualsBuildingType)
-        {
-            resolvedFlags |= NoRevisitCheck;
-        }
+        if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
-        
+
         AppendSummary result;
         if (!callContext.HasFormatChange)
             result = VettedAppendStringBuilderContent(value, startIndex, length, defaultValue, formatString, resolvedFlags);
@@ -2955,12 +2670,9 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
         if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
         {
-            if (result.VisitNumber >= 0)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
+            if (result.VisitNumber.VisitIndex >= 0) { Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
         }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public TToContentMold FieldStringOrDefaultNext(ReadOnlySpan<char> nonJsonfieldName, StringBuilder? value, int startIndex
@@ -2981,15 +2693,12 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         var fieldNameFormatter = Sf;
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
-        if (valueEqualsBuildingType)
-        {
-            resolvedFlags |= NoRevisitCheck;
-        }
+        if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
@@ -3003,20 +2712,22 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         {
             fieldNameFormatter.AppendInstanceValuesFieldName(actualType, formatFlags);
         }
-        
+
         AppendSummary result;
         if (!callContext.HasFormatChange)
-            result = VettedAppendStringBuilderContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+            result = VettedAppendStringBuilderContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt
+                                                    , addEndDblQt);
         else
         {
-            using (callContext) { result = VettedAppendStringBuilderContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
+            using (callContext)
+            {
+                result = VettedAppendStringBuilderContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt
+                                                        , addEndDblQt);
+            }
         }
         if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
         {
-            if (result.VisitNumber >= 0)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
+            if (result.VisitNumber.VisitIndex >= 0) { Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
         }
         return ConditionalValueTypeSuffix();
     }
@@ -3035,35 +2746,34 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             return WasSkipped(actualType, "", formatFlags);
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
-        if (valueEqualsBuildingType)
-        {
-            resolvedFlags |= NoRevisitCheck;
-        }
+        if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
             RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags);
-        
+
         AppendSummary result;
         if (!callContext.HasFormatChange)
-            result = VettedAppendStringBuilderContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
+            result = VettedAppendStringBuilderContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt
+                                                    , addEndDblQt);
         else
         {
-            using (callContext) { result = VettedAppendStringBuilderContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt); }
+            using (callContext)
+            {
+                result = VettedAppendStringBuilderContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt
+                                                        , addEndDblQt);
+            }
         }
         if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
         {
-            if (result.VisitNumber >= 0)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
+            if (result.VisitNumber.VisitIndex >= 0) { Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
         }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public AppendSummary VettedAppendStringBuilderContent(StringBuilder? value, int startIndex, int length
@@ -3081,8 +2791,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             {
                 if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
                 writtenAs = formatFlags.HasIsFieldNameFlag()
-                    ? StyleFormatter.FormatFieldName(this, value, capStart, formatString, capLength , formatFlags: formatFlags)
-                    :  StyleFormatter.FormatFieldContents(this, value, capStart, formatString, capLength, formatFlags: formatFlags); 
+                    ? StyleFormatter.FormatFieldName(this, value, capStart, formatString, capLength, formatFlags: formatFlags)
+                    : StyleFormatter.FormatFieldContents(this, value, capStart, formatString, capLength, formatFlags: formatFlags);
                 if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
                 return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, writtenAs, typeof(StringBuilder));
             }
@@ -3125,15 +2835,16 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
          || HasSkipBody(actualType, nonJsonfieldName, formatFlags)) { return WasSkipped(actualType, nonJsonfieldName, formatFlags); }
 
         var isInputType = TypeBeingBuilt.IsInputConstructionTypeCached();
-        if (SupportsMultipleFields && nonJsonfieldName.Length > 0) this.FieldNameJoin(nonJsonfieldName);
+        if (SupportsMultipleFields && nonJsonfieldName.Length > 0)
+            this.FieldNameJoin(nonJsonfieldName);
         else if (MoldGraphVisit.IsARevisit && SupportsMultipleFields && !isInputType && Settings.InstanceMarkingIncludeObjectToStringContents)
         {
             Sf.AppendInstanceValuesFieldName(actualType, formatFlags);
         }
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsValueContent;
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
@@ -3143,7 +2854,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             resolvedFlags |= NoRevisitCheck;
         }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
-        
+
         AppendSummary result;
         if (!callContext.HasFormatChange)
             result = VettedAppendMatchContent(value, defaultValue, formatString, resolvedFlags);
@@ -3153,10 +2864,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
         if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
         {
-            if (result.VisitNumber >= 0)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
+            if (result.VisitNumber.VisitIndex >= 0) { Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
         }
         return ConditionalValueTypeSuffix();
     }
@@ -3172,8 +2880,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             return WasSkipped(actualType, "", formatFlags);
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsValueContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsValueFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsValueContent;
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
@@ -3183,7 +2891,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             resolvedFlags |= NoRevisitCheck;
         }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
-        
+
         AppendSummary result;
         if (!callContext.HasFormatChange)
             result = VettedAppendMatchContent(value, defaultValue, formatString, resolvedFlags);
@@ -3193,12 +2901,9 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
         if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
         {
-            if (result.VisitNumber >= 0)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
+            if (result.VisitNumber.VisitIndex >= 0) { Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
         }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public TToContentMold StringMatchOrDefaultNext<TAny>(ReadOnlySpan<char> nonJsonfieldName, TAny value, string? defaultValue = null
@@ -3218,8 +2923,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         var fieldNameFormatter = Sf;
 
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, defaultValue, formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsStringContent;
         if (!actualType.IsValueType && BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
@@ -3233,16 +2938,17 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
             RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags);
-        var isInputType = TypeBeingBuilt.IsInputConstructionTypeCached(); 
+        var isInputType = TypeBeingBuilt.IsInputConstructionTypeCached();
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0)
         {
             fieldNameFormatter.FormatFieldName(this, nonJsonfieldName);
             fieldNameFormatter.AppendFieldValueSeparator();
-        } else if (MoldGraphVisit.IsARevisit && SupportsMultipleFields && !isInputType && Settings.InstanceMarkingIncludeObjectToStringContents)
+        }
+        else if (MoldGraphVisit.IsARevisit && SupportsMultipleFields && !isInputType && Settings.InstanceMarkingIncludeObjectToStringContents)
         {
             fieldNameFormatter.AppendInstanceValuesFieldName(actualType, formatFlags);
         }
-        
+
         AppendSummary result;
         if (!callContext.HasFormatChange)
             result = VettedAppendMatchContent(value, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
@@ -3252,10 +2958,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
         if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
         {
-            if (result.VisitNumber >= 0)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
+            if (result.VisitNumber.VisitIndex >= 0) { Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
         }
         return ConditionalValueTypeSuffix();
     }
@@ -3273,8 +2976,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             return WasSkipped(actualType, "", formatFlags);
         }
         var withMoldInherited = formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormattingFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormattingFlags(value, "", formatString, withMoldInherited)
+        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
+                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, "", formatString, withMoldInherited)
                                , formatString)
                           | AsStringContent;
         if (!actualType.IsValueType && BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
@@ -3288,7 +2991,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
             RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags);
-        
+
         AppendSummary result;
         if (!callContext.HasFormatChange)
             result = VettedAppendMatchContent(value, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
@@ -3298,12 +3001,9 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
         if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
         {
-            if (result.VisitNumber >= 0)
-            {
-                Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-            }
+            if (result.VisitNumber.VisitIndex >= 0) { Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
         }
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public AppendSummary VettedAppendMatchContent<TAny>(TAny? value, string? defaultValue = null
@@ -3318,7 +3018,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
         var startAt    = Sb.Length;
         var actualType = value?.GetType() ?? typeof(TAny);
-        
+
         WrittenAsFlags writtenAs;
         if (defaultValue != null)
         {
@@ -3326,8 +3026,8 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             writtenAs = formatFlags.HasIsFieldNameFlag()
                 ? StyleFormatter.FormatFieldName(this, defaultValue, 0, formatString, formatFlags: formatFlags)
                 : (formatFlags.HasAsValueContentFlag()
-                  ? StyleFormatter.FormatFallbackFieldContents<TAny>(this, defaultValue, 0, formatString, formatFlags: formatFlags)
-                  : StyleFormatter.FormatFieldContents(this, defaultValue, 0, formatString, formatFlags: formatFlags));
+                    ? StyleFormatter.FormatFallbackFieldContents<TAny>(this, defaultValue, 0, formatString, formatFlags: formatFlags)
+                    : StyleFormatter.FormatFieldContents(this, defaultValue, 0, formatString, formatFlags: formatFlags));
             if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
             return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, writtenAs, actualType);
         }
@@ -3344,7 +3044,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
                 return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, Empty, actualType);
             }
         }
-        if (value == null && formatFlags.HasNullBecomesEmptyFlag()) 
+        if (value == null && formatFlags.HasNullBecomesEmptyFlag())
             return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, Empty, actualType);
         writtenAs = AppendNull(formatString, formatFlags);
         return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, writtenAs, actualType);
@@ -3355,9 +3055,9 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
 
     public TToContentMold ConditionalValueTypeSuffix()
     {
-        if (SupportsMultipleFields) { return StyleTypeBuilder.TransitionToNextMold(); }
+        if (SupportsMultipleFields) { return Mold.TransitionToNextMold(); }
         Sf.Gb.Complete(Sf.Gb.CurrentSectionRanges.StartedWithFormatFlags);
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public override bool HasSkipBody(Type actualType, ReadOnlySpan<char> fieldName
@@ -3368,7 +3068,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
 
     {
-        return StyleTypeBuilder.TransitionToNextMold();
+        return Mold.TransitionToNextMold();
     }
 
     public override ITypeMolderDieCast CopyFrom(ITypeMolderDieCast? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
