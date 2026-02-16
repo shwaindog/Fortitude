@@ -146,14 +146,15 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
         currentSectionRanges.AllowEmptyContent      = allowEmptyContent;
     }
 
-    public void AddHighWaterMark()
+    public void AddHighWaterMark(bool withContent = true)
     {
         if (CurrentSectionRanges.HasContent || CurrentSectionRanges.HasSeparator || CurrentSectionRanges.HasPadding)
         {
             Complete(CurrentSectionRanges.StartedWithFormatFlags);
         }
+        var startIndex = withContent ? Index.FromEnd(1) : Index.End;
         var highWaterMark = new ContentSeparatorRanges
-            (FormatFlags.DefaultCallerTypeFlags, new Range(Index.End, Index.End)); // Empty content Range stops penultimate seperator/padding removal.
+            (FormatFlags.DefaultCallerTypeFlags, new Range(startIndex, Index.End)); // Empty content Range stops penultimate seperator/padding removal.
         PenUltimateContentSeparatorPaddingRanges = LastContentSeparatorPaddingRanges;
         LastContentSeparatorPaddingRanges        = highWaterMark;
     }

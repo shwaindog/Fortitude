@@ -478,9 +478,9 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
     }
 
-    public TOCMold AddAll<TFmt>(IReadOnlyList<TFmt?>? value
+    public TOCMold AddAll<TFmt>(IReadOnlyList<TFmt>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TFmt?>);
         if (stb.HasSkipBody(actualType, "", formatFlags))
@@ -532,9 +532,9 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
     }
 
-    public TOCMold AddAllEnumerate<TFmt>(IEnumerable<TFmt?>? value
+    public TOCMold AddAllEnumerate<TFmt>(IEnumerable<TFmt>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TFmt?>);
         if (stb.HasSkipBody(actualType, "", formatFlags))
@@ -588,9 +588,9 @@ public partial class OrderedCollectionMold<TOCMold>
         return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
     }
 
-    public TOCMold AddAllEnumerate<TFmt>(IEnumerator<TFmt?>? value
+    public TOCMold AddAllEnumerate<TFmt>(IEnumerator<TFmt>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TFmt?>);
         if (stb.HasSkipBody(actualType, "", formatFlags))

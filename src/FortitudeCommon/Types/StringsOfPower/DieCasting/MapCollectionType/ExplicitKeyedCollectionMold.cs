@@ -40,16 +40,19 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
     {
         var keyValueTypes       = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!;
         var typeCreateFlags = stb.CreateMoldFormatFlags;
-        usingFormatter.AppendKeyedCollectionStart(MoldStateField.Sb, MoldStateField.TypeBeingBuilt, keyValueTypes.Value.Key
+        usingFormatter.StartKeyedCollectionOpen(MoldStateField, keyValueTypes.Value.Key
                                                 , keyValueTypes.Value.Value, typeCreateFlags);
     }
 
-    public override void CompleteTypeOpeningToTypeFields(IStyledTypeFormatting usingFormatter) { }
+    public override void CompleteTypeOpeningToTypeFields(IStyledTypeFormatting usingFormatter)
+    {
+        usingFormatter.FinishKeyedCollectionOpen(MoldStateField);
+    }
 
     public override void AppendClosing()
     {
         var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!; 
-        MoldStateField.StyleFormatter.AppendKeyedCollectionEnd(MoldStateField.Sb, MoldStateField.TypeBeingBuilt, keyValueTypes.Value.Key, keyValueTypes.Value.Value, elementCount);
+        MoldStateField.StyleFormatter.AppendKeyedCollectionClose(MoldStateField, keyValueTypes.Value.Key, keyValueTypes.Value.Value, elementCount);
     }
 
     protected override void InheritedStateReset()

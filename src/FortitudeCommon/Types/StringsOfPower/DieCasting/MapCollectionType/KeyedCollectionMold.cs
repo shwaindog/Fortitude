@@ -40,15 +40,19 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
     public override void StartFormattingTypeOpening(IStyledTypeFormatting usingFormatter)
     {
         var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!; 
-        usingFormatter.AppendKeyedCollectionStart(MoldStateField.Sb, MoldStateField.TypeBeingBuilt, keyValueTypes.Value.Key, keyValueTypes.Value.Value);
+        usingFormatter.StartKeyedCollectionOpen(MoldStateField, keyValueTypes.Value.Key, keyValueTypes.Value.Value);
     }
 
-    public override void CompleteTypeOpeningToTypeFields(IStyledTypeFormatting usingFormatter) { }
+
+    public override void CompleteTypeOpeningToTypeFields(IStyledTypeFormatting usingFormatter)
+    {
+        usingFormatter.FinishKeyedCollectionOpen(MoldStateField);
+    }
 
     public override void AppendClosing()
     {
         var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!; 
-        MoldStateField.StyleFormatter.AppendKeyedCollectionEnd(MoldStateField.Sb, MoldStateField.TypeBeingBuilt, keyValueTypes.Value.Key, keyValueTypes.Value.Value, ItemCount);
+        MoldStateField.StyleFormatter.AppendKeyedCollectionClose(MoldStateField, keyValueTypes.Value.Key, keyValueTypes.Value.Value, ItemCount);
     }
 
     protected override void InheritedStateReset()

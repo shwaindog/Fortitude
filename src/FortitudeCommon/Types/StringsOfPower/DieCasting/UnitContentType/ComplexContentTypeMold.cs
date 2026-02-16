@@ -125,20 +125,20 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
     
     public ContentWithLogOnlyMold RevealAsValue<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked value
       , PalantírReveal<TCloakedBase> palantírReveal, string? formatString = null, FormatFlags formatFlags = AsValueContent)
-        where TCloaked : TCloakedBase
+        where TCloaked : TCloakedBase?
         where TCloakedBase : notnull =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, palantírReveal, null, formatString ?? "", formatFlags);
     
-    public ContentWithLogOnlyMold RevealAsValueOrNull<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
+    public ContentWithLogOnlyMold RevealAsValueOrNull<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked value
       , PalantírReveal<TCloakedBase> palantírReveal, string? formatString = null, FormatFlags formatFlags = AsValueContent)
-        where TCloaked : TCloakedBase
+        where TCloaked : TCloakedBase?
         where TCloakedBase : notnull =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, palantírReveal, null, formatString ?? "", formatFlags);
     
     public ContentWithLogOnlyMold RevealAsValueOrDefault<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName
-      , TCloaked? value, PalantírReveal<TCloakedBase> palantírReveal, string? defaultValue, string? formatString = null
+      , TCloaked value, PalantírReveal<TCloakedBase> palantírReveal, string? defaultValue, string? formatString = null
       , FormatFlags formatFlags = AsValueContent)
-        where TCloaked : TCloakedBase
+        where TCloaked : TCloakedBase?
         where TCloakedBase : notnull =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, palantírReveal, defaultValue ?? "", formatString ?? "", formatFlags);
     
@@ -160,15 +160,15 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
     
     public ContentWithLogOnlyMold RevealAsValue<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value
       , string? formatString = null, FormatFlags formatFlags = AsValueContent)
-        where TBearer : IStringBearer =>
+        where TBearer : IStringBearer? =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, null, formatFlags, formatString ?? "");
 
     public ContentWithLogOnlyMold RevealAsValueOrNull<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
-      , string? formatString = null, FormatFlags formatFlags = AsValueContent) where TBearer : IStringBearer =>
+      , string? formatString = null, FormatFlags formatFlags = AsValueContent) where TBearer : IStringBearer? =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, null, formatFlags, formatString ?? "");
     
     public ContentWithLogOnlyMold RevealAsValueOrDefault<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
-      , string? defaultValue = "", string? formatString = null, FormatFlags formatFlags = AsValueContent) where TBearer : IStringBearer =>
+      , string? defaultValue = "", string? formatString = null, FormatFlags formatFlags = AsValueContent) where TBearer : IStringBearer? =>
         Msf.FieldValueOrDefaultNext(nonJsonfieldName, value, defaultValue, formatFlags, formatString ?? "");
 
     public ContentWithLogOnlyMold RevealAsValue<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
@@ -332,7 +332,7 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
     
     public ContentWithLogOnlyMold AsString<TFmt>(ReadOnlySpan<char> nonJsonfieldName, TFmt value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-    , FormatFlags formatFlags = EncodeAll) where TFmt : ISpanFormattable =>
+    , FormatFlags formatFlags = EncodeAll) where TFmt : ISpanFormattable? =>
       Msf.FieldStringOrDefaultNext(nonJsonfieldName, value, null, formatString ?? "", formatFlags);
     
     
@@ -370,7 +370,7 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
     public ContentWithLogOnlyMold RevealAsString<TCloaked, TCloakedBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked value
     , PalantírReveal<TCloakedBase> palantírReveal, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll)
-      where TCloaked : TCloakedBase
+      where TCloaked : TCloakedBase?
       where TCloakedBase : notnull =>
       Msf.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, palantírReveal, "", formatString ?? "", formatFlags);
     
@@ -407,19 +407,19 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
     
     public ContentWithLogOnlyMold RevealAsString<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = EncodeAll)
-      where TBearer : IStringBearer =>
+      where TBearer : IStringBearer? =>
       Msf.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, "", formatString ?? "", formatFlags);
     
   
     public ContentWithLogOnlyMold RevealAsStringOrNull<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = EncodeAll)
-      where TBearer : IStringBearer =>
+      where TBearer : IStringBearer? =>
       Msf.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, null, formatString ?? "", formatFlags);
     
     public ContentWithLogOnlyMold RevealAsStringOrDefault<TBearer>(ReadOnlySpan<char> nonJsonfieldName, TBearer? value
     , string defaultValue = "", [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll)
-      where TBearer : IStringBearer => Msf.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);
+      where TBearer : IStringBearer? => Msf.FieldStringRevealOrDefaultNext(nonJsonfieldName, value, defaultValue, formatString ?? "", formatFlags);
 
     public ContentWithLogOnlyMold RevealAsString<TBearerStruct>(ReadOnlySpan<char> nonJsonfieldName, TBearerStruct? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = EncodeAll)

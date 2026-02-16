@@ -61,11 +61,10 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     WrittenAsFlags AppendFormattedNull(IStringBuilder sb, string? formatString, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType, Type keyType, Type valueType
-      , FormatFlags formatFlags = DefaultCallerTypeFlags);
+    ContentSeparatorRanges StartKeyedCollectionOpen(ITypeMolderDieCast mdc, Type keyType, Type valueType, FormatFlags formatFlags = DefaultCallerTypeFlags);
+    ContentSeparatorRanges FinishKeyedCollectionOpen(ITypeMolderDieCast mdc);
 
-    IStringBuilder AppendKeyedCollectionEnd(IStringBuilder sb, Type keyedCollectionType
-      , Type keyType, Type valueType, int totalItemCount
+    ContentSeparatorRanges AppendKeyedCollectionClose(ITypeMolderDieCast mdc, Type keyType, Type valueType, int totalItemCount
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue>(ITypeMolderDieCast<TMold> typeMold, Type keyedCollectionType

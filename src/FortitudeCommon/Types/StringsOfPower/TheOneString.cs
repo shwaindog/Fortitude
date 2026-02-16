@@ -1089,18 +1089,23 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         if (forThisNode.BufferLength < 0 && deltaIndentLevel > 0)
         {
             Settings.IndentLevel += deltaIndentLevel;
-            IncrementIndentForAllDescendantsOf(graphNodeIndex, deltaIndentLevel);
+            IncrementIndentForAllDescendantsOf(graphNodeIndex, deltaIndentLevel, false);
         }
     }
 
-    public void IncrementIndentForAllDescendantsOf(int visitId, int deltaIncreaseIndentLevel)
+    public void IncrementIndentForAllDescendantsOf(int visitId, int deltaIncreaseIndentLevel, bool foundFirstUnfinishedChild = true)
     {
         var totalVisits = MyActiveGraphRegistry.Count;
         for (var i = visitId + 1; i < totalVisits; i++)
         {
             var checkVisit = MyActiveGraphRegistry[i];
-            if (checkVisit.NodeVisitId.VisitIndex == visitId)
+            if (checkVisit.ParentVisitId.VisitIndex == visitId)
             {
+                if (!foundFirstUnfinishedChild && checkVisit.BufferLength < 0)
+                {
+                    checkVisit.MoldState?.IncrementCloseDepthDecrementBy(deltaIncreaseIndentLevel);
+                    foundFirstUnfinishedChild = true;
+                }
                 MyActiveGraphRegistry[i] = checkVisit.UpdateIndentLevel(checkVisit.IndentLevel + deltaIncreaseIndentLevel);
                 IncrementIndentForAllDescendantsOf(i, deltaIncreaseIndentLevel);
             }

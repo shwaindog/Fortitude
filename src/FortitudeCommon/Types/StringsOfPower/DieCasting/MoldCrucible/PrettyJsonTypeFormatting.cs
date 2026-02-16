@@ -43,8 +43,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             Gb.AppendPadding(StyleOptions.NewLineStyle);
             if (!formatFlags.HasNoWhitespacesToNextFlag())
             {
-                Gb.AppendPadding(StyleOptions.IndentChar
-                               , StyleOptions.IndentRepeat(Gb.IndentLevel));
+                Gb.AppendPadding(StyleOptions.IndentChar, StyleOptions.IndentRepeat(Gb.IndentLevel));
             }
         }
         return Gb.Complete(formatFlags);
@@ -59,7 +58,6 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             .AppendPadding(Spc)
             .Complete(formatFlags)
             .SeparatorPaddingRange!.Value;
-
 
     public override int SizeNextFieldPadding(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -92,71 +90,39 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
 
         var previousContentPadSpacing = Gb.LastContentSeparatorPaddingRanges;
         if (mdc.Master.CallerContext.FormatFlags.HasSuppressClosing()) { return Gb.LastContentSeparatorPaddingRanges; }
-        var lastNonWhiteSpace = Gb.RemoveLastSeparatorAndPadding();
-        if (previousContentPadSpacing.PreviousFormatFlags.DoesNotHaveAsEmbeddedContentFlags()) Gb.IndentLevel--;
+        if (previousContentPadSpacing.PreviousFormatFlags.DoesNotHaveAsEmbeddedContentFlags()) Gb.IndentLevel -= mdc.CloseDepthDecrementBy;
 
-        var paddedCloseStartIndex = sb.Length;
-        if (lastNonWhiteSpace != BrcOpnChar && previousContentPadSpacing.PreviousFormatFlags.CanAddNewLine())
-        {
-            Gb.AppendPadding(StyleOptions.NewLineStyle);
-            if (!previousContentPadSpacing.PreviousFormatFlags.HasNoWhitespacesToNextFlag())
-            {
-                Gb.AppendPadding(StyleOptions.IndentChar, StyleOptions.IndentRepeat(Gb.IndentLevel));
-            }
-        }
-        Gb.StartNextContentSeparatorPaddingSequence(mdc.Sb, DefaultCallerTypeFlags);
-        Gb.MarkContentStart(paddedCloseStartIndex);
-        if (previousContentPadSpacing.PreviousFormatFlags.DoesNotHaveAsEmbeddedContentFlags()) { Gb.AppendContent(BrcCls); }
-        Gb.MarkContentEnd(sb.Length);
-        return Gb.SnapshotLastAppendSequence(DefaultCallerTypeFlags);
+        return base.AppendComplexTypeClosing(mdc);
     }
-
-
-    public override IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType
+    
+    public override ContentSeparatorRanges StartKeyedCollectionOpen(ITypeMolderDieCast mdc
       , Type keyType, Type valueType, FormatFlags callerFormattingFlags = DefaultCallerTypeFlags)
     {
-        if (callerFormattingFlags.HasSuppressOpening()) { return sb; }
-        base.AppendKeyedCollectionStart(sb, keyedCollectionType, keyType, valueType, callerFormattingFlags);
-
-        Gb.IndentLevel++;
-
-        if (callerFormattingFlags.CanAddNewLine())
+        if (callerFormattingFlags.HasSuppressOpening())
         {
-            Gb.AppendPadding(StyleOptions.NewLineStyle);
-
-            if (!callerFormattingFlags.HasNoWhitespacesToNextFlag())
-            {
-                Gb.AppendPadding(StyleOptions.IndentChar
-                               , StyleOptions.IndentRepeat(Gb.IndentLevel));
-            }
+            return ContentSeparatorRanges.None;
         }
-        Gb.Complete(callerFormattingFlags);
-        return sb;
+        
+        Gb.IndentLevel++;
+        return base.StartKeyedCollectionOpen(mdc, keyType, valueType, callerFormattingFlags);
+    }
+    
+    public override ContentSeparatorRanges FinishKeyedCollectionOpen(ITypeMolderDieCast mdc)
+    {
+        return ContentSeparatorRanges.None;
     }
 
-    public override IStringBuilder AppendKeyedCollectionEnd(IStringBuilder sb, Type keyedCollectionType
+    public override ContentSeparatorRanges AppendKeyedCollectionClose(ITypeMolderDieCast mdc
       , Type keyType, Type valueType, int totalItemCount, FormatFlags callerFormattingFlags = DefaultCallerTypeFlags)
     {
-        if (callerFormattingFlags.HasSuppressClosing()) { return sb; }
-        var lastNonWhiteSpace = Gb.RemoveLastSeparatorAndPadding();
-        Gb.IndentLevel--;
-
-        var paddedCloseStartIndex = sb.Length;
-        if (totalItemCount > 0 && lastNonWhiteSpace != BrcOpnChar && callerFormattingFlags.CanAddNewLine())
-        {
-            Gb.AppendContent(StyleOptions.NewLineStyle);
-
-            if (!callerFormattingFlags.HasNoWhitespacesToNextFlag())
-            {
-                Gb.AppendContent(StyleOptions.IndentChar
-                               , StyleOptions.IndentRepeat(Gb.IndentLevel));
-            }
+        var sb = mdc.Sb;
+        if (callerFormattingFlags.HasSuppressClosing()) 
+        { 
+            return ContentSeparatorRanges.None; 
         }
-        Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
-        Gb.MarkContentStart(paddedCloseStartIndex);
-        Gb.AppendContent(BrcCls);
-        Gb.MarkContentEnd(sb.Length);
-        return sb;
+        if (callerFormattingFlags.DoesNotHaveAsEmbeddedContentFlags()) Gb.IndentLevel -= mdc.CloseDepthDecrementBy;
+
+        return base.AppendKeyedCollectionClose(mdc, keyType, valueType, totalItemCount, callerFormattingFlags);
     }
 
     public override ContentSeparatorRanges FinishFormatCollectionOpen(ITypeMolderDieCast mdc, Type itemElementType
@@ -358,16 +324,29 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             {
                 Gb.StartNextContentSeparatorPaddingSequence(sb, inheritedFmtFlags);
                 if (!mdc.WroteCollectionOpen)
+                {
                     CollectionStart(itemElementType, sb, false, inheritedFmtSwitches);
-                else
-                    Gb.IndentLevel--;
+                    if (mdc.CurrentWriteMethod.HasAsCollectionFlag() && mdc.CloseDepthDecrementBy > 1)
+                    {
+                        Gb.IndentLevel -= mdc.CloseDepthDecrementBy - 1;
+                    }
+                }
+                else if (mdc.CurrentWriteMethod.HasAsCollectionFlag())
+                {
+                    Gb.IndentLevel -= mdc.CloseDepthDecrementBy;
+                }
+                else { Gb.IndentLevel--; }
                 CollectionEnd(itemElementType, sb, 0, inheritedFmtSwitches);
                 Gb.Complete(inheritedFmtFlags);
             }
             else
             {
                 AppendFormattedNull(sb, formatString, inheritedFmtFlags);
-                if (mdc.WroteCollectionOpen) Gb.IndentLevel--;
+                if (mdc.WroteCollectionOpen)
+                {
+                    if (mdc.CurrentWriteMethod.HasAsCollectionFlag())  Gb.IndentLevel -= mdc.CloseDepthDecrementBy; 
+                    else  Gb.IndentLevel--; 
+                }
             }
             mdc.WroteCollectionOpen  = false;
             return sb;
@@ -388,7 +367,8 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             }
             Gb.RemoveLastSeparatorAndPadding();
 
-            Gb.IndentLevel--;
+            if (mdc.CurrentWriteMethod.HasAsCollectionFlag())  Gb.IndentLevel -= mdc.CloseDepthDecrementBy; 
+            else  Gb.IndentLevel--; 
 
             Gb.StartNextContentSeparatorPaddingSequence(sb, inheritedFmtFlags, true);
             if (totalItemCount > 0)

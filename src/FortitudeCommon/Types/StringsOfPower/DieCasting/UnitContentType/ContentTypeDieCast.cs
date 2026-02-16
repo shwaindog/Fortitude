@@ -799,10 +799,10 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, writtenAs, actualType);
     }
 
-    public TToContentMold FieldValueOrDefaultNext<TCloaked, TRevealBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked? value
+    public TToContentMold FieldValueOrDefaultNext<TCloaked, TRevealBase>(ReadOnlySpan<char> nonJsonfieldName, TCloaked value
       , PalantírReveal<TRevealBase> palantírReveal, string? defaultValue = null, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TCloaked : TRevealBase
+        where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(TCloaked);

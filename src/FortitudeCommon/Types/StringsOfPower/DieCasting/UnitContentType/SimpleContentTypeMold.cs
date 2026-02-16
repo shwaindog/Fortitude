@@ -113,7 +113,7 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, Simp
     
     public SimpleContentJoinMold  RevealAsValue<TCloaked, TCloakedBase>(TCloaked value, PalantírReveal<TCloakedBase> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = AsValueContent)
-        where TCloaked : TCloakedBase
+        where TCloaked : TCloakedBase?
         where TCloakedBase : notnull =>
         Msf.FieldValueOrDefaultNext("", value, palantírReveal, null, formatString ?? "", formatFlags);
 
@@ -147,15 +147,15 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, Simp
     
     public SimpleContentJoinMold  RevealAsValue<TBearer>(TBearer value, string? formatString = null
       , FormatFlags formatFlags = AsValueContent)
-        where TBearer : IStringBearer =>
+        where TBearer : IStringBearer? =>
         Msf.FieldValueOrDefaultNext("", value, null, formatFlags, formatString ?? "");
 
-    public SimpleContentJoinMold  RevealAsValueOrNull<TBearer>(TBearer? value
-      , string? formatString = null, FormatFlags formatFlags = AsValueContent) where TBearer : IStringBearer =>
+    public SimpleContentJoinMold  RevealAsValueOrNull<TBearer>(TBearer value
+      , string? formatString = null, FormatFlags formatFlags = AsValueContent) where TBearer : IStringBearer? =>
         Msf.FieldValueOrDefaultNext("", value, null, formatFlags, formatString ?? "");
     
-    public SimpleContentJoinMold  RevealAsValueOrDefault<TBearer>(TBearer? value, string defaultValue = ""
-      , string? formatString = null, FormatFlags formatFlags = AsValueContent) where TBearer : IStringBearer =>
+    public SimpleContentJoinMold  RevealAsValueOrDefault<TBearer>(TBearer value, string defaultValue = ""
+      , string? formatString = null, FormatFlags formatFlags = AsValueContent) where TBearer : IStringBearer? =>
         Msf.FieldValueOrDefaultNext("", value, defaultValue, formatFlags, formatString ?? "");
 
     public SimpleContentJoinMold  RevealAsValue<TBearerStruct>(TBearerStruct? value, string? formatString = null
@@ -257,7 +257,7 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, Simp
     , FormatFlags formatFlags = AsValueContent) =>
       Msf.FieldValueOrDefaultNext("", value, startIndex, length, "0", formatString ?? "", formatFlags);
     
-    public SimpleContentJoinMold  AsValueOrNull(ICharSequence? value, int startIndex, int length = int.MaxValue
+    public SimpleContentJoinMold  AsValueOrNull(ICharSequence? value, int startIndex = 0, int length = int.MaxValue
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = AsValueContent) =>
       Msf.FieldValueOrDefaultNext("", value, startIndex, length, null, formatString ?? "", formatFlags);
@@ -312,7 +312,7 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, Simp
     
     public SimpleContentJoinMold  AsString<TFmt>(TFmt value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = EncodeAll) 
-      where TFmt : ISpanFormattable =>
+      where TFmt : ISpanFormattable? =>
       Msf.FieldStringOrDefaultNext("", value, null, formatString ?? "", formatFlags);
     
     public SimpleContentJoinMold  AsStringOrNull<TFmt>(TFmt value
@@ -350,7 +350,7 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, Simp
     public SimpleContentJoinMold  RevealAsString<TCloaked, TCloakedBase>(TCloaked value, PalantírReveal<TCloakedBase> palantírReveal
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll)
-      where TCloaked : TCloakedBase
+      where TCloaked : TCloakedBase?
       where TCloakedBase : notnull =>
       Msf.FieldStringRevealOrDefaultNext("", value, palantírReveal, "", formatString ?? "", formatFlags);
     
@@ -387,17 +387,17 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, Simp
     
     public SimpleContentJoinMold  RevealAsString<TBearer>(TBearer value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = EncodeAll)
-      where TBearer : IStringBearer =>
+      where TBearer : IStringBearer? =>
       Msf.FieldStringRevealOrDefaultNext("", value, "", formatString ?? "", formatFlags);
     
-    public SimpleContentJoinMold  RevealAsStringOrNull<TBearer>(TBearer? value
+    public SimpleContentJoinMold  RevealAsStringOrNull<TBearer>(TBearer value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = EncodeAll)
-      where TBearer : IStringBearer =>
+      where TBearer : IStringBearer? =>
       Msf.FieldStringRevealOrDefaultNext("", value, null, formatString ?? "", formatFlags);
 
-    public SimpleContentJoinMold  RevealAsStringOrDefault<TBearer>(TBearer? value, string defaultValue = ""
+    public SimpleContentJoinMold  RevealAsStringOrDefault<TBearer>(TBearer value, string defaultValue = ""
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = EncodeAll)
-      where TBearer : IStringBearer => Msf.FieldStringRevealOrDefaultNext("", value, defaultValue, formatString ?? "", formatFlags);
+      where TBearer : IStringBearer? => Msf.FieldStringRevealOrDefaultNext("", value, defaultValue, formatString ?? "", formatFlags);
     
     public SimpleContentJoinMold  RevealAsString<TBearerStruct>(TBearerStruct? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = EncodeAll)
