@@ -59,7 +59,7 @@ public class ContentJoinTypeMold<TFromMold, TToMold> : KnownTypeMolder<TToMold>,
 
     public TToMold CopyFrom(TFromMold source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
-        OriginalStartIndex    = source.StartIndex;
+        OriginalStartIndex    = source.OriginalStartIndex;
         PortableState.CopyFrom(((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.PortableState);
         SourceBuilderComponentAccess(((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.CurrentWriteMethod);
 

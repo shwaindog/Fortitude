@@ -3,6 +3,7 @@
 
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData.TestTree.ComplexFieldCollection;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData.TestTree;
 
@@ -37,13 +38,15 @@ public class LeafNode : Node, IChildNode
         LeafInstanceId = Interlocked.Increment(ref LeafNodeInstanceId);
     }
 
-    public IReadOnlyParentNode? Parent { get; set; }
+    public INode? Parent { get; set; }
 
     public int LeafInstanceId { get; }
 
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .Field.AlwaysAdd(nameof(LeafInstanceId), LeafInstanceId)
-           .AddBaseRevealStateFields(this)
-           .Complete();
+    public override AppendSummary RevealState(ITheOneString tos)
+    {
+        var ctm = tos.StartComplexType(this);
+        ctm.Field.AlwaysAdd(nameof(LeafInstanceId), LeafInstanceId);
+        ctm.AddBaseRevealStateFields(this);
+        return ctm.Complete();
+    }
 }

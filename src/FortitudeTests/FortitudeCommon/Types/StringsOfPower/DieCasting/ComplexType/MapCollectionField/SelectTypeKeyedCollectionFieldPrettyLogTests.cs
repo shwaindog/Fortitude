@@ -100,14 +100,14 @@ public class SelectTypeKeyedCollectionFieldPrettyLogTests : SelectTypeKeyedColle
                 var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
                 nextExpect.Append(propertyName).Append(": (");
                 orderedListExpectation.CollectionCallType.AppendShortNameInCSharpFormat(nextExpect).Append(")")
-                                      .Append(expectValue.IndentSubsequentLines());
+                                      .Append(expectValue.IndentSubsequentLines(tos.Settings.NewLineStyle));
                 expectValue.DecrementRefCount();
                 expectValue = nextExpect;
             }
             else
             {
                 var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
-                nextExpect.Append(propertyName).Append(": ").Append(expectValue.IndentSubsequentLines());
+                nextExpect.Append(propertyName).Append(": ").Append(expectValue.IndentSubsequentLines(tos.Settings.NewLineStyle));
                 expectValue.DecrementRefCount();
                 expectValue = nextExpect;
             }

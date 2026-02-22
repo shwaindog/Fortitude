@@ -27,28 +27,28 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStyledTypeFormatting ContextStartPushToNext(StyleOptions withStyleOptions);
     IStyledTypeFormatting ContextCompletePopToPrevious();
 
-    FormatFlags ResolveContentFormattingFlags<T>(IStringBuilder sb, T input, FormatFlags callerFormattingFlags
+    FormatFlags ResolveContentFormatFlags<T>(IStringBuilder sb, T input, FormatFlags callerFormattingFlags
       , string formatString = "", bool isFieldName = false);
 
-    FormatFlags ResolveContentAsValueFormattingFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = ""
+    FormatFlags ResolveContentAsValueFormatFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = ""
       , FormatFlags callerFlags = DefaultCallerTypeFlags);
 
-    FormatFlags ResolveContentAsStringFormattingFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = ""
+    FormatFlags ResolveContentAsStringFormatFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = ""
       , FormatFlags callerFlags = DefaultCallerTypeFlags);
 
-    ContentSeparatorRanges StartContentTypeOpening(ITypeMolderDieCast moldInternal, FormatFlags formatFlags = DefaultCallerTypeFlags);
-    ContentSeparatorRanges FinishContentTypeOpening(ITypeMolderDieCast moldInternal, FormatFlags formatFlags = DefaultCallerTypeFlags);
+    ContentSeparatorRanges StartContentTypeOpening(ITypeMolderDieCast mdc, FormatFlags formatFlags = DefaultCallerTypeFlags);
+    ContentSeparatorRanges FinishContentTypeOpening(ITypeMolderDieCast mdc, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    ContentSeparatorRanges AppendContentTypeClosing(ITypeMolderDieCast moldInternal);
+    ContentSeparatorRanges AppendContentTypeClosing(ITypeMolderDieCast mdc);
 
     ContentSeparatorRanges StartComplexTypeOpening(ITypeMolderDieCast mdc, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    ContentSeparatorRanges FinishComplexTypeOpening(ITypeMolderDieCast moldInternal, FormatFlags formatFlags = DefaultCallerTypeFlags);
+    ContentSeparatorRanges FinishComplexTypeOpening(ITypeMolderDieCast mdc, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     SeparatorPaddingRanges AppendFieldValueSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    FormatFlags          GetFormatterContentHandlingFlags<T>(ITheOneString tos, T forValue, Type actualType, WrittenAsFlags proposedWriteType, VisitResult visitResult, FormatFlags formatFlags);
-    FormatFlags          GetFormatterContentHandlingFlags(ITheOneString tos, Type actualType, WrittenAsFlags proposedWriteType, VisitResult visitResult, FormatFlags formatFlags);
+    (WrittenAsFlags, FormatFlags) ResolveMoldWriteAsFormatFlags<T>(ITheOneString tos, T forValue, Type actualType, WrittenAsFlags proposedWriteType, VisitResult visitResult, FormatFlags formatFlags);
+    (WrittenAsFlags, FormatFlags) ResolveMoldWriteAsFormatFlags(ITheOneString tos, Type actualType, WrittenAsFlags proposedWriteType, VisitResult visitResult, FormatFlags formatFlags);
     int                    SizeToNextFieldSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
     Range?                 AddToNextFieldSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
     int                    SizeNextFieldPadding(FormatFlags formatFlags = DefaultCallerTypeFlags);
@@ -57,7 +57,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     int SizeFieldSeparatorAndPadding(FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    ContentSeparatorRanges AppendComplexTypeClosing(ITypeMolderDieCast moldInternal);
+    ContentSeparatorRanges AppendComplexTypeClosing(ITypeMolderDieCast mdc);
 
     WrittenAsFlags AppendFormattedNull(IStringBuilder sb, string? formatString, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
@@ -167,8 +167,11 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     IStringBuilder AppendKeyedCollectionNextItem(IStringBuilder sb, Type keyedCollectionType
       , Type keyType, Type valueType, int previousItemNumber, FormatFlags valueFlags = DefaultCallerTypeFlags);
 
-    IStringBuilder FormatCollectionStart(ITypeMolderDieCast mdc, Type itemElementType, bool? hasItems, Type collectionType
+    ContentSeparatorRanges StartFormatCollectionOpen(ITypeMolderDieCast mdc, Type itemElementType, bool? hasItems, Type collectionType
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
+    
+    ContentSeparatorRanges FinishFormatCollectionOpen(ITypeMolderDieCast mdc, Type itemElementType, bool? hasItems
+    , Type collectionType, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     WrittenAsFlags CollectionNextItemFormat(ITypeMolderDieCast mdc, bool item
       , int retrieveCount, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags);
@@ -220,7 +223,7 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     int SizeFormatFieldName(int sourceLength, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    int InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, int refId, Type actualType, int typeOpenIndex, WrittenAsFlags writtenAs
+    (int, int) InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, int refId, Type actualType, int typeOpenIndex, WrittenAsFlags writtenAs
     , int firstFieldIndex, FormatFlags createTypeFlags, int contentLength = -1, ITypeMolderDieCast? liveMoldInternal = null);
     
     int AppendExistingReferenceId(ITypeMolderDieCast mdc, int refId, WrittenAsFlags currentWriteMethod, FormatFlags createTypeFlags);

@@ -61,7 +61,10 @@ public abstract class EnumerableBatchRingPoller<T> : IEnumerableBatchRingPoller<
 
     public event Action<QueueEventTime>? QueueEntryStart;
     public event Action<QueueEventTime>? QueueEntryComplete;
-
+    
+    // Need this state outside of the ExecutingThread as when it is disposed you get an exception asking if the Thread is background or not 
+    private bool isBackgroundThread = false;
+    
     public void Dispose()
     {
         GC.SuppressFinalize(this);
@@ -90,11 +93,11 @@ public abstract class EnumerableBatchRingPoller<T> : IEnumerableBatchRingPoller<
             ++UsageCount;
             if (!isRunning)
             {
-                threadStartInitialization = threadStartInitialize ?? threadStartInitialization;
-                isRunning = true;
-                ExecutingThread = osParallelController.CreateNewOSThread(ThreadStart);
-                ExecutingThread.IsBackground = true;
-                ExecutingThread.Name = Name;
+                threadStartInitialization    = threadStartInitialize ?? threadStartInitialization;
+                isRunning                    = true;
+                ExecutingThread              = osParallelController.CreateNewOSThread(ThreadStart);
+                ExecutingThread.IsBackground = isBackgroundThread = true;
+                ExecutingThread.Name         = Name;
                 ExecutingThread.Start();
             }
         }
@@ -124,7 +127,7 @@ public abstract class EnumerableBatchRingPoller<T> : IEnumerableBatchRingPoller<
             are.Set();
             if (gracefulShutdown)
             {
-                if (ExecutingThread is { IsBackground: true, IsAlive: true }) ExecutingThread?.Join();
+                if (ExecutingThread is { IsAlive: true } && isBackgroundThread) ExecutingThread?.Join();
 
                 foreach (var data in Ring)
                     try

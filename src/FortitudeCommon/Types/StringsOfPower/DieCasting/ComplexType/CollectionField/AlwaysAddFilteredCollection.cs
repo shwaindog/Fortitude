@@ -15,19 +15,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(Span<bool>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(Span<bool>);
         var elementType    = typeof(bool);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionType<bool>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionType<bool>(collectionType, formatFlags)
+           .AddFiltered(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -36,19 +36,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(Span<bool?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(Span<bool?>);
         var elementType    = typeof(bool?);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionTypeOfNullable<bool>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionTypeOfNullable<bool>(collectionType, formatFlags)
+           .AddFiltered(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -59,19 +59,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmt : ISpanFormattable?, TFmtBase?
     {
         var actualType = typeof(Span<TFmt>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(Span<TFmt>);
         var elementType    = typeof(TFmt);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionType<TFmt>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionType<TFmt>(collectionType, formatFlags)
+           .AddFiltered(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -82,19 +82,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = typeof(Span<TFmtStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(Span<TFmtStruct?>);
         var elementType    = typeof(TFmtStruct?);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionTypeOfNullable<TFmtStruct>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionTypeOfNullable<TFmtStruct>(collectionType, formatFlags)
+           .AddFiltered(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -107,19 +107,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TRevealBase : notnull
     {
         var actualType = typeof(Span<TCloaked>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(Span<TCloaked>);
         var elementType    = typeof(TCloaked);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionType<TCloaked>(collectionType, formatFlags).RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionType<TCloaked>(collectionType, formatFlags)
+           .RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -130,19 +130,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
     {
         var actualType = typeof(Span<TCloakedStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(Span<TCloakedStruct?>);
         var elementType    = typeof(TCloakedStruct?);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionTypeOfNullable<TCloakedStruct>(collectionType, formatFlags).RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionTypeOfNullable<TCloakedStruct>(collectionType, formatFlags)
+           .RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -153,19 +153,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TBearer : IStringBearer?, TBearerBase?
     {
         var actualType = typeof(Span<TBearer>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(Span<TBearer>);
         var elementType    = typeof(TBearer);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionType<TBearer>(collectionType, formatFlags).RevealFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionType<TBearer>(collectionType, formatFlags)
+           .RevealFiltered(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -175,19 +175,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer
     {
         var actualType = typeof(Span<TBearerStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(Span<TBearerStruct?>);
         var elementType    = typeof(TBearerStruct?);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionTypeOfNullable<TBearerStruct>(collectionType, formatFlags).RevealFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionTypeOfNullable<TBearerStruct>(collectionType, formatFlags)
+           .RevealFiltered(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -196,19 +196,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(Span<string>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(Span<string>);
         var elementType    = typeof(string);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionType<string>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionType<string>(collectionType, formatFlags)
+           .AddFiltered(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -217,19 +217,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(Span<string?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(Span<string>);
         var elementType    = typeof(string);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionType<string?>(collectionType, formatFlags).AddFilteredNullable(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionType<string?>(collectionType, formatFlags)
+           .AddFilteredNullable(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -239,19 +239,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TCharSeq : ICharSequence?, TCharSeqBase?
     {
         var actualType = typeof(Span<TCharSeq>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(Span<TCharSeq>);
         var elementType    = typeof(TCharSeq);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionType<TCharSeq>(collectionType, formatFlags).AddFilteredCharSeq(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionType<TCharSeq>(collectionType, formatFlags)
+           .AddFilteredCharSeq(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -260,19 +260,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(Span<StringBuilder>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(Span<StringBuilder>);
         var elementType    = typeof(StringBuilder);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionType<StringBuilder>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionType<StringBuilder>(collectionType, formatFlags)
+           .AddFiltered(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -282,19 +282,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(Span<StringBuilder?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(Span<StringBuilder>);
         var elementType    = typeof(StringBuilder);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionType<StringBuilder?>(collectionType, formatFlags).AddFilteredNullable(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionType<StringBuilder?>(collectionType, formatFlags)
+           .AddFilteredNullable(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -305,19 +305,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TAny : TAnyBase?
     {
         var actualType = typeof(Span<TAny>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(Span<TAny>);
         var elementType    = typeof(TAny);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionType<TAny>(collectionType, formatFlags).AddFilteredMatch(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionType<TAny>(collectionType, formatFlags)
+           .AddFilteredMatch(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -338,19 +338,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(ReadOnlySpan<bool>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(ReadOnlySpan<bool>);
         var elementType    = typeof(bool);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionType<bool>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionType<bool>(collectionType, formatFlags)
+           .AddFiltered(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -359,19 +359,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(ReadOnlySpan<bool?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(ReadOnlySpan<bool?>);
         var elementType    = typeof(bool?);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionTypeOfNullable<bool>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionTypeOfNullable<bool>(collectionType, formatFlags)
+           .AddFiltered(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -382,19 +382,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmt : ISpanFormattable?, TFmtBase?
     {
         var actualType = typeof(ReadOnlySpan<TFmt>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(ReadOnlySpan<TFmt>);
         var elementType    = typeof(TFmt);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionType<TFmt>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionType<TFmt>(collectionType, formatFlags)
+           .AddFiltered(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -405,19 +405,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = typeof(ReadOnlySpan<TFmtStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(ReadOnlySpan<TFmtStruct?>);
         var elementType    = typeof(TFmtStruct?);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionTypeOfNullable<TFmtStruct>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionTypeOfNullable<TFmtStruct>(collectionType, formatFlags)
+           .AddFiltered(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -430,19 +430,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TRevealBase : notnull
     {
         var actualType = typeof(ReadOnlySpan<TCloaked>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(ReadOnlySpan<TCloaked>);
         var elementType    = typeof(TCloaked);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionType<TCloaked>(collectionType, formatFlags).RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionType<TCloaked>(collectionType, formatFlags)
+           .RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -455,18 +455,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var actualType = typeof(ReadOnlySpan<TCloakedStruct?>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags))
             return stb.WasSkipped(actualType, fieldName
-                                                                 , formatFlags);
+                                , formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(ReadOnlySpan<TCloakedStruct?>);
         var elementType    = typeof(TCloakedStruct?);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionTypeOfNullable<TCloakedStruct>(collectionType, formatFlags).RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionTypeOfNullable<TCloakedStruct>(collectionType, formatFlags)
+           .RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -476,19 +477,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?, TBearerBase?
     {
         var actualType = typeof(ReadOnlySpan<TBearer>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(ReadOnlySpan<TBearer>);
         var elementType    = typeof(TBearer);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionType<TBearer>(collectionType, formatFlags).RevealFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionType<TBearer>(collectionType, formatFlags)
+           .RevealFiltered(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -500,18 +501,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var actualType = typeof(ReadOnlySpan<TBearerStruct?>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags))
             return stb.WasSkipped(actualType, fieldName
-                                                                , formatFlags);
+                                , formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(ReadOnlySpan<TBearerStruct?>);
         var elementType    = typeof(TBearerStruct?);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, "", formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionTypeOfNullable<TBearerStruct>(collectionType, formatFlags).RevealFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionTypeOfNullable<TBearerStruct>(collectionType, formatFlags)
+           .RevealFiltered(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -520,19 +522,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(ReadOnlySpan<string>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(ReadOnlySpan<string>);
         var elementType    = typeof(string);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionType<string>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionType<string>(collectionType, formatFlags)
+           .AddFiltered(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -542,19 +544,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(ReadOnlySpan<string?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(ReadOnlySpan<string>);
         var elementType    = typeof(string);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionType<string?>(collectionType, formatFlags).AddFilteredNullable(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionType<string?>(collectionType, formatFlags)
+           .AddFilteredNullable(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -565,19 +567,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TCharSeq : ICharSequence?, TCharSeqBase?
     {
         var actualType = typeof(ReadOnlySpan<TCharSeq>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(ReadOnlySpan<TCharSeq>);
         var elementType    = typeof(TCharSeq);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionType<TCharSeq>(collectionType, formatFlags).AddFilteredCharSeq(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionType<TCharSeq>(collectionType, formatFlags)
+           .AddFilteredCharSeq(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -589,18 +591,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var actualType = typeof(ReadOnlySpan<StringBuilder>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags))
             return stb.WasSkipped(actualType, fieldName
-                                                               , formatFlags);
+                                , formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(ReadOnlySpan<StringBuilder>);
         var elementType    = typeof(StringBuilder);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionType<StringBuilder>(collectionType, formatFlags).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionType<StringBuilder>(collectionType, formatFlags)
+           .AddFiltered(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -612,18 +615,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var actualType = typeof(ReadOnlySpan<StringBuilder?>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags))
             return stb.WasSkipped(actualType, fieldName
-                                                                , formatFlags);
+                                , formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(ReadOnlySpan<StringBuilder>);
         var elementType    = typeof(StringBuilder);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionType<StringBuilder?>(collectionType, formatFlags).AddFilteredNullable(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionType<StringBuilder?>(collectionType, formatFlags)
+           .AddFilteredNullable(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -634,19 +638,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TAny : TAnyBase?
     {
         var actualType = typeof(ReadOnlySpan<TAny>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         var collectionType = typeof(ReadOnlySpan<TAny>);
         var elementType    = typeof(TAny);
         if (value.Length == 0)
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, collectionType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, collectionType, null, 0, formatString, formatFlags, false);
         }
 
-        stb.Master.StartExplicitCollectionType<TAny>(collectionType, formatFlags).AddFilteredMatch(value, filterPredicate, formatString, formatFlags).Complete();
+        stb.Master
+           .StartExplicitCollectionType<TAny>(collectionType, formatFlags)
+           .AddFilteredMatch(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -672,13 +676,15 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if ((value?.Length ?? 0) == 0)
         {
-            var elementType    = typeof(bool);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, typeof(bool[]), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Length, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(bool);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, typeof(bool[]), value != null ? 0 : null, value != null ? 0 : null
+                                                            , formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<bool[], bool>(value!).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+
+        stb.Master
+           .StartExplicitCollectionType<bool[], bool>(value!)
+           .AddFiltered(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -687,18 +693,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(bool?[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if ((value?.Length ?? 0) == 0)
         {
-            var elementType    = typeof(bool?);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, typeof(bool?[]), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Length, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(bool?);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, typeof(bool?[]), value != null ? 0 : null, value != null ? 0 : null
+                                                            , formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<bool?[], bool?>(value!).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+
+        stb.Master
+           .StartExplicitCollectionType<bool?[], bool?>(value!)
+           .AddFiltered(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -713,13 +720,15 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if ((value?.Length ?? 0) == 0)
         {
-            var elementType    = typeof(TFmt);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, typeof(TFmt[]), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Length, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(TFmt);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, typeof(TFmt[]), value != null ? 0 : null, value != null ? 0 : null
+                                                            , formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<TFmt[], TFmt>(value!).AddFiltered(value, filterPredicate, formatString, formatFlags).Complete();
+
+        stb.Master
+           .StartExplicitCollectionType<TFmt[], TFmt>(value!)
+           .AddFiltered(value, filterPredicate, formatString, formatFlags)
+           .Complete();
         return stb.AddGoToNext();
     }
 
@@ -730,18 +739,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = value?.GetType() ?? typeof(TFmtStruct?[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if ((value?.Length ?? 0) == 0)
         {
-            var elementType    = typeof(TFmtStruct?);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, typeof(TFmtStruct?[]), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Length, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(TFmtStruct?);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, typeof(TFmtStruct?[]), value != null ? 0 : null, value != null ? 0 : null
+                                                            , formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<TFmtStruct?[], TFmtStruct?>(value!)
+
+        stb.Master
+           .StartExplicitCollectionType<TFmtStruct?[], TFmtStruct?>(value!)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
         return stb.AddGoToNext();
@@ -755,18 +763,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(TCloaked[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if ((value?.Length ?? 0) == 0)
         {
-            var elementType    = typeof(TCloaked);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, typeof(TCloaked[]), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Length, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(TCloaked);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, typeof(TCloaked[]), value != null ? 0 : null, value != null ? 0 : null
+                                                            , formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<TCloaked[], TCloaked>(value!)
+
+        stb.Master
+           .StartExplicitCollectionType<TCloaked[], TCloaked>(value!)
            .RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags)
            .Complete();
         return stb.AddGoToNext();
@@ -779,18 +786,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
     {
         var actualType = value?.GetType() ?? typeof(TCloakedStruct?[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if ((value?.Length ?? 0) == 0)
         {
-            var elementType    = typeof(TCloakedStruct?);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, typeof(TCloakedStruct?[]), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Length, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(TCloakedStruct?);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, typeof(TCloakedStruct?[]), value != null ? 0 : null
+                                                            , value != null ? 0 : null, formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<TCloakedStruct?[], TCloakedStruct?>(value!)
+
+        stb.Master
+           .StartExplicitCollectionType<TCloakedStruct?[], TCloakedStruct?>(value!)
            .RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags)
            .Complete();
         return stb.AddGoToNext();
@@ -803,18 +809,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TBearer : IStringBearer?, TBearerBase?
     {
         var actualType = value?.GetType() ?? typeof(TBearer[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if ((value?.Length ?? 0) == 0)
         {
-            var elementType    = typeof(TBearer);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, typeof(TBearer[]), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Length, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(TBearer);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, typeof(TBearer[]), value != null ? 0 : null, value != null ? 0 : null
+                                                            , formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<TBearer[], TBearer>(value!)
+
+        stb.Master
+           .StartExplicitCollectionType<TBearer[], TBearer>(value!)
            .RevealFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
         return stb.AddGoToNext();
@@ -826,18 +831,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer
     {
         var actualType = value?.GetType() ?? typeof(TBearerStruct?[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if ((value?.Length ?? 0) == 0)
         {
-            var elementType    = typeof(TBearerStruct?);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, typeof(TBearerStruct?[]), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Length, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(TBearerStruct?);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, typeof(TBearerStruct?[]), value != null ? 0 : null
+                                                            , value != null ? 0 : null, formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<TBearerStruct?[], TBearerStruct?>(value!)
+
+        stb.Master
+           .StartExplicitCollectionType<TBearerStruct?[], TBearerStruct?>(value!)
            .RevealFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
         return stb.AddGoToNext();
@@ -851,18 +855,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(string?[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if ((value?.Length ?? 0) == 0)
         {
-            var elementType    = typeof(string);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, typeof(string?[]), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Length, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(string);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, typeof(string?[]), value != null ? 0 : null, value != null ? 0 : null
+                                                            , formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<string?[], string?>(value!)
+
+        stb.Master
+           .StartExplicitCollectionType<string?[], string?>(value!)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
         return stb.AddGoToNext();
@@ -875,18 +878,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TCharSeq : ICharSequence?, TCharSeqBase?
     {
         var actualType = value?.GetType() ?? typeof(TCharSeq?[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if ((value?.Length ?? 0) == 0)
         {
-            var elementType    = typeof(TCharSeq);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, typeof(TCharSeq[]), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Length, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(TCharSeq);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, typeof(TCharSeq[]), value != null ? 0 : null, value != null ? 0 : null
+                                                            , formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<TCharSeq[], TCharSeq>(value!)
+
+        stb.Master
+           .StartExplicitCollectionType<TCharSeq[], TCharSeq>(value!)
            .AddFilteredCharSeq(value, filterPredicate, formatString, formatFlags)
            .Complete();
         return stb.AddGoToNext();
@@ -897,18 +899,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(StringBuilder?[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if ((value?.Length ?? 0) == 0)
         {
-            var elementType    = typeof(StringBuilder);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, typeof(StringBuilder?[]), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Length, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(StringBuilder);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, typeof(StringBuilder?[]), value != null ? 0 : null
+                                                            , value != null ? 0 : null, formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<StringBuilder?[], StringBuilder>(value!)
+
+        stb.Master
+           .StartExplicitCollectionType<StringBuilder?[], StringBuilder>(value!)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
         return stb.AddGoToNext();
@@ -919,18 +920,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TAny : TAnyBase?
     {
         var actualType = value?.GetType() ?? typeof(TAny[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if ((value?.Length ?? 0) == 0)
         {
-            var elementType    = typeof(TAny);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, typeof(TAny[]), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Length, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(TAny);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, typeof(TAny[]), value != null ? 0 : null, value != null ? 0 : null
+                                                            , formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<TAny[], TAny>(value!)
+
+        stb.Master
+           .StartExplicitCollectionType<TAny[], TAny>(value!)
            .AddFilteredMatch(value, filterPredicate, formatString, formatFlags)
            .Complete();
         return stb.AddGoToNext();
@@ -947,18 +947,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<bool>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if ((value?.Count ?? 0) == 0)
         {
-            var elementType    = typeof(bool);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, actualType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Count, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(bool);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, actualType, value != null ? 0 : null, value != null ? 0 : null
+                                                            , formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<bool>(value!, formatFlags)
+
+        stb.Master
+           .StartExplicitCollectionType<bool>(value!, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
         return stb.AddGoToNext();
@@ -969,18 +968,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<bool?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if ((value?.Count ?? 0) == 0)
         {
-            var elementType    = typeof(bool?);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, actualType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Count, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(bool?);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, actualType, value != null ? 0 : null, value != null ? 0 : null
+                                                            , formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<bool?>(value!, formatFlags)
+
+        stb.Master
+           .StartExplicitCollectionType<bool?>(value!, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
         return stb.AddGoToNext();
@@ -992,18 +990,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmt : ISpanFormattable?, TFmtBase?
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TFmt>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if ((value?.Count ?? 0) == 0)
         {
-            var elementType    = typeof(TFmt);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, actualType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Count, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(TFmt);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, actualType, value != null ? 0 : null, value != null ? 0 : null
+                                                            , formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<TFmt>(value!, formatFlags)
+
+        stb.Master
+           .StartExplicitCollectionType<TFmt>(value!, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
         return stb.AddGoToNext();
@@ -1016,18 +1013,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TFmtStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if ((value?.Count ?? 0) == 0)
         {
-            var elementType    = typeof(TFmtStruct?);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, actualType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Count, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(TFmtStruct?);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, actualType, value != null ? 0 : null, value != null ? 0 : null
+                                                            , formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<TFmtStruct?>(value!, formatFlags)
+
+        stb.Master
+           .StartExplicitCollectionType<TFmtStruct?>(value!, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
         return stb.AddGoToNext();
@@ -1042,18 +1038,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TCloaked>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if ((value?.Count ?? 0) == 0)
         {
-            var elementType    = typeof(TCloaked);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, actualType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Count, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(TCloaked);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, actualType, value != null ? 0 : null, value != null ? 0 : null
+                                                            , formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<TCloaked>(value!, formatFlags)
+
+        stb.Master
+           .StartExplicitCollectionType<TCloaked>(value!, formatFlags)
            .RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags)
            .Complete();
         return stb.AddGoToNext();
@@ -1066,18 +1061,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TCloakedStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if ((value?.Count ?? 0) == 0)
         {
-            var elementType    = typeof(TCloakedStruct?);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, actualType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Count, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(TCloakedStruct?);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, actualType, value != null ? 0 : null, value != null ? 0 : null
+                                                            , formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<TCloakedStruct?>(value!, formatFlags)
+
+        stb.Master
+           .StartExplicitCollectionType<TCloakedStruct?>(value!, formatFlags)
            .RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags)
            .Complete();
         return stb.AddGoToNext();
@@ -1090,18 +1084,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TBearer : IStringBearer, TBearerBase
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TBearer?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if ((value?.Count ?? 0) == 0)
         {
-            var elementType    = typeof(TBearer);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, actualType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Count, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(TBearer);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, actualType, value != null ? 0 : null, value != null ? 0 : null
+                                                            , formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<TBearer>(value!, formatFlags)
+
+        stb.Master
+           .StartExplicitCollectionType<TBearer>(value!, formatFlags)
            .RevealFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
         return stb.AddGoToNext();
@@ -1113,18 +1106,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TBearerStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if ((value?.Count ?? 0) == 0)
         {
-            var elementType    = typeof(TBearerStruct?);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, actualType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Count, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(TBearerStruct?);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, actualType, value != null ? 0 : null, value != null ? 0 : null
+                                                            , formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<TBearerStruct?>(value!, formatFlags)
+
+        stb.Master
+           .StartExplicitCollectionType<TBearerStruct?>(value!, formatFlags)
            .RevealFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
         return stb.AddGoToNext();
@@ -1135,18 +1127,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<string?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if ((value?.Count ?? 0) == 0)
         {
-            var elementType    = typeof(string);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, actualType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Count, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(string);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, actualType, value != null ? 0 : null, value != null ? 0 : null
+                                                            , formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<string?>(value!, formatFlags)
+
+        stb.Master
+           .StartExplicitCollectionType<string?>(value!, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
         return stb.AddGoToNext();
@@ -1159,18 +1150,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TCharSeq : ICharSequence?, TCharSeqBase?
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TCharSeq?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if ((value?.Count ?? 0) == 0)
         {
-            var elementType    = typeof(TCharSeq);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, actualType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Count, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(TCharSeq);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, actualType, value != null ? 0 : null, value != null ? 0 : null
+                                                            , formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<TCharSeq>(value!, formatFlags)
+
+        stb.Master
+           .StartExplicitCollectionType<TCharSeq>(value!, formatFlags)
            .AddFilteredCharSeq(value, filterPredicate, formatString, formatFlags)
            .Complete();
         return stb.AddGoToNext();
@@ -1181,18 +1171,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<StringBuilder?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if ((value?.Count ?? 0) == 0)
         {
-            var elementType    = typeof(StringBuilder);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, actualType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Count, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(StringBuilder);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, actualType, value != null ? 0 : null, value != null ? 0 : null
+                                                            , formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<StringBuilder?>(value!, formatFlags)
+
+        stb.Master
+           .StartExplicitCollectionType<StringBuilder?>(value!, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
         return stb.AddGoToNext();
@@ -1206,18 +1195,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TAny : TAnyBase?
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TAny>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if ((value?.Count ?? 0) == 0)
         {
-            var elementType    = typeof(TAny);
-            stb.StyleFormatter.FormatCollectionStart(stb, elementType, false, actualType, formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, value?.Count, elementType, 0, formatString, formatFlags);
-            return stb.AddGoToNext();
+            var elementType = typeof(TAny);
+            return stb.AppendEmptyCollectionOrNullAndGoToNext(elementType, actualType, value != null ? 0 : null, value != null ? 0 : null
+                                                            , formatString, formatFlags, false);
         }
-        
-        stb.Master.StartExplicitCollectionType<TAny>(value!, formatFlags)
+
+        stb.Master
+           .StartExplicitCollectionType<TAny>(value!, formatFlags)
            .AddFilteredMatch(value, filterPredicate, formatString, formatFlags)
            .Complete();
         return stb.AddGoToNext();
@@ -1236,16 +1224,15 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<bool>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master.StartSimpleCollectionType(value, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(bool), null, value?.GetType() ?? typeof(IEnumerable<bool>), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(bool), null, formatString, formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(bool), value?.GetType() ?? typeof(IEnumerable<bool>), null, null, formatString, formatFlags
+                                          , false);
         }
         return stb.AddGoToNext();
     }
@@ -1257,16 +1244,15 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<bool?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master.StartSimpleCollectionType(value, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(bool?), null, value?.GetType() ?? typeof(IEnumerable<bool?>), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(bool?), null, formatString, formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(bool?), value?.GetType() ?? typeof(IEnumerable<bool?>), null, null, formatString, formatFlags
+                                          , false);
         }
         return stb.AddGoToNext();
     }
@@ -1279,16 +1265,15 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmt : ISpanFormattable, TFmtBase
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TFmt?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master.StartSimpleCollectionType(value, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(TFmt), null, value?.GetType() ?? typeof(IEnumerable<TFmt>), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(TFmt), null, formatString, formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(TFmt), value?.GetType() ?? typeof(IEnumerable<TFmt>), null, null, formatString, formatFlags
+                                          , false);
         }
         return stb.AddGoToNext();
     }
@@ -1301,18 +1286,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TFmtStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(TFmtStruct?), null, value?.GetType() ?? typeof(IEnumerable<TFmtStruct?>)
-                                                   , formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(TFmtStruct?), null, formatString, formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(TFmtStruct?), value?.GetType() ?? typeof(IEnumerable<TFmtStruct?>), null, null, formatString
+                                          , formatFlags, false);
         }
         return stb.AddGoToNext();
     }
@@ -1328,17 +1312,16 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TCloaked?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .RevealFilteredEnumerate(value, filterPredicate, palantírReveal, formatString, formatFlags)
                .Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(TCloaked), null, value?.GetType() ?? typeof(IEnumerable<TCloaked?>), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(TCloaked), null, "", formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(TCloaked), value?.GetType() ?? typeof(IEnumerable<TCloaked?>), null, null, "", formatFlags, false);
         }
         return stb.AddGoToNext();
     }
@@ -1353,18 +1336,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TCloakedStruct : struct
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TCloakedStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .RevealFilteredEnumerate(value, filterPredicate, palantírReveal, formatString, formatFlags)
                .Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(TCloakedStruct), null, value?.GetType() ?? typeof(IEnumerable<TCloakedStruct?>)
-                                                   , formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(TCloakedStruct), null, "", formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(TCloakedStruct), value?.GetType() ?? typeof(IEnumerable<TCloakedStruct?>), null, null, ""
+                                          , formatFlags, false);
         }
         return stb.AddGoToNext();
     }
@@ -1377,17 +1359,16 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TBearer : IStringBearer?, TBearerBase?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TBearer>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .RevealFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(TBearer), null, value?.GetType() ?? typeof(IEnumerable<TBearer?>), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(TBearer), null, "", formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(TBearer), value?.GetType() ?? typeof(IEnumerable<TBearer?>), null, null, "", formatFlags, false);
         }
         return stb.AddGoToNext();
     }
@@ -1400,18 +1381,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TBearerStruct : struct, IStringBearer
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TBearerStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .RevealFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(TBearerStruct?), null, value?.GetType() ?? typeof(IEnumerable<TBearerStruct?>)
-                                                   , formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(TBearerStruct?), null, "", formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(TBearerStruct?), value?.GetType() ?? typeof(IEnumerable<TBearerStruct?>), null, null, ""
+                                          , formatFlags, false);
         }
         return stb.AddGoToNext();
     }
@@ -1423,16 +1403,16 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<string?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(string), null, value?.GetType() ?? typeof(IEnumerable<string>), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(string), null, formatString, formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(string), value?.GetType() ?? typeof(IEnumerable<string>), null, null, formatString, formatFlags
+                                          , false);
         }
         return stb.AddGoToNext();
     }
@@ -1445,17 +1425,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TCharSeq : ICharSequence, TCharSeqBase
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TCharSeq?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .AddFilteredCharSeqEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(TCharSeq), null, value?.GetType() ?? typeof(IEnumerable<TCharSeq>), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(TCharSeq), null, formatString, formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(TCharSeq), value?.GetType() ?? typeof(IEnumerable<TCharSeq>), null, null, formatString, formatFlags
+                                          , false);
         }
         return stb.AddGoToNext();
     }
@@ -1467,18 +1447,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<StringBuilder?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(StringBuilder), null, value?.GetType() ?? typeof(IEnumerable<StringBuilder>)
-                                                   , formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(StringBuilder), null, formatString, formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(StringBuilder), value?.GetType() ?? typeof(IEnumerable<StringBuilder>), null, null, formatString
+                                          , formatFlags, false);
         }
         return stb.AddGoToNext();
     }
@@ -1491,17 +1470,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TAny : TAnyBase
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TAny>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .AddFilteredMatchEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(TAny?), null, value?.GetType() ?? typeof(IEnumerable<TAny?>), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(TAny?), null, formatString, formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(TAny?), value?.GetType() ?? typeof(IEnumerable<TAny?>), null, null, formatString, formatFlags
+                                          , false);
         }
         return stb.AddGoToNext();
     }
@@ -1514,17 +1493,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<object?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .AddFilteredObjectEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(object), null, value?.GetType() ?? typeof(IEnumerable<object>), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(object), null, formatString, formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(object), value?.GetType() ?? typeof(IEnumerable<object>), null, null, formatString, formatFlags
+                                          , false);
         }
         return stb.AddGoToNext();
     }
@@ -1536,17 +1515,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<bool>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(bool), null, value?.GetType() ?? typeof(IEnumerator<bool>), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(bool), null, formatString, formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(bool), value?.GetType() ?? typeof(IEnumerator<bool>), null, null, formatString, formatFlags
+                                          , false);
         }
         return stb.AddGoToNext();
     }
@@ -1558,16 +1537,16 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<bool?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(bool?), null, value?.GetType() ?? typeof(IEnumerator<bool?>), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(bool?), null, formatString, formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(bool?), value?.GetType() ?? typeof(IEnumerator<bool?>), null, null, formatString, formatFlags
+                                          , false);
         }
         return stb.AddGoToNext();
     }
@@ -1580,17 +1559,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmt : ISpanFormattable?, TFmtBase?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TFmt?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(TFmt), null, value?.GetType() ?? typeof(IEnumerator<TFmt>), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(TFmt), null, formatString, formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(TFmt), value?.GetType() ?? typeof(IEnumerator<TFmt>), null, null, formatString, formatFlags
+                                          , false);
         }
         return stb.AddGoToNext();
     }
@@ -1603,17 +1582,16 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TFmtStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(TFmtStruct?), null, value?.GetType() ?? typeof(IEnumerator<TFmtStruct?>)
-                                                   , formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(TFmtStruct?), null, formatString, formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(TFmtStruct?), value?.GetType() ?? typeof(IEnumerator<TFmtStruct?>), null, null, formatString
+                                          , formatFlags, false);
         }
         return stb.AddGoToNext();
     }
@@ -1628,17 +1606,16 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TCloaked?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .RevealFilteredEnumerate(value, filterPredicate, palantírReveal, formatString, formatFlags)
                .Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(TCloaked), null, value?.GetType() ?? typeof(IEnumerator<TCloaked>), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(TCloaked), null, "", formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(TCloaked), value?.GetType() ?? typeof(IEnumerator<TCloaked>), null, null, "", formatFlags, false);
         }
         return stb.AddGoToNext();
     }
@@ -1651,18 +1628,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TCloakedStruct : struct
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TCloakedStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .RevealFilteredEnumerate(value, filterPredicate, palantírReveal, formatString, formatFlags)
                .Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(TCloakedStruct?), null, value?.GetType() ?? typeof(IEnumerator<TCloakedStruct?>)
-                                                   , formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(TCloakedStruct?), null, "", formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(TCloakedStruct?), value?.GetType() ?? typeof(IEnumerator<TCloakedStruct?>), null, null, ""
+                                          , formatFlags, false);
         }
         return stb.AddGoToNext();
     }
@@ -1674,17 +1650,16 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TBearer : IStringBearer, TBearerBase
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TBearer?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .RevealFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(TBearer), null, value?.GetType() ?? typeof(IEnumerator<TBearer>), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(TBearer), null, "", formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(TBearer), value?.GetType() ?? typeof(IEnumerator<TBearer>), null, null, "", formatFlags, false);
         }
         return stb.AddGoToNext();
     }
@@ -1696,17 +1671,16 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TBearerStruct : struct, IStringBearer
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TBearerStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .RevealFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(TBearerStruct?), null, value?.GetType() ?? typeof(IEnumerator<TBearerStruct?>)
-                                                   , formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(TBearerStruct?), null, "", formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(TBearerStruct?), value?.GetType() ?? typeof(IEnumerator<TBearerStruct?>), null, null, ""
+                                          , formatFlags, false);
         }
         return stb.AddGoToNext();
     }
@@ -1716,17 +1690,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<string?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(string), null, value?.GetType() ?? typeof(IEnumerator<string?>), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(string), null, formatString, formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(string), value?.GetType() ?? typeof(IEnumerator<string?>), null, null, formatString, formatFlags
+                                          , false);
         }
         return stb.AddGoToNext();
     }
@@ -1738,17 +1712,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TCharSeq : ICharSequence, TCharSeqBase
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TCharSeq?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .AddFilteredCharSeqEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(TCharSeq), null, value?.GetType() ?? typeof(IEnumerator<TCharSeq?>), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(TCharSeq), null, formatString, formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(TCharSeq), value?.GetType() ?? typeof(IEnumerator<TCharSeq?>), null, null, formatString
+                                          , formatFlags, false);
         }
         return stb.AddGoToNext();
     }
@@ -1759,18 +1733,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<StringBuilder?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(StringBuilder), null, value?.GetType()
-                                                                                    ?? typeof(IEnumerator<StringBuilder>), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(StringBuilder), null, formatString, formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(StringBuilder), value?.GetType() ?? typeof(IEnumerator<StringBuilder>), null, null, formatString
+                                          , formatFlags, false);
         }
         return stb.AddGoToNext();
     }
@@ -1782,17 +1755,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TAny : TAnyBase?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TAny>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .AddFilteredMatchEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(TAny), null, value?.GetType() ?? typeof(IEnumerator<TAny?>), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(TAny), null, formatString, formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(TAny), value?.GetType() ?? typeof(IEnumerator<TAny?>), null, null, formatString, formatFlags
+                                          , false);
         }
         return stb.AddGoToNext();
     }
@@ -1804,17 +1777,17 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<object?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master
+               .StartSimpleCollectionType(value, formatFlags)
                .AddFilteredObjectEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
-            stb.StyleFormatter.FormatCollectionStart(stb, typeof(object), null, value?.GetType() ?? typeof(IEnumerator<object>), formatFlags);
-            stb.StyleFormatter.FormatCollectionEnd(stb, null, typeof(object), null, formatString, formatFlags);
+            stb.AppendEmptyCollectionOrNull(typeof(object), value?.GetType() ?? typeof(IEnumerator<object>), null, null, formatString, formatFlags
+                                          , false);
         }
         return stb.AddGoToNext();
     }

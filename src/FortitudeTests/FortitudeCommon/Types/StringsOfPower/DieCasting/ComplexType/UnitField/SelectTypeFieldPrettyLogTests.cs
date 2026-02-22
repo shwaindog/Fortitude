@@ -141,7 +141,7 @@ public class SelectTypeFieldPrettyLogTests : SelectTypeFieldTests
             maybeIndent  = "  ";
             var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
             nextExpect.Append(propertyName).Append(":").Append(expectValue.Length != 0 ? " " : "")
-                      .Append(expectValue.IndentSubsequentLines());
+                      .Append(expectValue.IndentSubsequentLines(tos.Settings.NewLineStyle));
             expectValue.DecrementRefCount();
             expectValue = nextExpect;
         }

@@ -4,23 +4,23 @@
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 
-namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData.TestTree;
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CommonTestData.TestTree.SimpleCollection;
 
-public class BinaryBranchNode<TChild> : OrderedParentNode<TChild>, IChildNode
+public class BinaryBranchNodeAsComplexCollection<TChild> : OrderedParentNodeAsSimpleCollection<TChild>, IChildNode
     where TChild : class?, IChildNode?
 {
 
-    public BinaryBranchNode()
+    public BinaryBranchNodeAsComplexCollection()
     {
         NodeType = NodeType.BranchNode;
     }
 
-    public BinaryBranchNode(string name, int? instId = null) : base([], name, instId)
+    public BinaryBranchNodeAsComplexCollection(string name, int? instId = null) : base([], name, instId)
     {
         NodeType = NodeType.BranchNode;
     }
 
-    public BinaryBranchNode(string name, TChild left, TChild right, int? instId = null) : base(name, instId, left, right)
+    public BinaryBranchNodeAsComplexCollection(string name, TChild left, TChild right, int? instId = null) : base(name, instId, left, right)
     {
         NodeType = NodeType.BranchNode;
         
@@ -28,7 +28,7 @@ public class BinaryBranchNode<TChild> : OrderedParentNode<TChild>, IChildNode
         Right    = right;
     }
 
-    public BinaryBranchNode(TChild left, TChild right, string name, int? instId = null) : base(name, instId, left, right)
+    public BinaryBranchNodeAsComplexCollection(TChild left, TChild right, string name, int? instId = null) : base(name, instId, left, right)
     {
         NodeType = NodeType.BranchNode;
         
@@ -40,12 +40,12 @@ public class BinaryBranchNode<TChild> : OrderedParentNode<TChild>, IChildNode
     
     public TChild? Right { get; set; }
 
-    public IReadOnlyParentNode? Parent { get; set; }
+    public INode? Parent { get; set; }
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            // to skip over a base RevealState cast derived type to that as AddBaseRevealStateFields will then go to it's base type
-           .AddBaseRevealStateFields((OrderedParentNode<TChild>)this)
+           .AddBaseRevealStateFields((OrderedParentNodeAsSimpleCollection<TChild>)this)
            .Field.WhenNonNullReveal(nameof(Left), Left)
            .Field.WhenNonNullReveal(nameof(Right), Right)
            .Field.WhenNonNullReveal(nameof(Parent), Parent)

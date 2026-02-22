@@ -10,6 +10,8 @@
     <RootNamespace>FortitudeTests</RootNamespace>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <Configurations>Debug;Release;DebugInstrumented;ReleaseInstrumented</Configurations>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

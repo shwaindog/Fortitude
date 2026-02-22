@@ -57,7 +57,7 @@ public partial class KeyedCollectionMold
                 i += filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase>(IReadOnlyList<KeyValuePair<TKey, TValue>>? value
@@ -97,7 +97,7 @@ public partial class KeyedCollectionMold
                 i += filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase>(IEnumerable<KeyValuePair<TKey, TValue>>? value
@@ -139,7 +139,7 @@ public partial class KeyedCollectionMold
                 skipCount = filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase>(IEnumerator<KeyValuePair<TKey, TValue>>? value
@@ -188,7 +188,7 @@ public partial class KeyedCollectionMold
                 hasValue  = value.MoveNext();
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
@@ -254,7 +254,7 @@ public partial class KeyedCollectionMold
                 i += filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase>
@@ -295,7 +295,7 @@ public partial class KeyedCollectionMold
                 i += filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
@@ -338,7 +338,7 @@ public partial class KeyedCollectionMold
                 i += filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase>(
@@ -380,7 +380,7 @@ public partial class KeyedCollectionMold
                 i += filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>(
@@ -426,7 +426,7 @@ public partial class KeyedCollectionMold
                 skipCount = filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TVFilterBase, TVRevealBase>(
@@ -472,7 +472,7 @@ public partial class KeyedCollectionMold
                 skipCount = filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase>(IEnumerable<KeyValuePair<TKey, TValue?>>? value
@@ -516,7 +516,7 @@ public partial class KeyedCollectionMold
                 skipCount = filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue>(IEnumerable<KeyValuePair<TKey?, TValue?>>? value
@@ -560,7 +560,7 @@ public partial class KeyedCollectionMold
                 skipCount = filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>(
@@ -613,7 +613,7 @@ public partial class KeyedCollectionMold
                 skipCount = filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase>(
@@ -665,7 +665,7 @@ public partial class KeyedCollectionMold
                 skipCount = filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>(
@@ -732,7 +732,7 @@ public partial class KeyedCollectionMold
                 i += filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFiltered<TKey, TValue, TVFilterBase, TVRevealBase>(
@@ -774,7 +774,7 @@ public partial class KeyedCollectionMold
                 i += filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>(
@@ -816,7 +816,7 @@ public partial class KeyedCollectionMold
                 i += filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFiltered<TKey, TValue>(
@@ -857,7 +857,7 @@ public partial class KeyedCollectionMold
                 i += filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>(
@@ -899,7 +899,7 @@ public partial class KeyedCollectionMold
                 i += filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFiltered<TKey, TValue, TVFilterBase, TVRevealBase>(
@@ -941,7 +941,7 @@ public partial class KeyedCollectionMold
                 i += filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>(
@@ -983,7 +983,7 @@ public partial class KeyedCollectionMold
                 i += filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFiltered<TKey, TValue>(
@@ -1024,7 +1024,7 @@ public partial class KeyedCollectionMold
                 i += filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>(
@@ -1069,7 +1069,7 @@ public partial class KeyedCollectionMold
                 skipCount = filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TVFilterBase, TVRevealBase>(
@@ -1114,7 +1114,7 @@ public partial class KeyedCollectionMold
                 skipCount = filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TKRevealBase>(
@@ -1159,7 +1159,7 @@ public partial class KeyedCollectionMold
                 skipCount = filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue>(
@@ -1203,7 +1203,7 @@ public partial class KeyedCollectionMold
                 skipCount = filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>(
@@ -1256,7 +1256,7 @@ public partial class KeyedCollectionMold
                 skipCount = filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TVFilterBase, TVRevealBase>(
@@ -1308,7 +1308,7 @@ public partial class KeyedCollectionMold
                 skipCount = filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue, TKFilterBase, TKRevealBase>(
@@ -1360,7 +1360,7 @@ public partial class KeyedCollectionMold
                 skipCount = filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public KeyedCollectionMold AddFilteredEnumerate<TKey, TValue>(
@@ -1411,6 +1411,6 @@ public partial class KeyedCollectionMold
                 skipCount = filterResult.SkipNextCount;
             }
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 }

@@ -5,8 +5,8 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
 public record struct VisitResult
 (
-    int RegistryId = VisitResult.NoVisitCheckPerformedRegistryId
-  , int CurrentVisitIndex = -1
+    VisitId VisitId
+  , VisitId RequesterVisitId  
   , int InstanceId = 0
   , int FirstVisitIndex = -1
   , int FirstInstanceMatchVisitIndex = -1  
@@ -15,27 +15,29 @@ public record struct VisitResult
   , bool IsBaseOfInitial = false )
 {
 
-    public const int NoVisitCheckPerformedRegistryId = -3;
-    public const int NoVisitCheckRequiredRegistryId = -2;
     
-    public bool HasRegisteredVisit => RegistryId >= -1 && CurrentVisitIndex >= 0;
+    public bool HasRegisteredVisit => VisitId.RegistryId >= -1 && VisitId.VisitIndex >= 0;
     
-    public bool NoVisitCheckDone => RegistryId <= NoVisitCheckPerformedRegistryId;
+    public bool NoVisitCheckDone => VisitId.RegistryId <= VisitId.NoVisitCheckPerformedRegistryId;
 
-    public bool NoRegistrationRequired => RegistryId == NoVisitCheckRequiredRegistryId || CurrentVisitIndex < 0;
+    public bool NoRegistrationRequired => VisitId.RegistryId == VisitId.NoVisitCheckRequiredRegistryId || VisitId.VisitIndex < 0;
 
     public bool IsARevisit { get; set; } = InstanceId > 0 && !IsBaseOfInitial && FirstInstanceMatchVisitIndex >= 0;
 
-    public static readonly VisitResult VisitNotChecked = new (NoVisitCheckPerformedRegistryId, -1);
-    
+    public static readonly VisitResult VisitNotChecked = new (VisitId.NoVisitCheckPerformedId, VisitId.NoVisitRequiredId);
+
+    public override string ToString() => 
+        $"VisitResult {{{nameof(VisitId)}: {VisitId.ToString()}, {nameof(RequesterVisitId)}: {RequesterVisitId.ToString()}," +
+        $"{nameof(InstanceId)}: {InstanceId}, {nameof(FirstInstanceMatchVisitIndex)}: {FirstInstanceMatchVisitIndex} " +
+        $"{nameof(IsBaseOfInitial)}: {IsBaseOfInitial}}}";
 
     public VisitResult WithIsARevisitSetTo(bool countAsRevisit)
     {
         return this with { IsARevisit = countAsRevisit };
     }
     
-    public VisitResult WitCurrentVisitIndexSetTo(int updatedIndex)
+    public VisitResult WitCurrentVisitIndexSetTo(VisitId updatedVisitId)
     {
-        return this with { CurrentVisitIndex = updatedIndex };
+        return this with { VisitId = updatedVisitId };
     }
 }

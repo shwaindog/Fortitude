@@ -6,7 +6,7 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 
-public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.OrderedCollectionMold<ExplicitOrderedCollectionMold<TElement>>
+public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<ExplicitOrderedCollectionMold<TElement>>
 {
     public override bool IsComplexType => false;
     
@@ -50,7 +50,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
                 ResultCount++;
                 return AppendNextCollectionItemSeparator();
             }
-            return CompAsOrderedCollection.StyleTypeBuilder;
+            return CompAsOrderedCollection.Mold;
         }
         CompAsOrderedCollection.StyleFormatter
                                .CollectionNextItemFormat(CompAsOrderedCollection, element, ++ResultCount, formatString ?? "", formatFlags | AsCollection);
@@ -69,7 +69,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
                 ++ResultCount;
                 return AppendNextCollectionItemSeparator();
             }
-            return CompAsOrderedCollection.StyleTypeBuilder;
+            return CompAsOrderedCollection.Mold;
         }
         CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++ResultCount, formatString ?? "", formatFlags | AsCollection);
         return AppendNextCollectionItemSeparator();
@@ -87,7 +87,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
                 ++ResultCount;
                 return AppendNextCollectionItemSeparator();
             }
-            return CompAsOrderedCollection.StyleTypeBuilder;
+            return CompAsOrderedCollection.Mold;
         }
         CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++ResultCount, formatString ?? "", formatFlags | AsCollection);
         return AppendNextCollectionItemSeparator();
@@ -107,7 +107,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
                 ++ResultCount;
                 return AppendNextCollectionItemSeparator();
             }
-            return CompAsOrderedCollection.StyleTypeBuilder;
+            return CompAsOrderedCollection.Mold;
         }
         CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++ResultCount
                                                                       , palantírReveal, formatString, formatFlags);
@@ -127,7 +127,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
                 ++ResultCount;
                 return AppendNextCollectionItemSeparator();
             }
-            return CompAsOrderedCollection.StyleTypeBuilder;
+            return CompAsOrderedCollection.Mold;
         }
         CompAsOrderedCollection.StyleFormatter
                                .CollectionNextItemFormat(CompAsOrderedCollection, element.Value, ++ResultCount
@@ -147,7 +147,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
                 ++ResultCount;
                 return AppendNextCollectionItemSeparator();
             }
-            return CompAsOrderedCollection.StyleTypeBuilder;
+            return CompAsOrderedCollection.Mold;
         }
         CompAsOrderedCollection.StyleFormatter
                                .CollectionNextStringBearerFormat(CompAsOrderedCollection, element, ++ResultCount
@@ -167,7 +167,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
                 ++ResultCount;
                 return AppendNextCollectionItemSeparator();
             }
-            return CompAsOrderedCollection.StyleTypeBuilder;
+            return CompAsOrderedCollection.Mold;
         }
         CompAsOrderedCollection.StyleFormatter
                                .CollectionNextStringBearerFormat(CompAsOrderedCollection, element.Value
@@ -187,7 +187,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
                 ++ResultCount;
                 return AppendNextCollectionItemSeparator();
             }
-            return CompAsOrderedCollection.StyleTypeBuilder;
+            return CompAsOrderedCollection.Mold;
         }
         CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++ResultCount, formatString, formatFlags);
         return AppendNextCollectionItemSeparator();
@@ -205,7 +205,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
                 ++ResultCount;
                 return AppendNextCollectionItemSeparator();
             }
-            return CompAsOrderedCollection.StyleTypeBuilder;
+            return CompAsOrderedCollection.Mold;
         }
         CompAsOrderedCollection.StyleFormatter.CollectionNextCharSeqFormat(CompAsOrderedCollection, element, ++ResultCount, formatString, formatFlags);
         return AppendNextCollectionItemSeparator();
@@ -223,7 +223,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
                 ++ResultCount;
                 return AppendNextCollectionItemSeparator();
             }
-            return CompAsOrderedCollection.StyleTypeBuilder;
+            return CompAsOrderedCollection.Mold;
         }
         CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++ResultCount, formatString, formatFlags);
         return AppendNextCollectionItemSeparator();
@@ -259,7 +259,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionType.Ord
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
         MoldStateField = recycler.Borrow<CollectionBuilderCompAccess<ExplicitOrderedCollectionMold<TElement>>>()
-                             .InitializeOrderCollectionComponentAccess(this, PortableState, writeMethod);
+                             .InitializeOrderCollectionComponentAccess(this, PortableState, writeMethod, true);
     }
     
     protected override CollectionBuilderCompAccess<ExplicitOrderedCollectionMold<TElement>> CompAsOrderedCollection =>  

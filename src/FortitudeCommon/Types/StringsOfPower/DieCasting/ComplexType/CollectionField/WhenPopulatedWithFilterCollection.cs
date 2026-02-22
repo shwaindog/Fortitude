@@ -53,7 +53,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, Span<bool?> value, OrderedCollectionPredicate<bool?> filterPredicate
@@ -96,7 +96,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilter<TFmt, TFmtBase>
@@ -141,7 +141,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilter<TFmtStruct>
@@ -186,7 +186,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterReveal<TCloaked, TFilterBase, TRevealBase>
@@ -231,7 +231,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterReveal<TCloakedStruct>(ReadOnlySpan<char> fieldName, Span<TCloakedStruct?> value
@@ -275,7 +275,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterReveal<TBearer, TFilterBase>(ReadOnlySpan<char> fieldName, Span<TBearer> value
@@ -318,7 +318,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterReveal<TBearerStruct>(ReadOnlySpan<char> fieldName, Span<TBearerStruct?> value
@@ -361,7 +361,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, Span<string> value, OrderedCollectionPredicate<string> filterPredicate
@@ -404,7 +404,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterNullable(ReadOnlySpan<char> fieldName, Span<string?> value, OrderedCollectionPredicate<string> filterPredicate
@@ -447,7 +447,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterCharSeq<TCharSeq, TCharSeqBase>(ReadOnlySpan<char> fieldName, Span<TCharSeq> value
@@ -491,7 +491,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, Span<StringBuilder> value
@@ -534,7 +534,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterNullable(ReadOnlySpan<char> fieldName, Span<StringBuilder?> value
@@ -578,7 +578,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterMatch<TAny, TAnyBase>(ReadOnlySpan<char> fieldName, Span<TAny> value
@@ -623,7 +623,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     [CallsObjectToString]
@@ -679,7 +679,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool?> value, OrderedCollectionPredicate<bool?> filterPredicate
@@ -722,7 +722,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilter<TFmt, TFmtBase>
@@ -766,7 +766,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilter<TFmtStruct>
@@ -810,7 +810,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterReveal<TCloaked, TFilterBase, TRevealBase>
@@ -856,7 +856,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterReveal<TCloakedStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloakedStruct?> value
@@ -901,7 +901,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterReveal<TBearer, TFilterBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer> value
@@ -944,7 +944,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterReveal<TBearerStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearerStruct?> value
@@ -988,7 +988,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, ReadOnlySpan<string> value, OrderedCollectionPredicate<string> filterPredicate
@@ -1030,7 +1030,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<string?> value
@@ -1073,7 +1073,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterCharSeq<TCharSeq, TCharSeqBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCharSeq> value
@@ -1116,7 +1116,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder> value
@@ -1160,7 +1160,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder?> value
@@ -1204,7 +1204,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterMatch<TAny, TAnyBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TAny> value
@@ -1248,7 +1248,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.Complete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     [CallsObjectToString]
@@ -1304,7 +1304,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilter(string fieldName, bool?[]? value, OrderedCollectionPredicate<bool?> filterPredicate
@@ -1346,7 +1346,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilter<TFmt, TFmtBase>
@@ -1390,7 +1390,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilter<TFmtStruct>
@@ -1435,7 +1435,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterReveal<TCloaked, TFilterBase, TRevealBase>
@@ -1480,7 +1480,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterReveal<TCloakedStruct>
@@ -1522,7 +1522,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterReveal<TBearer, TBearerBase>(string fieldName, TBearer[]? value
@@ -1564,7 +1564,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterReveal<TBearerStruct>(string fieldName, TBearerStruct?[]? value
@@ -1606,7 +1606,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilter
@@ -1649,7 +1649,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterCharSeq<TCharSeq, TCharSeqFilterBase>
@@ -1693,7 +1693,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilter(string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
@@ -1735,7 +1735,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterMatch<TAny, TAnyBase>(string fieldName, TAny?[]? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
@@ -1778,7 +1778,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     [CallsObjectToString]
@@ -1827,7 +1827,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
@@ -1869,7 +1869,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilter<TFmt, TFmtBase>(string fieldName, IReadOnlyList<TFmt?>? value
@@ -1914,7 +1914,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilter<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct?>? value
@@ -1957,7 +1957,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterReveal<TCloaked, TFilterBase, TRevealBase>
@@ -2001,7 +2001,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterReveal<TCloakedStruct>
@@ -2044,7 +2044,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterReveal<TBearer, TBearerBase>(string fieldName
@@ -2089,7 +2089,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterReveal<TBearerStruct>(string fieldName
@@ -2133,7 +2133,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<string?>? value, OrderedCollectionPredicate<string?> filterPredicate
@@ -2175,7 +2175,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterCharSeq<TCharSeq, TCharSeqFilterBase>(string fieldName, IReadOnlyList<TCharSeq?>? value
@@ -2218,7 +2218,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<StringBuilder?>? value
@@ -2261,7 +2261,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterMatch<TAny, TAnyBase>(string fieldName, IReadOnlyList<TAny?>? value
@@ -2305,7 +2305,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     [CallsObjectToString]
@@ -2357,7 +2357,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerable<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
@@ -2403,7 +2403,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterEnumerate<TFmt, TFmtBase>(string fieldName, IEnumerable<TFmt?>? value
@@ -2451,7 +2451,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterEnumerate<TFmtStruct>(string fieldName, IEnumerable<TFmtStruct?>? value
@@ -2499,7 +2499,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
 
@@ -2548,7 +2548,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterRevealEnumerate<TCloakedStruct>(string fieldName, IEnumerable<TCloakedStruct?>? value
@@ -2594,7 +2594,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
 
@@ -2641,7 +2641,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterRevealEnumerate<TBearerStruct>(string fieldName, IEnumerable<TBearerStruct?>? value
@@ -2687,7 +2687,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerable<string?>? value, OrderedCollectionPredicate<string> filterPredicate
@@ -2733,7 +2733,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterCharSeqEnumerate<TCharSeq, TCharSeqBase>(string fieldName, IEnumerable<TCharSeq>? value
@@ -2782,7 +2782,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerable<StringBuilder?>? value
@@ -2829,7 +2829,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
 
@@ -2877,7 +2877,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterObjectEnumerate(string fieldName, IEnumerable<object?>? value
@@ -2924,7 +2924,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerator<bool>? value, OrderedCollectionPredicate<bool> filterPredicate
@@ -2978,7 +2978,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerator<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
@@ -3032,7 +3032,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
 
@@ -3088,7 +3088,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterEnumerate<TFmtStruct>(string fieldName, IEnumerator<TFmtStruct?>? value
@@ -3144,7 +3144,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
 
@@ -3200,7 +3200,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterRevealEnumerate<TCloakedStruct>(string fieldName, IEnumerator<TCloakedStruct?>? value
@@ -3254,7 +3254,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
 
@@ -3308,7 +3308,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterRevealEnumerate<TBearerStruct>(string fieldName, IEnumerator<TBearerStruct?>? value
@@ -3362,7 +3362,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerator<string?>? value, OrderedCollectionPredicate<string> filterPredicate
@@ -3416,7 +3416,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterCharSeqEnumerate<TCharSeq, TCharSeqBase>(string fieldName, IEnumerator<TCharSeq>? value
@@ -3471,7 +3471,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerator<StringBuilder?>? value
@@ -3526,7 +3526,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
 
@@ -3582,7 +3582,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 
     public TExt WhenPopulatedWithFilterObjectEnumerate(string fieldName, IEnumerator<object?>? value
@@ -3637,6 +3637,6 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
-        return stb.StyleTypeBuilder;
+        return stb.Mold;
     }
 }
