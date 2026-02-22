@@ -12,7 +12,7 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.WrittenAsFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 
-public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCast<TContentMold>
+public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteState<TContentMold>
     where TContentMold : ContentTypeMold<TContentMold, TToContentMold>
     where TToContentMold : ContentJoinTypeMold<TContentMold, TToContentMold>, IMigrateFrom<TContentMold, TToContentMold>, new()
 {
@@ -20,7 +20,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
 
     protected Type? ContentType;
 
-    public ContentTypeDieCast<TContentMold, TToContentMold> InitializeValueBuilderCompAccess
+    public ContentTypeWriteState<TContentMold, TToContentMold> InitializeValueBuilderCompAccess
         (TContentMold externalTypeBuilder, TypeMolder.MoldPortableState typeBuilderPortableState, WrittenAsFlags writeMethod)
     {
         var createFmtFlags = typeBuilderPortableState.CreateFormatFlags;
@@ -47,7 +47,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         if (!TypeBeingBuilt.IsValueType)
         {
             MoldGraphVisit = visitResult = !Master.IsExemptFromCircularRefNodeTracking(TypeBeingVisitedAs)
-                ? Master.SourceGraphVisitRefIdUpdateGraph(InstanceOrContainer, TypeBeingVisitedAs, CreateMoldFormatFlags)
+                ? Master.SourceGraphVisitRefIdUpdateGraph(InstanceOrType, TypeBeingVisitedAs, CreateMoldFormatFlags)
                 : Master.ActiveGraphRegistry.VisitCheckNotRequired(MoldGraphVisit.RequesterVisitId);
         }
         else { MoldGraphVisit = visitResult = Master.ActiveGraphRegistry.VisitCheckNotRequired(MoldGraphVisit.RequesterVisitId); }
@@ -91,13 +91,13 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
 
             newVisit =
                 new GraphNodeVisit(visitResult.VisitId, visitResult.RequesterVisitId
-                                 , InstanceOrContainer?.GetType() ?? TypeBeingBuilt, TypeBeingVisitedAs
+                                 , InstanceOrType as Type ?? (InstanceOrContainer?.GetType() ?? TypeBeingBuilt), TypeBeingVisitedAs
                                  , this, newWriteAsFlags, InstanceOrContainer
                                  , IndentLevel, Master.CallerContext, fmtState, CreateMoldFormatFlags | isAsStringOrAsValue
                                  , Sb.Length, MoldGraphVisit.LastRevisitCount + 1);
         }
 
-        Mold.StartTypeOpening();
+        Mold.StartTypeOpening(withFlags);
 
         if (newVisit != null && Master.ActiveGraphRegistry.RegistryId == visitResult.VisitId.RegistryId
                              && visitResult.VisitId.VisitIndex == Master.ActiveGraphRegistry.Count)
@@ -106,7 +106,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             Master.ActiveGraphRegistry.CurrentGraphNodeIndex = newVisit.Value.NodeVisitId.VisitIndex;
         }
 
-        Mold.FinishTypeOpening();
+        Mold.FinishTypeOpening(withFlags);
         CreateMoldFormatFlags |= isAsStringOrAsValue;
 
         var fmtFlags             = CreateMoldFormatFlags;
@@ -820,7 +820,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
         if (valueEqualsBuildingType)
         {
-            if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
+            if (WroteOuterTypeName) { resolvedFlags |= LogSuppressTypeNames; }
             if (!CurrentWriteMethod.SupportsMultipleFields()
              && valueCreateFlags.HasContentAllowComplexType()
              && MoldGraphVisit.HasRegisteredVisit) { Master.UpdateVisitAddFormatFlags(MoldGraphVisit.VisitId, NoRevisitCheck); }
@@ -860,7 +860,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
         if (valueEqualsBuildingType)
         {
-            if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
+            if (WroteOuterTypeName) { resolvedFlags |= LogSuppressTypeNames; }
             resolvedFlags |= NoRevisitCheck;
         }
         if (!callContext.HasFormatChange) { VettedAppendCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags); }
@@ -900,7 +900,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags);
         if (valueEqualsBuildingType)
         {
-            if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
+            if (WroteOuterTypeName) { resolvedFlags |= LogSuppressTypeNames; }
             if (Settings.InstanceTrackingAllAsStringHaveLocalTracking) { Master.RemoveVisitAt(MoldGraphVisit.VisitId); }
             else { resolvedFlags |= NoRevisitCheck; }
         }
@@ -954,7 +954,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags);
         if (valueEqualsBuildingType)
         {
-            if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
+            if (WroteOuterTypeName) { resolvedFlags |= LogSuppressTypeNames; }
             if (Settings.InstanceTrackingAllAsStringHaveLocalTracking) { Master.RemoveVisitAt(MoldGraphVisit.VisitId); }
             else { resolvedFlags |= NoRevisitCheck; }
         }
@@ -1257,7 +1257,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
         if (valueEqualsBuildingType)
         {
-            if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
+            if (WroteOuterTypeName) { resolvedFlags |= LogSuppressTypeNames; }
             if (!CurrentWriteMethod.SupportsMultipleFields()
              && valueCreateFlags.HasContentAllowComplexType()
              && MoldGraphVisit.HasRegisteredVisit) { Master.UpdateVisitAddFormatFlags(MoldGraphVisit.VisitId, NoRevisitCheck); }
@@ -1294,7 +1294,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
         if (valueEqualsBuildingType)
         {
-            if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
+            if (WroteOuterTypeName) { resolvedFlags |= LogSuppressTypeNames; }
             resolvedFlags |= NoRevisitCheck;
         }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
@@ -1345,7 +1345,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         }
         if (valueEqualsBuildingType)
         {
-            if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
+            if (WroteOuterTypeName) { resolvedFlags |= LogSuppressTypeNames; }
             resolvedFlags |= NoRevisitCheck;
         }
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0)
@@ -1357,10 +1357,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
         else
         {
-            using (callContext)
-            {
-                VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
-            }
+            using (callContext) { VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt); }
         }
 
         return ConditionalValueTypeSuffix();
@@ -1385,13 +1382,13 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
                           | AsStringContent;
 
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
-        var callContext        = Master.ResolveContextForCallerFlags(resolvedFlags);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
             RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags);
         if (valueEqualsBuildingType)
         {
-            if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
+            if (WroteOuterTypeName) { resolvedFlags |= LogSuppressTypeNames; }
             if (Settings.InstanceTrackingAllAsStringHaveLocalTracking) { Master.UpdateVisitAddFormatFlags(MoldGraphVisit.VisitId, NoRevisitCheck); }
         }
 
@@ -1399,10 +1396,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
             VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
         else
         {
-            using (callContext)
-            {
-                VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
-            }
+            using (callContext) { VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt); }
         }
         return Mold.TransitionToNextMold();
     }
@@ -1474,9 +1468,9 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
         if (valueEqualsBuildingType)
         {
-            if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
+            if (WroteOuterTypeName) { resolvedFlags |= LogSuppressTypeNames; }
         }
-        var callContext        = Master.ResolveContextForCallerFlags(resolvedFlags);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         if (!callContext.HasFormatChange)
             VettedAppendNullableStructStringBearerContent(value, defaultValue, resolvedFlags, formatString);
@@ -1506,9 +1500,9 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
         if (valueEqualsBuildingType)
         {
-            if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
+            if (WroteOuterTypeName) { resolvedFlags |= LogSuppressTypeNames; }
         }
-        var callContext        = Master.ResolveContextForCallerFlags(resolvedFlags);
+        var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         if (!callContext.HasFormatChange)
             VettedAppendNullableStructStringBearerContent(value, defaultValue, resolvedFlags, formatString);
@@ -1537,15 +1531,16 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
 
         var maybeComplex = ((formatFlags | CreateMoldFormatFlags.MoldSingleGenerationPassFlags()) & ~(SuppressOpening | SuppressClosing)) |
                            AsStringContent;
-        var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
-                                (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString, maybeComplex)
-                               , formatString)
-                          | AsStringContent;
+        var resolvedFlags = 
+            StyleFormatter
+                .ResolveContentFormatFlags(Sb, value
+                                         , StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString, maybeComplex)
+                                         , formatString) | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
         if (valueEqualsBuildingType)
         {
-            if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
+            if (WroteOuterTypeName) { resolvedFlags |= LogSuppressTypeNames; }
         }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
@@ -1583,7 +1578,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
         if (valueEqualsBuildingType)
         {
-            if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
+            if (WroteOuterTypeName) { resolvedFlags |= LogSuppressTypeNames; }
         }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
@@ -2272,8 +2267,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         {
             using (callContext)
             {
-                result = VettedAppendCharArrayContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt
-                                                    , addEndDblQt);
+                result = VettedAppendCharArrayContent(value, startIndex, length, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
             }
         }
         if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
@@ -2850,7 +2844,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
         if (valueEqualsBuildingType)
         {
-            if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
+            if (WroteOuterTypeName) { resolvedFlags |= LogSuppressTypeNames; }
             resolvedFlags |= NoRevisitCheck;
         }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
@@ -2887,7 +2881,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
         if (valueEqualsBuildingType)
         {
-            if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
+            if (WroteOuterTypeName) { resolvedFlags |= LogSuppressTypeNames; }
             resolvedFlags |= NoRevisitCheck;
         }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
@@ -2929,15 +2923,15 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
                           | AsStringContent;
         if (!actualType.IsValueType && BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
-        if (valueEqualsBuildingType)
-        {
-            if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
-            resolvedFlags |= NoRevisitCheck;
-        }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
             RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags);
+        if (valueEqualsBuildingType)
+        {
+            if (WroteOuterTypeName) { resolvedFlags |= LogSuppressTypeNames; }
+            resolvedFlags |= NoRevisitCheck;
+        }
         var isInputType = TypeBeingBuilt.IsInputConstructionTypeCached();
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0)
         {
@@ -2984,7 +2978,7 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
         if (valueEqualsBuildingType)
         {
-            if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
+            if (WroteOuterTypeName) { resolvedFlags |= LogSuppressTypeNames; }
             resolvedFlags |= NoRevisitCheck;
         }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
@@ -3071,12 +3065,15 @@ public class ContentTypeDieCast<TContentMold, TToContentMold> : TypeMolderDieCas
         return Mold.TransitionToNextMold();
     }
 
-    public override ITypeMolderDieCast CopyFrom(ITypeMolderDieCast? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public override IMoldWriteState CopyFrom(IMoldWriteState? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source == null) return this;
         base.CopyFrom(source, copyMergeFlags);
         SkipFields = SkipFields | SkipBody;
-        if (source is ContentTypeDieCast<TContentMold, TToContentMold> valueTypeDieCast) { CurrentWriteMethod = valueTypeDieCast.CurrentWriteMethod; }
+        if (source is ContentTypeWriteState<TContentMold, TToContentMold> valueTypeDieCast)
+        {
+            CurrentWriteMethod = valueTypeDieCast.CurrentWriteMethod;
+        }
 
         return this;
     }

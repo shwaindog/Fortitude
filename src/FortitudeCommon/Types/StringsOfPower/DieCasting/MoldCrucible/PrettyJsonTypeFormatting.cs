@@ -29,14 +29,14 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
 
     public override string Name => nameof(CompactJsonTypeFormatting);
 
-    public override ContentSeparatorRanges StartComplexTypeOpening(ITypeMolderDieCast mdc
+    public override ContentSeparatorRanges StartComplexTypeOpening<T>(T instanceToOpen, IMoldWriteState mws, WrittenAsFlags openingAs
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         if (formatFlags.DoesNotHaveAsEmbeddedContentFlags())
         {
             Gb.IndentLevel++;
-            Gb.StartAppendContent(BrcOpn, sb, this, formatFlags);
+            Gb.StartAppendContent(BrcOpn, sb, this, formatFlags.RemoveContentTreatmentFlags());
         }
         if (formatFlags.CanAddNewLine())
         {
@@ -84,7 +84,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         return Gb.Complete(formatFlags);
     }
 
-    public override ContentSeparatorRanges AppendComplexTypeClosing(ITypeMolderDieCast mdc)
+    public override ContentSeparatorRanges AppendComplexTypeClosing<T>(T instanceToOpen, IMoldWriteState mdc, WrittenAsFlags openingAs)
     {
         var sb = mdc.Sb;
 
@@ -92,10 +92,10 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         if (mdc.Master.CallerContext.FormatFlags.HasSuppressClosing()) { return Gb.LastContentSeparatorPaddingRanges; }
         if (previousContentPadSpacing.PreviousFormatFlags.DoesNotHaveAsEmbeddedContentFlags()) Gb.IndentLevel -= mdc.CloseDepthDecrementBy;
 
-        return base.AppendComplexTypeClosing(mdc);
+        return base.AppendComplexTypeClosing(mdc.InstanceOrType, mdc, mdc.CurrentWriteMethod);
     }
     
-    public override ContentSeparatorRanges StartKeyedCollectionOpen(ITypeMolderDieCast mdc
+    public override ContentSeparatorRanges StartKeyedCollectionOpen(IMoldWriteState mws
       , Type keyType, Type valueType, FormatFlags callerFormattingFlags = DefaultCallerTypeFlags)
     {
         if (callerFormattingFlags.HasSuppressOpening())
@@ -104,49 +104,49 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         }
         
         Gb.IndentLevel++;
-        return base.StartKeyedCollectionOpen(mdc, keyType, valueType, callerFormattingFlags);
+        return base.StartKeyedCollectionOpen(mws, keyType, valueType, callerFormattingFlags);
     }
     
-    public override ContentSeparatorRanges FinishKeyedCollectionOpen(ITypeMolderDieCast mdc)
+    public override ContentSeparatorRanges FinishKeyedCollectionOpen(IMoldWriteState mws)
     {
         return ContentSeparatorRanges.None;
     }
 
-    public override ContentSeparatorRanges AppendKeyedCollectionClose(ITypeMolderDieCast mdc
+    public override ContentSeparatorRanges AppendKeyedCollectionClose(IMoldWriteState mws
       , Type keyType, Type valueType, int totalItemCount, FormatFlags callerFormattingFlags = DefaultCallerTypeFlags)
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         if (callerFormattingFlags.HasSuppressClosing()) 
         { 
             return ContentSeparatorRanges.None; 
         }
-        if (callerFormattingFlags.DoesNotHaveAsEmbeddedContentFlags()) Gb.IndentLevel -= mdc.CloseDepthDecrementBy;
+        if (callerFormattingFlags.DoesNotHaveAsEmbeddedContentFlags()) Gb.IndentLevel -= mws.CloseDepthDecrementBy;
 
-        return base.AppendKeyedCollectionClose(mdc, keyType, valueType, totalItemCount, callerFormattingFlags);
+        return base.AppendKeyedCollectionClose(mws, keyType, valueType, totalItemCount, callerFormattingFlags);
     }
 
-    public override ContentSeparatorRanges FinishFormatCollectionOpen(ITypeMolderDieCast mdc, Type itemElementType
-      , bool? hasItems, Type collectionType, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public override ContentSeparatorRanges AppendOpenCollection(IMoldWriteState mws, Type itemElementType
+      , bool? hasItems, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (hasItems != true || mdc.WroteCollectionOpen) { return ContentSeparatorRanges.None; }
+        if (hasItems != true || mws.WroteInnerTypeOpen) { return ContentSeparatorRanges.None; }
 
-        var  reg                    = mdc.Master.ActiveGraphRegistry;
+        var  reg                    = mws.Master.ActiveGraphRegistry;
         var  hasWroteCollectionOpen = false;
         int? firstOpenIndex         = null;
 
-        ITypeMolderDieCast? initialDc = mdc;
+        IMoldWriteState? initialDc = mws;
 
-        if (mdc.MoldGraphVisit.HasRegisteredVisit)
+        if (mws.MoldGraphVisit.HasRegisteredVisit)
         {
-            GraphNodeVisit derivedMold = reg[mdc.MoldGraphVisit.VisitId.VisitIndex];
-            if (mdc.MoldGraphVisit.IsBaseOfInitial)
+            GraphNodeVisit derivedMold = reg[mws.MoldGraphVisit.VisitId.VisitIndex];
+            if (mws.MoldGraphVisit.IsBaseOfInitial)
             {
                 var            checkMoldIndex = derivedMold.ParentVisitId.VisitIndex;
                 GraphNodeVisit checkMold      = reg[checkMoldIndex];
                 do
                 {
                     derivedMold            =   checkMold;
-                    hasWroteCollectionOpen |=  checkMold.MoldState?.WroteCollectionOpen ?? false;
+                    hasWroteCollectionOpen |=  checkMold.MoldState?.WroteInnerTypeOpen ?? false;
                     firstOpenIndex         ??= hasWroteCollectionOpen ? checkMoldIndex : null;
                     checkMoldIndex         =   reg[checkMoldIndex].ParentVisitId.VisitIndex;
                     checkMold              =   reg[Math.Max(0, checkMoldIndex)];
@@ -160,30 +160,29 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
                 if (firstOpenIndex != null)
                 {
                     var openDc                                      = reg[firstOpenIndex.Value].MoldState;
-                    if (openDc != null) openDc.WroteCollectionClose = true;
+                    if (openDc != null) openDc.WroteInnerTypeClose = true;
                 }
-                mdc.WroteCollectionClose = false;
+                mws.WroteInnerTypeClose = false;
                 return ContentSeparatorRanges.None;
             }
         }
-        var sb = mdc.Sb;
-        mdc.SuppressCollectionClose = false;
-        mdc.WroteCollectionClose    = false;
-        mdc.WroteCollectionOpen     = true;
-        var inheritedFmtFlags = mdc.CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | formatFlags;
-        if (mdc is ICollectionMolderDieCast { IsSimple: true } scmdc)
+        var sb = mws.Sb;
+        mws.WroteInnerTypeClose    = false;
+        mws.WroteInnerTypeOpen     = true;
+        var inheritedFmtFlags = mws.CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | formatFlags;
+        if (mws is ICollectionMoldWriteState { IsSimple: true } scmdc)
         {
-            if (scmdc.SupportsMultipleFields) { AppendInstanceValuesFieldName(mdc.TypeBeingBuilt, inheritedFmtFlags); }
+            if (scmdc.SupportsMultipleFields) { AppendInstanceValuesFieldName(mws.TypeBeingBuilt, inheritedFmtFlags); }
             else if (scmdc.MoldGraphVisit.IsBaseOfInitial)
             {
                 if (initialDc != null && initialDc.CurrentWriteMethod.HasAsComplexFlag())
                 {
-                    AppendInstanceValuesFieldName(mdc.TypeBeingBuilt, inheritedFmtFlags);
+                    AppendInstanceValuesFieldName(mws.TypeBeingBuilt, inheritedFmtFlags);
                 }
             }
         }
         Gb.StartNextContentSeparatorPaddingSequence(sb, inheritedFmtFlags);
-        CollectionStart(itemElementType, sb, hasItems.Value, (FormatSwitches)inheritedFmtFlags | (FormatSwitches)mdc.CreateMoldFormatFlags);
+        CollectionStart(itemElementType, sb, hasItems.Value, (FormatSwitches)inheritedFmtFlags | (FormatSwitches)mws.CreateMoldFormatFlags);
         return Gb.LastContentSeparatorPaddingRanges;
     }
 
@@ -208,6 +207,8 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             }
             Gb.IndentLevel++;
             Gb.AppendContent(elementType == typeof(KeyValuePair<string, JsonNode>) ? BrcOpn : SqBrktOpn);
+            Gb.Complete(inheritedFmtFlags);
+            Gb.AddHighWaterMark();
             AddCollectionElementPadding(elementType, sb, 1, inheritedFmtSwitches);
         }
         return sb.Length - preAppendLen;
@@ -235,139 +236,90 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             }
             Gb.IndentLevel++;
             charsAdded =
-                LayoutEncoder
-                    .OverwriteTransfer
-                        (elementType == typeof(KeyValuePair<string, JsonNode>)
+                LayoutEncoder.OverwriteTransfer
+                    ( elementType == typeof(KeyValuePair<string, JsonNode>)
                              ? BrcOpn
                              : SqBrktOpn, destSpan, destStartIndex);
+            Gb.Complete(inheritedFmtFlags);
+            Gb.AddHighWaterMark();
             charsAdded += AddCollectionElementPadding(elementType, destSpan, destStartIndex + charsAdded, 1, formatSwitches);
         }
 
         return charsAdded;
     }
 
-    public override ContentSeparatorRanges AddCollectionElementPadding(ITypeMolderDieCast moldInternal, Type elementType, int nextItemNumber
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-    {
-        if (formatFlags.HasNoItemPaddingFlag()) return Gb.Complete(formatFlags);
-        if (elementType.IsChar() && JsonOptions.CharBufferWritesAsCharCollection) { return Gb.Complete(formatFlags); }
-        if (elementType.IsByte() && JsonOptions.ByteArrayWritesBase64String) { return Gb.Complete(formatFlags); }
-        if (formatFlags.UseMainItemPadding() && formatFlags.CanAddNewLine())
-        {
-            Gb.AppendPadding(StyleOptions.NewLineStyle);
-            Gb.AppendPadding(StyleOptions.IndentChar, StyleOptions.IndentRepeat(Gb.IndentLevel));
-        }
-        else { Gb.AppendPadding(StyleOptions.AlternateFieldPadding); }
-        return Gb.Complete(formatFlags);
-    }
-
-    public override int AddCollectionElementPadding(Type collectionElementType, IStringBuilder sb, int nextItemNumber
-      , FormatSwitches formatFlags = FormatSwitches.EncodeInnerContent)
-    {
-        var fmtFlgs = Gb.CurrentSectionRanges.StartedWithFormatFlags;
-        if (fmtFlgs.HasNoFieldPaddingFlag()) return Gb.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
-        if (collectionElementType.IsChar() && JsonOptions.CharBufferWritesAsCharCollection)
-            return Gb.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
-        if (collectionElementType.IsByte() && JsonOptions.ByteArrayWritesBase64String)
-            return Gb.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
-        if (fmtFlgs.UseMainFieldPadding() && fmtFlgs.CanAddNewLine())
-        {
-            Gb.AppendPadding(StyleOptions.NewLineStyle);
-            Gb.AppendPadding(StyleOptions.IndentChar, StyleOptions.IndentRepeat(Gb.IndentLevel));
-        }
-        else { Gb.AppendPadding(StyleOptions.AlternateFieldPadding); }
-        return Gb.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
-    }
-
-    public override int AddCollectionElementPadding(Type collectionElementType, Span<char> destSpan, int atIndex, int nextItemNumber
-      , FormatSwitches formatFlags = FormatSwitches.EncodeInnerContent)
-    {
-        var fmtFlgs = Gb.CurrentSectionRanges.StartedWithFormatFlags;
-        if (fmtFlgs.HasNoFieldPaddingFlag()) return Gb.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
-        if (collectionElementType.IsChar() && JsonOptions.CharBufferWritesAsCharCollection)
-            return Gb.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
-        if (collectionElementType.IsByte() && JsonOptions.ByteArrayWritesBase64String)
-            return Gb.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
-        Gb.MarkSeparatorEnd();
-        var charsAdded = 0;
-        if (fmtFlgs.UseMainFieldPadding() && fmtFlgs.CanAddNewLine())
-        {
-            charsAdded += destSpan.OverWriteAt(atIndex, StyleOptions.NewLineStyle);
-            charsAdded += destSpan.OverWriteRepatAt(atIndex + charsAdded, StyleOptions.IndentChar, StyleOptions.IndentRepeat(Gb.IndentLevel));
-        }
-        else { charsAdded += destSpan.OverWriteAt(atIndex, StyleOptions.AlternateFieldPadding); }
-        Gb.MarkPaddingEnd(atIndex + charsAdded).Complete(fmtFlgs);
-        return charsAdded;
-    }
-
-    public override IStringBuilder FormatCollectionEnd(ITypeMolderDieCast mdc, int? resultsFoundCount, Type itemElementType
+    public override int AppendCloseCollection(IMoldWriteState mws, int? resultsFoundCount, Type itemElementType
       , int? totalItemCount, string? formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         CharSpanCollectionScratchBuffer?.DecrementRefCount();
         CharSpanCollectionScratchBuffer = null;
-        var inheritedFmtFlags    = mdc.CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | formatFlags;
+        var inheritedFmtFlags    = mws.CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | formatFlags;
         var inheritedFmtSwitches = (FormatSwitches)inheritedFmtFlags;
-        if (mdc.SkipBody || mdc.WroteCollectionClose || mdc.SuppressCollectionClose)
+        var preAppendAt          = sb.Length;
+        if (mws.SkipBody || mws.WroteInnerTypeClose)
         {
             if (Gb.CurrentSectionRanges.HasNonZeroLengthContent) { Gb.SnapshotLastAppendSequence(inheritedFmtFlags); }
             Gb.RemoveLastSeparatorAndPadding();
-            Gb.StartNextContentSeparatorPaddingSequence(sb, inheritedFmtFlags, true);
-            Gb.MarkContentStart(sb.Length - 1);
-            Gb.MarkContentEnd(sb.Length);
-            return sb;
+            return sb.Length - preAppendAt;
         }
-        mdc.WroteCollectionClose = true;
-        if (!totalItemCount.HasValue)
+        mws.WroteInnerTypeClose = true;
+        if (!(totalItemCount > 0))
         {
-            if (StyleOptions.NullWritesEmpty)
+            if (totalItemCount.HasValue || StyleOptions.NullWritesEmpty)
             {
                 Gb.StartNextContentSeparatorPaddingSequence(sb, inheritedFmtFlags);
-                if (!mdc.WroteCollectionOpen)
+                if (!mws.WroteInnerTypeOpen)
                 {
-                    CollectionStart(itemElementType, sb, false, inheritedFmtSwitches);
-                    if (mdc.CurrentWriteMethod.HasAsCollectionFlag() && mdc.CloseDepthDecrementBy > 1)
+                    CollectionStart(itemElementType, sb, true, inheritedFmtSwitches);
+                    if (mws.CurrentWriteMethod.HasAsCollectionFlag() && mws.CloseDepthDecrementBy > 1)
                     {
-                        Gb.IndentLevel -= mdc.CloseDepthDecrementBy - 1;
+                        Gb.IndentLevel -= mws.CloseDepthDecrementBy - 1;
                     }
                 }
-                else if (mdc.CurrentWriteMethod.HasAsCollectionFlag())
+                else if (mws.CurrentWriteMethod.HasAsCollectionFlag())
                 {
-                    Gb.IndentLevel -= mdc.CloseDepthDecrementBy;
+                    Gb.IndentLevel -= mws.CloseDepthDecrementBy;
                 }
                 else { Gb.IndentLevel--; }
+                Gb.RemoveLastSeparatorAndPadding();
                 CollectionEnd(itemElementType, sb, 0, inheritedFmtSwitches);
                 Gb.Complete(inheritedFmtFlags);
             }
             else
             {
                 AppendFormattedNull(sb, formatString, inheritedFmtFlags);
-                if (mdc.WroteCollectionOpen)
+                if (mws.WroteInnerTypeOpen)
                 {
-                    if (mdc.CurrentWriteMethod.HasAsCollectionFlag())  Gb.IndentLevel -= mdc.CloseDepthDecrementBy; 
+                    if (mws.CurrentWriteMethod.HasAsCollectionFlag())  Gb.IndentLevel -= mws.CloseDepthDecrementBy; 
                     else  Gb.IndentLevel--; 
                 }
             }
-            mdc.WroteCollectionOpen  = false;
-            return sb;
+            mws.WroteInnerTypeOpen  = false;
+            Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
+            Gb.MarkContentStart(preAppendAt);
+            Gb.MarkContentEnd();
+            return sb.Length - preAppendAt;
         }
-        mdc.WroteCollectionOpen  = false;
+        mws.WroteInnerTypeOpen  = false;
 
         if (inheritedFmtFlags.DoesNotHaveSuppressClosing() || StyleOptions.Style.IsLog())
         {
+            Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
+            Gb.MarkContentStart(preAppendAt);
             if ((itemElementType.IsChar() && (JsonOptions.CharBufferWritesAsCharCollection || inheritedFmtFlags.HasAsStringContentFlag())))
             {
                 if (inheritedFmtFlags.DoesNotHaveAsValueContentFlag() || inheritedFmtFlags.HasAsStringContentFlag()) Gb.AppendContent(DblQt);
-                return sb;
+                return sb.Length - preAppendAt;
             }
             if (itemElementType.IsByte() && JsonOptions.ByteArrayWritesBase64String)
             {
                 Gb.AppendContent(DblQt);
-                return sb;
+                return sb.Length - preAppendAt;
             }
             Gb.RemoveLastSeparatorAndPadding();
 
-            if (mdc.CurrentWriteMethod.HasAsCollectionFlag())  Gb.IndentLevel -= mdc.CloseDepthDecrementBy; 
+            if (mws.CurrentWriteMethod.HasAsCollectionFlag())  Gb.IndentLevel -= mws.CloseDepthDecrementBy; 
             else  Gb.IndentLevel--; 
 
             Gb.StartNextContentSeparatorPaddingSequence(sb, inheritedFmtFlags, true);
@@ -378,15 +330,11 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             if (itemElementType == typeof(KeyValuePair<string, JsonNode>))
             {
                 Gb.AppendContent(BrcCls);
-                return sb;
+                return sb.Length - preAppendAt;
             }
             Gb.AppendContent(SqBrktCls);
         }
-        Gb.Complete(inheritedFmtFlags);
-        Gb.StartNextContentSeparatorPaddingSequence(sb, inheritedFmtFlags, true);
-        Gb.MarkContentStart(sb.Length - 1);
-        Gb.MarkContentEnd(sb.Length);
-        return sb;
+        return sb.Length - preAppendAt;
     }
 
     public override int CollectionEnd(Type elementType, IStringBuilder sb, int itemsCount
@@ -420,6 +368,8 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             }
             if (elementType == typeof(KeyValuePair<string, JsonNode>)) { Gb.AppendContent(BrcCls); }
             else { Gb.AppendContent(SqBrktCls); }
+            Gb.Complete(inheritedFmtFlags);
+            Gb.AddHighWaterMark();
         }
         return sb.Length - preAppendLen;
     }
@@ -472,6 +422,60 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             }
         }
         return destIndex + charsAdded - originalDestIndex;
+    }
+
+    public override ContentSeparatorRanges AddCollectionElementPadding(IMoldWriteState mws, Type elementType, int nextItemNumber
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+    {
+        if (formatFlags.HasNoItemPaddingFlag()) return Gb.Complete(formatFlags);
+        if (elementType.IsChar() && JsonOptions.CharBufferWritesAsCharCollection) { return Gb.Complete(formatFlags); }
+        if (elementType.IsByte() && JsonOptions.ByteArrayWritesBase64String) { return Gb.Complete(formatFlags); }
+        if (formatFlags.UseMainItemPadding() && formatFlags.CanAddNewLine())
+        {
+            Gb.AppendPadding(StyleOptions.NewLineStyle);
+            Gb.AppendPadding(StyleOptions.IndentChar, StyleOptions.IndentRepeat(Gb.IndentLevel));
+        }
+        else { Gb.AppendPadding(StyleOptions.AlternateFieldPadding); }
+        return Gb.Complete(formatFlags);
+    }
+
+    public override int AddCollectionElementPadding(Type collectionElementType, IStringBuilder sb, int nextItemNumber
+      , FormatSwitches formatFlags = FormatSwitches.EncodeInnerContent)
+    {
+        var fmtFlgs = Gb.CurrentSectionRanges.StartedWithFormatFlags;
+        if (fmtFlgs.HasNoFieldPaddingFlag()) return Gb.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
+        if (collectionElementType.IsChar() && JsonOptions.CharBufferWritesAsCharCollection)
+            return Gb.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
+        if (collectionElementType.IsByte() && JsonOptions.ByteArrayWritesBase64String)
+            return Gb.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
+        if (fmtFlgs.UseMainFieldPadding() && fmtFlgs.CanAddNewLine())
+        {
+            Gb.AppendPadding(StyleOptions.NewLineStyle);
+            Gb.AppendPadding(StyleOptions.IndentChar, StyleOptions.IndentRepeat(Gb.IndentLevel));
+        }
+        else { Gb.AppendPadding(StyleOptions.AlternateFieldPadding); }
+        return Gb.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
+    }
+
+    public override int AddCollectionElementPadding(Type collectionElementType, Span<char> destSpan, int atIndex, int nextItemNumber
+      , FormatSwitches formatFlags = FormatSwitches.EncodeInnerContent)
+    {
+        var fmtFlgs = Gb.CurrentSectionRanges.StartedWithFormatFlags;
+        if (fmtFlgs.HasNoFieldPaddingFlag()) return Gb.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
+        if (collectionElementType.IsChar() && JsonOptions.CharBufferWritesAsCharCollection)
+            return Gb.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
+        if (collectionElementType.IsByte() && JsonOptions.ByteArrayWritesBase64String)
+            return Gb.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
+        Gb.MarkSeparatorEnd();
+        var charsAdded = 0;
+        if (fmtFlgs.UseMainFieldPadding() && fmtFlgs.CanAddNewLine())
+        {
+            charsAdded += destSpan.OverWriteAt(atIndex, StyleOptions.NewLineStyle);
+            charsAdded += destSpan.OverWriteRepatAt(atIndex + charsAdded, StyleOptions.IndentChar, StyleOptions.IndentRepeat(Gb.IndentLevel));
+        }
+        else { charsAdded += destSpan.OverWriteAt(atIndex, StyleOptions.AlternateFieldPadding); }
+        Gb.MarkPaddingEnd(atIndex + charsAdded).Complete(fmtFlgs);
+        return charsAdded;
     }
 
     public override PrettyJsonTypeFormatting Clone()

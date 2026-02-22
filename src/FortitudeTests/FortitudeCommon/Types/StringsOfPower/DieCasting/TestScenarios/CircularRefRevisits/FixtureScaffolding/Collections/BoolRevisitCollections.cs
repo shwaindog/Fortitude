@@ -18,7 +18,7 @@ public class PreFieldBoolArrayRevisit : IStringBearer
             new (false, isSimple, isValue, boolRevealer)
           , new (null, isSimple, isValue, boolRevealer)
           , repeatedItem  
-          , new ([true, false, true], isSimple, isValue, boolRevealer)
+          , new ([false, true, false], isSimple, isValue, boolRevealer)
           ,repeatedItem  
         ];
         firstArray = firstAsList.ToArray();

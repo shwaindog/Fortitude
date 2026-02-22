@@ -18,10 +18,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(Span<bool>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
-        ExplicitOrderedCollectionMold<bool>? eocm         = null;
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
+        ExplicitOrderedCollectionMold<bool>? eocm = null;
         if (value.Length > 0)
         {
             formatString ??= "";
@@ -50,6 +49,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -61,9 +61,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(Span<bool?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<bool>? eocm = null;
         if (value.Length > 0)
         {
@@ -93,6 +92,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -106,9 +106,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmt : ISpanFormattable?, TFmtBase?
     {
         var actualType = typeof(Span<TFmt>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<TFmt>? eocm = null;
         if (value.Length > 0)
         {
@@ -138,6 +137,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -151,9 +151,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = typeof(Span<TFmtStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<TFmtStruct>? eocm = null;
         if (value.Length > 0)
         {
@@ -183,6 +182,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -197,9 +197,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TRevealBase : notnull
     {
         var actualType = typeof(Span<TCloaked>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<TCloaked>? eocm = null;
         if (value.Length > 0)
         {
@@ -228,6 +227,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -241,9 +241,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
     {
         var actualType = typeof(Span<TCloakedStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<TCloakedStruct>? eocm = null;
         if (value.Length > 0)
         {
@@ -272,6 +271,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -284,9 +284,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?, TFilterBase?
     {
         var actualType = typeof(Span<TBearer>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<TBearer>? eocm = null;
         if (value.Length > 0)
         {
@@ -315,6 +314,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -327,9 +327,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer
     {
         var actualType = typeof(Span<TBearerStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<TBearerStruct>? eocm = null;
         if (value.Length > 0)
         {
@@ -358,6 +357,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -369,9 +369,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(Span<string>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<string>? eocm = null;
         if (value.Length > 0)
         {
@@ -401,6 +400,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -412,9 +412,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(Span<string?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<string?>? eocm = null;
         if (value.Length > 0)
         {
@@ -444,6 +443,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -456,9 +456,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TCharSeq : ICharSequence?, TCharSeqBase?
     {
         var actualType = typeof(Span<TCharSeq>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<TCharSeq>? eocm = null;
         if (value.Length > 0)
         {
@@ -488,6 +487,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -499,9 +499,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(Span<StringBuilder>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<StringBuilder>? eocm = null;
         if (value.Length > 0)
         {
@@ -531,6 +530,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -543,9 +543,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(Span<StringBuilder?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<StringBuilder?>? eocm = null;
         if (value.Length > 0)
         {
@@ -575,6 +574,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -588,9 +588,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TAny : TAnyBase?
     {
         var actualType = typeof(Span<TAny>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<TAny>? eocm = null;
         if (value.Length > 0)
         {
@@ -620,6 +619,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -644,9 +644,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(ReadOnlySpan<bool>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<bool>? eocm = null;
         if (value.Length > 0)
         {
@@ -676,6 +675,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -687,9 +687,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(ReadOnlySpan<bool?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<bool>? eocm = null;
         if (value.Length > 0)
         {
@@ -719,6 +718,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -732,9 +732,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmt : ISpanFormattable?, TFmtBase?
     {
         var actualType = typeof(ReadOnlySpan<TFmt>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<TFmt>? eocm = null;
         if (value.Length > 0)
         {
@@ -763,6 +762,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -776,9 +776,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = typeof(ReadOnlySpan<TFmtStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<TFmtStruct>? eocm = null;
         if (value.Length > 0)
         {
@@ -807,6 +806,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -822,9 +822,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TRevealBase : notnull
     {
         var actualType = typeof(ReadOnlySpan<TCloaked>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<TCloaked>? eocm = null;
         if (value.Length > 0)
         {
@@ -853,6 +852,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -868,8 +868,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var actualType = typeof(ReadOnlySpan<TCloakedStruct?>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags))
             return stb.WasSkipped(actualType, fieldName
-                                                                 , formatFlags);
-        
+                                , formatFlags);
+
         ExplicitOrderedCollectionMold<TCloakedStruct>? eocm = null;
         if (value.Length > 0)
         {
@@ -898,6 +898,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -910,9 +911,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?, TFilterBase?
     {
         var actualType = typeof(ReadOnlySpan<TBearer>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<TBearer>? eocm = null;
         if (value.Length > 0)
         {
@@ -941,6 +941,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -955,8 +956,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var actualType = typeof(ReadOnlySpan<TBearerStruct?>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags))
             return stb.WasSkipped(actualType, fieldName
-                                                                , formatFlags);
-        
+                                , formatFlags);
+
         ExplicitOrderedCollectionMold<TBearerStruct>? eocm = null;
         if (value.Length > 0)
         {
@@ -985,6 +986,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -996,9 +998,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(ReadOnlySpan<string>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<string>? eocm = null;
         if (value.Length > 0)
         {
@@ -1027,6 +1028,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -1039,9 +1041,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(ReadOnlySpan<string?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<string?>? eocm = null;
         if (value.Length > 0)
         {
@@ -1070,6 +1071,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -1082,9 +1084,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TCharSeq : ICharSequence?, TCharSeqBase?
     {
         var actualType = typeof(ReadOnlySpan<TCharSeq>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<TCharSeq>? eocm = null;
         if (value.Length > 0)
         {
@@ -1113,6 +1114,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -1127,8 +1129,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var actualType = typeof(ReadOnlySpan<StringBuilder?>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags))
             return stb.WasSkipped(actualType, fieldName
-                                                                , formatFlags);
-        
+                                , formatFlags);
+
         ExplicitOrderedCollectionMold<StringBuilder>? eocm = null;
         if (value.Length > 0)
         {
@@ -1157,6 +1159,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -1171,8 +1174,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var actualType = typeof(ReadOnlySpan<StringBuilder?>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags))
             return stb.WasSkipped(actualType, fieldName
-                                                                , formatFlags);
-        
+                                , formatFlags);
+
         ExplicitOrderedCollectionMold<StringBuilder?>? eocm = null;
         if (value.Length > 0)
         {
@@ -1201,6 +1204,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -1214,9 +1218,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TAny : TAnyBase?
     {
         var actualType = typeof(ReadOnlySpan<TAny>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<TAny>? eocm = null;
         if (value.Length > 0)
         {
@@ -1245,6 +1248,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value.Length;
             eocm.Complete();
             return stb.AddGoToNext();
         }
@@ -1301,6 +1305,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Length ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -1312,8 +1317,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(bool?[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         ExplicitOrderedCollectionMold<bool?>? eocm = null;
         if (value != null)
         {
@@ -1343,6 +1347,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Length ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -1356,8 +1361,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmt : ISpanFormattable?, TFmtBase?
     {
         var actualType = value?.GetType() ?? typeof(TFmt?[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         ExplicitOrderedCollectionMold<TFmt>? eocm = null;
         if (value != null)
         {
@@ -1387,6 +1391,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Length ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -1400,9 +1405,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = value?.GetType() ?? typeof(TFmtStruct?[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<TFmtStruct?>? eocm = null;
         if (value != null)
         {
@@ -1432,6 +1436,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Length ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -1446,9 +1451,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(TCloaked[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<TCloaked>? eocm = null;
         if (value != null)
         {
@@ -1477,6 +1481,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Length ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -1489,8 +1494,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
     {
         var actualType = value?.GetType() ?? typeof(TCloakedStruct?[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         ExplicitOrderedCollectionMold<TCloakedStruct>? eocm = null;
         if (value != null)
         {
@@ -1519,6 +1523,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Length ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -1531,8 +1536,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TBearer : IStringBearer?, TBearerBase?
     {
         var actualType = value?.GetType() ?? typeof(TBearer?[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         ExplicitOrderedCollectionMold<TBearer>? eocm = null;
         if (value != null)
         {
@@ -1561,6 +1565,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Length ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -1573,8 +1578,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TBearerStruct : struct, IStringBearer
     {
         var actualType = value?.GetType() ?? typeof(TBearerStruct?[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         ExplicitOrderedCollectionMold<TBearerStruct>? eocm = null;
         if (value != null)
         {
@@ -1603,6 +1607,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Length ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -1615,8 +1620,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(string?[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         ExplicitOrderedCollectionMold<string?>? eocm = null;
         if (value != null)
         {
@@ -1646,6 +1650,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Length ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -1659,8 +1664,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TCharSeq : ICharSequence, TCharSeqFilterBase
     {
         var actualType = value?.GetType() ?? typeof(TCharSeq?[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         ExplicitOrderedCollectionMold<TCharSeq?>? eocm = null;
         if (value != null)
         {
@@ -1690,6 +1694,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Length ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -1701,8 +1706,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(StringBuilder?[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         ExplicitOrderedCollectionMold<StringBuilder?>? eocm = null;
         if (value != null)
         {
@@ -1732,6 +1736,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Length ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -1744,8 +1749,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TAny : TAnyBase
     {
         var actualType = value?.GetType() ?? typeof(TAny?[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         ExplicitOrderedCollectionMold<TAny?>? eocm = null;
         if (value != null)
         {
@@ -1775,6 +1779,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Length ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -1793,8 +1798,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<bool>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         ExplicitOrderedCollectionMold<bool?>? eocm = null;
         if (value != null)
         {
@@ -1824,6 +1828,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Count ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -1835,8 +1840,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<bool?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         ExplicitOrderedCollectionMold<bool?>? eocm = null;
         if (value != null)
         {
@@ -1866,6 +1870,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Count ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -1879,8 +1884,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmt : ISpanFormattable, TFmtBase
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TFmt?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
 
         ExplicitOrderedCollectionMold<TFmt>? eocm = null;
         if (value != null)
@@ -1911,6 +1915,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Count ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -1923,8 +1928,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TFmtStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         ExplicitOrderedCollectionMold<TFmtStruct?>? eocm = null;
         if (value != null)
         {
@@ -1954,6 +1958,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Count ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -1968,8 +1973,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TCloaked?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         ExplicitOrderedCollectionMold<TCloaked>? eocm = null;
         if (value != null)
         {
@@ -1998,6 +2002,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Count ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -2011,8 +2016,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TCloakedStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         ExplicitOrderedCollectionMold<TCloakedStruct>? eocm = null;
         if (value != null)
         {
@@ -2041,6 +2045,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Count ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -2055,9 +2060,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TBearer : IStringBearer?, TBearerBase?
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TBearer?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+
         ExplicitOrderedCollectionMold<TBearer>? eocm = null;
         if (value != null)
         {
@@ -2086,6 +2090,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Count ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -2100,8 +2105,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TBearerStruct : struct, IStringBearer
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TBearerStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         ExplicitOrderedCollectionMold<TBearerStruct>? eocm = null;
         if (value != null)
         {
@@ -2130,6 +2134,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Count ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -2141,8 +2146,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<string?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         ExplicitOrderedCollectionMold<string?>? eocm = null;
         if (value != null)
         {
@@ -2172,6 +2176,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Count ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -2184,8 +2189,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence, TCharSeqFilterBase
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TCharSeq?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         ExplicitOrderedCollectionMold<TCharSeq>? eocm = null;
         if (value != null)
         {
@@ -2215,6 +2219,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Count ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -2227,8 +2232,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<StringBuilder?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         ExplicitOrderedCollectionMold<StringBuilder?>? eocm = null;
         if (value != null)
         {
@@ -2258,6 +2262,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Count ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -2271,8 +2276,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TAny : TAnyBase
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TAny>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         ExplicitOrderedCollectionMold<TAny>? eocm = null;
         if (value != null)
         {
@@ -2302,6 +2306,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = value?.Count ?? 0;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -2319,14 +2324,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<bool>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var count = 0;
 
         ExplicitOrderedCollectionMold<bool>? eocm = null;
         if (value != null)
         {
             formatString ??= "";
-            var count     = 0;
             var skipCount = 0;
             foreach (var item in value)
             {
@@ -2354,6 +2358,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -2365,14 +2370,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<bool?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var count = 0;
 
         ExplicitOrderedCollectionMold<bool?>? eocm = null;
         if (value != null)
         {
             formatString ??= "";
-            var count     = 0;
             var skipCount = 0;
             foreach (var item in value)
             {
@@ -2400,6 +2404,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -2413,14 +2418,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmt : ISpanFormattable, TFmtBase
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TFmt?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var count = 0;
 
         ExplicitOrderedCollectionMold<TFmt>? eocm = null;
         if (value != null)
         {
             formatString ??= "";
-            var count     = 0;
             var skipCount = 0;
             foreach (var item in value)
             {
@@ -2448,6 +2452,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -2461,14 +2466,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TFmtStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var count = 0;
 
         ExplicitOrderedCollectionMold<TFmtStruct?>? eocm = null;
         if (value != null)
         {
             formatString ??= "";
-            var count     = 0;
             var skipCount = 0;
             foreach (var item in value)
             {
@@ -2496,6 +2500,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -2511,13 +2516,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TCloaked?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var count = 0;
 
         ExplicitOrderedCollectionMold<TCloaked>? eocm = null;
         if (value != null)
         {
-            var count     = 0;
             var skipCount = 0;
             foreach (var item in value)
             {
@@ -2545,6 +2549,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -2557,13 +2562,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TCloakedStruct : struct
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TCloakedStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var count = 0;
 
         ExplicitOrderedCollectionMold<TCloakedStruct>? eocm = null;
         if (value != null)
         {
-            var count     = 0;
             var skipCount = 0;
             foreach (var item in value)
             {
@@ -2591,6 +2595,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -2604,13 +2609,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TBearer : IStringBearer, TBearerBase
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TBearer?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var count = 0;
 
         ExplicitOrderedCollectionMold<TBearer>? eocm = null;
         if (value != null)
         {
-            var count     = 0;
             var skipCount = 0;
             foreach (var item in value)
             {
@@ -2638,6 +2642,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -2650,13 +2655,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TBearerStruct : struct, IStringBearer
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TBearerStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var count = 0;
 
         ExplicitOrderedCollectionMold<TBearerStruct>? eocm = null;
         if (value != null)
         {
-            var count     = 0;
             var skipCount = 0;
             foreach (var item in value)
             {
@@ -2684,6 +2688,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -2695,14 +2700,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<string?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var count = 0;
 
         ExplicitOrderedCollectionMold<string>? eocm = null;
         if (value != null)
         {
             formatString ??= "";
-            var count     = 0;
             var skipCount = 0;
             foreach (var item in value)
             {
@@ -2730,6 +2734,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -2744,14 +2749,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TCharSeqBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TCharSeq?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var count = 0;
 
         ExplicitOrderedCollectionMold<TCharSeq>? eocm = null;
         if (value != null)
         {
             formatString ??= "";
-            var count     = 0;
             var skipCount = 0;
             foreach (var item in value)
             {
@@ -2779,6 +2783,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -2791,14 +2796,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<StringBuilder?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var count = 0;
 
         ExplicitOrderedCollectionMold<StringBuilder?>? eocm = null;
         if (value != null)
         {
             formatString ??= "";
-            var count     = 0;
             var skipCount = 0;
             foreach (var item in value)
             {
@@ -2826,6 +2830,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -2839,14 +2844,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TAny : TAnyBase
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TAny>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var count = 0;
 
         ExplicitOrderedCollectionMold<TAny>? eocm = null;
         if (value != null)
         {
             formatString ??= "";
-            var count     = 0;
             var skipCount = 0;
             foreach (var item in value)
             {
@@ -2874,6 +2878,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -2886,14 +2891,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<object?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var count = 0;
 
         ExplicitOrderedCollectionMold<object>? eocm = null;
         if (value != null)
         {
             formatString ??= "";
-            var count     = 0;
             var skipCount = 0;
             foreach (var item in value)
             {
@@ -2921,6 +2925,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -2932,15 +2937,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<bool>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var hasValue    = value?.MoveNext() ?? false;
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
 
         ExplicitOrderedCollectionMold<bool>? eocm = null;
         if (hasValue)
         {
             formatString ??= "";
-            var count     = 0;
             var skipCount = 0;
             while (hasValue)
             {
@@ -2975,6 +2979,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -2986,15 +2991,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<bool?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var hasValue    = value?.MoveNext() ?? false;
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
 
         ExplicitOrderedCollectionMold<bool?>? eocm = null;
         if (hasValue)
         {
             formatString ??= "";
-            var count     = 0;
             var skipCount = 0;
             while (hasValue)
             {
@@ -3029,6 +3033,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -3042,15 +3047,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmt : ISpanFormattable, TFmtBase
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TFmt?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var hasValue    = value?.MoveNext() ?? false;
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
 
         ExplicitOrderedCollectionMold<TFmt>? eocm = null;
         if (hasValue)
         {
             formatString ??= "";
-            var count     = 0;
             var skipCount = 0;
             while (hasValue)
             {
@@ -3085,6 +3089,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -3098,15 +3103,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TFmtStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var hasValue    = value?.MoveNext() ?? false;
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
 
         ExplicitOrderedCollectionMold<TFmtStruct?>? eocm = null;
         if (hasValue)
         {
             formatString ??= "";
-            var count     = 0;
             var skipCount = 0;
             while (hasValue)
             {
@@ -3141,6 +3145,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -3155,14 +3160,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TCloaked?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var hasValue    = value?.MoveNext() ?? false;
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
 
         ExplicitOrderedCollectionMold<TCloaked>? eocm = null;
         if (hasValue)
         {
-            var count     = 0;
             var skipCount = 0;
             while (hasValue)
             {
@@ -3197,6 +3201,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -3209,14 +3214,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TCloakedStruct : struct
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TCloakedStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var hasValue    = value?.MoveNext() ?? false;
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
 
         ExplicitOrderedCollectionMold<TCloakedStruct>? eocm = null;
         if (hasValue)
         {
-            var count     = 0;
             var skipCount = 0;
             while (hasValue)
             {
@@ -3251,6 +3255,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -3263,14 +3268,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TBearer : IStringBearer?, TBearerBase?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TBearer>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var hasValue    = value?.MoveNext() ?? false;
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
 
         ExplicitOrderedCollectionMold<TBearer>? eocm = null;
         if (hasValue)
         {
-            var count     = 0;
             var skipCount = 0;
             while (hasValue)
             {
@@ -3305,6 +3309,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -3316,14 +3321,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TBearerStruct : struct, IStringBearer
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TBearerStruct?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var hasValue    = value?.MoveNext() ?? false;
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
 
         ExplicitOrderedCollectionMold<TBearerStruct>? eocm = null;
         if (hasValue)
         {
-            var count     = 0;
             var skipCount = 0;
             while (hasValue)
             {
@@ -3359,6 +3363,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -3370,15 +3375,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<string?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var hasValue    = value?.MoveNext() ?? false;
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
 
         ExplicitOrderedCollectionMold<string>? eocm = null;
         if (hasValue)
         {
             formatString ??= "";
-            var count     = 0;
             var skipCount = 0;
             while (hasValue)
             {
@@ -3413,6 +3417,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -3424,15 +3429,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence?, TCharSeqBase?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TCharSeq?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var hasValue    = value?.MoveNext() ?? false;
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
 
         ExplicitOrderedCollectionMold<TCharSeq>? eocm = null;
         if (hasValue)
         {
             formatString ??= "";
-            var count     = 0;
             var skipCount = 0;
             while (hasValue)
             {
@@ -3468,6 +3472,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -3479,15 +3484,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<StringBuilder?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var hasValue    = value?.MoveNext() ?? false;
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
+        var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
 
         ExplicitOrderedCollectionMold<StringBuilder>? eocm = null;
         if (hasValue)
         {
             formatString ??= "";
-            var count     = 0;
             var skipCount = 0;
             while (hasValue)
             {
@@ -3523,6 +3527,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -3535,16 +3540,16 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TAny : TAnyBase
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TAny>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
 
         ExplicitOrderedCollectionMold<TAny>? eocm = null;
 
-        var hasValue  = value?.MoveNext() ?? false;
+        var count = 0;
+
+        var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
             formatString ??= "";
-            var count     = 0;
             var skipCount = 0;
             while (hasValue)
             {
@@ -3579,6 +3584,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }
@@ -3590,16 +3596,16 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<object?>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
+        if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
 
         ExplicitOrderedCollectionMold<object>? eocm = null;
 
-        var hasValue  = value?.MoveNext() ?? false;
+        var count = 0;
+
+        var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
             formatString ??= "";
-            var count     = 0;
             var skipCount = 0;
             while (hasValue)
             {
@@ -3634,6 +3640,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         }
         if (eocm != null)
         {
+            eocm.TotalCount = count;
             eocm.AppendCollectionComplete();
             return stb.AddGoToNext();
         }

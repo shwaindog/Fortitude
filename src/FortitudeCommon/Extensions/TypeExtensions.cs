@@ -343,6 +343,7 @@ public static class TypeExtensions
     public static Type? GetIterableElementType(this Type? type) =>
         type?.GetIndexedCollectionElementType() ?? type?.IfEnumerableGetElementType() ?? type?.IfEnumeratorGetElementType();
 
+    
     public static bool IsSpanFormattable(this Type? type) =>
         type != null && (type == SpanFormattableType || type.GetInterfaces().Any(i => i == SpanFormattableType));
 
@@ -465,6 +466,11 @@ public static class TypeExtensions
 
     public static IStringBuilder AppendShortNameInCSharpFormat(this Type nameToPrint, IStringBuilder sb, bool includeParamConstraints = true)
     {
+        if (nameToPrint is { DeclaringType: not null, IsGenericTypeParameter: false })
+        {
+            AppendShortNameInCSharpFormat(nameToPrint.DeclaringType, sb, includeParamConstraints);
+            sb.Append(".");
+        }
         var typeName = nameToPrint.AsCSharpKeywordOrName();
         if (nameToPrint.IsGenericType)
         {

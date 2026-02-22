@@ -522,18 +522,21 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped(actualType, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
         if (hasValue)
         {
             formatString ??= "";
             stb.FieldNameJoin(fieldName);
-            var eoctb = stb.Master.StartExplicitCollectionType<IEnumerator<bool>, bool>(value!);
+            var eocm = stb.Master.StartExplicitCollectionType<IEnumerator<bool>, bool>(value!);
             while (hasValue)
             {
-                eoctb.AddElementAndGoToNextElement(value!.Current, formatString, formatFlags);
+                count++;
+                eocm.AddElementAndGoToNextElement(value!.Current, formatString, formatFlags);
                 hasValue = value.MoveNext();
             }
-            eoctb.AppendCollectionComplete();
-            return stb.AddGoToNext();
+            eocm.TotalCount = count; 
+            eocm.AppendCollectionComplete();
+            return stb.AddGoToNext(true);
         }
         return stb.Mold;
     }
@@ -547,6 +550,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped(actualType, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
         if (hasValue)
         {
             formatString ??= "";
@@ -554,11 +558,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             var eoctb = stb.Master.StartExplicitCollectionType<IEnumerator<bool?>, bool?>(value!);
             while (hasValue)
             {
+                count++;
                 eoctb.AddElementAndGoToNextElement(value!.Current, formatString, formatFlags);
                 hasValue = value.MoveNext();
             }
+            eoctb.TotalCount = count; 
             eoctb.AppendCollectionComplete();
-            return stb.AddGoToNext();
+            return stb.AddGoToNext(true);
         }
         return stb.Mold;
     }
@@ -573,6 +579,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped(actualType, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
         if (hasValue)
         {
             formatString ??= "";
@@ -580,11 +587,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             var eoctb = stb.Master.StartExplicitCollectionType<TFmt>(value!);
             while (hasValue)
             {
+                count++;
                 eoctb.AddElementAndGoToNextElement(value!.Current, formatString, formatFlags);
                 hasValue = value.MoveNext();
             }
+            eoctb.TotalCount = count; 
             eoctb.AppendCollectionComplete();
-            return stb.AddGoToNext();
+            return stb.AddGoToNext(true);
         }
         return stb.Mold;
     }
@@ -599,6 +608,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped(actualType, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
         if (hasValue)
         {
             formatString ??= "";
@@ -606,11 +616,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             var eoctb = stb.Master.StartExplicitCollectionType<TFmtStruct?>(value!);
             while (hasValue)
             {
+                count++;
                 eoctb.AddElementAndGoToNextElement(value!.Current, formatString, formatFlags);
                 hasValue = value.MoveNext();
             }
+            eoctb.TotalCount = count; 
             eoctb.AppendCollectionComplete();
-            return stb.AddGoToNext();
+            return stb.AddGoToNext(true);
         }
         return stb.Mold;
     }
@@ -626,17 +638,20 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped(actualType, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
         if (hasValue)
         {
             stb.FieldNameJoin(fieldName);
             var eoctb = stb.Master.StartExplicitCollectionType<TCloaked>(value!);
             while (hasValue)
             {
+                count++;
                 eoctb.AddElementAndGoToNextElement(value!.Current, palantírReveal, formatString, formatFlags);
                 hasValue = value.MoveNext();
             }
+            eoctb.TotalCount = count; 
             eoctb.AppendCollectionComplete();
-            return stb.AddGoToNext();
+            return stb.AddGoToNext(true);
         }
         return stb.Mold;
     }
@@ -651,17 +666,20 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped(actualType, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
         if (hasValue)
         {
             stb.FieldNameJoin(fieldName);
             var eoctb = stb.Master.StartExplicitCollectionType<TCloakedStruct>(value!);
             while (hasValue)
             {
+                count++;
                 eoctb.AddElementAndGoToNextElement(value!.Current, palantírReveal, formatString, formatFlags);
                 hasValue = value.MoveNext();
             }
+            eoctb.TotalCount = count; 
             eoctb.AppendCollectionComplete();
-            return stb.AddGoToNext();
+            return stb.AddGoToNext(true);
         }
         return stb.Mold;
     }
@@ -677,17 +695,20 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped(actualType, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
         if (hasValue)
         {
             stb.FieldNameJoin(fieldName);
             var eoctb = stb.Master.StartExplicitCollectionType<TBearer>(value!);
             while (hasValue)
             {
+                count++;
                 eoctb.AddBearerElementAndGoToNextElement(value!.Current, formatString, formatFlags);
                 hasValue = value.MoveNext();
             }
+            eoctb.TotalCount = count; 
             eoctb.AppendCollectionComplete();
-            return stb.AddGoToNext();
+            return stb.AddGoToNext(true);
         }
         return stb.Mold;
     }
@@ -703,17 +724,20 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped(actualType, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
         if (hasValue)
         {
             stb.FieldNameJoin(fieldName);
             var eoctb = stb.Master.StartExplicitCollectionType<TBearerStruct>(value!);
             while (hasValue)
             {
+                count++;
                 eoctb.AddBearerElementAndGoToNextElement(value!.Current, formatString, formatFlags);
                 hasValue = value.MoveNext();
             }
+            eoctb.TotalCount = count; 
             eoctb.AppendCollectionComplete();
-            return stb.AddGoToNext();
+            return stb.AddGoToNext(true);
         }
         return stb.Mold;
     }
@@ -728,6 +752,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped(actualType, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
         if (hasValue)
         {
             formatString ??= "";
@@ -735,11 +760,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             var eoctb = stb.Master.StartExplicitCollectionType<string>(value!);
             while (hasValue)
             {
+                count++;
                 eoctb.AddElementAndGoToNextElement(value!.Current, formatString, formatFlags);
                 hasValue = value.MoveNext();
             }
+            eoctb.TotalCount = count; 
             eoctb.AppendCollectionComplete();
-            return stb.AddGoToNext();
+            return stb.AddGoToNext(true);
         }
         return stb.Mold;
     }
@@ -753,6 +780,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped(actualType, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
         if (hasValue)
         {
             formatString ??= "";
@@ -760,11 +788,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             var eoctb = stb.Master.StartExplicitCollectionType<TCharSeq?>(value!);
             while (hasValue)
             {
+                count++;
                 eoctb.AddCharSequenceElementAndGoToNextElement(value!.Current, formatString, formatFlags);
                 hasValue = value.MoveNext();
             }
+            eoctb.TotalCount = count; 
             eoctb.AppendCollectionComplete();
-            return stb.AddGoToNext();
+            return stb.AddGoToNext(true);
         }
         return stb.Mold;
     }
@@ -778,6 +808,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped(actualType, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
         if (hasValue)
         {
             formatString ??= "";
@@ -785,11 +816,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             var eoctb = stb.Master.StartExplicitCollectionType<StringBuilder>(value!);
             while (hasValue)
             {
+                count++;
                 eoctb.AddElementAndGoToNextElement(value!.Current, formatString, formatFlags);
                 hasValue = value.MoveNext();
             }
+            eoctb.TotalCount = count; 
             eoctb.AppendCollectionComplete();
-            return stb.AddGoToNext();
+            return stb.AddGoToNext(true);
         }
         return stb.Mold;
     }
@@ -803,6 +836,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             return stb.WasSkipped(actualType, fieldName, formatFlags);
 
         var hasValue = value?.MoveNext() ?? false;
+        var count    = 0;
         if (hasValue)
         {
             formatString ??= "";
@@ -810,11 +844,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             var eoctb = stb.Master.StartExplicitCollectionType<TAny>(value!);
             while (hasValue)
             {
+                count++;
                 eoctb.AddMatchElementAndGoToNextElement(value!.Current, formatString, formatFlags);
                 hasValue = value.MoveNext();
             }
+            eoctb.TotalCount = count; 
             eoctb.AppendCollectionComplete();
-            return stb.AddGoToNext();
+            return stb.AddGoToNext(true);
         }
         return stb.Mold;
     }

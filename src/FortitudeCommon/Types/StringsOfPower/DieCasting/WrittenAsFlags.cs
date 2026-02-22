@@ -18,16 +18,17 @@ public enum WrittenAsFlags : ushort
   , AsString                    = 0x00_04
   , AsValue                     = 0x00_08
   , AsContent                   = 0x00_10
-  , AsCollection                = 0x00_20
-  , AsMapCollection             = 0x00_40
-  , AsSimple                    = 0x00_80
-  , AsComplex                   = 0x01_00
-  , UpgradedToComplex           = 0x02_00
-  , WithInstanceId              = 0x04_00
-  , WithReferenceToInstanceId   = 0x08_00
-  , WithDepthVmemAddress        = 0x10_00
-  , WithClippedDepthSuppression = 0x20_00
-  , RemovedDueDepthSuppression  = 0x40_00
+  , AsObject                    = 0x00_20
+  , AsCollection                = 0x00_40
+  , AsMapCollection             = 0x00_80
+  , AsSimple                    = 0x01_00
+  , AsComplex                   = 0x02_00
+  , UpgradedToComplex           = 0x04_00
+  , WithInstanceId              = 0x08_00
+  , WithReferenceToInstanceId   = 0x10_00
+  , WithDepthVmemAddress        = 0x20_00
+  , WithClippedDepthSuppression = 0x40_00
+  , RemovedDueDepthSuppression  = 0x80_00
 }
 
 public static class WrittenAsFlagsExtensions

@@ -5,9 +5,9 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.UnitField;
 public partial class SelectTypeField<TMold> : RecyclableObject
     where TMold : TypeMolder
 {
-    private ITypeMolderDieCast<TMold> stb = null!;
+    private IMoldWriteState<TMold> stb = null!;
 
-    public SelectTypeField<TMold> Initialize(ITypeMolderDieCast<TMold> molderDieCast)
+    public SelectTypeField<TMold> Initialize(IMoldWriteState<TMold> molderDieCast)
     {
         stb = molderDieCast;
 

@@ -100,14 +100,23 @@ public class SelectTypeCollectionFieldCompactLogTests : SelectTypeCollectionFiel
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(BoolCollectionsTestData.AllBoolCollectionExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[12]
+        ExecuteIndividualScaffoldExpectation(EnumCollectionsTestData.AllEnumCollectionsExpectations[1], ScaffoldingRegistry.AllScaffoldingTypes[144]
                                            , StringBuilderType.MutableString);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
-        const string compactLogTemplate = "{0} {{{1}{2}{1}}}";
+        var elementType     = className?.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? className;
+        var collFullName    = className?.FullName ?? "";
+        var elementFullName = elementType?.FullName ?? "";
+
+        var collectionShouldSuppressName = tos.Settings.LogSuppressDisplayCollectionNames.Any(s => collFullName.StartsWith(s));
+        var elementShouldSuppressName    = tos.Settings.LogSuppressDisplayCollectionElementNames.Any(s => elementFullName.StartsWith(s));
+        var compactLogTemplate = (collectionShouldSuppressName && elementShouldSuppressName) 
+                              || className == null
+            ? "{{{1}{2}{1}}}"
+            : "{0} {{{1}{2}{1}}}";
 
         var maybePadding = "";
         var expectValue  = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
@@ -119,8 +128,13 @@ public class SelectTypeCollectionFieldCompactLogTests : SelectTypeCollectionFiel
             {
                 var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
 
-                nextExpect.Append(propertyName).Append(": (");
-                orderedListExpectation.CollectionCallType.AppendShortNameInCSharpFormat(nextExpect).Append(") ");
+                nextExpect.Append(propertyName).Append(": ");
+
+                if (!orderedListExpectation.IsTwoInARowTypes)
+                {
+                    nextExpect.Append("(");
+                    orderedListExpectation.CollectionCallType.AppendShortNameInCSharpFormat(nextExpect).Append(") ");
+                }
                 nextExpect.Append(expectValue);
                 expectValue.DecrementRefCount();
                 expectValue = nextExpect;
@@ -143,7 +157,16 @@ public class SelectTypeCollectionFieldCompactLogTests : SelectTypeCollectionFiel
     protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
-        var compactLogTemplate = className != null ? "({0}) {1}" : "{1}";
+        var elementType     = className?.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? className;
+        var collFullName    = className?.FullName ?? "";
+        var elementFullName = elementType?.FullName ?? "";
+
+        var collectionShouldSuppressName = tos.Settings.LogSuppressDisplayCollectionNames.Any(s => collFullName.StartsWith(s));
+        var elementShouldSuppressName    = tos.Settings.LogSuppressDisplayCollectionElementNames.Any(s => elementFullName.StartsWith(s));
+        var compactLogTemplate = (collectionShouldSuppressName && elementShouldSuppressName) 
+                              || className == null
+            ? "{1}"
+            : "({0}) {1}";
 
         var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
         if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))
@@ -151,7 +174,7 @@ public class SelectTypeCollectionFieldCompactLogTests : SelectTypeCollectionFiel
             expectValue.Clear();
         }
         var fmtExpect = sbFactory.Borrow<CharArrayStringBuilder>();
-        fmtExpect.AppendFormat(compactLogTemplate, className?.CachedCSharpNameNoConstraints() ?? "", expectValue);
+        fmtExpect.AppendFormat(compactLogTemplate, className?.ShortNameInCSharpFormat() ?? "", expectValue);
         expectValue.DecrementRefCount();
         return fmtExpect;
     }

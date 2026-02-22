@@ -108,7 +108,16 @@ public class OrderedCollectionMoldPrettyLogTests : OrderedCollectionMoldTests
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
-        const string prettyLogTemplate = "({0}) {1}";
+        var elementType     = className?.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? className;
+        var collFullName    = className?.FullName ?? "";
+        var elementFullName = elementType?.FullName ?? "";
+
+        var collectionShouldSuppressName = tos.Settings.LogSuppressDisplayCollectionNames.Any(s => collFullName.StartsWith(s));
+        var elementShouldSuppressName    = tos.Settings.LogSuppressDisplayCollectionElementNames.Any(s => elementFullName.StartsWith(s));
+
+        var prettyLogTemplate = (collectionShouldSuppressName && elementShouldSuppressName)
+            ? "{1}"
+            : "({0}) {1}";
 
         var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
         if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))
@@ -124,11 +133,23 @@ public class OrderedCollectionMoldPrettyLogTests : OrderedCollectionMoldTests
     protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
+        var elementType     = className?.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? className;
+        var collFullName    = className?.FullName ?? "";
+        var elementFullName = elementType?.FullName ?? "";
+
+        var collectionShouldSuppressName = tos.Settings.LogSuppressDisplayCollectionNames.Any(s => collFullName.StartsWith(s));
+        var elementShouldSuppressName    = tos.Settings.LogSuppressDisplayCollectionElementNames.Any(s => elementFullName.StartsWith(s));
+
+        var prettyLogTemplate = (collectionShouldSuppressName && elementShouldSuppressName) 
+                              || className == null
+            ? "{1}"
+            : "({0}) {1}";
+
         var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
-        if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))
-        {
-            expectValue.Clear();
-        }
-        return expectValue;
+        if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue)) { expectValue.Clear(); }
+        var fmtExpect = sbFactory.Borrow<CharArrayStringBuilder>();
+        fmtExpect.AppendFormat(prettyLogTemplate, className?.ShortNameInCSharpFormat() ?? "", expectValue);
+        expectValue.DecrementRefCount();
+        return fmtExpect;
     }
 }

@@ -28,7 +28,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<bool>(collectionType, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFiltered(ReadOnlySpan<char> fieldName, Span<bool?> value, OrderedCollectionPredicate<bool?> filterPredicate
@@ -49,7 +49,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionTypeOfNullable<bool>(collectionType, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFiltered<TFmt, TFmtBase>
@@ -72,7 +72,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TFmt>(collectionType, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFiltered<TFmtStruct>
@@ -95,7 +95,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionTypeOfNullable<TFmtStruct>(collectionType, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFiltered<TCloaked, TFilterBase, TRevealBase>
@@ -120,7 +120,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TCloaked>(collectionType, formatFlags)
            .RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFiltered<TCloakedStruct>(ReadOnlySpan<char> fieldName, Span<TCloakedStruct?> value
@@ -143,7 +143,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionTypeOfNullable<TCloakedStruct>(collectionType, formatFlags)
            .RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFiltered<TBearer, TBearerBase>(ReadOnlySpan<char> fieldName, Span<TBearer> value
@@ -166,7 +166,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TBearer>(collectionType, formatFlags)
            .RevealFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFiltered<TBearerStruct>(ReadOnlySpan<char> fieldName, Span<TBearerStruct?> value
@@ -188,7 +188,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionTypeOfNullable<TBearerStruct>(collectionType, formatFlags)
            .RevealFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFiltered(ReadOnlySpan<char> fieldName, Span<string> value, OrderedCollectionPredicate<string> filterPredicate
@@ -209,7 +209,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<string>(collectionType, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredNullable(ReadOnlySpan<char> fieldName, Span<string?> value, OrderedCollectionPredicate<string> filterPredicate
@@ -230,7 +230,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<string?>(collectionType, formatFlags)
            .AddFilteredNullable(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredCharSeq<TCharSeq, TCharSeqBase>(ReadOnlySpan<char> fieldName, Span<TCharSeq> value
@@ -252,7 +252,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TCharSeq>(collectionType, formatFlags)
            .AddFilteredCharSeq(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFiltered(ReadOnlySpan<char> fieldName, Span<StringBuilder> value, OrderedCollectionPredicate<StringBuilder> filterPredicate
@@ -273,7 +273,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<StringBuilder>(collectionType, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredNullable(ReadOnlySpan<char> fieldName, Span<StringBuilder?> value
@@ -295,7 +295,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<StringBuilder?>(collectionType, formatFlags)
            .AddFilteredNullable(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredMatch<TAny, TAnyBase>(ReadOnlySpan<char> fieldName, Span<TAny> value
@@ -318,7 +318,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TAny>(collectionType, formatFlags)
            .AddFilteredMatch(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     [CallsObjectToString]
@@ -351,7 +351,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<bool>(collectionType, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFiltered(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool?> value, OrderedCollectionPredicate<bool?> filterPredicate
@@ -372,7 +372,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionTypeOfNullable<bool>(collectionType, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFiltered<TFmt, TFmtBase>
@@ -395,7 +395,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TFmt>(collectionType, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFiltered<TFmtStruct>
@@ -418,7 +418,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionTypeOfNullable<TFmtStruct>(collectionType, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFiltered<TCloaked, TFilterBase, TRevealBase>
@@ -443,7 +443,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TCloaked>(collectionType, formatFlags)
            .RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFiltered<TCloakedStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloakedStruct?> value
@@ -468,7 +468,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionTypeOfNullable<TCloakedStruct>(collectionType, formatFlags)
            .RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFiltered<TBearer, TBearerBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer> value
@@ -490,7 +490,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TBearer>(collectionType, formatFlags)
            .RevealFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFiltered<TBearerStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearerStruct?> value
@@ -514,7 +514,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionTypeOfNullable<TBearerStruct>(collectionType, formatFlags)
            .RevealFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFiltered(ReadOnlySpan<char> fieldName, ReadOnlySpan<string> value, OrderedCollectionPredicate<string> filterPredicate
@@ -535,7 +535,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<string>(collectionType, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<string?> value
@@ -557,7 +557,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<string?>(collectionType, formatFlags)
            .AddFilteredNullable(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredCharSeq<TCharSeq, TCharSeqBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCharSeq> value
@@ -580,7 +580,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TCharSeq>(collectionType, formatFlags)
            .AddFilteredCharSeq(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFiltered(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder> value
@@ -604,7 +604,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<StringBuilder>(collectionType, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder?> value
@@ -628,7 +628,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<StringBuilder?>(collectionType, formatFlags)
            .AddFilteredNullable(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredMatch<TAny, TAnyBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TAny> value
@@ -651,7 +651,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TAny>(collectionType, formatFlags)
            .AddFilteredMatch(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     [CallsObjectToString]
@@ -685,7 +685,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<bool[], bool>(value!)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFiltered(string fieldName, bool?[]? value, OrderedCollectionPredicate<bool?> filterPredicate
@@ -706,7 +706,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<bool?[], bool?>(value!)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFiltered<TFmt, TFmtBase>
@@ -729,7 +729,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TFmt[], TFmt>(value!)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFiltered<TFmtStruct>
@@ -752,7 +752,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TFmtStruct?[], TFmtStruct?>(value!)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFiltered<TCloaked, TFilterBase, TRevealBase>
@@ -776,7 +776,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TCloaked[], TCloaked>(value!)
            .RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFiltered<TCloakedStruct>(string fieldName, TCloakedStruct?[]? value
@@ -799,7 +799,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TCloakedStruct?[], TCloakedStruct?>(value!)
            .RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFiltered<TBearer, TBearerBase>(string fieldName, TBearer[]? value
@@ -822,7 +822,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TBearer[], TBearer>(value!)
            .RevealFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFiltered<TBearerStruct>(string fieldName, TBearerStruct?[]? value
@@ -844,7 +844,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TBearerStruct?[], TBearerStruct?>(value!)
            .RevealFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFiltered
@@ -868,7 +868,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<string?[], string?>(value!)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredCharSeq<TCharSeq, TCharSeqBase>
@@ -891,7 +891,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TCharSeq[], TCharSeq>(value!)
            .AddFilteredCharSeq(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFiltered(string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
@@ -912,7 +912,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<StringBuilder?[], StringBuilder>(value!)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredMatch<TAny, TAnyBase>(string fieldName, TAny[]? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
@@ -933,7 +933,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TAny[], TAny>(value!)
            .AddFilteredMatch(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     [CallsObjectToString]
@@ -960,7 +960,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<bool>(value!, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
@@ -981,7 +981,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<bool?>(value!, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFiltered<TFmt, TFmtBase>(string fieldName, IReadOnlyList<TFmt>? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
@@ -1003,7 +1003,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TFmt>(value!, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFiltered<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct?>? value
@@ -1026,7 +1026,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TFmtStruct?>(value!, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFiltered<TCloaked, TFilterBase, TRevealBase>
@@ -1051,7 +1051,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TCloaked>(value!, formatFlags)
            .RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFiltered<TCloakedStruct>
@@ -1074,7 +1074,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TCloakedStruct?>(value!, formatFlags)
            .RevealFiltered(value, filterPredicate, palantírReveal, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFiltered<TBearer, TBearerBase>(string fieldName, IReadOnlyList<TBearer?>? value
@@ -1097,7 +1097,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TBearer>(value!, formatFlags)
            .RevealFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFiltered<TBearerStruct>(string fieldName, IReadOnlyList<TBearerStruct?>? value
@@ -1119,7 +1119,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TBearerStruct?>(value!, formatFlags)
            .RevealFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<string?>? value, OrderedCollectionPredicate<string> filterPredicate
@@ -1140,7 +1140,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<string?>(value!, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredCharSeq<TCharSeq, TCharSeqBase>(string fieldName, IReadOnlyList<TCharSeq>? value
@@ -1163,7 +1163,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TCharSeq>(value!, formatFlags)
            .AddFilteredCharSeq(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFiltered(string fieldName, IReadOnlyList<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
@@ -1184,7 +1184,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<StringBuilder?>(value!, formatFlags)
            .AddFiltered(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredMatch<TAny, TAnyBase>(string fieldName
@@ -1208,7 +1208,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
            .StartExplicitCollectionType<TAny>(value!, formatFlags)
            .AddFilteredMatch(value, filterPredicate, formatString, formatFlags)
            .Complete();
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     [CallsObjectToString]
@@ -1227,14 +1227,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master.StartSimpleCollectionType(value, null, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
             stb.AppendEmptyCollectionOrNull(typeof(bool), value?.GetType() ?? typeof(IEnumerable<bool>), null, null, formatString, formatFlags
                                           , false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredEnumerate(string fieldName
@@ -1247,14 +1247,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master.StartSimpleCollectionType(value, null, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
             stb.AppendEmptyCollectionOrNull(typeof(bool?), value?.GetType() ?? typeof(IEnumerable<bool?>), null, null, formatString, formatFlags
                                           , false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredEnumerate<TFmt, TFmtBase>(string fieldName
@@ -1268,14 +1268,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         stb.FieldNameJoin(fieldName);
         if (value != null)
-            stb.Master.StartSimpleCollectionType(value, formatFlags)
+            stb.Master.StartSimpleCollectionType(value, null, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
             stb.AppendEmptyCollectionOrNull(typeof(TFmt), value?.GetType() ?? typeof(IEnumerable<TFmt>), null, null, formatString, formatFlags
                                           , false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredEnumerate<TFmtStruct>(string fieldName
@@ -1290,7 +1290,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
@@ -1298,7 +1298,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.AppendEmptyCollectionOrNull(typeof(TFmtStruct?), value?.GetType() ?? typeof(IEnumerable<TFmtStruct?>), null, null, formatString
                                           , formatFlags, false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFilteredEnumerate<TCloaked, TFilterBase, TRevealBase>
@@ -1316,14 +1316,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .RevealFilteredEnumerate(value, filterPredicate, palantírReveal, formatString, formatFlags)
                .Complete();
         else
         {
             stb.AppendEmptyCollectionOrNull(typeof(TCloaked), value?.GetType() ?? typeof(IEnumerable<TCloaked?>), null, null, "", formatFlags, false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFilteredEnumerate<TCloakedStruct>
@@ -1340,7 +1340,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .RevealFilteredEnumerate(value, filterPredicate, palantírReveal, formatString, formatFlags)
                .Complete();
         else
@@ -1348,7 +1348,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.AppendEmptyCollectionOrNull(typeof(TCloakedStruct), value?.GetType() ?? typeof(IEnumerable<TCloakedStruct?>), null, null, ""
                                           , formatFlags, false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFilteredEnumerate<TBearer, TBearerBase>(string fieldName
@@ -1363,14 +1363,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .RevealFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
             stb.AppendEmptyCollectionOrNull(typeof(TBearer), value?.GetType() ?? typeof(IEnumerable<TBearer?>), null, null, "", formatFlags, false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFilteredEnumerate<TBearerStruct>(string fieldName
@@ -1385,7 +1385,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .RevealFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
@@ -1393,7 +1393,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.AppendEmptyCollectionOrNull(typeof(TBearerStruct?), value?.GetType() ?? typeof(IEnumerable<TBearerStruct?>), null, null, ""
                                           , formatFlags, false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredEnumerate(string fieldName
@@ -1407,14 +1407,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
             stb.AppendEmptyCollectionOrNull(typeof(string), value?.GetType() ?? typeof(IEnumerable<string>), null, null, formatString, formatFlags
                                           , false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredCharSeqEnumerate<TCharSeq, TCharSeqBase>(string fieldName
@@ -1429,7 +1429,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .AddFilteredCharSeqEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
@@ -1437,7 +1437,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.AppendEmptyCollectionOrNull(typeof(TCharSeq), value?.GetType() ?? typeof(IEnumerable<TCharSeq>), null, null, formatString, formatFlags
                                           , false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredEnumerate(string fieldName
@@ -1451,7 +1451,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
@@ -1459,7 +1459,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.AppendEmptyCollectionOrNull(typeof(StringBuilder), value?.GetType() ?? typeof(IEnumerable<StringBuilder>), null, null, formatString
                                           , formatFlags, false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredMatchEnumerate<TAny, TAnyBase>(string fieldName
@@ -1474,7 +1474,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .AddFilteredMatchEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
@@ -1482,7 +1482,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.AppendEmptyCollectionOrNull(typeof(TAny?), value?.GetType() ?? typeof(IEnumerable<TAny?>), null, null, formatString, formatFlags
                                           , false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     [CallsObjectToString]
@@ -1497,7 +1497,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .AddFilteredObjectEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
@@ -1505,7 +1505,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.AppendEmptyCollectionOrNull(typeof(object), value?.GetType() ?? typeof(IEnumerable<object>), null, null, formatString, formatFlags
                                           , false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredEnumerate(string fieldName
@@ -1519,7 +1519,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
@@ -1527,7 +1527,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.AppendEmptyCollectionOrNull(typeof(bool), value?.GetType() ?? typeof(IEnumerator<bool>), null, null, formatString, formatFlags
                                           , false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredEnumerate(string fieldName
@@ -1541,14 +1541,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
             stb.AppendEmptyCollectionOrNull(typeof(bool?), value?.GetType() ?? typeof(IEnumerator<bool?>), null, null, formatString, formatFlags
                                           , false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredEnumerate<TFmt, TFmtBase>(string fieldName
@@ -1563,7 +1563,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
@@ -1571,7 +1571,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.AppendEmptyCollectionOrNull(typeof(TFmt), value?.GetType() ?? typeof(IEnumerator<TFmt>), null, null, formatString, formatFlags
                                           , false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredEnumerate<TFmtStruct>(string fieldName
@@ -1586,14 +1586,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
             stb.AppendEmptyCollectionOrNull(typeof(TFmtStruct?), value?.GetType() ?? typeof(IEnumerator<TFmtStruct?>), null, null, formatString
                                           , formatFlags, false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFilteredEnumerate<TCloaked, TFilterBase, TRevealBase>
@@ -1610,14 +1610,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .RevealFilteredEnumerate(value, filterPredicate, palantírReveal, formatString, formatFlags)
                .Complete();
         else
         {
             stb.AppendEmptyCollectionOrNull(typeof(TCloaked), value?.GetType() ?? typeof(IEnumerator<TCloaked>), null, null, "", formatFlags, false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFilteredEnumerate<TCloakedStruct>
@@ -1632,7 +1632,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .RevealFilteredEnumerate(value, filterPredicate, palantírReveal, formatString, formatFlags)
                .Complete();
         else
@@ -1640,7 +1640,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.AppendEmptyCollectionOrNull(typeof(TCloakedStruct?), value?.GetType() ?? typeof(IEnumerator<TCloakedStruct?>), null, null, ""
                                           , formatFlags, false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFilteredEnumerate<TBearer, TBearerBase>(string fieldName, IEnumerator<TBearer?>? value
@@ -1654,14 +1654,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .RevealFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
             stb.AppendEmptyCollectionOrNull(typeof(TBearer), value?.GetType() ?? typeof(IEnumerator<TBearer>), null, null, "", formatFlags, false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysRevealFilteredEnumerate<TBearerStruct>(string fieldName, IEnumerator<TBearerStruct?>? value
@@ -1675,14 +1675,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .RevealFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
             stb.AppendEmptyCollectionOrNull(typeof(TBearerStruct?), value?.GetType() ?? typeof(IEnumerator<TBearerStruct?>), null, null, ""
                                           , formatFlags, false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerator<string?>? value, OrderedCollectionPredicate<string> filterPredicate
@@ -1694,7 +1694,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
@@ -1702,7 +1702,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.AppendEmptyCollectionOrNull(typeof(string), value?.GetType() ?? typeof(IEnumerator<string?>), null, null, formatString, formatFlags
                                           , false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredCharSeqEnumerate<TCharSeq, TCharSeqBase>(string fieldName, IEnumerator<TCharSeq?>? value
@@ -1716,7 +1716,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .AddFilteredCharSeqEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
@@ -1724,7 +1724,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.AppendEmptyCollectionOrNull(typeof(TCharSeq), value?.GetType() ?? typeof(IEnumerator<TCharSeq?>), null, null, formatString
                                           , formatFlags, false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredEnumerate(string fieldName, IEnumerator<StringBuilder?>? value
@@ -1737,7 +1737,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
@@ -1745,7 +1745,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.AppendEmptyCollectionOrNull(typeof(StringBuilder), value?.GetType() ?? typeof(IEnumerator<StringBuilder>), null, null, formatString
                                           , formatFlags, false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     public TExt AlwaysAddFilteredMatchEnumerate<TAny, TAnyBase>(string fieldName, IEnumerator<TAny?>? value
@@ -1759,7 +1759,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .AddFilteredMatchEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
@@ -1767,7 +1767,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.AppendEmptyCollectionOrNull(typeof(TAny), value?.GetType() ?? typeof(IEnumerator<TAny?>), null, null, formatString, formatFlags
                                           , false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 
     [CallsObjectToString]
@@ -1781,7 +1781,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master
-               .StartSimpleCollectionType(value, formatFlags)
+               .StartSimpleCollectionType(value, null, formatFlags)
                .AddFilteredObjectEnumerate(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
@@ -1789,6 +1789,6 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             stb.AppendEmptyCollectionOrNull(typeof(object), value?.GetType() ?? typeof(IEnumerator<object>), null, null, formatString, formatFlags
                                           , false);
         }
-        return stb.AddGoToNext();
+        return stb.AddGoToNext(true);
     }
 }

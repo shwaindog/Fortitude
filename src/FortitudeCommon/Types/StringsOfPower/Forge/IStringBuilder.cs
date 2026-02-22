@@ -18,9 +18,9 @@ public interface IStringBuilder : ICharSequence, IMutableStringBuilder<IStringBu
     IStringBuilder Remove(int startIndex);
     IStringBuilder ToUpper();
     
-    int LineChars { get; }
-    int LineContentStartColumn { get; }
-    int LineContentWidth { get; }
+    int CurrentLineStartIndex { get; }
+    int CurrentLineIndentEndColumn { get; }
+    int CurrentLineCharWidth { get; }
 
     IStringBuilder CopyFrom(string source);
 
@@ -201,6 +201,19 @@ public static class IStringBuilderExtensions
         return toWriteTo;
     }
 
+    public static IStringBuilder ShiftLeftAt(this IStringBuilder toMutate, int from, int by)
+    {
+        var oldLength = toMutate.Length;
+        if (from - by < 0 || oldLength <= from) return toMutate;
+        toMutate.EnsureCapacity(by);
+        for (var i = from - by; i >= oldLength; i++)
+        {
+            toMutate[i] = toMutate[i + by];
+        }
+        toMutate.Length = oldLength - by;
+        return toMutate;
+    }
+
     public static IStringBuilder ShiftRightAt(this IStringBuilder toMutate, int from, int by)
     {
         var oldLength = toMutate.Length;
@@ -255,6 +268,49 @@ public static class IStringBuilderExtensions
         return sb;
     }
     
+    
+    public static string ShowWhiteSpaces(this string input)
+    {
+        var sb = input.Length.SourceMutableString();
+        for (var i = 0; i < input.Length; i++)
+        {
+            var c = input[i];
+            switch (c)
+            {
+                case ' ' :  sb.Append('\u00B7'); break;
+                case '\t' : sb.Append('\u21E5'); break;
+                case '\r' :
+                    sb.Append('\u00B6');
+                    sb.Append('\r');
+                    break;
+                case '\n' : 
+                    if (i - 1 >= 0)
+                    {
+                        var prev = input[i - 1];
+                        if (prev == '\r' && sb.Length - 2 > 0 && sb[^2] == '\u00B6')
+                        {
+                            sb.Append('\n');
+                        }
+                        else
+                        {
+                            sb.Append('\u00B6');
+                            sb.Append('\n');
+                        }
+                    }
+                    else
+                    {
+                        sb.Append('\u00B6');
+                        sb.Append('\n');
+                    }
+                    break;
+                default:  sb.Append(c); break;
+            }
+        }
+        var noWhiteSpaceResult = sb.ToString();
+        sb.DecrementRefCount();
+        return noWhiteSpaceResult;
+    }
+    
     public static IStringBuilder IndentSubsequentLines(this IStringBuilder input, ReadOnlySpan<char> newLineFormat, string indentChars = "  ")
     {
         Span<char> replace = stackalloc char[newLineFormat.Length + indentChars.Length];
@@ -270,16 +326,21 @@ public static class IStringBuilderExtensions
         Span<char> replace = stackalloc char[indentChars.Length + newLineFormat.Length];
         replace.OverWriteAt(0, newLineFormat);
         replace.Append(indentChars);
-        var count      = mutate.SubSequenceOccurenceCount(startIndex, length, newLineFormat);
-
-        var requiredIncreaseSize = count * Math.Max(0, replace.Length - newLineFormat.Length);
+        var countOccurrences      = mutate.SubSequenceOccurrenceCount(startIndex, length, newLineFormat);
+        var requiredIncreaseSize = countOccurrences * Math.Max(0, replace.Length - newLineFormat.Length);
         mutate.EnsureCapacity(requiredIncreaseSize);
-
         mutate.Replace(newLineFormat, replace, startIndex, length);
         return length + requiredIncreaseSize;
     }
+    
+    public static int DecrementIndentOfLastLine(this IStringBuilder mutate, int charsToRemove)
+    {
+        mutate.ShiftLeftAt(mutate.CurrentLineStartIndex + charsToRemove, charsToRemove);
+        mutate.Length -= charsToRemove;
+        return charsToRemove;
+    }
 
-    public static int SubSequenceOccurenceCount(this IStringBuilder searchArea, int startIndex, int length, ReadOnlySpan<char> find)
+    public static int SubSequenceOccurrenceCount(this IStringBuilder searchArea, int startIndex, int length, ReadOnlySpan<char> find)
     {
         var cappedFrom = Math.Clamp(startIndex, 0, searchArea.Length);
         var cappedTo   = Math.Clamp(startIndex + length, cappedFrom, searchArea.Length);

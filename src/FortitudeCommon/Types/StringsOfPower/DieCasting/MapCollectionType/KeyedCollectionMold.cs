@@ -10,7 +10,7 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 
 public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionMold>
 {
-    private ITypeMolderDieCast<KeyedCollectionMold> stb = null!;
+    private IMoldWriteState<KeyedCollectionMold> stb = null!;
 
     protected int ItemCount = 0;
 
@@ -37,14 +37,14 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
 
     public override bool IsComplexType => true;
     
-    public override void StartFormattingTypeOpening(IStyledTypeFormatting usingFormatter)
+    public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
     {
         var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!; 
-        usingFormatter.StartKeyedCollectionOpen(MoldStateField, keyValueTypes.Value.Key, keyValueTypes.Value.Value);
+        usingFormatter.StartKeyedCollectionOpen(MoldStateField, keyValueTypes.Value.Key, keyValueTypes.Value.Value, formatFlags);
     }
 
 
-    public override void CompleteTypeOpeningToTypeFields(IStyledTypeFormatting usingFormatter)
+    public override void FinishTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
     {
         usingFormatter.FinishKeyedCollectionOpen(MoldStateField);
     }

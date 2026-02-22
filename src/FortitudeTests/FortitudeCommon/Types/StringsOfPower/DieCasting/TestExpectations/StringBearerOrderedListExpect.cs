@@ -226,9 +226,19 @@ public class StringBearerOrderedListExpect<TChildScaffoldListElement, TFilterBas
         if (!expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue) 
          && !expectValue.SequenceMatches("null") && !expectValue.SequenceMatches(""))
         {
-            expectValue = WhenValueExpectedOutput
-                (sbFactory, tos, excludeCalledType ? null :(calledValueType ?? typeof(TChildScaffoldListElement))
-               , RevealerScaffold?.PropertyName ?? "NoRevealerScaffold", condition, FieldValueExpectation);
+            expectValue = 
+                WhenValueExpectedOutput
+                (sbFactory
+               , tos
+               , excludeCalledType 
+              || (InputIsNull 
+               && !(condition.HasCallsAsReadOnlySpan() 
+                 || condition.HasCallsAsSpan())) 
+                     ? null 
+                     :(calledValueType ?? typeof(TChildScaffoldListElement))
+               , RevealerScaffold?.PropertyName ?? "NoRevealerScaffold"
+               , condition
+               , FieldValueExpectation);
         }
         return expectValue;
     }

@@ -38,19 +38,22 @@ public abstract class CommonStyleExpectationTestBase : CommonExpectationBase
     protected void ExecuteStringStyleTestFormatExpectation(IInputBearerFormatExpectation formatExpectation, StringStyle stringStyle
       , StringBuilderType usingStringBuilder = StringBuilderType.Alternating)
     {
-        Logger.InfoAppend(TestsCommonDescription)?
-              .Append(" In String Style - ")
-              .Append(stringStyle)
-              .FinalAppend("\n");
-
-        Logger.WarnAppend("FormatExpectation - ")?
-              .Append(formatExpectation.ToString())
-              .FinalAppend("");
 
         IStringBuilder sb;
 
         ResetOneStringWithSettings(MyTheOneString, NextTestStyleOptions);
         sb = SourceTheOnStringStringBuilder(usingStringBuilder);
+        
+        Logger.InfoAppend(TestsCommonDescription)?
+              .Append(" In String Style - ")
+              .Append(stringStyle).Append("\n")
+              .Append("Using IStringBuilder ")
+              .AppendLine(sb.GetType().Name)
+              .FinalAppend("\n");
+
+        Logger.WarnAppend("FormatExpectation - ")?
+              .Append(formatExpectation.ToString())
+              .FinalAppend("");
         MyTheOneString.ReInitialize(sb, stringStyle);
 
         var stringBearer                = formatExpectation.TestStringBearer;

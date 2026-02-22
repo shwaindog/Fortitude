@@ -28,20 +28,20 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
     {
         InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName, remainingGraphDepth
                                       , moldGraphVisit, writeMethodType, createFormatFlags);
-        WrittenAs = WrittenAsFlags.AsComplex;
+        WrittenAs = WrittenAsFlags.AsComplex | WrittenAsFlags.AsObject;
         return this;
     }
 
     public override bool IsComplexType => true;
 
-    public override void StartFormattingTypeOpening(IStyledTypeFormatting usingFormatter)
+    public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
     {
-        usingFormatter.StartComplexTypeOpening(State, State.CreateMoldFormatFlags);
+        usingFormatter.StartComplexTypeOpening(State.InstanceOrType, State, State.CurrentWriteMethod, formatFlags | State.CreateMoldFormatFlags);
     }
     
     public override void AppendClosing()
     {
-        State.StyleFormatter.AppendComplexTypeClosing(State);
+        State.StyleFormatter.AppendComplexTypeClosing(State.InstanceOrType, State, State.CurrentWriteMethod);
     }
 
     public virtual void StartContent()

@@ -14,7 +14,7 @@ public class RecyclableContainer<T> : RecyclableObject, IRecyclableStructContain
 {
     public T StoredValue { get; set; } = default!;
 
-    public Type StoredType => typeof(T);
+    public Type StoredType => StoredValue?.GetType() ?? typeof(T);
 
     public RecyclableContainer<T> Initialize(T storedValue)
     {
@@ -31,7 +31,13 @@ public class RecyclableContainer<T> : RecyclableObject, IRecyclableStructContain
     public override bool Equals(object? obj)
     {
         if (obj is null) return false;
-        if (obj.GetType() != GetType()) return false;
+        if (obj.GetType() != StoredType)
+        {
+            if (!(obj is RecyclableContainer<T> objContainer && objContainer.StoredType == StoredType));
+            {
+                return false;   
+            }
+        }
         return Equals((T)obj);
     }
 
@@ -39,6 +45,12 @@ public class RecyclableContainer<T> : RecyclableObject, IRecyclableStructContain
     public override int GetHashCode() => !EqualityComparer<T>.Default.Equals(StoredValue, default) 
         // ReSharper disable once NonReadonlyMemberInGetHashCode
         ? EqualityComparer<T>.Default.GetHashCode(StoredValue!) : 0;
+
+    public override void StateReset()
+    {
+        StoredValue = default!;
+        base.StateReset();
+    }
 
     public override string ToString() => $"{GetType().CachedCSharpNameWithConstraints()}({StoredValue})";
 }

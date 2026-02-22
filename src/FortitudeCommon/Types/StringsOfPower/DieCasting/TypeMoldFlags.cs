@@ -8,24 +8,21 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 [Flags]
 public enum TypeMoldFlags : uint
 {
-    None                          = 0x00_00_00
-  , IsEmptyFlag                   = 0x00_00_01
-  , IsCompleteFlag                = 0x00_00_02
-  , WroteTypeNameFlag             = 0x00_00_04
-  , WroteTypeOpenFlag             = 0x00_00_10
-  , WroteTypeCloseFlag            = 0x00_00_20
-  , SuppressedTypeOpenFlag        = 0x00_00_40
-  , SuppressedTypeCloseFlag       = 0x00_00_80
-  , WroteCollectionOpenFlag       = 0x00_01_00
-  , WroteCollectionCloseFlag      = 0x00_02_00
-  , SuppressedCollectionOpenFlag  = 0x00_04_00
-  , SuppressedCollectionCloseFlag = 0x00_08_00
-  , WroteCollectionNameFlag       = 0x00_10_00
-  , SkipBodyFlag                  = 0x00_20_00
-  , SkipFieldsFlag                = 0x00_40_00
-  , WroteRefIdFlag                = 0x00_80_00
-  , WroteIdFlag                   = 0x01_00_00
-  , WasDepthClippedFlag           = 0x02_00_00
+    None                     = 0x00_00_00
+  , IsEmptyFlag              = 0x00_00_01
+  , IsCompleteFlag           = 0x00_00_02
+  , WroteOuterTypeNameFlag   = 0x00_00_04
+  , WroteOuterTypeOpenFlag   = 0x00_00_08
+  , WroteOuterTypeCloseFlag  = 0x00_00_10
+  , InnerSameAsOuterTypeFlag = 0x00_00_20
+  , WroteInnerTypeOpenFlag   = 0x00_00_40
+  , WroteInnerTypeCloseFlag  = 0x00_00_80
+  , WroteCInnerTypeNameFlag  = 0x00_01_00
+  , SkipBodyFlag             = 0x00_02_00
+  , SkipFieldsFlag           = 0x00_04_00
+  , WroteRefIdFlag           = 0x00_08_00
+  , WroteIdFlag              = 0x00_10_00
+  , WasDepthClippedFlag      = 0x00_20_00
 }
 
 public static class TypeMoldFlagsExtensions
@@ -38,25 +35,18 @@ public static class TypeMoldFlagsExtensions
     // public static bool HasWriteAsAttributeFlag(this TypeMoldFlags flags) => (flags & WriteAsAttributeFlag) > 0;
     // public static bool HasWriteAsContentFlag(this TypeMoldFlags flags)   => (flags & WriteAsContentFlag) > 0;
     // public static bool HasWriteAsComplexFlag(this TypeMoldFlags flags)   => (flags & WriteAsComplexFlag) > 0;
-    public static bool HasWroteTypeNameFlag(this TypeMoldFlags flags)             => (flags & WroteTypeNameFlag) > 0;
-    public static bool HasWroteRefIdFlag(this TypeMoldFlags flags)                => (flags & WroteRefIdFlag) > 0;
-    public static bool HasWroteTypeOpenFlag(this TypeMoldFlags flags)             => (flags & WroteTypeOpenFlag) > 0;
-    public static bool HasWroteTypeCloseFlag(this TypeMoldFlags flags)            => (flags & WroteTypeCloseFlag) > 0;
-    
-    public static bool HasSuppressedTypeOpenFlag(this TypeMoldFlags flags)  => (flags & SuppressedTypeOpenFlag) > 0;
-    
-    public static bool HasSuppressedTypeCloseFlag(this TypeMoldFlags flags) => (flags & SuppressedTypeCloseFlag) > 0;
-    
-    public static bool HasWroteCollectionOpenFlag(this TypeMoldFlags flags)   => (flags & WroteCollectionOpenFlag) > 0;
-    
-    public static bool HasWroteCollectionCloseFlag(this TypeMoldFlags flags) => (flags & WroteCollectionCloseFlag) > 0;
-    
-    public static bool HasSuppressedCollectionOpenFlag(this TypeMoldFlags flags)  => (flags & SuppressedCollectionOpenFlag) > 0;
-    
-    public static bool HasSuppressedCollectionCloseFlag(this TypeMoldFlags flags) => (flags & SuppressedCollectionCloseFlag) > 0;
-    
-    public static bool HasWroteCollectionNameFlag(this TypeMoldFlags flags)        => (flags & WroteCollectionNameFlag) > 0;
-    public static bool HasWasDepthClippedFlag(this TypeMoldFlags flags)      => (flags & WasDepthClippedFlag) > 0;
+    public static bool HasWroteOuterTypeNameFlag(this TypeMoldFlags flags)   => (flags & WroteOuterTypeNameFlag) > 0;
+    public static bool HasWroteRefIdFlag(this TypeMoldFlags flags)           => (flags & WroteRefIdFlag) > 0;
+    public static bool HasWroteOuterTypeOpenFlag(this TypeMoldFlags flags)   => (flags & WroteOuterTypeOpenFlag) > 0;
+    public static bool HasWroteOuterTypeCloseFlag(this TypeMoldFlags flags)  => (flags & WroteOuterTypeCloseFlag) > 0;
+    public static bool HasInnerSameAsOuterTypeFlag(this TypeMoldFlags flags) => (flags & InnerSameAsOuterTypeFlag) > 0;
+
+    public static bool HasWroteInnerTypeOpenFlag(this TypeMoldFlags flags) => (flags & WroteInnerTypeOpenFlag) > 0;
+
+    public static bool HasWroteInnerTypeCloseFlag(this TypeMoldFlags flags) => (flags & WroteInnerTypeCloseFlag) > 0;
+
+    public static bool HasWroteCInnerTypeNameFlag(this TypeMoldFlags flags) => (flags & WroteCInnerTypeNameFlag) > 0;
+    public static bool HasWasDepthClippedFlag(this TypeMoldFlags flags)     => (flags & WasDepthClippedFlag) > 0;
 
     public static TypeMoldFlags Unset(this TypeMoldFlags flags, TypeMoldFlags toUnset) => flags & ~toUnset;
 

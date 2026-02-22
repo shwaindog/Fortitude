@@ -15,10 +15,11 @@ using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.WrittenAsFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 
-public record struct AppendSummary
+public readonly record struct AppendSummary
 (
     Type MoldBuildType
   , ITheOneString TheOneString
@@ -40,12 +41,12 @@ public record struct AppendSummary
     public int Length => EndAt - StartAt;
 }
 
-public static class StateExtractStringRangeExtensions
+public static class AppendSummaryExtensions
 {
     public static AppendSummary EmptyAppendAt(this ITheOneString tos, Type typeBeingBuilt, int indexStart, Type? contentType) =>
         new(typeof(AppendSummary), tos
           , new Range(Index.FromStart(indexStart), Index.FromStart(indexStart))
-          , WrittenAsFlags.Empty, VisitId.NoVisitRequiredId);
+          , Empty, VisitId.NoVisitRequiredId);
 
     public static AppendSummary UnregisteredAppend(this ITheOneString tos, Type typeBeingBuilt, int indexStart, int endAt
       , WrittenAsFlags writtenAs, Type? maybeContentType = null) =>
@@ -100,8 +101,8 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
     public int RevisitedInstanceId => PortableState.MoldGraphVisit.InstanceId;
     public VisitResult MoldVisit => PortableState.MoldGraphVisit;
 
-    public abstract void StartTypeOpening();
-    public abstract void FinishTypeOpening();
+    public abstract void StartTypeOpening(FormatFlags formatFlags);
+    public abstract void FinishTypeOpening(FormatFlags formatFlags);
 
     public bool BuildingInstanceEquals<T>(T check) => PortableState.InstanceOrContainer.Equals(check);
 
@@ -133,17 +134,23 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
 
     protected override void InheritedStateReset()
     {
-        PortableState.TypeBeingBuilt    = null!;
-        PortableState.TypeVisitedAs     = null!;
-        PortableState.Master            = null!;
-        PortableState.TypeName          = null!;
-        PortableState.CompleteResult    = null;
-        PortableState.CreateFormatFlags = DefaultCallerTypeFlags;
-        PortableState.MoldGraphVisit    = VisitResult.VisitNotChecked;
+        PortableState.TypeBeingBuilt      = null!;
+        PortableState.TypeVisitedAs       = null!;
+        PortableState.Master              = null!;
+        PortableState.TypeName            = null!;
+        PortableState.CompleteResult      = null;
+        PortableState.CreateFormatFlags   = DefaultCallerTypeFlags;
+        PortableState.MoldGraphVisit      = VisitResult.VisitNotChecked;
+        PortableState.WrittenAsFlags      = Empty;
+        PortableState.RemainingGraphDepth = int.MaxValue;
 
         if (PortableState.InstanceOrContainer is IRecyclableStructContainer recyclableStructContainer)
         {
             recyclableStructContainer.DecrementRefCount();
+        }
+        else
+        {
+            PortableState.InstanceOrContainer = null!;
         }
 
         OriginalStartIndex = -1;
@@ -201,12 +208,12 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
 
 public interface ITypeBuilderComponentSource
 {
-    ITypeMolderDieCast MoldState { get; }
+    IMoldWriteState MoldState { get; }
 }
 
 public interface IMigratableTypeBuilderComponentSource
 {
-    IMigratableTypeMolderDieCast MigratableMoldState { get; }
+    IMigratableMoldWriteState MigratableMoldState { get; }
 }
 
 public static class StyledTypeBuilderExtensions
@@ -214,28 +221,28 @@ public static class StyledTypeBuilderExtensions
     private static readonly ConcurrentDictionary<(Type, Type), Delegate> DynamicSpanFmtContentInvokers           = new();
     private static readonly ConcurrentDictionary<(Type, Type), Delegate> DynamicSpanFmtCollectionElementInvokers = new();
 
-    public static TExt AddGoToNext<TExt>(this ITypeMolderDieCast<TExt> mdc)
+    public static TExt AddGoToNext<TExt>(this IMoldWriteState<TExt> mdc, bool alwaysAddNextSeparator = false)
+        where TExt : TypeMolder
+    {
+        if (mdc.Sf.Gb.HasCommitContent || alwaysAddNextSeparator) { mdc.StyleFormatter.AddToNextFieldSeparatorAndPadding(); }
+        return mdc.Mold;
+    }
+
+    public static TExt AddGoToNext<TAny, TExt>(this TAny writtenAsFlags, IMoldWriteState<TExt> mdc)
         where TExt : TypeMolder
     {
         if (mdc.Sf.Gb.HasCommitContent) { mdc.StyleFormatter.AddToNextFieldSeparatorAndPadding(); }
         return mdc.Mold;
     }
 
-    public static TExt AddGoToNext<TAny, TExt>(this TAny writtenAsFlags, ITypeMolderDieCast<TExt> mdc)
-        where TExt : TypeMolder
-    {
-        if (mdc.Sf.Gb.HasCommitContent) { mdc.StyleFormatter.AddToNextFieldSeparatorAndPadding(); }
-        return mdc.Mold;
-    }
-
-    public static TExt AddGoToNext<TExt>(this AppendSummary appendSummary, ITypeMolderDieCast<TExt> mdc)
+    public static TExt AddGoToNext<TExt>(this AppendSummary appendSummary, IMoldWriteState<TExt> mdc)
         where TExt : TypeMolder
     {
         if (mdc.Sf.Gb.HasCommitContent || appendSummary.Length > 0) { mdc.StyleFormatter.AddToNextFieldSeparatorAndPadding(); }
         return mdc.Mold;
     }
 
-    public static TExt ToTypeBuilder<TExt, T>(this T _, ITypeMolderDieCast<TExt> typeBuilder)
+    public static TExt ToTypeBuilder<TExt, T>(this T _, IMoldWriteState<TExt> typeBuilder)
         where TExt : TypeMolder =>
         typeBuilder.Mold;
 
@@ -243,15 +250,15 @@ public static class StyledTypeBuilderExtensions
     public static IStringBuilder ToStringBuilder<T>(this T _, IStringBuilder sb) => sb;
 
 
-    public static ITypeMolderDieCast<TExt> ToInternalTypeBuilder<TExt, T>(this T _, ITypeMolderDieCast<TExt> typeBuilder)
+    public static IMoldWriteState<TExt> ToInternalTypeBuilder<TExt, T>(this T _, IMoldWriteState<TExt> typeBuilder)
         where TExt : TypeMolder =>
         typeBuilder;
 
-    public static ITypeMolderDieCast<TExt> AnyToCompAccess<TExt, T>(this T _, ITypeMolderDieCast<TExt> typeBuilder)
+    public static IMoldWriteState<TExt> AnyToCompAccess<TExt, T>(this T _, IMoldWriteState<TExt> typeBuilder)
         where TExt : TypeMolder =>
         typeBuilder;
 
-    public static AppendSummary AppendNullableBooleanField<TExt>(this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName
+    public static AppendSummary AppendNullableBooleanField<TExt>(this IMoldWriteState<TExt> mdc, ReadOnlySpan<char> fieldName
       , bool? value
       , string formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder
@@ -279,7 +286,7 @@ public static class StyledTypeBuilderExtensions
         return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
     }
 
-    public static WrittenAsFlags AppendFormattedOrNull<TExt>(this ITypeMolderDieCast<TExt> mdc, bool value, string formatString
+    public static WrittenAsFlags AppendFormattedOrNull<TExt>(this IMoldWriteState<TExt> mdc, bool value, string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder
     {
         formatFlags = mdc.StyleFormatter.ResolveContentFormatFlags(mdc.Sb, value, formatFlags, formatString);
@@ -288,7 +295,7 @@ public static class StyledTypeBuilderExtensions
             : mdc.StyleFormatter.FormatFieldContents(mdc, value, formatString, formatFlags);
     }
 
-    public static AppendSummary AppendBooleanField<TExt>(this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName, bool value
+    public static AppendSummary AppendBooleanField<TExt>(this IMoldWriteState<TExt> mdc, ReadOnlySpan<char> fieldName, bool value
       , string formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder
     {
@@ -304,7 +311,7 @@ public static class StyledTypeBuilderExtensions
         using (callContext) { return mdc.AppendFormatted(value, formatString, formatFlags); }
     }
 
-    public static AppendSummary AppendFormatted<TExt>(this ITypeMolderDieCast<TExt> mdc, bool value, string formatString
+    public static AppendSummary AppendFormatted<TExt>(this IMoldWriteState<TExt> mdc, bool value, string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder
     {
         formatFlags = mdc.StyleFormatter.ResolveContentFormatFlags(mdc.Sb, value, formatFlags, formatString);
@@ -320,7 +327,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static AppendSummary AppendFormattableField<TExt, TFmt>
-    (this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName, TFmt? value
+    (this IMoldWriteState<TExt> mdc, ReadOnlySpan<char> fieldName, TFmt? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder where TFmt : ISpanFormattable?
@@ -338,7 +345,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static AppendSummary AppendFormattedOrNull<TExt, TFmt>
-    (this ITypeMolderDieCast<TExt> mdc, TFmt? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
+    (this IMoldWriteState<TExt> mdc, TFmt? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder where TFmt : ISpanFormattable?
     {
@@ -365,7 +372,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     private static WrittenAsFlags AppendFormattedNoReferenceTracking<TFmt>
-    (this ITypeMolderDieCast mdc, TFmt? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
+    (this IMoldWriteState mdc, TFmt? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable?
     {
@@ -375,7 +382,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     private static AppendSummary AppendFormattedWithRefenceTracking<TFmt>
-    (this ITypeMolderDieCast mdc, TFmt? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
+    (this IMoldWriteState mdc, TFmt? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable?
     {
@@ -388,8 +395,9 @@ public static class StyledTypeBuilderExtensions
          && !typeof(TFmt).IsValueType)
         {
             var preAppendLength      = mdc.Sb.Length;
-            var registeredForRevisit = mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, formatFlags);
-            var writtenAsTracking    = WrittenAsFlags.Empty;
+            var registeredForRevisit = 
+                mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, AsRaw | AsContent, formatFlags);
+            var writtenAsTracking    = Empty;
             if (!registeredForRevisit.ShouldSuppressBody || mdc.Settings.InstanceMarkingIncludeSpanFormattableContents)
             {
                 if (!formatFlags.HasIsFieldNameFlag())
@@ -410,7 +418,7 @@ public static class StyledTypeBuilderExtensions
         return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
     }
 
-    public static AppendSummary DynamicReceiveAppendValue<TFmt>(ITypeMolderDieCast mdc, TFmt value, string formatString = ""
+    public static AppendSummary DynamicReceiveAppendValue<TFmt>(IMoldWriteState mdc, TFmt value, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable
     {
         formatFlags = mdc.StyleFormatter.ResolveContentFormatFlags(mdc.Sb, value, formatFlags, formatString);
@@ -426,7 +434,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static AppendSummary AppendFormattableField<TExt, TFmtStruct>
-    (this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName, TFmtStruct? value
+    (this IMoldWriteState<TExt> mdc, ReadOnlySpan<char> fieldName, TFmtStruct? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder where TFmtStruct : struct, ISpanFormattable
@@ -452,7 +460,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static WrittenAsFlags AppendNullableFormattedOrNull<TExt, TFmtStruct>
-    (this ITypeMolderDieCast<TExt> mdc, TFmtStruct? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
+    (this IMoldWriteState<TExt> mdc, TFmtStruct? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder where TFmtStruct : struct, ISpanFormattable
     {
@@ -464,7 +472,7 @@ public static class StyledTypeBuilderExtensions
             : mdc.StyleFormatter.FormatFieldContents(mdc, value, formatString, formatFlags);
     }
 
-    public static AppendSummary RevealCloakedBearerField<TCloaked, TCloakedBase, TExt>(this ITypeMolderDieCast<TExt> mdc
+    public static AppendSummary RevealCloakedBearerField<TCloaked, TCloakedBase, TExt>(this IMoldWriteState<TExt> mdc
       , ReadOnlySpan<char> fieldName, TCloaked value, PalantírReveal<TCloakedBase> cloakedRevealer, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TCloakedBase?
@@ -483,7 +491,7 @@ public static class StyledTypeBuilderExtensions
         using (callContext) { return mdc.RevealCloakedBearerOrNull(value, cloakedRevealer, formatString, formatFlags); }
     }
 
-    public static AppendSummary RevealCloakedBearerOrNull<TCloaked, TRevealBase, TExt>(this ITypeMolderDieCast<TExt> mdc
+    public static AppendSummary RevealCloakedBearerOrNull<TCloaked, TRevealBase, TExt>(this IMoldWriteState<TExt> mdc
       , TCloaked? value, PalantírReveal<TRevealBase> styler, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TExt : TypeMolder
@@ -502,7 +510,7 @@ public static class StyledTypeBuilderExtensions
         return mdc.StyleFormatter.FormatFieldContents(mdc, value, styler, formatString, formatFlags);
     }
 
-    public static AppendSummary RevealNullableCloakedBearerField<TCloakedStruct, TExt>(this ITypeMolderDieCast<TExt> mdc
+    public static AppendSummary RevealNullableCloakedBearerField<TCloakedStruct, TExt>(this IMoldWriteState<TExt> mdc
       , ReadOnlySpan<char> fieldName, TCloakedStruct? value, PalantírReveal<TCloakedStruct> cloakedRevealer
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct where TExt : TypeMolder
@@ -519,7 +527,7 @@ public static class StyledTypeBuilderExtensions
         using (callContext) { return mdc.RevealNullableCloakedBearerOrNull(value, cloakedRevealer, formatString, formatFlags); }
     }
 
-    public static AppendSummary RevealNullableCloakedBearerOrNull<TCloakedStruct, TExt>(this ITypeMolderDieCast<TExt> mdc
+    public static AppendSummary RevealNullableCloakedBearerOrNull<TCloakedStruct, TExt>(this IMoldWriteState<TExt> mdc
       , TCloakedStruct? value, PalantírReveal<TCloakedStruct> styler, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct where TExt : TypeMolder
@@ -536,7 +544,7 @@ public static class StyledTypeBuilderExtensions
         return mdc.StyleFormatter.FormatFieldContents(mdc, value.Value, styler, formatString, formatFlags);
     }
 
-    public static AppendSummary RevealStringBearerField<TExt, TBearer>(this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName
+    public static AppendSummary RevealStringBearerField<TExt, TBearer>(this IMoldWriteState<TExt> mdc, ReadOnlySpan<char> fieldName
       , TBearer value, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder where TBearer : IStringBearer?
     {
@@ -552,7 +560,7 @@ public static class StyledTypeBuilderExtensions
         using (callContext) { return mdc.RevealStringBearerOrNull(value, formatString, formatFlags); }
     }
 
-    public static AppendSummary RevealStringBearerOrNull<TExt, TBearer>(this ITypeMolderDieCast<TExt> mdc
+    public static AppendSummary RevealStringBearerOrNull<TExt, TBearer>(this IMoldWriteState<TExt> mdc
       , TBearer? value, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder
         where TBearer : IStringBearer?
@@ -568,7 +576,7 @@ public static class StyledTypeBuilderExtensions
         return mdc.StyleFormatter.FormatBearerFieldContents(mdc, value, formatString, formatFlags);
     }
 
-    public static AppendSummary RevealNullableStringBearerField<TExt, TBearerStruct>(this ITypeMolderDieCast<TExt> mdc
+    public static AppendSummary RevealNullableStringBearerField<TExt, TBearerStruct>(this IMoldWriteState<TExt> mdc
       , ReadOnlySpan<char> fieldName, TBearerStruct? value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder where TBearerStruct : struct, IStringBearer
     {
@@ -584,7 +592,7 @@ public static class StyledTypeBuilderExtensions
         using (callContext) { return mdc.RevealNullableStringBearerOrNull(value, formatString, formatFlags); }
     }
 
-    public static AppendSummary RevealNullableStringBearerOrNull<TExt, TBearerStruct>(this ITypeMolderDieCast<TExt> mdc
+    public static AppendSummary RevealNullableStringBearerOrNull<TExt, TBearerStruct>(this IMoldWriteState<TExt> mdc
       , TBearerStruct? value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder where TBearerStruct : struct, IStringBearer
     {
@@ -604,13 +612,13 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static WrittenAsFlags AppendReadOnlySpanField<TExt>
-    (this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName, ReadOnlySpan<char> value
+    (this IMoldWriteState<TExt> mdc, ReadOnlySpan<char> fieldName, ReadOnlySpan<char> value
       , string formatString = "", int fromIndex = 0, int length = int.MaxValue
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder
     {
         if (!mdc.Master.ContinueGivenFormattingFlags(formatFlags) || mdc.HasSkipField(typeof(ReadOnlySpan<char>), fieldName, formatFlags))
         {
-            return WrittenAsFlags.Empty;
+            return Empty;
         }
         mdc.FieldNameJoin(fieldName);
         var callContext = mdc.Master.ResolveContextForCallerFlags(formatFlags);
@@ -620,7 +628,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static WrittenAsFlags AppendFormattedOrNullOnZeroLength<TExt>
-    (this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> value
+    (this IMoldWriteState<TExt> mdc, ReadOnlySpan<char> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
       , int fromIndex = 0, int length = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder
     {
@@ -634,7 +642,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static AppendSummary AppendStringField<TExt>
-    (this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName, string? value
+    (this IMoldWriteState<TExt> mdc, ReadOnlySpan<char> fieldName, string? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
       , int fromIndex = 0, int length = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder
     {
@@ -650,7 +658,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static AppendSummary AppendFormattedOrNull<TExt>
-    (this ITypeMolderDieCast<TExt> mdc, string? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
+    (this IMoldWriteState<TExt> mdc, string? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
       , int fromIndex = 0, int length = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder
     {
@@ -672,7 +680,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     private static AppendSummary AppendFormattedWithRefenceTracking
-    (this ITypeMolderDieCast mdc, string value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
+    (this IMoldWriteState mdc, string value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , int fromIndex = 0, int length = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(string);
@@ -681,8 +689,8 @@ public static class StyledTypeBuilderExtensions
         if (!formatFlags.HasNoRevisitCheck() && mdc.Settings.InstanceTrackingIncludeStringInstances)
         {
             var preAppendLength      = mdc.Sb.Length;
-            var registeredForRevisit = mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, formatFlags);
-            var writtenAsTracking    = WrittenAsFlags.Empty;
+            var registeredForRevisit = mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, AsRaw | AsContent, formatFlags);
+            var writtenAsTracking    = Empty;
             if (!registeredForRevisit.ShouldSuppressBody || mdc.Settings.InstanceMarkingIncludeStringContents)
             {
                 if (!formatFlags.HasIsFieldNameFlag())
@@ -704,7 +712,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     private static WrittenAsFlags AppendFormattedNoReferenceTracking
-    (this ITypeMolderDieCast mdc, string value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
+    (this IMoldWriteState mdc, string value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , int fromIndex = 0, int length = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         formatFlags = mdc.StyleFormatter.ResolveContentFormatFlags(mdc.Sb, value, formatFlags, formatString);
@@ -715,7 +723,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static AppendSummary AppendCharArrayField<TExt>
-    (this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName, char[]? value
+    (this IMoldWriteState<TExt> mdc, ReadOnlySpan<char> fieldName, char[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
       , int fromIndex = 0, int length = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder
     {
@@ -732,7 +740,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static AppendSummary AppendFormattedOrNull<TExt>
-    (this ITypeMolderDieCast<TExt> mdc, char[]? value
+    (this IMoldWriteState<TExt> mdc, char[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = "", int fromIndex = 0, int length = int.MaxValue
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder
@@ -755,7 +763,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     private static AppendSummary AppendFormattedWithRefenceTracking
-    (this ITypeMolderDieCast mdc, char[] value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
+    (this IMoldWriteState mdc, char[] value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , int fromIndex = 0, int length = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(char[]);
@@ -764,8 +772,8 @@ public static class StyledTypeBuilderExtensions
         if (!formatFlags.HasNoRevisitCheck() && mdc.Settings.InstanceTrackingIncludeCharArrayInstances)
         {
             var preAppendLength      = mdc.Sb.Length;
-            var registeredForRevisit = mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, formatFlags);
-            var writtenAsTracking    = WrittenAsFlags.Empty;
+            var registeredForRevisit = mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, AsRaw | AsContent, formatFlags);
+            var writtenAsTracking    = Empty;
             if (!registeredForRevisit.ShouldSuppressBody || mdc.Settings.InstanceMarkingIncludeCharArrayContents)
             {
                 if (!formatFlags.HasIsFieldNameFlag())
@@ -787,7 +795,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     private static WrittenAsFlags AppendFormattedNoReferenceTracking
-    (this ITypeMolderDieCast mdc, char[] value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
+    (this IMoldWriteState mdc, char[] value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , int fromIndex = 0, int length = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         formatFlags = mdc.StyleFormatter.ResolveContentFormatFlags(mdc.Sb, value, formatFlags, formatString);
@@ -798,7 +806,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static AppendSummary AppendCharSequenceField<TExt, TCharSeq>
-    (this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName, TCharSeq? value
+    (this IMoldWriteState<TExt> mdc, ReadOnlySpan<char> fieldName, TCharSeq? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = "", int fromIndex = 0, int length = int.MaxValue
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder
@@ -817,7 +825,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static AppendSummary AppendFormattedOrNull<TExt, TCharSeq>
-    (this ITypeMolderDieCast<TExt> mdc, TCharSeq? value
+    (this IMoldWriteState<TExt> mdc, TCharSeq? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = "", int fromIndex = 0, int length = int.MaxValue
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder
@@ -845,7 +853,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     private static AppendSummary AppendFormattedWithRefenceTracking<TCharSeq>
-    (this ITypeMolderDieCast mdc, TCharSeq value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
+    (this IMoldWriteState mdc, TCharSeq value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , int fromIndex = 0, int length = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence
     {
@@ -855,8 +863,8 @@ public static class StyledTypeBuilderExtensions
         if (!formatFlags.HasNoRevisitCheck() && mdc.Settings.InstanceTrackingIncludeCharSequenceInstances)
         {
             var preAppendLength      = mdc.Sb.Length;
-            var registeredForRevisit = mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, formatFlags);
-            var writtenAsTracking    = WrittenAsFlags.Empty;
+            var registeredForRevisit = mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, AsRaw | AsContent, formatFlags);
+            var writtenAsTracking    = Empty;
             if (!registeredForRevisit.ShouldSuppressBody || mdc.Settings.InstanceMarkingIncludeCharSequenceContents)
             {
                 if (!formatFlags.HasIsFieldNameFlag())
@@ -878,7 +886,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     private static WrittenAsFlags AppendFormattedNoReferenceTracking<TCharSeq>
-    (this ITypeMolderDieCast mdc, TCharSeq value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
+    (this IMoldWriteState mdc, TCharSeq value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , int fromIndex = 0, int length = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence
     {
@@ -890,7 +898,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static AppendSummary AppendStringBuilderField<TExt>
-    (this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName, StringBuilder? value
+    (this IMoldWriteState<TExt> mdc, ReadOnlySpan<char> fieldName, StringBuilder? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = "", int fromIndex = 0, int length = int.MaxValue
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder
@@ -908,7 +916,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static AppendSummary AppendFormattedOrNull<TExt>
-    (this ITypeMolderDieCast<TExt> mdc, StringBuilder? value
+    (this IMoldWriteState<TExt> mdc, StringBuilder? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = "", int fromIndex = 0, int length = int.MaxValue
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder
@@ -931,7 +939,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     private static AppendSummary AppendFormattedWithRefenceTracking
-    (this ITypeMolderDieCast mdc, StringBuilder value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
+    (this IMoldWriteState mdc, StringBuilder value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , int fromIndex = 0, int length = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(StringBuilder);
@@ -940,8 +948,8 @@ public static class StyledTypeBuilderExtensions
         if (!formatFlags.HasNoRevisitCheck() && mdc.Settings.InstanceTrackingIncludeStringBuilderInstances)
         {
             var preAppendLength      = mdc.Sb.Length;
-            var registeredForRevisit = mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, formatFlags);
-            var writtenAsTracking    = WrittenAsFlags.Empty;
+            var registeredForRevisit = mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, AsRaw | AsContent, formatFlags);
+            var writtenAsTracking    = Empty;
             if (!registeredForRevisit.ShouldSuppressBody || mdc.Settings.InstanceMarkingIncludeStringBuilderContents)
             {
                 if (!formatFlags.HasIsFieldNameFlag())
@@ -963,7 +971,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     private static WrittenAsFlags AppendFormattedNoReferenceTracking
-    (this ITypeMolderDieCast mdc, StringBuilder value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
+    (this IMoldWriteState mdc, StringBuilder value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , int fromIndex = 0, int length = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         formatFlags = mdc.StyleFormatter.ResolveContentFormatFlags(mdc.Sb, value, formatFlags, formatString);
@@ -973,7 +981,7 @@ public static class StyledTypeBuilderExtensions
             : mdc.StyleFormatter.FormatFieldContents(mdc, value, cappedFrom, formatString, length, formatFlags);
     }
 
-    public static AppendSummary AppendObjectField<TExt>(this ITypeMolderDieCast<TExt> mdc, ReadOnlySpan<char> fieldName, object? value
+    public static AppendSummary AppendObjectField<TExt>(this IMoldWriteState<TExt> mdc, ReadOnlySpan<char> fieldName, object? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder
     {
@@ -988,7 +996,7 @@ public static class StyledTypeBuilderExtensions
         using (callContext) { return mdc.AppendMatchFormattedOrNull(value, formatString, formatFlags); }
     }
 
-    public static AppendSummary AppendMatchField<TExt, TAny>(this ITypeMolderDieCast<TExt> mdc
+    public static AppendSummary AppendMatchField<TExt, TAny>(this IMoldWriteState<TExt> mdc
       , ReadOnlySpan<char> fieldName, TAny value, string formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder
     {
@@ -1002,7 +1010,7 @@ public static class StyledTypeBuilderExtensions
         using (callContext) { return mdc.AppendMatchFormattedOrNull(value, formatString, formatFlags); }
     }
 
-    public static AppendSummary AppendMatchFormattedOrNull<TValue, TExt>(this ITypeMolderDieCast<TExt> mdc
+    public static AppendSummary AppendMatchFormattedOrNull<TValue, TExt>(this IMoldWriteState<TExt> mdc
       , TValue value, string formatString, FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder
     {
         var sb = mdc.Sb;
@@ -1109,7 +1117,8 @@ public static class StyledTypeBuilderExtensions
                         return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, fieldWrittenAs, actualType);
                     }
 
-                    if (unknownType.IsValueType || mdc.Master.IsCallerSameAsLastRegisteredVisit(value))
+                    // if (unknownType.IsValueType || mdc.Master.IsCallerSameAsLastRegisteredVisit(value))
+                    if (unknownType.IsValueType)
                     {
                         var startAt           = sb.Length;
                         var actualType        = value.GetType();
@@ -1126,7 +1135,7 @@ public static class StyledTypeBuilderExtensions
         return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, nullStartAt, sb.Length, writtenAsNull, typeof(TValue));
     }
 
-    public static AppendSummary AppendObjectFormatted<TExt>(this ITypeMolderDieCast<TExt> mdc
+    public static AppendSummary AppendObjectFormatted<TExt>(this IMoldWriteState<TExt> mdc
       , object value, string formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder
     {
@@ -1145,14 +1154,14 @@ public static class StyledTypeBuilderExtensions
         return result;
     }
 
-    private static AppendSummary AppendRegisteredObjectFormatted<TExt>(this ITypeMolderDieCast<TExt> mdc
+    private static AppendSummary AppendRegisteredObjectFormatted<TExt>(this IMoldWriteState<TExt> mdc
       , object value, string formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder
     {
         var actualType           = value.GetType();
         var preAppendLength      = mdc.Sb.Length;
-        var registeredForRevisit = mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, formatFlags);
-        var writtenAsTracking    = WrittenAsFlags.Empty;
+        var registeredForRevisit = mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, AsRaw | AsObject, formatFlags);
+        var writtenAsTracking    = Empty;
         if (!registeredForRevisit.ShouldSuppressBody || mdc.Settings.InstanceMarkingIncludeObjectToStringContents)
         {
             if (!formatFlags.HasIsFieldNameFlag())
@@ -1170,19 +1179,35 @@ public static class StyledTypeBuilderExtensions
         return stateExtractResult.AddWrittenAsFlags(writtenAsTracking);
     }
 
-    public static TExt AppendEmptyCollectionOrNull<TExt>(this ITypeMolderDieCast<TExt> mdc, Type elementType, Type collectionType
+    public static TExt AppendEmptyCollectionOrNull<TExt>(this IMoldWriteState<TExt> mdc, Type elementType, Type collectionType
       , int? matchedItemsCount = null, int? totalCheckedItemsCount = null, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool nullBecomesEmpty = true)
         where TExt : TypeMolder
     {
+        var previousWroteName = mdc.WroteOuterTypeName;
+        if (totalCheckedItemsCount != null)
+        {
+            if (collectionType == mdc.TypeBeingBuilt)
+            {
+                mdc.InnerSameAsOuterType = true;
+
+                formatFlags |= LogSuppressTypeNames | NoRevisitCheck;
+            }
+            mdc.WroteOuterTypeName = false;
+            mdc.Sf.StartSimpleTypeOpening(collectionType, mdc, AsSimple | WrittenAsFlags.AsCollection, formatFlags);
+            mdc.Sf.FinishSimpleTypeOpening(collectionType, mdc, AsSimple | WrittenAsFlags.AsCollection, formatFlags);
+            mdc.WroteOuterTypeName = previousWroteName;
+        }
+        previousWroteName      = mdc.WroteInnerTypeName;
+        mdc.WroteInnerTypeName = false;
         int? whenNull = nullBecomesEmpty ? 0 : null;
-        mdc.StyleFormatter.StartFormatCollectionOpen(mdc, elementType, totalCheckedItemsCount != null, collectionType, formatFlags);
-        mdc.StyleFormatter.FinishFormatCollectionOpen(mdc, elementType, totalCheckedItemsCount != null, collectionType, formatFlags);
-        mdc.StyleFormatter.FormatCollectionEnd(mdc, matchedItemsCount, elementType, totalCheckedItemsCount ?? whenNull, formatString, formatFlags);
+        mdc.StyleFormatter.AppendOpenCollection(mdc, elementType, totalCheckedItemsCount != null ? false : null, formatFlags);
+        mdc.StyleFormatter.AppendCloseCollection(mdc, matchedItemsCount, elementType, totalCheckedItemsCount ?? whenNull, formatString, formatFlags);
+        mdc.WroteInnerTypeName = previousWroteName;
         return mdc.Mold;
     }
 
-    public static TExt AppendEmptyCollectionOrNullAndGoToNext<TExt>(this ITypeMolderDieCast<TExt> mdc, Type elementType, Type collectionType
+    public static TExt AppendEmptyCollectionOrNullAndGoToNext<TExt>(this IMoldWriteState<TExt> mdc, Type elementType, Type collectionType
       , int? matchedItemsCount = null, int? totalCheckedItemsCount = null, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool nullBecomesEmpty = true)
         where TExt : TypeMolder
@@ -1192,7 +1217,7 @@ public static class StyledTypeBuilderExtensions
         return mdc.AddGoToNext();
     }
 
-    public static AppendSummary AppendFormattedCollectionItemMatchOrNull<TValue, TExt>(this ITypeMolderDieCast<TExt> mdc
+    public static AppendSummary AppendFormattedCollectionItemMatchOrNull<TValue, TExt>(this IMoldWriteState<TExt> mdc
       , TValue value, int retrieveCount, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder
     {
         var sb = mdc.Sb;
@@ -1302,7 +1327,7 @@ public static class StyledTypeBuilderExtensions
                           || mdc.Settings.InstanceTrackingIncludeSpanFormattableClasses))
                         {
                             var preAppendLength      = mdc.Sb.Length;
-                            var registeredForRevisit = mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, formatFlags);
+                            var registeredForRevisit = mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, AsRaw | AsContent, formatFlags);
                             if (!registeredForRevisit.ShouldSuppressBody
                              || (isSpanFormattableType && mdc.Settings.InstanceMarkingIncludeSpanFormattableContents))
                             {
@@ -1338,7 +1363,7 @@ public static class StyledTypeBuilderExtensions
     }
 
 
-    public static int FieldNameJoin(this ITypeMolderDieCast mdc, ReadOnlySpan<char> fieldName)
+    public static int FieldNameJoin(this IMoldWriteState mdc, ReadOnlySpan<char> fieldName)
     {
         var preAppendLen = mdc.Sb.Length;
         var sf           = mdc.StyleFormatter;
@@ -1353,7 +1378,7 @@ public static class StyledTypeBuilderExtensions
     }
 
 
-    public static int FieldNameWithDefaultJoin(this ITypeMolderDieCast mdc, ReadOnlySpan<char> fieldName, string onEmptyUseFieldName = "$values")
+    public static int FieldNameWithDefaultJoin(this IMoldWriteState mdc, ReadOnlySpan<char> fieldName, string onEmptyUseFieldName = "$values")
     {
         var preAppendLen = mdc.Sb.Length;
         var sf           = mdc.StyleFormatter;
@@ -1367,7 +1392,7 @@ public static class StyledTypeBuilderExtensions
         return mdc.Sb.Length - preAppendLen;
     }
 
-    public static int FieldEnd<TExt>(this ITypeMolderDieCast<TExt> mdc) where TExt : TypeMolder
+    public static int FieldEnd<TExt>(this IMoldWriteState<TExt> mdc) where TExt : TypeMolder
     {
         var preAppendLen = mdc.Sb.Length;
         var sf           = mdc.StyleFormatter;
@@ -1377,13 +1402,13 @@ public static class StyledTypeBuilderExtensions
         return mdc.Sb.Length - preAppendLen;
     }
 
-    public static void GoToNextCollectionItemStart<TExt>(this ITypeMolderDieCast<TExt> mdc, Type elementType, int elementAt) where TExt : TypeMolder
+    public static void GoToNextCollectionItemStart<TExt>(this IMoldWriteState<TExt> mdc, Type elementType, int elementAt) where TExt : TypeMolder
     {
         mdc.StyleFormatter.AddCollectionElementSeparatorAndPadding(mdc, elementType, elementAt + 1);
     }
 
     public static AppendSummary AppendFormattedCollectionItem<TExt>
-    (this ITypeMolderDieCast<TExt> mdc, bool value, int retrieveCount, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
+    (this IMoldWriteState<TExt> mdc, bool value, int retrieveCount, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder
     {
         var startAt    = mdc.Sb.Length;
@@ -1393,7 +1418,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static AppendSummary AppendFormattedCollectionItem<TExt>
-    (this ITypeMolderDieCast<TExt> mdc, bool? value, int retrieveCount, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
+    (this IMoldWriteState<TExt> mdc, bool? value, int retrieveCount, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder
     {
@@ -1404,14 +1429,14 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static AppendSummary AppendFormattedCollectionItem<TExt, TFmt>
-    (this ITypeMolderDieCast<TExt> mdc, TFmt value, int retrieveCount, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
+    (this IMoldWriteState<TExt> mdc, TFmt value, int retrieveCount, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder where TFmt : ISpanFormattable?
     {
         return mdc.StyleFormatter.CollectionNextItemFormat(mdc, value, retrieveCount, formatString, formatFlags);
     }
 
     public static AppendSummary AppendFormattedCollectionItem<TExt, TFmtStruct>
-    (this ITypeMolderDieCast<TExt> mdc, TFmtStruct? value, int retrieveCount
+    (this IMoldWriteState<TExt> mdc, TFmtStruct? value, int retrieveCount
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder where TFmtStruct : struct, ISpanFormattable
     {
@@ -1421,34 +1446,34 @@ public static class StyledTypeBuilderExtensions
         return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, mdc.Sb.Length, writtenAs, actualType);
     }
 
-    public static AppendSummary DynamicReceiveAppendFormattedCollectionItem<TFmt>(ITypeMolderDieCast mdc, TFmt? value
+    public static AppendSummary DynamicReceiveAppendFormattedCollectionItem<TFmt>(IMoldWriteState mdc, TFmt? value
       , int retrieveCount, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable =>
         mdc.StyleFormatter.CollectionNextItemFormat(mdc, value, retrieveCount, formatString, formatFlags);
 
     public static AppendSummary AppendFormattedCollectionItemOrNull<TExt>
-    (this ITypeMolderDieCast<TExt> mdc, string? value, int retrieveCount, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
+    (this IMoldWriteState<TExt> mdc, string? value, int retrieveCount, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder =>
         mdc.StyleFormatter.CollectionNextItemFormat(mdc, value, retrieveCount, formatString, formatFlags);
 
     public static AppendSummary AppendFormattedCollectionItemOrNull<TExt>
-    (this ITypeMolderDieCast<TExt> mdc, char[]? value, int retrieveCount, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
+    (this IMoldWriteState<TExt> mdc, char[]? value, int retrieveCount, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TExt : TypeMolder =>
         mdc.StyleFormatter.CollectionNextItemFormat(mdc, value, retrieveCount, formatString, formatFlags);
 
     public static AppendSummary AppendFormattedCollectionItemOrNull<TExt>
-    (this ITypeMolderDieCast<TExt> mdc, ICharSequence? value, int retrieveCount
+    (this IMoldWriteState<TExt> mdc, ICharSequence? value, int retrieveCount
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder =>
         mdc.StyleFormatter.CollectionNextCharSeqFormat(mdc, value, retrieveCount, formatString, formatFlags);
 
     public static AppendSummary AppendFormattedCollectionItemOrNull<TExt>
-    (this ITypeMolderDieCast<TExt> mdc, StringBuilder? value, int retrieveCount
+    (this IMoldWriteState<TExt> mdc, StringBuilder? value, int retrieveCount
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TExt : TypeMolder =>
         mdc.StyleFormatter.CollectionNextItemFormat(mdc, value, retrieveCount, formatString, formatFlags);
 
-    private delegate AppendSummary SpanFmtStructContentHandler<in TFmt>(ITypeMolderDieCast mdc, TFmt fmt
+    private delegate AppendSummary SpanFmtStructContentHandler<in TFmt>(IMoldWriteState mdc, TFmt fmt
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     // Invokes DynamicReceiveAppendValue without boxing to ISpanFormattable if the type receive already supports ISpanFormattable
@@ -1468,7 +1493,7 @@ public static class StyledTypeBuilderExtensions
         var helperMethod =
             new DynamicMethod
                 ($"{methodInfo.Name}_DynamicStructAppend", typeof(AppendSummary),
-                 [typeof(ITypeMolderDieCast), typeof(T), typeof(string), typeof(FormatFlags)]
+                 [typeof(IMoldWriteState), typeof(T), typeof(string), typeof(FormatFlags)]
                , typeof(StyledTypeBuilderExtensions).Module, false);
         var ilGenerator = helperMethod.GetILGenerator();
         ilGenerator.Emit(OpCodes.Ldarg_0);
@@ -1481,7 +1506,7 @@ public static class StyledTypeBuilderExtensions
         return (SpanFmtStructContentHandler<T>)methodInvoker;
     }
 
-    private delegate AppendSummary SpanFmtStructCollectionElementHandler<in TFmt>(ITypeMolderDieCast mdc
+    private delegate AppendSummary SpanFmtStructCollectionElementHandler<in TFmt>(IMoldWriteState mdc
       , TFmt fmt, int retrievalCount, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     // Invokes DynamicReceiveAppendFormattedCollectionItem without boxing to ISpanFormattable if the type receive already supports ISpanFormattable
@@ -1501,7 +1526,7 @@ public static class StyledTypeBuilderExtensions
         var helperMethod =
             new DynamicMethod
                 ($"{methodInfo.Name}_DynamicStructAppend", typeof(AppendSummary),
-                 [typeof(ITypeMolderDieCast), typeof(TFmt), typeof(int), typeof(string), typeof(FormatFlags)]
+                 [typeof(IMoldWriteState), typeof(TFmt), typeof(int), typeof(string), typeof(FormatFlags)]
                , typeof(StyledTypeBuilderExtensions).Module, true);
         var ilGenerator = helperMethod.GetILGenerator();
         ilGenerator.Emit(OpCodes.Ldarg_0);

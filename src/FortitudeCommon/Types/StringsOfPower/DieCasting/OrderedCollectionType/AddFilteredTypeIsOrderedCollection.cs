@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification.CollectionItemResult;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
@@ -19,12 +20,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(bool[]);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
+        if (mws.HasSkipBody(actualType, "", formatFlags))
         {
-            return stb.WasSkipped(actualType, "", formatFlags);
+            return mws.WasSkipped(actualType, "", formatFlags);
         }
         var elementType = typeof(bool);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -41,17 +44,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length, value?.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Length, value?.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered(bool?[]? value, OrderedCollectionPredicate<bool?> filterPredicate
@@ -59,9 +69,11 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(bool?[]);
-        if (stb.HasSkipBody(actualType, "", formatFlags)) return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(bool?);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -78,17 +90,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length, value?.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Length, value?.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered(Span<bool> value, OrderedCollectionPredicate<bool> filterPredicate
@@ -96,10 +115,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(Span<bool>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(bool);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -116,17 +137,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered(Span<bool?> value, OrderedCollectionPredicate<bool?> filterPredicate
@@ -134,10 +162,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(Span<bool?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(bool?);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -154,17 +184,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered(ReadOnlySpan<bool> value, OrderedCollectionPredicate<bool> filterPredicate
@@ -172,10 +209,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(ReadOnlySpan<bool>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(bool);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -192,17 +231,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered(ReadOnlySpan<bool?> value, OrderedCollectionPredicate<bool?> filterPredicate
@@ -210,10 +256,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(ReadOnlySpan<bool?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(bool?);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -230,17 +278,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered(IReadOnlyList<bool>? value, OrderedCollectionPredicate<bool> filterPredicate
@@ -248,10 +303,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<bool>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(bool);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -268,17 +325,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count, value?.Count, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Count, value?.Count, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered(IReadOnlyList<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
@@ -286,10 +350,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<bool?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(bool?);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -306,17 +372,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count, value?.Count, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Count, value?.Count, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredEnumerate(IEnumerable<bool>? value, OrderedCollectionPredicate<bool> filterPredicate
@@ -324,12 +397,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<bool>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(bool);
         var  any             = false;
         var  itemCount       = 0;
         int? collectionItems = null;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -349,18 +424,25 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredEnumerate(IEnumerable<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
@@ -368,12 +450,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<bool?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(bool?);
         var  any             = false;
         var  itemCount       = 0;
         int? collectionItems = null;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -393,18 +477,25 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredEnumerate(IEnumerator<bool>? value, OrderedCollectionPredicate<bool> filterPredicate
@@ -412,13 +503,15 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<bool>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(bool);
         var  any             = false;
         var  hasValue        = value?.MoveNext() ?? false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
+
+        TrackedInstanceMold? valueMold = null;
         if (hasValue)
         {
             formatString ??= "";
@@ -444,20 +537,26 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-
-                any = true;
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredEnumerate(IEnumerator<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
@@ -465,13 +564,15 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<bool?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(bool?);
         var  any             = false;
         var  hasValue        = value?.MoveNext() ?? false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
+
+        TrackedInstanceMold? valueMold = null;
         if (hasValue)
         {
             formatString ??= "";
@@ -497,20 +598,26 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-
-                any = true;
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered<TFmt, TFmtBase>(TFmt[]? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
@@ -519,10 +626,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TFmt : ISpanFormattable?, TFmtBase?
     {
         var actualType = value?.GetType() ?? typeof(TFmt[]);
-        if (stb.HasSkipBody(actualType, "", formatFlags)) 
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags)) 
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TFmt);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -539,17 +648,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length, value?.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Length, value?.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered<TFmtStruct>(TFmtStruct?[]? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
@@ -558,9 +674,11 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = value?.GetType() ?? typeof(TFmtStruct?[]);
-        if (stb.HasSkipBody(actualType, "", formatFlags)) return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TFmtStruct?);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -577,17 +695,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length, value?.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Length, value?.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered<TFmt, TFmtBase>(Span<TFmt> value, OrderedCollectionPredicate<TFmtBase> filterPredicate
@@ -596,10 +721,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TFmt : ISpanFormattable?, TFmtBase?
     {
         var actualType = typeof(Span<TFmt>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TFmt);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -616,17 +743,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered<TFmtStruct>(Span<TFmtStruct?> value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
@@ -635,10 +769,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = typeof(Span<TFmtStruct?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TFmtStruct?);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -655,17 +791,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered<TFmt, TFmtBase>(ReadOnlySpan<TFmt> value, OrderedCollectionPredicate<TFmtBase> filterPredicate
@@ -674,10 +817,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TFmt : ISpanFormattable?, TFmtBase?
     {
         var actualType = typeof(ReadOnlySpan<TFmt>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TFmt);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -694,17 +839,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered<TFmtStruct>(ReadOnlySpan<TFmtStruct?> value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
@@ -713,10 +865,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = typeof(ReadOnlySpan<TFmtStruct?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TFmtStruct?);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -733,17 +887,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered<TFmt, TFmtBase>(IReadOnlyList<TFmt>? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
@@ -752,10 +913,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TFmt : ISpanFormattable?, TFmtBase?
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TFmt?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TFmt);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -772,17 +935,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count, value?.Count, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Count, value?.Count, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered<TFmtStruct>(IReadOnlyList<TFmtStruct?>? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
@@ -791,10 +961,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TFmtStruct?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TFmtStruct?);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -811,17 +983,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count, value?.Count, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Count, value?.Count, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredEnumerate<TFmt, TFmtBase>(IEnumerable<TFmt?>? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
@@ -830,12 +1009,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TFmt : ISpanFormattable, TFmtBase
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TFmt?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(TFmt);
         var  any             = false;
         var  itemCount       = 0;
         int? collectionItems = null;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -855,18 +1036,25 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredEnumerate<TFmtStruct>(IEnumerable<TFmtStruct?>? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
@@ -875,12 +1063,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TFmtStruct?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(TFmtStruct?);
         var  any             = false;
         var  itemCount       = 0;
         int? collectionItems = null;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -900,18 +1090,25 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredEnumerate<TFmt, TFmtBase>(IEnumerator<TFmt>? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
@@ -920,13 +1117,15 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TFmt : ISpanFormattable?, TFmtBase?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TFmt?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(TFmt);
         var  any             = false;
         var  hasValue        = value?.MoveNext() ?? false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
+
+        TrackedInstanceMold? valueMold = null;
         if (hasValue)
         {
             formatString ??= "";
@@ -952,20 +1151,26 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-
-                any = true;
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredEnumerate<TFmtStruct>(IEnumerator<TFmtStruct?>? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
@@ -974,13 +1179,15 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TFmtStruct?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(TFmtStruct?);
         var  any             = false;
         var  hasValue        = value?.MoveNext() ?? false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
+
+        TrackedInstanceMold? valueMold = null;
         if (hasValue)
         {
             formatString ??= "";
@@ -1006,20 +1213,26 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-
-                any = true;
-                stb.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFiltered<TCloaked, TFilterBase, TRevealBase>(TCloaked[]? value
@@ -1031,9 +1244,11 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(TCloaked[]);
-        if (stb.HasSkipBody(actualType, "", formatFlags)) return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCloaked);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
@@ -1049,17 +1264,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length, value?.Length, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Length, value?.Length, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFiltered<TCloakedStruct>(TCloakedStruct?[]? value, OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
@@ -1068,10 +1290,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
     {
         var actualType = value?.GetType() ?? typeof(TCloakedStruct?[]);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCloakedStruct);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
@@ -1087,17 +1311,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length, value?.Length, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Length, value?.Length, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFiltered<TCloaked, TFilterBase, TRevealBase>(Span<TCloaked> value, OrderedCollectionPredicate<TFilterBase> filterPredicate
@@ -1108,10 +1339,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TRevealBase : notnull
     {
         var actualType = typeof(Span<TCloaked>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCloaked);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
@@ -1127,17 +1360,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFiltered<TCloakedStruct>(Span<TCloakedStruct?> value, OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
@@ -1146,10 +1386,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
     {
         var actualType = typeof(Span<TCloakedStruct?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCloakedStruct);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
@@ -1165,17 +1407,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFiltered<TCloaked, TFilterBase, TRevealBase>(ReadOnlySpan<TCloaked> value
@@ -1187,10 +1436,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TRevealBase : notnull
     {
         var actualType = typeof(ReadOnlySpan<TCloaked>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCloaked);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
@@ -1206,17 +1457,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFiltered<TCloakedStruct>(ReadOnlySpan<TCloakedStruct?> value
@@ -1226,10 +1484,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TCloakedStruct : struct
     {
         var actualType = typeof(ReadOnlySpan<TCloakedStruct?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCloakedStruct);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
@@ -1245,17 +1505,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>(IReadOnlyList<TCloaked?>? value
@@ -1266,10 +1533,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TCloakedRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TCloaked?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCloaked);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             for (var i = 0; i < value.Count; i++)
@@ -1285,17 +1554,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count, value?.Count, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Count, value?.Count, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFiltered<TCloakedStruct>(IReadOnlyList<TCloakedStruct?>? value,
@@ -1305,10 +1581,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TCloakedStruct?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCloakedStruct);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             for (var i = 0; i < value.Count; i++)
@@ -1324,17 +1602,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count, value?.Count, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Count, value?.Count, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFilteredEnumerate<TCloaked, TFilterBase, TRevealBase>(IEnumerable<TCloaked?>? value
@@ -1345,12 +1630,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TCloaked?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(TCloaked);
         var  any             = false;
         var  itemCount       = 0;
         int? collectionItems = null;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             var count     = 0;
@@ -1369,18 +1656,25 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFilteredEnumerate<TCloakedStruct>(IEnumerable<TCloakedStruct?>? value
@@ -1390,12 +1684,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TCloakedStruct : struct
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TCloakedStruct?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(TCloakedStruct);
         var  any             = false;
         var  itemCount       = 0;
         int? collectionItems = null;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             var count     = 0;
@@ -1414,18 +1710,25 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFilteredEnumerate<TCloaked, TCloakedFilterBase, TCloakedRevealBase>(IEnumerator<TCloaked?>? value
@@ -1436,13 +1739,15 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TCloakedRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TCloaked?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(TCloaked);
         var  any             = false;
         var  hasValue        = value?.MoveNext() ?? false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
+
+        TrackedInstanceMold? valueMold = null;
         if (hasValue)
         {
             var count     = 0;
@@ -1467,20 +1772,26 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-
-                any = true;
-                stb.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFilteredEnumerate<TCloakedStruct>(IEnumerator<TCloakedStruct?>? value
@@ -1490,13 +1801,15 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TCloakedStruct : struct
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TCloakedStruct?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(TCloakedStruct);
         var  any             = false;
         var  hasValue        = value?.MoveNext() ?? false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
+
+        TrackedInstanceMold? valueMold = null;
         if (hasValue)
         {
             var count     = 0;
@@ -1521,20 +1834,26 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-
-                any = true;
-                stb.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFiltered<TBearer, TBearerBase>(TBearer[]? value, OrderedCollectionPredicate<TBearerBase> filterPredicate
@@ -1543,10 +1862,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TBearer : IStringBearer?, TBearerBase?
     {
         var actualType = value?.GetType() ?? typeof(TBearer[]);
-        if (stb.HasSkipBody(actualType, "", formatFlags)) 
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags)) 
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TBearer);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
@@ -1562,17 +1883,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length, value?.Length, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Length, value?.Length, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFiltered<TBearerStruct>(TBearerStruct?[]? value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate
@@ -1581,10 +1909,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TBearerStruct : struct, IStringBearer
     {
         var actualType = value?.GetType() ?? typeof(TBearerStruct?[]);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TBearerStruct);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
@@ -1600,17 +1930,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length, value?.Length, formatString ?? "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Length, value?.Length, formatString ?? "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFiltered<TBearer, TBearerBase>(Span<TBearer> value, OrderedCollectionPredicate<TBearerBase> filterPredicate
@@ -1619,10 +1956,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TBearer : IStringBearer?, TBearerBase?
     {
         var actualType = typeof(Span<TBearer>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TBearer);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
@@ -1638,17 +1977,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFiltered<TBearerStruct>(Span<TBearerStruct?> value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate
@@ -1657,10 +2003,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TBearerStruct : struct, IStringBearer
     {
         var actualType = typeof(Span<TBearerStruct?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TBearerStruct);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
@@ -1676,17 +2024,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFiltered<TBearer, TBearerBase>(ReadOnlySpan<TBearer> value, OrderedCollectionPredicate<TBearerBase> filterPredicate
@@ -1695,10 +2050,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TBearer : IStringBearer?, TBearerBase?
     {
         var actualType = typeof(ReadOnlySpan<TBearer>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TBearer);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
@@ -1714,17 +2071,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFiltered<TBearerStruct>(ReadOnlySpan<TBearerStruct?> value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate
@@ -1733,10 +2097,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TBearerStruct : struct, IStringBearer
     {
         var actualType = typeof(ReadOnlySpan<TBearerStruct?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TBearerStruct);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             for (var i = 0; i < value.Length; i++)
@@ -1752,17 +2118,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFiltered<TBearer, TBearerBase>(IReadOnlyList<TBearer>? value, OrderedCollectionPredicate<TBearerBase> filterPredicate
@@ -1771,10 +2144,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TBearer : IStringBearer?, TBearerBase?
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TBearer>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TBearer);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             for (var i = 0; i < value.Count; i++)
@@ -1790,17 +2165,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count, value?.Count, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Count, value?.Count, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFiltered<TBearerStruct>(IReadOnlyList<TBearerStruct?>? value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate
@@ -1809,10 +2191,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TBearerStruct : struct, IStringBearer
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TBearerStruct?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TBearerStruct);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             for (var i = 0; i < value.Count; i++)
@@ -1828,17 +2212,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count, value?.Count, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Count, value?.Count, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFilteredEnumerate<TBearer, TBearerBase>(IEnumerable<TBearer>? value
@@ -1848,12 +2239,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TBearer : IStringBearer?, TBearerBase?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TBearer>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(TBearer);
         var  any             = false;
         var  itemCount       = 0;
         int? collectionItems = null;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             var count     = 0;
@@ -1872,18 +2265,25 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFilteredEnumerate<TBearerStruct>(IEnumerable<TBearerStruct?>? value
@@ -1893,12 +2293,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TBearerStruct : struct, IStringBearer
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TBearerStruct?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(TBearerStruct);
         var  any             = false;
         var  itemCount       = 0;
         int? collectionItems = null;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             var count     = 0;
@@ -1917,18 +2319,25 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFilteredEnumerate<TBearer, TBearerBase>(IEnumerator<TBearer?>? value
@@ -1938,13 +2347,15 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TBearer : IStringBearer, TBearerBase
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TBearer?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(TBearer);
         var  any             = false;
         var  hasValue        = value?.MoveNext() ?? false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
+
+        TrackedInstanceMold? valueMold = null;
         if (hasValue)
         {
             var count     = 0;
@@ -1969,20 +2380,26 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-
-                any = true;
-                stb.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold RevealFilteredEnumerate<TBearerStruct>(IEnumerator<TBearerStruct?>? value
@@ -1992,13 +2409,15 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TBearerStruct : struct, IStringBearer
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TBearerStruct?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(TBearerStruct);
         var  any             = false;
         var  hasValue        = value?.MoveNext() ?? false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
+
+        TrackedInstanceMold? valueMold = null;
         if (hasValue)
         {
             var count     = 0;
@@ -2023,20 +2442,26 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-
-                any = true;
-                stb.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, "", formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered(string?[]? value, OrderedCollectionPredicate<string> filterPredicate
@@ -2044,9 +2469,11 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(string?[]);
-        if (stb.HasSkipBody(actualType, "", formatFlags)) return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(string);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -2063,17 +2490,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length, value?.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Length, value?.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered(Span<string> value, OrderedCollectionPredicate<string> filterPredicate
@@ -2081,10 +2515,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(Span<string>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(string);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -2101,17 +2537,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredNullable(Span<string?> value, OrderedCollectionPredicate<string> filterPredicate
@@ -2119,10 +2562,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(Span<string?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(string);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -2139,17 +2584,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered(ReadOnlySpan<string> value, OrderedCollectionPredicate<string> filterPredicate
@@ -2157,10 +2609,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(ReadOnlySpan<string>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(string);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -2177,17 +2631,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredNullable(ReadOnlySpan<string?> value, OrderedCollectionPredicate<string> filterPredicate
@@ -2195,10 +2656,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(ReadOnlySpan<string?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(string);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -2215,17 +2678,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered(IReadOnlyList<string?>? value, OrderedCollectionPredicate<string> filterPredicate
@@ -2233,10 +2703,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<string?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(string);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -2253,17 +2725,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count, value?.Count, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Count, value?.Count, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredEnumerate(IEnumerable<string?>? value, OrderedCollectionPredicate<string> filterPredicate
@@ -2271,12 +2750,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<string?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(string);
         var  any             = false;
         var  itemCount       = 0;
         int? collectionItems = null;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -2296,18 +2777,25 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
 
@@ -2316,13 +2804,15 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<string?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(string);
         var  any             = false;
         var  hasValue        = value?.MoveNext() ?? false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
+
+        TrackedInstanceMold? valueMold = null;
         if (hasValue)
         {
             formatString ??= "";
@@ -2348,20 +2838,26 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-
-                any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredCharSeq<TCharSeq, TCharSeqBase>(TCharSeq[]? value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
@@ -2370,10 +2866,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TCharSeq : ICharSequence?, TCharSeqBase?
     {
         var actualType = value?.GetType() ?? typeof(TCharSeq[]);
-        if (stb.HasSkipBody(actualType, "", formatFlags)) 
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags)) 
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCharSeq);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -2390,17 +2888,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length, value?.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Length, value?.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredCharSeq<TCharSeq, TCharSeqBase>(Span<TCharSeq> value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
@@ -2409,10 +2914,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TCharSeq : ICharSequence?, TCharSeqBase?
     {
         var actualType = typeof(Span<TCharSeq>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCharSeq);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -2429,17 +2936,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredCharSeq<TCharSeq, TCharSeqBase>(ReadOnlySpan<TCharSeq> value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
@@ -2448,10 +2962,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TCharSeq : ICharSequence?, TCharSeqBase?
     {
         var actualType = typeof(ReadOnlySpan<TCharSeq>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCharSeq);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -2468,17 +2984,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredCharSeq<TCharSeq, TCharSeqBase>(IReadOnlyList<TCharSeq>? value
@@ -2488,10 +3011,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TCharSeq : ICharSequence?, TCharSeqBase?
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TCharSeq>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TCharSeq);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -2508,17 +3033,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count, value?.Count, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Count, value?.Count, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredCharSeqEnumerate<TCharSeq, TCharSeqBase>(IEnumerable<TCharSeq?>? value
@@ -2528,12 +3060,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TCharSeq : ICharSequence, TCharSeqBase
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TCharSeq?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(TCharSeq);
         var  any             = false;
         var  itemCount       = 0;
         int? collectionItems = null;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -2553,18 +3087,25 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
 
@@ -2575,13 +3116,15 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TCharSeq : ICharSequence, TCharSeqBase
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TCharSeq?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(TCharSeq);
         var  any             = false;
         var  hasValue        = value?.MoveNext() ?? false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
+
+        TrackedInstanceMold? valueMold = null;
         if (hasValue)
         {
             formatString ??= "";
@@ -2607,20 +3150,26 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-
-                any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
                 hasValue = value.MoveNext();
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered(StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
@@ -2628,10 +3177,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(StringBuilder?[]);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -2648,17 +3199,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length, value?.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Length, value?.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
 
@@ -2667,10 +3225,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(Span<StringBuilder>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -2687,17 +3247,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
 
@@ -2706,10 +3273,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(Span<StringBuilder?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -2726,17 +3295,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered(ReadOnlySpan<StringBuilder> value, OrderedCollectionPredicate<StringBuilder> filterPredicate
@@ -2744,10 +3320,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(ReadOnlySpan<StringBuilder>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -2764,17 +3342,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredNullable(ReadOnlySpan<StringBuilder?> value, OrderedCollectionPredicate<StringBuilder> filterPredicate
@@ -2782,10 +3367,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(ReadOnlySpan<StringBuilder?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -2802,17 +3389,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered(IReadOnlyList<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
@@ -2820,10 +3414,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<StringBuilder?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -2840,17 +3436,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count, value?.Count, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold,  elementType, value?.Count, value?.Count, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredEnumerate(IEnumerable<StringBuilder?>? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
@@ -2858,12 +3461,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<StringBuilder?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(StringBuilder);
         var  any             = false;
         var  itemCount       = 0;
         int? collectionItems = null;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -2883,18 +3488,25 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
 
@@ -2903,13 +3515,15 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<StringBuilder?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(StringBuilder);
         var  any             = false;
         var  hasValue        = value?.MoveNext() ?? false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
+
+        TrackedInstanceMold? valueMold = null;
         if (hasValue)
         {
             formatString ??= "";
@@ -2935,20 +3549,26 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-
-                any = true;
-                stb.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredMatch<TAny, TAnyBase>(TAny[]? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
@@ -2957,10 +3577,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TAny : TAnyBase?
     {
         var actualType = value?.GetType() ?? typeof(TAny[]);
-        if (stb.HasSkipBody(actualType, "", formatFlags)) 
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags)) 
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TAny);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -2977,17 +3599,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length, value?.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Length, value?.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredMatch<TAny, TAnyBase>(Span<TAny> value, OrderedCollectionPredicate<TAnyBase> filterPredicate
@@ -2995,10 +3624,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TAny : TAnyBase?
     {
         var actualType = typeof(Span<TAny>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TAny);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -3015,17 +3646,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredMatch<TAny, TAnyBase>(ReadOnlySpan<TAny> value, OrderedCollectionPredicate<TAnyBase> filterPredicate
@@ -3033,10 +3671,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TAny : TAnyBase?
     {
         var actualType = typeof(ReadOnlySpan<TAny>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TAny);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -3053,17 +3693,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredMatch<TAny, TAnyBase>(IReadOnlyList<TAny>? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
@@ -3072,10 +3719,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TAny : TAnyBase?
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TAny?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(TAny);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -3092,17 +3741,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count, value?.Count, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Count, value?.Count, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredMatchEnumerate<TAny, TAnyBase>(IEnumerable<TAny?>? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
@@ -3110,12 +3766,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TAny : TAnyBase
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TAny?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(TAny);
         var  any             = false;
         var  itemCount       = 0;
         int? collectionItems = null;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -3135,18 +3793,25 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFilteredMatchEnumerate<TAny, TAnyBase>(IEnumerator<TAny?>? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
@@ -3154,13 +3819,15 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TAny : TAnyBase?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TAny?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(TAny);
         var  any             = false;
         var  hasValue        = value?.MoveNext() ?? false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
+
+        TrackedInstanceMold? valueMold = null;
         if (hasValue)
         {
             formatString ??= "";
@@ -3186,19 +3853,26 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     [CallsObjectToString]
@@ -3207,9 +3881,11 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(object?[]);
-        if (stb.HasSkipBody(actualType, "", formatFlags)) return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(object);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -3226,17 +3902,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Length, value?.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Length, value?.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     [CallsObjectToString]
@@ -3245,10 +3928,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(Span<object>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(object);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -3265,17 +3950,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     [CallsObjectToString]
@@ -3284,10 +3976,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(Span<object?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(object);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -3304,17 +3998,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     [CallsObjectToString]
@@ -3323,10 +4024,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(ReadOnlySpan<object>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(object);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -3343,17 +4046,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     [CallsObjectToString]
@@ -3362,10 +4072,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(ReadOnlySpan<object?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(object);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -3382,17 +4094,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value.Length, value.Length, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value.Length, value.Length, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     [CallsObjectToString]
@@ -3401,10 +4120,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<object?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(object);
         var any         = false;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -3421,17 +4142,24 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, i);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         }
-        stb.ConditionalCollectionSuffix(elementType, value?.Count, value?.Count, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value?.Count, value?.Count, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     [CallsObjectToString]
@@ -3440,12 +4168,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<object?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(object);
         var  any             = false;
         var  itemCount       = 0;
         int? collectionItems = null;
+
+        TrackedInstanceMold? valueMold = null;
         if (value != null)
         {
             formatString ??= "";
@@ -3465,18 +4195,25 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     [CallsObjectToString]
@@ -3485,13 +4222,15 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<object?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (mws.HasSkipBody(actualType, "", formatFlags))
+            return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(object);
         var  any             = false;
         var  hasValue        = value?.MoveNext() ?? false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
+
+        TrackedInstanceMold? valueMold = null;
         if (hasValue)
         {
             formatString ??= "";
@@ -3517,19 +4256,25 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                     }
                     break;
                 }
-
-                if (!any) stb.ConditionalCollectionPrefix(elementType, true);
-                any = true;
-                stb.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString, formatFlags);
-                stb.GoToNextCollectionItemStart(elementType, itemCount++);
+                if (!any)
+                {
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
+                    any       = true;
+                    if (valueMold?.ShouldSuppressBody == true)
+                    {
+                        break;
+                    }
+                }
+                mws.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) stb.ConditionalCollectionPrefix(elementType, false);
+            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
-        stb.ConditionalCollectionSuffix(elementType, itemCount, collectionItems, formatString, formatFlags);
-        return stb.SupportsMultipleFields ? stb.AddGoToNext() : stb.Mold;
+        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 }

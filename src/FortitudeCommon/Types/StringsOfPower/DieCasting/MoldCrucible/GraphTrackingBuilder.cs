@@ -146,7 +146,7 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
         currentSectionRanges.AllowEmptyContent      = allowEmptyContent;
     }
 
-    public void AddHighWaterMark(bool withContent = true)
+    public ContentSeparatorRanges AddHighWaterMark(bool withContent = true)
     {
         if (CurrentSectionRanges.HasContent || CurrentSectionRanges.HasSeparator || CurrentSectionRanges.HasPadding)
         {
@@ -157,6 +157,7 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
             (FormatFlags.DefaultCallerTypeFlags, new Range(startIndex, Index.End)); // Empty content Range stops penultimate seperator/padding removal.
         PenUltimateContentSeparatorPaddingRanges = LastContentSeparatorPaddingRanges;
         LastContentSeparatorPaddingRanges        = highWaterMark;
+        return highWaterMark;
     }
 
     public GraphTrackingBuilder StartNextContentSeparatorPaddingSequence(IStringBuilder writeBuffer, FormatFlags formatFlags

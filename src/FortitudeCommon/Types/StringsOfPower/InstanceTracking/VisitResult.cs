@@ -24,7 +24,9 @@ public record struct VisitResult
 
     public bool IsARevisit { get; set; } = InstanceId > 0 && !IsBaseOfInitial && FirstInstanceMatchVisitIndex >= 0;
 
-    public static readonly VisitResult VisitNotChecked = new (VisitId.NoVisitCheckPerformedId, VisitId.NoVisitRequiredId);
+    public static readonly VisitResult VisitCheckNotRequired = new (VisitId.NoVisitRequiredId, VisitId.NoVisitRequiredId);
+    
+    public static readonly VisitResult VisitNotChecked = new (VisitId.NoVisitCheckPerformedId, VisitId.NoVisitCheckPerformedId);
 
     public override string ToString() => 
         $"VisitResult {{{nameof(VisitId)}: {VisitId.ToString()}, {nameof(RequesterVisitId)}: {RequesterVisitId.ToString()}," +
