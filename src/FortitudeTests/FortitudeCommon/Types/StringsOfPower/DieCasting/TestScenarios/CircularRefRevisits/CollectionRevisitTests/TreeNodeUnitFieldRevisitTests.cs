@@ -53,15 +53,17 @@ public class TreeNodeCollectionFieldRevisitTests : CommonStyleExpectationTestBas
                 {
                     { new EK( AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        (OrderedParentNodeAsSimpleCollection<IChildNode>($id: 1)) [
-                         (OrderedParentNodeAsSimpleCollection<IChildNode>($ref: 1))
+                        (OrderedParentNodeAsSimpleCollection<IChildNode>($id: 1)) (List<IChildNode>) [
+                         (OrderedParentNodeAsSimpleCollection<IChildNode>) { $ref: 1 }
                          ]
                         """.RemoveLineEndings()
                     }
                    , { new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                        , """
-                         (OrderedParentNodeAsSimpleCollection<IChildNode>($id: 1)) [
-                           (OrderedParentNodeAsSimpleCollection<IChildNode>($ref: 1))
+                         (OrderedParentNodeAsSimpleCollection<IChildNode>($id: 1)) (List<IChildNode>) [
+                           (OrderedParentNodeAsSimpleCollection<IChildNode>) {
+                             $ref: 1
+                           }
                          ]
                          """.Dos2Unix()
                     }
@@ -138,11 +140,11 @@ public class TreeNodeCollectionFieldRevisitTests : CommonStyleExpectationTestBas
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        OrderedBranchNodeAsComplexCollection<IChildNode> {
+                        (OrderedBranchNodeAsComplexCollection<IChildNode>) {
                          $id: 1,
-                         $values: [
-                         OrderedBranchNodeAsComplexCollection<IChildNode> {
-                         $values: [
+                         (List<IChildNode>) $values: [
+                         (OrderedBranchNodeAsComplexCollection<IChildNode>) {
+                         (List<IChildNode>) $values: [
                          LeafNode {
                          LeafInstanceId: 1,
                          Name: "DuelReferenceLeaf",
@@ -152,7 +154,7 @@ public class TreeNodeCollectionFieldRevisitTests : CommonStyleExpectationTestBas
                          }
                          ],
                          BranchInstanceId: 1,
-                         Parent: (OrderedBranchNodeAsComplexCollection<IChildNode>($ref: 1))
+                         Parent: (OrderedBranchNodeAsComplexCollection<IChildNode>) { $ref: 1 }
                          }
                          ],
                          BranchInstanceId: 2
@@ -163,11 +165,11 @@ public class TreeNodeCollectionFieldRevisitTests : CommonStyleExpectationTestBas
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        OrderedBranchNodeAsComplexCollection<IChildNode> {
+                        (OrderedBranchNodeAsComplexCollection<IChildNode>) {
                           $id: 1,
-                          $values: [
-                            OrderedBranchNodeAsComplexCollection<IChildNode> {
-                              $values: [
+                          (List<IChildNode>) $values: [
+                            (OrderedBranchNodeAsComplexCollection<IChildNode>) {
+                              (List<IChildNode>) $values: [
                                 LeafNode {
                                   LeafInstanceId: 1,
                                   Name: "DuelReferenceLeaf",
@@ -177,7 +179,9 @@ public class TreeNodeCollectionFieldRevisitTests : CommonStyleExpectationTestBas
                                 }
                               ],
                               BranchInstanceId: 1,
-                              Parent: (OrderedBranchNodeAsComplexCollection<IChildNode>($ref: 1))
+                              Parent: (OrderedBranchNodeAsComplexCollection<IChildNode>) {
+                                $ref: 1
+                              }
                             }
                           ],
                           BranchInstanceId: 2
@@ -267,8 +271,7 @@ public class TreeNodeCollectionFieldRevisitTests : CommonStyleExpectationTestBas
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        BinaryBranchNodeAsComplexCollection<LeafNode>
-                         {
+                        BinaryBranchNodeAsComplexCollection<LeafNode> {
                          Name: "SameOnLeftAndRight",
                          GlobalNodeInstanceId: 2,
                          NodeType: NodeType.BranchNode,
@@ -404,8 +407,8 @@ public class TreeNodeCollectionFieldRevisitTests : CommonStyleExpectationTestBas
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        OrderedBranchNodeAsComplexCollection<LeafNode> {
-                         $values: [
+                        (OrderedBranchNodeAsComplexCollection<LeafNode>) {
+                         (List<LeafNode>) $values: [
                          LeafNode {
                          $id: 1,
                          LeafInstanceId: 1,
@@ -429,8 +432,8 @@ public class TreeNodeCollectionFieldRevisitTests : CommonStyleExpectationTestBas
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        OrderedBranchNodeAsComplexCollection<LeafNode> {
-                          $values: [
+                        (OrderedBranchNodeAsComplexCollection<LeafNode>) {
+                          (List<LeafNode>) $values: [
                             LeafNode {
                               $id: 1,
                               LeafInstanceId: 1,
@@ -546,8 +549,8 @@ public class TreeNodeCollectionFieldRevisitTests : CommonStyleExpectationTestBas
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        OrderedBranchNodeAsComplexCollection<LeafNode> {
-                         $values: [
+                        (OrderedBranchNodeAsComplexCollection<LeafNode>) {
+                         (List<LeafNode>) $values: [
                          LeafNode {
                          $id: 1,
                          LeafInstanceId: 1,
@@ -590,8 +593,8 @@ public class TreeNodeCollectionFieldRevisitTests : CommonStyleExpectationTestBas
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        OrderedBranchNodeAsComplexCollection<LeafNode> {
-                          $values: [
+                        (OrderedBranchNodeAsComplexCollection<LeafNode>) {
+                          (List<LeafNode>) $values: [
                             LeafNode {
                               $id: 1,
                               LeafInstanceId: 1,
@@ -764,8 +767,8 @@ public class TreeNodeCollectionFieldRevisitTests : CommonStyleExpectationTestBas
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        OrderedBranchNodeAsComplexCollection<AlwaysEmptyNode> {
-                         $values: [
+                        (OrderedBranchNodeAsComplexCollection<AlwaysEmptyNode>) {
+                         (List<AlwaysEmptyNode>) $values: [
                          AlwaysEmptyNode {
                          $id: 1
                          },
@@ -793,8 +796,8 @@ public class TreeNodeCollectionFieldRevisitTests : CommonStyleExpectationTestBas
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        OrderedBranchNodeAsComplexCollection<AlwaysEmptyNode> {
-                          $values: [
+                        (OrderedBranchNodeAsComplexCollection<AlwaysEmptyNode>) {
+                          (List<AlwaysEmptyNode>) $values: [
                             AlwaysEmptyNode {
                               $id: 1
                             },

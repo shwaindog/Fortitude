@@ -3,7 +3,6 @@
 
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
-using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 
@@ -17,12 +16,12 @@ public class ContentJoinTypeMold<TFromMold, TToMold> : KnownTypeMolder<TToMold>,
 
     public override bool IsComplexType => initialWasComplex || wasUpgradedToComplexType;
 
-    public override void StartFormattingTypeOpening(IStyledTypeFormatting usingFormatter)
+    public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
     {
         throw new NotImplementedException("Should never be called!");
     }
 
-    public override void CompleteTypeOpeningToTypeFields(IStyledTypeFormatting usingFormatter)
+    public override void FinishTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
     {
         throw new NotImplementedException("Should never be called!");
     }
@@ -30,7 +29,6 @@ public class ContentJoinTypeMold<TFromMold, TToMold> : KnownTypeMolder<TToMold>,
     public override void AppendClosing()
     {
         var sf = MoldStateField.Sf;
-        var gb = sf.Gb;
         
         var shouldSwitchEncoders = wasUpgradedToComplexType && sf.ContentEncoder.Type != sf.LayoutEncoder.Type;
 
@@ -38,8 +36,14 @@ public class ContentJoinTypeMold<TFromMold, TToMold> : KnownTypeMolder<TToMold>,
         {
             sf = sf.PreviousContextOrThis;
         }
-        if (IsComplexType) { sf.AppendComplexTypeClosing(MoldStateField); }
-        else { sf.AppendContentTypeClosing(MoldStateField); }
+        if (MoldStateField.CurrentWriteMethod.SupportsMultipleFields())
+        {
+            sf.AppendComplexTypeClosing(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CurrentWriteMethod);
+        }
+        else
+        {
+            sf.AppendSimpleTypeClosing(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CurrentWriteMethod);
+        }
     }
 
     public ITransferState CopyFrom(ITransferState source, CopyMergeFlags copyMergeFlags)

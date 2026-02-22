@@ -11,6 +11,7 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations.ScaffoldingStringBuilderInvokeFlags;
 
 #pragma warning disable CS8714 // The type cannot be used as type parameter in the generic type or method. Nullability of type argument doesn't match 'notnull' constraint.
 
@@ -222,7 +223,10 @@ public class CloakedOrderedListExpect<TChildScaffoldListElement, TFilterBase, TR
          && !expectValue.SequenceMatches("null") && !expectValue.SequenceMatches(""))
         {
             expectValue = WhenValueExpectedOutput
-                (sbFactory, tos, (calledValueType ?? typeof(TChildScaffoldListElement))
+                (sbFactory, tos
+               , InputIsNull & !(condition.HasAnyOf(CallsAsReadOnlySpan | CallsAsSpan)) 
+                     ? null 
+                     : (calledValueType ?? typeof(TChildScaffoldListElement))
                , RevealerScaffold?.PropertyName ?? "NoRevealerScaffold", condition, FieldValueExpectation);
         }
         return expectValue;

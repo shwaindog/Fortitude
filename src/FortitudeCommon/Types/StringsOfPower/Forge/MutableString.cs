@@ -101,55 +101,34 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     }
     public int MaxCapacity => sb.MaxCapacity;
 
-    public int LineChars
+    public int CurrentLineStartIndex
     {
         get
         {
-            var charCount = 0;
             for (var i = sb.Length - 1; i >= 0; i--)
             {
                 var checkChar = sb[i];
-                if (checkChar is '\n' or '\r') return charCount;
-                charCount++;
+                if (checkChar is '\n' or '\r') return Math.Clamp(i + 1, 0, sb.Length - 1);
             }
             return sb.Length;
         }
     }
 
-    public int LineContentStartColumn
+    public int CurrentLineIndentEndColumn
     {
         get
         {
-            var columnCount = 0;
-            for (int i = 0; i < sb.Length - LineChars; i++)
+            var currentLineStartIndex = CurrentLineStartIndex;
+            for (var i = currentLineStartIndex; i < sb.Length; i++)
             {
                 var checkChar = sb[i];
-                if (!checkChar.IsWhiteSpace()) return columnCount;
-                columnCount++;
+                if (!checkChar.IsWhiteSpace()) return i - currentLineStartIndex;
             }
-            return -1;
+            return 0;
         }
     }
 
-    public int LineContentWidth
-    {
-        get
-        {
-            var contentStartColumn = LineContentStartColumn;
-            if (contentStartColumn < 0) return 0;
-            var lineContentFromEnd = 0;
-            for (var i = sb.Length - 1; i >= 0; i--)
-            {
-                var checkChar = sb[i];
-                if (checkChar is '\n' or '\r' || !checkChar.IsWhiteSpace())
-                {
-                    lineContentFromEnd = sb.Length - i;
-                    break;
-                }
-            }
-            return Math.Max(0, LineChars - contentStartColumn - lineContentFromEnd);
-        }
-    }
+    public int CurrentLineCharWidth => Math.Clamp(sb.Length - CurrentLineStartIndex, 0, sb.Length);
 
     private MutableString ShouldThrow() =>
         !ThrowOnMutateAttempt ? this : throw new ModifyFrozenObjectAttempt("Attempted to modify a frozen MutableString");
@@ -2009,8 +1988,8 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     public MutableString Replace(ReadOnlySpan<char> find, ReadOnlySpan<char> replace, int startIndex, int length)
     {
         if (IsFrozen) return ShouldThrow();
-        startIndex = Math.Clamp(0, startIndex, Length);
-        var endIndex         = Math.Clamp(0, startIndex + length - find.Length, Length);
+        startIndex = Math.Clamp(startIndex, 0, Length);
+        var endIndex         = Math.Clamp(startIndex + length, startIndex, Length);
         var deltaReplaceSize = find.Length - replace.Length;
         for (int i = endIndex - 1; i >= startIndex; i--)
         {
@@ -2027,13 +2006,13 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
             }
             if (allMatch)
             {
-                if (deltaReplaceSize < 0)
+                if (deltaReplaceSize > 0)
                 {
-                    sb.ShiftRightAt(i, -deltaReplaceSize);
+                    sb.ShiftLeftAt(i + find.Length, deltaReplaceSize);
                 }
                 if (deltaReplaceSize < 0)
                 {
-                    sb.ShiftLeftAt(i + replace.Length, deltaReplaceSize);
+                    sb.ShiftRightAt(i + find.Length, -deltaReplaceSize);
                 }
                 sb.OverwriteAt(i, replace);
             }
@@ -2217,7 +2196,7 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
-    public IFrozenString CopyFrom(IFrozenString source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
+    public ICharSequence CopyFrom(ICharSequence source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         Clear(); // does FrozenCheck
         Append(source);

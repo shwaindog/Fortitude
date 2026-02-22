@@ -432,25 +432,23 @@ public class TwoCharArraysSecondAsComplexCloakedStringContent: IStringBearer, IS
     private readonly List<MutableString> logOnlyList = [new ("FirstCharSeq"), new ("SecondCharSeq"), new ("ThirdCharSeq")];
 
     public PalantírReveal<char[]> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
-        tos.StartComplexContentType(SecondCharArrayField)
-           .AsString ($"CloakedRevealer{nameof(SecondCharArrayField)}", cloaked, ValueFormatString, FormattingFlags)
-           .LogOnlyCollectionField.AlwaysAddAllCharSeq(nameof(logOnlyList), logOnlyList)
-           .Complete();
+    {
+        var ccm = tos.StartComplexContentType(SecondCharArrayField);
+        var locm = ccm.AsString($"CloakedRevealer{nameof(SecondCharArrayField)}", cloaked, ValueFormatString, FormattingFlags);
+        locm.LogOnlyCollectionField.AlwaysAddAllCharSeq(nameof(logOnlyList), logOnlyList);
+        return locm.Complete();
+    };
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .Field.AlwaysAdd
-               (nameof(FirstCharArrayField)
-              , FirstCharArrayField
-              , ValueFormatString, FormattingFlags)
-           .Field.AlwaysReveal
-               (nameof(SecondCharArrayField)
-              , SecondCharArrayField, CreateRevealer
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-    
+    public AppendSummary RevealState(ITheOneString tos)
+    {
+        var ctm = tos.StartComplexType(this);
+        ctm.Field.AlwaysAdd(nameof(FirstCharArrayField), FirstCharArrayField, ValueFormatString, FormattingFlags);
+        ctm.Field.AlwaysReveal(nameof(SecondCharArrayField), SecondCharArrayField, CreateRevealer, ValueFormatString, FormattingFlags);
+        return ctm.Complete();
+    }
+
     public string? ValueFormatString { get; set; }
     public FormatFlags FormattingFlags { get; set; }
     

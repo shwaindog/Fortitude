@@ -731,7 +731,7 @@ public class OrderedFromNullableCloakedBearerSpanRevealFilteredSimpleOrderedColl
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
-               (OrderedCollectionRevealFilteredNullableCloakedBearerSpan.AsSpan()
+               ((ReadOnlySpan<TCloakedStruct?>)OrderedCollectionRevealFilteredNullableCloakedBearerSpan
               , ElementPredicate
               , ValueRevealer
               , ValueFormatString, FormattingFlags)
@@ -756,7 +756,7 @@ public class OrderedFromCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedColl
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
-               (OrderedCollectionRevealFilteredCloakedBearerReadOnlySpan.AsSpan()
+               ((ReadOnlySpan<TCloaked>)OrderedCollectionRevealFilteredCloakedBearerReadOnlySpan
               , ElementPredicate
               , ValueRevealer
               , ValueFormatString, FormattingFlags)
@@ -782,7 +782,7 @@ public class OrderedFromCloakedBearerNullableReadOnlySpanRevealFilteredSimpleOrd
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
-               (OrderedCollectionRevealFilteredCloakedBearerNullableReadOnlySpan.AsSpan()
+               ((ReadOnlySpan<TCloaked?>)OrderedCollectionRevealFilteredCloakedBearerNullableReadOnlySpan
               , ElementPredicate
               , ValueRevealer
               , ValueFormatString, FormattingFlags)
@@ -806,7 +806,7 @@ public class OrderedFromNullableCloakedBearerReadOnlySpanRevealFilteredSimpleOrd
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
-               (OrderedCollectionRevealFilteredNullableCloakedBearerReadOnlySpan.AsSpan()
+               ((ReadOnlySpan<TCloakedStruct?>)OrderedCollectionRevealFilteredNullableCloakedBearerReadOnlySpan
               , ElementPredicate
               , ValueRevealer
               , ValueFormatString, FormattingFlags)

@@ -19,7 +19,7 @@ public abstract class CommonExpectationBase
     protected static Recycler          Recycler     = null!;
     protected static ITheOneString     MyTheOneString = null!;
 
-    protected static StringBuilderType LastRetrievedStringBuilderType = StringBuilderType.CharArrayStringBuilder;
+    protected static StringBuilderType LastRetrievedStringBuilderType = StringBuilderType.MutableString;
 
     public static void AllDerivedShouldCallThisInClassInitialize(TestContext testContext)
     {
@@ -34,7 +34,7 @@ public abstract class CommonExpectationBase
                    .RegisterFactory(() => new RecyclingCharArray(bufferSize))
                    .RegisterFactory(() => new RecyclingByteArray(bufferSize))
                    .RegisterFactory(() => new MutableString(bufferSize));
-        MyTheOneString = new TheOneString().ReInitialize(new CharArrayStringBuilder());
+        MyTheOneString = new TheOneString().ReInitialize(new MutableString());
 
     }
 

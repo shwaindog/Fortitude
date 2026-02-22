@@ -19,7 +19,7 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
           , VisitId ParentVisitId
           , Type ActualType
           , Type VisitedAsType
-          , ITypeMolderDieCast? MoldState  
+          , IMoldWriteState? MoldState  
           , WrittenAsFlags WrittenAs
           , object? VisitedInstance
           , int IndentLevel  
@@ -53,7 +53,7 @@ namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
             this.HasInsertedInstanceId = HasInsertedInstanceId;
         }
 
-        public ITypeMolderDieCast? MoldState { get; init; }
+        public IMoldWriteState? MoldState { get; init; }
 
         public GraphNodeVisit SetRefId(int newRefId) => this with { RefId = newRefId };
 

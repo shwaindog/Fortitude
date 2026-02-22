@@ -18,119 +18,156 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Ordered
 public class OrderedCollectionMoldCompactLogTests : OrderedCollectionMoldTests
 {
     public override StringStyle TestStyle => Compact | Log;
-    
+
     [ClassInitialize]
-    public static void EnsureBaseClassInitialized(TestContext testContext) => 
+    public static void EnsureBaseClassInitialized(TestContext testContext) =>
         AllDerivedShouldCallThisInClassInitialize(testContext);
 
-    public static string CreateDataDrivenTestName(MethodInfo methodInfo, object[] data) => 
+    public static string CreateDataDrivenTestName(MethodInfo methodInfo, object[] data) =>
         GenerateScaffoldExpectationTestName(methodInfo, data);
 
 
     [TestMethod]
-    [DynamicData(nameof(UnfilteredBooleanCollectionsExpect), typeof(OrderedCollectionMoldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredCompactLogBoolCollections(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(UnfilteredBooleanCollectionsExpect), typeof(OrderedCollectionMoldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredCompactLogBoolCollections(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(FilteredBooleanCollectionsExpect), typeof(OrderedCollectionMoldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredCompactLogBoolCollections(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(FilteredBooleanCollectionsExpect), typeof(OrderedCollectionMoldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredCompactLogBoolCollections(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(UnfilteredFmtCollectionsExpect), typeof(OrderedCollectionMoldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredCompactLogFmtList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(UnfilteredFmtCollectionsExpect), typeof(OrderedCollectionMoldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredCompactLogFmtList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
     [DynamicData(nameof(FilteredFmtCollectionsExpect), typeof(OrderedCollectionMoldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredCompactLogFmtList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    public void FilteredCompactLogFmtList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
 
     [TestMethod]
-    [DynamicData(nameof(UnfilteredStringCollectionExpect), typeof(OrderedCollectionMoldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredCompactLogStringList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(UnfilteredStringCollectionExpect), typeof(OrderedCollectionMoldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredCompactLogStringList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(FilteredStringCollectionExpect), typeof(OrderedCollectionMoldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredCompactLogStringList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
-        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
-    
-    [TestMethod]
-    [DynamicData(nameof(UnfilteredCharSequenceCollectionExpect), typeof(OrderedCollectionMoldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredCompactLogCharSequenceList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
-        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
-    
-    [TestMethod]
-    [DynamicData(nameof(FilteredCharSequenceCollectionExpect), typeof(OrderedCollectionMoldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredCompactLogCharSequenceList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
-        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
-    
-
-    [TestMethod]
-    [DynamicData(nameof(UnfilteredStringBuilderCollectionExpect), typeof(OrderedCollectionMoldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredCompactLogStringBuilderList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(FilteredStringCollectionExpect), typeof(OrderedCollectionMoldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredCompactLogStringList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(FilteredStringBuilderCollectionExpect), typeof(OrderedCollectionMoldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredCompactLogStringBuilderList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(UnfilteredCharSequenceCollectionExpect), typeof(OrderedCollectionMoldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredCompactLogCharSequenceList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(UnfilteredCloakedBearerCollectionExpect), typeof(OrderedCollectionMoldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredCompactLogCloakedBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(FilteredCharSequenceCollectionExpect), typeof(OrderedCollectionMoldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredCompactLogCharSequenceList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
+
+
+    [TestMethod]
+    [DynamicData(nameof(UnfilteredStringBuilderCollectionExpect), typeof(OrderedCollectionMoldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredCompactLogStringBuilderList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(FilteredCloakedBearerCollectionExpect), typeof(OrderedCollectionMoldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredCompactLogCloakedBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(FilteredStringBuilderCollectionExpect), typeof(OrderedCollectionMoldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredCompactLogStringBuilderList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(UnfilteredStringBearerCollectionExpect), typeof(OrderedCollectionMoldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void UnfilteredCompactLogStringBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(UnfilteredCloakedBearerCollectionExpect), typeof(OrderedCollectionMoldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredCompactLogCloakedBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     [TestMethod]
-    [DynamicData(nameof(FilteredStringBearerCollectionExpect), typeof(OrderedCollectionMoldTests), DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
-    public void FilteredCompactLogStringBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
+    [DynamicData(nameof(FilteredCloakedBearerCollectionExpect), typeof(OrderedCollectionMoldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredCompactLogCloakedBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
-    
+
+    [TestMethod]
+    [DynamicData(nameof(UnfilteredStringBearerCollectionExpect), typeof(OrderedCollectionMoldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void UnfilteredCompactLogStringBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
+
+    [TestMethod]
+    [DynamicData(nameof(FilteredStringBearerCollectionExpect), typeof(OrderedCollectionMoldTests)
+                  , DynamicDataDisplayName = nameof(CreateDataDrivenTestName))]
+    public void FilteredCompactLogStringBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
+        ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
+
     [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(BoolCollectionsTestData.AllBoolCollectionExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[1005]
-                                           , StringBuilderType.MutableString);
+        ExecuteIndividualScaffoldExpectation(EnumCollectionsTestData.AllEnumCollectionsExpectations[1]
+                                           , ScaffoldingRegistry.AllScaffoldingTypes[1133], StringBuilderType.MutableString);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
-      , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
+      , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
     {
-        const string compactLogTemplate = "({0}) {1}";
+        var elementType     = className?.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? className;
+        var collFullName    = className?.FullName ?? "";
+        var elementFullName = elementType?.FullName ?? "";
+
+        var collectionShouldSuppressName = tos.Settings.LogSuppressDisplayCollectionNames.Any(s => collFullName.StartsWith(s));
+        var elementShouldSuppressName    = tos.Settings.LogSuppressDisplayCollectionElementNames.Any(s => elementFullName.StartsWith(s));
+
+        var compactLogTemplate = (collectionShouldSuppressName && elementShouldSuppressName)
+            ? "{1}"
+            : "({0}) {1}";
 
         var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
-        if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))
-        {
-            expectValue.Clear();
-        }
+        if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue)) { expectValue.Clear(); }
         var fmtExpect = sbFactory.Borrow<CharArrayStringBuilder>();
-        fmtExpect.AppendFormat(compactLogTemplate, className?.CachedCSharpNameNoConstraints() ?? "", expectValue);
+        fmtExpect.AppendFormat(compactLogTemplate, className?.ShortNameInCSharpFormat() ?? "", expectValue);
         expectValue.DecrementRefCount();
         return fmtExpect;
     }
-    
+
     protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
-      , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
+      , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
     {
+        // var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
+        // if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))
+        // {
+        //     expectValue.Clear();
+        // }
+        // return expectValue;
+        var elementType     = className?.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? className;
+        var collFullName    = className?.FullName ?? "";
+        var elementFullName = elementType?.FullName ?? "";
+
+        var collectionShouldSuppressName = tos.Settings.LogSuppressDisplayCollectionNames.Any(s => collFullName.StartsWith(s));
+        var elementShouldSuppressName    = tos.Settings.LogSuppressDisplayCollectionElementNames.Any(s => elementFullName.StartsWith(s));
+
+        var compactLogTemplate = (collectionShouldSuppressName && elementShouldSuppressName) 
+                              || className == null
+            ? "{1}"
+            : "({0}) {1}";
+
         var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
-        if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))
-        {
-            expectValue.Clear();
-        }
-        return expectValue;
+        if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue)) { expectValue.Clear(); }
+        var fmtExpect = sbFactory.Borrow<CharArrayStringBuilder>();
+        fmtExpect.AppendFormat(compactLogTemplate, className?.ShortNameInCSharpFormat() ?? "", expectValue);
+        expectValue.DecrementRefCount();
+        return fmtExpect;
     }
 }

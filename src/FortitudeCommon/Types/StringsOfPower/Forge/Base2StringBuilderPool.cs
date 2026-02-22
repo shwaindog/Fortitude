@@ -18,6 +18,7 @@ public static class Base2StringBuilderPool
     {
         var power2Size = atLeastOfSize.NextPowerOfTwo();
 
+        power2Size = Math.Clamp(power2Size, 128, 2 * 1024 * 1024);
         var recycler = SizedRecyclerDict.GetOrAdd(power2Size, CreateSizedRecyclerPool);
 
         return recycler.Borrow<CharArrayStringBuilder>().EnsureIsAtSize(power2Size);

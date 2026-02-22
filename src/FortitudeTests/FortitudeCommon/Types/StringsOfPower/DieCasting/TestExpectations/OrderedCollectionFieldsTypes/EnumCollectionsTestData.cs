@@ -20,19 +20,19 @@ public class EnumCollectionsTestData
         new PositionUpdatingList<IOrderedListExpect>(typeof(EnumCollectionsTestData))
         {
             // NoDefaultLongNoFlagsEnum Collections
-            new OrderedListExpect<NoDefaultLongNoFlagsEnum>([], "", name: "Empty")
+            new CustomOrderedListExpect<NoDefaultLongNoFlagsEnum>([], "", name: "Empty")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<NoDefaultLongNoFlagsEnum>(null, "")
+          , new CustomOrderedListExpect<NoDefaultLongNoFlagsEnum>(null, "")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<NoDefaultLongNoFlagsEnum>(NoDefaultLongNoFlagsEnumList, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<NoDefaultLongNoFlagsEnum>(NoDefaultLongNoFlagsEnumList, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -84,7 +84,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultLongNoFlagsEnum>(NoDefaultLongNoFlagsEnumList, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<NoDefaultLongNoFlagsEnum>(NoDefaultLongNoFlagsEnumList, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -136,7 +136,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultLongNoFlagsEnum>(NoDefaultLongNoFlagsEnumList, "", () => NoDefaultLongNoFlagsEnum_First_3)
+          , new CustomOrderedListExpect<NoDefaultLongNoFlagsEnum>(NoDefaultLongNoFlagsEnumList, "", () => NoDefaultLongNoFlagsEnum_First_3)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -176,7 +176,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultLongNoFlagsEnum>(NoDefaultLongNoFlagsEnumList, "", () => NoDefaultLongNoFlagsEnum_Skip_Odd_Index)
+          , new CustomOrderedListExpect<NoDefaultLongNoFlagsEnum>(NoDefaultLongNoFlagsEnumList, "", () => NoDefaultLongNoFlagsEnum_Skip_Odd_Index)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -219,7 +219,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultLongNoFlagsEnum>(NoDefaultLongNoFlagsEnumList, "{0:d}", () => NoDefaultLongNoFlagsEnum_Skip_Even_Index)
+          , new CustomOrderedListExpect<NoDefaultLongNoFlagsEnum>(NoDefaultLongNoFlagsEnumList, "{0:d}", () => NoDefaultLongNoFlagsEnum_Skip_Even_Index)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -259,7 +259,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultLongNoFlagsEnum>(NoDefaultLongNoFlagsEnumList, "", () => NoDefaultLongNoFlagsEnum_Second_3)
+          , new CustomOrderedListExpect<NoDefaultLongNoFlagsEnum>(NoDefaultLongNoFlagsEnumList, "", () => NoDefaultLongNoFlagsEnum_Second_3)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -301,19 +301,19 @@ public class EnumCollectionsTestData
             }
 
             // Nullable NoDefaultLongNoFlagsEnum Collections
-          , new OrderedListExpect<NoDefaultLongNoFlagsEnum?>([], "", name: "Empty")
+          , new CustomOrderedListExpect<NoDefaultLongNoFlagsEnum?>([], "", name: "Empty")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<NoDefaultLongNoFlagsEnum?>(null, "")
+          , new CustomOrderedListExpect<NoDefaultLongNoFlagsEnum?>(null, "")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<NoDefaultLongNoFlagsEnum?>(NullNoDefaultLongNoFlagsEnumList.Value, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<NoDefaultLongNoFlagsEnum?>(NullNoDefaultLongNoFlagsEnumList.Value, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -377,7 +377,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultLongNoFlagsEnum?>(NullNoDefaultLongNoFlagsEnumList.Value, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<NoDefaultLongNoFlagsEnum?>(NullNoDefaultLongNoFlagsEnumList.Value, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -441,7 +441,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultLongNoFlagsEnum?>(NullNoDefaultLongNoFlagsEnumList.Value, "", () => NullNoDefaultLongNoFlagsEnum_First_5)
+          , new CustomOrderedListExpect<NoDefaultLongNoFlagsEnum?>(NullNoDefaultLongNoFlagsEnumList.Value, "", () => NullNoDefaultLongNoFlagsEnum_First_5)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -487,8 +487,8 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultLongNoFlagsEnum?>(NullNoDefaultLongNoFlagsEnumList.Value, ""
-                                                           , () => NullNoDefaultLongNoFlagsEnum_Skip_Odd_Index)
+          , new CustomOrderedListExpect<NoDefaultLongNoFlagsEnum?>(NullNoDefaultLongNoFlagsEnumList.Value, ""
+                                                                 , () => NullNoDefaultLongNoFlagsEnum_Skip_Odd_Index)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -537,8 +537,8 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultLongNoFlagsEnum?>(NullNoDefaultLongNoFlagsEnumList.Value, "{0:d}"
-                                                           , () => NullNoDefaultLongNoFlagsEnum_Skip_Even_Index)
+          , new CustomOrderedListExpect<NoDefaultLongNoFlagsEnum?>(NullNoDefaultLongNoFlagsEnumList.Value, "{0:d}"
+                                                                 , () => NullNoDefaultLongNoFlagsEnum_Skip_Even_Index)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -584,7 +584,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultLongNoFlagsEnum?>(NullNoDefaultLongNoFlagsEnumList.Value, "", () => NullNoDefaultLongNoFlagsEnum_Second_5)
+          , new CustomOrderedListExpect<NoDefaultLongNoFlagsEnum?>(NullNoDefaultLongNoFlagsEnumList.Value, "", () => NullNoDefaultLongNoFlagsEnum_Second_5)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -633,19 +633,19 @@ public class EnumCollectionsTestData
 
 
             // NoDefaultULongNoFlagsEnum Collections
-          , new OrderedListExpect<NoDefaultULongNoFlagsEnum>([], "", name: "Empty")
+          , new CustomOrderedListExpect<NoDefaultULongNoFlagsEnum>([], "", name: "Empty")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<NoDefaultULongNoFlagsEnum>(null, "")
+          , new CustomOrderedListExpect<NoDefaultULongNoFlagsEnum>(null, "")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<NoDefaultULongNoFlagsEnum>(NoDefaultULongNoFlagsEnumList, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<NoDefaultULongNoFlagsEnum>(NoDefaultULongNoFlagsEnumList, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -697,7 +697,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultULongNoFlagsEnum>(NoDefaultULongNoFlagsEnumList, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<NoDefaultULongNoFlagsEnum>(NoDefaultULongNoFlagsEnumList, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -749,7 +749,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultULongNoFlagsEnum>(NoDefaultULongNoFlagsEnumList, "", () => NoDefaultULongNoFlagsEnum_First_3)
+          , new CustomOrderedListExpect<NoDefaultULongNoFlagsEnum>(NoDefaultULongNoFlagsEnumList, "", () => NoDefaultULongNoFlagsEnum_First_3)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -789,7 +789,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultULongNoFlagsEnum>(NoDefaultULongNoFlagsEnumList, "", () => NoDefaultULongNoFlagsEnum_Skip_Odd_Index)
+          , new CustomOrderedListExpect<NoDefaultULongNoFlagsEnum>(NoDefaultULongNoFlagsEnumList, "", () => NoDefaultULongNoFlagsEnum_Skip_Odd_Index)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -832,7 +832,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultULongNoFlagsEnum>(NoDefaultULongNoFlagsEnumList, "{0:d}", () => NoDefaultULongNoFlagsEnum_Skip_Even_Index)
+          , new CustomOrderedListExpect<NoDefaultULongNoFlagsEnum>(NoDefaultULongNoFlagsEnumList, "{0:d}", () => NoDefaultULongNoFlagsEnum_Skip_Even_Index)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -872,7 +872,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultULongNoFlagsEnum>(NoDefaultULongNoFlagsEnumList, "", () => NoDefaultULongNoFlagsEnum_Second_3)
+          , new CustomOrderedListExpect<NoDefaultULongNoFlagsEnum>(NoDefaultULongNoFlagsEnumList, "", () => NoDefaultULongNoFlagsEnum_Second_3)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -914,19 +914,19 @@ public class EnumCollectionsTestData
             }
 
             // Nullable NoDefaultULongNoFlagsEnum Collections
-          , new OrderedListExpect<NoDefaultULongNoFlagsEnum?>([], "", name: "Empty")
+          , new CustomOrderedListExpect<NoDefaultULongNoFlagsEnum?>([], "", name: "Empty")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<NoDefaultULongNoFlagsEnum?>(null, "")
+          , new CustomOrderedListExpect<NoDefaultULongNoFlagsEnum?>(null, "")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<NoDefaultULongNoFlagsEnum?>(NullNoDefaultULongNoFlagsEnumList.Value, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<NoDefaultULongNoFlagsEnum?>(NullNoDefaultULongNoFlagsEnumList.Value, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -990,7 +990,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultULongNoFlagsEnum?>(NullNoDefaultULongNoFlagsEnumList.Value, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<NoDefaultULongNoFlagsEnum?>(NullNoDefaultULongNoFlagsEnumList.Value, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1054,8 +1054,8 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultULongNoFlagsEnum?>(NullNoDefaultULongNoFlagsEnumList.Value, ""
-                                                            , () => NullNoDefaultULongNoFlagsEnum_First_5)
+          , new CustomOrderedListExpect<NoDefaultULongNoFlagsEnum?>(NullNoDefaultULongNoFlagsEnumList.Value, ""
+                                                                  , () => NullNoDefaultULongNoFlagsEnum_First_5)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1101,8 +1101,8 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultULongNoFlagsEnum?>(NullNoDefaultULongNoFlagsEnumList.Value, ""
-                                                            , () => NullNoDefaultULongNoFlagsEnum_Skip_Odd_Index)
+          , new CustomOrderedListExpect<NoDefaultULongNoFlagsEnum?>(NullNoDefaultULongNoFlagsEnumList.Value, ""
+                                                                  , () => NullNoDefaultULongNoFlagsEnum_Skip_Odd_Index)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1151,8 +1151,8 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultULongNoFlagsEnum?>(NullNoDefaultULongNoFlagsEnumList.Value, "{0:d}"
-                                                            , () => NullNoDefaultULongNoFlagsEnum_Skip_Even_Index)
+          , new CustomOrderedListExpect<NoDefaultULongNoFlagsEnum?>(NullNoDefaultULongNoFlagsEnumList.Value, "{0:d}"
+                                                                  , () => NullNoDefaultULongNoFlagsEnum_Skip_Even_Index)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1198,8 +1198,8 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultULongNoFlagsEnum?>(NullNoDefaultULongNoFlagsEnumList.Value, ""
-                                                            , () => NullNoDefaultULongNoFlagsEnum_Second_5)
+          , new CustomOrderedListExpect<NoDefaultULongNoFlagsEnum?>(NullNoDefaultULongNoFlagsEnumList.Value, ""
+                                                                  , () => NullNoDefaultULongNoFlagsEnum_Second_5)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1247,19 +1247,19 @@ public class EnumCollectionsTestData
             }
 
             // WithDefaultLongNoFlagsEnum Collections
-          , new OrderedListExpect<WithDefaultLongNoFlagsEnum>([], "", name: "Empty")
+          , new CustomOrderedListExpect<WithDefaultLongNoFlagsEnum>([], "", name: "Empty")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<WithDefaultLongNoFlagsEnum>(null, "")
+          , new CustomOrderedListExpect<WithDefaultLongNoFlagsEnum>(null, "")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<WithDefaultLongNoFlagsEnum>(WithDefaultLongNoFlagsEnumList, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<WithDefaultLongNoFlagsEnum>(WithDefaultLongNoFlagsEnumList, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1311,7 +1311,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultLongNoFlagsEnum>(WithDefaultLongNoFlagsEnumList, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<WithDefaultLongNoFlagsEnum>(WithDefaultLongNoFlagsEnumList, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1363,7 +1363,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultLongNoFlagsEnum>(WithDefaultLongNoFlagsEnumList, "", () => WithDefaultLongNoFlagsEnum_First_3)
+          , new CustomOrderedListExpect<WithDefaultLongNoFlagsEnum>(WithDefaultLongNoFlagsEnumList, "", () => WithDefaultLongNoFlagsEnum_First_3)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1403,7 +1403,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultLongNoFlagsEnum>(WithDefaultLongNoFlagsEnumList, "", () => WithDefaultLongNoFlagsEnum_Skip_Odd_Index)
+          , new CustomOrderedListExpect<WithDefaultLongNoFlagsEnum>(WithDefaultLongNoFlagsEnumList, "", () => WithDefaultLongNoFlagsEnum_Skip_Odd_Index)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1446,8 +1446,8 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultLongNoFlagsEnum>(WithDefaultLongNoFlagsEnumList, "{0:d}"
-                                                            , () => WithDefaultLongNoFlagsEnum_Skip_Even_Index)
+          , new CustomOrderedListExpect<WithDefaultLongNoFlagsEnum>(WithDefaultLongNoFlagsEnumList, "{0:d}"
+                                                                  , () => WithDefaultLongNoFlagsEnum_Skip_Even_Index)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1487,7 +1487,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultLongNoFlagsEnum>(WithDefaultLongNoFlagsEnumList, "", () => WithDefaultLongNoFlagsEnum_Second_3)
+          , new CustomOrderedListExpect<WithDefaultLongNoFlagsEnum>(WithDefaultLongNoFlagsEnumList, "", () => WithDefaultLongNoFlagsEnum_Second_3)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1529,19 +1529,19 @@ public class EnumCollectionsTestData
             }
 
             // Nullable WithDefaultLongNoFlagsEnum Collections
-          , new OrderedListExpect<WithDefaultLongNoFlagsEnum?>([], "", name: "Empty")
+          , new CustomOrderedListExpect<WithDefaultLongNoFlagsEnum?>([], "", name: "Empty")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<WithDefaultLongNoFlagsEnum?>(null, "")
+          , new CustomOrderedListExpect<WithDefaultLongNoFlagsEnum?>(null, "")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<WithDefaultLongNoFlagsEnum?>(NullWithDefaultLongNoFlagsEnumList.Value, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<WithDefaultLongNoFlagsEnum?>(NullWithDefaultLongNoFlagsEnumList.Value, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1605,7 +1605,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultLongNoFlagsEnum?>(NullWithDefaultLongNoFlagsEnumList.Value, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<WithDefaultLongNoFlagsEnum?>(NullWithDefaultLongNoFlagsEnumList.Value, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1669,8 +1669,8 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultLongNoFlagsEnum?>(NullWithDefaultLongNoFlagsEnumList.Value, ""
-                                                             , () => NullWithDefaultLongNoFlagsEnum_First_5)
+          , new CustomOrderedListExpect<WithDefaultLongNoFlagsEnum?>(NullWithDefaultLongNoFlagsEnumList.Value, ""
+                                                                   , () => NullWithDefaultLongNoFlagsEnum_First_5)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1716,8 +1716,8 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultLongNoFlagsEnum?>(NullWithDefaultLongNoFlagsEnumList.Value, ""
-                                                             , () => NullWithDefaultLongNoFlagsEnum_Skip_Odd_Index)
+          , new CustomOrderedListExpect<WithDefaultLongNoFlagsEnum?>(NullWithDefaultLongNoFlagsEnumList.Value, ""
+                                                                   , () => NullWithDefaultLongNoFlagsEnum_Skip_Odd_Index)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1766,8 +1766,8 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultLongNoFlagsEnum?>(NullWithDefaultLongNoFlagsEnumList.Value, "{0:d}"
-                                                             , () => NullWithDefaultLongNoFlagsEnum_Skip_Even_Index)
+          , new CustomOrderedListExpect<WithDefaultLongNoFlagsEnum?>(NullWithDefaultLongNoFlagsEnumList.Value, "{0:d}"
+                                                                   , () => NullWithDefaultLongNoFlagsEnum_Skip_Even_Index)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1813,8 +1813,8 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultLongNoFlagsEnum?>(NullWithDefaultLongNoFlagsEnumList.Value, ""
-                                                             , () => NullWithDefaultLongNoFlagsEnum_Second_5)
+          , new CustomOrderedListExpect<WithDefaultLongNoFlagsEnum?>(NullWithDefaultLongNoFlagsEnumList.Value, ""
+                                                                   , () => NullWithDefaultLongNoFlagsEnum_Second_5)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1863,19 +1863,19 @@ public class EnumCollectionsTestData
 
 
             // WithDefaultULongNoFlagsEnum Collections
-          , new OrderedListExpect<WithDefaultULongNoFlagsEnum>([], "", name: "Empty")
+          , new CustomOrderedListExpect<WithDefaultULongNoFlagsEnum>([], "", name: "Empty")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<WithDefaultULongNoFlagsEnum>(null, "")
+          , new CustomOrderedListExpect<WithDefaultULongNoFlagsEnum>(null, "")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<WithDefaultULongNoFlagsEnum>(WithDefaultULongNoFlagsEnumList, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<WithDefaultULongNoFlagsEnum>(WithDefaultULongNoFlagsEnumList, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1927,7 +1927,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultULongNoFlagsEnum>(WithDefaultULongNoFlagsEnumList, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<WithDefaultULongNoFlagsEnum>(WithDefaultULongNoFlagsEnumList, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -1979,7 +1979,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultULongNoFlagsEnum>(WithDefaultULongNoFlagsEnumList, "", () => WithDefaultULongNoFlagsEnum_First_3)
+          , new CustomOrderedListExpect<WithDefaultULongNoFlagsEnum>(WithDefaultULongNoFlagsEnumList, "", () => WithDefaultULongNoFlagsEnum_First_3)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -2019,7 +2019,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultULongNoFlagsEnum>(WithDefaultULongNoFlagsEnumList, "", () => WithDefaultULongNoFlagsEnum_Skip_Odd_Index)
+          , new CustomOrderedListExpect<WithDefaultULongNoFlagsEnum>(WithDefaultULongNoFlagsEnumList, "", () => WithDefaultULongNoFlagsEnum_Skip_Odd_Index)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -2062,7 +2062,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultULongNoFlagsEnum>(WithDefaultULongNoFlagsEnumList, "{0:d}"
+          , new CustomOrderedListExpect<WithDefaultULongNoFlagsEnum>(WithDefaultULongNoFlagsEnumList, "{0:d}"
                                                              , () => WithDefaultULongNoFlagsEnum_Skip_Even_Index)
             {
                 {
@@ -2103,7 +2103,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultULongNoFlagsEnum>(WithDefaultULongNoFlagsEnumList, "", () => WithDefaultULongNoFlagsEnum_Second_3)
+          , new CustomOrderedListExpect<WithDefaultULongNoFlagsEnum>(WithDefaultULongNoFlagsEnumList, "", () => WithDefaultULongNoFlagsEnum_Second_3)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -2145,19 +2145,19 @@ public class EnumCollectionsTestData
             }
 
             // Nullable WithDefaultULongNoFlagsEnum Collections
-          , new OrderedListExpect<WithDefaultULongNoFlagsEnum?>([], "", name: "Empty")
+          , new CustomOrderedListExpect<WithDefaultULongNoFlagsEnum?>([], "", name: "Empty")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<WithDefaultULongNoFlagsEnum?>(null, "")
+          , new CustomOrderedListExpect<WithDefaultULongNoFlagsEnum?>(null, "")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<WithDefaultULongNoFlagsEnum?>(NullWithDefaultULongNoFlagsEnumList.Value, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<WithDefaultULongNoFlagsEnum?>(NullWithDefaultULongNoFlagsEnumList.Value, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -2221,7 +2221,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultULongNoFlagsEnum?>(NullWithDefaultULongNoFlagsEnumList.Value, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<WithDefaultULongNoFlagsEnum?>(NullWithDefaultULongNoFlagsEnumList.Value, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -2285,7 +2285,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultULongNoFlagsEnum?>(NullWithDefaultULongNoFlagsEnumList.Value, ""
+          , new CustomOrderedListExpect<WithDefaultULongNoFlagsEnum?>(NullWithDefaultULongNoFlagsEnumList.Value, ""
                                                               , () => NullWithDefaultULongNoFlagsEnum_First_5)
             {
                 {
@@ -2332,7 +2332,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultULongNoFlagsEnum?>(NullWithDefaultULongNoFlagsEnumList.Value, ""
+          , new CustomOrderedListExpect<WithDefaultULongNoFlagsEnum?>(NullWithDefaultULongNoFlagsEnumList.Value, ""
                                                               , () => NullWithDefaultULongNoFlagsEnum_Skip_Odd_Index)
             {
                 {
@@ -2382,7 +2382,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultULongNoFlagsEnum?>(NullWithDefaultULongNoFlagsEnumList.Value, "{0:d}"
+          , new CustomOrderedListExpect<WithDefaultULongNoFlagsEnum?>(NullWithDefaultULongNoFlagsEnumList.Value, "{0:d}"
                                                               , () => NullWithDefaultULongNoFlagsEnum_Skip_Even_Index)
             {
                 {
@@ -2429,7 +2429,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultULongNoFlagsEnum?>(NullWithDefaultULongNoFlagsEnumList.Value, ""
+          , new CustomOrderedListExpect<WithDefaultULongNoFlagsEnum?>(NullWithDefaultULongNoFlagsEnumList.Value, ""
                                                               , () => NullWithDefaultULongNoFlagsEnum_Second_5)
             {
                 {
@@ -2478,19 +2478,19 @@ public class EnumCollectionsTestData
             }
 
             // NoDefaultLongWithFlagsEnum Collections
-          , new OrderedListExpect<NoDefaultLongWithFlagsEnum>([], "", name: "Empty")
+          , new CustomOrderedListExpect<NoDefaultLongWithFlagsEnum>([], "", name: "Empty")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<NoDefaultLongWithFlagsEnum>(null, "")
+          , new CustomOrderedListExpect<NoDefaultLongWithFlagsEnum>(null, "")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<NoDefaultLongWithFlagsEnum>(NoDefaultLongWithFlagsEnumList, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<NoDefaultLongWithFlagsEnum>(NoDefaultLongWithFlagsEnumList, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -2565,7 +2565,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultLongWithFlagsEnum>(NoDefaultLongWithFlagsEnumList, "", () => NoDefaultLongWithFlagsEnum_First_3)
+          , new CustomOrderedListExpect<NoDefaultLongWithFlagsEnum>(NoDefaultLongWithFlagsEnumList, "", () => NoDefaultLongWithFlagsEnum_First_3)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -2606,7 +2606,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultLongWithFlagsEnum>(NoDefaultLongWithFlagsEnumList, "", () => NoDefaultLongWithFlagsEnum_Skip_Odd_Index)
+          , new CustomOrderedListExpect<NoDefaultLongWithFlagsEnum>(NoDefaultLongWithFlagsEnumList, "", () => NoDefaultLongWithFlagsEnum_Skip_Odd_Index)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -2658,7 +2658,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultLongWithFlagsEnum>(NoDefaultLongWithFlagsEnumList, "{0:d}"
+          , new CustomOrderedListExpect<NoDefaultLongWithFlagsEnum>(NoDefaultLongWithFlagsEnumList, "{0:d}"
                                                             , () => NoDefaultLongWithFlagsEnum_Skip_Even_Index)
             {
                 {
@@ -2708,7 +2708,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultLongWithFlagsEnum>(NoDefaultLongWithFlagsEnumList, "", () => NoDefaultLongWithFlagsEnum_Second_3)
+          , new CustomOrderedListExpect<NoDefaultLongWithFlagsEnum>(NoDefaultLongWithFlagsEnumList, "", () => NoDefaultLongWithFlagsEnum_Second_3)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -2751,19 +2751,19 @@ public class EnumCollectionsTestData
             }
 
             // Nullable NoDefaultLongWithFlagsEnum Collections
-          , new OrderedListExpect<NoDefaultLongWithFlagsEnum?>([], "", name: "Empty")
+          , new CustomOrderedListExpect<NoDefaultLongWithFlagsEnum?>([], "", name: "Empty")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<NoDefaultLongWithFlagsEnum?>(null, "")
+          , new CustomOrderedListExpect<NoDefaultLongWithFlagsEnum?>(null, "")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<NoDefaultLongWithFlagsEnum?>(NullNoDefaultLongWithFlagsEnumList.Value, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<NoDefaultLongWithFlagsEnum?>(NullNoDefaultLongWithFlagsEnumList.Value, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -2853,7 +2853,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultLongWithFlagsEnum?>(NullNoDefaultLongWithFlagsEnumList.Value, "", () => NullNoDefaultLongWithFlagsEnum_First_3)
+          , new CustomOrderedListExpect<NoDefaultLongWithFlagsEnum?>(NullNoDefaultLongWithFlagsEnumList.Value, "", () => NullNoDefaultLongWithFlagsEnum_First_3)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -2894,7 +2894,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultLongWithFlagsEnum?>(NullNoDefaultLongWithFlagsEnumList.Value, "", () => NullNoDefaultLongWithFlagsEnum_Skip_Odd_Index)
+          , new CustomOrderedListExpect<NoDefaultLongWithFlagsEnum?>(NullNoDefaultLongWithFlagsEnumList.Value, "", () => NullNoDefaultLongWithFlagsEnum_Skip_Odd_Index)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -2956,7 +2956,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultLongWithFlagsEnum?>(NullNoDefaultLongWithFlagsEnumList.Value, "{0:d}"
+          , new CustomOrderedListExpect<NoDefaultLongWithFlagsEnum?>(NullNoDefaultLongWithFlagsEnumList.Value, "{0:d}"
                                                             , () => NullNoDefaultLongWithFlagsEnum_Skip_Even_Index)
             {
                 {
@@ -3012,7 +3012,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultLongWithFlagsEnum?>(NullNoDefaultLongWithFlagsEnumList.Value, "", () => NullNoDefaultLongWithFlagsEnum_Second_3)
+          , new CustomOrderedListExpect<NoDefaultLongWithFlagsEnum?>(NullNoDefaultLongWithFlagsEnumList.Value, "", () => NullNoDefaultLongWithFlagsEnum_Second_3)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -3054,19 +3054,19 @@ public class EnumCollectionsTestData
             }
             
             // NoDefaultULongWithFlagsEnum Collections
-          , new OrderedListExpect<NoDefaultULongWithFlagsEnum>([], "", name: "Empty")
+          , new CustomOrderedListExpect<NoDefaultULongWithFlagsEnum>([], "", name: "Empty")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<NoDefaultULongWithFlagsEnum>(null, "")
+          , new CustomOrderedListExpect<NoDefaultULongWithFlagsEnum>(null, "")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<NoDefaultULongWithFlagsEnum>(NoDefaultULongWithFlagsEnumList, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<NoDefaultULongWithFlagsEnum>(NoDefaultULongWithFlagsEnumList, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -3141,7 +3141,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultULongWithFlagsEnum>(NoDefaultULongWithFlagsEnumList, "", () => NoDefaultULongWithFlagsEnum_First_3)
+          , new CustomOrderedListExpect<NoDefaultULongWithFlagsEnum>(NoDefaultULongWithFlagsEnumList, "", () => NoDefaultULongWithFlagsEnum_First_3)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -3182,7 +3182,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultULongWithFlagsEnum>(NoDefaultULongWithFlagsEnumList, "", () => NoDefaultULongWithFlagsEnum_Skip_Odd_Index)
+          , new CustomOrderedListExpect<NoDefaultULongWithFlagsEnum>(NoDefaultULongWithFlagsEnumList, "", () => NoDefaultULongWithFlagsEnum_Skip_Odd_Index)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -3234,7 +3234,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultULongWithFlagsEnum>(NoDefaultULongWithFlagsEnumList, "{0:d}"
+          , new CustomOrderedListExpect<NoDefaultULongWithFlagsEnum>(NoDefaultULongWithFlagsEnumList, "{0:d}"
                                                             , () => NoDefaultULongWithFlagsEnum_Skip_Even_Index)
             {
                 {
@@ -3284,7 +3284,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultULongWithFlagsEnum>(NoDefaultULongWithFlagsEnumList, "", () => NoDefaultULongWithFlagsEnum_Second_3)
+          , new CustomOrderedListExpect<NoDefaultULongWithFlagsEnum>(NoDefaultULongWithFlagsEnumList, "", () => NoDefaultULongWithFlagsEnum_Second_3)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -3327,19 +3327,19 @@ public class EnumCollectionsTestData
             }
             
             // Nullable NoDefaultULongWithFlagsEnum Collections
-          , new OrderedListExpect<NoDefaultULongWithFlagsEnum?>([], "", name: "Empty")
+          , new CustomOrderedListExpect<NoDefaultULongWithFlagsEnum?>([], "", name: "Empty")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<NoDefaultULongWithFlagsEnum?>(null, "")
+          , new CustomOrderedListExpect<NoDefaultULongWithFlagsEnum?>(null, "")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<NoDefaultULongWithFlagsEnum?>(NullNoDefaultULongWithFlagsEnumList.Value, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<NoDefaultULongWithFlagsEnum?>(NullNoDefaultULongWithFlagsEnumList.Value, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -3429,7 +3429,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultULongWithFlagsEnum?>(NullNoDefaultULongWithFlagsEnumList.Value, "", () => NullNoDefaultULongWithFlagsEnum_First_3)
+          , new CustomOrderedListExpect<NoDefaultULongWithFlagsEnum?>(NullNoDefaultULongWithFlagsEnumList.Value, "", () => NullNoDefaultULongWithFlagsEnum_First_3)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -3470,7 +3470,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultULongWithFlagsEnum?>(NullNoDefaultULongWithFlagsEnumList.Value, "", () => NullNoDefaultULongWithFlagsEnum_Skip_Odd_Index)
+          , new CustomOrderedListExpect<NoDefaultULongWithFlagsEnum?>(NullNoDefaultULongWithFlagsEnumList.Value, "", () => NullNoDefaultULongWithFlagsEnum_Skip_Odd_Index)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -3532,7 +3532,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultULongWithFlagsEnum?>(NullNoDefaultULongWithFlagsEnumList.Value, "{0:d}"
+          , new CustomOrderedListExpect<NoDefaultULongWithFlagsEnum?>(NullNoDefaultULongWithFlagsEnumList.Value, "{0:d}"
                                                             , () => NullNoDefaultULongWithFlagsEnum_Skip_Even_Index)
             {
                 {
@@ -3588,7 +3588,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<NoDefaultULongWithFlagsEnum?>(NullNoDefaultULongWithFlagsEnumList.Value, "", () => NullNoDefaultULongWithFlagsEnum_Second_3)
+          , new CustomOrderedListExpect<NoDefaultULongWithFlagsEnum?>(NullNoDefaultULongWithFlagsEnumList.Value, "", () => NullNoDefaultULongWithFlagsEnum_Second_3)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -3630,19 +3630,19 @@ public class EnumCollectionsTestData
             }
 
             // WithDefaultLongWithFlagsEnum Collections
-          , new OrderedListExpect<WithDefaultLongWithFlagsEnum>([], "", name: "Empty")
+          , new CustomOrderedListExpect<WithDefaultLongWithFlagsEnum>([], "", name: "Empty")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<WithDefaultLongWithFlagsEnum>(null, "")
+          , new CustomOrderedListExpect<WithDefaultLongWithFlagsEnum>(null, "")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<WithDefaultLongWithFlagsEnum>(WithDefaultLongWithFlagsEnumList, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<WithDefaultLongWithFlagsEnum>(WithDefaultLongWithFlagsEnumList, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -3717,7 +3717,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultLongWithFlagsEnum>(WithDefaultLongWithFlagsEnumList, "", () => WithDefaultLongWithFlagsEnum_First_3)
+          , new CustomOrderedListExpect<WithDefaultLongWithFlagsEnum>(WithDefaultLongWithFlagsEnumList, "", () => WithDefaultLongWithFlagsEnum_First_3)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -3758,7 +3758,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultLongWithFlagsEnum>(WithDefaultLongWithFlagsEnumList, "", () => WithDefaultLongWithFlagsEnum_Skip_Odd_Index)
+          , new CustomOrderedListExpect<WithDefaultLongWithFlagsEnum>(WithDefaultLongWithFlagsEnumList, "", () => WithDefaultLongWithFlagsEnum_Skip_Odd_Index)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -3810,7 +3810,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultLongWithFlagsEnum>(WithDefaultLongWithFlagsEnumList, "{0:d}"
+          , new CustomOrderedListExpect<WithDefaultLongWithFlagsEnum>(WithDefaultLongWithFlagsEnumList, "{0:d}"
                                                             , () => WithDefaultLongWithFlagsEnum_Skip_Even_Index)
             {
                 {
@@ -3860,7 +3860,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultLongWithFlagsEnum>(WithDefaultLongWithFlagsEnumList, "", () => WithDefaultLongWithFlagsEnum_Second_3)
+          , new CustomOrderedListExpect<WithDefaultLongWithFlagsEnum>(WithDefaultLongWithFlagsEnumList, "", () => WithDefaultLongWithFlagsEnum_Second_3)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -3903,19 +3903,19 @@ public class EnumCollectionsTestData
             }
 
             // Nullable WithDefaultLongWithFlagsEnum Collections
-          , new OrderedListExpect<WithDefaultLongWithFlagsEnum?>([], "", name: "Empty")
+          , new CustomOrderedListExpect<WithDefaultLongWithFlagsEnum?>([], "", name: "Empty")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<WithDefaultLongWithFlagsEnum?>(null, "")
+          , new CustomOrderedListExpect<WithDefaultLongWithFlagsEnum?>(null, "")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<WithDefaultLongWithFlagsEnum?>(NullWithDefaultLongWithFlagsEnumList.Value, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<WithDefaultLongWithFlagsEnum?>(NullWithDefaultLongWithFlagsEnumList.Value, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -4005,7 +4005,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultLongWithFlagsEnum?>(NullWithDefaultLongWithFlagsEnumList.Value, "", () => NullWithDefaultLongWithFlagsEnum_First_3)
+          , new CustomOrderedListExpect<WithDefaultLongWithFlagsEnum?>(NullWithDefaultLongWithFlagsEnumList.Value, "", () => NullWithDefaultLongWithFlagsEnum_First_3)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -4046,7 +4046,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultLongWithFlagsEnum?>(NullWithDefaultLongWithFlagsEnumList.Value, "", () => NullWithDefaultLongWithFlagsEnum_Skip_Odd_Index)
+          , new CustomOrderedListExpect<WithDefaultLongWithFlagsEnum?>(NullWithDefaultLongWithFlagsEnumList.Value, "", () => NullWithDefaultLongWithFlagsEnum_Skip_Odd_Index)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -4108,7 +4108,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultLongWithFlagsEnum?>(NullWithDefaultLongWithFlagsEnumList.Value, "{0:d}"
+          , new CustomOrderedListExpect<WithDefaultLongWithFlagsEnum?>(NullWithDefaultLongWithFlagsEnumList.Value, "{0:d}"
                                                             , () => NullWithDefaultLongWithFlagsEnum_Skip_Even_Index)
             {
                 {
@@ -4164,7 +4164,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultLongWithFlagsEnum?>(NullWithDefaultLongWithFlagsEnumList.Value, "", () => NullWithDefaultLongWithFlagsEnum_Second_3)
+          , new CustomOrderedListExpect<WithDefaultLongWithFlagsEnum?>(NullWithDefaultLongWithFlagsEnumList.Value, "", () => NullWithDefaultLongWithFlagsEnum_Second_3)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -4207,19 +4207,19 @@ public class EnumCollectionsTestData
             
             
             // Nullable WithDefaultULongWithFlagsEnum Collections
-          , new OrderedListExpect<WithDefaultULongWithFlagsEnum?>([], "", name: "Empty")
+          , new CustomOrderedListExpect<WithDefaultULongWithFlagsEnum?>([], "", name: "Empty")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites | NonNullWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<WithDefaultULongWithFlagsEnum?>(null, "")
+          , new CustomOrderedListExpect<WithDefaultULongWithFlagsEnum?>(null, "")
             {
                 { new EK(IsOrderedCollectionType | AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
               , { new EK(AcceptsSpanFormattable | AlwaysWrites), "null" }
               , { new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
             }
-          , new OrderedListExpect<WithDefaultULongWithFlagsEnum?>(NullWithDefaultULongWithFlagsEnumList.Value, "", name: "All_NoFilter")
+          , new CustomOrderedListExpect<WithDefaultULongWithFlagsEnum?>(NullWithDefaultULongWithFlagsEnumList.Value, "", name: "All_NoFilter")
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -4309,7 +4309,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultULongWithFlagsEnum?>(NullWithDefaultULongWithFlagsEnumList.Value, "", () => NullWithDefaultULongWithFlagsEnum_First_3)
+          , new CustomOrderedListExpect<WithDefaultULongWithFlagsEnum?>(NullWithDefaultULongWithFlagsEnumList.Value, "", () => NullWithDefaultULongWithFlagsEnum_First_3)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -4350,7 +4350,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultULongWithFlagsEnum?>(NullWithDefaultULongWithFlagsEnumList.Value, "", () => NullWithDefaultULongWithFlagsEnum_Skip_Odd_Index)
+          , new CustomOrderedListExpect<WithDefaultULongWithFlagsEnum?>(NullWithDefaultULongWithFlagsEnumList.Value, "", () => NullWithDefaultULongWithFlagsEnum_Skip_Odd_Index)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
@@ -4412,7 +4412,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultULongWithFlagsEnum?>(NullWithDefaultULongWithFlagsEnumList.Value, "{0:d}"
+          , new CustomOrderedListExpect<WithDefaultULongWithFlagsEnum?>(NullWithDefaultULongWithFlagsEnumList.Value, "{0:d}"
                                                             , () => NullWithDefaultULongWithFlagsEnum_Skip_Even_Index)
             {
                 {
@@ -4468,7 +4468,7 @@ public class EnumCollectionsTestData
                     """.Dos2Unix()
                 }
             }
-          , new OrderedListExpect<WithDefaultULongWithFlagsEnum?>(NullWithDefaultULongWithFlagsEnumList.Value, "", () => NullWithDefaultULongWithFlagsEnum_Second_3)
+          , new CustomOrderedListExpect<WithDefaultULongWithFlagsEnum?>(NullWithDefaultULongWithFlagsEnumList.Value, "", () => NullWithDefaultULongWithFlagsEnum_Second_3)
             {
                 {
                     new EK(AcceptsSpanFormattable | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)

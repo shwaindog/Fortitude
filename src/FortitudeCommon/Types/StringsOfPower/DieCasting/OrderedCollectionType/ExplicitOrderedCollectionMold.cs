@@ -9,6 +9,7 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<ExplicitOrderedCollectionMold<TElement>>
 {
     public override bool IsComplexType => false;
+    private bool hasInitialized;
     
     protected static readonly Type TypeOfElement = typeof(TElement);
 
@@ -32,64 +33,85 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
     public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement(bool element, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (CompAsOrderedCollection.SkipBody) return this;
-        CompAsOrderedCollection.StyleFormatter
-                               .CollectionNextItemFormat(CompAsOrderedCollection, element, ++ResultCount, formatString ?? "", formatFlags);
+        if (CompAsOrderedCollectionMold.SkipBody) return this;
+        if (!hasInitialized)
+        {
+            hasInitialized = true;
+            CompAsOrderedCollectionMold.ConditionalCollectionPrefix(CompAsOrderedCollectionMold.InstanceOrType, typeof(bool), true, formatFlags);
+        }
+        ResultCount++;
+        CompAsOrderedCollectionMold.StyleFormatter
+                               .CollectionNextItemFormat(CompAsOrderedCollectionMold, element, ++ResultCount, formatString ?? "", formatFlags);
         return AppendNextCollectionItemSeparator();
     }
 
     public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement(bool? element, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (CompAsOrderedCollection.SkipBody) return this;
+        if (CompAsOrderedCollectionMold.SkipBody) return this;
+        if (!hasInitialized)
+        {
+            hasInitialized = true;
+            CompAsOrderedCollectionMold.ConditionalCollectionPrefix(CompAsOrderedCollectionMold.InstanceOrType, typeof(bool?), true, formatFlags);
+        }
+        ResultCount++;
         if (element == null)
         {
-            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            if (CompAsOrderedCollectionMold.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.StyleFormatter.AppendFormattedNull(CompAsOrderedCollection.Sb, formatString, formatFlags);
-                ResultCount++;
+                CompAsOrderedCollectionMold.StyleFormatter.AppendFormattedNull(CompAsOrderedCollectionMold.Sb, formatString, formatFlags);
                 return AppendNextCollectionItemSeparator();
             }
-            return CompAsOrderedCollection.Mold;
+            return CompAsOrderedCollectionMold.Mold;
         }
-        CompAsOrderedCollection.StyleFormatter
-                               .CollectionNextItemFormat(CompAsOrderedCollection, element, ++ResultCount, formatString ?? "", formatFlags | AsCollection);
+        CompAsOrderedCollectionMold.StyleFormatter
+                               .CollectionNextItemFormat(CompAsOrderedCollectionMold, element, ++ResultCount, formatString ?? "", formatFlags | AsCollection);
         return AppendNextCollectionItemSeparator();
     }
 
     public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement<TFmtElement>(TFmtElement? element, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtElement : TElement?, ISpanFormattable?
     {
-        if (CompAsOrderedCollection.SkipBody) return this;
+        if (CompAsOrderedCollectionMold.SkipBody) return this;
+        if (!hasInitialized)
+        {
+            hasInitialized = true;
+            CompAsOrderedCollectionMold.ConditionalCollectionPrefix(CompAsOrderedCollectionMold.InstanceOrType, typeof(TFmtElement), true, formatFlags);
+        }
+        ++ResultCount;
         if (element == null)
         {
-            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            if (CompAsOrderedCollectionMold.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.StyleFormatter.AppendFormattedNull(CompAsOrderedCollection.Sb, formatString, formatFlags);
-                ++ResultCount;
+                CompAsOrderedCollectionMold.StyleFormatter.AppendFormattedNull(CompAsOrderedCollectionMold.Sb, formatString, formatFlags);
                 return AppendNextCollectionItemSeparator();
             }
-            return CompAsOrderedCollection.Mold;
+            return CompAsOrderedCollectionMold.Mold;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++ResultCount, formatString ?? "", formatFlags | AsCollection);
+        CompAsOrderedCollectionMold.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollectionMold, element, ++ResultCount, formatString ?? "", formatFlags | AsCollection);
         return AppendNextCollectionItemSeparator();
     }
 
     public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement<TFmtStructElement>(TFmtStructElement? element
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStructElement : struct, ISpanFormattable
     {
-        if (CompAsOrderedCollection.SkipBody) return this;
+        if (CompAsOrderedCollectionMold.SkipBody) return this;
+        if (!hasInitialized)
+        {
+            hasInitialized = true;
+            CompAsOrderedCollectionMold.ConditionalCollectionPrefix(CompAsOrderedCollectionMold.InstanceOrType, typeof(TFmtStructElement?), true, formatFlags);
+        }
+        ++ResultCount;
         if (element == null)
         {
-            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            if (CompAsOrderedCollectionMold.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.StyleFormatter.AppendFormattedNull(CompAsOrderedCollection.Sb, formatString, formatFlags);
-                ++ResultCount;
+                CompAsOrderedCollectionMold.StyleFormatter.AppendFormattedNull(CompAsOrderedCollectionMold.Sb, formatString, formatFlags);
                 return AppendNextCollectionItemSeparator();
             }
-            return CompAsOrderedCollection.Mold;
+            return CompAsOrderedCollectionMold.Mold;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++ResultCount, formatString ?? "", formatFlags | AsCollection);
+        CompAsOrderedCollectionMold.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollectionMold, element, ++ResultCount, formatString ?? "", formatFlags | AsCollection);
         return AppendNextCollectionItemSeparator();
     }
 
@@ -98,18 +120,23 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        if (CompAsOrderedCollection.SkipBody) return this;
+        if (CompAsOrderedCollectionMold.SkipBody) return this;
+        if (!hasInitialized)
+        {
+            hasInitialized = true;
+            CompAsOrderedCollectionMold.ConditionalCollectionPrefix(CompAsOrderedCollectionMold.InstanceOrType, typeof(TCloaked), true, formatFlags);
+        }
+        ++ResultCount;
         if (element == null)
         {
-            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            if (CompAsOrderedCollectionMold.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.StyleFormatter.AppendFormattedNull(CompAsOrderedCollection.Sb, "", formatFlags);
-                ++ResultCount;
+                CompAsOrderedCollectionMold.StyleFormatter.AppendFormattedNull(CompAsOrderedCollectionMold.Sb, "", formatFlags);
                 return AppendNextCollectionItemSeparator();
             }
-            return CompAsOrderedCollection.Mold;
+            return CompAsOrderedCollectionMold.Mold;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++ResultCount
+        CompAsOrderedCollectionMold.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollectionMold, element, ++ResultCount
                                                                       , palantírReveal, formatString, formatFlags);
         return AppendNextCollectionItemSeparator();
     }
@@ -118,19 +145,24 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
       , PalantírReveal<TCloakedStruct> palantírReveal, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TCloakedStruct : struct
     {
-        if (CompAsOrderedCollection.SkipBody) return this;
+        if (CompAsOrderedCollectionMold.SkipBody) return this;
+        if (!hasInitialized)
+        {
+            hasInitialized = true;
+            CompAsOrderedCollectionMold.ConditionalCollectionPrefix(CompAsOrderedCollectionMold.InstanceOrType, typeof(TCloakedStruct?), true, formatFlags);
+        }
+        ++ResultCount;
         if (element is null)
         {
-            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            if (CompAsOrderedCollectionMold.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.StyleFormatter.AppendFormattedNull(CompAsOrderedCollection.Sb, "", formatFlags);
-                ++ResultCount;
+                CompAsOrderedCollectionMold.StyleFormatter.AppendFormattedNull(CompAsOrderedCollectionMold.Sb, "", formatFlags);
                 return AppendNextCollectionItemSeparator();
             }
-            return CompAsOrderedCollection.Mold;
+            return CompAsOrderedCollectionMold.Mold;
         }
-        CompAsOrderedCollection.StyleFormatter
-                               .CollectionNextItemFormat(CompAsOrderedCollection, element.Value, ++ResultCount
+        CompAsOrderedCollectionMold.StyleFormatter
+                               .CollectionNextItemFormat(CompAsOrderedCollectionMold, element.Value, ++ResultCount
                                                        , palantírReveal, formatString, formatFlags);
         return AppendNextCollectionItemSeparator();
     }
@@ -138,19 +170,24 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
     public ExplicitOrderedCollectionMold<TElement> AddBearerElementAndGoToNextElement<TBearer>(TBearer element
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?, TElement?
     {
-        if (CompAsOrderedCollection.SkipBody) return this;
+        if (CompAsOrderedCollectionMold.SkipBody) return this;
+        if (!hasInitialized)
+        {
+            hasInitialized = true;
+            CompAsOrderedCollectionMold.ConditionalCollectionPrefix(CompAsOrderedCollectionMold.InstanceOrType, typeof(TBearer), true, formatFlags);
+        }
+        ++ResultCount;
         if (element == null)
         {
-            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            if (CompAsOrderedCollectionMold.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.StyleFormatter.AppendFormattedNull(CompAsOrderedCollection.Sb, "", formatFlags);
-                ++ResultCount;
+                CompAsOrderedCollectionMold.StyleFormatter.AppendFormattedNull(CompAsOrderedCollectionMold.Sb, "", formatFlags);
                 return AppendNextCollectionItemSeparator();
             }
-            return CompAsOrderedCollection.Mold;
+            return CompAsOrderedCollectionMold.Mold;
         }
-        CompAsOrderedCollection.StyleFormatter
-                               .CollectionNextStringBearerFormat(CompAsOrderedCollection, element, ++ResultCount
+        CompAsOrderedCollectionMold.StyleFormatter
+                               .CollectionNextStringBearerFormat(CompAsOrderedCollectionMold, element, ++ResultCount
                                                                , formatString, formatFlags);
         return AppendNextCollectionItemSeparator();
     }
@@ -158,19 +195,24 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
     public ExplicitOrderedCollectionMold<TElement> AddBearerElementAndGoToNextElement<TBearerStruct>(TBearerStruct? element
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, TElement, IStringBearer
     {
-        if (CompAsOrderedCollection.SkipBody) return this;
+        if (CompAsOrderedCollectionMold.SkipBody) return this;
+        if (!hasInitialized)
+        {
+            hasInitialized = true;
+            CompAsOrderedCollectionMold.ConditionalCollectionPrefix(CompAsOrderedCollectionMold.InstanceOrType, typeof(TBearerStruct?), true, formatFlags);
+        }
+        ++ResultCount;
         if (element == null)
         {
-            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            if (CompAsOrderedCollectionMold.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.StyleFormatter.AppendFormattedNull(CompAsOrderedCollection.Sb, "", formatFlags);
-                ++ResultCount;
+                CompAsOrderedCollectionMold.StyleFormatter.AppendFormattedNull(CompAsOrderedCollectionMold.Sb, "", formatFlags);
                 return AppendNextCollectionItemSeparator();
             }
-            return CompAsOrderedCollection.Mold;
+            return CompAsOrderedCollectionMold.Mold;
         }
-        CompAsOrderedCollection.StyleFormatter
-                               .CollectionNextStringBearerFormat(CompAsOrderedCollection, element.Value
+        CompAsOrderedCollectionMold.StyleFormatter
+                               .CollectionNextStringBearerFormat(CompAsOrderedCollectionMold, element.Value
                                                                , ++ResultCount, formatString, formatFlags);
         return AppendNextCollectionItemSeparator();
     }
@@ -178,79 +220,112 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
     public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement(string? element, string? formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (CompAsOrderedCollection.SkipBody) return this;
+        if (CompAsOrderedCollectionMold.SkipBody) return this;
+        if (!hasInitialized)
+        {
+            hasInitialized = true;
+            CompAsOrderedCollectionMold.ConditionalCollectionPrefix(CompAsOrderedCollectionMold.InstanceOrType, typeof(string), true, formatFlags);
+        }
+        ++ResultCount;
         if (element == null)
         {
-            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            if (CompAsOrderedCollectionMold.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.StyleFormatter.AppendFormattedNull(CompAsOrderedCollection.Sb, formatString, formatFlags);
-                ++ResultCount;
+                CompAsOrderedCollectionMold.StyleFormatter.AppendFormattedNull(CompAsOrderedCollectionMold.Sb, formatString, formatFlags);
                 return AppendNextCollectionItemSeparator();
             }
-            return CompAsOrderedCollection.Mold;
+            return CompAsOrderedCollectionMold.Mold;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++ResultCount, formatString, formatFlags);
+        CompAsOrderedCollectionMold.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollectionMold, element, ++ResultCount, formatString, formatFlags);
         return AppendNextCollectionItemSeparator();
     }
 
     public ExplicitOrderedCollectionMold<TElement> AddCharSequenceElementAndGoToNextElement<TCharSeq>(TCharSeq element, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence?
     {
-        if (CompAsOrderedCollection.SkipBody) return this;
+        if (CompAsOrderedCollectionMold.SkipBody) return this;
+        if (!hasInitialized)
+        {
+            hasInitialized = true;
+            CompAsOrderedCollectionMold.ConditionalCollectionPrefix(CompAsOrderedCollectionMold.InstanceOrType, typeof(TCharSeq), true, formatFlags);
+        }
+        ++ResultCount;
         if (element == null)
         {
-            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            if (CompAsOrderedCollectionMold.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.StyleFormatter.AppendFormattedNull(CompAsOrderedCollection.Sb, formatString, formatFlags);
-                ++ResultCount;
+                CompAsOrderedCollectionMold.StyleFormatter.AppendFormattedNull(CompAsOrderedCollectionMold.Sb, formatString, formatFlags);
                 return AppendNextCollectionItemSeparator();
             }
-            return CompAsOrderedCollection.Mold;
+            return CompAsOrderedCollectionMold.Mold;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextCharSeqFormat(CompAsOrderedCollection, element, ++ResultCount, formatString, formatFlags);
+        CompAsOrderedCollectionMold.StyleFormatter.CollectionNextCharSeqFormat(CompAsOrderedCollectionMold, element, ++ResultCount, formatString, formatFlags);
         return AppendNextCollectionItemSeparator();
     }
 
     public ExplicitOrderedCollectionMold<TElement> AddElementAndGoToNextElement(StringBuilder? element, string? formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (CompAsOrderedCollection.SkipBody) return this;
+        if (CompAsOrderedCollectionMold.SkipBody) return this;
+        if (!hasInitialized)
+        {
+            hasInitialized = true;
+            CompAsOrderedCollectionMold.ConditionalCollectionPrefix(CompAsOrderedCollectionMold.InstanceOrType, typeof(StringBuilder), true, formatFlags);
+        }
+        ++ResultCount;
         if (element == null)
         {
-            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            if (CompAsOrderedCollectionMold.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.StyleFormatter.AppendFormattedNull(CompAsOrderedCollection.Sb, formatString, formatFlags);
-                ++ResultCount;
+                CompAsOrderedCollectionMold.StyleFormatter.AppendFormattedNull(CompAsOrderedCollectionMold.Sb, formatString, formatFlags);
                 return AppendNextCollectionItemSeparator();
             }
-            return CompAsOrderedCollection.Mold;
+            return CompAsOrderedCollectionMold.Mold;
         }
-        CompAsOrderedCollection.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollection, element, ++ResultCount, formatString, formatFlags);
+        CompAsOrderedCollectionMold.StyleFormatter.CollectionNextItemFormat(CompAsOrderedCollectionMold, element, ++ResultCount, formatString, formatFlags);
         return AppendNextCollectionItemSeparator();
     }
 
     public ExplicitOrderedCollectionMold<TElement> AddMatchElementAndGoToNextElement(TElement? element, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (CompAsOrderedCollection.SkipBody) return this;
+        if (CompAsOrderedCollectionMold.SkipBody) return this;
+        if (!hasInitialized)
+        {
+            hasInitialized = true;
+            CompAsOrderedCollectionMold.ConditionalCollectionPrefix(CompAsOrderedCollectionMold.InstanceOrType, typeof(TElement), true, formatFlags);
+        }
+        ++ResultCount;
         if (element == null)
         {
-            if (CompAsOrderedCollection.Settings.NullWritesNullString)
+            if (CompAsOrderedCollectionMold.Settings.NullWritesNullString)
             {
-                CompAsOrderedCollection.StyleFormatter.AppendFormattedNull(CompAsOrderedCollection.Sb, formatString, formatFlags);
-                ++ResultCount;
+                CompAsOrderedCollectionMold.StyleFormatter.AppendFormattedNull(CompAsOrderedCollectionMold.Sb, formatString, formatFlags);
                 return AppendNextCollectionItemSeparator();
             }
         }
-        CompAsOrderedCollection.AppendFormattedCollectionItemMatchOrNull(element, ++ResultCount, formatString ?? "",  formatFlags);
+        CompAsOrderedCollectionMold.AppendFormattedCollectionItemMatchOrNull(element, ++ResultCount, formatString ?? "",  formatFlags);
         return AppendNextCollectionItemSeparator();
     }
 
     public ExplicitOrderedCollectionMold<TElement> AppendNextCollectionItemSeparator()
     {
-        if (CompAsOrderedCollection.SkipBody) return this;
-        CompAsOrderedCollection.StyleFormatter.AddCollectionElementSeparatorAndPadding(CompAsOrderedCollection, TypeOfElement, ResultCount);
+        if (CompAsOrderedCollectionMold.SkipBody) return this;
+        CompAsOrderedCollectionMold.StyleFormatter.AddCollectionElementSeparatorAndPadding(CompAsOrderedCollectionMold, TypeOfElement, ResultCount);
         return this;
+    }
+    
+    
+    public override void FinishTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
+    {
+        base.FinishTypeOpening(usingFormatter, formatFlags);
+        // usingFormatter.AppendOpenCollection(State, TypeOfElement, true, formatFlags);
+    }
+    
+    public override void AppendClosing()
+    {
+        State.StyleFormatter.AppendCloseCollection(State, ResultCount, TypeOfElement, TotalCount, "", State.CreateMoldFormatFlags);
+        base.AppendClosing();
     }
 
     public AppendSummary AppendCollectionComplete() => Complete();
@@ -258,10 +333,10 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
     protected override void SourceBuilderComponentAccess(WrittenAsFlags writeMethod)
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
-        MoldStateField = recycler.Borrow<CollectionBuilderCompAccess<ExplicitOrderedCollectionMold<TElement>>>()
-                             .InitializeOrderCollectionComponentAccess(this, PortableState, writeMethod, true);
+        MoldStateField = recycler.Borrow<CollectionMoldWriteState<ExplicitOrderedCollectionMold<TElement>>>()
+                             .InitializeOrderCollectionComponentAccess(this, PortableState, writeMethod);
     }
     
-    protected override CollectionBuilderCompAccess<ExplicitOrderedCollectionMold<TElement>> CompAsOrderedCollection =>  
-        (CollectionBuilderCompAccess<ExplicitOrderedCollectionMold<TElement>>)MoldStateField!;
+    protected override CollectionMoldWriteState<ExplicitOrderedCollectionMold<TElement>> CompAsOrderedCollectionMold =>  
+        (CollectionMoldWriteState<ExplicitOrderedCollectionMold<TElement>>)MoldStateField!;
 }

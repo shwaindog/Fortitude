@@ -114,15 +114,21 @@ public class SelectTypeCollectionFieldPrettyLogTests : SelectTypeCollectionField
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations[9]
-                                           , ScaffoldingRegistry.AllScaffoldingTypes[75], StringBuilderType.CharArrayStringBuilder);
+        ExecuteIndividualScaffoldExpectation(BoolCollectionsTestData.AllBoolCollectionExpectations[3], ScaffoldingRegistry.AllScaffoldingTypes[3]
+                                           , StringBuilderType.CharArrayStringBuilder);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
     {
-        var compactLogTemplate =
-            IsLogIgnoredTypeName(tos.Settings, className)
+        var elementType     = className?.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? className;
+        var collFullName    = className?.FullName ?? "";
+        var elementFullName = elementType?.FullName ?? "";
+
+        var collectionShouldSuppressName = tos.Settings.LogSuppressDisplayCollectionNames.Any(s => collFullName.StartsWith(s));
+        var elementShouldSuppressName    = tos.Settings.LogSuppressDisplayCollectionElementNames.Any(s => elementFullName.StartsWith(s));
+        var compactLogTemplate = (collectionShouldSuppressName && elementShouldSuppressName) 
+                              || className == null || IsLogIgnoredTypeName(tos.Settings, className)
                 ? "{{{1}{2}{3}{1}}}"
                 : "{0} {{{1}{2}{3}{1}}}";
 
@@ -139,8 +145,12 @@ public class SelectTypeCollectionFieldPrettyLogTests : SelectTypeCollectionField
              && (orderedListExpectation.ElementCallType.IsEnumOrNullable() ))
             {
                 var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
-                nextExpect.Append(propertyName).Append(": (");
-                orderedListExpectation.CollectionCallType.AppendShortNameInCSharpFormat(nextExpect).Append(") ");
+                nextExpect.Append(propertyName).Append(": ");
+                if (!orderedListExpectation.IsTwoInARowTypes)
+                {
+                    nextExpect.Append("(");
+                    orderedListExpectation.CollectionCallType.AppendShortNameInCSharpFormat(nextExpect).Append(") ");
+                }
                 nextExpect.Append(expectValue.IndentSubsequentLines(tos.Settings.NewLineStyle));
                 expectValue.DecrementRefCount();
                 expectValue = nextExpect;
@@ -166,14 +176,15 @@ public class SelectTypeCollectionFieldPrettyLogTests : SelectTypeCollectionField
     protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation)
     {
-        var maybeElementType = className?.GetIterableElementType();
-        var compactLogTemplate =
-            className != null
-            && (!IsLogIgnoredTypeName(tos.Settings, className) 
-         || (maybeElementType != null 
-         || !IsLogIgnoredTypeName(tos.Settings, maybeElementType!.IfNullableGetUnderlyingTypeOrThis())))
-                ? "({0}) {1}"
-                : "{1}";
+            var elementType     = className?.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? className;
+            var collFullName    = className?.FullName ?? "";
+            var elementFullName = elementType?.FullName ?? "";
+
+            var collectionShouldSuppressName = tos.Settings.LogSuppressDisplayCollectionNames.Any(s => collFullName.StartsWith(s));
+            var elementShouldSuppressName    = tos.Settings.LogSuppressDisplayCollectionElementNames.Any(s => elementFullName.StartsWith(s));
+            var compactLogTemplate = (collectionShouldSuppressName && elementShouldSuppressName) || className == null
+                ? "{1}"
+                : "({0}) {1}";
 
         var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
         if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue)) { expectValue.Clear(); }

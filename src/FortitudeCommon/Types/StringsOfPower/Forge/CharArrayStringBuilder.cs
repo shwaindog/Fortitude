@@ -66,7 +66,6 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         set => base.Recycler = value;
     }
 
-
     public CharArrayStringBuilder EnsureIsAtSize(int size)
     {
         if (ca != null && ca.Capacity != size)
@@ -106,7 +105,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         set => ca[index] = value;
     }
 
-    public int LineChars
+    public int CurrentLineStartIndex
     {
         get
         {
@@ -121,12 +120,12 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         }
     }
 
-    public int LineContentStartColumn
+    public int CurrentLineIndentEndColumn
     {
         get
         {
             var columnCount = 0;
-            for (var i = 0; i < ca.Length - LineChars; i++)
+            for (var i = 0; i < ca.Length - CurrentLineStartIndex; i++)
             {
                 var checkChar = ca[i];
                 if (!checkChar.IsWhiteSpace()) return columnCount;
@@ -136,11 +135,11 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         }
     }
 
-    public int LineContentWidth
+    public int CurrentLineCharWidth
     {
         get
         {
-            var contentStartColumn = LineContentStartColumn;
+            var contentStartColumn = CurrentLineIndentEndColumn;
             if (contentStartColumn < 0) return 0;
             var lineContentFromEnd = 0;
             for (var i = ca.Length - 1; i >= 0; i--)
@@ -152,7 +151,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
                     break;
                 }
             }
-            return Math.Max(0, LineChars - contentStartColumn - lineContentFromEnd);
+            return Math.Max(0, CurrentLineStartIndex - contentStartColumn - lineContentFromEnd);
         }
     }
 
@@ -1679,7 +1678,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         var requiredIncreaseSize = count * Math.Max(0, replace.Length - find.Length);
         EnsureCapacity(requiredIncreaseSize);
 
-        ca.Replace(find, replace, startIndex, length + requiredIncreaseSize);
+        ca.Replace(find, replace, startIndex, length);
         return this;
     }
 

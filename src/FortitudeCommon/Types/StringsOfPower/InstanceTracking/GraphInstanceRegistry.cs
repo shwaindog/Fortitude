@@ -31,6 +31,7 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
             Debugger.Break();
             return -2;
         }
+        if (toSetTo.RegistryId == -1 || toSetTo.VisitIndex == -1) return -1;
         if (toSetTo.VisitIndex < 0 || toSetTo.VisitIndex >= OrderedObjectGraph.Count)
         {
             Debugger.Break();
@@ -68,8 +69,9 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
             OrderedObjectGraph[i] = new GraphNodeVisit();
         }
         OrderedObjectGraph.Clear();
-        ThisRegistryNextRefId   = 1;
+        ThisRegistryNextRefId = 1;
         CurrentGraphNodeIndex = -1;
+        
     }
     
     public bool UseReferenceEqualsForVisited { get; set; }
@@ -300,6 +302,10 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
     public override void StateReset()
     {
         ClearObjectVisitedGraph();
+        RegistryId                   = -1;
+        master                       = null!;
+        
+        UseReferenceEqualsForVisited = false;
         base.StateReset();
     }
 }

@@ -28,12 +28,14 @@ public class TwoObjectFields: IStringBearer, ISupportFormattingFlags, ISupportsV
     public object? FirstObjectField { get; set; }
     public object? SecondObjectField { get; set; }
 
-    public AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .Field.AlwaysAddMatch(nameof(FirstObjectField), FirstObjectField, ValueFormatString, FormattingFlags)
-           .Field.AlwaysAddMatch(nameof(SecondObjectField), SecondObjectField, ValueFormatString, FormattingFlags)
-           .Complete();
-    
+    public AppendSummary RevealState(ITheOneString tos)
+    {
+        var ctm = tos.StartComplexType(this);
+        ctm.Field.AlwaysAddMatch(nameof(FirstObjectField), FirstObjectField, ValueFormatString, FormattingFlags);
+        ctm.Field.AlwaysAddMatch(nameof(SecondObjectField), SecondObjectField, ValueFormatString, FormattingFlags);
+        return ctm.Complete();
+    }
+
     public string? ValueFormatString { get; set; }
     public FormatFlags FormattingFlags { get; set; }
     

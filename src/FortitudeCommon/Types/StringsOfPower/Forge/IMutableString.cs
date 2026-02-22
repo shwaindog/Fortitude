@@ -8,7 +8,7 @@ using FortitudeCommon.Types.Mutable;
 
 namespace FortitudeCommon.Types.StringsOfPower.Forge;
 
-public interface IMutableString : IReusableObject<IMutableString>, IStringBuilder, ITransferState<IFrozenString>, 
+public interface IMutableString : IReusableObject<IMutableString>, IStringBuilder, ITransferState<ICharSequence>, 
     IFrozenString, IFreezable<IFrozenString>
 {
     new IMutableString Clone();

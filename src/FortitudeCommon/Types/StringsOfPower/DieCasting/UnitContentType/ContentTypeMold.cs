@@ -33,70 +33,68 @@ public class ContentTypeMold<TContentMold, TToContentMold> : TransitioningTypeMo
         return this;
     }
 
-    protected ContentTypeDieCast<TContentMold, TToContentMold> Msf
+    protected ContentTypeWriteState<TContentMold, TToContentMold> Mws
     {
         [DebuggerStepThrough]
-        get => (ContentTypeDieCast<TContentMold, TToContentMold>)MoldStateField!;
+        get => (ContentTypeWriteState<TContentMold, TToContentMold>)MoldStateField!;
     }
 
-    public override bool IsComplexType => Msf.SupportsMultipleFields;
+    public override bool IsComplexType => Mws.SupportsMultipleFields;
 
     public virtual bool IsSimpleMold => true;
-
     
-    public override void StartTypeOpening()
+    public override void StartTypeOpening(FormatFlags formatFlags)
     {
         if (PortableState.MoldGraphVisit.NoVisitCheckDone || PortableState.CreateFormatFlags.HasSuppressOpening()) return;
         var usingFormatter = (CreateFormatFlags.HasAsStringContentFlag()
-                           && Msf.CurrentWriteMethod.HasAllOf(AsComplex | AsContent)
-                           && Msf.StyleFormatter.LayoutEncoder.Type != EncodingType.PassThrough)
-            ? Msf.StyleFormatter.PreviousContextOrThis
-            : Msf.StyleFormatter;
+                           && Mws.CurrentWriteMethod.HasAllOf(AsComplex | AsContent)
+                           && Mws.StyleFormatter.LayoutEncoder.Type != EncodingType.PassThrough)
+            ? Mws.StyleFormatter.PreviousContextOrThis
+            : Mws.StyleFormatter;
       
-        StartFormattingTypeOpening(usingFormatter);
-        MyAppendGraphFields(usingFormatter);
+        StartTypeOpening(usingFormatter, formatFlags);
+        MyAppendGraphFields(Mws.InstanceOrType, Mws.MoldGraphVisit, usingFormatter, Mws.CurrentWriteMethod, Mws.CreateMoldFormatFlags);
     }
 
-    public override void FinishTypeOpening()
+    public override void FinishTypeOpening(FormatFlags formatFlags)
     {
         if (PortableState.MoldGraphVisit.NoVisitCheckDone || PortableState.CreateFormatFlags.HasSuppressOpening()) return;
         var usingFormatter = (CreateFormatFlags.HasAsStringContentFlag()
-                           && Msf.CurrentWriteMethod.HasAllOf(AsComplex | AsContent)
-                           && Msf.StyleFormatter.LayoutEncoder.Type != EncodingType.PassThrough)
-            ? Msf.StyleFormatter.PreviousContextOrThis
-            : Msf.StyleFormatter;
-        CompleteTypeOpeningToTypeFields(usingFormatter);
+                           && Mws.CurrentWriteMethod.HasAllOf(AsComplex | AsContent)
+                           && Mws.StyleFormatter.LayoutEncoder.Type != EncodingType.PassThrough)
+            ? Mws.StyleFormatter.PreviousContextOrThis
+            : Mws.StyleFormatter;
+        FinishTypeOpening(usingFormatter, formatFlags);
     }
 
-    public override void StartFormattingTypeOpening(IStyledTypeFormatting usingFormatter)
+    public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
     {
-        if (Msf.SupportsMultipleFields)
+        if (Mws.SupportsMultipleFields)
         {
-            usingFormatter.StartComplexTypeOpening(Msf);
+            usingFormatter.StartComplexTypeOpening(Mws.InstanceOrType, Mws, Mws.CurrentWriteMethod, formatFlags | Mws.CreateMoldFormatFlags);
         }
         else
         {
-            usingFormatter.StartContentTypeOpening(Msf);
+            usingFormatter.StartSimpleTypeOpening(Mws.InstanceOrType, Mws, Mws.CurrentWriteMethod, formatFlags | Mws.CreateMoldFormatFlags);
         }
     }
 
-    public override void CompleteTypeOpeningToTypeFields(IStyledTypeFormatting usingFormatter)
+    public override void FinishTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
     {
-        var formatter = Msf!.StyleFormatter;
-        if (IsComplexType)
+        if (Mws.SupportsMultipleFields)
         {
-            formatter.FinishComplexTypeOpening(Msf);
+            usingFormatter.FinishComplexTypeOpening(Mws.InstanceOrType, Mws, Mws.CurrentWriteMethod, formatFlags | Mws.CreateMoldFormatFlags);
         }
         else
         {
-            formatter.FinishContentTypeOpening(Msf);
+            usingFormatter.FinishSimpleTypeOpening(Mws.InstanceOrType, Mws, Mws.CurrentWriteMethod, formatFlags | Mws.CreateMoldFormatFlags);
         }
     }
 
     public override void AppendClosing()
     {
 
-        if (Msf.CurrentWriteMethod.SupportsMultipleFields())
+        if (Mws.CurrentWriteMethod.SupportsMultipleFields())
         {
             WrittenAs = AsComplex;
         }
@@ -104,16 +102,16 @@ public class ContentTypeMold<TContentMold, TToContentMold> : TransitioningTypeMo
         {
             WrittenAs = AsContent;
         }
-        var formatter = MoldStateField!.StyleFormatter;
-        if (IsComplexType)
+        var formatter = Mws!.StyleFormatter;
+        if (Mws.SupportsMultipleFields)
         {
-            formatter.AppendComplexTypeClosing(MoldStateField);
+            formatter.AppendComplexTypeClosing(Mws.InstanceOrType, Mws, Mws.CurrentWriteMethod);
         }
         else
         {
-            formatter.AppendContentTypeClosing(MoldStateField);
+            formatter.AppendSimpleTypeClosing(Mws.InstanceOrType, Mws, Mws.CurrentWriteMethod);
         }
     }
 
-    public IScopeDelimitedStringBuilder StartDelimitedStringBuilder() => Msf.StartDelimitedStringBuilder();
+    public IScopeDelimitedStringBuilder StartDelimitedStringBuilder() => Mws.StartDelimitedStringBuilder();
 }

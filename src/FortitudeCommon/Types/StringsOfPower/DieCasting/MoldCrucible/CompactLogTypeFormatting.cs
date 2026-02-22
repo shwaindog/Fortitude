@@ -3,6 +3,7 @@
 
 using System.Diagnostics;
 using System.Text;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
@@ -149,7 +150,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual FormatFlags ResolveContentAsValueFormatFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var typeOfT               = typeof(T);
+        var typeOfT = typeof(T);
+
         var isAnyTypeHoldingChars = typeOfT.IsAnyTypeHoldingChars() || typeOfT.IsChar() || typeOfT.IsNullableChar();
         if (input == null && (fallbackValue.Length == 0 && !isAnyTypeHoldingChars)) return formatFlags | AsValueContent;
         if (isAnyTypeHoldingChars) return formatFlags | DisableAutoDelimiting | AsValueContent;
@@ -159,7 +161,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     public virtual FormatFlags ResolveContentAsStringFormatFlags<T>(T input, ReadOnlySpan<char> fallbackValue, string formatString = ""
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var typeOfT                     = typeof(T);
+        var typeOfT = typeof(T);
+
         var isSpanFormattableOrNullable = typeOfT.IsSpanFormattableOrNullable();
         var isAnyTypeHoldingChars       = typeOfT.IsAnyTypeHoldingChars() || typeOfT.IsChar() || typeOfT.IsNullableChar();
         if (isAnyTypeHoldingChars) return formatFlags | DisableAutoDelimiting | AsStringContent;
@@ -196,33 +199,21 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var settings = tos.Settings;
         switch (proposedWriteType)
         {
-            case AsContent | AsComplex:
-                resolvedFlags = formatFlags | ContentAllowText | ContentAllowText | ContentAllowAnyValueType | ContentAllowComplexType;
-                // if (visitResult.IsARevisit && actualType.IsInputConstructionTypeCached())
-                // {
-                //     if ((settings.InstanceTrackingIncludeSpanFormattableClasses
-                //       && actualType.IsSpanFormattableOrNullableCached()
-                //       && !settings.InstanceMarkingIncludeSpanFormattableContents)
-                //      || (settings.InstanceTrackingIncludeStringInstances
-                //       && actualType.IsString()
-                //       && !settings.InstanceMarkingIncludeStringContents)
-                //      || (settings.InstanceTrackingIncludeStringBuilderInstances
-                //       && actualType.IsStringBuilder()
-                //       && !settings.InstanceMarkingIncludeStringBuilderContents)
-                //      || (settings.InstanceTrackingIncludeCharSequenceInstances
-                //       && actualType.IsCharSequence()
-                //       && !settings.InstanceMarkingIncludeCharSequenceContents)
-                //      || (settings.InstanceTrackingIncludeCharArrayInstances
-                //       && actualType.IsCharArray()
-                //       && !settings.InstanceMarkingIncludeSpanFormattableContents))
-                //     {
-                //         resolvedWrittenAs = (resolvedWrittenAs & ~AsComplex) | AsSimple | AsContent;
-                //     }
-                // }
+            case AsObject | AsRaw:
+                resolvedFlags |= formatFlags | ContentAllowNull | ContentAllowNumber | ContentAllowText | ContentAllowAnyValueType;
+                if (visitResult.IsARevisit)
+                {
+                    resolvedFlags     |= ContentAllowComplexType;
+                    resolvedWrittenAs =  (resolvedWrittenAs & ~AsSimple) | AsComplex | AsRaw  | AsObject;
+                    break;
+                }
+
+                resolvedWrittenAs =  (resolvedWrittenAs & ~AsComplex) | AsSimple | AsRaw  | AsObject;
                 break;
-            case AsRaw:
+            case AsContent | AsComplex: resolvedFlags = formatFlags | ContentAllowNull | ContentAllowNumber | ContentAllowText | ContentAllowAnyValueType | ContentAllowComplexType; break;
+            case AsRaw | AsContent:
             case AsContent | AsSimple:
-                resolvedFlags = formatFlags | ContentAllowText | ContentAllowText | ContentAllowAnyValueType;
+                resolvedFlags = formatFlags | ContentAllowNull | ContentAllowNumber | ContentAllowText | ContentAllowAnyValueType;
                 if (actualType.IsSpanFormattableOrNullableCached() || actualType.IsBoolOrNullable())
                 {
                     var actualTypeFullName = actualType.FullName;
@@ -266,27 +257,46 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                     }
                     else
                     {
-                        resolvedFlags = (resolvedFlags & ~ContentAllowComplexType) | SuppressOpening | shouldSuppressTypeNameDecision |
-                                        SuppressClosing;
+                        resolvedFlags = (resolvedFlags & ~ContentAllowComplexType) | SuppressOpening | shouldSuppressTypeNameDecision | SuppressClosing;
                     }
                 }
                 break;
-            case AsComplex:
+            case AsComplex | AsObject:
                 if (actualType.IsSpanFormattableOrNullableCached())
                 {
                     var actualTypeFullName = actualType.FullName;
                     var shouldSuppressTypeNameDecision =
-                        StyleOptions.LogSuppressDisplayTypeNames
-                                    .Any(s => actualTypeFullName?.StartsWith(s) ?? false)
+                        StyleOptions.LogSuppressDisplayTypeNames.Any(s => actualTypeFullName?.StartsWith(s) ?? false)
                             ? LogSuppressTypeNames
                             : DefaultCallerTypeFlags;
                     resolvedFlags |= shouldSuppressTypeNameDecision;
                 }
                 break;
+            case AsRaw | WrittenAsFlags.AsCollection:
+                resolvedFlags     |= formatFlags | ContentAllowNull | ContentAllowNumber | ContentAllowText | ContentAllowAnyValueType;
+                if (visitResult.IsARevisit)
+                {
+                    resolvedWrittenAs =  AsRaw | AsComplex | WrittenAsFlags.AsCollection;
+                    resolvedFlags     |= ContentAllowComplexType;
+                }
+                else
+                {
+                    resolvedWrittenAs =  AsRaw | AsSimple | WrittenAsFlags.AsCollection;
+                }
+                break;
             case AsComplex | WrittenAsFlags.AsCollection:
-                if (visitResult.IsARevisit) { resolvedWrittenAs = AsSimple | WrittenAsFlags.AsCollection; }
+                resolvedFlags     |= formatFlags | ContentAllowNull | ContentAllowNumber | ContentAllowText | ContentAllowAnyValueType | ContentAllowComplexType;
+                break;
+            case AsSimple | WrittenAsFlags.AsCollection:
+                resolvedFlags     |= formatFlags | ContentAllowNull | ContentAllowNumber | ContentAllowText | ContentAllowAnyValueType;
+                if (visitResult.IsARevisit)
+                {
+                    resolvedWrittenAs =  AsComplex | WrittenAsFlags.AsCollection;
+                    resolvedFlags     |= formatFlags | ContentAllowComplexType;
+                }
                 break;
             case AsMapCollection:
+                resolvedFlags     |= formatFlags | ContentAllowNull | ContentAllowNumber | ContentAllowText | ContentAllowAnyValueType | ContentAllowComplexType;
                 resolvedWrittenAs = visitResult.IsARevisit
                     ? AsSimple | AsMapCollection
                     : AsComplex | AsMapCollection;
@@ -296,34 +306,54 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return (resolvedWrittenAs, resolvedFlags);
     }
 
-    public virtual ContentSeparatorRanges StartContentTypeOpening(ITypeMolderDieCast mdc
+    public virtual ContentSeparatorRanges StartSimpleTypeOpening<T>(T instanceToOpen, IMoldWriteState mws, WrittenAsFlags openAs
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (mdc.CurrentWriteMethod.SupportsMultipleFields()) { return StartComplexTypeOpening(mdc); }
-        var sb = mdc.Sb;
+        if (openAs.SupportsMultipleFields()) { return StartComplexTypeOpening(instanceToOpen, mws, openAs); }
+        var sb = mws.Sb;
 
-        var buildingType = mdc.TypeBeingBuilt;
+        var buildingType         = instanceToOpen is IRecyclableStructContainer structContainer
+            ? structContainer.StoredType
+            : (instanceToOpen is Type asType 
+                ? asType 
+                : (instanceToOpen?.GetType() ?? typeof(T)));
+        var buildingTypeFullName = buildingType.FullName ?? "";
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
-        if (formatFlags.DoesNotHaveLogSuppressTypeNamesFlag()
-            // && !buildingType.IsStringBearer() 
-         && !(StyleOptions.LogSuppressDisplayTypeNames.Any(s => buildingType.FullName?.StartsWith(s) ?? false))
-           )
+        if (formatFlags.DoesNotHaveLogSuppressTypeNamesFlag())
         {
-            sb.Append(RndBrktOpn);
-            buildingType.AppendShortNameInCSharpFormat(sb);
-            mdc.WroteTypeName = true;
+            var showTypeName = false;
+
+            showTypeName |= (openAs.HasAnyOf(AsContent | AsObject)
+                          && !(StyleOptions.LogSuppressDisplayTypeNames.Any(s => buildingTypeFullName.StartsWith(s))));
+
+            if (!showTypeName)
+            {
+                var elementType          = buildingType.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? buildingType;
+                var elementTypeFullName = elementType.FullName ?? "";
+                showTypeName |= (openAs.HasAsCollectionFlag() 
+                               && !(StyleOptions.LogSuppressDisplayCollectionNames.Any(s => buildingTypeFullName.StartsWith(s))
+                                && StyleOptions.LogSuppressDisplayCollectionElementNames.Any(s => elementTypeFullName.StartsWith(s)))
+                              || (mws.MoldGraphVisit.IsARevisit && mws is ICollectionMoldWriteState { IsSimple: true }));
+            }
+
+            if (showTypeName)
+            {
+                sb.Append(RndBrktOpn);
+                buildingType.AppendShortNameInCSharpFormat(sb);
+                mws.WroteOuterTypeName = true;
+            }
         }
         return Gb.ContentEndToRanges(formatFlags);
     }
 
-    public virtual ContentSeparatorRanges FinishContentTypeOpening(ITypeMolderDieCast mdc
+    public virtual ContentSeparatorRanges FinishSimpleTypeOpening<T>(T instanceToOpen, IMoldWriteState mws, WrittenAsFlags openAs
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (mdc.CurrentWriteMethod.SupportsMultipleFields()) { return FinishComplexTypeOpening(mdc); }
-        if (mdc is { WroteTypeName: true })
+        if (openAs.SupportsMultipleFields()) { return FinishComplexTypeOpening(instanceToOpen, mws, openAs); }
+        if (mws is { WroteOuterTypeName: true })
         {
             Gb.AppendContent(RndBrktCls);
-            if (!mdc.SkipBody)
+            if (!mws.SkipBody)
             {
                 // space considered content
                 Gb.AppendContent(Spc);
@@ -332,9 +362,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return ContentSeparatorRanges.None;
     }
 
-    public virtual ContentSeparatorRanges AppendContentTypeClosing(ITypeMolderDieCast mdc)
+    public virtual ContentSeparatorRanges AppendSimpleTypeClosing<T>(T instanceToOpen, IMoldWriteState mdc, WrittenAsFlags openAs)
     {
-        if (mdc.CurrentWriteMethod.SupportsMultipleFields()) { return AppendComplexTypeClosing(mdc); }
+        if (openAs.SupportsMultipleFields()) { return AppendComplexTypeClosing(instanceToOpen, mdc, openAs); }
         if (Gb.HasCommitContent) { Gb.SnapshotLastAppendSequence(Gb.CurrentSectionRanges.StartedWithFormatFlags); }
 
         var sb = mdc.Sb;
@@ -350,12 +380,15 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return Gb.SnapshotLastAppendSequence(DefaultCallerTypeFlags);
     }
 
-    public virtual ContentSeparatorRanges StartComplexTypeOpening(ITypeMolderDieCast mdc
+    public virtual ContentSeparatorRanges StartComplexTypeOpening<T>(T instanceToOpen, IMoldWriteState mdc, WrittenAsFlags openAs
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var sb = mdc.Sb;
 
-        var buildingType      = mdc.TypeBeingBuilt;
+
+        var buildingType         = instanceToOpen is IRecyclableStructContainer structContainer
+            ? structContainer.StoredType
+            : (instanceToOpen?.GetType() ?? typeof(T));
         var buildTypeFullName = buildingType.FullName ?? "";
 
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
@@ -368,12 +401,13 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
              (formatFlags.HasAddTypeNameFieldFlag() ||
               !StyleOptions.LogSuppressDisplayTypeNames.Any(s => buildTypeFullName.StartsWith(s)))))
         {
-            var isSimpleOrContentType = mdc.CurrentWriteMethod.HasAnyOf(AsContent | AsSimple);
+            var isSimpleOrContentType = mdc.CurrentWriteMethod.HasAnyOf(AsContent | AsSimple | WrittenAsFlags.AsCollection) 
+                                     || mdc.CurrentWriteMethod.HasAllOf(AsRaw | AsObject);
             if (isSimpleOrContentType) { Gb.AppendContent(RndBrktOpn); }
             buildingType.AppendShortNameInCSharpFormat(sb);
             if (isSimpleOrContentType) { Gb.AppendContent(RndBrktCls); }
             sb.Append(Spc);
-            mdc.WroteTypeName = true;
+            mdc.WroteOuterTypeName = true;
         }
         return Gb
                .AppendContent(BrcOpn)
@@ -381,11 +415,28 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                .Complete(formatFlags);
     }
 
-    public virtual ContentSeparatorRanges FinishComplexTypeOpening(ITypeMolderDieCast mdc
+    public virtual ContentSeparatorRanges FinishComplexTypeOpening<T>(T instanceToOpen, IMoldWriteState mdc, WrittenAsFlags openAs
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (Gb.CurrentSectionRanges.HasNonZeroLengthContent) { Gb.SnapshotLastAppendSequence(Gb.CurrentSectionRanges.StartedWithFormatFlags); }
         return ContentSeparatorRanges.None;
+    }
+
+    public virtual ContentSeparatorRanges AppendComplexTypeClosing<T>(T instanceToOpen, IMoldWriteState mdc, WrittenAsFlags openAs)
+    {
+        if (Gb.CurrentSectionRanges.HasNonZeroLengthContent) { Gb.SnapshotLastAppendSequence(Gb.CurrentSectionRanges.StartedWithFormatFlags); }
+
+        var sb = mdc.Sb;
+
+        var previousContentPadSpacing = Gb.LastContentSeparatorPaddingRanges;
+        if (mdc.CreateMoldFormatFlags.HasSuppressClosing()) { Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags, true); }
+        else
+        {
+            var lastContentChar = Gb.RemoveLastSeparatorAndPadding();
+            if (lastContentChar != BrcOpnChar) { Gb.StartAppendContent(Spc, sb, this, DefaultCallerTypeFlags).AppendContent(BrcCls); }
+            else { Gb.StartAppendContent(BrcCls, sb, this, DefaultCallerTypeFlags); }
+        }
+        return Gb.Complete(previousContentPadSpacing.PreviousFormatFlags);
     }
 
     public virtual int SizeFieldValueSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags) =>
@@ -438,31 +489,15 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return AddNextFieldPadding(formatFlags);
     }
 
-    public virtual ContentSeparatorRanges AppendComplexTypeClosing(ITypeMolderDieCast mdc)
-    {
-        if (Gb.CurrentSectionRanges.HasNonZeroLengthContent) { Gb.SnapshotLastAppendSequence(Gb.CurrentSectionRanges.StartedWithFormatFlags); }
-
-        var sb = mdc.Sb;
-
-        var previousContentPadSpacing = Gb.LastContentSeparatorPaddingRanges;
-        if (mdc.CreateMoldFormatFlags.HasSuppressClosing()) { Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags, true); }
-        else
-        {
-            var lastContentChar = Gb.RemoveLastSeparatorAndPadding();
-            if (lastContentChar != BrcOpnChar) { Gb.StartAppendContent(Spc, sb, this, DefaultCallerTypeFlags).AppendContent(BrcCls); }
-            else { Gb.StartAppendContent(BrcCls, sb, this, DefaultCallerTypeFlags); }
-        }
-        return Gb.Complete(previousContentPadSpacing.PreviousFormatFlags);
-    }
-
     public WrittenAsFlags AppendFormattedNull(IStringBuilder sb, string? formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var writeFlags = AsNull;
         if (((ReadOnlySpan<char>)formatString).HasFormatStringPadding() || ((ReadOnlySpan<char>)formatString).PrefixSuffixLength() > 0)
         {
-            var        contentStart            = sb.Length;
-            var        formatStringBufferSize  = StyleOptions.NullString.Length.CalculatePrefixPaddedAlignedAndSuffixFormatStringLength(formatString);
+            var contentStart           = sb.Length;
+            var formatStringBufferSize = StyleOptions.NullString.Length.CalculatePrefixPaddedAlignedAndSuffixFormatStringLength(formatString);
+
             Span<char> justPrefixPaddingSuffix = stackalloc char[formatStringBufferSize];
             justPrefixPaddingSuffix = justPrefixPaddingSuffix.ToPrefixLayoutSuffixOnlyFormatString(formatString);
             Format(StyleOptions.NullString, 0, sb, justPrefixPaddingSuffix
@@ -474,44 +509,62 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return writeFlags;
     }
 
-    public virtual IStringBuilder AppendKeyedCollectionStart(IStringBuilder sb, Type keyedCollectionType
+    public virtual ContentSeparatorRanges StartKeyedCollectionOpen(IMoldWriteState mws
       , Type keyType, Type valueType, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
+        var sb = mws.Sb;
+
+        var keyedCollectionType = mws.TypeBeingBuilt;
+
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var kvpTypes = keyedCollectionType.GetKeyedCollectionTypes();
-        if (formatFlags.DoesNotHaveLogSuppressTypeNamesFlag() &&
-            !(StyleOptions.LogSuppressDisplayCollectionNames.Any(s => keyedCollectionType.FullName?.StartsWith(s) ?? false)
+        if (formatFlags.DoesNotHaveLogSuppressTypeNamesFlag()
+         && !(StyleOptions.LogSuppressDisplayCollectionNames.Any(s => keyedCollectionType.FullName?.StartsWith(s) ?? false)
            && StyleOptions.LogSuppressDisplayCollectionElementNames.Any(s => kvpTypes?.Key.FullName?.StartsWith(s) ?? false)
            && StyleOptions.LogSuppressDisplayCollectionElementNames.Any(s => kvpTypes?.Value.FullName?.StartsWith(s) ?? false)))
         {
             keyedCollectionType.AppendShortNameInCSharpFormat(sb);
-            Gb.AppendContent(Spc);
+            mws.WroteOuterTypeName = true;
+            Gb.MarkContentEnd(sb.Length);
+            return Gb.Complete(formatFlags);
         }
         Gb.AppendContent(BrcOpn);
-        AddNextFieldPadding(formatFlags);
-        return sb;
+        return AddNextFieldPadding(formatFlags);
     }
 
-    public virtual IStringBuilder AppendKeyedCollectionEnd(IStringBuilder sb, Type keyedCollectionType
+    public virtual ContentSeparatorRanges FinishKeyedCollectionOpen(IMoldWriteState mws)
+    {
+        if (mws.WroteOuterTypeName)
+        {
+            Gb.AppendContent(Spc);
+            Gb.AppendContent(BrcOpn);
+            return AddNextFieldPadding(mws.CreateMoldFormatFlags);
+        }
+        return ContentSeparatorRanges.None;
+    }
+
+    public virtual ContentSeparatorRanges AppendKeyedCollectionClose(IMoldWriteState mws
       , Type keyType, Type valueType, int totalItemCount, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (formatFlags.HasSuppressClosing())
-        {
-            Gb.Complete(formatFlags);
-            Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags, true);
-            return sb;
-        }
+        var sb = mws.Sb;
+
+        if (formatFlags.HasSuppressClosing()) { return ContentSeparatorRanges.None; }
+
         var lastContentChar = Gb.RemoveLastSeparatorAndPadding();
-        Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
-        if (lastContentChar != BrcOpnChar)
-            Gb.AppendContent(Spc).AppendContent(BrcCls);
-        else { Gb.AppendContent(BrcCls); }
-        Gb.MarkContentEnd();
-        return sb;
+
+        Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags, true);
+        if (lastContentChar != BrcOpnChar) { AddNextFieldPadding(formatFlags); }
+
+        Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags, true);
+        Gb.AppendContent(BrcCls);
+        var range = Gb.Complete(formatFlags);
+
+        Gb.AddHighWaterMark();
+        return range;
     }
 
-    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue>(
-        ITypeMolderDieCast<TMold> typeMold
+    public virtual IMoldWriteState<TMold> AppendKeyValuePair<TMold, TKey, TValue>(
+        IMoldWriteState<TMold> mws
       , Type keyedCollectionType
       , TKey key
       , TValue value
@@ -520,14 +573,14 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
       , string? keyFormatString = null
       , FormatFlags valueFlags = DefaultCallerTypeFlags) where TMold : TypeMolder
     {
-        typeMold.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags | IsFieldName);
-        typeMold.FieldEnd();
-        typeMold.AppendMatchFormattedOrNull(value, valueFormatString ?? "", valueFlags);
-        return typeMold;
+        mws.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags | IsFieldName);
+        mws.FieldEnd();
+        mws.AppendMatchFormattedOrNull(value, valueFormatString ?? "", valueFlags);
+        return mws;
     }
 
-    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(
-        ITypeMolderDieCast<TMold> mdc
+    public virtual IMoldWriteState<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(
+        IMoldWriteState<TMold> mws
       , Type keyedCollectionType
       , TKey key
       , TValue? value
@@ -540,16 +593,16 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        mdc.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags | IsFieldName);
-        mdc.FieldEnd();
+        mws.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags | IsFieldName);
+        mws.FieldEnd();
 
-        if (value == null) { AppendFormattedNull(mdc.Sb, "", valueFlags); }
-        else { FormatFieldContents(mdc, value, valueStyler, valueFormatString, valueFlags); }
-        return mdc;
+        if (value == null) { AppendFormattedNull(mws.Sb, "", valueFlags); }
+        else { FormatFieldContents(mws, value, valueStyler, valueFormatString, valueFlags); }
+        return mws;
     }
 
-    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(
-        ITypeMolderDieCast<TMold> mdc
+    public virtual IMoldWriteState<TMold> AppendKeyValuePair<TMold, TKey, TValue, TVRevealBase>(
+        IMoldWriteState<TMold> mws
       , Type keyedCollectionType
       , TKey key
       , TValue? value
@@ -562,15 +615,15 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         where TValue : struct, TVRevealBase
         where TVRevealBase : notnull
     {
-        mdc.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags | IsFieldName);
-        mdc.FieldEnd();
-        if (value == null) { AppendFormattedNull(mdc.Sb, "", valueFlags); }
-        else { FormatFieldContents(mdc, value.Value, valueStyler, valueFormatString, valueFlags); }
-        return mdc;
+        mws.AppendMatchFormattedOrNull(key, keyFormatString ?? "", valueFlags | IsFieldName);
+        mws.FieldEnd();
+        if (value == null) { AppendFormattedNull(mws.Sb, "", valueFlags); }
+        else { FormatFieldContents(mws, value.Value, valueStyler, valueFormatString, valueFlags); }
+        return mws;
     }
 
-    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
-        ITypeMolderDieCast<TMold> mdc
+    public virtual IMoldWriteState<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
+        IMoldWriteState<TMold> mws
       , Type keyedCollectionType
       , TKey key
       , TValue? value
@@ -585,17 +638,17 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         if (key == null) { AppendFormattedNull(sb, ""); }
-        else { keyStyler(key, mdc.Master); }
-        mdc.FieldEnd();
-        if (value == null) { AppendFormattedNull(mdc.Sb, "", valueFlags); }
-        else { FormatFieldContents(mdc, value, valueStyler, valueFormatString, valueFlags); }
-        return mdc;
+        else { keyStyler(key, mws.Master); }
+        mws.FieldEnd();
+        if (value == null) { AppendFormattedNull(mws.Sb, "", valueFlags); }
+        else { FormatFieldContents(mws, value, valueStyler, valueFormatString, valueFlags); }
+        return mws;
     }
 
-    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
-        ITypeMolderDieCast<TMold> mdc
+    public virtual IMoldWriteState<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
+        IMoldWriteState<TMold> mws
       , Type keyedCollectionType
       , TKey? key
       , TValue? value
@@ -610,17 +663,17 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         if (key == null) { AppendFormattedNull(sb, ""); }
-        else { keyStyler(key.Value, mdc.Master); }
-        mdc.FieldEnd();
-        if (value == null) { AppendFormattedNull(mdc.Sb, "", valueFlags); }
-        else { FormatFieldContents(mdc, value, valueStyler, valueFormatString, valueFlags); }
-        return mdc;
+        else { keyStyler(key.Value, mws.Master); }
+        mws.FieldEnd();
+        if (value == null) { AppendFormattedNull(mws.Sb, "", valueFlags); }
+        else { FormatFieldContents(mws, value, valueStyler, valueFormatString, valueFlags); }
+        return mws;
     }
 
-    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
-        ITypeMolderDieCast<TMold> mdc
+    public virtual IMoldWriteState<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
+        IMoldWriteState<TMold> mws
       , Type keyedCollectionType
       , TKey key
       , TValue? value
@@ -635,17 +688,17 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         if (key == null) { AppendFormattedNull(sb, ""); }
-        else { keyStyler(key, mdc.Master); }
-        mdc.FieldEnd();
-        if (value == null) { AppendFormattedNull(mdc.Sb, "", valueFlags); }
-        else { FormatFieldContents(mdc, value.Value, valueStyler, valueFormatString, valueFlags); }
-        return mdc;
+        else { keyStyler(key, mws.Master); }
+        mws.FieldEnd();
+        if (value == null) { AppendFormattedNull(mws.Sb, "", valueFlags); }
+        else { FormatFieldContents(mws, value.Value, valueStyler, valueFormatString, valueFlags); }
+        return mws;
     }
 
-    public virtual ITypeMolderDieCast<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
-        ITypeMolderDieCast<TMold> mdc
+    public virtual IMoldWriteState<TMold> AppendKeyValuePair<TMold, TKey, TValue, TKRevealBase, TVRevealBase>(
+        IMoldWriteState<TMold> mws
       , Type keyedCollectionType
       , TKey? key
       , TValue? value
@@ -660,13 +713,13 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         if (key == null) { AppendFormattedNull(sb, ""); }
-        else { keyStyler(key.Value, mdc.Master); }
-        mdc.FieldEnd();
-        if (value == null) { AppendFormattedNull(mdc.Sb, "", valueFlags); }
-        else { FormatFieldContents(mdc, value.Value, valueStyler, valueFormatString, valueFlags); }
-        return mdc;
+        else { keyStyler(key.Value, mws.Master); }
+        mws.FieldEnd();
+        if (value == null) { AppendFormattedNull(mws.Sb, "", valueFlags); }
+        else { FormatFieldContents(mws, value.Value, valueStyler, valueFormatString, valueFlags); }
+        return mws;
     }
 
     public virtual IStringBuilder AppendKeyedCollectionNextItem(IStringBuilder sb, Type keyedCollectionType
@@ -681,7 +734,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
     public virtual (int, int) InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, int refId, Type actualType, int typeOpenIndex
       , WrittenAsFlags writtenAs, int indexToInsertAt, FormatFlags createTypeFlags, int contentLength = -1
-      , ITypeMolderDieCast? liveMoldInternal = null)
+      , IMoldWriteState? liveMoldInternal = null)
     {
         var sb = insertBuilder.Sb;
         var instanceInfoFormatFlags =
@@ -713,15 +766,22 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var firstFieldPad    = SizeNextFieldPadding(createTypeFlags);
         var isEmpty          = contentLength >= 0 && indexToInsertAt - firstFieldPad + 1 == typeOpenIndex + contentLength;
         var fronInsertLength = actualLength - (indexToInsertAt - typeOpenIndex);
-        int contentNewLines  = sb.SubSequenceOccurenceCount(indexToInsertAt, fronInsertLength, StyleOptions.NewLineStyle);
+        int contentNewLines  = sb.SubSequenceOccurrenceCount(indexToInsertAt, fronInsertLength, StyleOptions.NewLineStyle);
         if (!alreadySupportsMultipleFields)
         {
-            needsBracesWrap = writtenAs.HasAsRawFlag() && writtenAs.HasNoneOf(AsContent);
+            // needsBracesWrap = writtenAs.HasAsRawFlag() && writtenAs.HasNoneOf(AsContent);
+            needsBracesWrap = writtenAs.HasAsRawFlag() && writtenAs.HasNoneOf(AsObject);
+            var actualTypeFullName = actualType.FullName ?? "";
             if (writtenAs.HasAllOf(AsSimple | AsContent))
             {
-                var actualTypeFullName = actualType.FullName ?? "";
                 if (createTypeFlags.HasSuppressOpening() && createTypeFlags.HasSuppressClosing()
                  || StyleOptions.LogSuppressDisplayTypeNames.Any(s => actualTypeFullName.StartsWith(s))) { needsBracesWrap = true; }
+            }
+            if (writtenAs.HasAllOf(AsSimple | WrittenAsFlags.AsCollection))
+            {
+                if (liveMoldInternal is { WroteOuterTypeName: false } ||
+                    (StyleOptions.LogSuppressDisplayCollectionNames.Any(s => actualTypeFullName.StartsWith(s))
+                  && StyleOptions.LogSuppressDisplayCollectionNames.Any(s => actualTypeFullName.StartsWith(s)))) { needsBracesWrap = true; }
             }
             if (needsBracesWrap)
             {
@@ -799,7 +859,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                 if (contentNewLines > 0)
                 {
                     deltaIndent++;
-                    fronInsertLength = sb.IndentSubsequentLines(StyleOptions.NewLineStyle, StyleOptions.Indent
+                    Span<char> indent = stackalloc char[StyleOptions.IndentSize];
+                    indent.OverWriteRepatAt(0, StyleOptions.IndentChar, StyleOptions.IndentSize);
+                    fronInsertLength = sb.IndentSubsequentLines(StyleOptions.NewLineStyle, indent
                                                               , indexToInsertAt + prefixInsertSize, fronInsertLength);
                 }
                 if (contentLength >= 0)
@@ -833,9 +895,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return Gb.Sb.Length - preAppendLength;
     }
 
-    public virtual int AppendExistingReferenceId(ITypeMolderDieCast mdc, int refId, WrittenAsFlags currentWriteMethod, FormatFlags createTypeFlags)
+    public virtual int AppendExistingReferenceId(IMoldWriteState mws, int refId, WrittenAsFlags currentWriteMethod, FormatFlags createTypeFlags)
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
 
         var preAppendLength = sb.Length;
         var needsBracesWrap = false;
@@ -849,22 +911,22 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                             && createTypeFlags.HasSuppressOpening() && createTypeFlags.HasSuppressClosing());
             if (currentWriteMethod.HasAllOf(AsContent | AsSimple))
             {
-                var actualTypeFullName = mdc.TypeBeingBuilt.FullName;
+                var actualTypeFullName = mws.TypeBeingBuilt.FullName;
                 if (createTypeFlags.HasSuppressOpening() && createTypeFlags.HasSuppressClosing()
                  || StyleOptions.LogSuppressDisplayTypeNames.Any(s => actualTypeFullName?.StartsWith(s) ?? false)) { needsBracesWrap = true; }
             }
             if (needsBracesWrap)
             {
-                mdc.CurrentWriteMethod = currentWriteMethod.ToMultiFieldEquivalent();
-                StartComplexTypeOpening(mdc, createTypeFlags);
-                FinishComplexTypeOpening(mdc, createTypeFlags);
+                mws.CurrentWriteMethod = currentWriteMethod.ToMultiFieldEquivalent();
+                StartComplexTypeOpening(mws.InstanceOrType, mws, mws.CurrentWriteMethod, createTypeFlags);
+                FinishComplexTypeOpening(mws.InstanceOrType, mws, mws.CurrentWriteMethod, createTypeFlags);
             }
             else { Gb.AppendContent(RndBrktOpn); }
         }
-        AppendFieldName(mdc, "$ref");
+        AppendFieldName(mws, "$ref");
         AppendFieldValueSeparator();
-        FormatFieldContents(mdc, refId, "", createTypeFlags);
-        mdc.CurrentWriteMethod |= WithReferenceToInstanceId;
+        FormatFieldContents(mws, refId, "", createTypeFlags);
+        mws.CurrentWriteMethod |= WithReferenceToInstanceId;
 
         if (!alreadySupportsMultipleFields && !needsBracesWrap)
         {
@@ -873,17 +935,17 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         }
         else
         {
-            mdc.IsEmpty = false;
+            mws.IsEmpty = false;
             AddToNextFieldSeparatorAndPadding(createTypeFlags);
         }
         return sb.Length - preAppendLength;
     }
 
-    public virtual int AppendInstanceInfoField(ITypeMolderDieCast mdc, string fieldName, ReadOnlySpan<char> description
+    public virtual int AppendInstanceInfoField(IMoldWriteState mws, string fieldName, ReadOnlySpan<char> description
       , WrittenAsFlags writeMethod, FormatFlags createTypeFlags)
     {
         if (createTypeFlags.HasNoRevisitCheck()) return 0; // fieldNames are marked with this and
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
 
         var alreadySupportsMultipleFields = writeMethod.SupportsMultipleFields();
         var preAppendLength               = sb.Length;
@@ -897,31 +959,31 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             }
             else { Gb.StartAppendContentAndComplete(RndBrktOpn, sb, DefaultCallerTypeFlags); }
         }
-        AppendFieldName(mdc, fieldName);
+        AppendFieldName(mws, fieldName);
         AppendFieldValueSeparator();
-        FormatFieldContents(mdc, description, 0, "\"{0}\"", formatFlags: createTypeFlags);
+        FormatFieldContents(mws, description, 0, "\"{0}\"", formatFlags: createTypeFlags);
 
         if (!alreadySupportsMultipleFields) { Gb.StartAppendContentAndComplete(RndBrktCls, sb, DefaultCallerTypeFlags); }
         else
         {
-            mdc.IsEmpty = false;
+            mws.IsEmpty = false;
             AddToNextFieldSeparatorAndPadding(createTypeFlags);
         }
         return sb.Length - preAppendLength;
     }
 
-    public virtual WrittenAsFlags AppendFieldName(ITypeMolderDieCast mdc, ReadOnlySpan<char> fieldName
+    public virtual WrittenAsFlags AppendFieldName(IMoldWriteState mws, ReadOnlySpan<char> fieldName
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         Gb.StartAppendContent(fieldName, sb, this, DefaultCallerTypeFlags);
         return AsValue;
     }
 
-    public virtual WrittenAsFlags FormatFieldNameMatch<TAny>(ITypeMolderDieCast mdc, TAny source, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldNameMatch<TAny>(IMoldWriteState mws, TAny source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
         if (formatString.IsNotNullOrEmpty())
@@ -932,10 +994,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldName(ITypeMolderDieCast mdc, bool source, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldName(IMoldWriteState mws, bool source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
         Format(source, sb, formatString ?? "");
@@ -943,10 +1005,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldName(ITypeMolderDieCast mdc, bool? source, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldName(IMoldWriteState mws, bool? source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
         if (source != null)
@@ -957,24 +1019,24 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldName<TFmt>(ITypeMolderDieCast mdc, TFmt source, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldName<TFmt>(IMoldWriteState mws, TFmt source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
-        return FormatFieldContents(mdc, source, formatString, formatFlags);
+        return FormatFieldContents(mws, source, formatString, formatFlags);
     }
 
-    public virtual WrittenAsFlags FormatFieldName<TFmtStruct>(ITypeMolderDieCast mdc, TFmtStruct? source, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldName<TFmtStruct>(IMoldWriteState mws, TFmtStruct? source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
     {
-        return FormatFieldContents(mdc, source, formatString, formatFlags);
+        return FormatFieldContents(mws, source, formatString, formatFlags);
     }
 
-    public virtual WrittenAsFlags FormatFieldName(ITypeMolderDieCast mdc
+    public virtual WrittenAsFlags FormatFieldName(IMoldWriteState mws
       , ReadOnlySpan<char> source, int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
         base.Format(source, sourceFrom, sb, formatString ?? "", maxTransferCount);
@@ -982,11 +1044,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldName(ITypeMolderDieCast mdc, char[] source
+    public virtual WrittenAsFlags FormatFieldName(IMoldWriteState mws, char[] source
       , int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
         base.Format(source, sourceFrom, sb, formatString ?? "", maxTransferCount);
@@ -994,11 +1056,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldName(ITypeMolderDieCast mdc, ICharSequence source
+    public virtual WrittenAsFlags FormatFieldName(IMoldWriteState mws, ICharSequence source
       , int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
         base.Format(source, sourceFrom, sb, formatString ?? "", maxTransferCount);
@@ -1006,11 +1068,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldName(ITypeMolderDieCast mdc, StringBuilder source
+    public virtual WrittenAsFlags FormatFieldName(IMoldWriteState mws, StringBuilder source
       , int sourceFrom = 0, string? formatString = null, int maxTransferCount = int.MaxValue
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
         base.Format(source, sourceFrom, sb, formatString ?? "", maxTransferCount, formatSwitches: (FormatSwitches)formatFlags);
@@ -1018,30 +1080,30 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual AppendSummary FormatFieldName<TCloaked, TRevealBase>(ITypeMolderDieCast mdc, TCloaked value
+    public virtual AppendSummary FormatFieldName<TCloaked, TRevealBase>(IMoldWriteState mws, TCloaked value
       , PalantírReveal<TRevealBase> valueRevealer, string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        var sb                = mdc.Sb;
-        var withMoldInherited = callerFormatFlags | mdc.CreateMoldFormatFlags.MoldMultiGenerationPassFlags();
+        var sb                = mws.Sb;
+        var withMoldInherited = callerFormatFlags | mws.CreateMoldFormatFlags.MoldMultiGenerationPassFlags();
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
-        mdc.Master.SetCallerFormatString(callerFormatString);
-        mdc.Master.SetCallerFormatFlags(withMoldInherited | IsFieldName);
+        mws.Master.SetCallerFormatString(callerFormatString);
+        mws.Master.SetCallerFormatFlags(withMoldInherited | IsFieldName);
 
-        var visitNumber = mdc.MoldGraphVisit.VisitId;
+        var visitNumber = mws.MoldGraphVisit.VisitId;
         if (value == null)
         {
             var startAtNull    = sb.Length;
             var writtenAsFlags = AppendFormattedNull(sb, callerFormatString);
-            return new AppendSummary(typeof(TCloaked), mdc.Master, new Range(startAtNull, sb.Length), writtenAsFlags, visitNumber);
+            return new AppendSummary(typeof(TCloaked), mws.Master, new Range(startAtNull, sb.Length), writtenAsFlags, visitNumber);
         }
 
-        var appendSummary = valueRevealer(value, mdc.Master);
+        var appendSummary = valueRevealer(value, mws.Master);
         var contentStart  = appendSummary.StartAt;
-        if (sb.Length == contentStart) return mdc.Master.EmptyAppendAt(mdc.TypeBeingBuilt, contentStart, value.GetType());
+        if (sb.Length == contentStart) return mws.Master.EmptyAppendAt(mws.TypeBeingBuilt, contentStart, value.GetType());
         if (withMoldInherited.HasDisableFieldNameDelimitingFlag()
-         || mdc.CreateMoldFormatFlags.HasAsStringContentFlag()
+         || mws.CreateMoldFormatFlags.HasAsStringContentFlag()
          || !callerFormatFlags.HasAsStringContentFlag()
          || sb[contentStart] == DblQtChar)
         {
@@ -1051,37 +1113,37 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             return appendSummary;
         }
         var charsInserted = LayoutEncoder.InsertTransfer(DblQt, sb, contentStart);
-        mdc.Master.ShiftRegisteredFromCharOffset(contentStart, charsInserted);
+        mws.Master.ShiftRegisteredFromCharOffset(contentStart, charsInserted);
         charsInserted += LayoutEncoder.AppendTransfer(DblQt, sb);
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         Gb.MarkContentStart(contentStart);
         Gb.MarkContentEnd();
-        if (!mdc.Settings.InstanceTrackingAllAsStringHaveLocalTracking && appendSummary.VisitNumber.VisitIndex >= 0)
+        if (!mws.Settings.InstanceTrackingAllAsStringHaveLocalTracking && appendSummary.VisitNumber.VisitIndex >= 0)
         {
-            mdc.Master.UpdateVisitLength(appendSummary.VisitNumber, charsInserted);
+            mws.Master.UpdateVisitLength(appendSummary.VisitNumber, charsInserted);
         }
         return appendSummary.AddWrittenAsFlags(AsString).UpdateStringEndRange(charsInserted);
     }
 
-    public virtual AppendSummary FormatBearerFieldName<TBearer>(ITypeMolderDieCast mdc, TBearer styledObj
+    public virtual AppendSummary FormatBearerFieldName<TBearer>(IMoldWriteState mws, TBearer styledObj
       , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?
     {
-        var sb                = mdc.Sb;
-        var withMoldInherited = callerFormatFlags | mdc.CreateMoldFormatFlags.MoldMultiGenerationPassFlags();
+        var sb                = mws.Sb;
+        var withMoldInherited = callerFormatFlags | mws.CreateMoldFormatFlags.MoldMultiGenerationPassFlags();
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
-        mdc.Master.SetCallerFormatString(callerFormatString);
-        mdc.Master.SetCallerFormatFlags(withMoldInherited | IsFieldName);
+        mws.Master.SetCallerFormatString(callerFormatString);
+        mws.Master.SetCallerFormatFlags(withMoldInherited | IsFieldName);
 
-        var visitNumber = mdc.MoldGraphVisit.VisitId;
+        var visitNumber = mws.MoldGraphVisit.VisitId;
         if (styledObj == null)
         {
             var startAtNull    = sb.Length;
             var writtenAsFlags = AppendFormattedNull(sb, callerFormatString);
-            return new AppendSummary(typeof(TBearer), mdc.Master, new Range(startAtNull, sb.Length), writtenAsFlags, visitNumber);
+            return new AppendSummary(typeof(TBearer), mws.Master, new Range(startAtNull, sb.Length), writtenAsFlags, visitNumber);
         }
-        var appendSummary = styledObj.RevealState(mdc.Master);
+        var appendSummary = styledObj.RevealState(mws.Master);
         var contentStart  = appendSummary.StartAt;
-        if (sb.Length == contentStart) return mdc.Master.EmptyAppendAt(mdc.TypeBeingBuilt, contentStart, styledObj.GetType());
+        if (sb.Length == contentStart) return mws.Master.EmptyAppendAt(mws.TypeBeingBuilt, contentStart, styledObj.GetType());
         if (withMoldInherited.HasDisableFieldNameDelimitingFlag()
          || !callerFormatFlags.HasAsStringContentFlag()
          || sb[contentStart] == DblQtChar)
@@ -1092,14 +1154,14 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             return appendSummary;
         }
         var charsInserted = LayoutEncoder.InsertTransfer(DblQt, sb, contentStart);
-        mdc.Master.ShiftRegisteredFromCharOffset(contentStart, charsInserted);
+        mws.Master.ShiftRegisteredFromCharOffset(contentStart, charsInserted);
         charsInserted += LayoutEncoder.AppendTransfer(DblQt, sb);
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         Gb.MarkContentStart(contentStart);
         Gb.MarkContentEnd();
-        if (!mdc.Settings.InstanceTrackingAllAsStringHaveLocalTracking && appendSummary.VisitNumber.VisitIndex >= 0)
+        if (!mws.Settings.InstanceTrackingAllAsStringHaveLocalTracking && appendSummary.VisitNumber.VisitIndex >= 0)
         {
-            mdc.Master.UpdateVisitLength(appendSummary.VisitNumber, charsInserted);
+            mws.Master.UpdateVisitLength(appendSummary.VisitNumber, charsInserted);
         }
         return appendSummary.AddWrittenAsFlags(AsString).UpdateStringEndRange(charsInserted);
     }
@@ -1112,10 +1174,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return size;
     }
 
-    public virtual WrittenAsFlags FormatFieldContentsMatch<TAny>(ITypeMolderDieCast mdc, TAny source, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldContentsMatch<TAny>(IMoldWriteState mws, TAny source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
 
@@ -1126,10 +1188,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldContents(ITypeMolderDieCast mdc, bool source, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldContents(IMoldWriteState mws, bool source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         formatString ??= "";
 
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
@@ -1154,10 +1216,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldContents(ITypeMolderDieCast mdc, bool? source, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldContents(IMoldWriteState mws, bool? source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         formatString ??= "";
 
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
@@ -1182,10 +1244,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldContents<TFmt>(ITypeMolderDieCast mdc, TFmt source, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldContents<TFmt>(IMoldWriteState mws, TFmt source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         formatString ??= "";
 
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
@@ -1223,22 +1285,22 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldContents<TFmtStruct>(ITypeMolderDieCast mdc, TFmtStruct? source, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldContents<TFmtStruct>(IMoldWriteState mws, TFmtStruct? source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         formatString ??= "";
 
         if (source == null) { return AppendFormattedNull(sb, formatString, formatFlags); }
 
-        return FormatFieldContents(mdc, source.Value, formatString, formatFlags);
+        return FormatFieldContents(mws, source.Value, formatString, formatFlags);
     }
 
-    public virtual WrittenAsFlags FormatFieldContents(ITypeMolderDieCast mdc, ReadOnlySpan<char> source, int sourceFrom = 0
+    public virtual WrittenAsFlags FormatFieldContents(IMoldWriteState mws, ReadOnlySpan<char> source, int sourceFrom = 0
       , string? formatString = null
       , int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         formatString ??= "";
 
         var allowEmptyContent = true;
@@ -1266,21 +1328,21 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFallbackFieldContents<TAny>(ITypeMolderDieCast mdc, ReadOnlySpan<char> source, int sourceFrom = 0
+    public virtual WrittenAsFlags FormatFallbackFieldContents<TAny>(IMoldWriteState mws, ReadOnlySpan<char> source, int sourceFrom = 0
       , string? formatString = null, int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         formatString ??= "";
 
         formatFlags = ResolveContentFormatFlags<TAny>(sb, default!, formatFlags, formatString);
 
-        return FormatFieldContents(mdc, source, sourceFrom, formatString, maxTransferCount, formatFlags);
+        return FormatFieldContents(mws, source, sourceFrom, formatString, maxTransferCount, formatFlags);
     }
 
-    public virtual WrittenAsFlags FormatFieldContents(ITypeMolderDieCast mdc, char[] source, int sourceFrom = 0, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldContents(IMoldWriteState mws, char[] source, int sourceFrom = 0, string? formatString = null
       , int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         formatString ??= "";
 
         var allowEmptyContent = true;
@@ -1310,10 +1372,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldContents(ITypeMolderDieCast mdc, ICharSequence source, int sourceFrom = 0, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldContents(IMoldWriteState mws, ICharSequence source, int sourceFrom = 0, string? formatString = null
       , int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         formatString ??= "";
 
         var allowEmptyContent = true;
@@ -1341,10 +1403,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual WrittenAsFlags FormatFieldContents(ITypeMolderDieCast mdc, StringBuilder source, int sourceFrom = 0, string? formatString = null
+    public virtual WrittenAsFlags FormatFieldContents(IMoldWriteState mws, StringBuilder source, int sourceFrom = 0, string? formatString = null
       , int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         formatString ??= "";
 
         var allowEmptyContent = true;
@@ -1372,33 +1434,33 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual AppendSummary FormatFieldContents<TCloaked, TRevealBase>(ITypeMolderDieCast mdc, TCloaked value
+    public virtual AppendSummary FormatFieldContents<TCloaked, TRevealBase>(IMoldWriteState mws, TCloaked value
       , PalantírReveal<TRevealBase> valueRevealer, string? callerFormatString = null
       , FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        var sb                = mdc.Sb;
-        var withMoldInherited = callerFormatFlags | mdc.CreateMoldFormatFlags.MoldMultiGenerationPassFlags();
+        var sb                = mws.Sb;
+        var withMoldInherited = callerFormatFlags | mws.CreateMoldFormatFlags.MoldMultiGenerationPassFlags();
         Gb.StartNextContentSeparatorPaddingSequence(sb, withMoldInherited);
-        mdc.Master.SetCallerFormatString(callerFormatString);
-        mdc.Master.SetCallerFormatFlags(withMoldInherited);
+        mws.Master.SetCallerFormatString(callerFormatString);
+        mws.Master.SetCallerFormatFlags(withMoldInherited);
 
-        var visitNumber = mdc.MoldGraphVisit.VisitId;
+        var visitNumber = mws.MoldGraphVisit.VisitId;
         if (value == null)
         {
             var startAtNull    = sb.Length;
             var writtenAsFlags = AppendFormattedNull(sb, callerFormatString);
-            return new AppendSummary(typeof(TCloaked), mdc.Master, new Range(startAtNull, sb.Length), writtenAsFlags, visitNumber);
+            return new AppendSummary(typeof(TCloaked), mws.Master, new Range(startAtNull, sb.Length), writtenAsFlags, visitNumber);
         }
 
-        var appendSummary = valueRevealer(value, mdc.Master);
+        var appendSummary = valueRevealer(value, mws.Master);
         var contentStart  = appendSummary.StartAt;
-        if (sb.Length == contentStart) return mdc.Master.EmptyAppendAt(mdc.TypeBeingBuilt, contentStart, value.GetType());
+        if (sb.Length == contentStart) return mws.Master.EmptyAppendAt(mws.TypeBeingBuilt, contentStart, value.GetType());
         if (!callerFormatFlags.HasAsStringContentFlag()
          || appendSummary.WrittenAs.HasAsStringFlag()
          || withMoldInherited.HasDisableAutoDelimiting()
-         || mdc.CreateMoldFormatFlags.HasAsStringContentFlag()
+         || mws.CreateMoldFormatFlags.HasAsStringContentFlag()
          || sb.WrittenAsFromFirstCharacters(contentStart, Gb) == AsString)
         {
             Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
@@ -1409,39 +1471,39 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         Gb.MarkContentStart(contentStart);
         var charsInserted = LayoutEncoder.InsertTransfer(DblQt, sb, contentStart);
-        mdc.Master.ShiftRegisteredFromCharOffset(contentStart, charsInserted);
+        mws.Master.ShiftRegisteredFromCharOffset(contentStart, charsInserted);
         charsInserted += LayoutEncoder.AppendTransfer(DblQt, sb);
         Gb.MarkContentEnd();
-        if (!mdc.Settings.InstanceTrackingAllAsStringHaveLocalTracking && appendSummary.VisitNumber.VisitIndex >= 0)
+        if (!mws.Settings.InstanceTrackingAllAsStringHaveLocalTracking && appendSummary.VisitNumber.VisitIndex >= 0)
         {
-            mdc.Master.UpdateVisitLength(appendSummary.VisitNumber, charsInserted);
+            mws.Master.UpdateVisitLength(appendSummary.VisitNumber, charsInserted);
         }
         return appendSummary.AddWrittenAsFlags(AsString).UpdateStringEndRange(charsInserted);
     }
 
-    public virtual AppendSummary FormatBearerFieldContents<TBearer>(ITypeMolderDieCast mdc, TBearer styledObj,
+    public virtual AppendSummary FormatBearerFieldContents<TBearer>(IMoldWriteState mws, TBearer styledObj,
         string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
 
-        var withMoldInherited = callerFormatFlags | mdc.CreateMoldFormatFlags.MoldMultiGenerationPassFlags();
+        var withMoldInherited = callerFormatFlags | mws.CreateMoldFormatFlags.MoldMultiGenerationPassFlags();
         Gb.StartNextContentSeparatorPaddingSequence(sb, withMoldInherited);
-        mdc.Master.SetCallerFormatString(callerFormatString);
-        mdc.Master.SetCallerFormatFlags(withMoldInherited);
+        mws.Master.SetCallerFormatString(callerFormatString);
+        mws.Master.SetCallerFormatFlags(withMoldInherited);
 
-        var visitNumber = mdc.MoldGraphVisit.VisitId;
+        var visitNumber = mws.MoldGraphVisit.VisitId;
         if (styledObj == null)
         {
             var startAtNull    = sb.Length;
             var writtenAsFlags = AppendFormattedNull(sb, callerFormatString);
-            return new AppendSummary(typeof(TBearer), mdc.Master, new Range(startAtNull, sb.Length), writtenAsFlags, visitNumber);
+            return new AppendSummary(typeof(TBearer), mws.Master, new Range(startAtNull, sb.Length), writtenAsFlags, visitNumber);
         }
-        var appendSummary = styledObj.RevealState(mdc.Master);
+        var appendSummary = styledObj.RevealState(mws.Master);
         var contentStart  = appendSummary.StartAt;
-        if (sb.Length == contentStart) return mdc.Master.EmptyAppendAt(mdc.TypeBeingBuilt, contentStart, styledObj.GetType());
+        if (sb.Length == contentStart) return mws.Master.EmptyAppendAt(mws.TypeBeingBuilt, contentStart, styledObj.GetType());
         if (!callerFormatFlags.HasAsStringContentFlag()
          || withMoldInherited.HasDisableAutoDelimiting()
-         || mdc.CreateMoldFormatFlags.HasAsStringContentFlag()
+         || mws.CreateMoldFormatFlags.HasAsStringContentFlag()
          || sb.WrittenAsFromFirstCharacters(contentStart, Gb) == AsString)
         {
             Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
@@ -1452,59 +1514,35 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         Gb.MarkContentStart(contentStart);
         var charsInserted = LayoutEncoder.InsertTransfer(DblQt, sb, contentStart);
-        mdc.Master.ShiftRegisteredFromCharOffset(contentStart, charsInserted);
+        mws.Master.ShiftRegisteredFromCharOffset(contentStart, charsInserted);
         charsInserted += LayoutEncoder.AppendTransfer(DblQt, sb);
         Gb.MarkContentEnd();
-        if (!mdc.Settings.InstanceTrackingAllAsStringHaveLocalTracking && appendSummary.VisitNumber.VisitIndex >= 0)
+        if (!mws.Settings.InstanceTrackingAllAsStringHaveLocalTracking && appendSummary.VisitNumber.VisitIndex >= 0)
         {
-            mdc.Master.UpdateVisitLength(appendSummary.VisitNumber, charsInserted);
+            mws.Master.UpdateVisitLength(appendSummary.VisitNumber, charsInserted);
         }
         return appendSummary.AddWrittenAsFlags(AsString).UpdateStringEndRange(charsInserted);
     }
 
-    public virtual ContentSeparatorRanges StartFormatCollectionOpen(ITypeMolderDieCast mdc, Type itemElementType, bool? hasItems, Type collectionType
+    public virtual ContentSeparatorRanges AppendOpenCollection(IMoldWriteState mws, Type itemElementType, bool? hasItems
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        mdc.WroteCollectionClose = false;
-        if (hasItems != true || mdc.WroteCollectionOpen) { return ContentSeparatorRanges.None; }
-        var sb = mdc.Sb;
+        if (mws.WroteInnerTypeOpen || hasItems != true) { return ContentSeparatorRanges.None; }
+        var sb = mws.Sb;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
-        var coreElementType = collectionType.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? itemElementType;
-        if (formatFlags.DoesNotHaveLogSuppressTypeNamesFlag() &&
-            !(StyleOptions.LogSuppressDisplayCollectionNames.Any(s => collectionType.FullName?.StartsWith(s) ?? false)
-           && StyleOptions.LogSuppressDisplayCollectionNames.Any(s => coreElementType.FullName?.StartsWith(s) ?? false)))
+        mws.WroteInnerTypeOpen = true;
+        if (mws.SkipBody) return Gb.Complete(formatFlags);
+        if (mws is ICollectionMoldWriteState { IsSimple: true } scmdc)
         {
-            sb.Append(RndBrktOpn);
-            collectionType.AppendShortNameInCSharpFormat(sb);
-            mdc.WroteCollectionName = true;
-        }
-        return Gb.Complete(formatFlags);
-    }
-
-    public virtual ContentSeparatorRanges FinishFormatCollectionOpen(ITypeMolderDieCast mdc, Type itemElementType, bool? hasItems
-      , Type collectionType, FormatFlags formatFlags = DefaultCallerTypeFlags)
-    {
-        if (mdc.WroteCollectionOpen || hasItems != true) { return ContentSeparatorRanges.None; }
-        var sb = mdc.Sb;
-        Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
-        if (mdc is { WroteCollectionName: true })
-        {
-            Gb.AppendContent(RndBrktCls);
-            if (!mdc.SkipBody) Gb.AppendContent(Spc);
-        }
-        mdc.WroteCollectionOpen = true;
-        if (mdc.SkipBody) return Gb.Complete(formatFlags);
-        if (mdc is ICollectionMolderDieCast { IsSimple: true } scmdc)
-        {
-            if (scmdc.SupportsMultipleFields) { AppendInstanceValuesFieldName(mdc.TypeBeingBuilt, formatFlags); }
+            if (scmdc.SupportsMultipleFields) { AppendInstanceValuesFieldName(mws.TypeBeingBuilt, formatFlags); }
             else if (scmdc.MoldGraphVisit.IsBaseOfInitial)
             {
-                if (scmdc.SupportsMultipleFields) { AppendInstanceValuesFieldName(mdc.TypeBeingBuilt, formatFlags); }
+                if (scmdc.SupportsMultipleFields) { AppendInstanceValuesFieldName(mws.TypeBeingBuilt, formatFlags); }
                 else if (scmdc.MoldGraphVisit.IsBaseOfInitial)
                 {
-                    var reg = mdc.Master.ActiveGraphRegistry;
+                    var reg = mws.Master.ActiveGraphRegistry;
 
-                    GraphNodeVisit derivedMold = reg[mdc.MoldGraphVisit.VisitId.VisitIndex];
+                    GraphNodeVisit derivedMold = reg[mws.MoldGraphVisit.VisitId.VisitIndex];
 
                     var checkMoldIndex = derivedMold.ParentVisitId.VisitIndex;
 
@@ -1515,21 +1553,20 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                         derivedMold    = checkMold;
                         checkMoldIndex = reg[checkMoldIndex].ParentVisitId.VisitIndex;
                         checkMold      = reg[Math.Max(0, checkMoldIndex)];
-                    } while (checkMoldIndex >= 0 
-                         &&  (checkMold.MoldState?.MoldGraphVisit.IsBaseOfInitial ?? false) 
-                         && ReferenceEquals(checkMold.VisitedInstance, derivedMold.VisitedInstance));
+                    } while (checkMoldIndex >= 0
+                          && (checkMold.MoldState?.MoldGraphVisit.IsBaseOfInitial ?? false)
+                          && ReferenceEquals(checkMold.VisitedInstance, derivedMold.VisitedInstance));
                     var initialDc = derivedMold.MoldState;
 
                     if (initialDc != null && initialDc.CurrentWriteMethod.HasAsComplexFlag())
                     {
-                        AppendInstanceValuesFieldName(mdc.TypeBeingBuilt, formatFlags);
+                        AppendInstanceValuesFieldName(mws.TypeBeingBuilt, formatFlags);
                     }
                 }
             }
         }
         CollectionStart(itemElementType, sb, hasItems.Value, (FormatSwitches)formatFlags);
-        mdc.WroteCollectionName = false;
-        return AddCollectionElementPadding(mdc, itemElementType, 1, formatFlags);
+        return AddCollectionElementPadding(mws, itemElementType, 1, formatFlags);
     }
 
     public override int CollectionStart(Type collectionType, IStringBuilder sb, bool hasItems
@@ -1553,10 +1590,74 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return Gb.MarkContentEnd(destStartIndex + charsAdded).Complete((FormatFlags)formatSwitches).Length;
     }
 
-    public WrittenAsFlags CollectionNextItemFormat(ITypeMolderDieCast mdc, bool item, int retrieveCount, string? formatString = null
+    public virtual int AppendCloseCollection(IMoldWriteState mws, int? resultsFoundCount, Type itemElementType
+      , int? totalItemCount, string? formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    {
+        var sb          = mws.Sb;
+        var preAppendAt = sb.Length;
+        if (mws.SkipBody || mws.WroteInnerTypeClose)
+        {
+            if (Gb.CurrentSectionRanges.HasNonZeroLengthContent) { Gb.SnapshotLastAppendSequence(Gb.CurrentSectionRanges.StartedWithFormatFlags); }
+            Gb.RemoveLastSeparatorAndPadding();
+            return sb.Length - preAppendAt;
+        }
+        mws.WroteInnerTypeClose = true;
+        if (!(totalItemCount > 0))
+        {
+            Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags, true);
+            if (totalItemCount.HasValue || StyleOptions.NullWritesEmpty)
+            {
+                if (!mws.WroteInnerTypeOpen) CollectionStart(itemElementType, sb, true, (FormatSwitches)formatFlags);
+                CollectionEnd(itemElementType, sb, 0, (FormatSwitches)formatFlags);
+            }
+            else { AppendFormattedNull(sb, formatString, formatFlags); }
+
+            Gb.MarkContentEnd();
+            return sb.Length - preAppendAt;
+        }
+        CollectionEnd(itemElementType, sb, totalItemCount.Value, (FormatSwitches)formatFlags);
+        Gb.MarkContentEnd();
+        return sb.Length - preAppendAt;
+    }
+
+    public override int CollectionEnd(Type elementType, IStringBuilder sb, int itemsCount
+      , FormatSwitches formatSwitches = FormatSwitches.EncodeInnerContent)
+    {
+        if (formatSwitches.TreatCharArrayAsString() && elementType.IsCharArray()) { return 0; }
+
+        var previousContentPadSpacing = Gb.LastContentSeparatorPaddingRanges;
+        if (previousContentPadSpacing.PreviousFormatFlags.HasSuppressClosing())
+        {
+            Gb.Complete(previousContentPadSpacing.PreviousFormatFlags);
+            Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags, true);
+            return 0;
+        }
+        var lastChar = Gb.RemoveLastSeparatorAndPadding();
+        Gb.StartNextContentSeparatorPaddingSequence(sb, (FormatFlags)formatSwitches, true);
+        if (lastChar != SqBrktOpnChar) { Gb.AppendContent(Spc); }
+        return Gb.AppendContent(SqBrktCls).Complete((FormatFlags)formatSwitches).Length;
+    }
+
+    public override int CollectionEnd(Type elementType, Span<char> destSpan, int destIndex, int itemsCount
+      , FormatSwitches formatSwitches = FormatSwitches.EncodeInnerContent)
+    {
+        if (formatSwitches.TreatCharArrayAsString() && elementType.IsCharArray()) { return 0; }
+        CharSpanCollectionScratchBuffer?.DecrementRefCount();
+        CharSpanCollectionScratchBuffer = null;
+
+        var lastChar = Gb.RemoveLastSeparatorAndPadding(destSpan, ref destIndex);
+        Gb.ResetCurrent((FormatFlags)formatSwitches, true);
+        Gb.MarkContentStart(destIndex);
+
+        if (lastChar != SqBrktOpnChar) destIndex += destSpan.OverWriteAt(destIndex, Spc);
+        destIndex += destSpan.OverWriteAt(destIndex, SqBrktCls);
+        return Gb.MarkContentEnd(destIndex).Complete((FormatFlags)formatSwitches).Length;
+    }
+
+    public WrittenAsFlags CollectionNextItemFormat(IMoldWriteState mws, bool item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
         CollectionNextItemFormat(item, retrieveCount, sb, formatString ?? "", (FormatSwitches)formatFlags);
@@ -1564,10 +1665,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public WrittenAsFlags CollectionNextItemFormat(ITypeMolderDieCast mdc, bool? item, int retrieveCount, string? formatString = null
+    public WrittenAsFlags CollectionNextItemFormat(IMoldWriteState mws, bool? item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         if (item == null) { return AppendFormattedNull(sb, formatString, formatFlags); }
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
@@ -1576,162 +1677,162 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public AppendSummary CollectionNextItemFormat<TFmt>(ITypeMolderDieCast mdc, TFmt item, int retrieveCount, string? formatString = null
+    public AppendSummary CollectionNextItemFormat<TFmt>(IMoldWriteState mws, TFmt item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
         var actualType = item?.GetType() ?? typeof(TFmt);
-        var sb         = mdc.Sb;
+        var sb         = mws.Sb;
         var startAt    = sb.Length;
         if (item == null)
         {
             var writtenAsNull = AppendFormattedNull(sb, formatString, formatFlags);
-            return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);
+            return mws.Master.UnregisteredAppend(mws.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);
         }
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
-        FormatFieldContents(mdc, item, formatString ?? "", formatFlags);
+        FormatFieldContents(mws, item, formatString ?? "", formatFlags);
         Gb.MarkContentEnd();
         var writtenAs = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
-        return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
+        return mws.Master.UnregisteredAppend(mws.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
     }
 
-    public WrittenAsFlags CollectionNextItemFormat<TFmtStruct>(ITypeMolderDieCast mdc, TFmtStruct? item, int retrieveCount
+    public WrittenAsFlags CollectionNextItemFormat<TFmtStruct>(IMoldWriteState mws, TFmtStruct? item, int retrieveCount
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
-        var sb = mdc.Sb;
+        var sb = mws.Sb;
         if (item == null) { return AppendFormattedNull(sb, formatString, formatFlags); }
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
-        FormatFieldContents(mdc, item.Value, formatString ?? "", formatFlags);
+        FormatFieldContents(mws, item.Value, formatString ?? "", formatFlags);
         Gb.MarkContentEnd();
         return sb.WrittenAsFromFirstCharacters(contentStart, Gb);
     }
 
-    public virtual AppendSummary CollectionNextItemFormat<TCloaked, TCloakedBase>(ITypeMolderDieCast mdc
+    public virtual AppendSummary CollectionNextItemFormat<TCloaked, TCloakedBase>(IMoldWriteState mws
       , TCloaked? item, int retrieveCount, PalantírReveal<TCloakedBase> styler, string? callerFormatString
       , FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TCloaked : TCloakedBase?
         where TCloakedBase : notnull
     {
         var actualType = item?.GetType() ?? typeof(TCloaked);
-        var sb         = mdc.Sb;
+        var sb         = mws.Sb;
         var startAt    = sb.Length;
         if (item == null)
         {
             var writtenAsNull = AppendFormattedNull(sb, callerFormatString);
-            return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);
+            return mws.Master.UnregisteredAppend(mws.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);
         }
-        mdc.Master.SetCallerFormatString(callerFormatString);
-        mdc.Master.SetCallerFormatFlags(callerFormatFlags);
+        mws.Master.SetCallerFormatString(callerFormatString);
+        mws.Master.SetCallerFormatFlags(callerFormatFlags);
         var contentStart       = sb.Length;
-        var stateExtractResult = styler(item, mdc.Master);
+        var stateExtractResult = styler(item, mws.Master);
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         Gb.MarkContentStart(contentStart);
         Gb.MarkContentEnd();
         return stateExtractResult;
     }
 
-    public virtual AppendSummary CollectionNextItemFormat(ITypeMolderDieCast mdc, string? item, int retrieveCount
+    public virtual AppendSummary CollectionNextItemFormat(IMoldWriteState mws, string? item, int retrieveCount
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(string);
-        var sb         = mdc.Sb;
+        var sb         = mws.Sb;
         var startAt    = sb.Length;
         if (item == null)
         {
             var writtenAsNull = AppendFormattedNull(sb, formatString, formatFlags);
-            return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);
+            return mws.Master.UnregisteredAppend(mws.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);
         }
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         var contentStart = sb.Length;
         sb.AppendFormat(this, formatString ?? "", item);
         Gb.MarkContentEnd();
         var writtenAs = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
-        return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
+        return mws.Master.UnregisteredAppend(mws.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
     }
 
-    public virtual AppendSummary CollectionNextItemFormat(ITypeMolderDieCast mdc, char[]? item, int retrieveCount
+    public virtual AppendSummary CollectionNextItemFormat(IMoldWriteState mws, char[]? item, int retrieveCount
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(char[]);
-        var sb         = mdc.Sb;
+        var sb         = mws.Sb;
         var startAt    = sb.Length;
         if (item == null)
         {
             var writtenAsNull = AppendFormattedNull(sb, formatString, formatFlags);
-            return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);
+            return mws.Master.UnregisteredAppend(mws.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);
         }
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         var contentStart = sb.Length;
         sb.AppendFormat(this, formatString ?? "", item);
         Gb.MarkContentEnd();
         var writtenAs = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
-        return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
+        return mws.Master.UnregisteredAppend(mws.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
     }
 
-    public virtual AppendSummary CollectionNextCharSeqFormat<TCharSeq>(ITypeMolderDieCast mdc, TCharSeq item, int retrieveCount
+    public virtual AppendSummary CollectionNextCharSeqFormat<TCharSeq>(IMoldWriteState mws, TCharSeq item, int retrieveCount
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence?
     {
         var actualType = item?.GetType() ?? typeof(TCharSeq);
-        var sb         = mdc.Sb;
+        var sb         = mws.Sb;
         var startAt    = sb.Length;
         if (item == null)
         {
             var writtenAsNull = AppendFormattedNull(sb, formatString, formatFlags);
-            return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);
+            return mws.Master.UnregisteredAppend(mws.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);
         }
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
         Format(item, 0, sb, formatString ?? "", item.Length);
         Gb.MarkContentEnd();
         var writtenAs = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
-        return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
+        return mws.Master.UnregisteredAppend(mws.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
     }
 
-    public virtual AppendSummary CollectionNextItemFormat(ITypeMolderDieCast mdc, StringBuilder? item, int retrieveCount, string? formatString = null
+    public virtual AppendSummary CollectionNextItemFormat(IMoldWriteState mws, StringBuilder? item, int retrieveCount, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(StringBuilder);
-        var sb         = mdc.Sb;
+        var sb         = mws.Sb;
         var startAt    = sb.Length;
         if (item == null)
         {
             var writtenAsNull = AppendFormattedNull(sb, formatString, formatFlags);
-            return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);
+            return mws.Master.UnregisteredAppend(mws.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);
         }
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
         var contentStart = sb.Length;
         Format(item, 0, sb, formatString ?? "", item.Length);
         Gb.MarkContentEnd();
         var writtenAs = sb.WrittenAsFromFirstCharacters(contentStart, Gb);
-        return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
+        return mws.Master.UnregisteredAppend(mws.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
     }
 
-    public virtual AppendSummary CollectionNextStringBearerFormat<TBearer>(ITypeMolderDieCast mdc, TBearer item, int retrieveCount
+    public virtual AppendSummary CollectionNextStringBearerFormat<TBearer>(IMoldWriteState mws, TBearer item, int retrieveCount
       , string? callerFormatString, FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
         var actualType = item?.GetType() ?? typeof(TBearer);
-        var sb         = mdc.Sb;
+        var sb         = mws.Sb;
         var startAt    = sb.Length;
         if (item == null)
         {
             var writtenAsNull = AppendFormattedNull(sb, callerFormatString, callerFormatFlags);
-            return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);
+            return mws.Master.UnregisteredAppend(mws.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);
         }
         var contentStart = sb.Length;
-        mdc.Master.SetCallerFormatString(callerFormatString);
-        mdc.Master.SetCallerFormatFlags(callerFormatFlags);
-        var stateExtractResult = item.RevealState(mdc.Master);
+        mws.Master.SetCallerFormatString(callerFormatString);
+        mws.Master.SetCallerFormatFlags(callerFormatFlags);
+        var stateExtractResult = item.RevealState(mws.Master);
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         Gb.MarkContentStart(contentStart);
         Gb.MarkContentEnd();
         return stateExtractResult;
     }
 
-    public virtual Range? AddCollectionElementSeparator(ITypeMolderDieCast moldInternal, Type elementType, int nextItemNumber
+    public virtual Range? AddCollectionElementSeparator(IMoldWriteState mws, Type elementType, int nextItemNumber
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (formatFlags.HasNoItemSeparatorFlag()) return null;
@@ -1739,7 +1840,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return Gb.CurrentSectionRanges.CurrentSeparatorRange;
     }
 
-    public virtual ContentSeparatorRanges AddCollectionElementPadding(ITypeMolderDieCast moldInternal, Type elementType, int nextItemNumber
+    public virtual ContentSeparatorRanges AddCollectionElementPadding(IMoldWriteState mws, Type elementType, int nextItemNumber
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (formatFlags.HasNoItemPaddingFlag()) return Gb.Complete(formatFlags);
@@ -1747,11 +1848,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return Gb.Complete(formatFlags);
     }
 
-    public ContentSeparatorRanges AddCollectionElementSeparatorAndPadding(ITypeMolderDieCast moldInternal, Type elementType, int nextItemNumber
+    public ContentSeparatorRanges AddCollectionElementSeparatorAndPadding(IMoldWriteState mws, Type elementType, int nextItemNumber
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        AddCollectionElementSeparator(moldInternal, elementType, nextItemNumber, formatFlags);
-        return AddCollectionElementPadding(moldInternal, elementType, nextItemNumber, formatFlags);
+        AddCollectionElementSeparator(mws, elementType, nextItemNumber, formatFlags);
+        return AddCollectionElementPadding(mws, elementType, nextItemNumber, formatFlags);
     }
 
     public override int AddCollectionElementSeparator(Type collectionElementType, IStringBuilder sb, int nextItemNumber
@@ -1791,74 +1892,6 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         if (formatFlags.HasNoItemPaddingFlag()) return Gb.Complete(fmtFlags).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
         Gb.AppendPadding(formatFlags.UseMainItemSeparator() ? Options.MainItemSeparator : Options.AlternateItemSeparator);
         return Gb.Complete(fmtFlags).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
-    }
-
-    public virtual IStringBuilder FormatCollectionEnd(ITypeMolderDieCast mdc, int? resultsFoundCount, Type itemElementType
-      , int? totalItemCount, string? formatString, FormatFlags formatFlags = DefaultCallerTypeFlags)
-    {
-        var sb = mdc.Sb;
-        if (mdc.SkipBody || mdc.WroteCollectionClose)
-        {
-            if (Gb.CurrentSectionRanges.HasNonZeroLengthContent) { Gb.SnapshotLastAppendSequence(Gb.CurrentSectionRanges.StartedWithFormatFlags); }
-            Gb.RemoveLastSeparatorAndPadding();
-            Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags, true);
-            return sb;
-        }
-        mdc.WroteCollectionClose = true;
-        if (!(totalItemCount > 0))
-        {
-            Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags, true);
-            if (totalItemCount.HasValue || StyleOptions.NullWritesEmpty)
-            {
-                if (!mdc.WroteCollectionOpen) CollectionStart(itemElementType, sb, true, (FormatSwitches)formatFlags);
-                CollectionEnd(itemElementType, sb, 0, (FormatSwitches)formatFlags);
-            }
-            else { AppendFormattedNull(sb, formatString, formatFlags); }
-
-            Gb.MarkContentEnd();
-            mdc.WroteCollectionOpen = false;
-
-            return sb;
-        }
-        mdc.WroteCollectionOpen = false;
-        CollectionEnd(itemElementType, sb, totalItemCount.Value, (FormatSwitches)formatFlags);
-
-        return sb;
-    }
-
-    public override int CollectionEnd(Type elementType, IStringBuilder sb, int itemsCount
-      , FormatSwitches formatSwitches = FormatSwitches.EncodeInnerContent)
-    {
-        if (formatSwitches.TreatCharArrayAsString() && elementType.IsCharArray()) { return 0; }
-
-        var previousContentPadSpacing = Gb.LastContentSeparatorPaddingRanges;
-        if (previousContentPadSpacing.PreviousFormatFlags.HasSuppressClosing())
-        {
-            Gb.Complete(previousContentPadSpacing.PreviousFormatFlags);
-            Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags, true);
-            return 0;
-        }
-        var lastChar = Gb.RemoveLastSeparatorAndPadding();
-        Gb.StartNextContentSeparatorPaddingSequence(sb, (FormatFlags)formatSwitches, true);
-        if (lastChar != SqBrktOpnChar) { Gb.AppendContent(Spc); }
-        return Gb.AppendContent(SqBrktCls).Complete((FormatFlags)formatSwitches).Length;
-    }
-
-    public override int CollectionEnd(Type elementType, Span<char> destSpan, int destIndex, int itemsCount
-      , FormatSwitches formatSwitches = FormatSwitches.EncodeInnerContent)
-    {
-        var originalDestIndex = destIndex;
-        if (formatSwitches.TreatCharArrayAsString() && elementType.IsCharArray()) { return 0; }
-        CharSpanCollectionScratchBuffer?.DecrementRefCount();
-        CharSpanCollectionScratchBuffer = null;
-
-        var lastChar = Gb.RemoveLastSeparatorAndPadding(destSpan, ref destIndex);
-        Gb.ResetCurrent((FormatFlags)formatSwitches, true);
-        Gb.MarkContentStart(destIndex);
-
-        if (lastChar != SqBrktOpnChar) destIndex += destSpan.OverWriteAt(destIndex, Spc);
-        destIndex += destSpan.OverWriteAt(destIndex, SqBrktCls);
-        return Gb.MarkContentEnd(destIndex).Complete((FormatFlags)formatSwitches).Length;
     }
 
     object ICloneable.Clone() => Clone();

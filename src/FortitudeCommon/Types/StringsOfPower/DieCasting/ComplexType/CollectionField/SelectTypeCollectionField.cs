@@ -5,9 +5,9 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.Collection
 public partial class SelectTypeCollectionField<TExt>: RecyclableObject
     where TExt : TypeMolder
 {
-    private ITypeMolderDieCast<TExt> stb = null!;
+    private IMoldWriteState<TExt> stb = null!;
     
-    public SelectTypeCollectionField<TExt> Initialize(ITypeMolderDieCast<TExt> molderDieCast)
+    public SelectTypeCollectionField<TExt> Initialize(IMoldWriteState<TExt> molderDieCast)
     {
         stb = molderDieCast;
 

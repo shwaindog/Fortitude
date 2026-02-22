@@ -14,26 +14,36 @@ public abstract class TransitioningTypeMolder<TCurrent, TNext> : KnownTypeMolder
 {
     private bool hasTransitioned;
 
-    public override void StartFormattingTypeOpening(IStyledTypeFormatting usingFormatter)
+    public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
     {
         if (IsComplexType)
         {
-            usingFormatter.StartComplexTypeOpening(MoldStateField);
-            usingFormatter.FinishComplexTypeOpening(MoldStateField);
+            usingFormatter.StartComplexTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MigratableMoldState.CurrentWriteMethod, formatFlags);
         }
         else
         {
-            usingFormatter.StartContentTypeOpening(MoldStateField);
-            usingFormatter.FinishContentTypeOpening(MoldStateField);
+            usingFormatter.StartSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MigratableMoldState.CurrentWriteMethod, formatFlags);
+        }
+    }
+
+    public override void FinishTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
+    {
+        if (IsComplexType)
+        {
+            usingFormatter.FinishComplexTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MigratableMoldState.CurrentWriteMethod, formatFlags);
+        }
+        else
+        {
+            usingFormatter.FinishSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MigratableMoldState.CurrentWriteMethod, formatFlags);
         }
     }
 
     public override void AppendClosing()
     {
         if (IsComplexType)
-            MoldStateField.StyleFormatter.AppendComplexTypeClosing(MoldStateField);
+            MoldStateField.StyleFormatter.AppendComplexTypeClosing(MoldStateField.InstanceOrType, MoldStateField, MigratableMoldState.CurrentWriteMethod);
         else
-            MoldStateField.StyleFormatter.AppendContentTypeClosing(MoldStateField);
+            MoldStateField.StyleFormatter.AppendSimpleTypeClosing(MoldStateField.InstanceOrType, MoldStateField, MigratableMoldState.CurrentWriteMethod);
     }
 
     public virtual TNext TransitionToNextMold()
@@ -54,7 +64,7 @@ public abstract class TransitioningTypeMolder<TCurrent, TNext> : KnownTypeMolder
         return nextTypeBuilder;
     }
 
-    public IMigratableTypeMolderDieCast MigratableMoldState => MoldStateField;
+    public IMigratableMoldWriteState MigratableMoldState => MoldStateField;
 
     public override AppendSummary Complete()
     {

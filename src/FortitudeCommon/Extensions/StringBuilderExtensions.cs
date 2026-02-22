@@ -95,11 +95,11 @@ public static class StringBuilderExtensions
     public static StringBuilder ShiftRightAt(this StringBuilder toMutate, int from, int by)
     {
         if (by < 0) return toMutate;
-
+        var oldLength = toMutate.Length;
         toMutate.Length += by;
-        for (var i = toMutate.Length - 1; i - by >= from; i--)
+        for (var i = oldLength - 1; i >= from; i--)
         {
-            toMutate[i] = toMutate[i - by];
+            toMutate[i + by] = toMutate[i];
         }
         return toMutate;
     }
@@ -108,9 +108,9 @@ public static class StringBuilderExtensions
     {
         if (by < 0) return toMutate;
 
-        for (var i = from; i < toMutate.Length - 1 - by; i++)
+        for (var i = from; i < toMutate.Length - 1; i++)
         {
-            toMutate[i] = toMutate[i + by];
+            toMutate[i - by] = toMutate[i];
         }
         toMutate.Length -= by;
         return toMutate;

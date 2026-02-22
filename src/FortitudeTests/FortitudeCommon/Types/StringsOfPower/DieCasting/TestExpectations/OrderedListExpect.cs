@@ -25,6 +25,8 @@ public interface IOrderedListExpect : IFormatExpectation
     Type ElementCallType { get; }
 
     Type CollectionCallType { get; }
+    
+    bool IsTwoInARowTypes { get; }
 
     bool ElementTypeIsClass { get; }
     bool ContainsNullElements { get; }
@@ -86,6 +88,8 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
     public bool ElementTypeIsNotNullableStruct => !ElementTypeIsNullableStruct;
     public bool ElementTypeIsClass => !ElementTypeIsStruct;
     public bool ElementTypeIsStruct => ElementType.IsValueType;
+
+    public virtual bool IsTwoInARowTypes => false;
 
     public bool ContainsNullElements
     {
