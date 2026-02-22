@@ -68,9 +68,9 @@ public interface ITheOneString : IReusableObject<ITheOneString>
     ExplicitKeyedCollectionMold<TKey, TValue> StartExplicitKeyedCollectionType<TKey, TValue>(object keyValueContainerInstance
       , CreateContext createContext = default);
 
-    SimpleOrderedCollectionMold StartSimpleCollectionType<T>(T toStyle, Type? nonPublicCollectionResolveElementType = null, CreateContext createContext = default);
+    SimpleOrderedCollectionMold StartSimpleCollectionType<T>(T toStyle, CreateContext createContext = default);
 
-    ComplexOrderedCollectionMold StartComplexCollectionType<T>(T toStyle, Type? nonPublicCollectionResolveElementType = null, CreateContext createContext = default);
+    ComplexOrderedCollectionMold StartComplexCollectionType<T>(T toStyle, CreateContext createContext = default);
 
     TrackedInstanceMold EnsureRegisteredClassIsReferenceTracked<T>(T toStyle, WrittenAsFlags proposedWriteAs = AsRaw, CreateContext createContext = default);
 
@@ -656,17 +656,12 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         return keyedCollectionBuilder;
     }
 
-    public SimpleOrderedCollectionMold StartSimpleCollectionType<T>(T toStyle, Type? nonPublicCollectionResolveElementType = null, CreateContext createContext = default)
+    public SimpleOrderedCollectionMold StartSimpleCollectionType<T>(T toStyle, CreateContext createContext = default)
     {
         var callFlags   = createContext.FormatFlags | CallerContext.FormatFlags.MoldSingleGenerationPassFlags();
         var createFlags = callFlags.MoldMultiGenerationInheritFlags();
         var visitType   = typeof(T);
         var actualType  = toStyle?.GetType() ?? visitType;
-        if (!actualType.IsIterable() && nonPublicCollectionResolveElementType == null)
-        {
-            throw new ArgumentException("Expected to receive an Enumerable, Enumerator or nonPublicCollectionResolveElementType to be " +
-                                        "able to resolve the collection element type");
-        }
         
         var visitResult = !IsExemptFromCircularRefNodeTracking(actualType)
             ? MySourceGraphVisitRefId(toStyle, visitType, callFlags)
@@ -679,22 +674,18 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var simpleOrderedCollectionBuilder =
             AlwaysRecycler.Borrow<SimpleOrderedCollectionMold>().InitializeSimpleOrderedCollectionBuilder
                 (WrapOrReturnSubjectAsObject(toStyle), actualType, this, visitType, createContext.NameOverride, remainingDepth
-               , visitResult, writeMethod, mergedCreateFlags, nonPublicCollectionResolveElementType);
+               , visitResult, writeMethod, mergedCreateFlags);
         TypeStart(toStyle, visitType, simpleOrderedCollectionBuilder, writeMethod, mergedCreateFlags);
         return simpleOrderedCollectionBuilder;
     }
 
-    public ComplexOrderedCollectionMold StartComplexCollectionType<T>(T toStyle, Type? nonPublicCollectionResolveElementType = null, CreateContext createContext = default)
+    public ComplexOrderedCollectionMold StartComplexCollectionType<T>(T toStyle, CreateContext createContext = default)
     {
         var callFlags   = createContext.FormatFlags | CallerContext.FormatFlags.MoldSingleGenerationPassFlags();
         var createFlags = callFlags.MoldMultiGenerationInheritFlags();
         var visitType   = typeof(T);
         var actualType  = toStyle?.GetType() ?? visitType;
-        if (!actualType.IsIterable() && nonPublicCollectionResolveElementType == null)
-        {
-            throw new ArgumentException("Expected to receive an Enumerable, Enumerator or nonPublicCollectionResolveElementType to be " +
-                                        "able to resolve the collection element type");
-        }
+        
         var visitResult = !IsExemptFromCircularRefNodeTracking(actualType)
             ? MySourceGraphVisitRefId(toStyle, visitType, callFlags)
             : MyActiveGraphRegistry.VisitCheckNotRequired(MyActiveGraphRegistry.CurrentGraphNodeVisitId);
@@ -706,7 +697,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var complexOrderedCollectionBuilder =
             AlwaysRecycler.Borrow<ComplexOrderedCollectionMold>().InitializeComplexOrderedCollectionBuilder
                 (WrapOrReturnSubjectAsObject(toStyle), actualType, this, visitType, createContext.NameOverride, remainingDepth
-               , visitResult, writeMethod, mergedCreateFlags, nonPublicCollectionResolveElementType);
+               , visitResult, writeMethod, mergedCreateFlags);
         TypeStart(toStyle, visitType, complexOrderedCollectionBuilder, writeMethod, mergedCreateFlags);
         return complexOrderedCollectionBuilder;
     }

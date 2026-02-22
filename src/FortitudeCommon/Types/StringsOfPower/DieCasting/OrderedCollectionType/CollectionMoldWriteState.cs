@@ -34,8 +34,6 @@ public class CollectionMoldWriteState<TOCMold> : MoldWriteState<TOCMold>, IColle
 
     public virtual bool IsSimple => true;
     
-    public Type? HiddenResolveElementTypeAs { get; set; }
-    
     public TrackedInstanceMold? TrackInnerCollectionValueMold<TCollection>(TCollection collection, Type elementType, FormatFlags flags)
     {
         var collType = collection?.GetType() ?? typeof(TCollection);
@@ -127,12 +125,6 @@ public class CollectionMoldWriteState<TOCMold> : MoldWriteState<TOCMold>, IColle
         {
             trackedInstanceMold.Complete();
         }
-    }
-    
-    public override void StateReset()
-    {
-        HiddenResolveElementTypeAs = null!;
-        base.StateReset();
     }
     
 }

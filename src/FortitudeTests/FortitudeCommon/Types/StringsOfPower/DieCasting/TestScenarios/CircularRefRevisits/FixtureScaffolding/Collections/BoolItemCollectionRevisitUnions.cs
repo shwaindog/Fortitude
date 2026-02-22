@@ -118,7 +118,7 @@ public readonly struct BoolOrArrayStructUnion : IStringBearer
                     else
                         return tos.StartSimpleContentType(this).RevealAsString(item, itemRevealer).Complete();
                 else
-                    return tos.StartSimpleCollectionType(this, typeof(bool)).RevealAll(itemCollection, itemRevealer, null
+                    return tos.StartSimpleCollectionType(this).RevealAll(itemCollection, itemRevealer, null
                                                                                      , isValue ? DefaultCallerTypeFlags : AsStringContent).Complete();
             else if (isItem)
                 if (isValue)
@@ -137,7 +137,7 @@ public readonly struct BoolOrArrayStructUnion : IStringBearer
                            .Complete();
             else
                 return tos
-                       .StartComplexCollectionType(this, typeof(bool))
+                       .StartComplexCollectionType(this)
                        .RevealAll(itemCollection, itemRevealer, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                        .LogOnlyField.AlwaysAdd(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .LogOnlyField.AlwaysAdd(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
@@ -149,7 +149,7 @@ public readonly struct BoolOrArrayStructUnion : IStringBearer
                 else
                     return tos.StartSimpleContentType(this).AsString(item).Complete();
             else
-                return tos.StartSimpleCollectionType(this, typeof(bool)).AddAll(itemCollection).Complete();
+                return tos.StartSimpleCollectionType(this).AddAll(itemCollection).Complete();
         if (isItem)
             if (isValue)
                 return tos
@@ -166,7 +166,7 @@ public readonly struct BoolOrArrayStructUnion : IStringBearer
                        .LogOnlyField.AlwaysAdd(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
         return tos
-               .StartComplexCollectionType(this, typeof(bool))
+               .StartComplexCollectionType(this)
                .AddAll(itemCollection, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                .LogOnlyField.AlwaysAdd(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                .LogOnlyField.AlwaysAdd(nameof(logComplexOnlyInstance), logComplexOnlyInstance)

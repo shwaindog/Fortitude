@@ -1003,12 +1003,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddFilteredEnumerate<TFmt, TFmtBase>(IEnumerable<TFmt?>? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
+    public TOCMold AddFilteredEnumerate<TFmt, TFmtBase>(IEnumerable<TFmt>? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable, TFmtBase
+        where TFmt : ISpanFormattable?, TFmtBase?
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerable<TFmt?>);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<TFmt>);
         if (mws.HasSkipBody(actualType, "", formatFlags))
             return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(TFmt);
@@ -2340,13 +2340,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold RevealFilteredEnumerate<TBearer, TBearerBase>(IEnumerator<TBearer?>? value
+    public TOCMold RevealFilteredEnumerate<TBearer, TBearerBase>(IEnumerator<TBearer>? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TBearer : IStringBearer, TBearerBase
+        where TBearer : IStringBearer?, TBearerBase?
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerator<TBearer?>);
+        var actualType = value?.GetType() ?? typeof(IEnumerator<TBearer>);
         if (mws.HasSkipBody(actualType, "", formatFlags))
             return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(TBearer);
@@ -3053,13 +3053,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddFilteredCharSeqEnumerate<TCharSeq, TCharSeqBase>(IEnumerable<TCharSeq?>? value
+    public TOCMold AddFilteredCharSeqEnumerate<TCharSeq, TCharSeqBase>(IEnumerable<TCharSeq>? value
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TCharSeq : ICharSequence, TCharSeqBase
+        where TCharSeq : ICharSequence?, TCharSeqBase?
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerable<TCharSeq?>);
+        var actualType = value?.GetType() ?? typeof(IEnumerable<TCharSeq>);
         if (mws.HasSkipBody(actualType, "", formatFlags))
             return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(TCharSeq);

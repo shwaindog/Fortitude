@@ -20,13 +20,12 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType
-      , FormatFlags createFormatFlags
-      , Type? nonPublicCollectionResolveElementType)
+      , FormatFlags createFormatFlags)
     {
         InitializeOrderedCollectionBuilder
             (instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
            , remainingGraphDepth, moldGraphVisit, writeMethodType
-           , createFormatFlags | FormatFlags.AsCollection, nonPublicCollectionResolveElementType);
+           , createFormatFlags | FormatFlags.AsCollection);
 
         return this;
     }

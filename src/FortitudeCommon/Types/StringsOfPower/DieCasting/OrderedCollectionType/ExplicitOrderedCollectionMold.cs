@@ -25,7 +25,7 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
       , FormatFlags createFormatFlags )
     {
         InitializeOrderedCollectionBuilder(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
-                                         , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags, typeof(TElement));
+                                         , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
 
         return this;
     }

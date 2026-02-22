@@ -17,15 +17,13 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType
-      , FormatFlags createFormatFlags
-      , Type? nonPublicCollectionResolveType)
+      , FormatFlags createFormatFlags)
     {
         Initialize(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
                  , remainingGraphDepth, moldGraphVisit, writeMethodType
                  , createFormatFlags | FormatFlags.AsCollection);
 
         mws = CompAsOrderedCollectionMold;
-        mws.HiddenResolveElementTypeAs = nonPublicCollectionResolveType;
 
         return this;
     }

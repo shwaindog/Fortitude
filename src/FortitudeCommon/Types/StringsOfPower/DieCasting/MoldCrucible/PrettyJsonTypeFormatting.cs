@@ -86,8 +86,6 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
 
     public override ContentSeparatorRanges AppendComplexTypeClosing<T>(T instanceToOpen, IMoldWriteState mdc, WrittenAsFlags openingAs)
     {
-        var sb = mdc.Sb;
-
         var previousContentPadSpacing = Gb.LastContentSeparatorPaddingRanges;
         if (mdc.Master.CallerContext.FormatFlags.HasSuppressClosing()) { return Gb.LastContentSeparatorPaddingRanges; }
         if (previousContentPadSpacing.PreviousFormatFlags.DoesNotHaveAsEmbeddedContentFlags()) Gb.IndentLevel -= mdc.CloseDepthDecrementBy;
@@ -115,7 +113,6 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
     public override ContentSeparatorRanges AppendKeyedCollectionClose(IMoldWriteState mws
       , Type keyType, Type valueType, int totalItemCount, FormatFlags callerFormattingFlags = DefaultCallerTypeFlags)
     {
-        var sb = mws.Sb;
         if (callerFormattingFlags.HasSuppressClosing()) 
         { 
             return ContentSeparatorRanges.None; 
