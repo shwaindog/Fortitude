@@ -343,7 +343,7 @@ public static class TypeExtensions
     public static Type? GetIterableElementType(this Type? type) =>
         type?.GetIndexedCollectionElementType() ?? type?.IfEnumerableGetElementType() ?? type?.IfEnumeratorGetElementType();
 
-    
+
     public static bool IsSpanFormattable(this Type? type) =>
         type != null && (type == SpanFormattableType || type.GetInterfaces().Any(i => i == SpanFormattableType));
 
@@ -351,9 +351,9 @@ public static class TypeExtensions
         type != null && TypeIsSpanFormattableCache.GetOrAdd(type, t => t.IsSpanFormattable());
 
     public static bool IsNullableSpanFormattable(this Type? type) =>
-        type is { IsValueType: true, IsGenericType: true } 
-       && type.GetGenericTypeDefinition() == NullableTypeDef
-       && type.GenericTypeArguments[0].IsSpanFormattable();
+        type is { IsValueType: true, IsGenericType: true }
+     && type.GetGenericTypeDefinition() == NullableTypeDef
+     && type.GenericTypeArguments[0].IsSpanFormattable();
 
     public static bool IsNullableSpanFormattableCached(this Type? type) =>
         type != null && TypeIsNullableSpanFormattableCache.GetOrAdd(type, t => t.IsNullableSpanFormattable());
@@ -464,11 +464,12 @@ public static class TypeExtensions
     public static string ShortNameInCSharpFormat(this Type typeNameToFriendlify, bool includeParamConstraints = true) =>
         typeNameToFriendlify.AppendShortNameInCSharpFormat(new MutableString(), includeParamConstraints).ToString();
 
-    public static IStringBuilder AppendShortNameInCSharpFormat(this Type nameToPrint, IStringBuilder sb, bool includeParamConstraints = true)
+    public static IStringBuilder AppendShortNameInCSharpFormat(this Type nameToPrint, IStringBuilder sb, bool includeParamConstraints = true
+      , Type? nestedType = null)
     {
         if (nameToPrint is { DeclaringType: not null, IsGenericTypeParameter: false })
         {
-            AppendShortNameInCSharpFormat(nameToPrint.DeclaringType, sb, includeParamConstraints);
+            AppendShortNameInCSharpFormat(nameToPrint.DeclaringType, sb, includeParamConstraints, nameToPrint);
             sb.Append(".");
         }
         var typeName = nameToPrint.AsCSharpKeywordOrName();
@@ -483,35 +484,50 @@ public static class TypeExtensions
                     sb.Append(typeName[..indexOfTick]);
                     sb.Append('<');
                 }
-                if (nameToPrint.ContainsGenericParameters)
+                var mostNestGenericTypeParams = nestedType?.GenericTypeArguments;
+                var nameGenericTypeParams     = nameToPrint.GenericTypeArguments;
+                if (nameGenericTypeParams.Length > 0)
                 {
-                    var genericTypeParams = nameToPrint.GetTypeInfo().GenericTypeParameters;
-                    for (var i = 0; i < genericTypeParams.Length; i++)
+
+                    for (var i = 0; i < nameGenericTypeParams.Length; i++)
                     {
-                        var genericParam = genericTypeParams[i];
+                        var genericTypeArg =
+                            i < mostNestGenericTypeParams?.Length
+                                ? mostNestGenericTypeParams[i]
+                                : nameGenericTypeParams[i];
+
+                        if (i > 0) sb.Append(", ");
+                        genericTypeArg.AppendShortNameInCSharpFormat(sb, false);
+                        if (isNullable) sb.Append('?');
+                    }
+                }
+                else if (nameToPrint.ContainsGenericParameters)
+                {
+                    var nameToPrintGenericTypeParams = nameToPrint.GetTypeInfo().GenericTypeParameters;
+                    for (var i = 0; i < nameToPrintGenericTypeParams.Length; i++)
+                    {
+                        var genericParam = 
+                            i < mostNestGenericTypeParams?.Length
+                                ? mostNestGenericTypeParams[i]
+                                : nameToPrintGenericTypeParams[i];
                         if (i > 0) sb.Append(", ");
 
-                        var constraint = genericParam.GenericParameterAttributes;
-                        if ((constraint & Contravariant) > 0)
+                        if (genericParam.IsGenericParameter)
                         {
-                            sb.Append("in ");
-                            break;
-                        }
-                        if ((constraint & Covariant) > 0)
-                        {
-                            sb.Append("out ");
-                            break;
+                            var constraint = genericParam.GenericParameterAttributes;
+                            if ((constraint & Contravariant) > 0)
+                            {
+                                sb.Append("in ");
+                                break;
+                            }
+                            if ((constraint & Covariant) > 0)
+                            {
+                                sb.Append("out ");
+                                break;
+                            }
                         }
                         genericParam.AppendShortNameInCSharpFormat(sb, false);
                     }
-                }
-                for (var i = 0; i < nameToPrint.GenericTypeArguments.Length; i++)
-                {
-                    var genericTypeArg = nameToPrint.GenericTypeArguments[i];
-
-                    if (i > 0) sb.Append(", ");
-                    genericTypeArg.AppendShortNameInCSharpFormat(sb, false);
-                    if (isNullable) sb.Append('?');
                 }
                 if (!isNullable) sb.Append('>');
 

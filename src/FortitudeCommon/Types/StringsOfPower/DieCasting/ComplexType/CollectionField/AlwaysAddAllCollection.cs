@@ -438,7 +438,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAll<TBearer>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer> value, string? formatString
+    public TExt AlwaysRevealAll<TBearer>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer> value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
@@ -457,7 +457,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAll<TBearerStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearerStruct?> value, string? formatString
+    public TExt AlwaysRevealAll<TBearerStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearerStruct?> value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
@@ -1410,10 +1410,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
-            value!.Reset();
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddAllEnumerate(value, formatString, formatFlags)
+               .AddAllEnumerate(value, hasValue, formatString, formatFlags)
                .Complete();
         }
         else
@@ -1435,10 +1434,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
-            value!.Reset();
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddAllEnumerate(value, formatString, formatFlags)
+               .AddAllEnumerate(value, hasValue, formatString, formatFlags)
                .Complete();
         }
         else
@@ -1461,10 +1459,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
-            value!.Reset();
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddAllEnumerate(value, formatString, formatFlags)
+               .AddAllEnumerate(value, hasValue, formatString, formatFlags)
                .Complete();
         }
         else
@@ -1487,10 +1484,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
-            value!.Reset();
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddAllEnumerate(value, formatString, formatFlags)
+               .AddAllEnumerate(value, hasValue, formatString, formatFlags)
                .Complete();
         }
         else
@@ -1514,10 +1510,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
-            value!.Reset();
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .RevealAllEnumerate(value, palantírReveal, formatString, formatFlags)
+               .RevealAllEnumerate(value, palantírReveal, hasValue, formatString, formatFlags)
                .Complete();
         }
         else
@@ -1540,10 +1535,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
-            value!.Reset();
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .RevealAllEnumerate(value, palantírReveal, formatString, formatFlags)
+               .RevealAllEnumerate(value, palantírReveal, hasValue, formatString, formatFlags)
                .Complete();
         }
         else
@@ -1566,10 +1560,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
-            value!.Reset();
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .RevealAllEnumerate(value, formatString, formatFlags)
+               .RevealAllEnumerate(value, hasValue, formatString, formatFlags)
                .Complete();
         }
         else
@@ -1592,10 +1585,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
-            value!.Reset();
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .RevealAllEnumerate(value, formatString, formatFlags)
+               .RevealAllEnumerate(value, hasValue, formatString, formatFlags)
                .Complete();
         }
         else
@@ -1617,10 +1609,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
-            value!.Reset();
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddAllEnumerate(value, formatString, formatFlags)
+               .AddAllEnumerate(value, hasValue, formatString, formatFlags)
                .Complete();
         }
         else
@@ -1643,10 +1634,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
-            value!.Reset();
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddAllCharSeqEnumerate(value, formatString, formatFlags)
+               .AddAllCharSeqEnumerate(value, hasValue, formatString, formatFlags)
                .Complete();
         }
         else
@@ -1668,10 +1658,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
-            value!.Reset();
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddAllEnumerate(value, formatString, formatFlags)
+               .AddAllEnumerate(value, hasValue, formatString, formatFlags)
                .Complete();
         }
         else
@@ -1693,10 +1682,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
-            value!.Reset();
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddAllMatchEnumerate(value, formatString, formatFlags)
+               .AddAllMatchEnumerate(value, hasValue, formatString, formatFlags)
                .Complete();
         }
         else
@@ -1719,10 +1707,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         var hasValue = value?.MoveNext() ?? false;
         if (hasValue)
         {
-            value!.Reset();
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddAllMatchEnumerate(value, formatString, formatFlags)
+               .AddAllMatchEnumerate(value, hasValue, formatString, formatFlags)
                .Complete();
         }
         else

@@ -770,7 +770,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         if (!alreadySupportsMultipleFields)
         {
             // needsBracesWrap = writtenAs.HasAsRawFlag() && writtenAs.HasNoneOf(AsContent);
-            needsBracesWrap = writtenAs.HasAsRawFlag() && writtenAs.HasNoneOf(AsObject);
+            needsBracesWrap = writtenAs.HasAsRawFlag() && writtenAs.HasNoneOf(AsObject | WrittenAsFlags.AsCollection);
             var actualTypeFullName = actualType.FullName ?? "";
             if (writtenAs.HasAllOf(AsSimple | AsContent))
             {

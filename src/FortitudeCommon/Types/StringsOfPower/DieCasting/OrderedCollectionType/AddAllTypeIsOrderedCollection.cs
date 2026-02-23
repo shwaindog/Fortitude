@@ -347,7 +347,7 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllEnumerate(IEnumerator<bool>? value
+    public TOCMold AddAllEnumerate(IEnumerator<bool>? value, bool? hasValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -357,13 +357,13 @@ public partial class OrderedCollectionMold<TOCMold>
         var  any             = false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
-        var  hasValue        = value?.MoveNext() ?? false;
+        hasValue        ??= value?.MoveNext() ?? false;
 
         TrackedInstanceMold? valueMold = null;
-        if (hasValue)
+        if (hasValue.Value)
         {
             formatString ??= "";
-            while (hasValue)
+            while (hasValue.Value)
             {
                 if (!any)
                 {
@@ -384,7 +384,7 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllEnumerate(IEnumerator<bool?>? value
+    public TOCMold AddAllEnumerate(IEnumerator<bool?>? value, bool? hasValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -394,13 +394,13 @@ public partial class OrderedCollectionMold<TOCMold>
         var  any             = false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
-        var  hasValue        = value?.MoveNext() ?? false;
+        hasValue        ??= value?.MoveNext() ?? false;
 
         TrackedInstanceMold? valueMold = null;
-        if (hasValue)
+        if (hasValue.Value)
         {
             formatString ??= "";
-            while (hasValue)
+            while (hasValue.Value)
             {
                 if (!any)
                 {
@@ -756,7 +756,7 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllEnumerate<TFmt>(IEnumerator<TFmt>? value
+    public TOCMold AddAllEnumerate<TFmt>(IEnumerator<TFmt>? value, bool? hasValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
     {
@@ -766,13 +766,13 @@ public partial class OrderedCollectionMold<TOCMold>
         var  any             = false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
-        var  hasValue        = value?.MoveNext() ?? false;
+        hasValue        ??= value?.MoveNext() ?? false;
 
         TrackedInstanceMold? valueMold = null;
-        if (hasValue)
+        if (hasValue.Value)
         {
             formatString ??= "";
-            while (hasValue)
+            while (hasValue.Value)
             {
                 if (!any)
                 {
@@ -793,7 +793,7 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllEnumerate<TFmtStruct>(IEnumerator<TFmtStruct?>? value
+    public TOCMold AddAllEnumerate<TFmtStruct>(IEnumerator<TFmtStruct?>? value, bool? hasValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
     {
@@ -803,13 +803,13 @@ public partial class OrderedCollectionMold<TOCMold>
         var  any             = false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
-        var  hasValue        = value?.MoveNext() ?? false;
+        hasValue        ??= value?.MoveNext() ?? false;
 
         TrackedInstanceMold? valueMold = null;
-        if (hasValue)
+        if (hasValue.Value)
         {
             formatString ??= "";
-            while (hasValue)
+            while (hasValue.Value)
             {
                 if (!any)
                 {
@@ -1159,7 +1159,7 @@ public partial class OrderedCollectionMold<TOCMold>
     }
 
     public TOCMold RevealAllEnumerate<TCloaked, TRevealBase>(IEnumerator<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal
-      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , bool? hasValue = null, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -1169,12 +1169,12 @@ public partial class OrderedCollectionMold<TOCMold>
         var  any             = false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
-        var  hasValue        = value?.MoveNext() ?? false;
+        hasValue        ??= value?.MoveNext() ?? false;
 
         TrackedInstanceMold? valueMold = null;
-        if (hasValue)
+        if (hasValue.Value)
         {
-            while (hasValue)
+            while (hasValue.Value)
             {
                 if (!any)
                 {
@@ -1196,7 +1196,7 @@ public partial class OrderedCollectionMold<TOCMold>
     }
 
     public TOCMold RevealAllEnumerate<TCloakedStruct>(IEnumerator<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal
-      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , bool? hasValue = null, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TCloakedStruct?>);
@@ -1205,12 +1205,12 @@ public partial class OrderedCollectionMold<TOCMold>
         var  any             = false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
-        var  hasValue        = value?.MoveNext() ?? false;
+        hasValue        ??= value?.MoveNext() ?? false;
 
         TrackedInstanceMold? valueMold = null;
-        if (hasValue)
+        if (hasValue.Value)
         {
-            while (hasValue)
+            while (hasValue.Value)
             {
                 if (!any)
                 {
@@ -1549,7 +1549,7 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold RevealAllEnumerate<TBearer>(IEnumerator<TBearer>? value, string? formatString = null
+    public TOCMold RevealAllEnumerate<TBearer>(IEnumerator<TBearer>? value, bool? hasValue = null, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
@@ -1557,14 +1557,14 @@ public partial class OrderedCollectionMold<TOCMold>
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(TBearer);
         var  any             = false;
-        var  hasValue        = value?.MoveNext() ?? false;
+        hasValue        ??= value?.MoveNext() ?? false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
-        if (hasValue)
+        if (hasValue.Value)
         {
-            while (hasValue)
+            while (hasValue.Value)
             {
                 if (!any)
                 {
@@ -1586,7 +1586,7 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold RevealAllEnumerate<TBearerStruct>(IEnumerator<TBearerStruct?>? value, string? formatString = null
+    public TOCMold RevealAllEnumerate<TBearerStruct>(IEnumerator<TBearerStruct?>? value, bool? hasValue = null, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
@@ -1594,14 +1594,14 @@ public partial class OrderedCollectionMold<TOCMold>
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(TBearerStruct);
         var  any             = false;
-        var  hasValue        = value?.MoveNext() ?? false;
+        hasValue        ??= value?.MoveNext() ?? false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
-        if (hasValue)
+        if (hasValue.Value)
         {
-            while (hasValue)
+            while (hasValue.Value)
             {
                 if (!any)
                 {
@@ -1848,7 +1848,8 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllEnumerate(IEnumerator<string?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    public TOCMold AddAllEnumerate(IEnumerator<string?>? value, bool? hasValue = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<string?>);
@@ -1857,13 +1858,13 @@ public partial class OrderedCollectionMold<TOCMold>
         var  any             = false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
-        var  hasValue        = value?.MoveNext() ?? false;
+        hasValue        ??= value?.MoveNext() ?? false;
 
         TrackedInstanceMold? valueMold = null;
-        if (hasValue)
+        if (hasValue.Value)
         {
             formatString ??= "";
-            while (hasValue)
+            while (hasValue.Value)
             {
                 if (!any)
                 {
@@ -2054,7 +2055,7 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllCharSeqEnumerate<TCharSeq>(IEnumerator<TCharSeq>? value
+    public TOCMold AddAllCharSeqEnumerate<TCharSeq>(IEnumerator<TCharSeq>? value, bool? hasValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence?
@@ -2063,15 +2064,15 @@ public partial class OrderedCollectionMold<TOCMold>
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(TCharSeq);
         var  any             = false;
-        var  hasValue        = value?.MoveNext() ?? false;
+        hasValue        ??= value?.MoveNext() ?? false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
-        if (hasValue)
+        if (hasValue.Value)
         {
             formatString ??= "";
-            while (hasValue)
+            while (hasValue.Value)
             {
                 if (!any)
                 {
@@ -2097,7 +2098,7 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAll(StringBuilder?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerator<StringBuilder?>);
+        var actualType = value?.GetType() ?? typeof(StringBuilder[]);
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         var elementType = typeof(StringBuilder);
         var any         = false;
@@ -2321,7 +2322,7 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllEnumerate(IEnumerator<StringBuilder?>? value
+    public TOCMold AddAllEnumerate(IEnumerator<StringBuilder?>? value, bool? hasValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -2329,15 +2330,15 @@ public partial class OrderedCollectionMold<TOCMold>
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(StringBuilder);
         var  any             = false;
-        var  hasValue        = value?.MoveNext() ?? false;
+        hasValue        ??= value?.MoveNext() ?? false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
-        if (hasValue)
+        if (hasValue.Value)
         {
             formatString ??= "";
-            while (hasValue)
+            while (hasValue.Value)
             {
                 if (!any)
                 {
@@ -2521,7 +2522,7 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllMatchEnumerate<TAny>(IEnumerator<TAny>? value
+    public TOCMold AddAllMatchEnumerate<TAny>(IEnumerator<TAny>? value, bool? hasValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -2530,14 +2531,14 @@ public partial class OrderedCollectionMold<TOCMold>
         var  elementType     = typeof(TAny);
         var  any             = false;
         var  itemCount       = 0;
-        var  hasValue        = value?.MoveNext() ?? false;
+        hasValue        ??= value?.MoveNext() ?? false;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
-        if (hasValue)
+        if (hasValue.Value)
         {
             formatString ??= "";
-            while (hasValue)
+            while (hasValue.Value)
             {
                 if (!any)
                 {
@@ -2793,7 +2794,7 @@ public partial class OrderedCollectionMold<TOCMold>
     }
 
     [CallsObjectToString]
-    public TOCMold AddAllObjectEnumerate(IEnumerator<object?>? value
+    public TOCMold AddAllObjectEnumerate(IEnumerator<object?>? value, bool? hasValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -2803,13 +2804,13 @@ public partial class OrderedCollectionMold<TOCMold>
         var  any             = false;
         var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
-        var  hasValue        = value?.MoveNext() ?? false;
+        hasValue        ??= value?.MoveNext() ?? false;
 
         TrackedInstanceMold? valueMold = null;
-        if (hasValue)
+        if (hasValue.Value)
         {
             formatString ??= "";
-            while (hasValue)
+            while (hasValue.Value)
             {
                 if (!any)
                 {
