@@ -30,7 +30,7 @@ public class OrderedFromBoolArrayAddAllSimpleOrderedCollectionStringBearer : For
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | AcceptsNullableStruct | SupportsValueFormatString)]
 public class OrderedFromNullableBoolArrayAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<bool?, bool?[]>
-  
+
 {
     public bool?[]? OrderedCollectionAddAllNullableBoolArray
     {
@@ -49,7 +49,7 @@ public class OrderedFromNullableBoolArrayAddAllSimpleOrderedCollectionStringBear
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsStruct | SupportsValueFormatString)]
 public class OrderedFromBoolSpanAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<bool, bool[]>
-  
+
 {
     public bool[]? OrderedCollectionAddAllBoolSpan
     {
@@ -68,7 +68,7 @@ public class OrderedFromBoolSpanAddAllSimpleOrderedCollectionStringBearer : Form
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsNullableStruct | SupportsValueFormatString)]
 public class OrderedFromNullableBoolSpanAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<bool?, bool?[]>
-  
+
 {
     public bool?[]? OrderedCollectionAddAllNullableBoolSpan
     {
@@ -87,7 +87,7 @@ public class OrderedFromNullableBoolSpanAddAllSimpleOrderedCollectionStringBeare
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsStruct | SupportsValueFormatString)]
 public class OrderedFromBoolReadOnlySpanAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<bool, bool[]>
-  
+
 {
     public bool[]? OrderedCollectionAddAllBoolReadOnlySpan
     {
@@ -107,7 +107,7 @@ public class OrderedFromBoolReadOnlySpanAddAllSimpleOrderedCollectionStringBeare
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableStruct
                 | SupportsValueFormatString)]
 public class OrderedFromNullableBoolReadOnlySpanAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<bool?, bool?[]>
-  
+
 {
     public bool?[]? OrderedCollectionAddAllNullableBoolReadOnlySpan
     {
@@ -126,7 +126,7 @@ public class OrderedFromNullableBoolReadOnlySpanAddAllSimpleOrderedCollectionStr
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsList | AcceptsStruct | SupportsValueFormatString)]
 public class OrderedFromBoolListAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<bool, IReadOnlyList<bool>>
-  
+
 {
     public IReadOnlyList<bool>? OrderedCollectionAddAllBoolList
     {
@@ -145,7 +145,7 @@ public class OrderedFromBoolListAddAllSimpleOrderedCollectionStringBearer : Form
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsList | AcceptsNullableStruct | SupportsValueFormatString)]
 public class OrderedFromNullableBoolListAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<bool?, IReadOnlyList<bool?>>
-  
+
 {
     public IReadOnlyList<bool?>? OrderedCollectionAddAllNullableBoolList
     {
@@ -164,7 +164,7 @@ public class OrderedFromNullableBoolListAddAllSimpleOrderedCollectionStringBeare
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsStruct | SupportsValueFormatString)]
 public class OrderedFromBoolEnumerableAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<bool, IEnumerable<bool>>
-  
+
 {
     public IEnumerable<bool>? OrderedCollectionAddAllBoolEnumerable
     {
@@ -183,7 +183,7 @@ public class OrderedFromBoolEnumerableAddAllSimpleOrderedCollectionStringBearer 
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsNullableStruct | SupportsValueFormatString)]
 public class OrderedFromNullableBoolEnumerableAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<bool?, IEnumerable<bool?>>
-  
+
 {
     public IEnumerable<bool?>? OrderedCollectionAddAllNullableBoolEnumerable
     {
@@ -202,7 +202,7 @@ public class OrderedFromNullableBoolEnumerableAddAllSimpleOrderedCollectionStrin
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | AcceptsStruct | SupportsValueFormatString)]
 public class OrderedFromBoolEnumeratorAddAllSimpleOrderedCollectionStringBearer : FormattedEnumeratorMoldScaffold<bool, IEnumerator<bool>>
-  
+
 {
     public IEnumerator<bool>? OrderedCollectionAddAllBoolEnumerator
     {
@@ -214,13 +214,17 @@ public class OrderedFromBoolEnumeratorAddAllSimpleOrderedCollectionStringBearer 
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllEnumerate(OrderedCollectionAddAllBoolEnumerator, ValueFormatString, FormattingFlags)
+           .AddAllEnumerate
+               (OrderedCollectionAddAllBoolEnumerator
+              , null
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | AcceptsNullableStruct | SupportsValueFormatString)]
 public class OrderedFromNullableBoolEnumeratorAddAllSimpleOrderedCollectionStringBearer : FormattedEnumeratorMoldScaffold<bool?, IEnumerator<bool?>>
-  
+
 {
     public IEnumerator<bool?>? OrderedCollectionAddAllNullableBoolEnumerator
     {
@@ -232,8 +236,11 @@ public class OrderedFromNullableBoolEnumeratorAddAllSimpleOrderedCollectionStrin
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllEnumerate(OrderedCollectionAddAllNullableBoolEnumerator
-                          , ValueFormatString, FormattingFlags)
+           .AddAllEnumerate
+               (OrderedCollectionAddAllNullableBoolEnumerator
+              , null
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
@@ -463,8 +470,11 @@ public class OrderedFromSpanFormattableEnumeratorAddAllSimpleOrderedCollectionSt
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllEnumerate(OrderedCollectionAddAllSpanFormattableEnumerator
-                          , ValueFormatString, FormattingFlags)
+           .AddAllEnumerate
+               (OrderedCollectionAddAllSpanFormattableEnumerator
+              , null
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
@@ -526,8 +536,11 @@ public class OrderedFromNullableSpanFormattableEnumeratorAddAllSimpleOrderedColl
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllEnumerate(OrderedCollectionAddAllNullableSpanFormattableEnumerator
-                          , ValueFormatString, FormattingFlags)
+           .AddAllEnumerate
+               (OrderedCollectionAddAllNullableSpanFormattableEnumerator
+              , null
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
@@ -819,8 +832,12 @@ public class OrderedFromCloakedBearerEnumeratorRevealAllSimpleOrderedCollectionS
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllEnumerate(OrderedCollectionRevealAllCloakedBearerEnumerator, ValueRevealer
-                             , ValueFormatString, FormattingFlags)
+           .RevealAllEnumerate
+               (OrderedCollectionRevealAllCloakedBearerEnumerator
+              , ValueRevealer
+              , null
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
@@ -840,9 +857,12 @@ public class OrderedFromNullableCloakedBearerEnumeratorRevealAllSimpleOrderedCol
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllEnumerate(OrderedCollectionRevealAllNullableCloakedBearerEnumerator
-                             , ValueRevealer
-                             , ValueFormatString, FormattingFlags)
+           .RevealAllEnumerate
+               (OrderedCollectionRevealAllNullableCloakedBearerEnumerator
+              , ValueRevealer
+              , null
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
@@ -1112,8 +1132,11 @@ public class OrderedFromStringBearerEnumeratorRevealAllSimpleOrderedCollectionSt
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllEnumerate(OrderedCollectionRevealAllStringBearerEnumerator
-                             , ValueFormatString, FormattingFlags)
+           .RevealAllEnumerate
+               (OrderedCollectionRevealAllStringBearerEnumerator
+              , null
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
@@ -1132,15 +1155,18 @@ public class OrderedFromNullableStringBearerEnumeratorRevealAllSimpleOrderedColl
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealAllEnumerate(OrderedCollectionRevealAllNullableStringBearerEnumerator
-                             , ValueFormatString, FormattingFlags)
+           .RevealAllEnumerate
+               (OrderedCollectionRevealAllNullableStringBearerEnumerator
+              , null
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | AcceptsString
                 | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringArrayAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<string?, string?[]>
-  
+
 {
     public string?[]? OrderedCollectionAddAllStringArray
     {
@@ -1160,7 +1186,7 @@ public class OrderedFromStringArrayAddAllSimpleOrderedCollectionStringBearer : F
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsString
                 | AcceptsClass | SupportsValueFormatString)]
 public class OrderedFromStringSpanAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<string, string[]>
-  
+
 {
     public string[]? OrderedCollectionAddAllStringSpan
     {
@@ -1180,7 +1206,7 @@ public class OrderedFromStringSpanAddAllSimpleOrderedCollectionStringBearer : Fo
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsString
                 | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringNullableSpanAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<string?, string?[]>
-  
+
 {
     public string?[]? OrderedCollectionAddAllStringNullableSpan
     {
@@ -1200,7 +1226,7 @@ public class OrderedFromStringNullableSpanAddAllSimpleOrderedCollectionStringBea
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsString
                 | AcceptsClass | SupportsValueFormatString)]
 public class OrderedFromStringReadOnlySpanAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<string, string[]>
-  
+
 {
     public string[]? OrderedCollectionAddAllStringReadOnlySpan
     {
@@ -1217,10 +1243,10 @@ public class OrderedFromStringReadOnlySpanAddAllSimpleOrderedCollectionStringBea
            .Complete();
 }
 
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsString 
-                 | AcceptsNullableClass | SupportsValueFormatString)]
+[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsString
+                | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<string?, string?[]>
-  
+
 
 {
     public string?[]? OrderedCollectionAddAllStringNullableReadOnlySpan
@@ -1241,7 +1267,7 @@ public class OrderedFromStringNullableReadOnlySpanAddAllSimpleOrderedCollectionS
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsList | AcceptsString
                 | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringListAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<string?, IReadOnlyList<string?>>
-  
+
 
 {
     public IReadOnlyList<string?>? OrderedCollectionAddAllStringList
@@ -1259,10 +1285,10 @@ public class OrderedFromStringListAddAllSimpleOrderedCollectionStringBearer : Fo
            .Complete();
 }
 
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsString 
-                 | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
+[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsString
+                | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringEnumerableAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<string?, IEnumerable<string?>>
-  
+
 
 {
     public IEnumerable<string?>? OrderedCollectionAddAllStringEnumerable
@@ -1280,10 +1306,10 @@ public class OrderedFromStringEnumerableAddAllSimpleOrderedCollectionStringBeare
            .Complete();
 }
 
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | AcceptsString 
+[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | AcceptsString
                 | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringEnumeratorAddAllSimpleOrderedCollectionStringBearer : FormattedEnumeratorMoldScaffold<string?, IEnumerator<string?>>
-  
+
 
 {
     public IEnumerator<string?>? OrderedCollectionAddAllStringEnumerator
@@ -1296,8 +1322,11 @@ public class OrderedFromStringEnumeratorAddAllSimpleOrderedCollectionStringBeare
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllEnumerate(OrderedCollectionAddAllStringEnumerator
-                          , ValueFormatString, FormattingFlags)
+           .AddAllEnumerate
+               (OrderedCollectionAddAllStringEnumerator
+              , null
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
@@ -1418,8 +1447,11 @@ public class OrderedFromCharSequenceEnumeratorAddAllSimpleOrderedCollectionStrin
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllCharSeqEnumerate(OrderedCollectionAddAllCharSequenceEnumerator
-                                 , ValueFormatString, FormattingFlags)
+           .AddAllCharSeqEnumerate
+               (OrderedCollectionAddAllCharSequenceEnumerator
+              , null
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
@@ -1447,7 +1479,7 @@ public class OrderedFromStringBuilderArrayAddAllSimpleOrderedCollectionStringBea
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsStringBuilder
                 | AcceptsClass | SupportsValueFormatString)]
 public class OrderedFromStringBuilderSpanAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<StringBuilder, StringBuilder[]>
-  
+
 
 {
     public StringBuilder[]? OrderedCollectionAddAllStringBuilderSpan
@@ -1586,14 +1618,17 @@ public class OrderedFromStringBuilderEnumeratorAddAllSimpleOrderedCollectionStri
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllEnumerate(OrderedCollectionAddAllStringBuilderEnumerator
-                          , ValueFormatString, FormattingFlags)
+           .AddAllEnumerate
+               (OrderedCollectionAddAllStringBuilderEnumerator
+              , null
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class OrderedFromMatchArrayAddAllSimpleOrderedCollectionStringBearer<TAny> : FormattedCollectionMoldScaffold<TAny?, TAny?[]>
-  
+
 {
     public TAny?[]? OrderedCollectionAddAllMatchArray
     {
@@ -1613,7 +1648,7 @@ public class OrderedFromMatchArrayAddAllSimpleOrderedCollectionStringBearer<TAny
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan
                 | AcceptsOnlyNonNullableGeneric | SupportsValueFormatString)]
 public class OrderedFromMatchSpanAddAllSimpleOrderedCollectionStringBearer<TAny> : FormattedCollectionMoldScaffold<TAny, TAny[]>
-  
+
 {
     public TAny[]? OrderedCollectionAddAllMatchSpan
     {
@@ -1632,7 +1667,7 @@ public class OrderedFromMatchSpanAddAllSimpleOrderedCollectionStringBearer<TAny>
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class OrderedFromMatchNullableSpanAddAllSimpleOrderedCollectionStringBearer<TAny> : FormattedCollectionMoldScaffold<TAny?, TAny?[]>
-  
+
 {
     public TAny?[]? OrderedCollectionAddAllMatchNullableSpan
     {
@@ -1652,7 +1687,7 @@ public class OrderedFromMatchNullableSpanAddAllSimpleOrderedCollectionStringBear
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan
                 | AcceptsOnlyNonNullableGeneric | SupportsValueFormatString)]
 public class OrderedFromMatchReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TAny> : FormattedCollectionMoldScaffold<TAny, TAny[]>
-  
+
 {
     public TAny[]? OrderedCollectionAddAllMatchReadOnlySpan
     {
@@ -1672,7 +1707,7 @@ public class OrderedFromMatchReadOnlySpanAddAllSimpleOrderedCollectionStringBear
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsAnyGeneric
                 | SupportsValueFormatString)]
 public class OrderedFromMatchNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TAny> : FormattedCollectionMoldScaffold<TAny?, TAny?[]>
-  
+
 
 {
     public TAny?[]? OrderedCollectionAddAllMatchNullableReadOnlySpan
@@ -1692,7 +1727,7 @@ public class OrderedFromMatchNullableReadOnlySpanAddAllSimpleOrderedCollectionSt
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsList | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class OrderedFromMatchListAddAllSimpleOrderedCollectionStringBearer<TAny> : FormattedCollectionMoldScaffold<TAny?, IReadOnlyList<TAny?>>
-  
+
 
 {
     public IReadOnlyList<TAny?>? OrderedCollectionAddAllMatchList
@@ -1712,7 +1747,7 @@ public class OrderedFromMatchListAddAllSimpleOrderedCollectionStringBearer<TAny>
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class OrderedFromMatchEnumerableAddAllSimpleOrderedCollectionStringBearer<TAny> : FormattedCollectionMoldScaffold<TAny?, IEnumerable<TAny?>>
-  
+
 
 {
     public IEnumerable<TAny?>? OrderedCollectionAddAllMatchEnumerable
@@ -1732,7 +1767,7 @@ public class OrderedFromMatchEnumerableAddAllSimpleOrderedCollectionStringBearer
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | AcceptsAnyGeneric | SupportsValueFormatString)]
 public class OrderedFromMatchEnumeratorAddAllSimpleOrderedCollectionStringBearer<TAny> : FormattedEnumeratorMoldScaffold<TAny?, IEnumerator<TAny?>>
-  
+
 
 {
     public IEnumerator<TAny?>? OrderedCollectionAddAllMatchEnumerator
@@ -1745,15 +1780,18 @@ public class OrderedFromMatchEnumeratorAddAllSimpleOrderedCollectionStringBearer
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllMatchEnumerate(OrderedCollectionAddAllMatchEnumerator
-                               , ValueFormatString, FormattingFlags)
+           .AddAllMatchEnumerate
+               (OrderedCollectionAddAllMatchEnumerator
+              , null
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsNullableObject
                 | SupportsValueFormatString)]
 public class OrderedFromObjectArrayAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<object?, object?[]>
-  
+
 {
     public object?[]? OrderedCollectionAddAllObjectArray
     {
@@ -1773,7 +1811,7 @@ public class OrderedFromObjectArrayAddAllSimpleOrderedCollectionStringBearer : F
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan
                 | AcceptsNonNullableObject | SupportsValueFormatString)]
 public class OrderedFromObjectSpanAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<object, object[]>
-  
+
 {
     public object[]? OrderedCollectionAddAllObjectSpan
     {
@@ -1792,7 +1830,7 @@ public class OrderedFromObjectSpanAddAllSimpleOrderedCollectionStringBearer : Fo
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsNullableObject | SupportsValueFormatString)]
 public class OrderedFromObjectNullableSpanAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<object?, object?[]>
-  
+
 {
     public object?[]? OrderedCollectionAddAllObjectNullableSpan
     {
@@ -1812,7 +1850,7 @@ public class OrderedFromObjectNullableSpanAddAllSimpleOrderedCollectionStringBea
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsNonNullableObject
                 | SupportsValueFormatString)]
 public class OrderedFromObjectReadOnlySpanAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<object, object[]>
-  
+
 {
     public object[]? OrderedCollectionAddAllObjectReadOnlySpan
     {
@@ -1832,7 +1870,7 @@ public class OrderedFromObjectReadOnlySpanAddAllSimpleOrderedCollectionStringBea
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsNullableObject
                 | SupportsValueFormatString)]
 public class OrderedFromObjectNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<object?, object?[]>
-  
+
 
 {
     public object?[]? OrderedCollectionAddAllObjectNullableReadOnlySpan
@@ -1852,7 +1890,7 @@ public class OrderedFromObjectNullableReadOnlySpanAddAllSimpleOrderedCollectionS
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsList | AcceptsNullableObject | SupportsValueFormatString)]
 public class OrderedFromObjectListAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<object?, IReadOnlyList<object?>>
-  
+
 
 {
     public IReadOnlyList<object?>? OrderedCollectionAddAllObjectList
@@ -1872,7 +1910,7 @@ public class OrderedFromObjectListAddAllSimpleOrderedCollectionStringBearer : Fo
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsNullableObject | SupportsValueFormatString)]
 public class OrderedFromObjectEnumerableAddAllSimpleOrderedCollectionStringBearer : FormattedCollectionMoldScaffold<object?, IEnumerable<object?>>
-  
+
 
 {
     public IEnumerable<object?>? OrderedCollectionAddAllObjectEnumerable
@@ -1892,7 +1930,7 @@ public class OrderedFromObjectEnumerableAddAllSimpleOrderedCollectionStringBeare
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | AcceptsNullableObject | SupportsValueFormatString)]
 public class OrderedFromObjectEnumeratorAddAllSimpleOrderedCollectionStringBearer : FormattedEnumeratorMoldScaffold<object?, IEnumerator<object?>>
-  
+
 
 {
     public IEnumerator<object?>? OrderedCollectionAddAllObjectEnumerator
@@ -1905,7 +1943,10 @@ public class OrderedFromObjectEnumeratorAddAllSimpleOrderedCollectionStringBeare
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllObjectEnumerate(OrderedCollectionAddAllObjectEnumerator
-                                , ValueFormatString, FormattingFlags)
+           .AddAllObjectEnumerate
+               (OrderedCollectionAddAllObjectEnumerator
+              , null
+              , ValueFormatString
+              , FormattingFlags)
            .Complete();
 }
