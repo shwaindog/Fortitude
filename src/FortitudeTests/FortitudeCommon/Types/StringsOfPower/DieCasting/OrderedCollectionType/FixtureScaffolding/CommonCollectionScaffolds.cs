@@ -110,7 +110,7 @@ public abstract class FormattedFilteredCollectionMoldScaffold<TValue, TCollectio
 
 public abstract class FormattedFilteredCollectionMoldScaffold<TValue, TValueFilterBase, TCollection> : 
     FormattedFilteredCollectionFieldMoldScaffold<TValue, TValueFilterBase, TCollection>, IEnumerable<TValue>
-    where TValue : TValueFilterBase
+    where TValue : TValueFilterBase?
     where TCollection : IEnumerable<TValue>
 {
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -128,8 +128,8 @@ public abstract class FormattedFilteredEnumeratorMoldScaffold<TValue, TCollectio
 }
 
 public abstract class FormattedFilteredEnumeratorMoldScaffold<TValue, TValueFilterBase, TCollection> : 
-    FormattedFilteredEnumeratorFieldMoldScaffold<TValue, TCollection>, IEnumerable<TValue>
-    where TValue : TValueFilterBase
+    FormattedFilteredEnumeratorFieldMoldScaffold<TValue, TValueFilterBase, TCollection>, IEnumerable<TValue>
+    where TValue : TValueFilterBase?
     where TCollection : IEnumerator<TValue>
 {
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -169,7 +169,7 @@ public abstract class RevealerFilteredEnumeratorMoldScaffold<TCloaked, TCollecti
 
 public abstract class RevealerFilteredEnumeratorMoldScaffold<TCloaked, TCloakedFilterBase, TRevealBase, TCollection> : 
     RevealerFilteredEnumeratorFieldMoldScaffold<TCloaked, TCloakedFilterBase, TRevealBase, TCollection>, IEnumerable<TCloaked>
-    where TCloaked : TCloakedFilterBase
+    where TCloaked : TCloakedFilterBase?
     where TCollection : IEnumerator<TCloaked>?
     where TRevealBase : notnull
 {

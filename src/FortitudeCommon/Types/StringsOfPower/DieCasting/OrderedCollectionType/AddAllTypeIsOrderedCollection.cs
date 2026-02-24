@@ -279,9 +279,10 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllEnumerate(IEnumerable<bool>? value
+    public TOCMold AddAllEnumerate<TEnumbl>(TEnumbl value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<bool>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<bool>);
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
@@ -313,11 +314,12 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllEnumerate(IEnumerable<bool?>? value
+    public TOCMold AddAllEnumerateNullable<TEnumbl>(TEnumbl value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<bool?>?
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerable<bool?>);
+        var actualType = value?.GetType() ?? typeof(TEnumbl);
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         var  elementType     = typeof(bool);
         var  any             = false;
@@ -347,9 +349,10 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllEnumerate(IEnumerator<bool>? value, bool? hasValue = null
+    public TOCMold AddAllIterate<TEnumtr>(TEnumtr value, bool? hasValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<bool>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<bool>);
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
@@ -384,9 +387,10 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllEnumerate(IEnumerator<bool?>? value, bool? hasValue = null
+    public TOCMold AddAllIterateNullable<TEnumtr>(TEnumtr value, bool? hasValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<bool?>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<bool?>);
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
@@ -688,9 +692,11 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllEnumerate<TFmt>(IEnumerable<TFmt>? value
+    public TOCMold AddAllEnumerate<TEnumbl, TFmt>(TEnumbl value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
+        where TEnumbl : IEnumerable<TFmt>?
+        where TFmt : ISpanFormattable?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TFmt?>);
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
@@ -722,9 +728,11 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllEnumerate<TFmtStruct>(IEnumerable<TFmtStruct?>? value
+    public TOCMold AddAllEnumerateNullable<TEnumbl, TFmtStruct>(TEnumbl value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
+        where TEnumbl : IEnumerable<TFmtStruct?>?
+        where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TFmtStruct?>);
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
@@ -756,9 +764,11 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllEnumerate<TFmt>(IEnumerator<TFmt>? value, bool? hasValue = null
+    public TOCMold AddAllIterate<TEnumtr, TFmt>(TEnumtr value, bool? hasValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmt : ISpanFormattable?
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
+        where TEnumtr : IEnumerator<TFmt>?
+        where TFmt : ISpanFormattable?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TFmt?>);
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
@@ -793,9 +803,11 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllEnumerate<TFmtStruct>(IEnumerator<TFmtStruct?>? value, bool? hasValue = null
+    public TOCMold AddAllIterateNullable<TEnumtr, TFmtStruct>(TEnumtr value, bool? hasValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TFmtStruct : struct, ISpanFormattable
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TFmtStruct?>?
+        where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TFmtStruct?>);
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
@@ -1091,8 +1103,9 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold RevealAllEnumerate<TCloaked, TRevealBase>(IEnumerable<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal
+    public TOCMold RevealAllEnumerate<TEnumbl, TCloaked, TRevealBase>(TEnumbl value, PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<TCloaked?>?
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -1125,8 +1138,9 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold RevealAllEnumerate<TCloakedStruct>(IEnumerable<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal
+    public TOCMold RevealAllEnumerateNullable<TEnumbl, TCloakedStruct>(TEnumbl value, PalantírReveal<TCloakedStruct> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<TCloakedStruct?>?
         where TCloakedStruct : struct
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TCloakedStruct?>);
@@ -1158,8 +1172,9 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold RevealAllEnumerate<TCloaked, TRevealBase>(IEnumerator<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal
+    public TOCMold RevealAllIterate<TEnumtr, TCloaked, TRevealBase>(TEnumtr value, PalantírReveal<TRevealBase> palantírReveal
       , bool? hasValue = null, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TCloaked?>? 
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -1195,8 +1210,9 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold RevealAllEnumerate<TCloakedStruct>(IEnumerator<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal
+    public TOCMold RevealAllIterateNullable<TEnumtr, TCloakedStruct>(TEnumtr value, PalantírReveal<TCloakedStruct> palantírReveal
       , bool? hasValue = null, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TCloakedStruct?>? 
         where TCloakedStruct : struct
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TCloakedStruct?>);
@@ -1483,8 +1499,9 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold RevealAllEnumerate<TBearer>(IEnumerable<TBearer>? value, string? formatString = null
+    public TOCMold RevealAllEnumerate<TEnumbl, TBearer>(TEnumbl value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<TBearer?>?
         where TBearer : IStringBearer?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TBearer?>);
@@ -1516,8 +1533,9 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold RevealAllEnumerate<TBearerStruct>(IEnumerable<TBearerStruct?>? value, string? formatString = null
+    public TOCMold RevealAllEnumerateNullable<TEnumbl, TBearerStruct>(TEnumbl value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<TBearerStruct?>?
         where TBearerStruct : struct, IStringBearer
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TBearerStruct>);
@@ -1549,8 +1567,9 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold RevealAllEnumerate<TBearer>(IEnumerator<TBearer>? value, bool? hasValue = null, string? formatString = null
+    public TOCMold RevealAllIterate<TEnumtr, TBearer>(TEnumtr? value, bool? hasValue = null, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TBearer?>? 
         where TBearer : IStringBearer?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TBearer?>);
@@ -1586,8 +1605,9 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold RevealAllEnumerate<TBearerStruct>(IEnumerator<TBearerStruct?>? value, bool? hasValue = null, string? formatString = null
+    public TOCMold RevealAllIterateNullable<TEnumtr, TBearerStruct>(TEnumtr value, bool? hasValue = null, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TBearerStruct?>? 
         where TBearerStruct : struct, IStringBearer
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TBearerStruct?>);
@@ -1815,8 +1835,9 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllEnumerate(IEnumerable<string?>? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    public TOCMold AddAllStringEnumerate<TEnumbl>(TEnumbl value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<string?>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<string?>);
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
@@ -1848,9 +1869,10 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllEnumerate(IEnumerator<string?>? value, bool? hasValue = null
+    public TOCMold AddAllStringIterate<TEnumtr>(TEnumtr value, bool? hasValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<string?>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<string?>);
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
@@ -2020,9 +2042,10 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllCharSeqEnumerate<TCharSeq>(IEnumerable<TCharSeq>? value
+    public TOCMold AddAllCharSeqEnumerate<TEnumbl, TCharSeq>(TEnumbl value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<TCharSeq>?
         where TCharSeq : ICharSequence?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TCharSeq>);
@@ -2055,9 +2078,10 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllCharSeqEnumerate<TCharSeq>(IEnumerator<TCharSeq>? value, bool? hasValue = null
+    public TOCMold AddAllCharSeqIterate<TEnumtr, TCharSeq>(TEnumtr value, bool? hasValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TCharSeq>?
         where TCharSeq : ICharSequence?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TCharSeq?>);
@@ -2288,9 +2312,10 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllEnumerate(IEnumerable<StringBuilder?>? value
+    public TOCMold AddAllStringBuilderEnumerate<TEnumbl>(TEnumbl value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<StringBuilder?>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<StringBuilder?>);
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
@@ -2322,9 +2347,10 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllEnumerate(IEnumerator<StringBuilder?>? value, bool? hasValue = null
+    public TOCMold AddAllStringBuilderIterate<TEnumtr>(TEnumtr value, bool? hasValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<StringBuilder?>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<StringBuilder?>);
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
@@ -2488,9 +2514,10 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllMatchEnumerate<TAny>(IEnumerable<TAny>? value
+    public TOCMold AddAllMatchEnumerate<TEnumbl, TAny>(TEnumbl value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<TAny>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TAny>);
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
@@ -2522,9 +2549,10 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllMatchEnumerate<TAny>(IEnumerator<TAny>? value, bool? hasValue = null
+    public TOCMold AddAllMatchIterate<TEnumtr, TAny>(TEnumtr value, bool? hasValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TAny>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TAny>);
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
@@ -2759,9 +2787,10 @@ public partial class OrderedCollectionMold<TOCMold>
     }
 
     [CallsObjectToString]
-    public TOCMold AddAllObjectEnumerate(IEnumerable<object?>? value
+    public TOCMold AddAllObjectEnumerate<TEnumbl>(TEnumbl value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<object?>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<object?>);
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
@@ -2794,9 +2823,10 @@ public partial class OrderedCollectionMold<TOCMold>
     }
 
     [CallsObjectToString]
-    public TOCMold AddAllObjectEnumerate(IEnumerator<object?>? value, bool? hasValue = null
+    public TOCMold AddAllObjectIterate<TEnumtr>(TEnumtr value, bool? hasValue = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<object?>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<object?>);
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);

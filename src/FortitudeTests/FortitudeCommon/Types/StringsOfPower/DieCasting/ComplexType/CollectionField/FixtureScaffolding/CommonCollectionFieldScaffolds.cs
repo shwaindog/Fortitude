@@ -147,7 +147,7 @@ public abstract class RevealerFilteredEnumeratorFieldMoldScaffold<TCloaked, TCol
 
 public abstract class RevealerFilteredEnumeratorFieldMoldScaffold<TCloaked, TCloakedFilterBase, TRevealBase, TCollection> : 
     RevealerEnumeratorFieldMoldScaffold<TCloaked, TRevealBase, TCollection>, ISupportsOrderedCollectionPredicate<TCloakedFilterBase>
-    where TCloaked : TCloakedFilterBase
+    where TCloaked : TCloakedFilterBase?
     where TCollection : IEnumerator<TCloaked>?
     where TRevealBase : notnull
 {

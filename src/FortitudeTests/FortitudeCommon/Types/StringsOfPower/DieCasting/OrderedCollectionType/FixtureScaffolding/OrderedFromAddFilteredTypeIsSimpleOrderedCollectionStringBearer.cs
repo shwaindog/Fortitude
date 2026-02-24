@@ -225,7 +225,7 @@ public class OrderedFromNullableBoolEnumerableAddFilteredSimpleOrderedCollection
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate
+           .AddFilteredEnumerateNullable
                (OrderedCollectionAddFilteredNullableBoolEnumerable
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
@@ -248,7 +248,7 @@ public class OrderedFromBoolEnumeratorAddFilteredSimpleOrderedCollectionStringBe
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate
+           .AddFilteredIterate
                (OrderedCollectionAddFilteredBoolEnumerator
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
@@ -272,7 +272,7 @@ public class OrderedFromNullableBoolEnumeratorAddFilteredSimpleOrderedCollection
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate
+           .AddFilteredIterateNullable
                (OrderedCollectionAddFilteredNullableBoolEnumerator
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
@@ -523,9 +523,9 @@ public class OrderedFromNullableSpanFormattableListAddFilteredSimpleOrderedColle
                 | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
 public class OrderedFromSpanFormattableEnumerableAddFilteredSimpleOrderedCollectionStringBearer<TFmt, TFmtBase> :
     FormattedFilteredCollectionMoldScaffold<TFmt, TFmtBase, IEnumerable<TFmt>>
-    where TFmt : ISpanFormattable, TFmtBase
+    where TFmt : ISpanFormattable?, TFmtBase?
 {
-    public IEnumerable<TFmt?>? OrderedCollectionAddFilteredSpanFormattableEnumerable
+    public IEnumerable<TFmt>? OrderedCollectionAddFilteredSpanFormattableEnumerable
     {
         get => Value;
         set => Value = value!;
@@ -536,7 +536,7 @@ public class OrderedFromSpanFormattableEnumerableAddFilteredSimpleOrderedCollect
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate
+           .AddFilteredEnumerate<IEnumerable<TFmt>?, TFmt, TFmtBase>
                (OrderedCollectionAddFilteredSpanFormattableEnumerable
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
@@ -560,7 +560,7 @@ public class OrderedFromNullableSpanFormattableEnumerableAddFilteredSimpleOrdere
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate
+           .AddFilteredEnumerateNullable
                (OrderedCollectionAddFilteredNullableSpanFormattableEnumerable
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
@@ -571,9 +571,9 @@ public class OrderedFromNullableSpanFormattableEnumerableAddFilteredSimpleOrdere
                 | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
 public class OrderedFromSpanFormattableEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<TFmt, TFmtBase> :
     FormattedFilteredEnumeratorMoldScaffold<TFmt, TFmtBase, IEnumerator<TFmt>>
-    where TFmt : ISpanFormattable, TFmtBase
+    where TFmt : ISpanFormattable?, TFmtBase?
 {
-    public IEnumerator<TFmt?>? OrderedCollectionAddFilteredSpanFormattableEnumerator
+    public IEnumerator<TFmt>? OrderedCollectionAddFilteredSpanFormattableEnumerator
     {
         get => Value;
         set => Value = value!;
@@ -584,10 +584,9 @@ public class OrderedFromSpanFormattableEnumeratorAddFilteredSimpleOrderedCollect
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate
+           .AddFilteredIterate<IEnumerator<TFmt>?, TFmt, TFmtBase>
                (OrderedCollectionAddFilteredSpanFormattableEnumerator
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
+              , ElementPredicate, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -608,7 +607,7 @@ public class OrderedFromNullableSpanFormattableEnumeratorAddFilteredSimpleOrdere
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate
+           .AddFilteredIterateNullable
                (OrderedCollectionAddFilteredNullableSpanFormattableEnumerator
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
@@ -866,10 +865,10 @@ public class OrderedFromNullableCloakedBearerListRevealFilteredSimpleOrderedColl
                 | SupportsValueRevealer | SupportsValueFormatString)]
 public class OrderedFromCloakedBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TFilterBase, TRevealBase>
     : RevealerFilteredCollectionMoldScaffold<TCloaked, TFilterBase, TRevealBase, IEnumerable<TCloaked>>
-    where TCloaked : TRevealBase, TFilterBase
+    where TCloaked : TRevealBase?, TFilterBase?
     where TRevealBase : notnull
 {
-    public IEnumerable<TCloaked?>? OrderedCollectionRevealFilteredCloakedBearerEnumerable
+    public IEnumerable<TCloaked>? OrderedCollectionRevealFilteredCloakedBearerEnumerable
     {
         get => Value;
         set => Value = value!;
@@ -879,7 +878,7 @@ public class OrderedFromCloakedBearerEnumerableRevealFilteredSimpleOrderedCollec
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate
+           .RevealFilteredEnumerate<IEnumerable<TCloaked>?, TCloaked, TFilterBase, TRevealBase>
                (OrderedCollectionRevealFilteredCloakedBearerEnumerable
               , ElementPredicate
               , ValueRevealer
@@ -903,7 +902,7 @@ public class OrderedFromNullableCloakedBearerEnumerableRevealFilteredSimpleOrder
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate
+           .RevealFilteredEnumerateNullable
                (OrderedCollectionRevealFilteredNullableCloakedBearerEnumerable
               , ElementPredicate
               , ValueRevealer
@@ -915,10 +914,10 @@ public class OrderedFromNullableCloakedBearerEnumerableRevealFilteredSimpleOrder
                 | SupportsValueRevealer | SupportsValueFormatString)]
 public class OrderedFromCloakedBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TFilterBase, TRevealBase>
     : RevealerFilteredEnumeratorMoldScaffold<TCloaked, TFilterBase, TRevealBase, IEnumerator<TCloaked>>
-    where TCloaked : TRevealBase, TFilterBase
+    where TCloaked : TRevealBase?, TFilterBase?
     where TRevealBase : notnull
 {
-    public IEnumerator<TCloaked?>? OrderedCollectionRevealFilteredCloakedBearerEnumerator
+    public IEnumerator<TCloaked>? OrderedCollectionRevealFilteredCloakedBearerEnumerator
     {
         get => Value;
         set => Value = value!;
@@ -928,7 +927,7 @@ public class OrderedFromCloakedBearerEnumeratorRevealFilteredSimpleOrderedCollec
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate
+           .RevealFilteredIterate<IEnumerator<TCloaked>?, TCloaked, TFilterBase, TRevealBase>
                (OrderedCollectionRevealFilteredCloakedBearerEnumerator
               , ElementPredicate
               , ValueRevealer
@@ -952,7 +951,7 @@ public class OrderedFromNullableCloakedBearerEnumeratorRevealFilteredSimpleOrder
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate
+           .RevealFilteredIterateNullable
                (OrderedCollectionRevealFilteredNullableCloakedBearerEnumerator
               , ElementPredicate
               , ValueRevealer
@@ -1202,9 +1201,9 @@ public class OrderedFromNullableStringBearerListRevealFilteredSimpleOrderedColle
                 | AcceptsStringBearer | SupportsValueFormatString)]
 public class OrderedFromStringBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> :
     FormattedFilteredCollectionMoldScaffold<TBearer, TBearerBase, IEnumerable<TBearer>>
-    where TBearer : IStringBearer, TBearerBase
+    where TBearer : IStringBearer?, TBearerBase?
 {
-    public IEnumerable<TBearer?>? OrderedCollectionRevealFilteredStringBearerEnumerable
+    public IEnumerable<TBearer>? OrderedCollectionRevealFilteredStringBearerEnumerable
     {
         get => Value;
         set => Value = value!;
@@ -1215,7 +1214,7 @@ public class OrderedFromStringBearerEnumerableRevealFilteredSimpleOrderedCollect
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate
+           .RevealFilteredEnumerate<IEnumerable<TBearer>?, TBearer, TBearerBase>
                (OrderedCollectionRevealFilteredStringBearerEnumerable
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
@@ -1239,7 +1238,7 @@ public class OrderedFromNullableStringBearerEnumerableRevealFilteredSimpleOrdere
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate
+           .RevealFilteredEnumerateNullable
                (OrderedCollectionRevealFilteredNullableStringBearerEnumerable
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
@@ -1250,9 +1249,9 @@ public class OrderedFromNullableStringBearerEnumerableRevealFilteredSimpleOrdere
                 | AcceptsStringBearer | SupportsValueFormatString)]
 public class OrderedFromStringBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> :
     FormattedFilteredEnumeratorMoldScaffold<TBearer, TBearerBase, IEnumerator<TBearer>>
-    where TBearer : IStringBearer, TBearerBase
+    where TBearer : IStringBearer?, TBearerBase?
 {
-    public IEnumerator<TBearer?>? OrderedCollectionRevealFilteredStringBearerEnumerator
+    public IEnumerator<TBearer>? OrderedCollectionRevealFilteredStringBearerEnumerator
     {
         get => Value;
         set => Value = value!;
@@ -1263,7 +1262,7 @@ public class OrderedFromStringBearerEnumeratorRevealFilteredSimpleOrderedCollect
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate
+           .RevealFilteredIterate<IEnumerator<TBearer>?, TBearer, TBearerBase>
                (OrderedCollectionRevealFilteredStringBearerEnumerator
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
@@ -1287,7 +1286,7 @@ public class OrderedFromNullableStringBearerEnumeratorRevealFilteredSimpleOrdere
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate
+           .RevealFilteredIterateNullable
                (OrderedCollectionRevealFilteredNullableStringBearerEnumerator
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
@@ -1481,7 +1480,7 @@ public class OrderedFromStringEnumeratorAddFilteredSimpleOrderedCollectionString
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate
+           .AddFilteredIterate
                (OrderedCollectionAddFilteredStringEnumerator
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
@@ -1601,7 +1600,7 @@ public class OrderedFromCharSequenceEnumerableAddFilteredSimpleOrderedCollection
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredCharSeqEnumerate
+           .AddFilteredCharSeqEnumerate<IEnumerable<TCharSeq>?, TCharSeq, TCharSeqBase>
                (OrderedCollectionAddFilteredCharSequenceEnumerable
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
@@ -1612,9 +1611,9 @@ public class OrderedFromCharSequenceEnumerableAddFilteredSimpleOrderedCollection
                 | AcceptsCharSequence | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromCharSequenceEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> :
     FormattedFilteredEnumeratorMoldScaffold<TCharSeq, TCharSeqBase, IEnumerator<TCharSeq>>
-    where TCharSeq : ICharSequence, TCharSeqBase
+    where TCharSeq : ICharSequence?, TCharSeqBase?
 {
-    public IEnumerator<TCharSeq?>? OrderedCollectionAddFilteredCharSequenceEnumerator
+    public IEnumerator<TCharSeq>? OrderedCollectionAddFilteredCharSequenceEnumerator
     {
         get => Value;
         set => Value = value!;
@@ -1625,7 +1624,7 @@ public class OrderedFromCharSequenceEnumeratorAddFilteredSimpleOrderedCollection
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredCharSeqEnumerate
+           .AddFilteredCharSeqIterate<IEnumerator<TCharSeq>?, TCharSeq, TCharSeqBase>
                (OrderedCollectionAddFilteredCharSequenceEnumerator
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
@@ -1817,7 +1816,7 @@ public class OrderedFromStringBuilderEnumeratorAddFilteredSimpleOrderedCollectio
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate
+           .AddFilteredIterate
                (OrderedCollectionAddFilteredStringBuilderEnumerator
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
@@ -1972,9 +1971,9 @@ public class OrderedFromMatchListAddFilteredSimpleOrderedCollectionStringBearer<
                 | AcceptsAnyGeneric | FilterPredicate)]
 public class OrderedFromMatchEnumerableAddFilteredSimpleOrderedCollectionStringBearer<TAny, TAnyFilterBase> :
     FormattedFilteredCollectionMoldScaffold<TAny, TAnyFilterBase, IEnumerable<TAny>>
-    where TAny : TAnyFilterBase
+    where TAny : TAnyFilterBase?
 {
-    public IEnumerable<TAny?>? OrderedCollectionAddFilteredMatchEnumerable
+    public IEnumerable<TAny>? OrderedCollectionAddFilteredMatchEnumerable
     {
         get => Value;
         set => Value = value!;
@@ -1985,7 +1984,7 @@ public class OrderedFromMatchEnumerableAddFilteredSimpleOrderedCollectionStringB
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredMatchEnumerate
+           .AddFilteredMatchEnumerate<IEnumerable<TAny>?, TAny, TAnyFilterBase>
                (OrderedCollectionAddFilteredMatchEnumerable
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
@@ -1998,7 +1997,7 @@ public class OrderedFromMatchEnumeratorAddFilteredSimpleOrderedCollectionStringB
     FormattedFilteredEnumeratorMoldScaffold<TAny, TAnyFilterBase, IEnumerator<TAny>>
     where TAny : TAnyFilterBase
 {
-    public IEnumerator<TAny?>? OrderedCollectionAddFilteredMatchEnumerator
+    public IEnumerator<TAny>? OrderedCollectionAddFilteredMatchEnumerator
     {
         get => Value;
         set => Value = value!;
@@ -2009,7 +2008,7 @@ public class OrderedFromMatchEnumeratorAddFilteredSimpleOrderedCollectionStringB
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredMatchEnumerate
+           .AddFilteredMatchIterate<IEnumerator<TAny>?, TAny, TAnyFilterBase>
                (OrderedCollectionAddFilteredMatchEnumerator
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
@@ -2042,8 +2041,6 @@ public class OrderedFromObjectArrayAddFilteredSimpleOrderedCollectionStringBeare
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | SupportsValueFormatString
                 | AcceptsNonNullableObject | FilterPredicate)]
 public class OrderedFromObjectSpanAddFilteredSimpleOrderedCollectionStringBearer : FormattedFilteredCollectionMoldScaffold<object, object[]>
-  
-
 {
     public object[]? OrderedCollectionAddFilteredObjectSpan
     {
@@ -2194,7 +2191,7 @@ public class OrderedFromObjectEnumeratorAddFilteredSimpleOrderedCollectionString
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredObjectEnumerate
+           .AddFilteredObjectIterate
                (OrderedCollectionAddFilteredObjectEnumerator
               , ElementPredicate
               , ValueFormatString, FormattingFlags)

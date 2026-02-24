@@ -48,7 +48,7 @@ public class FieldNullableBoolEnumerableWhenPopulatedAddAllStringBearer : Format
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllEnumerate
+           .CollectionField.WhenPopulatedAddAllEnumerateNullable
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllNullableBoolEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllNullableBoolEnumerable
               , ValueFormatString, FormattingFlags)
@@ -57,10 +57,10 @@ public class FieldNullableBoolEnumerableWhenPopulatedAddAllStringBearer : Format
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerable | NonNullAndPopulatedWrites
                 | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
-public class FieldSpanFormattableEnumerableWhenPopulatedAddAllStringBearer<TFmt> : FormattedCollectionFieldMoldScaffold<TFmt?, IEnumerable<TFmt?>>
+public class FieldSpanFormattableEnumerableWhenPopulatedAddAllStringBearer<TFmt> : FormattedCollectionFieldMoldScaffold<TFmt, IEnumerable<TFmt>>
     where TFmt : ISpanFormattable
 {
-    public IEnumerable<TFmt?>? ComplexTypeCollectionFieldWhenPopulatedAddAllSpanFormattableEnumerable
+    public IEnumerable<TFmt>? ComplexTypeCollectionFieldWhenPopulatedAddAllSpanFormattableEnumerable
     {
         get => Value;
         set => Value = value;
@@ -70,7 +70,7 @@ public class FieldSpanFormattableEnumerableWhenPopulatedAddAllStringBearer<TFmt>
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllEnumerate
+           .CollectionField.WhenPopulatedAddAllEnumerate<IEnumerable<TFmt>?, TFmt>
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllSpanFormattableEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllSpanFormattableEnumerable
               , ValueFormatString, FormattingFlags)
@@ -93,7 +93,7 @@ public class FieldNullableSpanFormattableEnumerableWhenPopulatedAddAllStringBear
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllEnumerate
+           .CollectionField.WhenPopulatedAddAllEnumerateNullable<IEnumerable<TFmtStruct?>?, TFmtStruct>
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllNullableSpanFormattableEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllNullableSpanFormattableEnumerable
               , ValueFormatString, FormattingFlags)
@@ -104,7 +104,7 @@ public class FieldNullableSpanFormattableEnumerableWhenPopulatedAddAllStringBear
                 | AcceptsStringBearer | SupportsValueRevealer | SupportsValueFormatString)]
 public class FieldCloakedBearerEnumerableWhenPopulatedAddAllStringBearer<TCloaked, TRevealBase> :
     RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase, IEnumerable<TCloaked>?>
-    where TCloaked : TRevealBase
+    where TCloaked : TRevealBase?
     where TRevealBase : notnull
 {
     public IEnumerable<TCloaked>? ComplexTypeCollectionFieldWhenPopulatedAddAllCloakedBearerEnumerable
@@ -117,7 +117,7 @@ public class FieldCloakedBearerEnumerableWhenPopulatedAddAllStringBearer<TCloake
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedRevealAllEnumerate
+           .CollectionField.WhenPopulatedRevealAllEnumerate<IEnumerable<TCloaked>?, TCloaked, TRevealBase>
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllCloakedBearerEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllCloakedBearerEnumerable
               , ValueRevealer
@@ -141,7 +141,7 @@ public class FieldNullableCloakedBearerEnumerableWhenPopulatedAddAllStringBearer
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedRevealAllEnumerate
+           .CollectionField.WhenPopulatedRevealAllEnumerateNullable
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllNullableCloakedBearerEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllNullableCloakedBearerEnumerable
               , ValueRevealer
@@ -152,7 +152,7 @@ public class FieldNullableCloakedBearerEnumerableWhenPopulatedAddAllStringBearer
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerable | NonNullAndPopulatedWrites | AcceptsTypeAllButNullableStruct
                 | AcceptsNullableClass | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldStringBearerEnumerableWhenPopulatedAddAllStringBearer<TBearer> : FormattedCollectionFieldMoldScaffold<TBearer, IEnumerable<TBearer>>
-    where TBearer : IStringBearer
+    where TBearer : IStringBearer?
 {
     public IEnumerable<TBearer>? ComplexTypeCollectionFieldWhenPopulatedAddAllStringBearerEnumerable
     {
@@ -164,7 +164,7 @@ public class FieldStringBearerEnumerableWhenPopulatedAddAllStringBearer<TBearer>
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedRevealAllEnumerate
+           .CollectionField.WhenPopulatedRevealAllEnumerate<IEnumerable<TBearer>?, TBearer>
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllStringBearerEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllStringBearerEnumerable
               , ValueFormatString, FormattingFlags)
@@ -187,7 +187,7 @@ public class FieldNullableStringBearerEnumerableWhenPopulatedAddAllStringBearer<
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedRevealAllEnumerate
+           .CollectionField.WhenPopulatedRevealAllEnumerateNullable<IEnumerable<TBearerStruct?>?, TBearerStruct>
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllNullableStringBearerEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllNullableStringBearerEnumerable
               , ValueFormatString, FormattingFlags)
@@ -209,7 +209,7 @@ public class FieldStringEnumerableWhenPopulatedAddAllStringBearer : FormattedCol
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllEnumerate
+           .CollectionField.WhenPopulatedAddAllStringEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllStringEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllStringEnumerable
               , ValueFormatString, FormattingFlags)
@@ -219,10 +219,10 @@ public class FieldStringEnumerableWhenPopulatedAddAllStringBearer : FormattedCol
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerable | NonNullAndPopulatedWrites | AcceptsCharSequence
                 | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldCharSequenceEnumerableWhenPopulatedAddAllStringBearer<TCharSeq> :
-    FormattedCollectionFieldMoldScaffold<TCharSeq?, IEnumerable<TCharSeq?>>
-    where TCharSeq : ICharSequence
+    FormattedCollectionFieldMoldScaffold<TCharSeq, IEnumerable<TCharSeq>>
+    where TCharSeq : ICharSequence?
 {
-    public IEnumerable<TCharSeq?>? ComplexTypeCollectionFieldWhenPopulatedAddAllCharSequenceEnumerable
+    public IEnumerable<TCharSeq>? ComplexTypeCollectionFieldWhenPopulatedAddAllCharSequenceEnumerable
     {
         get => Value;
         set => Value = value;
@@ -232,7 +232,7 @@ public class FieldCharSequenceEnumerableWhenPopulatedAddAllStringBearer<TCharSeq
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllCharSeqEnumerate
+           .CollectionField.WhenPopulatedAddAllCharSeqEnumerate<IEnumerable<TCharSeq>?, TCharSeq>
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllCharSequenceEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllCharSequenceEnumerable
               , ValueFormatString, FormattingFlags)
@@ -255,7 +255,7 @@ public class FieldStringBuilderEnumerableWhenPopulatedAddAllStringBearer :
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllEnumerate
+           .CollectionField.WhenPopulatedAddAllStringBuilderEnumerate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllStringBuilderEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllStringBuilderEnumerable
               , ValueFormatString, FormattingFlags)
@@ -277,7 +277,7 @@ public class FieldMatchEnumerableWhenPopulatedAddAllStringBearer<TAny> : Formatt
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllMatchEnumerate
+           .CollectionField.WhenPopulatedAddAllMatchEnumerate<IEnumerable<TAny>?, TAny>
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllMatchEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllMatchEnumerable
               , ValueFormatString, FormattingFlags)
@@ -320,7 +320,7 @@ public class FieldBoolEnumeratorWhenPopulatedAddAllStringBearer : FormattedEnume
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllEnumerate
+           .CollectionField.WhenPopulatedAddAllIterate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllBoolEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllBoolEnumerator
               , ValueFormatString, FormattingFlags)
@@ -342,7 +342,7 @@ public class FieldNullableBoolEnumeratorWhenPopulatedAddAllStringBearer : Format
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllEnumerate
+           .CollectionField.WhenPopulatedAddAllIterateNullable
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllNullableBoolEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllNullableBoolEnumerator
               , ValueFormatString, FormattingFlags)
@@ -352,7 +352,7 @@ public class FieldNullableBoolEnumeratorWhenPopulatedAddAllStringBearer : Format
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerator | NonNullAndPopulatedWrites
                 | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
 public class FieldSpanFormattableEnumeratorWhenPopulatedAddAllStringBearer<TFmt> : FormattedEnumeratorFieldMoldScaffold<TFmt, IEnumerator<TFmt>>
-   where TFmt : ISpanFormattable
+   where TFmt : ISpanFormattable?
 {
     public IEnumerator<TFmt>? ComplexTypeCollectionFieldWhenPopulatedAddAllSpanFormattableEnumerator
     {
@@ -364,7 +364,7 @@ public class FieldSpanFormattableEnumeratorWhenPopulatedAddAllStringBearer<TFmt>
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllEnumerate
+           .CollectionField.WhenPopulatedAddAllIterate<IEnumerator<TFmt>?, TFmt>
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllSpanFormattableEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllSpanFormattableEnumerator
               , ValueFormatString, FormattingFlags)
@@ -387,7 +387,7 @@ public class FieldNullableSpanFormattableEnumeratorWhenPopulatedAddAllStringBear
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllEnumerate
+           .CollectionField.WhenPopulatedAddAllIterateNullable<IEnumerator<TStructFmt?>?, TStructFmt>
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllNullableSpanFormattableEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllNullableSpanFormattableEnumerator
               , ValueFormatString, FormattingFlags)
@@ -411,7 +411,7 @@ public class FieldCloakedBearerEnumeratorWhenPopulatedAddAllStringBearer<TCloake
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedRevealAllEnumerate
+           .CollectionField.WhenPopulatedRevealAllIterate<IEnumerator<TCloaked>?, TCloaked, TRevealBase>
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllCloakedBearerEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllCloakedBearerEnumerator
               , ValueRevealer
@@ -435,7 +435,7 @@ public class FieldNullableCloakedBearerEnumeratorWhenPopulatedAddAllStringBearer
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedRevealAllEnumerate
+           .CollectionField.WhenPopulatedRevealAllIterateNullable
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllNullableCloakedBearerEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllNullableCloakedBearerEnumerator
               , ValueRevealer
@@ -445,10 +445,10 @@ public class FieldNullableCloakedBearerEnumeratorWhenPopulatedAddAllStringBearer
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerator | NonNullAndPopulatedWrites | AcceptsTypeAllButNullableStruct
                 | AcceptsNullableClass | AcceptsStringBearer | SupportsValueFormatString)]
-public class FieldStringBearerEnumeratorWhenPopulatedAddAllStringBearer<TBearer> : FormattedEnumeratorFieldMoldScaffold<TBearer?, IEnumerator<TBearer?>>
-    where TBearer : IStringBearer
+public class FieldStringBearerEnumeratorWhenPopulatedAddAllStringBearer<TBearer> : FormattedEnumeratorFieldMoldScaffold<TBearer, IEnumerator<TBearer>>
+    where TBearer : IStringBearer?
 {
-    public IEnumerator<TBearer?>? ComplexTypeCollectionFieldWhenPopulatedAddAllStringBearerEnumerator
+    public IEnumerator<TBearer>? ComplexTypeCollectionFieldWhenPopulatedAddAllStringBearerEnumerator
     {
         get => Value;
         set => Value = value;
@@ -458,7 +458,7 @@ public class FieldStringBearerEnumeratorWhenPopulatedAddAllStringBearer<TBearer>
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedRevealAllEnumerate
+           .CollectionField.WhenPopulatedRevealAllIterate<IEnumerator<TBearer>?, TBearer>
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllStringBearerEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllStringBearerEnumerator
               , ValueFormatString, FormattingFlags)
@@ -481,7 +481,7 @@ public class FieldNullableStringBearerEnumeratorWhenPopulatedAddAllStringBearer<
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedRevealAllEnumerate
+           .CollectionField.WhenPopulatedRevealAllIterateNullable<IEnumerator<TBearerStruct?>?, TBearerStruct>
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllNullableStringBearerEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllNullableStringBearerEnumerator
               , ValueFormatString, FormattingFlags)
@@ -503,7 +503,7 @@ public class FieldStringEnumeratorWhenPopulatedAddAllStringBearer : FormattedEnu
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllEnumerate
+           .CollectionField.WhenPopulatedAddAllStringIterate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllStringEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllStringEnumerator
               , ValueFormatString, FormattingFlags)
@@ -512,10 +512,10 @@ public class FieldStringEnumeratorWhenPopulatedAddAllStringBearer : FormattedEnu
 
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsEnumerator | NonNullAndPopulatedWrites | AcceptsCharSequence
                 | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
-public class FieldCharSequenceEnumeratorWhenPopulatedAddAllStringBearer<TCharSeq> : FormattedEnumeratorFieldMoldScaffold<TCharSeq?, IEnumerator<TCharSeq?>>
-   where TCharSeq : ICharSequence
+public class FieldCharSequenceEnumeratorWhenPopulatedAddAllStringBearer<TCharSeq> : FormattedEnumeratorFieldMoldScaffold<TCharSeq, IEnumerator<TCharSeq>>
+   where TCharSeq : ICharSequence?
 {
-    public IEnumerator<TCharSeq?>? ComplexTypeCollectionFieldWhenPopulatedAddAllCharSequenceEnumerator
+    public IEnumerator<TCharSeq>? ComplexTypeCollectionFieldWhenPopulatedAddAllCharSequenceEnumerator
     {
         get => Value;
         set => Value = value;
@@ -525,7 +525,7 @@ public class FieldCharSequenceEnumeratorWhenPopulatedAddAllStringBearer<TCharSeq
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllCharSeqEnumerate
+           .CollectionField.WhenPopulatedAddAllCharSeqIterate<IEnumerator<TCharSeq>?, TCharSeq>
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllCharSequenceEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllCharSequenceEnumerator
               , ValueFormatString, FormattingFlags)
@@ -548,7 +548,7 @@ public class FieldStringBuilderEnumeratorWhenPopulatedAddAllStringBearer :
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllEnumerate
+           .CollectionField.WhenPopulatedAddAllStringBuilderIterate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllStringBuilderEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllStringBuilderEnumerator
               , ValueFormatString, FormattingFlags)
@@ -570,7 +570,7 @@ public class FieldMatchEnumeratorWhenPopulatedAddAllStringBearer<TAny> : Formatt
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllMatchEnumerate
+           .CollectionField.WhenPopulatedAddAllMatchIterate<IEnumerator<TAny>?, TAny>
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllMatchEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllMatchEnumerator
               , ValueFormatString, FormattingFlags)
@@ -592,7 +592,7 @@ public class FieldObjectEnumeratorWhenPopulatedAddAllStringBearer : FormattedEnu
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedAddAllObjectEnumerate
+           .CollectionField.WhenPopulatedAddAllObjectIterate
                (nameof(ComplexTypeCollectionFieldWhenPopulatedAddAllObjectEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedAddAllObjectEnumerator
               , ValueFormatString, FormattingFlags)
