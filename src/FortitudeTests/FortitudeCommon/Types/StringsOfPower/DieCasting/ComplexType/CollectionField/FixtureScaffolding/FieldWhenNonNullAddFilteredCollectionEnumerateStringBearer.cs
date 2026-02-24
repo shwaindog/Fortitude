@@ -49,7 +49,7 @@ public class FieldNullableBoolEnumerableWhenNonNullAddFilteredStringBearer : For
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredEnumerate
+           .CollectionField.WhenNonNullAddFilteredEnumerateNullable
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableBoolEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableBoolEnumerable
               , ElementPredicate
@@ -61,9 +61,9 @@ public class FieldNullableBoolEnumerableWhenNonNullAddFilteredStringBearer : For
                 | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
 public class FieldSpanFormattableEnumerableWhenNonNullAddFilteredStringBearer<TFmt, TFmtBase>
     : FormattedFilteredCollectionFieldMoldScaffold<TFmt, TFmtBase, IEnumerable<TFmt>>
-    where TFmt : ISpanFormattable, TFmtBase
+    where TFmt : ISpanFormattable?, TFmtBase?
 {
-    public IEnumerable<TFmt?>? ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableEnumerable
+    public IEnumerable<TFmt>? ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableEnumerable
     {
         get => Value;
         set => Value = value!;
@@ -75,7 +75,7 @@ public class FieldSpanFormattableEnumerableWhenNonNullAddFilteredStringBearer<TF
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
-           .WhenNonNullAddFilteredEnumerate
+           .WhenNonNullAddFilteredEnumerate<IEnumerable<TFmt>?, TFmt, TFmtBase>
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableEnumerable
               , ElementPredicate
@@ -100,7 +100,7 @@ public class FieldNullableSpanFormattableEnumerableWhenNonNullAddFilteredStringB
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredEnumerate
+           .CollectionField.WhenNonNullAddFilteredEnumerateNullable
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableSpanFormattableEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableSpanFormattableEnumerable
               , ElementPredicate
@@ -125,7 +125,7 @@ public class FieldCloakedBearerEnumerableWhenNonNullAddFilteredStringBearer<TClo
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealFilteredEnumerate
+           .CollectionField.WhenNonNullRevealFilteredEnumerate<IEnumerable<TCloaked>?, TCloaked, TCloakedFilterBase, TRevealBase>
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerEnumerable, ElementPredicate
               , ValueRevealer
@@ -149,7 +149,7 @@ public class FieldNullableCloakedBearerEnumerableWhenNonNullAddFilteredStringBea
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealFilteredEnumerate
+           .CollectionField.WhenNonNullRevealFilteredEnumerateNullable
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCloakedBearerEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCloakedBearerEnumerable
               , ElementPredicate
@@ -164,7 +164,7 @@ public class FieldStringBearerEnumerableWhenNonNullAddFilteredStringBearer<TBear
     : FormattedFilteredCollectionFieldMoldScaffold<TBearer, TBearerBase, IEnumerable<TBearer>>
     where TBearer : IStringBearer?, TBearerBase?
 {
-    public IEnumerable<TBearer?>? ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerEnumerable
+    public IEnumerable<TBearer>? ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerEnumerable
     {
         get => Value;
         set => Value = value!;
@@ -175,7 +175,7 @@ public class FieldStringBearerEnumerableWhenNonNullAddFilteredStringBearer<TBear
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealFilteredEnumerate
+           .CollectionField.WhenNonNullRevealFilteredEnumerate<IEnumerable<TBearer>?, TBearer, TBearerBase>
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerEnumerable
               , ElementPredicate
@@ -200,7 +200,7 @@ public class FieldNullableStringBearerEnumerableWhenNonNullAddFilteredStringBear
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealFilteredEnumerate
+           .CollectionField.WhenNonNullRevealFilteredEnumerateNullable
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringBearerEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringBearerEnumerable
               , ElementPredicate
@@ -224,7 +224,7 @@ public class FieldStringEnumerableWhenNonNullAddFilteredStringBearer : Formatted
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredEnumerate
+           .CollectionField.WhenNonNullAddFilteredStringEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredStringEnumerable
               , ElementPredicate
@@ -237,9 +237,9 @@ public class FieldStringEnumerableWhenNonNullAddFilteredStringBearer : Formatted
                 | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldCharSequenceEnumerableWhenNonNullAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
     : FormattedFilteredCollectionFieldMoldScaffold<TCharSeq, TCharSeqFilterBase, IEnumerable<TCharSeq>>
-    where TCharSeq : ICharSequence, TCharSeqFilterBase
+    where TCharSeq : ICharSequence?, TCharSeqFilterBase?
 {
-    public IEnumerable<TCharSeq?>? ComplexTypeCollectionFieldWhenNonNullAddFilteredCharSequenceEnumerable
+    public IEnumerable<TCharSeq>? ComplexTypeCollectionFieldWhenNonNullAddFilteredCharSequenceEnumerable
     {
         get => Value;
         set => Value = value!;
@@ -250,7 +250,7 @@ public class FieldCharSequenceEnumerableWhenNonNullAddFilteredStringBearer<TChar
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredCharSeqEnumerate
+           .CollectionField.WhenNonNullAddFilteredCharSeqEnumerate<IEnumerable<TCharSeq>?, TCharSeq, TCharSeqFilterBase>
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredCharSequenceEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredCharSequenceEnumerable
               , ElementPredicate
@@ -275,7 +275,7 @@ public class FieldStringBuilderEnumerableWhenNonNullAddFilteredStringBearer
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredEnumerate
+           .CollectionField.WhenNonNullAddFilteredStringBuilderEnumerate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBuilderEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBuilderEnumerable
               , ElementPredicate
@@ -287,8 +287,8 @@ public class FieldStringBuilderEnumerableWhenNonNullAddFilteredStringBearer
 [TypeGeneratePart(IsComplexType | CollectionCardinality | AcceptsList | NonNullWrites | FilterPredicate | AcceptsAnyGeneric 
                 | SupportsValueFormatString)]
 public class FieldMatchEnumerableWhenNonNullAddFilteredStringBearer<TAny, TAnyBase>
-    : FormattedFilteredCollectionFieldMoldScaffold<TAny, IEnumerable<TAny>>
-    where TAny : TAnyBase
+    : FormattedFilteredCollectionFieldMoldScaffold<TAny, TAnyBase, IEnumerable<TAny>>
+    where TAny : TAnyBase?
 {
     public IEnumerable<TAny>? ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchEnumerable
     {
@@ -301,7 +301,7 @@ public class FieldMatchEnumerableWhenNonNullAddFilteredStringBearer<TAny, TAnyBa
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredMatchEnumerate
+           .CollectionField.WhenNonNullAddFilteredMatchEnumerate<IEnumerable<TAny>?, TAny, TAnyBase>
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchEnumerable
               , ElementPredicate
@@ -350,7 +350,7 @@ public class FieldBoolEnumeratorWhenNonNullAddFilteredStringBearer : FormattedFi
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredEnumerate
+           .CollectionField.WhenNonNullAddFilteredIterate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredBoolEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredBoolEnumerator
               , ElementPredicate
@@ -375,7 +375,7 @@ public class FieldNullableBoolEnumeratorWhenNonNullAddFilteredStringBearer : For
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredEnumerate
+           .CollectionField.WhenNonNullAddFilteredIterateNullable
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableBoolEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableBoolEnumerator
               , ElementPredicate
@@ -388,9 +388,9 @@ public class FieldNullableBoolEnumeratorWhenNonNullAddFilteredStringBearer : For
                 | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
 public class FieldSpanFormattableEnumeratorWhenNonNullAddFilteredStringBearer<TFmt, TFmtBase>
     : FormattedFilteredEnumeratorFieldMoldScaffold<TFmt, TFmtBase, IEnumerator<TFmt>>
-    where TFmt : ISpanFormattable, TFmtBase
+    where TFmt : ISpanFormattable?, TFmtBase?
 {
-    public IEnumerator<TFmt?>? ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableEnumerator
+    public IEnumerator<TFmt>? ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableEnumerator
     {
         get => Value;
         set => Value = value!;
@@ -402,7 +402,7 @@ public class FieldSpanFormattableEnumeratorWhenNonNullAddFilteredStringBearer<TF
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            .CollectionField
-           .WhenNonNullAddFilteredEnumerate
+           .WhenNonNullAddFilteredIterate<IEnumerator<TFmt>?, TFmt, TFmtBase>
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredSpanFormattableEnumerator
               , ElementPredicate
@@ -428,7 +428,7 @@ public class FieldNullableSpanFormattableEnumeratorWhenNonNullAddFilteredStringB
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredEnumerate
+           .CollectionField.WhenNonNullAddFilteredIterateNullable
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableSpanFormattableEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableSpanFormattableEnumerator
               , ElementPredicate
@@ -454,7 +454,7 @@ public class FieldCloakedBearerEnumeratorWhenNonNullAddFilteredStringBearer<TClo
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealFilteredEnumerate
+           .CollectionField.WhenNonNullRevealFilteredIterate<IEnumerator<TCloaked>?, TCloaked, TFilterBase, TRevealBase>
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredCloakedBearerEnumerator, ElementPredicate
               , ValueRevealer
@@ -478,7 +478,7 @@ public class FieldNullableCloakedBearerEnumeratorWhenNonNullAddFilteredStringBea
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealFilteredEnumerate
+           .CollectionField.WhenNonNullRevealFilteredIterateNullable
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCloakedBearerEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableCloakedBearerEnumerator
               , ElementPredicate
@@ -491,9 +491,9 @@ public class FieldNullableCloakedBearerEnumeratorWhenNonNullAddFilteredStringBea
                 | AcceptsStringBearer | SupportsValueFormatString)]
 public class FieldStringBearerEnumeratorWhenNonNullAddFilteredStringBearer<TBearer, TBearerBase>
     : FormattedFilteredEnumeratorFieldMoldScaffold<TBearer, TBearerBase, IEnumerator<TBearer>>
-    where TBearer : IStringBearer, TBearerBase
+    where TBearer : IStringBearer?, TBearerBase?
 {
-    public IEnumerator<TBearer?>? ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerEnumerator
+    public IEnumerator<TBearer>? ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerEnumerator
     {
         get => Value;
         set => Value = value!;
@@ -504,7 +504,7 @@ public class FieldStringBearerEnumeratorWhenNonNullAddFilteredStringBearer<TBear
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealFilteredEnumerate
+           .CollectionField.WhenNonNullRevealFilteredIterate<IEnumerator<TBearer>?, TBearer, TBearerBase>
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBearerEnumerator
               , ElementPredicate
@@ -529,7 +529,7 @@ public class FieldNullableStringBearerEnumeratorWhenNonNullAddFilteredStringBear
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullRevealFilteredEnumerate
+           .CollectionField.WhenNonNullRevealFilteredIterateNullable
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringBearerEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableStringBearerEnumerator
               , ElementPredicate
@@ -553,7 +553,7 @@ public class FieldStringEnumeratorWhenNonNullAddFilteredStringBearer : Formatted
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredEnumerate
+           .CollectionField.WhenNonNullAddFilteredStringIterate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredStringEnumerator
               , ElementPredicate
@@ -566,9 +566,9 @@ public class FieldStringEnumeratorWhenNonNullAddFilteredStringBearer : Formatted
                 | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class FieldCharSequenceEnumeratorWhenNonNullAddFilteredStringBearer<TCharSeq, TCharSeqFilterBase>
     : FormattedFilteredEnumeratorFieldMoldScaffold<TCharSeq, TCharSeqFilterBase, IEnumerator<TCharSeq>>
-    where TCharSeq : ICharSequence, TCharSeqFilterBase
+    where TCharSeq : ICharSequence?, TCharSeqFilterBase?
 {
-    public IEnumerator<TCharSeq?>? ComplexTypeCollectionFieldWhenNonNullAddFilteredCharSequenceEnumerator
+    public IEnumerator<TCharSeq>? ComplexTypeCollectionFieldWhenNonNullAddFilteredCharSequenceEnumerator
     {
         get => Value;
         set => Value = value!;
@@ -579,7 +579,7 @@ public class FieldCharSequenceEnumeratorWhenNonNullAddFilteredStringBearer<TChar
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredCharSeqEnumerate
+           .CollectionField.WhenNonNullAddFilteredCharSeqIterate<IEnumerator<TCharSeq>?, TCharSeq, TCharSeqFilterBase>
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredCharSequenceEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredCharSequenceEnumerator
               , ElementPredicate
@@ -604,7 +604,7 @@ public class FieldStringBuilderEnumeratorWhenNonNullAddFilteredStringBearer
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredEnumerate
+           .CollectionField.WhenNonNullAddFilteredStringBuilderIterate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBuilderEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBuilderEnumerator
               , ElementPredicate
@@ -630,7 +630,7 @@ public class FieldMatchEnumeratorWhenNonNullAddFilteredStringBearer<TAny, TAnyBa
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredMatchEnumerate
+           .CollectionField.WhenNonNullAddFilteredMatchIterate<IEnumerator<TAny>?, TAny, TAnyBase>
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchEnumerator
               , ElementPredicate
@@ -655,7 +655,7 @@ public class FieldObjectEnumeratorWhenNonNullAddFilteredStringBearer : Formatted
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredObjectEnumerate
+           .CollectionField.WhenNonNullAddFilteredObjectIterate
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredObjectEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredObjectEnumerator
               , ElementPredicate

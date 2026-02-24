@@ -983,36 +983,56 @@ public readonly struct StringOrEnumerableStructUnion : IStringBearer
                 if (isNullableNode)
                     if (isSimple)
                         return tos.StartSimpleCollectionType(nullableNodeCollection)
-                                  .RevealAllEnumerate(nullableNodeCollection, nodeRevealer)
+                                  .RevealAllEnumerateNullable(nullableNodeCollection, nodeRevealer)
                                   .Complete();
                     else
                         return tos.StartComplexCollectionType(nullableNodeCollection)
-                                  .RevealAllEnumerate(nullableNodeCollection, nodeRevealer)
+                                  .RevealAllEnumerateNullable(nullableNodeCollection, nodeRevealer)
                                   .Complete();
                 else if (isSimple)
                     return tos.StartSimpleCollectionType(nodeCollection)
-                              .RevealAllEnumerate(nodeCollection, nodeRevealer)
+                              .RevealAllEnumerate<
+                                  List<StringOrEnumerableStructUnion>?
+                                , StringOrEnumerableStructUnion
+                                , StringOrEnumerableStructUnion
+                              >(nodeCollection, nodeRevealer)
                               .Complete();
                 else
                     return tos.StartComplexCollectionType(nodeCollection)
-                              .RevealAllEnumerate(nodeCollection, nodeRevealer)
+                              .RevealAllEnumerate<
+                                  List<StringOrEnumerableStructUnion>?
+                                , StringOrEnumerableStructUnion
+                                , StringOrEnumerableStructUnion
+                              >(nodeCollection, nodeRevealer)
                               .Complete();
             else if (isNullableNode)
                 if (isSimple)
                     return tos.StartSimpleCollectionType(nullableNodeCollection)
-                              .RevealAllEnumerate(nullableNodeCollection)
+                              .RevealAllEnumerateNullable<
+                                  List<StringOrEnumerableStructUnion?>?
+                                , StringOrEnumerableStructUnion
+                              >(nullableNodeCollection)
                               .Complete();
                 else
                     return tos.StartComplexCollectionType(nullableNodeCollection)
-                              .RevealAllEnumerate(nullableNodeCollection)
+                              .RevealAllEnumerateNullable<
+                                  List<StringOrEnumerableStructUnion?>?
+                                , StringOrEnumerableStructUnion
+                              >(nullableNodeCollection)
                               .Complete();
             else if (isSimple)
                 return tos.StartSimpleCollectionType(nodeCollection)
-                          .RevealAllEnumerate(nodeCollection)
+                          .RevealAllEnumerate<
+                              List<StringOrEnumerableStructUnion>?
+                            , StringOrEnumerableStructUnion
+                          >(nodeCollection)
                           .Complete();
             else
                 return tos.StartComplexCollectionType(nodeCollection)
-                          .RevealAllEnumerate(nodeCollection)
+                          .RevealAllEnumerate<
+                              List<StringOrEnumerableStructUnion>?
+                            , StringOrEnumerableStructUnion
+                          >(nodeCollection)
                           .Complete();
         if (itemRevealer != null)
             if (isSimple)
@@ -1023,8 +1043,8 @@ public readonly struct StringOrEnumerableStructUnion : IStringBearer
                         return tos.StartSimpleContentType(this).RevealAsString(item, itemRevealer).Complete();
                 else
                     return tos.StartSimpleCollectionType(this)
-                              .RevealAllEnumerate(itemCollection, itemRevealer, null
-                                                , isValue ? DefaultCallerTypeFlags : AsStringContent)
+                              .RevealAllEnumerate<List<string?>?, string?, string>(itemCollection, itemRevealer, null
+                              , isValue ? DefaultCallerTypeFlags : AsStringContent)
                               .Complete();
             else if (isItem)
                 if (isValue)
@@ -1044,7 +1064,7 @@ public readonly struct StringOrEnumerableStructUnion : IStringBearer
             else
                 return tos
                        .StartComplexCollectionType(this)
-                       .RevealAllEnumerate(itemCollection, itemRevealer, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                       .RevealAllEnumerate<List<string?>?, string?, string>(itemCollection, itemRevealer, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                        .LogOnlyCollectionField.AlwaysAddAllCharSeq(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .LogOnlyCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
@@ -1055,7 +1075,7 @@ public readonly struct StringOrEnumerableStructUnion : IStringBearer
                 else
                     return tos.StartSimpleContentType(this).AsStringOrNull(item).Complete();
             else
-                return tos.StartSimpleCollectionType(this).AddAllEnumerate(itemCollection).Complete();
+                return tos.StartSimpleCollectionType(this).AddAllStringEnumerate(itemCollection).Complete();
         if (isItem)
             if (isValue)
                 return tos
@@ -1073,7 +1093,7 @@ public readonly struct StringOrEnumerableStructUnion : IStringBearer
                        .Complete();
         return tos
                .StartComplexCollectionType(this)
-               .AddAllEnumerate(itemCollection, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+               .AddAllStringEnumerate(itemCollection, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                .LogOnlyCollectionField.AlwaysAddAllCharSeq(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                .LogOnlyCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                .Complete();
@@ -1114,7 +1134,7 @@ public class StringOrEnumerableClassUnion : IStringBearer
         isNode = false;
     }
 
-    public StringOrEnumerableClassUnion(List<StringOrEnumerableClassUnion>? nodeColl, bool asSimple, bool asValue = true
+    public StringOrEnumerableClassUnion(List<StringOrEnumerableClassUnion?>? nodeColl, bool asSimple, bool asValue = true
       , PalantírReveal<StringOrEnumerableClassUnion>? withNodeRevealer = null)
     {
         isNode         = true;
@@ -1131,7 +1151,7 @@ public class StringOrEnumerableClassUnion : IStringBearer
     private readonly string? item;
     private readonly List<string?>? itemCollection;
 
-    private readonly List<StringOrEnumerableClassUnion>? nodeCollection;
+    private readonly List<StringOrEnumerableClassUnion?>? nodeCollection;
 
     private static readonly IPAddress?[] LogComplexOnlyStaticSpanInstance =
     [
@@ -1157,19 +1177,33 @@ public class StringOrEnumerableClassUnion : IStringBearer
             if (nodeRevealer != null)
                 if (isSimple)
                     return tos.StartSimpleCollectionType(nodeCollection)
-                              .RevealAllEnumerate(nodeCollection, nodeRevealer)
+                              .RevealAllEnumerate<
+                                  List<StringOrEnumerableClassUnion?>?
+                                , StringOrEnumerableClassUnion?
+                                , StringOrEnumerableClassUnion
+                              >(nodeCollection, nodeRevealer)
                               .Complete();
                 else
                     return tos.StartComplexCollectionType(nodeCollection)
-                              .RevealAllEnumerate(nodeCollection, nodeRevealer)
+                              .RevealAllEnumerate<
+                                  List<StringOrEnumerableClassUnion?>?
+                                , StringOrEnumerableClassUnion?
+                                , StringOrEnumerableClassUnion
+                              >(nodeCollection, nodeRevealer)
                               .Complete();
             else if (isSimple)
                 return tos.StartSimpleCollectionType(nodeCollection)
-                          .RevealAllEnumerate(nodeCollection)
+                          .RevealAllEnumerate<
+                              List<StringOrEnumerableClassUnion?>?
+                            , StringOrEnumerableClassUnion?
+                          >(nodeCollection)
                           .Complete();
             else
                 return tos.StartComplexCollectionType(nodeCollection)
-                          .RevealAllEnumerate(nodeCollection)
+                          .RevealAllEnumerate<
+                              List<StringOrEnumerableClassUnion?>?
+                            , StringOrEnumerableClassUnion?
+                          >(nodeCollection)
                           .Complete();
         if (itemRevealer != null)
             if (isSimple)
@@ -1180,8 +1214,8 @@ public class StringOrEnumerableClassUnion : IStringBearer
                         return tos.StartSimpleContentType(this).RevealAsString(item, itemRevealer).Complete();
                 else
                     return tos.StartSimpleCollectionType(this)
-                              .RevealAllEnumerate(itemCollection, itemRevealer, null
-                                                , isValue ? DefaultCallerTypeFlags : AsStringContent)
+                              .RevealAllEnumerate<List<string?>?, string?, string>(itemCollection, itemRevealer, null
+                              , isValue ? DefaultCallerTypeFlags : AsStringContent)
                               .Complete();
             else if (isItem)
                 if (isValue)
@@ -1189,21 +1223,22 @@ public class StringOrEnumerableClassUnion : IStringBearer
                            .StartComplexContentType(this)
                            .RevealAsValue(nameof(item), item, itemRevealer)
                            .LogOnlyCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticSpanInstance), LogComplexOnlyStaticSpanInstance.AsSpan())
-                           .LogOnlyCollectionField.AlwaysAddAllEnumerate(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
+                           .LogOnlyCollectionField.AlwaysAddAllStringEnumerate(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                            .Complete();
                 else
                     return tos
                            .StartComplexContentType(this)
                            .RevealAsString(nameof(item), item, itemRevealer)
                            .LogOnlyCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticSpanInstance), LogComplexOnlyStaticSpanInstance.AsSpan())
-                           .LogOnlyCollectionField.AlwaysAddAllEnumerate(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
+                           .LogOnlyCollectionField.AlwaysAddAllStringEnumerate(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                            .Complete();
             else
                 return tos
                        .StartComplexCollectionType(this)
-                       .RevealAllEnumerate(itemCollection, itemRevealer, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                       .RevealAllEnumerate<List<string?>?, string?, string>
+                           (itemCollection, itemRevealer, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                        .LogOnlyCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticSpanInstance), LogComplexOnlyStaticSpanInstance.AsSpan())
-                       .LogOnlyCollectionField.AlwaysAddAllEnumerate(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
+                       .LogOnlyCollectionField.AlwaysAddAllStringEnumerate(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
         if (isSimple)
             if (isItem)
@@ -1212,27 +1247,27 @@ public class StringOrEnumerableClassUnion : IStringBearer
                 else
                     return tos.StartSimpleContentType(this).AsStringOrNull(item).Complete();
             else
-                return tos.StartSimpleCollectionType(this).AddAllEnumerate(itemCollection).Complete();
+                return tos.StartSimpleCollectionType(this).AddAllStringEnumerate(itemCollection).Complete();
         if (isItem)
             if (isValue)
                 return tos
                        .StartComplexContentType(this)
                        .AsValueOrNull(nameof(item), item)
                        .LogOnlyCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticSpanInstance), LogComplexOnlyStaticSpanInstance.AsSpan())
-                       .LogOnlyCollectionField.AlwaysAddAllEnumerate(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
+                       .LogOnlyCollectionField.AlwaysAddAllStringEnumerate(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
             else
                 return tos
                        .StartComplexContentType(this)
                        .AsStringOrNull(nameof(item), item)
                        .LogOnlyCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticSpanInstance), LogComplexOnlyStaticSpanInstance.AsSpan())
-                       .LogOnlyCollectionField.AlwaysAddAllEnumerate(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
+                       .LogOnlyCollectionField.AlwaysAddAllStringEnumerate(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
         return tos
                .StartComplexCollectionType(this)
-               .AddAllEnumerate(itemCollection, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+               .AddAllStringEnumerate(itemCollection, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                .LogOnlyCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticSpanInstance), LogComplexOnlyStaticSpanInstance.AsSpan())
-               .LogOnlyCollectionField.AlwaysAddAllEnumerate(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
+               .LogOnlyCollectionField.AlwaysAddAllStringEnumerate(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                .Complete();
     }
 }
@@ -1347,22 +1382,48 @@ public readonly struct StringOrEnumeratorStructUnion : IStringBearer
             if (nodeRevealer != null)
                 if (isNullableNode)
                     if (isSimple)
-                        return tos.StartSimpleCollectionType(this).RevealAllEnumerate(nullableNodeCollectionEnumerator, nodeRevealer).Complete();
+                        return tos.StartSimpleCollectionType(this).RevealAllIterateNullable(nullableNodeCollectionEnumerator, nodeRevealer).Complete();
                     else
-                        return tos.StartComplexCollectionType(this).RevealAllEnumerate(nullableNodeCollectionEnumerator, nodeRevealer).Complete();
+                        return tos.StartComplexCollectionType(this).RevealAllIterateNullable(nullableNodeCollectionEnumerator, nodeRevealer).Complete();
                 else if (isSimple)
-                    return tos.StartSimpleCollectionType(this).RevealAllEnumerate(nodeCollectionEnumerator, nodeRevealer).Complete();
+                    return tos.StartSimpleCollectionType(this)
+                              .RevealAllIterate<
+                                  ReusableWrappingEnumerator<StringOrEnumeratorStructUnion>?
+                                , StringOrEnumeratorStructUnion
+                                , StringOrEnumeratorStructUnion
+                              >(nodeCollectionEnumerator, nodeRevealer).Complete();
                 else
-                    return tos.StartComplexCollectionType(this).RevealAllEnumerate(nodeCollectionEnumerator, nodeRevealer).Complete();
+                    return tos.StartComplexCollectionType(this)
+                              .RevealAllIterate<
+                                  ReusableWrappingEnumerator<StringOrEnumeratorStructUnion>?
+                                , StringOrEnumeratorStructUnion
+                                , StringOrEnumeratorStructUnion
+                              >(nodeCollectionEnumerator, nodeRevealer).Complete();
             else if (isNullableNode)
                 if (isSimple)
-                    return tos.StartSimpleCollectionType(this).RevealAllEnumerate(nullableNodeCollectionEnumerator).Complete();
+                    return tos.StartSimpleCollectionType(this)
+                              .RevealAllIterateNullable<
+                                  ReusableWrappingEnumerator<StringOrEnumeratorStructUnion?>?
+                                , StringOrEnumeratorStructUnion
+                              >(nullableNodeCollectionEnumerator).Complete();
                 else
-                    return tos.StartComplexCollectionType(this).RevealAllEnumerate(nullableNodeCollectionEnumerator).Complete();
+                    return tos.StartComplexCollectionType(this)
+                              .RevealAllIterateNullable<
+                                  ReusableWrappingEnumerator<StringOrEnumeratorStructUnion?>?
+                                , StringOrEnumeratorStructUnion
+                              >(nullableNodeCollectionEnumerator).Complete();
             else if (isSimple)
-                return tos.StartSimpleCollectionType(this).RevealAllEnumerate(nodeCollectionEnumerator).Complete();
+                return tos.StartSimpleCollectionType(this)
+                          .RevealAllIterate<
+                              ReusableWrappingEnumerator<StringOrEnumeratorStructUnion>?
+                            , StringOrEnumeratorStructUnion
+                          >(nodeCollectionEnumerator).Complete();
             else
-                return tos.StartComplexCollectionType(this).RevealAllEnumerate(nodeCollectionEnumerator).Complete();
+                return tos.StartComplexCollectionType(this)
+                          .RevealAllIterate<
+                              ReusableWrappingEnumerator<StringOrEnumeratorStructUnion>?
+                            , StringOrEnumeratorStructUnion
+                          >(nodeCollectionEnumerator).Complete();
         if (itemRevealer != null)
             if (isSimple)
                 if (isItem)
@@ -1372,7 +1433,11 @@ public readonly struct StringOrEnumeratorStructUnion : IStringBearer
                         return tos.StartSimpleContentType(this).RevealAsString(item, itemRevealer).Complete();
                 else
                     return tos.StartSimpleCollectionType(this)
-                              .RevealAllEnumerate(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                              .RevealAllIterate<
+                                  ReusableWrappingEnumerator<string?>?
+                                , string?
+                                , string
+                              >(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                               .Complete();
             else if (isItem)
                 if (isValue)
@@ -1392,7 +1457,11 @@ public readonly struct StringOrEnumeratorStructUnion : IStringBearer
             else
                 return tos
                        .StartComplexCollectionType(this)
-                       .RevealAllEnumerate(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                       .RevealAllIterate<
+                           ReusableWrappingEnumerator<string?>?
+                         , string?
+                         , string
+                       >(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
@@ -1403,7 +1472,7 @@ public readonly struct StringOrEnumeratorStructUnion : IStringBearer
                 else
                     return tos.StartSimpleContentType(this).AsStringOrNull(item).Complete();
             else
-                return tos.StartSimpleCollectionType(this).AddAllEnumerate(itemCollectionEnumerator).Complete();
+                return tos.StartSimpleCollectionType(this).AddAllStringIterate(itemCollectionEnumerator).Complete();
         if (isItem)
             if (isValue)
                 return tos
@@ -1421,7 +1490,7 @@ public readonly struct StringOrEnumeratorStructUnion : IStringBearer
                        .Complete();
         return tos
                .StartComplexCollectionType(this)
-               .AddAllEnumerate(itemCollectionEnumerator, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+               .AddAllStringIterate(itemCollectionEnumerator, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                .Complete();
@@ -1465,14 +1534,14 @@ public class StringOrEnumeratorClassUnion : IStringBearer
         itemRevealer = withRevealer;
     }
 
-    public StringOrEnumeratorClassUnion(List<StringOrEnumeratorClassUnion>? nodeColl, bool asSimple, bool asValue = true
+    public StringOrEnumeratorClassUnion(List<StringOrEnumeratorClassUnion?>? nodeColl, bool asSimple, bool asValue = true
       , PalantírReveal<StringOrEnumeratorClassUnion>? withNodeRevealer = null)
     {
         isNode = true;
 
         if (nodeColl != null)
         {
-            nodeCollectionEnumerator                           = new ReusableWrappingEnumerator<StringOrEnumeratorClassUnion>();
+            nodeCollectionEnumerator                           = new ReusableWrappingEnumerator<StringOrEnumeratorClassUnion?>();
             nodeCollectionEnumerator.DisposeRecycles           = false;
             nodeCollectionEnumerator.AutoRecycleAtRefCountZero = false;
             nodeCollectionEnumerator.ProxiedEnumerator         = nodeColl.GetEnumerator();
@@ -1490,7 +1559,7 @@ public class StringOrEnumeratorClassUnion : IStringBearer
 
     private readonly ReusableWrappingEnumerator<string?>? itemCollectionEnumerator;
 
-    private readonly ReusableWrappingEnumerator<StringOrEnumeratorClassUnion>? nodeCollectionEnumerator;
+    private readonly ReusableWrappingEnumerator<StringOrEnumeratorClassUnion?>? nodeCollectionEnumerator;
 
     private static readonly Dictionary<IPAddress, Complex?> LogComplexOnlyStaticInstance = new()
     {
@@ -1513,13 +1582,31 @@ public class StringOrEnumeratorClassUnion : IStringBearer
         if (isNode)
             if (nodeRevealer != null)
                 if (isSimple)
-                    return tos.StartSimpleCollectionType(this).RevealAllEnumerate(nodeCollectionEnumerator, nodeRevealer).Complete();
+                    return tos.StartSimpleCollectionType(this)
+                              .RevealAllIterate<
+                                  ReusableWrappingEnumerator<StringOrEnumeratorClassUnion?>?
+                                , StringOrEnumeratorClassUnion?
+                                , StringOrEnumeratorClassUnion
+                              >(nodeCollectionEnumerator, nodeRevealer).Complete();
                 else
-                    return tos.StartComplexCollectionType(this).RevealAllEnumerate(nodeCollectionEnumerator, nodeRevealer).Complete();
+                    return tos.StartComplexCollectionType(this)
+                              .RevealAllIterate<
+                                  ReusableWrappingEnumerator<StringOrEnumeratorClassUnion?>?
+                                , StringOrEnumeratorClassUnion?
+                                , StringOrEnumeratorClassUnion
+                              >(nodeCollectionEnumerator, nodeRevealer).Complete();
             else if (isSimple)
-                return tos.StartSimpleCollectionType(this).RevealAllEnumerate(nodeCollectionEnumerator).Complete();
+                return tos.StartSimpleCollectionType(this)
+                          .RevealAllIterate<
+                              ReusableWrappingEnumerator<StringOrEnumeratorClassUnion?>?
+                            , StringOrEnumeratorClassUnion?
+                          >(nodeCollectionEnumerator).Complete();
             else
-                return tos.StartComplexCollectionType(this).RevealAllEnumerate(nodeCollectionEnumerator).Complete();
+                return tos.StartComplexCollectionType(this)
+                          .RevealAllIterate<
+                              ReusableWrappingEnumerator<StringOrEnumeratorClassUnion?>?
+                            , StringOrEnumeratorClassUnion?
+                          >(nodeCollectionEnumerator).Complete();
         if (itemRevealer != null)
             if (isSimple)
                 if (isItem)
@@ -1529,7 +1616,11 @@ public class StringOrEnumeratorClassUnion : IStringBearer
                         return tos.StartSimpleContentType(this).RevealAsString(item, itemRevealer).Complete();
                 else
                     return tos.StartSimpleCollectionType(this)
-                              .RevealAllEnumerate(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                              .RevealAllIterate<
+                                  ReusableWrappingEnumerator<string?>?
+                                , string?
+                                , string
+                              >(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                               .Complete();
             else if (isItem)
                 if (isValue)
@@ -1549,7 +1640,11 @@ public class StringOrEnumeratorClassUnion : IStringBearer
             else
                 return tos
                        .StartComplexCollectionType(this)
-                       .RevealAllEnumerate(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                       .RevealAllIterate<
+                           ReusableWrappingEnumerator<string?>?
+                         , string?
+                         , string
+                       >(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .Complete();
@@ -1560,7 +1655,7 @@ public class StringOrEnumeratorClassUnion : IStringBearer
                 else
                     return tos.StartSimpleContentType(this).AsStringOrNull(item).Complete();
             else
-                return tos.StartSimpleCollectionType(this).AddAllEnumerate(itemCollectionEnumerator).Complete();
+                return tos.StartSimpleCollectionType(this).AddAllStringIterate(itemCollectionEnumerator).Complete();
         if (isItem)
             if (isValue)
                 return tos
@@ -1578,7 +1673,7 @@ public class StringOrEnumeratorClassUnion : IStringBearer
                        .Complete();
         return tos
                .StartComplexCollectionType(this)
-               .AddAllEnumerate(itemCollectionEnumerator, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+               .AddAllStringIterate(itemCollectionEnumerator, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                .Complete();

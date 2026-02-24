@@ -55,6 +55,10 @@ public static class TypeExtensions
 
     private static readonly ConcurrentDictionary<(Type, Type), bool> TypeImplementsOrIsInterface = new();
 
+    private static readonly ConcurrentDictionary<Type, Type> EnumerableOfTypeCache = new();
+    
+    private static readonly ConcurrentDictionary<Type, Type> EnumeratorOfTypeCache = new();
+
     public static bool IsFlagsEnum<TEnum>() where TEnum : Enum =>
         TypeIsFlagsEnumCache.GetOrAdd(typeof(TEnum), type => type.GetCustomAttributes<FlagsAttribute>().Any());
 
@@ -255,6 +259,14 @@ public static class TypeExtensions
     public static bool IsCollectionOf(this Type type, Type itemType) =>
         type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == CollectionTypeDef
                                                       && i.GenericTypeArguments[0] == itemType);
+
+    public static Type GetEnumerableOf(this Type type) => EnumerableTypeDef.MakeGenericType([type]);
+
+    public static Type GetEnumerableOfCached(this Type type) => EnumerableOfTypeCache.GetOrAdd(type, t => t.GetEnumerableOf());
+
+    public static Type GetEnumeratorOf(this Type type) => EnumeratorTypeDef.MakeGenericType([type]);
+
+    public static Type GetEnumeratorOfCached(this Type type) => EnumeratorOfTypeCache.GetOrAdd(type, t => t.GetEnumeratorOf());
 
     public static bool IsEnumerable(this Type type) =>
         (type == EnumerableType || type.IsGenericType && type.GetGenericTypeDefinition() == EnumerableTypeDef) ||

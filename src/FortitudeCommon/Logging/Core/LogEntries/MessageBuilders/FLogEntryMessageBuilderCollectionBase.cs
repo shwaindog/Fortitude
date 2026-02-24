@@ -204,7 +204,7 @@ public abstract partial class FLogEntryMessageBuilder
         (ITheOneString? toAppendTo, IEnumerable<TFmt>? value, string? formatString = null) where TFmt : ISpanFormattable
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAllEnumerate(value, formatString).Complete();
+                  .AddAllEnumerate<IEnumerable<TFmt>?, TFmt>(value, formatString).Complete();
         return toAppendTo;
     }
 
@@ -213,7 +213,7 @@ public abstract partial class FLogEntryMessageBuilder
         where TFmt : ISpanFormattable
     {
         appender?.StartSimpleCollectionType("")
-                .AddAllEnumerate(value).Complete();
+                .AddAllEnumerate<IEnumerable<TFmt>?, TFmt>(value).Complete();
         return appender;
     }
 
@@ -223,7 +223,7 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, formatString) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .AddAllEnumerate(value, formatString).Complete();
+                .AddAllEnumerate<IEnumerable<TFmt>?, TFmt>(value, formatString).Complete();
         return appender;
     }
 
@@ -231,7 +231,7 @@ public abstract partial class FLogEntryMessageBuilder
         (ITheOneString? toAppendTo, IEnumerator<TFmt>? value, string? formatString = null) where TFmt : ISpanFormattable
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAllEnumerate(value, null, formatString).Complete();
+                  .AddAllIterate<IEnumerator<TFmt>?, TFmt>(value, null, formatString).Complete();
         return toAppendTo;
     }
 
@@ -240,7 +240,7 @@ public abstract partial class FLogEntryMessageBuilder
         where TFmt : ISpanFormattable
     {
         appender?.StartSimpleCollectionType("")
-                .AddAllEnumerate(value).Complete();
+                .AddAllIterate<IEnumerator<TFmt>?, TFmt>(value).Complete();
         return appender;
     }
 
@@ -250,7 +250,7 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, formatString) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .AddAllEnumerate(value, null, formatString).Complete();
+                .AddAllIterate<IEnumerator<TFmt>?, TFmt>(value, null, formatString).Complete();
         return appender;
     }
 
@@ -260,7 +260,7 @@ public abstract partial class FLogEntryMessageBuilder
         where TRevealBase : notnull
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .RevealAllEnumerate(value, palantírReveal).Complete();
+                  .RevealAllEnumerate<IEnumerable<TCloaked?>?, TCloaked, TRevealBase>(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
@@ -271,28 +271,28 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, structStyler) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .RevealAllEnumerate(value, structStyler).Complete();
+                .RevealAllEnumerate<IEnumerable<TCloaked?>?, TCloaked, TRevealBase>(value, structStyler).Complete();
         return appender;
     }
 
     protected ITheOneString? AppendValueCollectionEnumerate<TCloaked, TRevealBase>
-        (ITheOneString? toAppendTo, IEnumerator<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal)
-        where TCloaked : TRevealBase
+        (ITheOneString? toAppendTo, IEnumerator<TCloaked>? value, PalantírReveal<TRevealBase> palantírReveal)
+        where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        toAppendTo?.StartSimpleCollectionType("")
-                  .RevealAllEnumerate(value, palantírReveal).Complete();
+        (toAppendTo?.StartSimpleCollectionType(""))
+            ?.RevealAllIterate<IEnumerator<TCloaked>?, TCloaked, TRevealBase>(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
     protected static ITheOneString? AppendValueCollectionEnumerate<TCloaked, TRevealBase>
         ((IEnumerator<TCloaked>?, PalantírReveal<TRevealBase>) valueTuple, ITheOneString? appender)
-        where TCloaked : TRevealBase
+        where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
         var (value, structStyler) = valueTuple;
-        appender?.StartSimpleCollectionType("")
-                .RevealAllEnumerate(value, structStyler).Complete();
+        (appender?.StartSimpleCollectionType(""))?
+            .RevealAllIterate<IEnumerator<TCloaked>?, TCloaked, TRevealBase>(value, structStyler).Complete();
         return appender;
     }
 
@@ -402,7 +402,7 @@ public abstract partial class FLogEntryMessageBuilder
         (ITheOneString? toAppendTo, IEnumerable<T>? value, string? formatString = null) where T : class
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAllMatchEnumerate(value, formatString).Complete();
+                  .AddAllMatchEnumerate<IEnumerable<T>?, T>(value, formatString).Complete();
         return toAppendTo;
     }
 
@@ -410,7 +410,7 @@ public abstract partial class FLogEntryMessageBuilder
         where T : class
     {
         appender?.StartSimpleCollectionType("")
-                .AddAllMatchEnumerate(value).Complete();
+                .AddAllMatchEnumerate<IEnumerable<T>?, T>(value).Complete();
         return appender;
     }
 
@@ -420,7 +420,7 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, formatString) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .AddAllMatchEnumerate(value, formatString).Complete();
+                .AddAllMatchEnumerate<IEnumerable<T>?, T>(value, formatString).Complete();
         return appender;
     }
 
@@ -429,7 +429,7 @@ public abstract partial class FLogEntryMessageBuilder
         where T : class
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAllMatchEnumerate(value, null, formatString).Complete();
+                  .AddAllMatchIterate<IEnumerator<T>?, T>(value, null, formatString).Complete();
         return toAppendTo;
     }
 
@@ -438,7 +438,7 @@ public abstract partial class FLogEntryMessageBuilder
         where T : class
     {
         appender?.StartSimpleCollectionType("")
-                .AddAllMatchEnumerate(value).Complete();
+                .AddAllMatchIterate<IEnumerator<T>?, T>(value).Complete();
         return appender;
     }
 
@@ -448,7 +448,7 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, formatString) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .AddAllMatchEnumerate(value, null, formatString).Complete();
+                .AddAllMatchIterate<IEnumerator<T>?, T>(value, null, formatString).Complete();
         return appender;
     }
 
@@ -530,10 +530,11 @@ public abstract partial class FLogEntryMessageBuilder
 
     protected ITheOneString? AppendObjectCollectionEnumerate<T, TBase>
         (ITheOneString? toAppendTo, IEnumerable<T>? value, PalantírReveal<TBase> palantírReveal)
-        where T : class, TBase where TBase : class
+        where T : class?, TBase? 
+        where TBase : class
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .RevealAllEnumerate(value, palantírReveal).Complete();
+                  .RevealAllEnumerate<IEnumerable<T>?, T, TBase>(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
@@ -543,26 +544,27 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, customTypeStyler) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .RevealAllEnumerate(value, customTypeStyler).Complete();
+                .RevealAllEnumerate<IEnumerable<T>?, T, TBase>(value, customTypeStyler).Complete();
         return appender;
     }
 
     public ITheOneString? AppendObjectCollectionEnumerate<T, TBase>
         (ITheOneString? toAppendTo, IEnumerator<T>? value, PalantírReveal<TBase> palantírReveal)
-        where T : class, TBase where TBase : class
+        where T : class?, TBase? 
+        where TBase : class
     {
-        toAppendTo?.StartSimpleCollectionType("")
-                  .RevealAllEnumerate(value, palantírReveal).Complete();
+        (toAppendTo?.StartSimpleCollectionType(""))?.RevealAllIterate<IEnumerator<T>?, T, TBase>(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
     protected static ITheOneString? AppendObjectCollectionEnumerate<T, TBase>
         ((IEnumerator<T>?, PalantírReveal<TBase>) valueTuple, ITheOneString? appender)
-        where T : class, TBase where TBase : class
+        where T : class?, TBase? 
+        where TBase : class
     {
         var (value, customTypeStyler) = valueTuple;
-        appender?.StartSimpleCollectionType("")
-                .RevealAllEnumerate(value, customTypeStyler).Complete();
+        (appender?.StartSimpleCollectionType(""))?
+            .RevealAllIterate<IEnumerator<T>?, T, TBase>(value, customTypeStyler).Complete();
         return appender;
     }
 }

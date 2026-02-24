@@ -677,7 +677,7 @@ public class CourseDeliverer : EducationAttendee
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-            .CollectionField.AlwaysAddAllEnumerate(nameof(EmployeeId), EmployeeId)
+            .Field.AlwaysAddCharSeq(nameof(EmployeeId), EmployeeId)
             .KeyedCollectionField.AlwaysAddAll(nameof(CurrentCourses), CurrentCourses)
             .AddBaseRevealStateFields(this);
 
@@ -775,7 +775,7 @@ public record CourseSubject(string SubjectName) : IStringBearer
     public virtual AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
             .Field.AlwaysAdd(nameof(SubjectName), SubjectName)
-            .CollectionField.AlwaysAddAllEnumerate(nameof(RecentGrades), RecentGrades).Complete();
+            .CollectionField.AlwaysAddAllEnumerateNullable<IEnumerable<double?>, double>(nameof(RecentGrades), RecentGrades).Complete();
 
     public override string ToString() => $"{nameof(RecentGrades)}: {RecentGrades}, {nameof(SubjectName)}: {SubjectName}";
 }

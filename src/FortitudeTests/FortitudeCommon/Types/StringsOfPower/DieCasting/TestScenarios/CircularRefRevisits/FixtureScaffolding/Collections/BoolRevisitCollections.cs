@@ -69,7 +69,7 @@ public class NullablePreFieldNullableBoolArrayStructUnionRevisit : IStringBearer
     private readonly bool? firstPreField = false;
 
     public NullablePreFieldNullableBoolArrayStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<BoolOrArrayStructUnion>? nodeRevealer = null)
+      , PalantírReveal<NullableStructBoolOrArrayStructUnion>? nodeRevealer = null)
     {
         var repeatedItem = new NullableStructBoolOrArrayStructUnion([null, true, false, true], isSimple, isValue, boolRevealer);
         List<NullableStructBoolOrArrayStructUnion> firstAsList = [
@@ -726,7 +726,8 @@ public class PreFieldBoolEnumerableStructUnionRevisit : IStringBearer
     {
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
-           .CollectionField.AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
+           .CollectionField
+           .AlwaysRevealAllEnumerate<IEnumerable<BoolOrEnumerableStructUnion>, BoolOrEnumerableStructUnion>(nameof(firstEnumerable), firstEnumerable)
            .Complete();
     }
 }
@@ -749,12 +750,13 @@ public class BoolEnumerablePostFieldStructUnionRevisit : IStringBearer
         firstEnumerable = firstAsEnumerable;
     }
 
-    private readonly IEnumerable<BoolOrEnumerableStructUnion> firstEnumerable;
+    private readonly List<BoolOrEnumerableStructUnion> firstEnumerable;
 
     public AppendSummary RevealState(ITheOneString tos)
     {
         return tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
+           .CollectionField
+           .AlwaysRevealAllEnumerate<List<BoolOrEnumerableStructUnion>, BoolOrEnumerableStructUnion>(nameof(firstEnumerable), firstEnumerable)
            .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -778,13 +780,15 @@ public class NullablePreFieldNullableBoolEnumerableStructUnionRevisit : IStringB
         firstEnumerable = firstAsEnumerable;
     }
 
-    private readonly IEnumerable<NullableStructBoolOrEnumerableStructUnion> firstEnumerable;
+    private readonly List<NullableStructBoolOrEnumerableStructUnion> firstEnumerable;
 
     public AppendSummary RevealState(ITheOneString tos)
     {
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
-           .CollectionField.AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
+           .CollectionField
+           .AlwaysRevealAllEnumerate<List<NullableStructBoolOrEnumerableStructUnion>, NullableStructBoolOrEnumerableStructUnion>
+               (nameof(firstEnumerable), firstEnumerable)
            .Complete();
     }
 }
@@ -807,12 +811,14 @@ public class NullableBoolEnumerableNullablePostFieldStructUnionRevisit : IString
         firstEnumerable = firstAsEnumerable;
     }
 
-    private readonly IEnumerable<NullableStructBoolOrEnumerableStructUnion> firstEnumerable;
+    private readonly List<NullableStructBoolOrEnumerableStructUnion> firstEnumerable;
 
     public AppendSummary RevealState(ITheOneString tos)
     {
         return tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
+           .CollectionField
+           .AlwaysRevealAllEnumerate<List<NullableStructBoolOrEnumerableStructUnion>, NullableStructBoolOrEnumerableStructUnion>
+               (nameof(firstEnumerable), firstEnumerable)
            .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -836,13 +842,15 @@ public class PreFieldBoolEnumerableClassUnionRevisit : IStringBearer
         firstEnumerable = firstAsEnumerable;
     }
 
-    private readonly IEnumerable<BoolOrEnumerableClassUnion> firstEnumerable;
+    private readonly List<BoolOrEnumerableClassUnion> firstEnumerable;
 
     public AppendSummary RevealState(ITheOneString tos)
     {
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
-           .CollectionField.AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
+           .CollectionField
+           .AlwaysRevealAllEnumerate<List<BoolOrEnumerableClassUnion>, BoolOrEnumerableClassUnion>
+               (nameof(firstEnumerable), firstEnumerable)
            .Complete();
     }
 }
@@ -865,12 +873,14 @@ public class BoolEnumerablePostFieldClassUnionRevisit : IStringBearer
         firstEnumerable = firstAsEnumerable;
     }
 
-    private readonly IEnumerable<BoolOrEnumerableClassUnion> firstEnumerable;
+    private readonly List<BoolOrEnumerableClassUnion> firstEnumerable;
 
     public AppendSummary RevealState(ITheOneString tos)
     {
         return tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
+           .CollectionField
+           .AlwaysRevealAllEnumerate<List<BoolOrEnumerableClassUnion>, BoolOrEnumerableClassUnion>
+               (nameof(firstEnumerable), firstEnumerable)
            .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -894,13 +904,15 @@ public class NullablePreFieldNullableBoolEnumerableClassUnionRevisit : IStringBe
         firstEnumerable = firstAsEnumerable;
     }
 
-    private readonly IEnumerable<NullableStructBoolOrEnumerableClassUnion> firstEnumerable;
+    private readonly List<NullableStructBoolOrEnumerableClassUnion> firstEnumerable;
 
     public AppendSummary RevealState(ITheOneString tos)
     {
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
-           .CollectionField.AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
+           .CollectionField
+           .AlwaysRevealAllEnumerate<List<NullableStructBoolOrEnumerableClassUnion>, NullableStructBoolOrEnumerableClassUnion>
+               (nameof(firstEnumerable), firstEnumerable)
            .Complete();
     }
 }
@@ -923,12 +935,14 @@ public class NullableBoolEnumerableNullablePostFieldClassUnionRevisit : IStringB
         firstEnumerable = firstAsEnumerable;
     }
 
-    private readonly IEnumerable<NullableStructBoolOrEnumerableClassUnion> firstEnumerable;
+    private readonly List<NullableStructBoolOrEnumerableClassUnion> firstEnumerable;
 
     public AppendSummary RevealState(ITheOneString tos)
     {
         return tos.StartComplexType(this)
-                  .CollectionField.AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
+                  .CollectionField
+                  .AlwaysRevealAllEnumerate<List<NullableStructBoolOrEnumerableClassUnion>, NullableStructBoolOrEnumerableClassUnion>
+                      (nameof(firstEnumerable), firstEnumerable)
                   .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
                   .Complete();
     }
@@ -953,14 +967,16 @@ public class PreFieldBoolEnumeratorStructUnionRevisit : IStringBearer
         firstEnumerator = firstAsEnumerator.GetEnumerator();
     }
 
-    private readonly IEnumerator<BoolOrEnumeratorStructUnion> firstEnumerator;
+    private readonly List<BoolOrEnumeratorStructUnion>.Enumerator firstEnumerator;
 
     public AppendSummary RevealState(ITheOneString tos)
     {
-        firstEnumerator.Reset();
+        ((IEnumerator<BoolOrEnumeratorStructUnion>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
-           .CollectionField.AlwaysRevealAllEnumerate(nameof(firstEnumerator), firstEnumerator)
+           .CollectionField
+           .AlwaysRevealAllIterate<List<BoolOrEnumeratorStructUnion>.Enumerator, BoolOrEnumeratorStructUnion>
+               (nameof(firstEnumerator), firstEnumerator)
            .Complete();
     }
 }
@@ -983,13 +999,15 @@ public class BoolEnumeratorPostFieldStructUnionRevisit : IStringBearer
         firstEnumerator = firstAsEnumerator.GetEnumerator();
     }
 
-    private readonly IEnumerator<BoolOrEnumeratorStructUnion> firstEnumerator;
+    private readonly List<BoolOrEnumeratorStructUnion>.Enumerator firstEnumerator;
 
     public AppendSummary RevealState(ITheOneString tos)
     {
-        firstEnumerator.Reset();
+        ((IEnumerator<BoolOrEnumeratorStructUnion>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllEnumerate(nameof(firstEnumerator), firstEnumerator)
+           .CollectionField
+           .AlwaysRevealAllIterate<List<BoolOrEnumeratorStructUnion>.Enumerator, BoolOrEnumeratorStructUnion>
+               (nameof(firstEnumerator), firstEnumerator)
            .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -1013,14 +1031,16 @@ public class NullablePreFieldNullableBoolEnumeratorStructUnionRevisit : IStringB
         firstEnumerator = firstAsEnumerator.GetEnumerator();
     }
 
-    private readonly IEnumerator<NullableStructBoolOrEnumeratorStructUnion> firstEnumerator;
+    private readonly List<NullableStructBoolOrEnumeratorStructUnion>.Enumerator firstEnumerator;
 
     public AppendSummary RevealState(ITheOneString tos)
     {
-        firstEnumerator.Reset();
+        ((IEnumerator<NullableStructBoolOrEnumeratorStructUnion>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
-           .CollectionField.AlwaysRevealAllEnumerate(nameof(firstEnumerator), firstEnumerator)
+           .CollectionField
+           .AlwaysRevealAllIterate<List<NullableStructBoolOrEnumeratorStructUnion>.Enumerator, NullableStructBoolOrEnumeratorStructUnion>
+               (nameof(firstEnumerator), firstEnumerator)
            .Complete();
     }
 }
@@ -1043,13 +1063,15 @@ public class NullableBoolEnumeratorNullablePostFieldStructUnionRevisit : IString
         firstEnumerator = firstAsEnumerator.GetEnumerator();
     }
 
-    private readonly IEnumerator<NullableStructBoolOrEnumeratorStructUnion> firstEnumerator;
+    private readonly List<NullableStructBoolOrEnumeratorStructUnion>.Enumerator firstEnumerator;
 
     public AppendSummary RevealState(ITheOneString tos)
     {
-        firstEnumerator.Reset();
+        ((IEnumerator<NullableStructBoolOrEnumeratorStructUnion>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllEnumerate(nameof(firstEnumerator), firstEnumerator)
+           .CollectionField
+           .AlwaysRevealAllIterate<List<NullableStructBoolOrEnumeratorStructUnion>.Enumerator, NullableStructBoolOrEnumeratorStructUnion>
+               (nameof(firstEnumerator), firstEnumerator)
            .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -1073,14 +1095,16 @@ public class PreFieldBoolEnumeratorClassUnionRevisit : IStringBearer
         firstEnumerator = firstAsEnumerator.GetEnumerator();
     }
 
-    private readonly IEnumerator<BoolOrEnumeratorClassUnion> firstEnumerator;
+    private readonly List<BoolOrEnumeratorClassUnion>.Enumerator firstEnumerator;
 
     public AppendSummary RevealState(ITheOneString tos)
     {
-        firstEnumerator.Reset();
+        ((IEnumerator<BoolOrEnumeratorClassUnion>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
-           .CollectionField.AlwaysRevealAllEnumerate(nameof(firstEnumerator), firstEnumerator)
+           .CollectionField
+           .AlwaysRevealAllIterate<List<BoolOrEnumeratorClassUnion>.Enumerator, BoolOrEnumeratorClassUnion>
+               (nameof(firstEnumerator), firstEnumerator)
            .Complete();
     }
 }
@@ -1103,13 +1127,15 @@ public class BoolEnumeratorPostFieldClassUnionRevisit : IStringBearer
         firstEnumerator = firstAsEnumerator.GetEnumerator();
     }
 
-    private readonly IEnumerator<BoolOrEnumeratorClassUnion> firstEnumerator;
+    private readonly List<BoolOrEnumeratorClassUnion>.Enumerator firstEnumerator;
 
     public AppendSummary RevealState(ITheOneString tos)
     {
-        firstEnumerator.Reset();
+        ((IEnumerator<BoolOrEnumeratorClassUnion>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllEnumerate(nameof(firstEnumerator), firstEnumerator)
+           .CollectionField
+           .AlwaysRevealAllIterate<List<BoolOrEnumeratorClassUnion>.Enumerator, BoolOrEnumeratorClassUnion>
+               (nameof(firstEnumerator), firstEnumerator)
            .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -1133,14 +1159,16 @@ public class NullablePreFieldNullableBoolEnumeratorClassUnionRevisit : IStringBe
         firstEnumerator = firstAsEnumerator.GetEnumerator();
     }
 
-    private readonly IEnumerator<NullableStructBoolOrEnumeratorClassUnion> firstEnumerator;
+    private readonly List<NullableStructBoolOrEnumeratorClassUnion>.Enumerator firstEnumerator;
 
     public AppendSummary RevealState(ITheOneString tos)
     {
-        firstEnumerator.Reset();
+        ((IEnumerator<NullableStructBoolOrEnumeratorClassUnion>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
-           .CollectionField.AlwaysRevealAllEnumerate(nameof(firstEnumerator), firstEnumerator)
+           .CollectionField
+           .AlwaysRevealAllIterate<List<NullableStructBoolOrEnumeratorClassUnion>.Enumerator, NullableStructBoolOrEnumeratorClassUnion>
+               (nameof(firstEnumerator), firstEnumerator)
            .Complete();
     }
 }
@@ -1163,13 +1191,15 @@ public class NullableBoolEnumeratorNullablePostFieldClassUnionRevisit : IStringB
         firstEnumerator = firstAsEnumerator.GetEnumerator();
     }
 
-    private readonly IEnumerator<NullableStructBoolOrEnumeratorClassUnion> firstEnumerator;
+    private readonly List<NullableStructBoolOrEnumeratorClassUnion>.Enumerator firstEnumerator;
 
     public AppendSummary RevealState(ITheOneString tos)
     {
-        firstEnumerator.Reset();
+        ((IEnumerator<NullableStructBoolOrEnumeratorClassUnion>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
-                  .CollectionField.AlwaysRevealAllEnumerate(nameof(firstEnumerator), firstEnumerator)
+                  .CollectionField
+                  .AlwaysRevealAllIterate<List<NullableStructBoolOrEnumeratorClassUnion>.Enumerator, NullableStructBoolOrEnumeratorClassUnion>
+                      (nameof(firstEnumerator), firstEnumerator)
                   .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
                   .Complete();
     }

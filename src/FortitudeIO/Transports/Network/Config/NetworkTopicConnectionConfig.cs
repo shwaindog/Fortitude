@@ -441,7 +441,7 @@ public class NetworkTopicConnectionConfig : ConfigSection, INetworkTopicConnecti
             .Field.AlwaysAdd(nameof(ConnectionName), ConnectionName)
             .Field.AlwaysAdd(nameof(TopicName), TopicName)
             .Field.AlwaysAdd(nameof(ConversationProtocol), ConversationProtocol)
-            .CollectionField.AlwaysRevealAllEnumerate(nameof(AvailableConnections), AvailableConnections)
+            .CollectionField.AlwaysRevealAllEnumerate<IEnumerable<IEndpointConfig>, IEndpointConfig>(nameof(AvailableConnections), AvailableConnections)
             .Field.AlwaysAdd(nameof(TopicDescription), TopicDescription)
             .Field.AlwaysAdd(nameof(ReceiveBufferSize), ReceiveBufferSize)
             .Field.AlwaysAdd(nameof(SendBufferSize), SendBufferSize)

@@ -652,280 +652,307 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAllMatch(condition, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenConditionMetAddAllEnumerate(
+    public TExt WhenConditionMetAddAllEnumerate<TEnumbl>(
         bool condition
       , string fieldName
-      , IEnumerable<bool>? value
+      , TEnumbl value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<bool>? =>
         condition
             ? AlwaysAddAllEnumerate(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerable<bool>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllEnumerate(
+    public TExt WhenConditionMetAddAllEnumerateNullable<TEnumbl>(
         bool condition
       , string fieldName
-      , IEnumerable<bool?>? value
+      , TEnumbl value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<bool?>? =>
         condition
-            ? AlwaysAddAllEnumerate(fieldName, value, formatString, formatFlags)
+            ? AlwaysAddAllEnumerateNullable(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerable<bool?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllEnumerate<TFmt>(
+    public TExt WhenConditionMetAddAllEnumerate<TEnumbl, TFmt>(
         bool condition
       , string fieldName
-      , IEnumerable<TFmt?>? value
+      , TEnumbl value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable =>
+        where TEnumbl : IEnumerable<TFmt>?
+        where TFmt : ISpanFormattable? =>
         condition
-            ? AlwaysAddAllEnumerate(fieldName, value, formatString, formatFlags)
+            ? AlwaysAddAllEnumerate<TEnumbl, TFmt>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerable<TFmt?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllEnumerate<TFmtStruct>(
+    public TExt WhenConditionMetAddAllEnumerateNullable<TEnumbl, TFmtStruct>(
         bool condition
       , string fieldName
-      , IEnumerable<TFmtStruct?>? value
+      , TEnumbl value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<TFmtStruct?>?
         where TFmtStruct : struct, ISpanFormattable =>
         condition
-            ? AlwaysAddAllEnumerate(fieldName, value, formatString, formatFlags)
+            ? AlwaysAddAllEnumerateNullable<TEnumbl, TFmtStruct>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerable<TFmtStruct?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAllEnumerate<TCloaked, TRevealBase>(
+    public TExt WhenConditionMetRevealAllEnumerate<TEnumbl, TCloaked, TRevealBase>(
         bool condition
       , string fieldName
-      , IEnumerable<TCloaked?>? value
+      , TEnumbl value
       , PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<TCloaked>?
         where TCloaked : TRevealBase?
         where TRevealBase : notnull =>
         condition
-            ? AlwaysRevealAllEnumerate(fieldName, value, palantírReveal, formatString, formatFlags)
+            ? AlwaysRevealAllEnumerate<TEnumbl, TCloaked, TRevealBase>(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerable<TCloaked?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAllEnumerate<TCloakedStruct>(
+    public TExt WhenConditionMetRevealAllEnumerateNullable<TEnumbl, TCloakedStruct>(
         bool condition
       , string fieldName
-      , IEnumerable<TCloakedStruct?>? value
+      , TEnumbl value
       , PalantírReveal<TCloakedStruct> palantírReveal
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<TCloakedStruct?>?
         where TCloakedStruct : struct =>
         condition
-            ? AlwaysRevealAllEnumerate(fieldName, value, palantírReveal, formatString, formatFlags)
+            ? AlwaysRevealAllEnumerateNullable(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerable<TCloakedStruct?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAllEnumerate<TBearer>(
+    public TExt WhenConditionMetRevealAllEnumerate<TEnumbl, TBearer>(
         bool condition
       , string fieldName
-      , IEnumerable<TBearer?>? value
+      , TEnumbl value
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TBearer : IStringBearer =>
+        where TEnumbl : IEnumerable<TBearer>?
+        where TBearer : IStringBearer? =>
         condition
-            ? AlwaysRevealAllEnumerate(fieldName, value, formatString, formatFlags)
+            ? AlwaysRevealAllEnumerate<TEnumbl, TBearer>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerable<TBearer?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAllEnumerate<TBearerStruct>(
+    public TExt WhenConditionMetRevealAllEnumerateNullable<TEnumbl, TBearerStruct>(
         bool condition
       , string fieldName
-      , IEnumerable<TBearerStruct?>? value
+      , TEnumbl value
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<TBearerStruct?>?
         where TBearerStruct : struct, IStringBearer =>
         condition
-            ? AlwaysRevealAllEnumerate(fieldName, value, formatString, formatFlags)
+            ? AlwaysRevealAllEnumerateNullable<TEnumbl, TBearerStruct>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerable<TBearerStruct?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllEnumerate(
+    public TExt WhenConditionMetAddAllStringEnumerate<TEnumbl>(
         bool condition
       , string fieldName
-      , IEnumerable<string?>? value
+      , TEnumbl value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<string?>? =>
         condition
-            ? AlwaysAddAllEnumerate(fieldName, value, formatString, formatFlags)
+            ? AlwaysAddAllStringEnumerate(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerable<string?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllCharSeqEnumerate<TCharSeq>(
+    public TExt WhenConditionMetAddAllCharSeqEnumerate<TEnumbl, TCharSeq>(
         bool condition
       , string fieldName
-      , IEnumerable<TCharSeq?>? value
+      , TEnumbl value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
-        where TCharSeq : ICharSequence =>
+        where TEnumbl : IEnumerable<TCharSeq>?
+        where TCharSeq : ICharSequence? =>
         condition
-            ? AlwaysAddAllCharSeqEnumerate(fieldName, value, formatString, formatFlags)
+            ? AlwaysAddAllCharSeqEnumerate<TEnumbl, TCharSeq>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerable<TCharSeq?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllEnumerate(
+    public TExt WhenConditionMetAddAllStringBuilderEnumerate<TEnumbl>(
         bool condition
       , string fieldName
-      , IEnumerable<StringBuilder?>? value
+      , TEnumbl value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<StringBuilder?>? =>
         condition
-            ? AlwaysAddAllEnumerate(fieldName, value, formatString, formatFlags)
+            ? AlwaysAddAllStringBuilderEnumerate(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerable<StringBuilder?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllMatchEnumerate<TAny>(
+    public TExt WhenConditionMetAddAllMatchEnumerate<TEnumbl, TAny>(
         bool condition
       , string fieldName
-      , IEnumerable<TAny?>? value
+      , TEnumbl value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<TAny>? =>
         condition
-            ? AlwaysAddAllMatchEnumerate(fieldName, value, formatString, formatFlags)
+            ? AlwaysAddAllMatchEnumerate<TEnumbl, TAny>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerable<TAny?>), fieldName, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenConditionMetAddAllObjectEnumerate(
+    public TExt WhenConditionMetAddAllObjectEnumerate<TEnumbl>(
         bool condition
       , string fieldName
-      , IEnumerable<object?>? value
+      , TEnumbl value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-        WhenConditionMetAddAllMatchEnumerate(condition, fieldName, value, formatString, formatFlags);
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<object?>? =>
+        WhenConditionMetAddAllMatchEnumerate<TEnumbl, object?>(condition, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenConditionMetAddAllEnumerate(
+    public TExt WhenConditionMetAddAllIterate<TEnumtr>(
         bool condition
       , string fieldName
-      , IEnumerator<bool>? value
+      , TEnumtr value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<bool>? =>
         condition
-            ? AlwaysAddAllEnumerate(fieldName, value, formatString, formatFlags)
+            ? AlwaysAddAllIterate(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerator<bool>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllEnumerate(
+    public TExt WhenConditionMetAddAllIterateNullable<TEnumtr>(
         bool condition
       , string fieldName
-      , IEnumerator<bool?>? value
+      , TEnumtr value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<bool?>? =>
         condition
-            ? AlwaysAddAllEnumerate(fieldName, value, formatString, formatFlags)
+            ? AlwaysAddAllIterateNullable(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerator<bool?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllEnumerate<TFmt>(
+    public TExt WhenConditionMetAddAllIterate<TEnumtr, TFmt>(
         bool condition
       , string fieldName
-      , IEnumerator<TFmt?>? value
+      , TEnumtr value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
-        where TFmt : ISpanFormattable =>
+        where TEnumtr : IEnumerator<TFmt>?
+        where TFmt : ISpanFormattable? =>
         condition
-            ? AlwaysAddAllEnumerate(fieldName, value, formatString, formatFlags)
+            ? AlwaysAddAllIterate<TEnumtr, TFmt>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerator<TFmt?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllEnumerate<TFmtStruct>(
+    public TExt WhenConditionMetAddAllIterateNullable<TEnumtr, TFmtStruct>(
         bool condition
       , string fieldName
-      , IEnumerator<TFmtStruct?>? value
+      , TEnumtr value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
+        where TEnumtr : IEnumerator<TFmtStruct?>?
         where TFmtStruct : struct, ISpanFormattable =>
         condition
-            ? AlwaysAddAllEnumerate(fieldName, value, formatString, formatFlags)
+            ? AlwaysAddAllIterateNullable<TEnumtr, TFmtStruct>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerator<TFmtStruct?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAllEnumerate<TCloaked, TRevealBase>(
+    public TExt WhenConditionMetRevealAllIterate<TEnumtr, TCloaked, TRevealBase>(
         bool condition
       , string fieldName
-      , IEnumerator<TCloaked?>? value
+      , TEnumtr value
       , PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TCloaked>? 
         where TCloaked : TRevealBase?
         where TRevealBase : notnull =>
         condition
-            ? AlwaysRevealAllEnumerate(fieldName, value, palantírReveal, formatString, formatFlags)
+            ? AlwaysRevealAllIterate<TEnumtr, TCloaked, TRevealBase>(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerator<TCloaked?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAllEnumerate<TCloakedStruct>(
+    public TExt WhenConditionMetRevealAllIterateNullable<TEnumtr, TCloakedStruct>(
         bool condition
       , string fieldName
-      , IEnumerator<TCloakedStruct?>? value
+      , TEnumtr value
       , PalantírReveal<TCloakedStruct> palantírReveal
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
+        where TEnumtr : IEnumerator<TCloakedStruct?>? 
         where TCloakedStruct : struct =>
         condition
-            ? AlwaysRevealAllEnumerate(fieldName, value, palantírReveal, formatString, formatFlags)
+            ? AlwaysRevealAllIterateNullable(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerator<TCloakedStruct?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAllEnumerate<TBearer>(
+    public TExt WhenConditionMetRevealAllIterate<TEnumtr, TBearer>(
         bool condition
       , string fieldName
-      , IEnumerator<TBearer?>? value
+      , TEnumtr value
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TBearer : IStringBearer =>
+        where TEnumtr : IEnumerator<TBearer>? 
+        where TBearer : IStringBearer? =>
         condition
-            ? AlwaysRevealAllEnumerate(fieldName, value, formatString, formatFlags)
+            ? AlwaysRevealAllIterate<TEnumtr, TBearer>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerator<TBearer?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAllEnumerate<TBearerStruct>(
+    public TExt WhenConditionMetRevealAllIterateNullable<TEnumtr, TBearerStruct>(
         bool condition
       , string fieldName
-      , IEnumerator<TBearerStruct?>? value
+      , TEnumtr value
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TBearerStruct?>? 
         where TBearerStruct : struct, IStringBearer =>
         condition
-            ? AlwaysRevealAllEnumerate(fieldName, value, formatString, formatFlags)
+            ? AlwaysRevealAllIterateNullable<TEnumtr, TBearerStruct>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerator<TBearerStruct?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllEnumerate(
+    public TExt WhenConditionMetAddAllStringIterate<TEnumtr>(
         bool condition
       , string fieldName
-      , IEnumerator<string?>? value
+      , TEnumtr value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<string?>?  =>
         condition
-            ? AlwaysAddAllEnumerate(fieldName, value, formatString, formatFlags)
+            ? AlwaysAddAllStringIterate(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerator<string?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllCharSeqEnumerate<TCharSeq>(
+    public TExt WhenConditionMetAddAllCharSeqIterate<TEnumtr, TCharSeq>(
         bool condition
       , string fieldName
-      , IEnumerator<TCharSeq?>? value
+      , TEnumtr value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
+        where TEnumtr : IEnumerator<TCharSeq>? 
+        where TCharSeq : ICharSequence? =>
         condition
-            ? AlwaysAddAllCharSeqEnumerate(fieldName, value, formatString, formatFlags)
+            ? AlwaysAddAllCharSeqIterate<TEnumtr, TCharSeq>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerator<TCharSeq?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllEnumerate(
+    public TExt WhenConditionMetAddAllStringBuilderIterate<TEnumtr>(
         bool condition
       , string fieldName
-      , IEnumerator<StringBuilder?>? value
+      , TEnumtr value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<StringBuilder?>? =>
         condition
-            ? AlwaysAddAllEnumerate(fieldName, value, formatString, formatFlags)
+            ? AlwaysAddAllStringBuilderIterate(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerator<StringBuilder?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllMatchEnumerate<TAny>(
+    public TExt WhenConditionMetAddAllMatchIterate<TEnumtr, TAny>(
         bool condition
       , string fieldName
-      , IEnumerator<TAny?>? value
+      , TEnumtr value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TAny>? =>
         condition
-            ? AlwaysAddAllMatchEnumerate(fieldName, value, formatString, formatFlags)
+            ? AlwaysAddAllMatchIterate<TEnumtr, TAny>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerator<TAny?>), fieldName, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenConditionMetAddAllObjectEnumerate(
+    public TExt WhenConditionMetAddAllObjectIterate<TEnumtr>(
         bool condition
       , string fieldName
-      , IEnumerator<object?>? value
+      , TEnumtr value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
-        WhenConditionMetAddAllMatchEnumerate(condition, fieldName, value, formatString, formatFlags);
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<object?>? =>
+        WhenConditionMetAddAllMatchIterate<TEnumtr, object?>(condition, fieldName, value, formatString, formatFlags);
 }
