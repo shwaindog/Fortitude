@@ -1088,6 +1088,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         if (charsInserted == 0) return;
         if (activeMold != null) activeMold.WroteRefId = true;
         ShiftRegisteredFromIndex(graphNodeIndex, charsInserted);
+        UpdateClosedParentLengths(forThisNode, charsInserted);
         if (forThisNode.BufferLength < 0 && deltaIndentLevel > 0)
         {
             Settings.IndentLevel += deltaIndentLevel;
@@ -1141,6 +1142,20 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         }
     }
 
+    public void UpdateClosedParentLengths(GraphNodeVisit originalUpdatedLength, int shiftBy)
+    {
+        var ancestorNode = originalUpdatedLength;
+        while (ancestorNode.NodeVisitId is { RegistryId: >= -1, VisitIndex: >= 0 } 
+            && ancestorNode.BufferLength >= 0)
+        {
+            if (ancestorNode.BufferLength >= 0)
+            {
+                UpdateVisitLength(ancestorNode.NodeVisitId, shiftBy);
+            }
+            ancestorNode = GetNodeVisit(ancestorNode.ParentVisitId)!; 
+        }
+    }
+
     public bool IsCallerSameAsLastRegisteredVisit<TVisited>(TVisited checkIsLastVisited)
     {
         if (MyActiveGraphRegistry.Count == 0 && asStringEnteredCount == -1
@@ -1163,6 +1178,13 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var wasLastSameObjectAndOrMoreDerivedRef = MyActiveGraphRegistry.WasVisitOnSameInstance(checkIsLastVisited, graphNodeVisit)
                                                 && MyActiveGraphRegistry.WasVisitOnAMoreDerivedType(typeof(TVisited), graphNodeVisit);
         return wasLastSameObjectAndOrMoreDerivedRef;
+    }
+
+    public GraphNodeVisit GetNodeVisit(VisitId visitId)
+    {
+        var forRegistry = GetInstanceRegistry(visitId.RegistryId);
+        if (forRegistry == null || forRegistry.Count < visitId.VisitIndex) throw new ArgumentException("Visit does not exist");
+        return forRegistry[visitId.VisitIndex];
     }
 
     public void UpdateVisitWriteMethod(VisitId visitId, WrittenAsFlags newWriteMethod)
