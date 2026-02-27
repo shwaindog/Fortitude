@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Diagnostics;
+using System.Text;
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
@@ -104,8 +105,19 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
 
     public bool WasVisitOnSameInstance(object objToStyle, GraphNodeVisit checkVisit)
     {
-        var checkRef       = checkVisit.VisitedInstance;
-        var isSameInstance = UseReferenceEqualsForVisited ? ReferenceEquals(checkRef, objToStyle) : Equals(checkRef, objToStyle);
+        var checkRef           = checkVisit.VisitedInstance;
+        var oneIsStringBuilder = objToStyle is StringBuilder || checkRef is StringBuilder;
+        if (objToStyle is StringBuilder sb)
+        {
+            if (checkRef is StringBuilder check)
+            {
+                if (sb.ToString() == "singleton StringBuilder 2" && check.ToString() == "singleton StringBuilder 2")
+                {
+                    Debugger.Break();
+                }
+            }
+        }
+        var isSameInstance = UseReferenceEqualsForVisited || oneIsStringBuilder ? ReferenceEquals(checkRef, objToStyle) : Equals(checkRef, objToStyle);
         return isSameInstance;
     }
 

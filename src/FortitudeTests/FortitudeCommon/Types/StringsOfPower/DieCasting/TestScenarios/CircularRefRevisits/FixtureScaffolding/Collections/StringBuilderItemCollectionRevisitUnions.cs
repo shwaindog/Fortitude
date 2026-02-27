@@ -1392,6 +1392,9 @@ public readonly struct StringBuilderOrEnumeratorStructUnion : IStringBearer
 
     public AppendSummary RevealState(ITheOneString tos)
     {
+        itemCollectionEnumerator?.Reset();
+        nodeCollectionEnumerator?.Reset();
+        nullableNodeCollectionEnumerator?.Reset();
         if (isNode)
             if (nodeRevealer != null)
                 if (isNullableNode)
@@ -1593,6 +1596,8 @@ public class StringBuilderOrEnumeratorClassUnion : IStringBearer
 
     public AppendSummary RevealState(ITheOneString tos)
     {
+        itemCollectionEnumerator?.Reset();
+        nodeCollectionEnumerator?.Reset();
         if (isNode)
             if (nodeRevealer != null)
                 if (isSimple)

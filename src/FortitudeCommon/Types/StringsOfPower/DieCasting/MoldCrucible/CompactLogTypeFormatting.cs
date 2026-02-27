@@ -1122,7 +1122,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         {
             mws.Master.UpdateVisitLength(appendSummary.VisitNumber, charsInserted);
         }
-        return appendSummary.AddWrittenAsFlags(AsString).UpdateStringEndRange(charsInserted);
+        return appendSummary.AddWrittenAsFlags(AsString).ShiftStringEndRangeBy(charsInserted);
     }
 
     public virtual AppendSummary FormatBearerFieldName<TBearer>(IMoldWriteState mws, TBearer styledObj
@@ -1163,7 +1163,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         {
             mws.Master.UpdateVisitLength(appendSummary.VisitNumber, charsInserted);
         }
-        return appendSummary.AddWrittenAsFlags(AsString).UpdateStringEndRange(charsInserted);
+        return appendSummary.AddWrittenAsFlags(AsString).ShiftStringEndRangeBy(charsInserted);
     }
 
     public virtual int SizeFormatFieldContents(int sourceLength, FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1478,7 +1478,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         {
             mws.Master.UpdateVisitLength(appendSummary.VisitNumber, charsInserted);
         }
-        return appendSummary.AddWrittenAsFlags(AsString).UpdateStringEndRange(charsInserted);
+        return appendSummary.AddWrittenAsFlags(AsString).ShiftStringEndRangeBy(charsInserted);
     }
 
     public virtual AppendSummary FormatBearerFieldContents<TBearer>(IMoldWriteState mws, TBearer styledObj,
@@ -1521,7 +1521,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         {
             mws.Master.UpdateVisitLength(appendSummary.VisitNumber, charsInserted);
         }
-        return appendSummary.AddWrittenAsFlags(AsString).UpdateStringEndRange(charsInserted);
+        return appendSummary.AddWrittenAsFlags(AsString).ShiftStringEndRangeBy(charsInserted);
     }
 
     public virtual ContentSeparatorRanges AppendOpenCollection(IMoldWriteState mws, Type itemElementType, bool? hasItems

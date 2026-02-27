@@ -57,8 +57,20 @@ public static class AppendSummaryExtensions
     public static AppendSummary AddWrittenAsFlags(this AppendSummary toAlter, WrittenAsFlags toAdd) =>
         toAlter with { WrittenAs = toAlter.WrittenAs | toAdd };
 
-    public static AppendSummary UpdateStringEndRange(this AppendSummary toAlter, int deltaEnd) =>
+    public static AppendSummary SetStringRange(this AppendSummary toAlter, int startIndex, int endIndex) =>
+        toAlter with { AppendRange = new Range(Index.FromStart(startIndex), Index.FromStart(endIndex))};
+    
+    public static AppendSummary ShiftStringStartRangeBy(this AppendSummary toAlter, int deltaStart) =>
+        toAlter with { AppendRange = new Range(toAlter.AppendRange.Start, Index.FromStart(toAlter.AppendRange.End.Value + deltaStart)) };
+
+    public static AppendSummary ShiftStringEndRangeBy(this AppendSummary toAlter, int deltaEnd) =>
         toAlter with { AppendRange = new Range(toAlter.AppendRange.Start, Index.FromStart(toAlter.AppendRange.End.Value + deltaEnd)) };
+    
+    public static AppendSummary SetStringStartIndex(this AppendSummary toAlter, int startIndex) =>
+        toAlter with { AppendRange = new Range(Index.FromStart(startIndex), toAlter.AppendRange.End) };
+
+    public static AppendSummary SetStringEndIndex(this AppendSummary toAlter, int endIndex) =>
+        toAlter with { AppendRange = new Range(toAlter.AppendRange.Start, Index.FromStart(endIndex)) };
 }
 
 public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable

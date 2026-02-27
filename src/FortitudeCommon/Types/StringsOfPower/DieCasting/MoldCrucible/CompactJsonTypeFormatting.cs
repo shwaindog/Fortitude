@@ -915,7 +915,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         {
             mws.Master.UpdateVisitLength(appendSummary.VisitNumber, charsInserted);
         }
-        return appendSummary.AddWrittenAsFlags(AsString).UpdateStringEndRange(charsInserted);
+        return appendSummary.AddWrittenAsFlags(AsString).ShiftStringEndRangeBy(charsInserted);
     }
 
     public virtual AppendSummary FormatBearerFieldName<TBearer>(IMoldWriteState mws, TBearer styledObj, string? callerFormatString = null
@@ -964,7 +964,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         {
             mws.Master.UpdateVisitLength(appendSummary.VisitNumber, charsInserted);
         }
-        return appendSummary.AddWrittenAsFlags(AsString).UpdateStringEndRange(charsInserted);
+        return appendSummary.AddWrittenAsFlags(AsString).ShiftStringEndRangeBy(charsInserted);
     }
 
     public virtual int SizeFormatFieldContents(int sourceLength, FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1356,7 +1356,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         {
             mws.Master.UpdateVisitLength(appendSummary.VisitNumber, charsInserted);
         }
-        return appendSummary.AddWrittenAsFlags(AsString).UpdateStringEndRange(charsInserted);
+        return appendSummary.AddWrittenAsFlags(AsString).ShiftStringEndRangeBy(charsInserted);
     }
 
     public virtual AppendSummary FormatBearerFieldContents<TBearer>(IMoldWriteState mws, TBearer styledObj, string? callerFormatString = null
@@ -1404,7 +1404,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         {
             mws.Master.UpdateVisitLength(appendSummary.VisitNumber, charsInserted);
         }
-        return appendSummary.AddWrittenAsFlags(AsString).UpdateStringEndRange(charsInserted);
+        return appendSummary.AddWrittenAsFlags(AsString).ShiftStringEndRangeBy(charsInserted);
     }
 
 
