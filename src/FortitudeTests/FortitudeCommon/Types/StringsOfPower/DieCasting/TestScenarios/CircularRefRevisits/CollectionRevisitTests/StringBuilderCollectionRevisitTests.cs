@@ -13,7 +13,7 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestSce
 
 [NoMatchingProductionClass]
 [TestClass]
-public class StringBuilderBuilderCollectionRevisitTests : CommonStyleExpectationTestBase
+public class StringBuilderCollectionRevisitTests : CommonStyleExpectationTestBase
 {
     private static InputBearerExpect<PreFieldStringBuilderArrayStructUnionRevisit>?  prefieldStringBuilderArrayNoRevealersStructUnionExpect;
     private static InputBearerExpect<StringBuilderArrayPostFieldStructUnionRevisit>? boolArrayPostFieldNoRevealersStructUnionExpect;
