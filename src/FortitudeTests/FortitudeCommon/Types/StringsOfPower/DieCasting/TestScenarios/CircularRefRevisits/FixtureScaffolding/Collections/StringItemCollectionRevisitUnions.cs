@@ -144,23 +144,23 @@ public readonly struct StringOrArrayStructUnion : IStringBearer
         if (isSimple)
             if (isItem)
                 if (isValue)
-                    return tos.StartSimpleContentType(this).AsValueOrNull(item).Complete();
+                    return tos.StartSimpleContentType(this).AsValueOrNull(item, 0).Complete();
                 else
-                    return tos.StartSimpleContentType(this).AsStringOrNull(item).Complete();
+                    return tos.StartSimpleContentType(this).AsStringOrNull(item, 0).Complete();
             else
                 return tos.StartSimpleCollectionType(this).AddAll(itemCollection).Complete();
         if (isItem)
             if (isValue)
                 return tos
                        .StartComplexContentType(this)
-                       .AsValueOrNull(nameof(item), item)
+                       .AsValueOrNull(nameof(item), item, 0)
                        .LogOnlyField.AlwaysAdd(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .LogOnlyField.AlwaysAdd(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
             else
                 return tos
                        .StartComplexContentType(this)
-                       .AsStringOrNull(nameof(item), item)
+                       .AsStringOrNull(nameof(item), item, 0)
                        .LogOnlyField.AlwaysAdd(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .LogOnlyField.AlwaysAdd(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
@@ -277,23 +277,23 @@ public class StringOrArrayClassUnion : IStringBearer
         if (isSimple)
             if (isItem)
                 if (isValue)
-                    return tos.StartSimpleContentType(this).AsValueOrNull(item).Complete();
+                    return tos.StartSimpleContentType(this).AsValueOrNull(item, 0).Complete();
                 else
-                    return tos.StartSimpleContentType(this).AsStringOrNull(item).Complete();
+                    return tos.StartSimpleContentType(this).AsStringOrNull(item, 0).Complete();
             else
                 return tos.StartSimpleCollectionType(this).AddAll(itemCollection).Complete();
         if (isItem)
             if (isValue)
                 return tos
                        .StartComplexContentType(this)
-                       .AsValueOrNull(nameof(item), item)
+                       .AsValueOrNull(nameof(item), item, 0)
                        .LogOnlyField.AlwaysAdd(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .LogOnlyField.AlwaysAdd(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
             else
                 return tos
                        .StartComplexContentType(this)
-                       .AsStringOrNull(nameof(item), item)
+                       .AsStringOrNull(nameof(item), item, 0)
                        .LogOnlyField.AlwaysAdd(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .LogOnlyField.AlwaysAdd(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
@@ -410,23 +410,23 @@ public class StringOrSpanClassUnion : IStringBearer
         if (isSimple)
             if (isItem)
                 if (isValue)
-                    return tos.StartSimpleContentType(this).AsValueOrNull(item).Complete();
+                    return tos.StartSimpleContentType(this).AsValueOrNull(item, 0).Complete();
                 else
-                    return tos.StartSimpleContentType(this).AsStringOrNull(item).Complete();
+                    return tos.StartSimpleContentType(this).AsStringOrNull(item, 0).Complete();
             else
                 return tos.StartSimpleCollectionType(this).AddAllNullable(itemCollection.AsSpan()).Complete();
         if (isItem)
             if (isValue)
                 return tos
                        .StartComplexContentType(this)
-                       .AsValueOrNull(nameof(item), item)
+                       .AsValueOrNull(nameof(item), item, 0)
                        .LogOnlyField.AlwaysAdd(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .LogOnlyField.AlwaysAdd(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
             else
                 return tos
                        .StartComplexContentType(this)
-                       .AsStringOrNull(nameof(item), item)
+                       .AsStringOrNull(nameof(item), item, 0)
                        .LogOnlyField.AlwaysAdd(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .LogOnlyField.AlwaysAdd(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
@@ -551,23 +551,23 @@ public class StringOrReadOnlySpanClassUnion : IStringBearer
         if (isSimple)
             if (isItem)
                 if (isValue)
-                    return tos.StartSimpleContentType(this).AsValueOrNull(item).Complete();
+                    return tos.StartSimpleContentType(this).AsValueOrNull(item, 0).Complete();
                 else
-                    return tos.StartSimpleContentType(this).AsStringOrNull(item).Complete();
+                    return tos.StartSimpleContentType(this).AsStringOrNull(item, 0).Complete();
             else
                 return tos.StartSimpleCollectionType(this).AddAllNullable((ReadOnlySpan<string?>)itemCollection).Complete();
         if (isItem)
             if (isValue)
                 return tos
                        .StartComplexContentType(this)
-                       .AsValueOrNull(nameof(item), item)
+                       .AsValueOrNull(nameof(item), item, 0)
                        .LogOnlyField.AlwaysAdd(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .LogOnlyField.AlwaysAdd(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .Complete();
             else
                 return tos
                        .StartComplexContentType(this)
-                       .AsStringOrNull(nameof(item), item)
+                       .AsStringOrNull(nameof(item), item, 0)
                        .LogOnlyField.AlwaysAdd(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .LogOnlyField.AlwaysAdd(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .Complete();
@@ -711,23 +711,23 @@ public readonly struct StringOrListStructUnion : IStringBearer
         if (isSimple)
             if (isItem)
                 if (isValue)
-                    return tos.StartSimpleContentType(this).AsValueOrNull(item).Complete();
+                    return tos.StartSimpleContentType(this).AsValueOrNull(item, 0).Complete();
                 else
-                    return tos.StartSimpleContentType(this).AsStringOrNull(item).Complete();
+                    return tos.StartSimpleContentType(this).AsStringOrNull(item, 0).Complete();
             else
                 return tos.StartSimpleCollectionType(this).AddAll(itemCollection).Complete();
         if (isItem)
             if (isValue)
                 return tos
                        .StartComplexContentType(this)
-                       .AsValueOrNull(nameof(item), item)
+                       .AsValueOrNull(nameof(item), item, 0)
                        .LogOnlyField.AlwaysAdd(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .LogOnlyField.AlwaysAdd(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .Complete();
             else
                 return tos
                        .StartComplexContentType(this)
-                       .AsStringOrNull(nameof(item), item)
+                       .AsStringOrNull(nameof(item), item, 0)
                        .LogOnlyField.AlwaysAdd(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .LogOnlyField.AlwaysAdd(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .Complete();
@@ -855,16 +855,16 @@ public class StringOrListClassUnion : IStringBearer
         if (isSimple)
             if (isItem)
                 if (isValue)
-                    return tos.StartSimpleContentType(this).AsValueOrNull(item).Complete();
+                    return tos.StartSimpleContentType(this).AsValueOrNull(item, 0).Complete();
                 else
-                    return tos.StartSimpleContentType(this).AsStringOrNull(item).Complete();
+                    return tos.StartSimpleContentType(this).AsStringOrNull(item, 0).Complete();
             else
                 return tos.StartSimpleCollectionType(this).AddAll(itemCollection).Complete();
         if (isItem)
             if (isValue)
                 return tos
                        .StartComplexContentType(this)
-                       .AsValueOrNull(nameof(item), item)
+                       .AsValueOrNull(nameof(item), item, 0)
                        .LogOnlyCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticReadOnlySpanInstance)
                                                           , (ReadOnlySpan<int>)LogComplexOnlyStaticReadOnlySpanInstance)
                        .LogOnlyCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
@@ -872,7 +872,7 @@ public class StringOrListClassUnion : IStringBearer
             else
                 return tos
                        .StartComplexContentType(this)
-                       .AsStringOrNull(nameof(item), item)
+                       .AsStringOrNull(nameof(item), item, 0)
                        .LogOnlyCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticReadOnlySpanInstance)
                                                           , (ReadOnlySpan<int>)LogComplexOnlyStaticReadOnlySpanInstance)
                        .LogOnlyCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
@@ -1071,23 +1071,23 @@ public readonly struct StringOrEnumerableStructUnion : IStringBearer
         if (isSimple)
             if (isItem)
                 if (isValue)
-                    return tos.StartSimpleContentType(this).AsValueOrNull(item).Complete();
+                    return tos.StartSimpleContentType(this).AsValueOrNull(item, 0).Complete();
                 else
-                    return tos.StartSimpleContentType(this).AsStringOrNull(item).Complete();
+                    return tos.StartSimpleContentType(this).AsStringOrNull(item, 0).Complete();
             else
                 return tos.StartSimpleCollectionType(this).AddAllStringEnumerate(itemCollection).Complete();
         if (isItem)
             if (isValue)
                 return tos
                        .StartComplexContentType(this)
-                       .AsValueOrNull(nameof(item), item)
+                       .AsValueOrNull(nameof(item), item, 0)
                        .LogOnlyCollectionField.AlwaysAddAllCharSeq(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .LogOnlyCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
             else
                 return tos
                        .StartComplexContentType(this)
-                       .AsStringOrNull(nameof(item), item)
+                       .AsStringOrNull(nameof(item), item, 0)
                        .LogOnlyCollectionField.AlwaysAddAllCharSeq(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .LogOnlyCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
@@ -1243,23 +1243,23 @@ public class StringOrEnumerableClassUnion : IStringBearer
         if (isSimple)
             if (isItem)
                 if (isValue)
-                    return tos.StartSimpleContentType(this).AsValueOrNull(item).Complete();
+                    return tos.StartSimpleContentType(this).AsValueOrNull(item, 0).Complete();
                 else
-                    return tos.StartSimpleContentType(this).AsStringOrNull(item).Complete();
+                    return tos.StartSimpleContentType(this).AsStringOrNull(item, 0).Complete();
             else
                 return tos.StartSimpleCollectionType(this).AddAllStringEnumerate(itemCollection).Complete();
         if (isItem)
             if (isValue)
                 return tos
                        .StartComplexContentType(this)
-                       .AsValueOrNull(nameof(item), item)
+                       .AsValueOrNull(nameof(item), item, 0)
                        .LogOnlyCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticSpanInstance), LogComplexOnlyStaticSpanInstance.AsSpan())
                        .LogOnlyCollectionField.AlwaysAddAllStringEnumerate(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
             else
                 return tos
                        .StartComplexContentType(this)
-                       .AsStringOrNull(nameof(item), item)
+                       .AsStringOrNull(nameof(item), item, 0)
                        .LogOnlyCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticSpanInstance), LogComplexOnlyStaticSpanInstance.AsSpan())
                        .LogOnlyCollectionField.AlwaysAddAllStringEnumerate(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
@@ -1378,6 +1378,9 @@ public readonly struct StringOrEnumeratorStructUnion : IStringBearer
 
     public AppendSummary RevealState(ITheOneString tos)
     {
+        itemCollectionEnumerator?.Reset();
+        nodeCollectionEnumerator?.Reset();
+        nullableNodeCollectionEnumerator?.Reset();
         if (isNode)
             if (nodeRevealer != null)
                 if (isNullableNode)
@@ -1468,23 +1471,23 @@ public readonly struct StringOrEnumeratorStructUnion : IStringBearer
         if (isSimple)
             if (isItem)
                 if (isValue)
-                    return tos.StartSimpleContentType(this).AsValueOrNull(item).Complete();
+                    return tos.StartSimpleContentType(this).AsValueOrNull(item, 0).Complete();
                 else
-                    return tos.StartSimpleContentType(this).AsStringOrNull(item).Complete();
+                    return tos.StartSimpleContentType(this).AsStringOrNull(item, 0).Complete();
             else
                 return tos.StartSimpleCollectionType(this).AddAllStringIterate(itemCollectionEnumerator).Complete();
         if (isItem)
             if (isValue)
                 return tos
                        .StartComplexContentType(this)
-                       .AsValueOrNull(nameof(item), item)
+                       .AsValueOrNull(nameof(item), item, 0)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
             else
                 return tos
                        .StartComplexContentType(this)
-                       .AsStringOrNull(nameof(item), item)
+                       .AsStringOrNull(nameof(item), item, 0)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
@@ -1579,6 +1582,8 @@ public class StringOrEnumeratorClassUnion : IStringBearer
 
     public AppendSummary RevealState(ITheOneString tos)
     {
+        itemCollectionEnumerator?.Reset();
+        nodeCollectionEnumerator?.Reset();
         if (isNode)
             if (nodeRevealer != null)
                 if (isSimple)
@@ -1651,23 +1656,23 @@ public class StringOrEnumeratorClassUnion : IStringBearer
         if (isSimple)
             if (isItem)
                 if (isValue)
-                    return tos.StartSimpleContentType(this).AsValueOrNull(item).Complete();
+                    return tos.StartSimpleContentType(this).AsValueOrNull(item, 0).Complete();
                 else
-                    return tos.StartSimpleContentType(this).AsStringOrNull(item).Complete();
+                    return tos.StartSimpleContentType(this).AsStringOrNull(item, 0).Complete();
             else
                 return tos.StartSimpleCollectionType(this).AddAllStringIterate(itemCollectionEnumerator).Complete();
         if (isItem)
             if (isValue)
                 return tos
                        .StartComplexContentType(this)
-                       .AsValueOrNull(nameof(item), item)
+                       .AsValueOrNull(nameof(item), item, 0)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .Complete();
             else
                 return tos
                        .StartComplexContentType(this)
-                       .AsStringOrNull(nameof(item), item)
+                       .AsStringOrNull(nameof(item), item, 0)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .Complete();
