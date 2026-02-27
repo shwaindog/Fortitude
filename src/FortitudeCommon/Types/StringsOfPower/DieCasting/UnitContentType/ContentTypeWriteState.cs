@@ -91,7 +91,7 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
 
             newVisit =
                 new GraphNodeVisit(visitResult.VisitId, visitResult.RequesterVisitId
-                                 , InstanceOrType as Type ?? (InstanceOrContainer?.GetType() ?? TypeBeingBuilt), TypeBeingVisitedAs
+                                 , InstanceOrType as Type ?? (InstanceOrContainer.GetType()), TypeBeingVisitedAs
                                  , this, newWriteAsFlags, InstanceOrContainer
                                  , IndentLevel, Master.CallerContext, fmtState, CreateMoldFormatFlags | isAsStringOrAsValue
                                  , Sb.Length, MoldGraphVisit.LastRevisitCount + 1);
@@ -2326,7 +2326,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
     {
         var startAt = Sb.Length;
 
-        WrittenAsFlags writtenAs;
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
@@ -2334,11 +2333,9 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
             if (capLength > 0)
             {
                 if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
-                writtenAs = formatFlags.HasIsFieldNameFlag()
-                    ? StyleFormatter.FormatFieldName(this, value, capStart, formatString, capLength, formatFlags: formatFlags)
-                    : StyleFormatter.FormatFieldContents(this, value, capStart, formatString, capLength, formatFlags: formatFlags);
+                var append = this.AppendFormattedOrNull(value, formatString, capStart, capLength, formatFlags);
                 if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
-                return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, writtenAs, typeof(char[]));
+                return append.SetStringRange(startAt, Sb.Length);
             }
         }
         if (defaultValue != null)
@@ -2363,7 +2360,7 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
             }
         }
         if (formatFlags.HasNullBecomesEmptyFlag()) return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, Empty, typeof(char[]));
-        writtenAs = AppendNull(formatString, formatFlags);
+        var writtenAs = AppendNull(formatString, formatFlags);
         return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, writtenAs, typeof(char[]));
     }
 
@@ -2553,7 +2550,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
         var startAt    = Sb.Length;
         var actualType = value?.GetType() ?? typeof(TCharSeq);
 
-        WrittenAsFlags writtenAs;
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
@@ -2561,11 +2557,9 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
             if (capLength > 0)
             {
                 if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
-                writtenAs = formatFlags.HasIsFieldNameFlag()
-                    ? StyleFormatter.FormatFieldName(this, value, capStart, formatString, capLength, formatFlags: formatFlags)
-                    : StyleFormatter.FormatFieldContents(this, value, capStart, formatString, capLength, formatFlags: formatFlags);
+                var append = this.AppendFormattedOrNull(value,  formatString, capStart, capLength, formatFlags);
                 if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
-                return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, writtenAs, actualType);
+                return append.SetStringRange(startAt, Sb.Length);
             }
         }
         if (defaultValue != null)
@@ -2591,7 +2585,7 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
         }
         if (value == null && formatFlags.HasNullBecomesEmptyFlag())
             return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, Empty, actualType);
-        writtenAs = AppendNull(formatString, formatFlags);
+        var writtenAs = AppendNull(formatString, formatFlags);
 
         return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, writtenAs, actualType);
     }
@@ -2776,7 +2770,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
     {
         var startAt = Sb.Length;
 
-        WrittenAsFlags writtenAs;
         if (value != null)
         {
             var capStart  = Math.Clamp(startIndex, 0, value.Length);
@@ -2784,11 +2777,9 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
             if (capLength > 0)
             {
                 if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
-                writtenAs = formatFlags.HasIsFieldNameFlag()
-                    ? StyleFormatter.FormatFieldName(this, value, capStart, formatString, capLength, formatFlags: formatFlags)
-                    : StyleFormatter.FormatFieldContents(this, value, capStart, formatString, capLength, formatFlags: formatFlags);
+                var append = this.AppendFormattedOrNull(value,  formatString, capStart, capLength, formatFlags);
                 if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
-                return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, writtenAs, typeof(StringBuilder));
+                return append.SetStringRange(startAt, Sb.Length);
             }
         }
         if (defaultValue != null)
@@ -2814,7 +2805,7 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
         }
         if (value == null && formatFlags.HasNullBecomesEmptyFlag())
             return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, Empty, typeof(StringBuilder));
-        writtenAs = AppendNull(formatString, formatFlags);
+        var writtenAs = AppendNull(formatString, formatFlags);
         return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, writtenAs, typeof(StringBuilder));
     }
 
@@ -3003,14 +2994,14 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
     public AppendSummary VettedAppendMatchContent<TAny>(TAny? value, string? defaultValue = null
       , string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags, bool addStartDblQt = false, bool addEndDblQt = false)
     {
+        var startAt    = Sb.Length;
         if (value != null)
         {
             if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
             var result = this.AppendMatchFormattedOrNull(value, formatString, formatFlags);
             if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
-            return result;
+            return result.SetStringRange(startAt, Sb.Length);
         }
-        var startAt    = Sb.Length;
         var actualType = value?.GetType() ?? typeof(TAny);
 
         WrittenAsFlags writtenAs;
