@@ -9,45 +9,56 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestSce
 public class BinaryBranchNodeAsField<TChild> : OrderedParentNodeAsField<TChild>, IChildNode
     where TChild : class?, IChildNode?
 {
+    private readonly bool showParent;
 
     public BinaryBranchNodeAsField()
     {
         NodeType = NodeType.BranchNode;
     }
 
-    public BinaryBranchNodeAsField(string name, int? instId = null) : base([], name, instId)
+    public BinaryBranchNodeAsField(string name, int? instId = null, bool showParent = true)
+        : base([], name, instId)
     {
-        NodeType = NodeType.BranchNode;
+        this.showParent = showParent;
+        NodeType        = NodeType.BranchNode;
     }
 
-    public BinaryBranchNodeAsField(string name, TChild left, TChild right, int? instId = null) : base(name, instId, left, right)
+    public BinaryBranchNodeAsField(string name, TChild left, TChild right, int? instId = null, bool showParent = true)
+        : base(name, instId, left, right)
     {
-        NodeType = NodeType.BranchNode;
-        
-        Left     = left;
-        Right    = right;
+        this.showParent = showParent;
+        NodeType        = NodeType.BranchNode;
+
+        Left  = left;
+        Right = right;
     }
 
-    public BinaryBranchNodeAsField(TChild left, TChild right, string name, int? instId = null) : base(name, instId, left, right)
+    public BinaryBranchNodeAsField(TChild left, TChild right, string name, int? instId = null, bool showParent = true)
+        : base(name, instId, left, right)
     {
-        NodeType = NodeType.BranchNode;
-        
-        Left     = left;
-        Right    = right;
+        this.showParent = showParent;
+        NodeType        = NodeType.BranchNode;
+
+        Left  = left;
+        Right = right;
     }
 
     public TChild? Left { get; set; }
-    
+
     public TChild? Right { get; set; }
 
     public INode? Parent { get; set; }
 
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           // to skip over a base RevealState cast derived type to that as AddBaseRevealStateFields will then go to it's base type
-           .AddBaseRevealStateFields((OrderedParentNodeAsField<TChild>)this)
-           .Field.WhenNonNullReveal(nameof(Left), Left)
-           .Field.WhenNonNullReveal(nameof(Right), Right)
-           .Field.WhenNonNullReveal(nameof(Parent), Parent)
-           .Complete();
+    public override AppendSummary RevealState(ITheOneString tos)
+    {
+        var cm =
+            tos.StartComplexType(this)
+               // to skip over a base RevealState cast derived type to that as AddBaseRevealStateFields will then go to it's base type
+               .AddBaseRevealStateFields((OrderedParentNodeAsField<TChild>)this)
+               .Field.WhenNonNullReveal(nameof(Left), Left)
+               .Field.WhenNonNullReveal(nameof(Right), Right);
+
+        if (showParent) cm.Field.WhenNonNullReveal(nameof(Parent), Parent);
+        return cm.Complete();
+    }
 }

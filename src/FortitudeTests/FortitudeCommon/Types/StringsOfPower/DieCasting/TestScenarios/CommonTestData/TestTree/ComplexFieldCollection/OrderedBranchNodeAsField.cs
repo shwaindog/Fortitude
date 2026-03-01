@@ -9,6 +9,7 @@ namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestSce
 public class OrderedBranchNodeAsField<TChild> : OrderedParentNodeAsField<TChild>, IChildNode
     where TChild : class?, IChildNode?
 {
+    private readonly bool showParent;
 
     public static void ResetBranchInstanceIds()
     {
@@ -17,19 +18,26 @@ public class OrderedBranchNodeAsField<TChild> : OrderedParentNodeAsField<TChild>
 
     public OrderedBranchNodeAsField()
     {
-        NodeType             = NodeType.BranchNode;
+        showParent = true;
+
+        NodeType         = NodeType.BranchNode;
         BranchInstanceId = Interlocked.Increment(ref BranchNodeInstanceId);
     }
 
-    public OrderedBranchNodeAsField(List<TChild> childNodes, IReadOnlyParentNode? parent = null) : base(childNodes)
+    public OrderedBranchNodeAsField(List<TChild> childNodes, IReadOnlyParentNode? parent = null, bool showParent = true) : base(childNodes)
     {
-        NodeType             = NodeType.BranchNode;
+        this.showParent = showParent;
+
+        NodeType         = NodeType.BranchNode;
         BranchInstanceId = Interlocked.Increment(ref BranchNodeInstanceId);
     }
 
-    public OrderedBranchNodeAsField(List<TChild> childNodes, string name, IReadOnlyParentNode? parent = null, int? instId = null) 
+    public OrderedBranchNodeAsField(List<TChild> childNodes, string name, IReadOnlyParentNode? parent = null, int? instId = null
+      , bool showParent = true)
         : base(childNodes, name, instId)
     {
+        this.showParent = showParent;
+
         NodeType = NodeType.BranchNode;
         Parent   = parent;
 
@@ -40,10 +48,14 @@ public class OrderedBranchNodeAsField<TChild> : OrderedParentNodeAsField<TChild>
 
     public int BranchInstanceId { get; }
 
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .Field.AlwaysAdd(nameof(BranchInstanceId), BranchInstanceId)
-           .AddBaseRevealStateFields(this)
-           .Field.WhenNonNullReveal(nameof(Parent), Parent)
-           .Complete();
+    public override AppendSummary RevealState(ITheOneString tos)
+    {
+        var cm =
+            tos.StartComplexType(this)
+               .Field.AlwaysAdd(nameof(BranchInstanceId), BranchInstanceId)
+               .AddBaseRevealStateFields(this);
+
+        if(showParent) cm.Field.WhenNonNullReveal(nameof(Parent), Parent);
+        return cm.Complete();
+    }
 }
