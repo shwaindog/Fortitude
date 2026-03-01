@@ -2226,6 +2226,15 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         return stateExtractResult;
     }
 
+    public override int CollectionNextItem<T>(T nextItem, int retrieveCount, IStringBuilder sb
+      , FormatSwitches formatSwitches = FormatSwitches.EncodeInnerContent)
+    {
+        Gb.StartNextContentSeparatorPaddingSequence(sb, (FormatFlags)formatSwitches);
+        var result  = base.CollectionNextItem(nextItem, retrieveCount, sb, formatSwitches);
+        Gb.MarkContentEnd();
+        return result;
+    }
+
     public virtual IStringBuilder AddCollectionElementSeparator(IStringBuilder sb, Type elementType, int nextItemNumber
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
