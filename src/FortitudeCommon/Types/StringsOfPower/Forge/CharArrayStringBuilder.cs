@@ -2115,7 +2115,7 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        return obj is MutableString s && Equals(s);
+        return obj is CharArrayStringBuilder s && Equals(s);
     }
 
     public bool Equals(string? toCompare)

@@ -106,18 +106,7 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
     public bool WasVisitOnSameInstance(object objToStyle, GraphNodeVisit checkVisit)
     {
         var checkRef           = checkVisit.VisitedInstance;
-        var oneIsStringBuilder = objToStyle is StringBuilder || checkRef is StringBuilder;
-        if (objToStyle is StringBuilder sb)
-        {
-            if (checkRef is StringBuilder check)
-            {
-                if (sb.ToString() == "singleton StringBuilder 2" && check.ToString() == "singleton StringBuilder 2")
-                {
-                    Debugger.Break();
-                }
-            }
-        }
-        var isSameInstance = UseReferenceEqualsForVisited || oneIsStringBuilder ? ReferenceEquals(checkRef, objToStyle) : Equals(checkRef, objToStyle);
+        var isSameInstance = UseReferenceEqualsForVisited ? ReferenceEquals(checkRef, objToStyle) : Equals(checkRef, objToStyle);
         return isSameInstance;
     }
 
