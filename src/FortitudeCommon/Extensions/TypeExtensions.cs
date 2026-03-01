@@ -451,6 +451,7 @@ public static class TypeExtensions
                           , "Double"  => "double"
                           , "Decimal" => "decimal"
                           , "String"  => "string"
+                          , "Object"  => "object"
                           , _         => null
                         };
         if (foundName != null) return foundName;

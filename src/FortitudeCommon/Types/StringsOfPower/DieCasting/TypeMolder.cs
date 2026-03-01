@@ -1337,7 +1337,7 @@ public static class StyledTypeBuilderExtensions
                          && !typeof(TValue).IsValueType)
                         {
                             var preAppendLength      = mdc.Sb.Length;
-                            var registeredForRevisit = mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, AsRaw | AsContent, formatFlags);
+                            var registeredForRevisit = mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, AsRaw | AsObject, formatFlags);
                             if (!registeredForRevisit.ShouldSuppressBody)
                             {
                                 if (registeredForRevisit.ShouldSuppressBody)

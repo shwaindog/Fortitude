@@ -1832,6 +1832,15 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return stateExtractResult;
     }
 
+    public override int CollectionNextItem<T>(T nextItem, int retrieveCount, IStringBuilder sb
+      , FormatSwitches formatSwitches = FormatSwitches.EncodeInnerContent)
+    {
+        Gb.StartNextContentSeparatorPaddingSequence(sb, (FormatFlags)formatSwitches);
+        var result  = base.CollectionNextItem(nextItem, retrieveCount, sb, formatSwitches);
+        Gb.MarkContentEnd();
+        return result;
+    }
+
     public virtual Range? AddCollectionElementSeparator(IMoldWriteState mws, Type elementType, int nextItemNumber
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
