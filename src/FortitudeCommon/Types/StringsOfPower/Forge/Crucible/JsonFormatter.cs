@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Nodes;
 using FortitudeCommon.DataStructures.MemoryPools.Buffers;
@@ -238,7 +239,12 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         var appendLen     = originalSbLen - fromIndex;
         if (appendLen < 4096)
         {
-            var scratchFull = stackalloc char[appendLen + 2].ResetMemory();
+            if (appendLen < 0)
+            {
+                Debugger.Break();
+                return 0;
+            }
+            Span<char> scratchFull = stackalloc char[appendLen + 2];
             for (int i = 0; i < appendLen; i++) { scratchFull[i + 1] = sb[fromIndex + i]; }
             return ProcessAppended(sb, scratchFull, fromIndex, formatSwitches);
         }

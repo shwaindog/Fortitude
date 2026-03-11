@@ -58,7 +58,11 @@ public abstract class CommonStyleExpectationTestBase : CommonExpectationBase
 
         var stringBearer                = formatExpectation.TestStringBearer;
         var resultWithVisibleWhiteSpace = Recycler.Borrow<CharArrayStringBuilder>();
+        
+        Console.Out.WriteLine("***********************************   Starting Test Case     *******************************************\n");
+        
         stringBearer.RevealState(MyTheOneString);
+        
         MyTheOneString.WriteBuffer.CopyAndMakeWhiteSpaceVisible(resultWithVisibleWhiteSpace);
         var buildExpectedWithVisibleWhiteSpace = Recycler.Borrow<CharArrayStringBuilder>();
         var buildExpectedOutput                = formatExpectation.GetExpectedOutputFor(Recycler, stringStyle);

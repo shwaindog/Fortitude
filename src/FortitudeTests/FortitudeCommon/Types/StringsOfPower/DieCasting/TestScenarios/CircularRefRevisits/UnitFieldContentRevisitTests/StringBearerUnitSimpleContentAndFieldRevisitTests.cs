@@ -72,26 +72,20 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringBearersFields<BinaryBranchNodeAsField<LeafNode>> {
-                         FirstStringBearerField: BinaryBranchNodeAsField<LeafNode> {
-                         $id: 2,
+                         FirstStringBearerField: BinaryBranchNodeAsField<LeafNode>($id: 2) {
                          Name: "SameOnLeftAndRight",
                          GlobalNodeInstanceId: 2,
                          NodeType: NodeType.BranchNode,
-                         Left: LeafNode {
-                         $id: 1,
+                         Left: LeafNode($id: 1) {
                          LeafInstanceId: 1,
                          Name: "SameChild",
                          GlobalNodeInstanceId: 1,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 1
                          },
-                         Right: LeafNode {
-                         $ref: 1
-                         }
+                         Right: (LeafNode($ref: 1))
                          },
-                         SecondStringBearerField: BinaryBranchNodeAsField<LeafNode> {
-                         $ref: 2
-                         }
+                         SecondStringBearerField: (BinaryBranchNodeAsField<LeafNode>($ref: 2))
                          }
                         """.RemoveLineEndings()
                     }
@@ -100,26 +94,20 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringBearersFields<BinaryBranchNodeAsField<LeafNode>> {
-                          FirstStringBearerField: BinaryBranchNodeAsField<LeafNode> {
-                            $id: 2,
+                          FirstStringBearerField: BinaryBranchNodeAsField<LeafNode>($id: 2) {
                             Name: "SameOnLeftAndRight",
                             GlobalNodeInstanceId: 2,
                             NodeType: NodeType.BranchNode,
-                            Left: LeafNode {
-                              $id: 1,
+                            Left: LeafNode($id: 1) {
                               LeafInstanceId: 1,
                               Name: "SameChild",
                               GlobalNodeInstanceId: 1,
                               NodeType: NodeType.LeafNode,
                               DepthToRoot: 1
                             },
-                            Right: LeafNode {
-                              $ref: 1
-                            }
+                            Right: (LeafNode($ref: 1))
                           },
-                          SecondStringBearerField: BinaryBranchNodeAsField<LeafNode> {
-                            $ref: 2
-                          }
+                          SecondStringBearerField: (BinaryBranchNodeAsField<LeafNode>($ref: 2))
                         }
                         """.Dos2Unix()
                     }
@@ -220,26 +208,20 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                             new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                           , """
                             TwoStringBearersFields<BinaryBranchNodeAsField<LeafNode>> {
-                             FirstStringBearerField: "BinaryBranchNodeAsField<LeafNode> {
-                             $id: 2,
+                             FirstStringBearerField: "BinaryBranchNodeAsField<LeafNode>($id: 2) {
                              Name: "SameOnLeftAndRight",
                              GlobalNodeInstanceId: 2,
                              NodeType: NodeType.BranchNode,
-                             Left: LeafNode {
-                             $id: 1,
+                             Left: (LeafNode($id: 1)) {
                              LeafInstanceId: 1,
                              Name: "SameChild",
                              GlobalNodeInstanceId: 1,
                              NodeType: NodeType.LeafNode,
                              DepthToRoot: 1
                              },
-                             Right: LeafNode {
-                             $ref: 1
-                             }
+                             Right: (LeafNode($ref: 1))
                              }",
-                             SecondStringBearerField: "BinaryBranchNodeAsField<LeafNode> {
-                             $ref: 2
-                             }"
+                             SecondStringBearerField: "(BinaryBranchNodeAsField<LeafNode>($ref: 2))"
                              }
                             """.RemoveLineEndings()
                         }
@@ -248,26 +230,20 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                             new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                           , """
                             TwoStringBearersFields<BinaryBranchNodeAsField<LeafNode>> {
-                              FirstStringBearerField: "BinaryBranchNodeAsField<LeafNode> {
-                                $id: 2,
+                              FirstStringBearerField: "BinaryBranchNodeAsField<LeafNode>($id: 2) {
                                 Name: "SameOnLeftAndRight",
                                 GlobalNodeInstanceId: 2,
                                 NodeType: NodeType.BranchNode,
-                                Left: LeafNode {
-                                  $id: 1,
+                                Left: (LeafNode($id: 1)) {
                                   LeafInstanceId: 1,
                                   Name: "SameChild",
                                   GlobalNodeInstanceId: 1,
                                   NodeType: NodeType.LeafNode,
                                   DepthToRoot: 1
                                 },
-                                Right: LeafNode {
-                                  $ref: 1
-                                }
+                                Right: (LeafNode($ref: 1))
                               }",
-                              SecondStringBearerField: "BinaryBranchNodeAsField<LeafNode> {
-                                $ref: 2
-                              }"
+                              SecondStringBearerField: "(BinaryBranchNodeAsField<LeafNode>($ref: 2))"
                             }
                             """.Dos2Unix()
                         }
@@ -422,21 +398,16 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                          Name: "SameOnLeftAndRight",
                          GlobalNodeInstanceId: 2,
                          NodeType: NodeType.BranchNode,
-                         Left: LeafNode {
-                         $id: 1,
+                         Left: (LeafNode($id: 1)) {
                          LeafInstanceId: 1,
                          Name: "SameChild",
                          GlobalNodeInstanceId: 1,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 1
                          },
-                         Right: LeafNode {
-                         $ref: 1
-                         }
+                         Right: (LeafNode($ref: 1))
                          },
-                         SecondStringBearerField: BinaryBranchNodeAsField<LeafNode> {
-                         $ref: 2
-                         }
+                         SecondStringBearerField: (BinaryBranchNodeAsField<LeafNode>($ref: 2))
                          }
                         """.RemoveLineEndings()
                     }
@@ -449,21 +420,16 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                             Name: "SameOnLeftAndRight",
                             GlobalNodeInstanceId: 2,
                             NodeType: NodeType.BranchNode,
-                            Left: LeafNode {
-                              $id: 1,
+                            Left: (LeafNode($id: 1)) {
                               LeafInstanceId: 1,
                               Name: "SameChild",
                               GlobalNodeInstanceId: 1,
                               NodeType: NodeType.LeafNode,
                               DepthToRoot: 1
                             },
-                            Right: LeafNode {
-                              $ref: 1
-                            }
+                            Right: (LeafNode($ref: 1))
                           },
-                          SecondStringBearerField: BinaryBranchNodeAsField<LeafNode> {
-                            $ref: 2
-                          }
+                          SecondStringBearerField: (BinaryBranchNodeAsField<LeafNode>($ref: 2))
                         }
                         """.Dos2Unix()
                     }
@@ -581,26 +547,20 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringBearersSecondAsSimpleCloakedValueContent<BinaryBranchNodeAsField<LeafNode>> {
-                         FirstStringBearerField: BinaryBranchNodeAsField<LeafNode> {
-                         $id: 2,
+                         FirstStringBearerField: BinaryBranchNodeAsField<LeafNode>($id: 2) {
                          Name: "SameOnLeftAndRight",
                          GlobalNodeInstanceId: 2,
                          NodeType: NodeType.BranchNode,
-                         Left: LeafNode {
-                         $id: 1,
+                         Left: LeafNode($id: 1) {
                          LeafInstanceId: 1,
                          Name: "SameChild",
                          GlobalNodeInstanceId: 1,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 1
                          },
-                         Right: LeafNode {
-                         $ref: 1
-                         }
+                         Right: (LeafNode($ref: 1))
                          },
-                         SecondStringBearerField: (BinaryBranchNodeAsField<LeafNode>) {
-                         $ref: 2
-                         }
+                         SecondStringBearerField: (BinaryBranchNodeAsField<LeafNode>($ref: 2))
                          }
                         """.RemoveLineEndings()
                     }
@@ -609,26 +569,20 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringBearersSecondAsSimpleCloakedValueContent<BinaryBranchNodeAsField<LeafNode>> {
-                          FirstStringBearerField: BinaryBranchNodeAsField<LeafNode> {
-                            $id: 2,
+                          FirstStringBearerField: BinaryBranchNodeAsField<LeafNode>($id: 2) {
                             Name: "SameOnLeftAndRight",
                             GlobalNodeInstanceId: 2,
                             NodeType: NodeType.BranchNode,
-                            Left: LeafNode {
-                              $id: 1,
+                            Left: LeafNode($id: 1) {
                               LeafInstanceId: 1,
                               Name: "SameChild",
                               GlobalNodeInstanceId: 1,
                               NodeType: NodeType.LeafNode,
                               DepthToRoot: 1
                             },
-                            Right: LeafNode {
-                              $ref: 1
-                            }
+                            Right: (LeafNode($ref: 1))
                           },
-                          SecondStringBearerField: (BinaryBranchNodeAsField<LeafNode>) {
-                            $ref: 2
-                          }
+                          SecondStringBearerField: (BinaryBranchNodeAsField<LeafNode>($ref: 2))
                         }
                         """.Dos2Unix()
                     }
@@ -750,21 +704,16 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                          Name: "SameOnLeftAndRight",
                          GlobalNodeInstanceId: 2,
                          NodeType: NodeType.BranchNode,
-                         Left: LeafNode {
-                         $id: 1,
+                         Left: (LeafNode($id: 1)) {
                          LeafInstanceId: 1,
                          Name: "SameChild",
                          GlobalNodeInstanceId: 1,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 1
                          },
-                         Right: LeafNode {
-                         $ref: 1
-                         }
+                         Right: (LeafNode($ref: 1))
                          }",
-                         SecondStringBearerField: BinaryBranchNodeAsField<LeafNode> {
-                         $ref: 2
-                         }
+                         SecondStringBearerField: (BinaryBranchNodeAsField<LeafNode>($ref: 2))
                          }
                         """.RemoveLineEndings()
                     }
@@ -777,21 +726,16 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                             Name: "SameOnLeftAndRight",
                             GlobalNodeInstanceId: 2,
                             NodeType: NodeType.BranchNode,
-                            Left: LeafNode {
-                              $id: 1,
+                            Left: (LeafNode($id: 1)) {
                               LeafInstanceId: 1,
                               Name: "SameChild",
                               GlobalNodeInstanceId: 1,
                               NodeType: NodeType.LeafNode,
                               DepthToRoot: 1
                             },
-                            Right: LeafNode {
-                              $ref: 1
-                            }
+                            Right: (LeafNode($ref: 1))
                           }",
-                          SecondStringBearerField: BinaryBranchNodeAsField<LeafNode> {
-                            $ref: 2
-                          }
+                          SecondStringBearerField: (BinaryBranchNodeAsField<LeafNode>($ref: 2))
                         }
                         """.Dos2Unix()
                     }
@@ -963,24 +907,20 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringBearersSecondAsSimpleCloakedStringContent<BinaryBranchNodeAsField<LeafNode>> {
-                         FirstStringBearerField: BinaryBranchNodeAsField<LeafNode> {
-                         $id: 2,
+                         FirstStringBearerField: BinaryBranchNodeAsField<LeafNode>($id: 2) {
                          Name: "SameOnLeftAndRight",
                          GlobalNodeInstanceId: 2,
                          NodeType: NodeType.BranchNode,
-                         Left: LeafNode {
-                         $id: 1,
+                         Left: LeafNode($id: 1) {
                          LeafInstanceId: 1,
                          Name: "SameChild",
                          GlobalNodeInstanceId: 1,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 1
                          },
-                         Right: LeafNode {
-                         $ref: 1
-                         }
+                         Right: (LeafNode($ref: 1))
                          },
-                         SecondStringBearerField: (BinaryBranchNodeAsField<LeafNode>) { $ref: 2 }
+                         SecondStringBearerField: (BinaryBranchNodeAsField<LeafNode>($ref: 2))
                          }
                         """.RemoveLineEndings()
                     }
@@ -989,26 +929,20 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringBearersSecondAsSimpleCloakedStringContent<BinaryBranchNodeAsField<LeafNode>> {
-                          FirstStringBearerField: BinaryBranchNodeAsField<LeafNode> {
-                            $id: 2,
+                          FirstStringBearerField: BinaryBranchNodeAsField<LeafNode>($id: 2) {
                             Name: "SameOnLeftAndRight",
                             GlobalNodeInstanceId: 2,
                             NodeType: NodeType.BranchNode,
-                            Left: LeafNode {
-                              $id: 1,
+                            Left: LeafNode($id: 1) {
                               LeafInstanceId: 1,
                               Name: "SameChild",
                               GlobalNodeInstanceId: 1,
                               NodeType: NodeType.LeafNode,
                               DepthToRoot: 1
                             },
-                            Right: LeafNode {
-                              $ref: 1
-                            }
+                            Right: (LeafNode($ref: 1))
                           },
-                          SecondStringBearerField: (BinaryBranchNodeAsField<LeafNode>) {
-                            $ref: 2
-                          }
+                          SecondStringBearerField: (BinaryBranchNodeAsField<LeafNode>($ref: 2))
                         }
                         """.Dos2Unix()
                     }
@@ -1189,33 +1123,27 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                              Name: "SameOnLeftAndRight",
                              GlobalNodeInstanceId: 2,
                              NodeType: NodeType.BranchNode,
-                             Left: LeafNode {
-                             $id: 1,
+                             Left: (LeafNode($id: 1)) {
                              LeafInstanceId: 1,
                              Name: "SameChild",
                              GlobalNodeInstanceId: 1,
                              NodeType: NodeType.LeafNode,
                              DepthToRoot: 1
                              },
-                             Right: LeafNode {
-                             $ref: 1
-                             }
+                             Right: (LeafNode($ref: 1))
                              }",
                              SecondStringBearerField: "BinaryBranchNodeAsField<LeafNode> {
                              Name: "SameOnLeftAndRight",
                              GlobalNodeInstanceId: 2,
                              NodeType: NodeType.BranchNode,
-                             Left: LeafNode {
-                             $id: 2,
+                             Left: (LeafNode($id: 2)) {
                              LeafInstanceId: 1,
                              Name: "SameChild",
                              GlobalNodeInstanceId: 1,
                              NodeType: NodeType.LeafNode,
                              DepthToRoot: 1
                              },
-                             Right: LeafNode {
-                             $ref: 2
-                             }
+                             Right: (LeafNode($ref: 2))
                              }"
                              }
                             """.RemoveLineEndings()
@@ -1229,33 +1157,27 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                                 Name: "SameOnLeftAndRight",
                                 GlobalNodeInstanceId: 2,
                                 NodeType: NodeType.BranchNode,
-                                Left: LeafNode {
-                                  $id: 1,
+                                Left: (LeafNode($id: 1)) {
                                   LeafInstanceId: 1,
                                   Name: "SameChild",
                                   GlobalNodeInstanceId: 1,
                                   NodeType: NodeType.LeafNode,
                                   DepthToRoot: 1
                                 },
-                                Right: LeafNode {
-                                  $ref: 1
-                                }
+                                Right: (LeafNode($ref: 1))
                               }",
                               SecondStringBearerField: "BinaryBranchNodeAsField<LeafNode> {
                                 Name: "SameOnLeftAndRight",
                                 GlobalNodeInstanceId: 2,
                                 NodeType: NodeType.BranchNode,
-                                Left: LeafNode {
-                                  $id: 2,
+                                Left: (LeafNode($id: 2)) {
                                   LeafInstanceId: 1,
                                   Name: "SameChild",
                                   GlobalNodeInstanceId: 1,
                                   NodeType: NodeType.LeafNode,
                                   DepthToRoot: 1
                                 },
-                                Right: LeafNode {
-                                  $ref: 2
-                                }
+                                Right: (LeafNode($ref: 2))
                               }"
                             }
                             """.Dos2Unix()
@@ -1265,8 +1187,9 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                             new EK(AlwaysWrites | AcceptsStringBearer, CompactJson)
                           , """
                             {
-                            "FirstStringBearerField":"{
-                            \u0022$id\u0022:\u00222\u0022,
+                            "FirstStringBearerField":{
+                            "$id":"2",
+                            "$values":"{
                             \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
                             \u0022GlobalNodeInstanceId\u0022:2,
                             \u0022NodeType\u0022:\u0022BranchNode\u0022,
@@ -1281,10 +1204,9 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                             \u0022Right\u0022:{
                             \u0022$ref\u0022:\u00221\u0022
                             }
-                            }",
-                            "SecondStringBearerField":"{
-                            \u0022$ref\u0022:\u00222\u0022
                             }"
+                            },
+                            "SecondStringBearerField":{"$ref":"2"}
                             }
                             """.RemoveLineEndings()
                         }
@@ -1293,12 +1215,13 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                             new EK(AlwaysWrites | AcceptsStringBearer, PrettyJson)
                           , """ 
                             {
-                            
+                              "FirstStringBearerField": {
+                                "$id": "2",
+                                "$values": "
                             """.Dos2Unix()
                            +
                             """
-                              "FirstStringBearerField": "{
-                            \u0022$id\u0022:\u00222\u0022,
+                            {
                             \u0022Name\u0022:\u0022SameOnLeftAndRight\u0022,
                             \u0022GlobalNodeInstanceId\u0022:2,
                             \u0022NodeType\u0022:\u0022BranchNode\u0022,
@@ -1313,19 +1236,14 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                             \u0022Right\u0022:{
                             \u0022$ref\u0022:\u00221\u0022
                             }
-                            }",
                             """.RemoveLineEndings()
                            +
-                            "\n"
-                           +
                             """
-                              "SecondStringBearerField": "{
-                            \u0022$ref\u0022:\u00222\u0022
                             }"
-                            """.RemoveLineEndings()
-                           +
-                            """
-                            
+                              },
+                              "SecondStringBearerField": {
+                                "$ref": "2"
+                              }
                             }
                             """.Dos2Unix()
                         }
@@ -1482,33 +1400,27 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                              Name: "SameOnLeftAndRight",
                              GlobalNodeInstanceId: 2,
                              NodeType: NodeType.BranchNode,
-                             Left: LeafNode {
-                             $id: 1,
+                             Left: (LeafNode($id: 1)) {
                              LeafInstanceId: 1,
                              Name: "SameChild",
                              GlobalNodeInstanceId: 1,
                              NodeType: NodeType.LeafNode,
                              DepthToRoot: 1
                              },
-                             Right: LeafNode {
-                             $ref: 1
-                             }
+                             Right: (LeafNode($ref: 1))
                              }",
                              SecondStringBearerField: BinaryBranchNodeAsField<LeafNode> {
                              Name: "SameOnLeftAndRight",
                              GlobalNodeInstanceId: 2,
                              NodeType: NodeType.BranchNode,
-                             Left: LeafNode {
-                             $id: 2,
+                             Left: LeafNode($id: 2) {
                              LeafInstanceId: 1,
                              Name: "SameChild",
                              GlobalNodeInstanceId: 1,
                              NodeType: NodeType.LeafNode,
                              DepthToRoot: 1
                              },
-                             Right: LeafNode {
-                             $ref: 2
-                             }
+                             Right: (LeafNode($ref: 2))
                              }
                              }
                             """.RemoveLineEndings()
@@ -1522,33 +1434,27 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                                 Name: "SameOnLeftAndRight",
                                 GlobalNodeInstanceId: 2,
                                 NodeType: NodeType.BranchNode,
-                                Left: LeafNode {
-                                  $id: 1,
+                                Left: (LeafNode($id: 1)) {
                                   LeafInstanceId: 1,
                                   Name: "SameChild",
                                   GlobalNodeInstanceId: 1,
                                   NodeType: NodeType.LeafNode,
                                   DepthToRoot: 1
                                 },
-                                Right: LeafNode {
-                                  $ref: 1
-                                }
+                                Right: (LeafNode($ref: 1))
                               }",
                               SecondStringBearerField: BinaryBranchNodeAsField<LeafNode> {
                                 Name: "SameOnLeftAndRight",
                                 GlobalNodeInstanceId: 2,
                                 NodeType: NodeType.BranchNode,
-                                Left: LeafNode {
-                                  $id: 2,
+                                Left: LeafNode($id: 2) {
                                   LeafInstanceId: 1,
                                   Name: "SameChild",
                                   GlobalNodeInstanceId: 1,
                                   NodeType: NodeType.LeafNode,
                                   DepthToRoot: 1
                                 },
-                                Right: LeafNode {
-                                  $ref: 2
-                                }
+                                Right: (LeafNode($ref: 2))
                               }
                             }
                             """.Dos2Unix()
@@ -1685,33 +1591,27 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                              Name: "SameOnLeftAndRight",
                              GlobalNodeInstanceId: 2,
                              NodeType: NodeType.BranchNode,
-                             Left: LeafNode {
-                             $id: 1,
+                             Left: LeafNode($id: 1) {
                              LeafInstanceId: 1,
                              Name: "SameChild",
                              GlobalNodeInstanceId: 1,
                              NodeType: NodeType.LeafNode,
                              DepthToRoot: 1
                              },
-                             Right: LeafNode {
-                             $ref: 1
-                             }
+                             Right: (LeafNode($ref: 1))
                              },
                              SecondStringBearerField: (BinaryBranchNodeAsField<LeafNode>) "{
                              Name: "SameOnLeftAndRight",
                              GlobalNodeInstanceId: 2,
                              NodeType: NodeType.BranchNode,
-                             Left: LeafNode {
-                             $id: 2,
+                             Left: (LeafNode($id: 2)) {
                              LeafInstanceId: 1,
                              Name: "SameChild",
                              GlobalNodeInstanceId: 1,
                              NodeType: NodeType.LeafNode,
                              DepthToRoot: 1
                              },
-                             Right: LeafNode {
-                             $ref: 2
-                             }
+                             Right: (LeafNode($ref: 2))
                              }"
                              }
                             """.RemoveLineEndings()
@@ -1725,33 +1625,27 @@ public class StringBearerUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                                 Name: "SameOnLeftAndRight",
                                 GlobalNodeInstanceId: 2,
                                 NodeType: NodeType.BranchNode,
-                                Left: LeafNode {
-                                  $id: 1,
+                                Left: LeafNode($id: 1) {
                                   LeafInstanceId: 1,
                                   Name: "SameChild",
                                   GlobalNodeInstanceId: 1,
                                   NodeType: NodeType.LeafNode,
                                   DepthToRoot: 1
                                 },
-                                Right: LeafNode {
-                                  $ref: 1
-                                }
+                                Right: (LeafNode($ref: 1))
                               },
                               SecondStringBearerField: (BinaryBranchNodeAsField<LeafNode>) "{
                                 Name: "SameOnLeftAndRight",
                                 GlobalNodeInstanceId: 2,
                                 NodeType: NodeType.BranchNode,
-                                Left: LeafNode {
-                                  $id: 2,
+                                Left: (LeafNode($id: 2)) {
                                   LeafInstanceId: 1,
                                   Name: "SameChild",
                                   GlobalNodeInstanceId: 1,
                                   NodeType: NodeType.LeafNode,
                                   DepthToRoot: 1
                                 },
-                                Right: LeafNode {
-                                  $ref: 2
-                                }
+                                Right: (LeafNode($ref: 2))
                               }"
                             }
                             """.Dos2Unix()

@@ -790,6 +790,13 @@ public class RecyclingCharArray : ReusableObject<RecyclingCharArray>, ICapacityL
         return CompareTo(other) == 0;
     }
 
+    public int CountOccurenceOf(ReadOnlySpan<char> pattern, int fromIndexIncl = 0, int toIndexExcl = Int32.MaxValue)
+    {
+        var cappedFrom   = Math.Clamp(fromIndexIncl, 0, Length);
+        var cappedLength = Math.Clamp(toIndexExcl - cappedFrom, 0, Length - cappedFrom);
+        return this.SubSequenceOccurrenceCount(cappedFrom, cappedLength, pattern );
+    }
+
     public int IndexOf(string subStr)
     {
         return IndexOf(subStr, 0);

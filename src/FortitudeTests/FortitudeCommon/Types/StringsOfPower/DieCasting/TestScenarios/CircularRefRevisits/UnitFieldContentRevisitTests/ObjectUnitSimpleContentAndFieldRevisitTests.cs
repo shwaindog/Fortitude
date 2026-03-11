@@ -81,9 +81,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                         TwoObjectFields
                          {
                          FirstObjectField: (MyOtherTypeClass($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
-                         SecondObjectField: (MyOtherTypeClass) {
-                         $ref: 1
-                         }
+                         SecondObjectField: (MyOtherTypeClass($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -93,9 +91,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectFields {
                           FirstObjectField: (MyOtherTypeClass($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
-                          SecondObjectField: (MyOtherTypeClass) {
-                            $ref: 1
-                          }
+                          SecondObjectField: (MyOtherTypeClass($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -181,9 +177,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectsFirstAsSimpleCloakedValueContent {
                          FirstObjectField: (MyOtherTypeClass($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
-                         SecondObjectField: (MyOtherTypeClass) {
-                         $ref: 1
-                         }
+                         SecondObjectField: (MyOtherTypeClass($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -193,9 +187,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectsFirstAsSimpleCloakedValueContent {
                           FirstObjectField: (MyOtherTypeClass($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
-                          SecondObjectField: (MyOtherTypeClass) {
-                            $ref: 1
-                          }
+                          SecondObjectField: (MyOtherTypeClass($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -281,9 +273,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectsSecondAsSimpleCloakedValueContent {
                          FirstObjectField: (MyOtherTypeClass($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
-                         SecondObjectField: (MyOtherTypeClass) {
-                         $ref: 1
-                         }
+                         SecondObjectField: (MyOtherTypeClass($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -293,9 +283,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectsSecondAsSimpleCloakedValueContent {
                           FirstObjectField: (MyOtherTypeClass($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
-                          SecondObjectField: (MyOtherTypeClass) {
-                            $ref: 1
-                          }
+                          SecondObjectField: (MyOtherTypeClass($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -382,9 +370,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectsFirstAsSimpleCloakedStringContent {
                          FirstObjectField: (MyOtherTypeClass($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
-                         SecondObjectField: (MyOtherTypeClass) {
-                         $ref: 1
-                         }
+                         SecondObjectField: (MyOtherTypeClass($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -394,9 +380,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectsFirstAsSimpleCloakedStringContent {
                           FirstObjectField: (MyOtherTypeClass($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
-                          SecondObjectField: (MyOtherTypeClass) {
-                            $ref: 1
-                          }
+                          SecondObjectField: (MyOtherTypeClass($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -473,9 +457,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectsSecondAsSimpleCloakedStringContent {
                          FirstObjectField: (MyOtherTypeClass($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
-                         SecondObjectField: (MyOtherTypeClass) {
-                         $ref: 1
-                         }
+                         SecondObjectField: (MyOtherTypeClass($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -485,9 +467,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectsSecondAsSimpleCloakedStringContent {
                           FirstObjectField: (MyOtherTypeClass($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
-                          SecondObjectField: (MyOtherTypeClass) {
-                            $ref: 1
-                          }
+                          SecondObjectField: (MyOtherTypeClass($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -551,9 +531,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectFields {
                          FirstObjectField: (MyOtherTypeClass($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
-                         SecondObjectField: (MyOtherTypeClass) {
-                         $ref: 1
-                         }
+                         SecondObjectField: (MyOtherTypeClass($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -563,9 +541,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectFields {
                           FirstObjectField: (MyOtherTypeClass($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
-                          SecondObjectField: (MyOtherTypeClass) {
-                            $ref: 1
-                          }
+                          SecondObjectField: (MyOtherTypeClass($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -660,9 +636,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectsFirstAsSimpleCloakedValueContent {
                          FirstObjectField: (MyOtherTypeClass($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
-                         SecondObjectField: (MyOtherTypeClass) {
-                         $ref: 1
-                         }
+                         SecondObjectField: (MyOtherTypeClass($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -672,9 +646,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectsFirstAsSimpleCloakedValueContent {
                           FirstObjectField: (MyOtherTypeClass($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
-                          SecondObjectField: (MyOtherTypeClass) {
-                            $ref: 1
-                          }
+                          SecondObjectField: (MyOtherTypeClass($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -769,9 +741,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectsSecondAsSimpleCloakedValueContent {
                          FirstObjectField: (MyOtherTypeClass($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
-                         SecondObjectField: (MyOtherTypeClass) {
-                         $ref: 1
-                         }
+                         SecondObjectField: (MyOtherTypeClass($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -781,9 +751,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectsSecondAsSimpleCloakedValueContent {
                           FirstObjectField: (MyOtherTypeClass($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
-                          SecondObjectField: (MyOtherTypeClass) {
-                            $ref: 1
-                          }
+                          SecondObjectField: (MyOtherTypeClass($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -1089,10 +1057,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectFields {
                          FirstObjectField: (MyOtherTypeClass($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
-                         SecondObjectField: (MyOtherTypeClass) {
-                         $ref: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         }
+                         SecondObjectField: (MyOtherTypeClass($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                          }
                         """.RemoveLineEndings()
                     }
@@ -1102,10 +1067,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectFields {
                           FirstObjectField: (MyOtherTypeClass($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
-                          SecondObjectField: (MyOtherTypeClass) {
-                            $ref: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          }
+                          SecondObjectField: (MyOtherTypeClass($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                         }
                         """.Dos2Unix()
                     }
@@ -1204,10 +1166,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectsFirstAsSimpleCloakedValueContent {
                          FirstObjectField: (MyOtherTypeClass($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
-                         SecondObjectField: (MyOtherTypeClass) {
-                         $ref: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         }
+                         SecondObjectField: (MyOtherTypeClass($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                          }
                         """.RemoveLineEndings()
                     }
@@ -1217,10 +1176,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectsFirstAsSimpleCloakedValueContent {
                           FirstObjectField: (MyOtherTypeClass($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
-                          SecondObjectField: (MyOtherTypeClass) {
-                            $ref: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          }
+                          SecondObjectField: (MyOtherTypeClass($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                         }
                         """.Dos2Unix()
                     }
@@ -1319,10 +1275,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectsSecondAsSimpleCloakedValueContent {
                          FirstObjectField: (MyOtherTypeClass($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
-                         SecondObjectField: (MyOtherTypeClass) {
-                         $ref: 1,
-                         $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                         }
+                         SecondObjectField: (MyOtherTypeClass($ref: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.
                          }
                         """.RemoveLineEndings()
                     }
@@ -1332,10 +1285,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectsSecondAsSimpleCloakedValueContent {
                           FirstObjectField: (MyOtherTypeClass($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
-                          SecondObjectField: (MyOtherTypeClass) {
-                            $ref: 1,
-                            $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                          }
+                          SecondObjectField: (MyOtherTypeClass($ref: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.
                         }
                         """.Dos2Unix()
                     }
@@ -1435,10 +1385,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectsFirstAsSimpleCloakedStringContent {
                          FirstObjectField: (MyOtherTypeClass($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
-                         SecondObjectField: (MyOtherTypeClass) {
-                         $ref: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         }
+                         SecondObjectField: (MyOtherTypeClass($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                          }
                         """.RemoveLineEndings()
                     }
@@ -1448,10 +1395,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectsFirstAsSimpleCloakedStringContent {
                           FirstObjectField: (MyOtherTypeClass($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
-                          SecondObjectField: (MyOtherTypeClass) {
-                            $ref: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          }
+                          SecondObjectField: (MyOtherTypeClass($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                         }
                         """.Dos2Unix()
                     }
@@ -1551,10 +1495,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectsSecondAsSimpleCloakedStringContent {
                          FirstObjectField: (MyOtherTypeClass($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
-                         SecondObjectField: (MyOtherTypeClass) {
-                         $ref: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         }
+                         SecondObjectField: (MyOtherTypeClass($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                          }
                         """.RemoveLineEndings()
                     }
@@ -1564,10 +1505,7 @@ public class ObjectUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoObjectsSecondAsSimpleCloakedStringContent {
                           FirstObjectField: (MyOtherTypeClass($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
-                          SecondObjectField: (MyOtherTypeClass) {
-                            $ref: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          }
+                          SecondObjectField: (MyOtherTypeClass($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                         }
                         """.Dos2Unix()
                     }

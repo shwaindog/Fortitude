@@ -26,7 +26,7 @@ public class ContentJoinTypeMold<TFromMold, TToMold> : KnownTypeMolder<TToMold>,
         throw new NotImplementedException("Should never be called!");
     }
 
-    public override void AppendClosing()
+    public override void AppendClosing(FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags)
     {
         var sf = MoldStateField.Sf;
         
@@ -36,13 +36,13 @@ public class ContentJoinTypeMold<TFromMold, TToMold> : KnownTypeMolder<TToMold>,
         {
             sf = sf.PreviousContextOrThis;
         }
-        if (MoldStateField.CurrentWriteMethod.SupportsMultipleFields())
+        if (MoldStateField.CreateWriteMethod.SupportsMultipleFields())
         {
-            sf.AppendComplexTypeClosing(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CurrentWriteMethod);
+            sf.AppendComplexTypeClosing(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CreateWriteMethod, formatFlags | CreateFormatFlags);
         }
         else
         {
-            sf.AppendSimpleTypeClosing(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CurrentWriteMethod);
+            sf.AppendSimpleTypeClosing(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CreateWriteMethod, formatFlags);
         }
     }
 

@@ -24,10 +24,11 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType  
+      , CallerContext callerContext  
       , FormatFlags createFormatFlags )
     {
         InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
-                                 , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
+                                 , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext, createFormatFlags);
 
         return this;
     }
@@ -42,10 +43,10 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
 
     public override void FinishTypeOpening(FormatFlags formatFlags)
     {
-      if (Mws.CurrentWriteMethod.SupportsMultipleFields())
-      {
-        Mws.Master.UpdateVisitWriteMethod(MoldVisit.VisitId, Mws.CurrentWriteMethod);  
-      }
+      // if (Mws.CreateWriteMethod.SupportsMultipleFields())
+      // {
+      //   Mws.Master.UpdateVisitWriteMethod(MoldVisit.VisitId, Mws.CurrentWriteMethod);  
+      // }
       base.FinishTypeOpening(formatFlags);
     }
 
@@ -62,7 +63,7 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
     //   }
     // }
     
-    public override bool IsComplexType => Mws.IsLog;
+    public override bool IsComplexType => Mws.IsLog || Mws.MoldGraphVisit.IsARevisit;
     public override bool IsSimpleMold => false;
 
     protected override void SourceBuilderComponentAccess(WrittenAsFlags writeMethod)

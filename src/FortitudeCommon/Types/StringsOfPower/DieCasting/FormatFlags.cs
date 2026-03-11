@@ -108,6 +108,7 @@ public static class FieldContentHandlingExtensions
 
     public static bool        HasContentTreatmentFlags(this FormatFlags flags)    => flags.HasAsStringContentFlag() || flags.HasAsValueContentFlag();
     public static FormatFlags RemoveContentTreatmentFlags(this FormatFlags flags) => flags & ~(AsValueContent | AsStringContent);
+    public static FormatFlags OnlyContentTreatmentFlags(this FormatFlags flags) => flags & (AsValueContent | AsStringContent);
     public static bool        TreatCharArrayAsString(this FormatFlags flags)      => flags.HasContentTreatmentFlags();
 
     public static bool TreatCharsAsEncodedString(this FormatFlags flags) =>

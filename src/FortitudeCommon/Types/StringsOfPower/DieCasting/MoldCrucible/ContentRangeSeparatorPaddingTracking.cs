@@ -80,6 +80,11 @@ public struct ContentSeparatorPaddingRangeTracking
         FromStartSeparatorEnd = null;
         FromStartPaddingEnd   = null;
     }
+
+    public override string ToString() => 
+        $"toS- ContentSeparatorPaddingRangeTracking: {FromStartContentStart}, FromStartContentEnd: {FromStartContentEnd} " +
+        $"FromStartSeparatorEnd: {FromStartSeparatorEnd}, FromStartPaddingEnd: {FromStartPaddingEnd}, AllowEmptyContent: {AllowEmptyContent}" +
+        $"StartedWithFormatFlags: {StartedWithFormatFlags}";
 }
 
 public static class ContentSeparatorPaddingRangeTrackingExtensions

@@ -71,19 +71,18 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstArray: (ObjectOrArrayStructUnion[]) [
                          (ObjectOrArrayStructUnion) (MyOtherTypeClass($id: 1)) singleton Object 2,
                          (ObjectOrArrayStructUnion) [],
-                         (ObjectOrArrayStructUnion) { $id: 2, $values: [
+                         (ObjectOrArrayStructUnion) (object[]($id: 2)) [
                          null,
                          (MyOtherTypeClass) new Object 1,
                          (MyOtherTypeClass) new Object 2,
                          (MyOtherTypeClass) new Object 3
-                         ]
-                         },
+                         ],
                          (ObjectOrArrayStructUnion) [
                          (MyOtherTypeClass) singleton Object 1,
-                         (MyOtherTypeClass) { $ref: 1 },
+                         (MyOtherTypeClass($ref: 1)),
                          (MyOtherTypeClass) singleton Object 3
                          ],
-                         (ObjectOrArrayStructUnion) { $ref: 2 }
+                         (ObjectOrArrayStructUnion) (object[]($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -97,25 +96,18 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                           firstArray: (ObjectOrArrayStructUnion[]) [
                             (ObjectOrArrayStructUnion) (MyOtherTypeClass($id: 1)) singleton Object 2,
                             (ObjectOrArrayStructUnion) [],
-                            (ObjectOrArrayStructUnion) {
-                              $id: 2,
-                              $values: [
-                                null,
-                                (MyOtherTypeClass) new Object 1,
-                                (MyOtherTypeClass) new Object 2,
-                                (MyOtherTypeClass) new Object 3
-                              ]
-                            },
+                            (ObjectOrArrayStructUnion) (object[]($id: 2)) [
+                              null,
+                              (MyOtherTypeClass) new Object 1,
+                              (MyOtherTypeClass) new Object 2,
+                              (MyOtherTypeClass) new Object 3
+                            ],
                             (ObjectOrArrayStructUnion) [
                               (MyOtherTypeClass) singleton Object 1,
-                              (MyOtherTypeClass) {
-                                $ref: 1
-                              },
+                              (MyOtherTypeClass($ref: 1)),
                               (MyOtherTypeClass) singleton Object 3
                             ],
-                            (ObjectOrArrayStructUnion) {
-                              $ref: 2
-                            }
+                            (ObjectOrArrayStructUnion) (object[]($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -232,23 +224,20 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstArray: (ObjectOrArrayStructUnion[]) [
                          (ObjectOrArrayStructUnion) (MyOtherTypeClass($id: 1)) singleton Object 2,
                          (ObjectOrArrayStructUnion) [],
-                         (ObjectOrArrayStructUnion) { $id: 4, $values: [
+                         (ObjectOrArrayStructUnion) (object[]($id: 4)) [
                          (MyOtherTypeClass($id: 2)) singleton Object 1,
-                         (MyOtherTypeClass) { $ref: 1 },
+                         (MyOtherTypeClass($ref: 1)),
                          (MyOtherTypeClass($id: 3)) singleton Object 3,
                          null
-                         ]
-                         },
+                         ],
                          (ObjectOrArrayStructUnion) [
-                         (MyOtherTypeClass) { $ref: 2 },
-                         (MyOtherTypeClass) { $ref: 1 },
-                         (MyOtherTypeClass) { $ref: 3 }
+                         (MyOtherTypeClass($ref: 2)),
+                         (MyOtherTypeClass($ref: 1)),
+                         (MyOtherTypeClass($ref: 3))
                          ],
-                         (ObjectOrArrayStructUnion) { $ref: 4 }
+                         (ObjectOrArrayStructUnion) (object[]($ref: 4))
                          ],
-                         firstPostField: (MyOtherTypeClass) {
-                         $ref: 1
-                         }
+                         firstPostField: (MyOtherTypeClass($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -260,35 +249,20 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                           firstArray: (ObjectOrArrayStructUnion[]) [
                             (ObjectOrArrayStructUnion) (MyOtherTypeClass($id: 1)) singleton Object 2,
                             (ObjectOrArrayStructUnion) [],
-                            (ObjectOrArrayStructUnion) {
-                              $id: 4,
-                              $values: [
-                                (MyOtherTypeClass($id: 2)) singleton Object 1,
-                                (MyOtherTypeClass) {
-                                  $ref: 1
-                                },
-                                (MyOtherTypeClass($id: 3)) singleton Object 3,
-                                null
-                              ]
-                            },
-                            (ObjectOrArrayStructUnion) [
-                              (MyOtherTypeClass) {
-                                $ref: 2
-                              },
-                              (MyOtherTypeClass) {
-                                $ref: 1
-                              },
-                              (MyOtherTypeClass) {
-                                $ref: 3
-                              }
+                            (ObjectOrArrayStructUnion) (object[]($id: 4)) [
+                              (MyOtherTypeClass($id: 2)) singleton Object 1,
+                              (MyOtherTypeClass($ref: 1)),
+                              (MyOtherTypeClass($id: 3)) singleton Object 3,
+                              null
                             ],
-                            (ObjectOrArrayStructUnion) {
-                              $ref: 4
-                            }
+                            (ObjectOrArrayStructUnion) [
+                              (MyOtherTypeClass($ref: 2)),
+                              (MyOtherTypeClass($ref: 1)),
+                              (MyOtherTypeClass($ref: 3))
+                            ],
+                            (ObjectOrArrayStructUnion) (object[]($ref: 4))
                           ],
-                          firstPostField: (MyOtherTypeClass) {
-                            $ref: 1
-                          }
+                          firstPostField: (MyOtherTypeClass($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -442,10 +416,10 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          ],
                          (ObjectOrArrayClassUnion) [
                          (MyOtherTypeClass) singleton Object 1,
-                         (MyOtherTypeClass) { $ref: 1 },
+                         (MyOtherTypeClass($ref: 1)),
                          (MyOtherTypeClass) singleton Object 3
                          ],
-                         (ObjectOrArrayClassUnion) { $ref: 2 }
+                         (ObjectOrArrayClassUnion($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -467,14 +441,10 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                             ],
                             (ObjectOrArrayClassUnion) [
                               (MyOtherTypeClass) singleton Object 1,
-                              (MyOtherTypeClass) {
-                                $ref: 1
-                              },
+                              (MyOtherTypeClass($ref: 1)),
                               (MyOtherTypeClass) singleton Object 3
                             ],
-                            (ObjectOrArrayClassUnion) {
-                              $ref: 2
-                            }
+                            (ObjectOrArrayClassUnion($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -593,7 +563,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          (ObjectOrArrayClassUnion) [],
                          (ObjectOrArrayClassUnion($id: 2)) [
                          (MyOtherTypeClass) singleton Object 1,
-                         (MyOtherTypeClass) { $ref: 1 },
+                         (MyOtherTypeClass($ref: 1)),
                          null,
                          (MyOtherTypeClass) singleton Object 3
                          ],
@@ -603,9 +573,9 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          (MyOtherTypeClass) new Object 3,
                          null
                          ],
-                         (ObjectOrArrayClassUnion) { $ref: 2 }
+                         (ObjectOrArrayClassUnion($ref: 2))
                          ],
-                         firstPostField: (MyOtherTypeClass) { $ref: 1 }
+                         firstPostField: (MyOtherTypeClass($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -619,9 +589,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                             (ObjectOrArrayClassUnion) [],
                             (ObjectOrArrayClassUnion($id: 2)) [
                               (MyOtherTypeClass) singleton Object 1,
-                              (MyOtherTypeClass) {
-                                $ref: 1
-                              },
+                              (MyOtherTypeClass($ref: 1)),
                               null,
                               (MyOtherTypeClass) singleton Object 3
                             ],
@@ -631,13 +599,9 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                               (MyOtherTypeClass) new Object 3,
                               null
                             ],
-                            (ObjectOrArrayClassUnion) {
-                              $ref: 2
-                            }
+                            (ObjectOrArrayClassUnion($ref: 2))
                           ],
-                          firstPostField: (MyOtherTypeClass) {
-                            $ref: 1
-                          }
+                          firstPostField: (MyOtherTypeClass($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -758,7 +722,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldObjectSpanClassUnionRevisit {
                          firstPreField: (MyOtherTypeClass($id: 1)) "singleton Object 2",
                          firstSpan: (Span<ObjectOrSpanClassUnion>) [
-                         (ObjectOrSpanClassUnion) (MyOtherTypeClass) { $ref: 1 },
+                         (ObjectOrSpanClassUnion) (MyOtherTypeClass($ref: 1)),
                          (ObjectOrSpanClassUnion) [],
                          (ObjectOrSpanClassUnion($id: 2)) [
                          null,
@@ -768,10 +732,10 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          ],
                          (ObjectOrSpanClassUnion) [
                          (MyOtherTypeClass) singleton Object 1,
-                         (MyOtherTypeClass) { $ref: 1 },
+                         (MyOtherTypeClass($ref: 1)),
                          (MyOtherTypeClass) singleton Object 3
                          ],
-                         (ObjectOrSpanClassUnion) { $ref: 2 }
+                         (ObjectOrSpanClassUnion($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -783,9 +747,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldObjectSpanClassUnionRevisit {
                           firstPreField: (MyOtherTypeClass($id: 1)) "singleton Object 2",
                           firstSpan: (Span<ObjectOrSpanClassUnion>) [
-                            (ObjectOrSpanClassUnion) (MyOtherTypeClass) {
-                              $ref: 1
-                            },
+                            (ObjectOrSpanClassUnion) (MyOtherTypeClass($ref: 1)),
                             (ObjectOrSpanClassUnion) [],
                             (ObjectOrSpanClassUnion($id: 2)) [
                               null,
@@ -795,14 +757,10 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                             ],
                             (ObjectOrSpanClassUnion) [
                               (MyOtherTypeClass) singleton Object 1,
-                              (MyOtherTypeClass) {
-                                $ref: 1
-                              },
+                              (MyOtherTypeClass($ref: 1)),
                               (MyOtherTypeClass) singleton Object 3
                             ],
-                            (ObjectOrSpanClassUnion) {
-                              $ref: 2
-                            }
+                            (ObjectOrSpanClassUnion($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -925,7 +883,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          (ObjectOrSpanClassUnion) null,
                          (ObjectOrSpanClassUnion($id: 2)) [
                          (MyOtherTypeClass) singleton Object 1,
-                         (MyOtherTypeClass) { $ref: 1 },
+                         (MyOtherTypeClass($ref: 1)),
                          (MyOtherTypeClass) singleton Object 3,
                          null
                          ],
@@ -935,7 +893,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          (MyOtherTypeClass) new Object 2,
                          (MyOtherTypeClass) new Object 3
                          ],
-                         (ObjectOrSpanClassUnion) { $ref: 2 }
+                         (ObjectOrSpanClassUnion($ref: 2))
                          ],
                          firstPostField: null
                          }
@@ -951,9 +909,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                             (ObjectOrSpanClassUnion) null,
                             (ObjectOrSpanClassUnion($id: 2)) [
                               (MyOtherTypeClass) singleton Object 1,
-                              (MyOtherTypeClass) {
-                                $ref: 1
-                              },
+                              (MyOtherTypeClass($ref: 1)),
                               (MyOtherTypeClass) singleton Object 3,
                               null
                             ],
@@ -963,9 +919,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                               (MyOtherTypeClass) new Object 2,
                               (MyOtherTypeClass) new Object 3
                             ],
-                            (ObjectOrSpanClassUnion) {
-                              $ref: 2
-                            }
+                            (ObjectOrSpanClassUnion($ref: 2))
                           ],
                           firstPostField: null
                         }
@@ -1084,7 +1038,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldObjectReadOnlySpanClassUnionRevisit {
                          firstPreField: (MyOtherTypeClass($id: 1)) "singleton Object 2",
                          firstReadOnlySpan: (ReadOnlySpan<ObjectOrReadOnlySpanClassUnion>) [
-                         (ObjectOrReadOnlySpanClassUnion) (MyOtherTypeClass) { $ref: 1 },
+                         (ObjectOrReadOnlySpanClassUnion) (MyOtherTypeClass($ref: 1)),
                          (ObjectOrReadOnlySpanClassUnion) null,
                          (ObjectOrReadOnlySpanClassUnion($id: 2)) [
                          (MyOtherTypeClass) new Object 1,
@@ -1096,10 +1050,10 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          (ObjectOrReadOnlySpanClassUnion) [
                          null,
                          (MyOtherTypeClass) singleton Object 1,
-                         (MyOtherTypeClass) { $ref: 1 },
+                         (MyOtherTypeClass($ref: 1)),
                          (MyOtherTypeClass) singleton Object 3
                          ],
-                         (ObjectOrReadOnlySpanClassUnion) { $ref: 2 }
+                         (ObjectOrReadOnlySpanClassUnion($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -1111,9 +1065,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldObjectReadOnlySpanClassUnionRevisit {
                           firstPreField: (MyOtherTypeClass($id: 1)) "singleton Object 2",
                           firstReadOnlySpan: (ReadOnlySpan<ObjectOrReadOnlySpanClassUnion>) [
-                            (ObjectOrReadOnlySpanClassUnion) (MyOtherTypeClass) {
-                              $ref: 1
-                            },
+                            (ObjectOrReadOnlySpanClassUnion) (MyOtherTypeClass($ref: 1)),
                             (ObjectOrReadOnlySpanClassUnion) null,
                             (ObjectOrReadOnlySpanClassUnion($id: 2)) [
                               (MyOtherTypeClass) new Object 1,
@@ -1125,14 +1077,10 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                             (ObjectOrReadOnlySpanClassUnion) [
                               null,
                               (MyOtherTypeClass) singleton Object 1,
-                              (MyOtherTypeClass) {
-                                $ref: 1
-                              },
+                              (MyOtherTypeClass($ref: 1)),
                               (MyOtherTypeClass) singleton Object 3
                             ],
-                            (ObjectOrReadOnlySpanClassUnion) {
-                              $ref: 2
-                            }
+                            (ObjectOrReadOnlySpanClassUnion($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -1260,7 +1208,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          (ObjectOrReadOnlySpanClassUnion($id: 2)) [
                          null,
                          (MyOtherTypeClass) singleton Object 1,
-                         (MyOtherTypeClass) { $ref: 1 },
+                         (MyOtherTypeClass($ref: 1)),
                          (MyOtherTypeClass) singleton Object 3
                          ],
                          (ObjectOrReadOnlySpanClassUnion) [
@@ -1269,7 +1217,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          (MyOtherTypeClass) new Object 2,
                          (MyOtherTypeClass) new Object 3
                          ],
-                         (ObjectOrReadOnlySpanClassUnion) { $ref: 2 }
+                         (ObjectOrReadOnlySpanClassUnion($ref: 2))
                          ],
                          firstPostField: null
                          }
@@ -1286,9 +1234,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                             (ObjectOrReadOnlySpanClassUnion($id: 2)) [
                               null,
                               (MyOtherTypeClass) singleton Object 1,
-                              (MyOtherTypeClass) {
-                                $ref: 1
-                              },
+                              (MyOtherTypeClass($ref: 1)),
                               (MyOtherTypeClass) singleton Object 3
                             ],
                             (ObjectOrReadOnlySpanClassUnion) [
@@ -1297,9 +1243,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                               (MyOtherTypeClass) new Object 2,
                               (MyOtherTypeClass) new Object 3
                             ],
-                            (ObjectOrReadOnlySpanClassUnion) {
-                              $ref: 2
-                            }
+                            (ObjectOrReadOnlySpanClassUnion($ref: 2))
                           ],
                           firstPostField: null
                         }
@@ -1420,19 +1364,18 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstList: (List<ObjectOrListStructUnion>) [
                          (ObjectOrListStructUnion) (MyOtherTypeClass($id: 1)) singleton Object 2,
                          (ObjectOrListStructUnion) null,
-                         (ObjectOrListStructUnion) { $id: 2, $values: [
+                         (ObjectOrListStructUnion) (List<object>($id: 2)) [
                          (MyOtherTypeClass) new Object 1,
                          (MyOtherTypeClass) new Object 2,
                          (MyOtherTypeClass) new Object 3,
                          null
-                         ]
-                         },
+                         ],
                          (ObjectOrListStructUnion) [
                          (MyOtherTypeClass) singleton Object 1,
-                         (MyOtherTypeClass) { $ref: 1 },
+                         (MyOtherTypeClass($ref: 1)),
                          (MyOtherTypeClass) singleton Object 3
                          ],
-                         (ObjectOrListStructUnion) { $ref: 2 }
+                         (ObjectOrListStructUnion) (List<object>($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -1446,25 +1389,18 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                           firstList: (List<ObjectOrListStructUnion>) [
                             (ObjectOrListStructUnion) (MyOtherTypeClass($id: 1)) singleton Object 2,
                             (ObjectOrListStructUnion) null,
-                            (ObjectOrListStructUnion) {
-                              $id: 2,
-                              $values: [
-                                (MyOtherTypeClass) new Object 1,
-                                (MyOtherTypeClass) new Object 2,
-                                (MyOtherTypeClass) new Object 3,
-                                null
-                              ]
-                            },
+                            (ObjectOrListStructUnion) (List<object>($id: 2)) [
+                              (MyOtherTypeClass) new Object 1,
+                              (MyOtherTypeClass) new Object 2,
+                              (MyOtherTypeClass) new Object 3,
+                              null
+                            ],
                             (ObjectOrListStructUnion) [
                               (MyOtherTypeClass) singleton Object 1,
-                              (MyOtherTypeClass) {
-                                $ref: 1
-                              },
+                              (MyOtherTypeClass($ref: 1)),
                               (MyOtherTypeClass) singleton Object 3
                             ],
-                            (ObjectOrListStructUnion) {
-                              $ref: 2
-                            }
+                            (ObjectOrListStructUnion) (List<object>($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -1581,22 +1517,21 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstList: (List<ObjectOrListStructUnion>) [
                          (ObjectOrListStructUnion) (MyOtherTypeClass($id: 1)) singleton Object 2,
                          (ObjectOrListStructUnion) [],
-                         (ObjectOrListStructUnion) { $id: 2, $values: [
+                         (ObjectOrListStructUnion) (List<object>($id: 2)) [
                          (MyOtherTypeClass) singleton Object 1,
                          null,
-                         (MyOtherTypeClass) { $ref: 1 },
+                         (MyOtherTypeClass($ref: 1)),
                          (MyOtherTypeClass) singleton Object 3
-                         ]
-                         },
+                         ],
                          (ObjectOrListStructUnion) [
                          (MyOtherTypeClass) new Object 1,
                          (MyOtherTypeClass) new Object 2,
                          null,
                          (MyOtherTypeClass) new Object 3
                          ],
-                         (ObjectOrListStructUnion) { $ref: 2 }
+                         (ObjectOrListStructUnion) (List<object>($ref: 2))
                          ],
-                         firstPostField: (MyOtherTypeClass) { $ref: 1 }
+                         firstPostField: (MyOtherTypeClass($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -1608,30 +1543,21 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                           firstList: (List<ObjectOrListStructUnion>) [
                             (ObjectOrListStructUnion) (MyOtherTypeClass($id: 1)) singleton Object 2,
                             (ObjectOrListStructUnion) [],
-                            (ObjectOrListStructUnion) {
-                              $id: 2,
-                              $values: [
-                                (MyOtherTypeClass) singleton Object 1,
-                                null,
-                                (MyOtherTypeClass) {
-                                  $ref: 1
-                                },
-                                (MyOtherTypeClass) singleton Object 3
-                              ]
-                            },
+                            (ObjectOrListStructUnion) (List<object>($id: 2)) [
+                              (MyOtherTypeClass) singleton Object 1,
+                              null,
+                              (MyOtherTypeClass($ref: 1)),
+                              (MyOtherTypeClass) singleton Object 3
+                            ],
                             (ObjectOrListStructUnion) [
                               (MyOtherTypeClass) new Object 1,
                               (MyOtherTypeClass) new Object 2,
                               null,
                               (MyOtherTypeClass) new Object 3
                             ],
-                            (ObjectOrListStructUnion) {
-                              $ref: 2
-                            }
+                            (ObjectOrListStructUnion) (List<object>($ref: 2))
                           ],
-                          firstPostField: (MyOtherTypeClass) {
-                            $ref: 1
-                          }
+                          firstPostField: (MyOtherTypeClass($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -1752,7 +1678,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldObjectListClassUnionRevisit {
                          firstPreField: (MyOtherTypeClass($id: 1)) "singleton Object 2",
                          firstList: (List<ObjectOrListClassUnion>) [
-                         (ObjectOrListClassUnion) (MyOtherTypeClass) { $ref: 1 },
+                         (ObjectOrListClassUnion) (MyOtherTypeClass($ref: 1)),
                          (ObjectOrListClassUnion) null,
                          (ObjectOrListClassUnion($id: 2)) [
                          (MyOtherTypeClass) new Object 1,
@@ -1763,10 +1689,10 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          (ObjectOrListClassUnion) [
                          (MyOtherTypeClass) singleton Object 1,
                          null,
-                         (MyOtherTypeClass) { $ref: 1 },
+                         (MyOtherTypeClass($ref: 1)),
                          (MyOtherTypeClass) singleton Object 3
                          ],
-                         (ObjectOrListClassUnion) { $ref: 2 }
+                         (ObjectOrListClassUnion($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -1778,9 +1704,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldObjectListClassUnionRevisit {
                           firstPreField: (MyOtherTypeClass($id: 1)) "singleton Object 2",
                           firstList: (List<ObjectOrListClassUnion>) [
-                            (ObjectOrListClassUnion) (MyOtherTypeClass) {
-                              $ref: 1
-                            },
+                            (ObjectOrListClassUnion) (MyOtherTypeClass($ref: 1)),
                             (ObjectOrListClassUnion) null,
                             (ObjectOrListClassUnion($id: 2)) [
                               (MyOtherTypeClass) new Object 1,
@@ -1791,14 +1715,10 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                             (ObjectOrListClassUnion) [
                               (MyOtherTypeClass) singleton Object 1,
                               null,
-                              (MyOtherTypeClass) {
-                                $ref: 1
-                              },
+                              (MyOtherTypeClass($ref: 1)),
                               (MyOtherTypeClass) singleton Object 3
                             ],
-                            (ObjectOrListClassUnion) {
-                              $ref: 2
-                            }
+                            (ObjectOrListClassUnion($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -1924,7 +1844,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          (ObjectOrListClassUnion($id: 2)) [
                          null,
                          (MyOtherTypeClass) singleton Object 1,
-                         (MyOtherTypeClass) { $ref: 1 },
+                         (MyOtherTypeClass($ref: 1)),
                          (MyOtherTypeClass) singleton Object 3
                          ],
                          (ObjectOrListClassUnion) [
@@ -1933,7 +1853,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          (MyOtherTypeClass) new Object 3,
                          null
                          ],
-                         (ObjectOrListClassUnion) { $ref: 2 }
+                         (ObjectOrListClassUnion($ref: 2))
                          ],
                          firstPostField: null
                          }
@@ -1950,9 +1870,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                             (ObjectOrListClassUnion($id: 2)) [
                               null,
                               (MyOtherTypeClass) singleton Object 1,
-                              (MyOtherTypeClass) {
-                                $ref: 1
-                              },
+                              (MyOtherTypeClass($ref: 1)),
                               (MyOtherTypeClass) singleton Object 3
                             ],
                             (ObjectOrListClassUnion) [
@@ -1961,9 +1879,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                               (MyOtherTypeClass) new Object 3,
                               null
                             ],
-                            (ObjectOrListClassUnion) {
-                              $ref: 2
-                            }
+                            (ObjectOrListClassUnion($ref: 2))
                           ],
                           firstPostField: null
                         }
@@ -2084,20 +2000,19 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstEnumerable: (List<ObjectOrEnumerableStructUnion>) [
                          (ObjectOrEnumerableStructUnion) (MyOtherTypeClass($id: 1)) singleton Object 2,
                          (ObjectOrEnumerableStructUnion) [],
-                         (ObjectOrEnumerableStructUnion) { $id: 2, $values: [
+                         (ObjectOrEnumerableStructUnion) (List<object>($id: 2)) [
                          (MyOtherTypeClass) new Object 1,
                          null,
                          (MyOtherTypeClass) new Object 2,
                          (MyOtherTypeClass) new Object 3
-                         ]
-                         },
+                         ],
                          (ObjectOrEnumerableStructUnion) [
                          (MyOtherTypeClass) singleton Object 1,
-                         (MyOtherTypeClass) { $ref: 1 },
+                         (MyOtherTypeClass($ref: 1)),
                          null,
                          (MyOtherTypeClass) singleton Object 3
                          ],
-                         (ObjectOrEnumerableStructUnion) { $ref: 2 }
+                         (ObjectOrEnumerableStructUnion) (List<object>($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -2111,26 +2026,19 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                           firstEnumerable: (List<ObjectOrEnumerableStructUnion>) [
                             (ObjectOrEnumerableStructUnion) (MyOtherTypeClass($id: 1)) singleton Object 2,
                             (ObjectOrEnumerableStructUnion) [],
-                            (ObjectOrEnumerableStructUnion) {
-                              $id: 2,
-                              $values: [
-                                (MyOtherTypeClass) new Object 1,
-                                null,
-                                (MyOtherTypeClass) new Object 2,
-                                (MyOtherTypeClass) new Object 3
-                              ]
-                            },
+                            (ObjectOrEnumerableStructUnion) (List<object>($id: 2)) [
+                              (MyOtherTypeClass) new Object 1,
+                              null,
+                              (MyOtherTypeClass) new Object 2,
+                              (MyOtherTypeClass) new Object 3
+                            ],
                             (ObjectOrEnumerableStructUnion) [
                               (MyOtherTypeClass) singleton Object 1,
-                              (MyOtherTypeClass) {
-                                $ref: 1
-                              },
+                              (MyOtherTypeClass($ref: 1)),
                               null,
                               (MyOtherTypeClass) singleton Object 3
                             ],
-                            (ObjectOrEnumerableStructUnion) {
-                              $ref: 2
-                            }
+                            (ObjectOrEnumerableStructUnion) (List<object>($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -2249,22 +2157,21 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstEnumerable: (List<ObjectOrEnumerableStructUnion>) [
                          (ObjectOrEnumerableStructUnion) (MyOtherTypeClass($id: 1)) singleton Object 2,
                          (ObjectOrEnumerableStructUnion) [],
-                         (ObjectOrEnumerableStructUnion) { $id: 2, $values: [
+                         (ObjectOrEnumerableStructUnion) (List<object>($id: 2)) [
                          (MyOtherTypeClass) singleton Object 1,
-                         (MyOtherTypeClass) { $ref: 1 },
+                         (MyOtherTypeClass($ref: 1)),
                          null,
                          (MyOtherTypeClass) singleton Object 3
-                         ]
-                         },
+                         ],
                          (ObjectOrEnumerableStructUnion) [
                          (MyOtherTypeClass) new Object 1,
                          null,
                          (MyOtherTypeClass) new Object 2,
                          (MyOtherTypeClass) new Object 3
                          ],
-                         (ObjectOrEnumerableStructUnion) { $ref: 2 }
+                         (ObjectOrEnumerableStructUnion) (List<object>($ref: 2))
                          ],
-                         firstPostField: (MyOtherTypeClass) { $ref: 1 }
+                         firstPostField: (MyOtherTypeClass($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -2276,30 +2183,21 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                           firstEnumerable: (List<ObjectOrEnumerableStructUnion>) [
                             (ObjectOrEnumerableStructUnion) (MyOtherTypeClass($id: 1)) singleton Object 2,
                             (ObjectOrEnumerableStructUnion) [],
-                            (ObjectOrEnumerableStructUnion) {
-                              $id: 2,
-                              $values: [
-                                (MyOtherTypeClass) singleton Object 1,
-                                (MyOtherTypeClass) {
-                                  $ref: 1
-                                },
-                                null,
-                                (MyOtherTypeClass) singleton Object 3
-                              ]
-                            },
+                            (ObjectOrEnumerableStructUnion) (List<object>($id: 2)) [
+                              (MyOtherTypeClass) singleton Object 1,
+                              (MyOtherTypeClass($ref: 1)),
+                              null,
+                              (MyOtherTypeClass) singleton Object 3
+                            ],
                             (ObjectOrEnumerableStructUnion) [
                               (MyOtherTypeClass) new Object 1,
                               null,
                               (MyOtherTypeClass) new Object 2,
                               (MyOtherTypeClass) new Object 3
                             ],
-                            (ObjectOrEnumerableStructUnion) {
-                              $ref: 2
-                            }
+                            (ObjectOrEnumerableStructUnion) (List<object>($ref: 2))
                           ],
-                          firstPostField: (MyOtherTypeClass) {
-                            $ref: 1
-                          }
+                          firstPostField: (MyOtherTypeClass($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -2420,7 +2318,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldObjectEnumerableClassUnionRevisit {
                          firstPreField: (MyOtherTypeClass($id: 1)) "singleton Object 2",
                          firstEnumerable: (List<ObjectOrEnumerableClassUnion>) [
-                         (ObjectOrEnumerableClassUnion) (MyOtherTypeClass) { $ref: 1 },
+                         (ObjectOrEnumerableClassUnion) (MyOtherTypeClass($ref: 1)),
                          (ObjectOrEnumerableClassUnion) null,
                          (ObjectOrEnumerableClassUnion($id: 2)) [
                          null,
@@ -2430,11 +2328,11 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          ],
                          (ObjectOrEnumerableClassUnion) [
                          (MyOtherTypeClass) singleton Object 1,
-                         (MyOtherTypeClass) { $ref: 1 },
+                         (MyOtherTypeClass($ref: 1)),
                          (MyOtherTypeClass) singleton Object 3,
                          null
                          ],
-                         (ObjectOrEnumerableClassUnion) { $ref: 2 }
+                         (ObjectOrEnumerableClassUnion($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -2446,9 +2344,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldObjectEnumerableClassUnionRevisit {
                           firstPreField: (MyOtherTypeClass($id: 1)) "singleton Object 2",
                           firstEnumerable: (List<ObjectOrEnumerableClassUnion>) [
-                            (ObjectOrEnumerableClassUnion) (MyOtherTypeClass) {
-                              $ref: 1
-                            },
+                            (ObjectOrEnumerableClassUnion) (MyOtherTypeClass($ref: 1)),
                             (ObjectOrEnumerableClassUnion) null,
                             (ObjectOrEnumerableClassUnion($id: 2)) [
                               null,
@@ -2458,15 +2354,11 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                             ],
                             (ObjectOrEnumerableClassUnion) [
                               (MyOtherTypeClass) singleton Object 1,
-                              (MyOtherTypeClass) {
-                                $ref: 1
-                              },
+                              (MyOtherTypeClass($ref: 1)),
                               (MyOtherTypeClass) singleton Object 3,
                               null
                             ],
-                            (ObjectOrEnumerableClassUnion) {
-                              $ref: 2
-                            }
+                            (ObjectOrEnumerableClassUnion($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -2592,7 +2484,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          (ObjectOrEnumerableClassUnion($id: 2)) [
                          (MyOtherTypeClass) singleton Object 1,
                          null,
-                         (MyOtherTypeClass) { $ref: 1 },
+                         (MyOtherTypeClass($ref: 1)),
                          (MyOtherTypeClass) singleton Object 3
                          ],
                          (ObjectOrEnumerableClassUnion) [
@@ -2601,7 +2493,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          null,
                          (MyOtherTypeClass) new Object 3
                          ],
-                         (ObjectOrEnumerableClassUnion) { $ref: 2 }
+                         (ObjectOrEnumerableClassUnion($ref: 2))
                          ],
                          firstPostField: null
                          }
@@ -2618,9 +2510,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                             (ObjectOrEnumerableClassUnion($id: 2)) [
                               (MyOtherTypeClass) singleton Object 1,
                               null,
-                              (MyOtherTypeClass) {
-                                $ref: 1
-                              },
+                              (MyOtherTypeClass($ref: 1)),
                               (MyOtherTypeClass) singleton Object 3
                             ],
                             (ObjectOrEnumerableClassUnion) [
@@ -2629,9 +2519,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                               null,
                               (MyOtherTypeClass) new Object 3
                             ],
-                            (ObjectOrEnumerableClassUnion) {
-                              $ref: 2
-                            }
+                            (ObjectOrEnumerableClassUnion($ref: 2))
                           ],
                           firstPostField: null
                         }
@@ -2761,10 +2649,10 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          (ObjectOrEnumeratorStructUnion) (ReusableWrappingEnumerator<object>) [
                          (MyOtherTypeClass) singleton Object 1,
                          null,
-                         (MyOtherTypeClass) { $ref: 1 },
+                         (MyOtherTypeClass($ref: 1)),
                          (MyOtherTypeClass) singleton Object 3
                          ],
-                         (ObjectOrEnumeratorStructUnion) (ReusableWrappingEnumerator<object>) { $ref: 2 }
+                         (ObjectOrEnumeratorStructUnion) (ReusableWrappingEnumerator<object>($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -2787,14 +2675,10 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                             (ObjectOrEnumeratorStructUnion) (ReusableWrappingEnumerator<object>) [
                               (MyOtherTypeClass) singleton Object 1,
                               null,
-                              (MyOtherTypeClass) {
-                                $ref: 1
-                              },
+                              (MyOtherTypeClass($ref: 1)),
                               (MyOtherTypeClass) singleton Object 3
                             ],
-                            (ObjectOrEnumeratorStructUnion) (ReusableWrappingEnumerator<object>) {
-                              $ref: 2
-                            }
+                            (ObjectOrEnumeratorStructUnion) (ReusableWrappingEnumerator<object>($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -2916,7 +2800,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          (ObjectOrEnumeratorStructUnion) (ReusableWrappingEnumerator<object>($id: 2)) [
                          null,
                          (MyOtherTypeClass) singleton Object 1,
-                         (MyOtherTypeClass) { $ref: 1 },
+                         (MyOtherTypeClass($ref: 1)),
                          (MyOtherTypeClass) singleton Object 3
                          ],
                          (ObjectOrEnumeratorStructUnion) (ReusableWrappingEnumerator<object>) [
@@ -2925,11 +2809,9 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          (MyOtherTypeClass) new Object 3,
                          null
                          ],
-                         (ObjectOrEnumeratorStructUnion) (ReusableWrappingEnumerator<object>) { $ref: 2 }
+                         (ObjectOrEnumeratorStructUnion) (ReusableWrappingEnumerator<object>($ref: 2))
                          ],
-                         firstPostField: (MyOtherTypeClass) {
-                         $ref: 1
-                         }
+                         firstPostField: (MyOtherTypeClass($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -2944,9 +2826,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                             (ObjectOrEnumeratorStructUnion) (ReusableWrappingEnumerator<object>($id: 2)) [
                               null,
                               (MyOtherTypeClass) singleton Object 1,
-                              (MyOtherTypeClass) {
-                                $ref: 1
-                              },
+                              (MyOtherTypeClass($ref: 1)),
                               (MyOtherTypeClass) singleton Object 3
                             ],
                             (ObjectOrEnumeratorStructUnion) (ReusableWrappingEnumerator<object>) [
@@ -2955,13 +2835,9 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                               (MyOtherTypeClass) new Object 3,
                               null
                             ],
-                            (ObjectOrEnumeratorStructUnion) (ReusableWrappingEnumerator<object>) {
-                              $ref: 2
-                            }
+                            (ObjectOrEnumeratorStructUnion) (ReusableWrappingEnumerator<object>($ref: 2))
                           ],
-                          firstPostField: (MyOtherTypeClass) {
-                            $ref: 1
-                          }
+                          firstPostField: (MyOtherTypeClass($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -3082,7 +2958,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldObjectEnumeratorClassUnionRevisit {
                          firstPreField: (MyOtherTypeClass($id: 1)) "singleton Object 2",
                          firstEnumerator: (List<ObjectOrEnumeratorClassUnion>.Enumerator) [
-                         (ObjectOrEnumeratorClassUnion) (MyOtherTypeClass) { $ref: 1 },
+                         (ObjectOrEnumeratorClassUnion) (MyOtherTypeClass($ref: 1)),
                          (ObjectOrEnumeratorClassUnion) null,
                          (ObjectOrEnumeratorClassUnion($id: 2)) (ReusableWrappingEnumerator<object>) [
                          (MyOtherTypeClass) new Object 1,
@@ -3092,11 +2968,11 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          ],
                          (ObjectOrEnumeratorClassUnion) (ReusableWrappingEnumerator<object>) [
                          (MyOtherTypeClass) singleton Object 1,
-                         (MyOtherTypeClass) { $ref: 1 },
+                         (MyOtherTypeClass($ref: 1)),
                          null,
                          (MyOtherTypeClass) singleton Object 3
                          ],
-                         (ObjectOrEnumeratorClassUnion) { $ref: 2 }
+                         (ObjectOrEnumeratorClassUnion($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -3108,9 +2984,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldObjectEnumeratorClassUnionRevisit {
                           firstPreField: (MyOtherTypeClass($id: 1)) "singleton Object 2",
                           firstEnumerator: (List<ObjectOrEnumeratorClassUnion>.Enumerator) [
-                            (ObjectOrEnumeratorClassUnion) (MyOtherTypeClass) {
-                              $ref: 1
-                            },
+                            (ObjectOrEnumeratorClassUnion) (MyOtherTypeClass($ref: 1)),
                             (ObjectOrEnumeratorClassUnion) null,
                             (ObjectOrEnumeratorClassUnion($id: 2)) (ReusableWrappingEnumerator<object>) [
                               (MyOtherTypeClass) new Object 1,
@@ -3120,15 +2994,11 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                             ],
                             (ObjectOrEnumeratorClassUnion) (ReusableWrappingEnumerator<object>) [
                               (MyOtherTypeClass) singleton Object 1,
-                              (MyOtherTypeClass) {
-                                $ref: 1
-                              },
+                              (MyOtherTypeClass($ref: 1)),
                               null,
                               (MyOtherTypeClass) singleton Object 3
                             ],
-                            (ObjectOrEnumeratorClassUnion) {
-                              $ref: 2
-                            }
+                            (ObjectOrEnumeratorClassUnion($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -3253,7 +3123,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          (ObjectOrEnumeratorClassUnion) [],
                          (ObjectOrEnumeratorClassUnion($id: 2)) (ReusableWrappingEnumerator<object>) [
                          (MyOtherTypeClass) singleton Object 1,
-                         (MyOtherTypeClass) { $ref: 1 },
+                         (MyOtherTypeClass($ref: 1)),
                          null,
                          (MyOtherTypeClass) singleton Object 3
                          ],
@@ -3263,7 +3133,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                          (MyOtherTypeClass) new Object 2,
                          (MyOtherTypeClass) new Object 3
                          ],
-                         (ObjectOrEnumeratorClassUnion) { $ref: 2 }
+                         (ObjectOrEnumeratorClassUnion($ref: 2))
                          ],
                          firstPostField: null
                          }
@@ -3279,9 +3149,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                             (ObjectOrEnumeratorClassUnion) [],
                             (ObjectOrEnumeratorClassUnion($id: 2)) (ReusableWrappingEnumerator<object>) [
                               (MyOtherTypeClass) singleton Object 1,
-                              (MyOtherTypeClass) {
-                                $ref: 1
-                              },
+                              (MyOtherTypeClass($ref: 1)),
                               null,
                               (MyOtherTypeClass) singleton Object 3
                             ],
@@ -3291,9 +3159,7 @@ public class ObjectCollectionRevisitTests : CommonStyleExpectationTestBase
                               (MyOtherTypeClass) new Object 2,
                               (MyOtherTypeClass) new Object 3
                             ],
-                            (ObjectOrEnumeratorClassUnion) {
-                              $ref: 2
-                            }
+                            (ObjectOrEnumeratorClassUnion($ref: 2))
                           ],
                           firstPostField: null
                         }

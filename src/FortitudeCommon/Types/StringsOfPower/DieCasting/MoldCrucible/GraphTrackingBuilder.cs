@@ -70,6 +70,7 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
         overWriteIndex    = insertAt;
         overWriteEndIndex = insertAt + insertShiftAmount;
         sb.EnsureCapacity(insertShiftAmount);
+        // sb.ShiftRightAt(Math.Max(0, insertAt-1), insertShiftAmount);
         sb.ShiftRightAt(insertAt, insertShiftAmount);
         StartNextContentSeparatorPaddingSequence(sb, FormatFlags.DefaultCallerTypeFlags, true);
         MarkContentStart(insertAt);
@@ -126,6 +127,12 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
     }
 
     public int IndentSize => StyleOptions?.IndentSize ?? overWriteIndentSize;
+
+    public IEncodingTransfer ContentEncoder
+    {
+        get => formatter.ContentEncoder;
+        set => formatter.ContentEncoder = value;
+    }
 
     public IEncodingTransfer GraphEncoder
     {
@@ -401,9 +408,14 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
 
     public ContentSeparatorRanges Complete(FormatFlags formatFlags)
     {
-        currentSectionRanges.FromStartPaddingEnd = IsInMarkOverwriteMode ? overWriteIndex : sb.Length;
+        if (currentSectionRanges.HasContent || currentSectionRanges.HasSeparator || currentSectionRanges.HasPadding)
+        {
+            currentSectionRanges.FromStartPaddingEnd = IsInMarkOverwriteMode ? overWriteIndex : sb.Length;
 
-        return SnapshotLastAppendSequence(formatFlags);
+            return SnapshotLastAppendSequence(formatFlags);
+        }
+        ResetCurrent(FormatFlags.DefaultCallerTypeFlags);
+        return ContentSeparatorRanges.None;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -519,14 +531,20 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
     public override GraphTrackingBuilder CopyFrom(GraphTrackingBuilder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         SetHistory(source);
-        formatter          = source.formatter;
-        AllowEmptyContent  = source.AllowEmptyContent;
-        sb                 = source.Sb;
 
-        overWriteIndex       = source.overWriteIndex;
-        overWriteEndIndex    = source.overWriteEndIndex;
-        overWriteIndentLevel = source.overWriteIndentLevel;
-        overWriteIndentSize  = source.overWriteIndentSize;
+        if (copyMergeFlags == CopyMergeFlags.FullReplace)
+        {
+
+            overWriteIndex       = source.overWriteIndex;
+            overWriteEndIndex    = source.overWriteEndIndex;
+            overWriteIndentLevel = source.overWriteIndentLevel;
+            overWriteIndentSize  = source.overWriteIndentSize;
+            
+            
+            formatter            = source.formatter;
+            AllowEmptyContent    = source.AllowEmptyContent;
+            sb                   = source.Sb;
+        }
 
         return this;
     }
@@ -535,8 +553,14 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
 
     public void SetHistory(GraphTrackingBuilder graphBuilder)
     {
+        // Console.Out.WriteLine($"SetHistory Before - \ncurrentSectionRanges: {currentSectionRanges}" +
+        //                       $"\nLastContentSeparatorPaddingRanges{LastContentSeparatorPaddingRanges}, " +
+        //                       $"\nPenUltimateContentSeparatorPaddingRanges {PenUltimateContentSeparatorPaddingRanges}");
         currentSectionRanges                     = graphBuilder.CurrentSectionRanges;
         LastContentSeparatorPaddingRanges        = graphBuilder.LastContentSeparatorPaddingRanges;
         PenUltimateContentSeparatorPaddingRanges = graphBuilder.PenUltimateContentSeparatorPaddingRanges;
+        // Console.Out.WriteLine($"SetHistory After - \ncurrentSectionRanges: {currentSectionRanges}" +
+        //                       $"\nLastContentSeparatorPaddingRanges{LastContentSeparatorPaddingRanges}, " +
+        //                       $"\nPenUltimateContentSeparatorPaddingRanges {PenUltimateContentSeparatorPaddingRanges}");
     }
 }

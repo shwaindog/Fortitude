@@ -28,10 +28,15 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
     }
 
     public override string Name => nameof(CompactJsonTypeFormatting);
+    
+    public override bool IsCompact => false;
+    public override bool IsPretty => true;
+
 
     public override ContentSeparatorRanges StartComplexTypeOpening<T>(T instanceToOpen, IMoldWriteState mws, WrittenAsFlags openingAs
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
+        if(mws.WroteTypeOpen) return ContentSeparatorRanges.None;
         var sb = mws.Sb;
         if (formatFlags.DoesNotHaveAsEmbeddedContentFlags())
         {
@@ -47,6 +52,14 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             }
         }
         return Gb.Complete(formatFlags);
+    }
+
+    public override ContentSeparatorRanges AppendComplexTypeClosing<T>(T instanceToOpen, IMoldWriteState mws, WrittenAsFlags openingAs
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+    {
+        if (formatFlags.HasSuppressClosing() || mws.WroteTypeClose) { return Gb.LastContentSeparatorPaddingRanges; }
+        if (formatFlags.DoesNotHaveAsEmbeddedContentFlags()) Gb.IndentLevel -= mws.CloseDepthDecrementBy;
+        return base.AppendComplexTypeClosing(mws.InstanceOrType, mws, mws.CurrentWriteMethod, formatFlags);
     }
 
     public override int SizeFieldValueSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags) =>
@@ -83,15 +96,6 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         else { Gb.AppendPadding(StyleOptions.AlternateFieldPadding); }
         return Gb.Complete(formatFlags);
     }
-
-    public override ContentSeparatorRanges AppendComplexTypeClosing<T>(T instanceToOpen, IMoldWriteState mdc, WrittenAsFlags openingAs)
-    {
-        var previousContentPadSpacing = Gb.LastContentSeparatorPaddingRanges;
-        if (mdc.Master.CallerContext.FormatFlags.HasSuppressClosing()) { return Gb.LastContentSeparatorPaddingRanges; }
-        if (previousContentPadSpacing.PreviousFormatFlags.DoesNotHaveAsEmbeddedContentFlags()) Gb.IndentLevel -= mdc.CloseDepthDecrementBy;
-
-        return base.AppendComplexTypeClosing(mdc.InstanceOrType, mdc, mdc.CurrentWriteMethod);
-    }
     
     public override ContentSeparatorRanges StartKeyedCollectionOpen(IMoldWriteState mws
       , Type keyType, Type valueType, FormatFlags callerFormattingFlags = DefaultCallerTypeFlags)
@@ -127,54 +131,54 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
     {
         if (hasItems != true || mws.WroteInnerTypeOpen) { return ContentSeparatorRanges.None; }
 
-        var  reg                    = mws.Master.ActiveGraphRegistry;
-        var  hasWroteCollectionOpen = false;
-        int? firstOpenIndex         = null;
-
-        IMoldWriteState? initialDc = mws;
-
-        if (mws.MoldGraphVisit.HasRegisteredVisit)
-        {
-            GraphNodeVisit derivedMold = reg[mws.MoldGraphVisit.VisitId.VisitIndex];
-            if (mws.MoldGraphVisit.IsBaseOfInitial)
-            {
-                var            checkMoldIndex = derivedMold.ParentVisitId.VisitIndex;
-                GraphNodeVisit checkMold      = reg[checkMoldIndex];
-                do
-                {
-                    derivedMold            =   checkMold;
-                    hasWroteCollectionOpen |=  checkMold.MoldState?.WroteInnerTypeOpen ?? false;
-                    firstOpenIndex         ??= hasWroteCollectionOpen ? checkMoldIndex : null;
-                    checkMoldIndex         =   reg[checkMoldIndex].ParentVisitId.VisitIndex;
-                    checkMold              =   reg[Math.Max(0, checkMoldIndex)];
-                } while (checkMoldIndex >= 0
-                      && (checkMold.MoldState?.MoldGraphVisit.IsBaseOfInitial ?? false)
-                      && ReferenceEquals(checkMold.VisitedInstance, derivedMold.VisitedInstance));
-            }
-            initialDc = derivedMold.MoldState;
-            if (hasWroteCollectionOpen)
-            {
-                if (firstOpenIndex != null)
-                {
-                    var openDc                                      = reg[firstOpenIndex.Value].MoldState;
-                    if (openDc != null) openDc.WroteInnerTypeClose = true;
-                }
-                mws.WroteInnerTypeClose = false;
-                return ContentSeparatorRanges.None;
-            }
-        }
+        // var  reg                    = mws.Master.ActiveGraphRegistry;
+        // var  hasWroteCollectionOpen = false;
+        // int? firstOpenIndex         = null;
+        //
+        // IMoldWriteState? initialDc = mws;
+        //
+        // if (mws.MoldGraphVisit.HasRegisteredVisit)
+        // {
+        //     GraphNodeVisit derivedMold = reg[mws.MoldGraphVisit.VisitId.VisitIndex];
+        //     if (mws.MoldGraphVisit.IsBaseOfInitial)
+        //     {
+        //         var            checkMoldIndex = derivedMold.ParentVisitId.VisitIndex;
+        //         GraphNodeVisit checkMold      = reg[checkMoldIndex];
+        //         do
+        //         {
+        //             derivedMold            =   checkMold;
+        //             hasWroteCollectionOpen |=  checkMold.MoldState?.WroteInnerTypeOpen ?? false;
+        //             firstOpenIndex         ??= hasWroteCollectionOpen ? checkMoldIndex : null;
+        //             checkMoldIndex         =   reg[checkMoldIndex].ParentVisitId.VisitIndex;
+        //             checkMold              =   reg[Math.Max(0, checkMoldIndex)];
+        //         } while (checkMoldIndex >= 0
+        //               && (checkMold.MoldState?.MoldGraphVisit.IsBaseOfInitial ?? false)
+        //               && ReferenceEquals(checkMold.VisitedInstance, derivedMold.VisitedInstance));
+        //     }
+        //     initialDc = derivedMold.MoldState;
+        //     if (hasWroteCollectionOpen)
+        //     {
+        //         if (firstOpenIndex != null)
+        //         {
+        //             var openDc                                      = reg[firstOpenIndex.Value].MoldState;
+        //             if (openDc != null) openDc.WroteInnerTypeClose = true;
+        //         }
+        //         mws.WroteInnerTypeClose = false;
+        //         return ContentSeparatorRanges.None;
+        //     }
+        // }
         var sb = mws.Sb;
         mws.WroteInnerTypeClose    = false;
         mws.WroteInnerTypeOpen     = true;
         var inheritedFmtFlags = mws.CreateMoldFormatFlags.MoldSingleGenerationPassFlags() | formatFlags;
         if (mws is ICollectionMoldWriteState { IsSimple: true } scmdc)
         {
-            if (scmdc.SupportsMultipleFields) { AppendInstanceValuesFieldName(mws.TypeBeingBuilt, inheritedFmtFlags); }
+            if (scmdc.SupportsMultipleFields) { AppendInstanceValuesFieldName(mws.TypeBeingBuilt, mws.CurrentWriteMethod, inheritedFmtFlags); }
             else if (scmdc.MoldGraphVisit.IsBaseOfInitial)
             {
-                if (initialDc != null && initialDc.CurrentWriteMethod.HasAsComplexFlag())
+                if (mws.CurrentWriteMethod.HasAsComplexFlag())
                 {
-                    AppendInstanceValuesFieldName(mws.TypeBeingBuilt, inheritedFmtFlags);
+                    AppendInstanceValuesFieldName(mws.TypeBeingBuilt, mws.CurrentWriteMethod, inheritedFmtFlags);
                 }
             }
         }

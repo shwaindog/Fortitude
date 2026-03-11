@@ -10,19 +10,22 @@ using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+
+public record struct InsertInfo (int PrefixInserted, int SuffixInserted, int PrefixNewLines, int SuffixNewLines
+                               , int TotalCharsAdded, int DeltaIndentLevel, int NewLineIndentedBy);
 //
-// public enum Complexity
-// {
-//     SimpleUnitContent
-//   , ComplexUnitContent
-//   , ComplexUnitObject
-//   , SimpleCollection
-//   , ComplexCollection
-//   , ComplexMapCollection  
-// }
+// public record struct TypeOpenInfo
+// (
+//   Range TypeOpenRange
+// , int InsertFieldsOffset
+// , Range? NameRange = null
+// );
 
 public interface IStyledTypeFormatting : ICustomStringFormatter
 {
+    bool IsCompact { get; }
+    bool IsPretty { get; }
+    
     string Name { get; }
 
     public StyleOptions StyleOptions { get; set; }
@@ -50,13 +53,13 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     ContentSeparatorRanges StartSimpleTypeOpening<T>(T instanceToOpen, IMoldWriteState mws, WrittenAsFlags openAs, FormatFlags formatFlags = DefaultCallerTypeFlags);
     ContentSeparatorRanges FinishSimpleTypeOpening<T>(T instanceToOpen, IMoldWriteState mws, WrittenAsFlags openAs, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    ContentSeparatorRanges AppendSimpleTypeClosing<T>(T instanceToOpen, IMoldWriteState mws, WrittenAsFlags closeAs);
+    ContentSeparatorRanges AppendSimpleTypeClosing<T>(T instanceToOpen, IMoldWriteState mws, WrittenAsFlags closeAs, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     ContentSeparatorRanges StartComplexTypeOpening<T>(T instanceToOpen, IMoldWriteState mws, WrittenAsFlags closeAs, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     ContentSeparatorRanges FinishComplexTypeOpening<T>(T instanceToOpen, IMoldWriteState mws, WrittenAsFlags closeAs, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    ContentSeparatorRanges AppendComplexTypeClosing<T>(T instanceToOpen, IMoldWriteState mws, WrittenAsFlags closeAs);
+    ContentSeparatorRanges AppendComplexTypeClosing<T>(T instanceToOpen, IMoldWriteState mws, WrittenAsFlags closeAs, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     SeparatorPaddingRanges AppendFieldValueSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
 
@@ -176,13 +179,6 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     IStringBuilder AppendKeyedCollectionNextItem(IStringBuilder sb, Type keyedCollectionType
       , Type keyType, Type valueType, int previousItemNumber, FormatFlags valueFlags = DefaultCallerTypeFlags);
-    //
-    // ContentSeparatorRanges AppendCollectionTypeOpen(IMoldWriteState mws, Type itemElementType, bool? hasItems, Type collectionType
-    //   , FormatFlags formatFlags = DefaultCallerTypeFlags);
-    //
-    //
-    // ContentSeparatorRanges AppendCollectionTypeClose(IMoldWriteState mws, int? resultsFoundCount, Type itemElementType, int? totalItemCount
-    // , string? formatString, FormatFlags formatFlags = DefaultCallerTypeFlags);
     
     ContentSeparatorRanges AppendOpenCollection(IMoldWriteState mws, Type itemElementType, bool? hasItems
     , FormatFlags formatFlags = DefaultCallerTypeFlags);
@@ -237,12 +233,13 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     int SizeFormatFieldName(int sourceLength, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    (int, int) InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, int refId, Type actualType, int typeOpenIndex, WrittenAsFlags writtenAs
-    , int firstFieldIndex, FormatFlags createTypeFlags, int contentLength = -1, IMoldWriteState? liveMoldInternal = null);
+    InsertInfo InsertInstanceReferenceId(GraphTrackingBuilder insertBuilder, int refId, Type actualType, int typeOpenIndex, WrittenAsFlags writtenAs
+    , int firstFieldIndex, FormatFlags createTypeFlags, TypeMoldFlags moldWrittenFlags, int contentLength = -1, IMoldWriteState? liveMoldInternal = null);
     
-    int AppendExistingReferenceId(IMoldWriteState mws, int refId, WrittenAsFlags currentWriteMethod, FormatFlags createTypeFlags);
+    int AppendExistingReferenceId(IMoldWriteState mws, int refId, Type forType, WrittenAsFlags currentWriteMethod, TypeMoldFlags moldWrittenFlags
+    , FormatFlags createTypeFlags);
 
-    int AppendInstanceValuesFieldName(Type forType, FormatFlags formatFlags = DefaultCallerTypeFlags);
+    int AppendInstanceValuesFieldName(Type forType, WrittenAsFlags writtenAs, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     int AppendInstanceInfoField(IMoldWriteState mws, string fieldName, ReadOnlySpan<char> description
     , WrittenAsFlags currentWriteMethod, FormatFlags createTypeFlags);

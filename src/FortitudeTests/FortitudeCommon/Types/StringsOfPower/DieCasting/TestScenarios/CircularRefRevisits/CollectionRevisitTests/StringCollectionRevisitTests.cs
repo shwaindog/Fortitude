@@ -70,11 +70,20 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldStringArrayStructUnionRevisit {
                          firstPreField: null,
                          firstArray: (StringOrArrayStructUnion[]) [
-                         (StringOrArrayStructUnion) { $id: 1, $values: interned string 2 },
+                         (StringOrArrayStructUnion) (string($id: 1)) interned string 2,
                          (StringOrArrayStructUnion) [],
-                         (StringOrArrayStructUnion) { $id: 2, $values: [ null, new string 1, new string 2, new string 3 ] },
-                         (StringOrArrayStructUnion) [ interned string 1, { $ref: 1, $values: interned string 2 }, interned string 3 ],
-                         (StringOrArrayStructUnion) { $ref: 2 }
+                         (StringOrArrayStructUnion) (string[]($id: 2)) [
+                         null,
+                         new string 1,
+                         new string 2,
+                         new string 3
+                         ],
+                         (StringOrArrayStructUnion) [
+                         interned string 1,
+                         (string($ref: 1)) interned string 2,
+                         interned string 3
+                         ],
+                         (StringOrArrayStructUnion) (string[]($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -86,31 +95,20 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldStringArrayStructUnionRevisit {
                           firstPreField: null,
                           firstArray: (StringOrArrayStructUnion[]) [
-                            (StringOrArrayStructUnion) {
-                              $id: 1,
-                              $values: interned string 2
-                            },
+                            (StringOrArrayStructUnion) (string($id: 1)) interned string 2,
                             (StringOrArrayStructUnion) [],
-                            (StringOrArrayStructUnion) {
-                              $id: 2,
-                              $values: [
-                                null,
-                                new string 1,
-                                new string 2,
-                                new string 3
-                              ]
-                            },
+                            (StringOrArrayStructUnion) (string[]($id: 2)) [
+                              null,
+                              new string 1,
+                              new string 2,
+                              new string 3
+                            ],
                             (StringOrArrayStructUnion) [
                               interned string 1,
-                              {
-                                $ref: 1,
-                                $values: interned string 2
-                              },
+                              (string($ref: 1)) interned string 2,
                               interned string 3
                             ],
-                            (StringOrArrayStructUnion) {
-                              $ref: 2
-                            }
+                            (StringOrArrayStructUnion) (string[]($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -251,26 +249,22 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         StringArrayPostFieldStructUnionRevisit {
                          firstArray: (StringOrArrayStructUnion[]) [
-                         (StringOrArrayStructUnion) { $id: 1, $values: interned string 2 },
+                         (StringOrArrayStructUnion) (string($id: 1)) interned string 2,
                          (StringOrArrayStructUnion) [],
-                         (StringOrArrayStructUnion) { $id: 4, $values: [
-                         { $id: 2, $values: interned string 1 },
-                         { $ref: 1, $values: interned string 2 },
-                         { $id: 3, $values: interned string 3 },
+                         (StringOrArrayStructUnion) (string[]($id: 4)) [
+                         (string($id: 2)) interned string 1,
+                         (string($ref: 1)) interned string 2,
+                         (string($id: 3)) interned string 3,
                          null
-                         ]
-                         },
+                         ],
                          (StringOrArrayStructUnion) [
-                         { $ref: 2, $values: interned string 1 },
-                         { $ref: 1, $values: interned string 2 },
-                         { $ref: 3, $values: interned string 3 }
+                         (string($ref: 2)) interned string 1,
+                         (string($ref: 1)) interned string 2,
+                         (string($ref: 3)) interned string 3
                          ],
-                         (StringOrArrayStructUnion) { $ref: 4 }
+                         (StringOrArrayStructUnion) (string[]($ref: 4))
                          ],
-                         firstPostField: {
-                         $ref: 1,
-                         $values: "interned string 2"
-                         }
+                         firstPostField: (string($ref: 1)) "interned string 2"
                          }
                         """.RemoveLineEndings()
                     }
@@ -280,51 +274,22 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         StringArrayPostFieldStructUnionRevisit {
                           firstArray: (StringOrArrayStructUnion[]) [
-                            (StringOrArrayStructUnion) {
-                              $id: 1,
-                              $values: interned string 2
-                            },
+                            (StringOrArrayStructUnion) (string($id: 1)) interned string 2,
                             (StringOrArrayStructUnion) [],
-                            (StringOrArrayStructUnion) {
-                              $id: 4,
-                              $values: [
-                                {
-                                  $id: 2,
-                                  $values: interned string 1
-                                },
-                                {
-                                  $ref: 1,
-                                  $values: interned string 2
-                                },
-                                {
-                                  $id: 3,
-                                  $values: interned string 3
-                                },
-                                null
-                              ]
-                            },
-                            (StringOrArrayStructUnion) [
-                              {
-                                $ref: 2,
-                                $values: interned string 1
-                              },
-                              {
-                                $ref: 1,
-                                $values: interned string 2
-                              },
-                              {
-                                $ref: 3,
-                                $values: interned string 3
-                              }
+                            (StringOrArrayStructUnion) (string[]($id: 4)) [
+                              (string($id: 2)) interned string 1,
+                              (string($ref: 1)) interned string 2,
+                              (string($id: 3)) interned string 3,
+                              null
                             ],
-                            (StringOrArrayStructUnion) {
-                              $ref: 4
-                            }
+                            (StringOrArrayStructUnion) [
+                              (string($ref: 2)) interned string 1,
+                              (string($ref: 1)) interned string 2,
+                              (string($ref: 3)) interned string 3
+                            ],
+                            (StringOrArrayStructUnion) (string[]($ref: 4))
                           ],
-                          firstPostField: {
-                            $ref: 1,
-                            $values: "interned string 2"
-                          }
+                          firstPostField: (string($ref: 1)) "interned string 2"
                         }
                         """.Dos2Unix()
                     }
@@ -502,11 +467,20 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldStringArrayClassUnionRevisit {
                          firstPreField: null,
                          firstArray: (StringOrArrayClassUnion[]) [
-                         (StringOrArrayClassUnion) { $id: 1, $values: interned string 2 },
+                         (StringOrArrayClassUnion) (string($id: 1)) interned string 2,
                          (StringOrArrayClassUnion) null,
-                         (StringOrArrayClassUnion($id: 2)) [ new string 1, null, new string 2, new string 3 ],
-                         (StringOrArrayClassUnion) [ interned string 1, { $ref: 1, $values: interned string 2 }, interned string 3 ],
-                         (StringOrArrayClassUnion) { $ref: 2 }
+                         (StringOrArrayClassUnion($id: 2)) [
+                         new string 1,
+                         null,
+                         new string 2,
+                         new string 3
+                         ],
+                         (StringOrArrayClassUnion) [
+                         interned string 1,
+                         (string($ref: 1)) interned string 2,
+                         interned string 3
+                         ],
+                         (StringOrArrayClassUnion($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -518,10 +492,7 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldStringArrayClassUnionRevisit {
                           firstPreField: null,
                           firstArray: (StringOrArrayClassUnion[]) [
-                            (StringOrArrayClassUnion) {
-                              $id: 1,
-                              $values: interned string 2
-                            },
+                            (StringOrArrayClassUnion) (string($id: 1)) interned string 2,
                             (StringOrArrayClassUnion) null,
                             (StringOrArrayClassUnion($id: 2)) [
                               new string 1,
@@ -531,15 +502,10 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                             ],
                             (StringOrArrayClassUnion) [
                               interned string 1,
-                              {
-                                $ref: 1,
-                                $values: interned string 2
-                              },
+                              (string($ref: 1)) interned string 2,
                               interned string 3
                             ],
-                            (StringOrArrayClassUnion) {
-                              $ref: 2
-                            }
+                            (StringOrArrayClassUnion($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -680,13 +646,23 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         StringArrayPostFieldClassUnionRevisit {
                          firstArray: (StringOrArrayClassUnion[]) [
-                         (StringOrArrayClassUnion) { $id: 1, $values: interned string 2 },
+                         (StringOrArrayClassUnion) (string($id: 1)) interned string 2,
                          (StringOrArrayClassUnion) [],
-                         (StringOrArrayClassUnion($id: 2)) [ interned string 1, { $ref: 1, $values: interned string 2 }, null, interned string 3 ],
-                         (StringOrArrayClassUnion) [ new string 1, new string 2, new string 3, null ],
-                         (StringOrArrayClassUnion) { $ref: 2 }
+                         (StringOrArrayClassUnion($id: 2)) [
+                         interned string 1,
+                         (string($ref: 1)) interned string 2,
+                         null,
+                         interned string 3
                          ],
-                         firstPostField: { $ref: 1, $values: "interned string 2" }
+                         (StringOrArrayClassUnion) [
+                         new string 1,
+                         new string 2,
+                         new string 3,
+                         null
+                         ],
+                         (StringOrArrayClassUnion($ref: 2))
+                         ],
+                         firstPostField: (string($ref: 1)) "interned string 2"
                          }
                         """.RemoveLineEndings()
                     }
@@ -696,17 +672,11 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         StringArrayPostFieldClassUnionRevisit {
                           firstArray: (StringOrArrayClassUnion[]) [
-                            (StringOrArrayClassUnion) {
-                              $id: 1,
-                              $values: interned string 2
-                            },
+                            (StringOrArrayClassUnion) (string($id: 1)) interned string 2,
                             (StringOrArrayClassUnion) [],
                             (StringOrArrayClassUnion($id: 2)) [
                               interned string 1,
-                              {
-                                $ref: 1,
-                                $values: interned string 2
-                              },
+                              (string($ref: 1)) interned string 2,
                               null,
                               interned string 3
                             ],
@@ -716,14 +686,9 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                               new string 3,
                               null
                             ],
-                            (StringOrArrayClassUnion) {
-                              $ref: 2
-                            }
+                            (StringOrArrayClassUnion($ref: 2))
                           ],
-                          firstPostField: {
-                            $ref: 1,
-                            $values: "interned string 2"
-                          }
+                          firstPostField: (string($ref: 1)) "interned string 2"
                         }
                         """.Dos2Unix()
                     }
@@ -870,13 +835,22 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         PreFieldStringSpanClassUnionRevisit {
-                         firstPreField: { $id: 1, $values: "interned string 2" },
+                         firstPreField: (string($id: 1)) "interned string 2",
                          firstSpan: (Span<StringOrSpanClassUnion>) [
-                         (StringOrSpanClassUnion) { $ref: 1, $values: interned string 2 },
+                         (StringOrSpanClassUnion) (string($ref: 1)) interned string 2,
                          (StringOrSpanClassUnion) [],
-                         (StringOrSpanClassUnion($id: 2)) [ null, new string 1, new string 2, new string 3 ],
-                         (StringOrSpanClassUnion) [ interned string 1, { $ref: 1, $values: interned string 2 }, interned string 3 ],
-                         (StringOrSpanClassUnion) { $ref: 2 }
+                         (StringOrSpanClassUnion($id: 2)) [
+                         null,
+                         new string 1,
+                         new string 2,
+                         new string 3
+                         ],
+                         (StringOrSpanClassUnion) [
+                         interned string 1,
+                         (string($ref: 1)) interned string 2,
+                         interned string 3
+                         ],
+                         (StringOrSpanClassUnion($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -886,15 +860,9 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         PreFieldStringSpanClassUnionRevisit {
-                          firstPreField: {
-                            $id: 1,
-                            $values: "interned string 2"
-                          },
+                          firstPreField: (string($id: 1)) "interned string 2",
                           firstSpan: (Span<StringOrSpanClassUnion>) [
-                            (StringOrSpanClassUnion) {
-                              $ref: 1,
-                              $values: interned string 2
-                            },
+                            (StringOrSpanClassUnion) (string($ref: 1)) interned string 2,
                             (StringOrSpanClassUnion) [],
                             (StringOrSpanClassUnion($id: 2)) [
                               null,
@@ -904,15 +872,10 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                             ],
                             (StringOrSpanClassUnion) [
                               interned string 1,
-                              {
-                                $ref: 1,
-                                $values: interned string 2
-                              },
+                              (string($ref: 1)) interned string 2,
                               interned string 3
                             ],
-                            (StringOrSpanClassUnion) {
-                              $ref: 2
-                            }
+                            (StringOrSpanClassUnion($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -1059,11 +1022,21 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         StringSpanPostFieldClassUnionRevisit {
                          firstSpan: (Span<StringOrSpanClassUnion>) [
-                         (StringOrSpanClassUnion) { $id: 1, $values: interned string 2 },
+                         (StringOrSpanClassUnion) (string($id: 1)) interned string 2,
                          (StringOrSpanClassUnion) null,
-                         (StringOrSpanClassUnion($id: 2)) [ interned string 1, { $ref: 1, $values: interned string 2 }, interned string 3, null ],
-                         (StringOrSpanClassUnion) [ new string 1, null, new string 2, new string 3 ],
-                         (StringOrSpanClassUnion) { $ref: 2 }
+                         (StringOrSpanClassUnion($id: 2)) [
+                         interned string 1,
+                         (string($ref: 1)) interned string 2,
+                         interned string 3,
+                         null
+                         ],
+                         (StringOrSpanClassUnion) [
+                         new string 1,
+                         null,
+                         new string 2,
+                         new string 3
+                         ],
+                         (StringOrSpanClassUnion($ref: 2))
                          ],
                          firstPostField: null
                          }
@@ -1075,17 +1048,11 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         StringSpanPostFieldClassUnionRevisit {
                           firstSpan: (Span<StringOrSpanClassUnion>) [
-                            (StringOrSpanClassUnion) {
-                              $id: 1,
-                              $values: interned string 2
-                            },
+                            (StringOrSpanClassUnion) (string($id: 1)) interned string 2,
                             (StringOrSpanClassUnion) null,
                             (StringOrSpanClassUnion($id: 2)) [
                               interned string 1,
-                              {
-                                $ref: 1,
-                                $values: interned string 2
-                              },
+                              (string($ref: 1)) interned string 2,
                               interned string 3,
                               null
                             ],
@@ -1095,9 +1062,7 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                               new string 2,
                               new string 3
                             ],
-                            (StringOrSpanClassUnion) {
-                              $ref: 2
-                            }
+                            (StringOrSpanClassUnion($ref: 2))
                           ],
                           firstPostField: null
                         }
@@ -1240,13 +1205,24 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         PreFieldStringReadOnlySpanClassUnionRevisit {
-                         firstPreField: { $id: 1, $values: "interned string 2" },
+                         firstPreField: (string($id: 1)) "interned string 2",
                          firstReadOnlySpan: (ReadOnlySpan<StringOrReadOnlySpanClassUnion>) [
-                         (StringOrReadOnlySpanClassUnion) { $ref: 1, $values: interned string 2 },
+                         (StringOrReadOnlySpanClassUnion) (string($ref: 1)) interned string 2,
                          (StringOrReadOnlySpanClassUnion) null,
-                         (StringOrReadOnlySpanClassUnion($id: 2)) [ new string 1, null, new string 2, null, new string 3 ],
-                         (StringOrReadOnlySpanClassUnion) [ null, interned string 1, { $ref: 1, $values: interned string 2 }, interned string 3 ],
-                         (StringOrReadOnlySpanClassUnion) { $ref: 2 }
+                         (StringOrReadOnlySpanClassUnion($id: 2)) [
+                         new string 1,
+                         null,
+                         new string 2,
+                         null,
+                         new string 3
+                         ],
+                         (StringOrReadOnlySpanClassUnion) [
+                         null,
+                         interned string 1,
+                         (string($ref: 1)) interned string 2,
+                         interned string 3
+                         ],
+                         (StringOrReadOnlySpanClassUnion($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -1256,15 +1232,9 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         PreFieldStringReadOnlySpanClassUnionRevisit {
-                          firstPreField: {
-                            $id: 1,
-                            $values: "interned string 2"
-                          },
+                          firstPreField: (string($id: 1)) "interned string 2",
                           firstReadOnlySpan: (ReadOnlySpan<StringOrReadOnlySpanClassUnion>) [
-                            (StringOrReadOnlySpanClassUnion) {
-                              $ref: 1,
-                              $values: interned string 2
-                            },
+                            (StringOrReadOnlySpanClassUnion) (string($ref: 1)) interned string 2,
                             (StringOrReadOnlySpanClassUnion) null,
                             (StringOrReadOnlySpanClassUnion($id: 2)) [
                               new string 1,
@@ -1276,15 +1246,10 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                             (StringOrReadOnlySpanClassUnion) [
                               null,
                               interned string 1,
-                              {
-                                $ref: 1,
-                                $values: interned string 2
-                              },
+                              (string($ref: 1)) interned string 2,
                               interned string 3
                             ],
-                            (StringOrReadOnlySpanClassUnion) {
-                              $ref: 2
-                            }
+                            (StringOrReadOnlySpanClassUnion($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -1435,11 +1400,21 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         StringReadOnlySpanPostFieldClassUnionRevisit {
                          firstReadOnlySpan: (ReadOnlySpan<StringOrReadOnlySpanClassUnion>) [
-                         (StringOrReadOnlySpanClassUnion) { $id: 1, $values: interned string 2 },
+                         (StringOrReadOnlySpanClassUnion) (string($id: 1)) interned string 2,
                          (StringOrReadOnlySpanClassUnion) [],
-                         (StringOrReadOnlySpanClassUnion($id: 2)) [ null, interned string 1, { $ref: 1, $values: interned string 2 }, interned string 3 ],
-                         (StringOrReadOnlySpanClassUnion) [ new string 1, null, new string 2, new string 3 ],
-                         (StringOrReadOnlySpanClassUnion) { $ref: 2 }
+                         (StringOrReadOnlySpanClassUnion($id: 2)) [
+                         null,
+                         interned string 1,
+                         (string($ref: 1)) interned string 2,
+                         interned string 3
+                         ],
+                         (StringOrReadOnlySpanClassUnion) [
+                         new string 1,
+                         null,
+                         new string 2,
+                         new string 3
+                         ],
+                         (StringOrReadOnlySpanClassUnion($ref: 2))
                          ],
                          firstPostField: null
                          }
@@ -1451,18 +1426,12 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         StringReadOnlySpanPostFieldClassUnionRevisit {
                           firstReadOnlySpan: (ReadOnlySpan<StringOrReadOnlySpanClassUnion>) [
-                            (StringOrReadOnlySpanClassUnion) {
-                              $id: 1,
-                              $values: interned string 2
-                            },
+                            (StringOrReadOnlySpanClassUnion) (string($id: 1)) interned string 2,
                             (StringOrReadOnlySpanClassUnion) [],
                             (StringOrReadOnlySpanClassUnion($id: 2)) [
                               null,
                               interned string 1,
-                              {
-                                $ref: 1,
-                                $values: interned string 2
-                              },
+                              (string($ref: 1)) interned string 2,
                               interned string 3
                             ],
                             (StringOrReadOnlySpanClassUnion) [
@@ -1471,9 +1440,7 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                               new string 2,
                               new string 3
                             ],
-                            (StringOrReadOnlySpanClassUnion) {
-                              $ref: 2
-                            }
+                            (StringOrReadOnlySpanClassUnion($ref: 2))
                           ],
                           firstPostField: null
                         }
@@ -1618,11 +1585,20 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldStringListStructUnionRevisit {
                          firstPreField: null,
                          firstList: (List<StringOrListStructUnion>) [
-                         (StringOrListStructUnion) { $id: 1, $values: interned string 2 },
+                         (StringOrListStructUnion) (string($id: 1)) interned string 2,
                          (StringOrListStructUnion) null,
-                         (StringOrListStructUnion) { $id: 2, $values: [ new string 1, new string 2, new string 3, null ] },
-                         (StringOrListStructUnion) [ interned string 1, { $ref: 1, $values: interned string 2 }, interned string 3 ],
-                         (StringOrListStructUnion) { $ref: 2 }
+                         (StringOrListStructUnion) (List<string>($id: 2)) [
+                         new string 1,
+                         new string 2,
+                         new string 3,
+                         null
+                         ],
+                         (StringOrListStructUnion) [
+                         interned string 1,
+                         (string($ref: 1)) interned string 2,
+                         interned string 3
+                         ],
+                         (StringOrListStructUnion) (List<string>($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -1634,31 +1610,20 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldStringListStructUnionRevisit {
                           firstPreField: null,
                           firstList: (List<StringOrListStructUnion>) [
-                            (StringOrListStructUnion) {
-                              $id: 1,
-                              $values: interned string 2
-                            },
+                            (StringOrListStructUnion) (string($id: 1)) interned string 2,
                             (StringOrListStructUnion) null,
-                            (StringOrListStructUnion) {
-                              $id: 2,
-                              $values: [
-                                new string 1,
-                                new string 2,
-                                new string 3,
-                                null
-                              ]
-                            },
+                            (StringOrListStructUnion) (List<string>($id: 2)) [
+                              new string 1,
+                              new string 2,
+                              new string 3,
+                              null
+                            ],
                             (StringOrListStructUnion) [
                               interned string 1,
-                              {
-                                $ref: 1,
-                                $values: interned string 2
-                              },
+                              (string($ref: 1)) interned string 2,
                               interned string 3
                             ],
-                            (StringOrListStructUnion) {
-                              $ref: 2
-                            }
+                            (StringOrListStructUnion) (List<string>($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -1799,13 +1764,23 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         StringListPostFieldStructUnionRevisit {
                          firstList: (List<StringOrListStructUnion>) [
-                         (StringOrListStructUnion) { $id: 1, $values: interned string 2 },
+                         (StringOrListStructUnion) (string($id: 1)) interned string 2,
                          (StringOrListStructUnion) [],
-                         (StringOrListStructUnion) { $id: 2, $values: [ interned string 1, null, { $ref: 1, $values: interned string 2 }, interned string 3 ] },
-                         (StringOrListStructUnion) [ new string 1, new string 2, null, new string 3 ],
-                         (StringOrListStructUnion) { $ref: 2 }
+                         (StringOrListStructUnion) (List<string>($id: 2)) [
+                         interned string 1,
+                         null,
+                         (string($ref: 1)) interned string 2,
+                         interned string 3
                          ],
-                         firstPostField: { $ref: 1, $values: "interned string 2" }
+                         (StringOrListStructUnion) [
+                         new string 1,
+                         new string 2,
+                         null,
+                         new string 3
+                         ],
+                         (StringOrListStructUnion) (List<string>($ref: 2))
+                         ],
+                         firstPostField: (string($ref: 1)) "interned string 2"
                          }
                         """.RemoveLineEndings()
                     }
@@ -1815,37 +1790,23 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         StringListPostFieldStructUnionRevisit {
                           firstList: (List<StringOrListStructUnion>) [
-                            (StringOrListStructUnion) {
-                              $id: 1,
-                              $values: interned string 2
-                            },
+                            (StringOrListStructUnion) (string($id: 1)) interned string 2,
                             (StringOrListStructUnion) [],
-                            (StringOrListStructUnion) {
-                              $id: 2,
-                              $values: [
-                                interned string 1,
-                                null,
-                                {
-                                  $ref: 1,
-                                  $values: interned string 2
-                                },
-                                interned string 3
-                              ]
-                            },
+                            (StringOrListStructUnion) (List<string>($id: 2)) [
+                              interned string 1,
+                              null,
+                              (string($ref: 1)) interned string 2,
+                              interned string 3
+                            ],
                             (StringOrListStructUnion) [
                               new string 1,
                               new string 2,
                               null,
                               new string 3
                             ],
-                            (StringOrListStructUnion) {
-                              $ref: 2
-                            }
+                            (StringOrListStructUnion) (List<string>($ref: 2))
                           ],
-                          firstPostField: {
-                            $ref: 1,
-                            $values: "interned string 2"
-                          }
+                          firstPostField: (string($ref: 1)) "interned string 2"
                         }
                         """.Dos2Unix()
                     }
@@ -1992,13 +1953,23 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         PreFieldStringListClassUnionRevisit {
-                         firstPreField: { $id: 1, $values: "interned string 2" },
+                         firstPreField: (string($id: 1)) "interned string 2",
                          firstList: (List<StringOrListClassUnion>) [
-                         (StringOrListClassUnion) { $ref: 1, $values: interned string 2 },
+                         (StringOrListClassUnion) (string($ref: 1)) interned string 2,
                          (StringOrListClassUnion) null,
-                         (StringOrListClassUnion($id: 2)) [ new string 1, new string 2, null, new string 3 ],
-                         (StringOrListClassUnion) [ interned string 1, null, { $ref: 1, $values: interned string 2 }, interned string 3 ],
-                         (StringOrListClassUnion) { $ref: 2 }
+                         (StringOrListClassUnion($id: 2)) [
+                         new string 1,
+                         new string 2,
+                         null,
+                         new string 3
+                         ],
+                         (StringOrListClassUnion) [
+                         interned string 1,
+                         null,
+                         (string($ref: 1)) interned string 2,
+                         interned string 3
+                         ],
+                         (StringOrListClassUnion($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -2008,15 +1979,9 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         PreFieldStringListClassUnionRevisit {
-                          firstPreField: {
-                            $id: 1,
-                            $values: "interned string 2"
-                          },
+                          firstPreField: (string($id: 1)) "interned string 2",
                           firstList: (List<StringOrListClassUnion>) [
-                            (StringOrListClassUnion) {
-                              $ref: 1,
-                              $values: interned string 2
-                            },
+                            (StringOrListClassUnion) (string($ref: 1)) interned string 2,
                             (StringOrListClassUnion) null,
                             (StringOrListClassUnion($id: 2)) [
                               new string 1,
@@ -2027,15 +1992,10 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                             (StringOrListClassUnion) [
                               interned string 1,
                               null,
-                              {
-                                $ref: 1,
-                                $values: interned string 2
-                              },
+                              (string($ref: 1)) interned string 2,
                               interned string 3
                             ],
-                            (StringOrListClassUnion) {
-                              $ref: 2
-                            }
+                            (StringOrListClassUnion($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -2184,11 +2144,21 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         StringListPostFieldClassUnionRevisit {
                          firstList: (List<StringOrListClassUnion>) [
-                         (StringOrListClassUnion) { $id: 1, $values: interned string 2 },
+                         (StringOrListClassUnion) (string($id: 1)) interned string 2,
                          (StringOrListClassUnion) [],
-                         (StringOrListClassUnion($id: 2)) [ null, interned string 1, { $ref: 1, $values: interned string 2 }, interned string 3 ],
-                         (StringOrListClassUnion) [ new string 1, new string 2, new string 3, null ],
-                         (StringOrListClassUnion) { $ref: 2 }
+                         (StringOrListClassUnion($id: 2)) [
+                         null,
+                         interned string 1,
+                         (string($ref: 1)) interned string 2,
+                         interned string 3
+                         ],
+                         (StringOrListClassUnion) [
+                         new string 1,
+                         new string 2,
+                         new string 3,
+                         null
+                         ],
+                         (StringOrListClassUnion($ref: 2))
                          ],
                          firstPostField: null
                          }
@@ -2200,18 +2170,12 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         StringListPostFieldClassUnionRevisit {
                           firstList: (List<StringOrListClassUnion>) [
-                            (StringOrListClassUnion) {
-                              $id: 1,
-                              $values: interned string 2
-                            },
+                            (StringOrListClassUnion) (string($id: 1)) interned string 2,
                             (StringOrListClassUnion) [],
                             (StringOrListClassUnion($id: 2)) [
                               null,
                               interned string 1,
-                              {
-                                $ref: 1,
-                                $values: interned string 2
-                              },
+                              (string($ref: 1)) interned string 2,
                               interned string 3
                             ],
                             (StringOrListClassUnion) [
@@ -2220,9 +2184,7 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                               new string 3,
                               null
                             ],
-                            (StringOrListClassUnion) {
-                              $ref: 2
-                            }
+                            (StringOrListClassUnion($ref: 2))
                           ],
                           firstPostField: null
                         }
@@ -2367,11 +2329,21 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldStringEnumerableStructUnionRevisit {
                          firstPreField: null,
                          firstEnumerable: (List<StringOrEnumerableStructUnion>) [
-                         (StringOrEnumerableStructUnion) { $id: 1, $values: interned string 2 },
+                         (StringOrEnumerableStructUnion) (string($id: 1)) interned string 2,
                          (StringOrEnumerableStructUnion) [],
-                         (StringOrEnumerableStructUnion) { $id: 2, $values: [ new string 1, null, new string 2, new string 3 ] },
-                         (StringOrEnumerableStructUnion) [ interned string 1, { $ref: 1, $values: interned string 2 }, null, interned string 3 ],
-                         (StringOrEnumerableStructUnion) { $ref: 2 }
+                         (StringOrEnumerableStructUnion) (List<string>($id: 2)) [
+                         new string 1,
+                         null,
+                         new string 2,
+                         new string 3
+                         ],
+                         (StringOrEnumerableStructUnion) [
+                         interned string 1,
+                         (string($ref: 1)) interned string 2,
+                         null,
+                         interned string 3
+                         ],
+                         (StringOrEnumerableStructUnion) (List<string>($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -2383,32 +2355,21 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldStringEnumerableStructUnionRevisit {
                           firstPreField: null,
                           firstEnumerable: (List<StringOrEnumerableStructUnion>) [
-                            (StringOrEnumerableStructUnion) {
-                              $id: 1,
-                              $values: interned string 2
-                            },
+                            (StringOrEnumerableStructUnion) (string($id: 1)) interned string 2,
                             (StringOrEnumerableStructUnion) [],
-                            (StringOrEnumerableStructUnion) {
-                              $id: 2,
-                              $values: [
-                                new string 1,
-                                null,
-                                new string 2,
-                                new string 3
-                              ]
-                            },
+                            (StringOrEnumerableStructUnion) (List<string>($id: 2)) [
+                              new string 1,
+                              null,
+                              new string 2,
+                              new string 3
+                            ],
                             (StringOrEnumerableStructUnion) [
                               interned string 1,
-                              {
-                                $ref: 1,
-                                $values: interned string 2
-                              },
+                              (string($ref: 1)) interned string 2,
                               null,
                               interned string 3
                             ],
-                            (StringOrEnumerableStructUnion) {
-                              $ref: 2
-                            }
+                            (StringOrEnumerableStructUnion) (List<string>($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -2551,13 +2512,23 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         StringEnumerablePostFieldStructUnionRevisit {
                          firstEnumerable: (List<StringOrEnumerableStructUnion>) [
-                         (StringOrEnumerableStructUnion) { $id: 1, $values: interned string 2 },
+                         (StringOrEnumerableStructUnion) (string($id: 1)) interned string 2,
                          (StringOrEnumerableStructUnion) [],
-                         (StringOrEnumerableStructUnion) { $id: 2, $values: [ interned string 1, { $ref: 1, $values: interned string 2 }, null, interned string 3 ] },
-                         (StringOrEnumerableStructUnion) [ new string 1, null, new string 2, new string 3 ],
-                         (StringOrEnumerableStructUnion) { $ref: 2 }
+                         (StringOrEnumerableStructUnion) (List<string>($id: 2)) [
+                         interned string 1,
+                         (string($ref: 1)) interned string 2,
+                         null,
+                         interned string 3
                          ],
-                         firstPostField: { $ref: 1, $values: "interned string 2" }
+                         (StringOrEnumerableStructUnion) [
+                         new string 1,
+                         null,
+                         new string 2,
+                         new string 3
+                         ],
+                         (StringOrEnumerableStructUnion) (List<string>($ref: 2))
+                         ],
+                         firstPostField: (string($ref: 1)) "interned string 2"
                          }
                         """.RemoveLineEndings()
                     }
@@ -2567,37 +2538,23 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         StringEnumerablePostFieldStructUnionRevisit {
                           firstEnumerable: (List<StringOrEnumerableStructUnion>) [
-                            (StringOrEnumerableStructUnion) {
-                              $id: 1,
-                              $values: interned string 2
-                            },
+                            (StringOrEnumerableStructUnion) (string($id: 1)) interned string 2,
                             (StringOrEnumerableStructUnion) [],
-                            (StringOrEnumerableStructUnion) {
-                              $id: 2,
-                              $values: [
-                                interned string 1,
-                                {
-                                  $ref: 1,
-                                  $values: interned string 2
-                                },
-                                null,
-                                interned string 3
-                              ]
-                            },
+                            (StringOrEnumerableStructUnion) (List<string>($id: 2)) [
+                              interned string 1,
+                              (string($ref: 1)) interned string 2,
+                              null,
+                              interned string 3
+                            ],
                             (StringOrEnumerableStructUnion) [
                               new string 1,
                               null,
                               new string 2,
                               new string 3
                             ],
-                            (StringOrEnumerableStructUnion) {
-                              $ref: 2
-                            }
+                            (StringOrEnumerableStructUnion) (List<string>($ref: 2))
                           ],
-                          firstPostField: {
-                            $ref: 1,
-                            $values: "interned string 2"
-                          }
+                          firstPostField: (string($ref: 1)) "interned string 2"
                         }
                         """.Dos2Unix()
                     }
@@ -2744,13 +2701,23 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         PreFieldStringEnumerableClassUnionRevisit {
-                         firstPreField: { $id: 1, $values: "interned string 2" },
+                         firstPreField: (string($id: 1)) "interned string 2",
                          firstEnumerable: (List<StringOrEnumerableClassUnion>) [
-                         (StringOrEnumerableClassUnion) { $ref: 1, $values: interned string 2 },
+                         (StringOrEnumerableClassUnion) (string($ref: 1)) interned string 2,
                          (StringOrEnumerableClassUnion) null,
-                         (StringOrEnumerableClassUnion($id: 2)) [ null, new string 1, new string 2, new string 3 ],
-                         (StringOrEnumerableClassUnion) [ interned string 1, { $ref: 1, $values: interned string 2 }, interned string 3, null ],
-                         (StringOrEnumerableClassUnion) { $ref: 2 }
+                         (StringOrEnumerableClassUnion($id: 2)) [
+                         null,
+                         new string 1,
+                         new string 2,
+                         new string 3
+                         ],
+                         (StringOrEnumerableClassUnion) [
+                         interned string 1,
+                         (string($ref: 1)) interned string 2,
+                         interned string 3,
+                         null
+                         ],
+                         (StringOrEnumerableClassUnion($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -2760,15 +2727,9 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         PreFieldStringEnumerableClassUnionRevisit {
-                          firstPreField: {
-                            $id: 1,
-                            $values: "interned string 2"
-                          },
+                          firstPreField: (string($id: 1)) "interned string 2",
                           firstEnumerable: (List<StringOrEnumerableClassUnion>) [
-                            (StringOrEnumerableClassUnion) {
-                              $ref: 1,
-                              $values: interned string 2
-                            },
+                            (StringOrEnumerableClassUnion) (string($ref: 1)) interned string 2,
                             (StringOrEnumerableClassUnion) null,
                             (StringOrEnumerableClassUnion($id: 2)) [
                               null,
@@ -2778,16 +2739,11 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                             ],
                             (StringOrEnumerableClassUnion) [
                               interned string 1,
-                              {
-                                $ref: 1,
-                                $values: interned string 2
-                              },
+                              (string($ref: 1)) interned string 2,
                               interned string 3,
                               null
                             ],
-                            (StringOrEnumerableClassUnion) {
-                              $ref: 2
-                            }
+                            (StringOrEnumerableClassUnion($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -2936,11 +2892,21 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         StringEnumerablePostFieldClassUnionRevisit {
                          firstEnumerable: (List<StringOrEnumerableClassUnion>) [
-                         (StringOrEnumerableClassUnion) { $id: 1, $values: interned string 2 },
+                         (StringOrEnumerableClassUnion) (string($id: 1)) interned string 2,
                          (StringOrEnumerableClassUnion) [],
-                         (StringOrEnumerableClassUnion($id: 2)) [ interned string 1, null, { $ref: 1, $values: interned string 2 }, interned string 3 ],
-                         (StringOrEnumerableClassUnion) [ new string 1, new string 2, null, new string 3 ],
-                         (StringOrEnumerableClassUnion) { $ref: 2 }
+                         (StringOrEnumerableClassUnion($id: 2)) [
+                         interned string 1,
+                         null,
+                         (string($ref: 1)) interned string 2,
+                         interned string 3
+                         ],
+                         (StringOrEnumerableClassUnion) [
+                         new string 1,
+                         new string 2,
+                         null,
+                         new string 3
+                         ],
+                         (StringOrEnumerableClassUnion($ref: 2))
                          ],
                          firstPostField: null
                          }
@@ -2952,18 +2918,12 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         StringEnumerablePostFieldClassUnionRevisit {
                           firstEnumerable: (List<StringOrEnumerableClassUnion>) [
-                            (StringOrEnumerableClassUnion) {
-                              $id: 1,
-                              $values: interned string 2
-                            },
+                            (StringOrEnumerableClassUnion) (string($id: 1)) interned string 2,
                             (StringOrEnumerableClassUnion) [],
                             (StringOrEnumerableClassUnion($id: 2)) [
                               interned string 1,
                               null,
-                              {
-                                $ref: 1,
-                                $values: interned string 2
-                              },
+                              (string($ref: 1)) interned string 2,
                               interned string 3
                             ],
                             (StringOrEnumerableClassUnion) [
@@ -2972,9 +2932,7 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                               null,
                               new string 3
                             ],
-                            (StringOrEnumerableClassUnion) {
-                              $ref: 2
-                            }
+                            (StringOrEnumerableClassUnion($ref: 2))
                           ],
                           firstPostField: null
                         }
@@ -3119,16 +3077,21 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldStringEnumeratorStructUnionRevisit {
                          firstPreField: null,
                          firstEnumerator: (List<StringOrEnumeratorStructUnion>.Enumerator) [
-                         (StringOrEnumeratorStructUnion) { $id: 1, $values: interned string 2 },
+                         (StringOrEnumeratorStructUnion) (string($id: 1)) interned string 2,
                          (StringOrEnumeratorStructUnion) null,
-                         (StringOrEnumeratorStructUnion) (ReusableWrappingEnumerator<string>($id: 2)) [ new string 1, new string 2, null, new string 3 ],
+                         (StringOrEnumeratorStructUnion) (ReusableWrappingEnumerator<string>($id: 2)) [
+                         new string 1,
+                         new string 2,
+                         null,
+                         new string 3
+                         ],
                          (StringOrEnumeratorStructUnion) (ReusableWrappingEnumerator<string>) [
                          interned string 1,
                          null,
-                         { $ref: 1, $values: interned string 2 },
+                         (string($ref: 1)) interned string 2,
                          interned string 3
                          ],
-                         (StringOrEnumeratorStructUnion) (ReusableWrappingEnumerator<string>) { $ref: 2 }
+                         (StringOrEnumeratorStructUnion) (ReusableWrappingEnumerator<string>($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -3140,10 +3103,7 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldStringEnumeratorStructUnionRevisit {
                           firstPreField: null,
                           firstEnumerator: (List<StringOrEnumeratorStructUnion>.Enumerator) [
-                            (StringOrEnumeratorStructUnion) {
-                              $id: 1,
-                              $values: interned string 2
-                            },
+                            (StringOrEnumeratorStructUnion) (string($id: 1)) interned string 2,
                             (StringOrEnumeratorStructUnion) null,
                             (StringOrEnumeratorStructUnion) (ReusableWrappingEnumerator<string>($id: 2)) [
                               new string 1,
@@ -3154,15 +3114,10 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                             (StringOrEnumeratorStructUnion) (ReusableWrappingEnumerator<string>) [
                               interned string 1,
                               null,
-                              {
-                                $ref: 1,
-                                $values: interned string 2
-                              },
+                              (string($ref: 1)) interned string 2,
                               interned string 3
                             ],
-                            (StringOrEnumeratorStructUnion) (ReusableWrappingEnumerator<string>) {
-                              $ref: 2
-                            }
+                            (StringOrEnumeratorStructUnion) (ReusableWrappingEnumerator<string>($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -3305,18 +3260,23 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         StringEnumeratorPostFieldStructUnionRevisit {
                          firstEnumerator: (List<StringOrEnumeratorStructUnion>.Enumerator) [
-                         (StringOrEnumeratorStructUnion) { $id: 1, $values: interned string 2 },
+                         (StringOrEnumeratorStructUnion) (string($id: 1)) interned string 2,
                          (StringOrEnumeratorStructUnion) [],
                          (StringOrEnumeratorStructUnion) (ReusableWrappingEnumerator<string>($id: 2)) [
-                         null, interned string 1, { $ref: 1, $values: interned string 2 }, interned string 3
+                         null,
+                         interned string 1,
+                         (string($ref: 1)) interned string 2,
+                         interned string 3
                          ],
-                         (StringOrEnumeratorStructUnion) (ReusableWrappingEnumerator<string>) [ new string 1, new string 2, new string 3, null ],
-                         (StringOrEnumeratorStructUnion) (ReusableWrappingEnumerator<string>) { $ref: 2 }
+                         (StringOrEnumeratorStructUnion) (ReusableWrappingEnumerator<string>) [
+                         new string 1,
+                         new string 2,
+                         new string 3,
+                         null
                          ],
-                         firstPostField: {
-                         $ref: 1,
-                         $values: "interned string 2"
-                         }
+                         (StringOrEnumeratorStructUnion) (ReusableWrappingEnumerator<string>($ref: 2))
+                         ],
+                         firstPostField: (string($ref: 1)) "interned string 2"
                          }
                         """.RemoveLineEndings()
                     }
@@ -3326,18 +3286,12 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         StringEnumeratorPostFieldStructUnionRevisit {
                           firstEnumerator: (List<StringOrEnumeratorStructUnion>.Enumerator) [
-                            (StringOrEnumeratorStructUnion) {
-                              $id: 1,
-                              $values: interned string 2
-                            },
+                            (StringOrEnumeratorStructUnion) (string($id: 1)) interned string 2,
                             (StringOrEnumeratorStructUnion) [],
                             (StringOrEnumeratorStructUnion) (ReusableWrappingEnumerator<string>($id: 2)) [
                               null,
                               interned string 1,
-                              {
-                                $ref: 1,
-                                $values: interned string 2
-                              },
+                              (string($ref: 1)) interned string 2,
                               interned string 3
                             ],
                             (StringOrEnumeratorStructUnion) (ReusableWrappingEnumerator<string>) [
@@ -3346,14 +3300,9 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                               new string 3,
                               null
                             ],
-                            (StringOrEnumeratorStructUnion) (ReusableWrappingEnumerator<string>) {
-                              $ref: 2
-                            }
+                            (StringOrEnumeratorStructUnion) (ReusableWrappingEnumerator<string>($ref: 2))
                           ],
-                          firstPostField: {
-                            $ref: 1,
-                            $values: "interned string 2"
-                          }
+                          firstPostField: (string($ref: 1)) "interned string 2"
                         }
                         """.Dos2Unix()
                     }
@@ -3500,18 +3449,23 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         PreFieldStringEnumeratorClassUnionRevisit {
-                         firstPreField: { $id: 1, $values: "interned string 2" },
+                         firstPreField: (string($id: 1)) "interned string 2",
                          firstEnumerator: (List<StringOrEnumeratorClassUnion>.Enumerator) [
-                         (StringOrEnumeratorClassUnion) { $ref: 1, $values: interned string 2 },
+                         (StringOrEnumeratorClassUnion) (string($ref: 1)) interned string 2,
                          (StringOrEnumeratorClassUnion) null,
-                         (StringOrEnumeratorClassUnion($id: 2)) (ReusableWrappingEnumerator<string>) [ new string 1, null, new string 2, new string 3 ],
+                         (StringOrEnumeratorClassUnion($id: 2)) (ReusableWrappingEnumerator<string>) [
+                         new string 1,
+                         null,
+                         new string 2,
+                         new string 3
+                         ],
                          (StringOrEnumeratorClassUnion) (ReusableWrappingEnumerator<string>) [
                          interned string 1,
-                         { $ref: 1, $values: interned string 2 },
+                         (string($ref: 1)) interned string 2,
                          null,
                          interned string 3
                          ],
-                         (StringOrEnumeratorClassUnion) { $ref: 2 }
+                         (StringOrEnumeratorClassUnion($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -3521,15 +3475,9 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         PreFieldStringEnumeratorClassUnionRevisit {
-                          firstPreField: {
-                            $id: 1,
-                            $values: "interned string 2"
-                          },
+                          firstPreField: (string($id: 1)) "interned string 2",
                           firstEnumerator: (List<StringOrEnumeratorClassUnion>.Enumerator) [
-                            (StringOrEnumeratorClassUnion) {
-                              $ref: 1,
-                              $values: interned string 2
-                            },
+                            (StringOrEnumeratorClassUnion) (string($ref: 1)) interned string 2,
                             (StringOrEnumeratorClassUnion) null,
                             (StringOrEnumeratorClassUnion($id: 2)) (ReusableWrappingEnumerator<string>) [
                               new string 1,
@@ -3539,16 +3487,11 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                             ],
                             (StringOrEnumeratorClassUnion) (ReusableWrappingEnumerator<string>) [
                               interned string 1,
-                              {
-                                $ref: 1,
-                                $values: interned string 2
-                              },
+                              (string($ref: 1)) interned string 2,
                               null,
                               interned string 3
                             ],
-                            (StringOrEnumeratorClassUnion) {
-                              $ref: 2
-                            }
+                            (StringOrEnumeratorClassUnion($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -3697,18 +3640,21 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         StringEnumeratorPostFieldClassUnionRevisit {
                          firstEnumerator: (List<StringOrEnumeratorClassUnion>.Enumerator) [
-                         (StringOrEnumeratorClassUnion) { $id: 1, $values: interned string 2 },
+                         (StringOrEnumeratorClassUnion) (string($id: 1)) interned string 2,
                          (StringOrEnumeratorClassUnion) [],
                          (StringOrEnumeratorClassUnion($id: 2)) (ReusableWrappingEnumerator<string>) [
                          interned string 1,
-                         { $ref: 1, $values: interned string 2 },
+                         (string($ref: 1)) interned string 2,
                          null,
                          interned string 3
                          ],
                          (StringOrEnumeratorClassUnion) (ReusableWrappingEnumerator<string>) [
-                         new string 1, null, new string 2, new string 3
+                         new string 1,
+                         null,
+                         new string 2,
+                         new string 3
                          ],
-                         (StringOrEnumeratorClassUnion) { $ref: 2 }
+                         (StringOrEnumeratorClassUnion($ref: 2))
                          ],
                          firstPostField: null
                          }
@@ -3720,17 +3666,11 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         StringEnumeratorPostFieldClassUnionRevisit {
                           firstEnumerator: (List<StringOrEnumeratorClassUnion>.Enumerator) [
-                            (StringOrEnumeratorClassUnion) {
-                              $id: 1,
-                              $values: interned string 2
-                            },
+                            (StringOrEnumeratorClassUnion) (string($id: 1)) interned string 2,
                             (StringOrEnumeratorClassUnion) [],
                             (StringOrEnumeratorClassUnion($id: 2)) (ReusableWrappingEnumerator<string>) [
                               interned string 1,
-                              {
-                                $ref: 1,
-                                $values: interned string 2
-                              },
+                              (string($ref: 1)) interned string 2,
                               null,
                               interned string 3
                             ],
@@ -3740,9 +3680,7 @@ public class StringCollectionRevisitTests : CommonStyleExpectationTestBase
                               new string 2,
                               new string 3
                             ],
-                            (StringOrEnumeratorClassUnion) {
-                              $ref: 2
-                            }
+                            (StringOrEnumeratorClassUnion($ref: 2))
                           ],
                           firstPostField: null
                         }

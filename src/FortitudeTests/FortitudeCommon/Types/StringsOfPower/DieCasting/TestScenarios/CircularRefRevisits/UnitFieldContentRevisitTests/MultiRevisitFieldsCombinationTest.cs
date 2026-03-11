@@ -37,8 +37,7 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
     {
         Node.ResetInstanceIds();
     }
-
-
+    
     private OrderedRootNodeAsField WireUpTree()
     {
         firstMatchNode =
@@ -72,10 +71,6 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
             new(
                 [new LeafNode("Seventh Match Leaf")]
               , "Seventh Match Node", showParent: false);
-        sixthMatchNode =
-            new(
-                [new LeafNode("Sixth Match Leaf")]
-              , "Sixth Match Node", showParent: false);
         linkNodeBranch =
             new OrderedBranchNodeAsField<IChildNode>
                 ([
@@ -194,98 +189,94 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                         OrderedRootNodeAsField {
                          RootInstanceId: 1,
                          Name: "Branches Link Node",
-                         GlobalNodeInstanceId: 46,
+                         GlobalNodeInstanceId: 44,
                          NodeType: NodeType.RootNode,
                          ChildNodes: (List<IChildNode>) [
-                         OrderedBranchNodeAsField<IChildNode> {
-                         BranchInstanceId: 20,
-                         Name: "OrderedBranchNodeAsField`1_44",
-                         GlobalNodeInstanceId: 44,
-                         NodeType: NodeType.BranchNode,
-                         DepthToRoot: 1,
-                         ChildNodes: (List<IChildNode>) [
-                         LeafNode {
-                         LeafInstanceId: 24,
-                         Name: "Branches Link -> 4th Leaf",
-                         GlobalNodeInstanceId: 43,
-                         NodeType: NodeType.LeafNode,
-                         DepthToRoot: 2
-                         },
-                         OrderedBranchNodeAsField<IChildNode> {
-                         $id: 6,
+                         (OrderedBranchNodeAsField<IChildNode>) {
                          BranchInstanceId: 19,
-                         Name: "Sixth Match And Branches Root Node",
+                         Name: "OrderedBranchNodeAsField`1_42",
                          GlobalNodeInstanceId: 42,
                          NodeType: NodeType.BranchNode,
                          DepthToRoot: 1,
                          ChildNodes: (List<IChildNode>) [
-                         OrderedBranchNodeAsField<IChildNode> {
-                         BranchInstanceId: 9,
+                         (LeafNode) {
+                         LeafInstanceId: 23,
+                         Name: "Branches Link -> 4th Leaf",
+                         GlobalNodeInstanceId: 41,
+                         NodeType: NodeType.LeafNode,
+                         DepthToRoot: 2
+                         },
+                         (OrderedBranchNodeAsField<IChildNode>($id: 6)) {
+                         BranchInstanceId: 18,
+                         Name: "Sixth Match And Branches Root Node",
+                         GlobalNodeInstanceId: 40,
+                         NodeType: NodeType.BranchNode,
+                         DepthToRoot: 1,
+                         ChildNodes: (List<IChildNode>) [
+                         (OrderedBranchNodeAsField<IChildNode>) {
+                         BranchInstanceId: 8,
                          Name: "1st Branch Root Node",
-                         GlobalNodeInstanceId: 19,
+                         GlobalNodeInstanceId: 17,
                          NodeType: NodeType.BranchNode,
                          DepthToRoot: 2,
                          ChildNodes: (List<IChildNode>) [
-                         LeafNode {
-                         LeafInstanceId: 9,
+                         (LeafNode) {
+                         LeafInstanceId: 8,
                          Name: "1st Branch Root 1st Leaf",
-                         GlobalNodeInstanceId: 17,
+                         GlobalNodeInstanceId: 15,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 3
                          },
-                         OrderedBranchNodeAsField<IChildNode> {
-                         $id: 2,
-                         BranchInstanceId: 8,
+                         (OrderedBranchNodeAsField<IChildNode>($id: 2)) {
+                         BranchInstanceId: 7,
                          Name: "Second Match Node",
-                         GlobalNodeInstanceId: 16,
+                         GlobalNodeInstanceId: 14,
                          NodeType: NodeType.BranchNode,
                          DepthToRoot: 6,
                          ChildNodes: (List<IChildNode>) [
-                         LeafNode {
-                         LeafInstanceId: 8,
+                         (LeafNode) {
+                         LeafInstanceId: 7,
                          Name: "Second Match Leaf",
-                         GlobalNodeInstanceId: 15,
+                         GlobalNodeInstanceId: 13,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 7
                          },
-                         OrderedBranchNodeAsField<IChildNode> {
-                         BranchInstanceId: 7,
+                         (OrderedBranchNodeAsField<IChildNode>) {
+                         BranchInstanceId: 6,
                          Name: "1st Branch Link 2->3 Node",
-                         GlobalNodeInstanceId: 14,
+                         GlobalNodeInstanceId: 12,
                          NodeType: NodeType.BranchNode,
                          DepthToRoot: 7,
                          ChildNodes: (List<IChildNode>) [
-                         OrderedBranchNodeAsField<IChildNode> {
-                         $id: 3,
+                         (OrderedBranchNodeAsField<IChildNode>($id: 3)) {
                          BranchInstanceId: 4,
                          Name: "Third Match Node",
                          GlobalNodeInstanceId: 8,
                          NodeType: NodeType.BranchNode,
                          DepthToRoot: 7,
                          ChildNodes: (List<IChildNode>) [
-                         OrderedBranchNodeAsField<IChildNode> {
+                         (OrderedBranchNodeAsField<IChildNode>) {
                          BranchInstanceId: 3,
                          Name: "1st BranchLink 3->1 Node",
                          GlobalNodeInstanceId: 6,
                          NodeType: NodeType.BranchNode,
                          DepthToRoot: 8,
                          ChildNodes: (List<IChildNode>) [
-                         LeafNode {
+                         (LeafNode) {
                          LeafInstanceId: 3,
                          Name: "1st Branch Link 3->1 Leaf",
                          GlobalNodeInstanceId: 5,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 9
                          },
-                         OrderedBranchNodeAsField<IChildNode> {
-                         $id: 1,
+                         (OrderedBranchNodeAsField<IChildNode>($id: 1)) {
                          BranchInstanceId: 1,
                          Name: "First Match Node",
                          GlobalNodeInstanceId: 2,
                          NodeType: NodeType.BranchNode,
                          DepthToRoot: 3,
                          ChildNodes: (List<IChildNode>) [
-                         LeafNode {
+                         (LeafNode) {
                          LeafInstanceId: 1,
                          Name: "First Match Leaf",
                          GlobalNodeInstanceId: 1,
@@ -294,15 +285,14 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                          }
                          ]
                          },
-                         OrderedBranchNodeAsField<IChildNode> {
-                         $id: 5,
+                         (OrderedBranchNodeAsField<IChildNode>($id: 5)) {
                          BranchInstanceId: 2,
                          Name: "Fifth Match Node",
                          GlobalNodeInstanceId: 4,
                          NodeType: NodeType.BranchNode,
                          DepthToRoot: 3,
                          ChildNodes: (List<IChildNode>) [
-                         LeafNode {
+                         (LeafNode) {
                          LeafInstanceId: 2,
                          Name: "Fifth Match Leaf",
                          GlobalNodeInstanceId: 3,
@@ -313,7 +303,7 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                          }
                          ]
                          },
-                         LeafNode {
+                         (LeafNode) {
                          LeafInstanceId: 4,
                          Name: "Third Match Leaf",
                          GlobalNodeInstanceId: 7,
@@ -322,22 +312,21 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                          }
                          ]
                          },
-                         LeafNode {
-                         LeafInstanceId: 7,
+                         (LeafNode) {
+                         LeafInstanceId: 6,
                          Name: "1st Branch Link 2->3 Leaf",
-                         GlobalNodeInstanceId: 13,
+                         GlobalNodeInstanceId: 11,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 8
                          },
-                         OrderedBranchNodeAsField<IChildNode> {
-                         $id: 7,
+                         (OrderedBranchNodeAsField<IChildNode>($id: 7)) {
                          BranchInstanceId: 5,
                          Name: "Seventh Match Node",
                          GlobalNodeInstanceId: 10,
                          NodeType: NodeType.BranchNode,
                          DepthToRoot: 1,
                          ChildNodes: (List<IChildNode>) [
-                         LeafNode {
+                         (LeafNode) {
                          LeafInstanceId: 5,
                          Name: "Seventh Match Leaf",
                          GlobalNodeInstanceId: 9,
@@ -350,126 +339,119 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                          }
                          ]
                          },
-                         LeafNode {
-                         LeafInstanceId: 10,
+                         (LeafNode) {
+                         LeafInstanceId: 9,
                          Name: "1st Branch Root 2nd Leaf",
-                         GlobalNodeInstanceId: 18,
+                         GlobalNodeInstanceId: 16,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 3
                          }
                          ]
                          },
-                         LeafNode {
-                         LeafInstanceId: 21,
+                         (LeafNode) {
+                         LeafInstanceId: 20,
                          Name: "Sixth Match And Branches Root "1st" Leaf",
-                         GlobalNodeInstanceId: 39,
+                         GlobalNodeInstanceId: 37,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 2
                          },
-                         OrderedBranchNodeAsField<IChildNode> {
-                         BranchInstanceId: 15,
-                         Name: "OrderedBranchNodeAsField`1_32",
-                         GlobalNodeInstanceId: 32,
-                         NodeType: NodeType.BranchNode,
-                         DepthToRoot: 2,
-                         ChildNodes: (List<IChildNode>) [
-                         LeafNode {
-                         LeafInstanceId: 17,
-                         Name: "2nd Branch Root Leaf",
-                         GlobalNodeInstanceId: 31,
-                         NodeType: NodeType.LeafNode,
-                         DepthToRoot: 3
-                         },
-                         OrderedBranchNodeAsField<IChildNode> {
-                         $ref: 1
-                         },
-                         OrderedBranchNodeAsField<IChildNode> {
+                         (OrderedBranchNodeAsField<IChildNode>) {
                          BranchInstanceId: 14,
                          Name: "OrderedBranchNodeAsField`1_30",
                          GlobalNodeInstanceId: 30,
                          NodeType: NodeType.BranchNode,
-                         DepthToRoot: 3,
+                         DepthToRoot: 2,
                          ChildNodes: (List<IChildNode>) [
-                         LeafNode {
+                         (LeafNode) {
                          LeafInstanceId: 16,
-                         Name: "2nd Branch 1->2 Link Step 1-3 Leaf",
+                         Name: "2nd Branch Root Leaf",
                          GlobalNodeInstanceId: 29,
                          NodeType: NodeType.LeafNode,
-                         DepthToRoot: 4
+                         DepthToRoot: 3
                          },
-                         OrderedBranchNodeAsField<IChildNode> {
+                         (OrderedBranchNodeAsField<IChildNode>($ref: 1)),
+                         (OrderedBranchNodeAsField<IChildNode>) {
                          BranchInstanceId: 13,
                          Name: "OrderedBranchNodeAsField`1_28",
                          GlobalNodeInstanceId: 28,
                          NodeType: NodeType.BranchNode,
+                         DepthToRoot: 3,
+                         ChildNodes: (List<IChildNode>) [
+                         (LeafNode) {
+                         LeafInstanceId: 15,
+                         Name: "2nd Branch 1->2 Link Step 1-3 Leaf",
+                         GlobalNodeInstanceId: 27,
+                         NodeType: NodeType.LeafNode,
+                         DepthToRoot: 4
+                         },
+                         (OrderedBranchNodeAsField<IChildNode>) {
+                         BranchInstanceId: 12,
+                         Name: "OrderedBranchNodeAsField`1_26",
+                         GlobalNodeInstanceId: 26,
+                         NodeType: NodeType.BranchNode,
                          DepthToRoot: 4,
                          ChildNodes: (List<IChildNode>) [
-                         OrderedBranchNodeAsField<IChildNode> {
-                         BranchInstanceId: 12,
+                         (OrderedBranchNodeAsField<IChildNode>) {
+                         BranchInstanceId: 11,
                          Name: "2nd Branch 1->2 Link Step 3-3 Node",
-                         GlobalNodeInstanceId: 26,
+                         GlobalNodeInstanceId: 24,
                          NodeType: NodeType.BranchNode,
                          DepthToRoot: 5,
                          ChildNodes: (List<IChildNode>) [
-                         OrderedBranchNodeAsField<IChildNode> {
-                         $id: 4,
-                         BranchInstanceId: 11,
+                         (OrderedBranchNodeAsField<IChildNode>($id: 4)) {
+                         BranchInstanceId: 10,
                          Name: "Fourth Match Node",
-                         GlobalNodeInstanceId: 23,
+                         GlobalNodeInstanceId: 21,
                          NodeType: NodeType.BranchNode,
                          DepthToRoot: 4,
                          ChildNodes: (List<IChildNode>) [
-                         LeafNode {
-                         LeafInstanceId: 12,
+                         (LeafNode) {
+                         LeafInstanceId: 11,
                          Name: "Fourth Match Leaf",
-                         GlobalNodeInstanceId: 22,
+                         GlobalNodeInstanceId: 20,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 5
                          }
                          ]
                          },
-                         LeafNode {
-                         LeafInstanceId: 13,
+                         (LeafNode) {
+                         LeafInstanceId: 12,
                          Name: "2nd Branch 1->2 Link Step 3-3 1st Leaf",
-                         GlobalNodeInstanceId: 24,
+                         GlobalNodeInstanceId: 22,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 6
                          },
-                         OrderedBranchNodeAsField<IChildNode> {
-                         $ref: 2
-                         },
-                         LeafNode {
-                         LeafInstanceId: 14,
+                         (OrderedBranchNodeAsField<IChildNode>($ref: 2)),
+                         (LeafNode) {
+                         LeafInstanceId: 13,
                          Name: "2nd Branch 1->2 Link Step 3-3 2nd Leaf",
-                         GlobalNodeInstanceId: 25,
+                         GlobalNodeInstanceId: 23,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 6
                          },
-                         OrderedBranchNodeAsField<IChildNode> {
-                         BranchInstanceId: 10,
-                         Name: "OrderedBranchNodeAsField`1_21",
-                         GlobalNodeInstanceId: 21,
+                         (OrderedBranchNodeAsField<IChildNode>) {
+                         BranchInstanceId: 9,
+                         Name: "OrderedBranchNodeAsField`1_19",
+                         GlobalNodeInstanceId: 19,
                          NodeType: NodeType.BranchNode,
                          DepthToRoot: 6,
                          ChildNodes: (List<IChildNode>) [
-                         LeafNode {
-                         LeafInstanceId: 11,
+                         (LeafNode) {
+                         LeafInstanceId: 10,
                          Name: "2nd Branch 2->3 Link Leaf",
-                         GlobalNodeInstanceId: 20,
+                         GlobalNodeInstanceId: 18,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 7
                          },
-                         OrderedBranchNodeAsField<IChildNode> {
-                         $ref: 3
-                         }
+                         (OrderedBranchNodeAsField<IChildNode>($ref: 3))
                          ]
                          }
                          ]
                          },
-                         LeafNode {
-                         LeafInstanceId: 15,
+                         (LeafNode) {
+                         LeafInstanceId: 14,
                          Name: "2nd Branch 1->2 Link Step 2-3 Leaf",
-                         GlobalNodeInstanceId: 27,
+                         GlobalNodeInstanceId: 25,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 5
                          }
@@ -479,71 +461,67 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                          }
                          ]
                          },
-                         LeafNode {
-                         LeafInstanceId: 22,
+                         (LeafNode) {
+                         LeafInstanceId: 21,
                          Name: "Sixth Match And Branches Root "2nd" Leaf",
-                         GlobalNodeInstanceId: 40,
+                         GlobalNodeInstanceId: 38,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 2
                          },
-                         OrderedBranchNodeAsField<IChildNode> {
-                         BranchInstanceId: 17,
+                         (OrderedBranchNodeAsField<IChildNode>) {
+                         BranchInstanceId: 16,
                          Name: "3rd Branch Root Node",
+                         GlobalNodeInstanceId: 34,
+                         NodeType: NodeType.BranchNode,
+                         DepthToRoot: 2,
+                         ChildNodes: (List<IChildNode>) [
+                         (LeafNode) {
+                         LeafInstanceId: 18,
+                         Name: "3rd Branch Root Leaf",
+                         GlobalNodeInstanceId: 33,
+                         NodeType: NodeType.LeafNode,
+                         DepthToRoot: 3
+                         },
+                         (OrderedBranchNodeAsField<IChildNode>) {
+                         BranchInstanceId: 15,
+                         Name: "OrderedBranchNodeAsField`1_32",
+                         GlobalNodeInstanceId: 32,
+                         NodeType: NodeType.BranchNode,
+                         DepthToRoot: 3,
+                         ChildNodes: (List<IChildNode>) [
+                         (LeafNode) {
+                         LeafInstanceId: 17,
+                         Name: "3rd Branch Link -> 4th Leaf",
+                         GlobalNodeInstanceId: 31,
+                         NodeType: NodeType.LeafNode,
+                         DepthToRoot: 4
+                         },
+                         (OrderedBranchNodeAsField<IChildNode>($ref: 4))
+                         ]
+                         }
+                         ]
+                         },
+                         (OrderedBranchNodeAsField<IChildNode>) {
+                         BranchInstanceId: 17,
+                         Name: "4th Branch Root Node",
                          GlobalNodeInstanceId: 36,
                          NodeType: NodeType.BranchNode,
                          DepthToRoot: 2,
                          ChildNodes: (List<IChildNode>) [
-                         LeafNode {
+                         (OrderedBranchNodeAsField<IChildNode>($ref: 5)),
+                         (LeafNode) {
                          LeafInstanceId: 19,
-                         Name: "3rd Branch Root Leaf",
+                         Name: "4th Branch Root Leaf",
                          GlobalNodeInstanceId: 35,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 3
-                         },
-                         OrderedBranchNodeAsField<IChildNode> {
-                         BranchInstanceId: 16,
-                         Name: "OrderedBranchNodeAsField`1_34",
-                         GlobalNodeInstanceId: 34,
-                         NodeType: NodeType.BranchNode,
-                         DepthToRoot: 3,
-                         ChildNodes: (List<IChildNode>) [
-                         LeafNode {
-                         LeafInstanceId: 18,
-                         Name: "3rd Branch Link -> 4th Leaf",
-                         GlobalNodeInstanceId: 33,
-                         NodeType: NodeType.LeafNode,
-                         DepthToRoot: 4
-                         },
-                         OrderedBranchNodeAsField<IChildNode> {
-                         $ref: 4
-                         }
-                         ]
                          }
                          ]
                          },
-                         OrderedBranchNodeAsField<IChildNode> {
-                         BranchInstanceId: 18,
-                         Name: "4th Branch Root Node",
-                         GlobalNodeInstanceId: 38,
-                         NodeType: NodeType.BranchNode,
-                         DepthToRoot: 2,
-                         ChildNodes: (List<IChildNode>) [
-                         OrderedBranchNodeAsField<IChildNode> {
-                         $ref: 5
-                         },
-                         LeafNode {
-                         LeafInstanceId: 20,
-                         Name: "4th Branch Root Leaf",
-                         GlobalNodeInstanceId: 37,
-                         NodeType: NodeType.LeafNode,
-                         DepthToRoot: 3
-                         }
-                         ]
-                         },
-                         LeafNode {
-                         LeafInstanceId: 23,
+                         (LeafNode) {
+                         LeafInstanceId: 22,
                          Name: "Sixth Match And Branches Root "3rd" Leaf",
-                         GlobalNodeInstanceId: 41,
+                         GlobalNodeInstanceId: 39,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 2
                          }
@@ -551,19 +529,15 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                          }
                          ]
                          },
-                         LeafNode {
-                         LeafInstanceId: 25,
+                         (LeafNode) {
+                         LeafInstanceId: 24,
                          Name: "Branches Link Leaf",
-                         GlobalNodeInstanceId: 45,
+                         GlobalNodeInstanceId: 43,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 1
                          },
-                         OrderedBranchNodeAsField<IChildNode> {
-                         $ref: 6
-                         },
-                         OrderedBranchNodeAsField<IChildNode> {
-                         $ref: 7
-                         }
+                         (OrderedBranchNodeAsField<IChildNode>($ref: 6)),
+                         (OrderedBranchNodeAsField<IChildNode>($ref: 7))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -575,98 +549,94 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                         OrderedRootNodeAsField {
                           RootInstanceId: 1,
                           Name: "Branches Link Node",
-                          GlobalNodeInstanceId: 46,
+                          GlobalNodeInstanceId: 44,
                           NodeType: NodeType.RootNode,
                           ChildNodes: (List<IChildNode>) [
-                            OrderedBranchNodeAsField<IChildNode> {
-                              BranchInstanceId: 20,
-                              Name: "OrderedBranchNodeAsField`1_44",
-                              GlobalNodeInstanceId: 44,
+                            (OrderedBranchNodeAsField<IChildNode>) {
+                              BranchInstanceId: 19,
+                              Name: "OrderedBranchNodeAsField`1_42",
+                              GlobalNodeInstanceId: 42,
                               NodeType: NodeType.BranchNode,
                               DepthToRoot: 1,
                               ChildNodes: (List<IChildNode>) [
-                                LeafNode {
-                                  LeafInstanceId: 24,
+                                (LeafNode) {
+                                  LeafInstanceId: 23,
                                   Name: "Branches Link -> 4th Leaf",
-                                  GlobalNodeInstanceId: 43,
+                                  GlobalNodeInstanceId: 41,
                                   NodeType: NodeType.LeafNode,
                                   DepthToRoot: 2
                                 },
-                                OrderedBranchNodeAsField<IChildNode> {
-                                  $id: 6,
-                                  BranchInstanceId: 19,
+                                (OrderedBranchNodeAsField<IChildNode>($id: 6)) {
+                                  BranchInstanceId: 18,
                                   Name: "Sixth Match And Branches Root Node",
-                                  GlobalNodeInstanceId: 42,
+                                  GlobalNodeInstanceId: 40,
                                   NodeType: NodeType.BranchNode,
                                   DepthToRoot: 1,
                                   ChildNodes: (List<IChildNode>) [
-                                    OrderedBranchNodeAsField<IChildNode> {
-                                      BranchInstanceId: 9,
+                                    (OrderedBranchNodeAsField<IChildNode>) {
+                                      BranchInstanceId: 8,
                                       Name: "1st Branch Root Node",
-                                      GlobalNodeInstanceId: 19,
+                                      GlobalNodeInstanceId: 17,
                                       NodeType: NodeType.BranchNode,
                                       DepthToRoot: 2,
                                       ChildNodes: (List<IChildNode>) [
-                                        LeafNode {
-                                          LeafInstanceId: 9,
+                                        (LeafNode) {
+                                          LeafInstanceId: 8,
                                           Name: "1st Branch Root 1st Leaf",
-                                          GlobalNodeInstanceId: 17,
+                                          GlobalNodeInstanceId: 15,
                                           NodeType: NodeType.LeafNode,
                                           DepthToRoot: 3
                                         },
-                                        OrderedBranchNodeAsField<IChildNode> {
-                                          $id: 2,
-                                          BranchInstanceId: 8,
+                                        (OrderedBranchNodeAsField<IChildNode>($id: 2)) {
+                                          BranchInstanceId: 7,
                                           Name: "Second Match Node",
-                                          GlobalNodeInstanceId: 16,
+                                          GlobalNodeInstanceId: 14,
                                           NodeType: NodeType.BranchNode,
                                           DepthToRoot: 6,
                                           ChildNodes: (List<IChildNode>) [
-                                            LeafNode {
-                                              LeafInstanceId: 8,
+                                            (LeafNode) {
+                                              LeafInstanceId: 7,
                                               Name: "Second Match Leaf",
-                                              GlobalNodeInstanceId: 15,
+                                              GlobalNodeInstanceId: 13,
                                               NodeType: NodeType.LeafNode,
                                               DepthToRoot: 7
                                             },
-                                            OrderedBranchNodeAsField<IChildNode> {
-                                              BranchInstanceId: 7,
+                                            (OrderedBranchNodeAsField<IChildNode>) {
+                                              BranchInstanceId: 6,
                                               Name: "1st Branch Link 2->3 Node",
-                                              GlobalNodeInstanceId: 14,
+                                              GlobalNodeInstanceId: 12,
                                               NodeType: NodeType.BranchNode,
                                               DepthToRoot: 7,
                                               ChildNodes: (List<IChildNode>) [
-                                                OrderedBranchNodeAsField<IChildNode> {
-                                                  $id: 3,
+                                                (OrderedBranchNodeAsField<IChildNode>($id: 3)) {
                                                   BranchInstanceId: 4,
                                                   Name: "Third Match Node",
                                                   GlobalNodeInstanceId: 8,
                                                   NodeType: NodeType.BranchNode,
                                                   DepthToRoot: 7,
                                                   ChildNodes: (List<IChildNode>) [
-                                                    OrderedBranchNodeAsField<IChildNode> {
+                                                    (OrderedBranchNodeAsField<IChildNode>) {
                                                       BranchInstanceId: 3,
                                                       Name: "1st BranchLink 3->1 Node",
                                                       GlobalNodeInstanceId: 6,
                                                       NodeType: NodeType.BranchNode,
                                                       DepthToRoot: 8,
                                                       ChildNodes: (List<IChildNode>) [
-                                                        LeafNode {
+                                                        (LeafNode) {
                                                           LeafInstanceId: 3,
                                                           Name: "1st Branch Link 3->1 Leaf",
                                                           GlobalNodeInstanceId: 5,
                                                           NodeType: NodeType.LeafNode,
                                                           DepthToRoot: 9
                                                         },
-                                                        OrderedBranchNodeAsField<IChildNode> {
-                                                          $id: 1,
+                                                        (OrderedBranchNodeAsField<IChildNode>($id: 1)) {
                                                           BranchInstanceId: 1,
                                                           Name: "First Match Node",
                                                           GlobalNodeInstanceId: 2,
                                                           NodeType: NodeType.BranchNode,
                                                           DepthToRoot: 3,
                                                           ChildNodes: (List<IChildNode>) [
-                                                            LeafNode {
+                                                            (LeafNode) {
                                                               LeafInstanceId: 1,
                                                               Name: "First Match Leaf",
                                                               GlobalNodeInstanceId: 1,
@@ -675,15 +645,14 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                                                             }
                                                           ]
                                                         },
-                                                        OrderedBranchNodeAsField<IChildNode> {
-                                                          $id: 5,
+                                                        (OrderedBranchNodeAsField<IChildNode>($id: 5)) {
                                                           BranchInstanceId: 2,
                                                           Name: "Fifth Match Node",
                                                           GlobalNodeInstanceId: 4,
                                                           NodeType: NodeType.BranchNode,
                                                           DepthToRoot: 3,
                                                           ChildNodes: (List<IChildNode>) [
-                                                            LeafNode {
+                                                            (LeafNode) {
                                                               LeafInstanceId: 2,
                                                               Name: "Fifth Match Leaf",
                                                               GlobalNodeInstanceId: 3,
@@ -694,7 +663,7 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                                                         }
                                                       ]
                                                     },
-                                                    LeafNode {
+                                                    (LeafNode) {
                                                       LeafInstanceId: 4,
                                                       Name: "Third Match Leaf",
                                                       GlobalNodeInstanceId: 7,
@@ -703,22 +672,21 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                                                     }
                                                   ]
                                                 },
-                                                LeafNode {
-                                                  LeafInstanceId: 7,
+                                                (LeafNode) {
+                                                  LeafInstanceId: 6,
                                                   Name: "1st Branch Link 2->3 Leaf",
-                                                  GlobalNodeInstanceId: 13,
+                                                  GlobalNodeInstanceId: 11,
                                                   NodeType: NodeType.LeafNode,
                                                   DepthToRoot: 8
                                                 },
-                                                OrderedBranchNodeAsField<IChildNode> {
-                                                  $id: 7,
+                                                (OrderedBranchNodeAsField<IChildNode>($id: 7)) {
                                                   BranchInstanceId: 5,
                                                   Name: "Seventh Match Node",
                                                   GlobalNodeInstanceId: 10,
                                                   NodeType: NodeType.BranchNode,
                                                   DepthToRoot: 1,
                                                   ChildNodes: (List<IChildNode>) [
-                                                    LeafNode {
+                                                    (LeafNode) {
                                                       LeafInstanceId: 5,
                                                       Name: "Seventh Match Leaf",
                                                       GlobalNodeInstanceId: 9,
@@ -731,126 +699,119 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                                             }
                                           ]
                                         },
-                                        LeafNode {
-                                          LeafInstanceId: 10,
+                                        (LeafNode) {
+                                          LeafInstanceId: 9,
                                           Name: "1st Branch Root 2nd Leaf",
-                                          GlobalNodeInstanceId: 18,
+                                          GlobalNodeInstanceId: 16,
                                           NodeType: NodeType.LeafNode,
                                           DepthToRoot: 3
                                         }
                                       ]
                                     },
-                                    LeafNode {
-                                      LeafInstanceId: 21,
+                                    (LeafNode) {
+                                      LeafInstanceId: 20,
                                       Name: "Sixth Match And Branches Root "1st" Leaf",
-                                      GlobalNodeInstanceId: 39,
+                                      GlobalNodeInstanceId: 37,
                                       NodeType: NodeType.LeafNode,
                                       DepthToRoot: 2
                                     },
-                                    OrderedBranchNodeAsField<IChildNode> {
-                                      BranchInstanceId: 15,
-                                      Name: "OrderedBranchNodeAsField`1_32",
-                                      GlobalNodeInstanceId: 32,
+                                    (OrderedBranchNodeAsField<IChildNode>) {
+                                      BranchInstanceId: 14,
+                                      Name: "OrderedBranchNodeAsField`1_30",
+                                      GlobalNodeInstanceId: 30,
                                       NodeType: NodeType.BranchNode,
                                       DepthToRoot: 2,
                                       ChildNodes: (List<IChildNode>) [
-                                        LeafNode {
-                                          LeafInstanceId: 17,
+                                        (LeafNode) {
+                                          LeafInstanceId: 16,
                                           Name: "2nd Branch Root Leaf",
-                                          GlobalNodeInstanceId: 31,
+                                          GlobalNodeInstanceId: 29,
                                           NodeType: NodeType.LeafNode,
                                           DepthToRoot: 3
                                         },
-                                        OrderedBranchNodeAsField<IChildNode> {
-                                          $ref: 1
-                                        },
-                                        OrderedBranchNodeAsField<IChildNode> {
-                                          BranchInstanceId: 14,
-                                          Name: "OrderedBranchNodeAsField`1_30",
-                                          GlobalNodeInstanceId: 30,
+                                        (OrderedBranchNodeAsField<IChildNode>($ref: 1)),
+                                        (OrderedBranchNodeAsField<IChildNode>) {
+                                          BranchInstanceId: 13,
+                                          Name: "OrderedBranchNodeAsField`1_28",
+                                          GlobalNodeInstanceId: 28,
                                           NodeType: NodeType.BranchNode,
                                           DepthToRoot: 3,
                                           ChildNodes: (List<IChildNode>) [
-                                            LeafNode {
-                                              LeafInstanceId: 16,
+                                            (LeafNode) {
+                                              LeafInstanceId: 15,
                                               Name: "2nd Branch 1->2 Link Step 1-3 Leaf",
-                                              GlobalNodeInstanceId: 29,
+                                              GlobalNodeInstanceId: 27,
                                               NodeType: NodeType.LeafNode,
                                               DepthToRoot: 4
                                             },
-                                            OrderedBranchNodeAsField<IChildNode> {
-                                              BranchInstanceId: 13,
-                                              Name: "OrderedBranchNodeAsField`1_28",
-                                              GlobalNodeInstanceId: 28,
+                                            (OrderedBranchNodeAsField<IChildNode>) {
+                                              BranchInstanceId: 12,
+                                              Name: "OrderedBranchNodeAsField`1_26",
+                                              GlobalNodeInstanceId: 26,
                                               NodeType: NodeType.BranchNode,
                                               DepthToRoot: 4,
                                               ChildNodes: (List<IChildNode>) [
-                                                OrderedBranchNodeAsField<IChildNode> {
-                                                  BranchInstanceId: 12,
+                                                (OrderedBranchNodeAsField<IChildNode>) {
+                                                  BranchInstanceId: 11,
                                                   Name: "2nd Branch 1->2 Link Step 3-3 Node",
-                                                  GlobalNodeInstanceId: 26,
+                                                  GlobalNodeInstanceId: 24,
                                                   NodeType: NodeType.BranchNode,
                                                   DepthToRoot: 5,
                                                   ChildNodes: (List<IChildNode>) [
-                                                    OrderedBranchNodeAsField<IChildNode> {
-                                                      $id: 4,
-                                                      BranchInstanceId: 11,
+                                                    (OrderedBranchNodeAsField<IChildNode>($id: 4)) {
+                                                      BranchInstanceId: 10,
                                                       Name: "Fourth Match Node",
-                                                      GlobalNodeInstanceId: 23,
+                                                      GlobalNodeInstanceId: 21,
                                                       NodeType: NodeType.BranchNode,
                                                       DepthToRoot: 4,
                                                       ChildNodes: (List<IChildNode>) [
-                                                        LeafNode {
-                                                          LeafInstanceId: 12,
+                                                        (LeafNode) {
+                                                          LeafInstanceId: 11,
                                                           Name: "Fourth Match Leaf",
-                                                          GlobalNodeInstanceId: 22,
+                                                          GlobalNodeInstanceId: 20,
                                                           NodeType: NodeType.LeafNode,
                                                           DepthToRoot: 5
                                                         }
                                                       ]
                                                     },
-                                                    LeafNode {
-                                                      LeafInstanceId: 13,
+                                                    (LeafNode) {
+                                                      LeafInstanceId: 12,
                                                       Name: "2nd Branch 1->2 Link Step 3-3 1st Leaf",
-                                                      GlobalNodeInstanceId: 24,
+                                                      GlobalNodeInstanceId: 22,
                                                       NodeType: NodeType.LeafNode,
                                                       DepthToRoot: 6
                                                     },
-                                                    OrderedBranchNodeAsField<IChildNode> {
-                                                      $ref: 2
-                                                    },
-                                                    LeafNode {
-                                                      LeafInstanceId: 14,
+                                                    (OrderedBranchNodeAsField<IChildNode>($ref: 2)),
+                                                    (LeafNode) {
+                                                      LeafInstanceId: 13,
                                                       Name: "2nd Branch 1->2 Link Step 3-3 2nd Leaf",
-                                                      GlobalNodeInstanceId: 25,
+                                                      GlobalNodeInstanceId: 23,
                                                       NodeType: NodeType.LeafNode,
                                                       DepthToRoot: 6
                                                     },
-                                                    OrderedBranchNodeAsField<IChildNode> {
-                                                      BranchInstanceId: 10,
-                                                      Name: "OrderedBranchNodeAsField`1_21",
-                                                      GlobalNodeInstanceId: 21,
+                                                    (OrderedBranchNodeAsField<IChildNode>) {
+                                                      BranchInstanceId: 9,
+                                                      Name: "OrderedBranchNodeAsField`1_19",
+                                                      GlobalNodeInstanceId: 19,
                                                       NodeType: NodeType.BranchNode,
                                                       DepthToRoot: 6,
                                                       ChildNodes: (List<IChildNode>) [
-                                                        LeafNode {
-                                                          LeafInstanceId: 11,
+                                                        (LeafNode) {
+                                                          LeafInstanceId: 10,
                                                           Name: "2nd Branch 2->3 Link Leaf",
-                                                          GlobalNodeInstanceId: 20,
+                                                          GlobalNodeInstanceId: 18,
                                                           NodeType: NodeType.LeafNode,
                                                           DepthToRoot: 7
                                                         },
-                                                        OrderedBranchNodeAsField<IChildNode> {
-                                                          $ref: 3
-                                                        }
+                                                        (OrderedBranchNodeAsField<IChildNode>($ref: 3))
                                                       ]
                                                     }
                                                   ]
                                                 },
-                                                LeafNode {
-                                                  LeafInstanceId: 15,
+                                                (LeafNode) {
+                                                  LeafInstanceId: 14,
                                                   Name: "2nd Branch 1->2 Link Step 2-3 Leaf",
-                                                  GlobalNodeInstanceId: 27,
+                                                  GlobalNodeInstanceId: 25,
                                                   NodeType: NodeType.LeafNode,
                                                   DepthToRoot: 5
                                                 }
@@ -860,71 +821,67 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                                         }
                                       ]
                                     },
-                                    LeafNode {
-                                      LeafInstanceId: 22,
+                                    (LeafNode) {
+                                      LeafInstanceId: 21,
                                       Name: "Sixth Match And Branches Root "2nd" Leaf",
-                                      GlobalNodeInstanceId: 40,
+                                      GlobalNodeInstanceId: 38,
                                       NodeType: NodeType.LeafNode,
                                       DepthToRoot: 2
                                     },
-                                    OrderedBranchNodeAsField<IChildNode> {
-                                      BranchInstanceId: 17,
+                                    (OrderedBranchNodeAsField<IChildNode>) {
+                                      BranchInstanceId: 16,
                                       Name: "3rd Branch Root Node",
-                                      GlobalNodeInstanceId: 36,
+                                      GlobalNodeInstanceId: 34,
                                       NodeType: NodeType.BranchNode,
                                       DepthToRoot: 2,
                                       ChildNodes: (List<IChildNode>) [
-                                        LeafNode {
-                                          LeafInstanceId: 19,
+                                        (LeafNode) {
+                                          LeafInstanceId: 18,
                                           Name: "3rd Branch Root Leaf",
-                                          GlobalNodeInstanceId: 35,
+                                          GlobalNodeInstanceId: 33,
                                           NodeType: NodeType.LeafNode,
                                           DepthToRoot: 3
                                         },
-                                        OrderedBranchNodeAsField<IChildNode> {
-                                          BranchInstanceId: 16,
-                                          Name: "OrderedBranchNodeAsField`1_34",
-                                          GlobalNodeInstanceId: 34,
+                                        (OrderedBranchNodeAsField<IChildNode>) {
+                                          BranchInstanceId: 15,
+                                          Name: "OrderedBranchNodeAsField`1_32",
+                                          GlobalNodeInstanceId: 32,
                                           NodeType: NodeType.BranchNode,
                                           DepthToRoot: 3,
                                           ChildNodes: (List<IChildNode>) [
-                                            LeafNode {
-                                              LeafInstanceId: 18,
+                                            (LeafNode) {
+                                              LeafInstanceId: 17,
                                               Name: "3rd Branch Link -> 4th Leaf",
-                                              GlobalNodeInstanceId: 33,
+                                              GlobalNodeInstanceId: 31,
                                               NodeType: NodeType.LeafNode,
                                               DepthToRoot: 4
                                             },
-                                            OrderedBranchNodeAsField<IChildNode> {
-                                              $ref: 4
-                                            }
+                                            (OrderedBranchNodeAsField<IChildNode>($ref: 4))
                                           ]
                                         }
                                       ]
                                     },
-                                    OrderedBranchNodeAsField<IChildNode> {
-                                      BranchInstanceId: 18,
+                                    (OrderedBranchNodeAsField<IChildNode>) {
+                                      BranchInstanceId: 17,
                                       Name: "4th Branch Root Node",
-                                      GlobalNodeInstanceId: 38,
+                                      GlobalNodeInstanceId: 36,
                                       NodeType: NodeType.BranchNode,
                                       DepthToRoot: 2,
                                       ChildNodes: (List<IChildNode>) [
-                                        OrderedBranchNodeAsField<IChildNode> {
-                                          $ref: 5
-                                        },
-                                        LeafNode {
-                                          LeafInstanceId: 20,
+                                        (OrderedBranchNodeAsField<IChildNode>($ref: 5)),
+                                        (LeafNode) {
+                                          LeafInstanceId: 19,
                                           Name: "4th Branch Root Leaf",
-                                          GlobalNodeInstanceId: 37,
+                                          GlobalNodeInstanceId: 35,
                                           NodeType: NodeType.LeafNode,
                                           DepthToRoot: 3
                                         }
                                       ]
                                     },
-                                    LeafNode {
-                                      LeafInstanceId: 23,
+                                    (LeafNode) {
+                                      LeafInstanceId: 22,
                                       Name: "Sixth Match And Branches Root "3rd" Leaf",
-                                      GlobalNodeInstanceId: 41,
+                                      GlobalNodeInstanceId: 39,
                                       NodeType: NodeType.LeafNode,
                                       DepthToRoot: 2
                                     }
@@ -932,19 +889,15 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                                 }
                               ]
                             },
-                            LeafNode {
-                              LeafInstanceId: 25,
+                            (LeafNode) {
+                              LeafInstanceId: 24,
                               Name: "Branches Link Leaf",
-                              GlobalNodeInstanceId: 45,
+                              GlobalNodeInstanceId: 43,
                               NodeType: NodeType.LeafNode,
                               DepthToRoot: 1
                             },
-                            OrderedBranchNodeAsField<IChildNode> {
-                              $ref: 6
-                            },
-                            OrderedBranchNodeAsField<IChildNode> {
-                              $ref: 7
-                            }
+                            (OrderedBranchNodeAsField<IChildNode>($ref: 6)),
+                            (OrderedBranchNodeAsField<IChildNode>($ref: 7))
                           ]
                         }
                         """.Dos2Unix()
@@ -956,64 +909,64 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                         {
                         "RootInstanceId":1,
                         "Name":"Branches Link Node",
-                        "GlobalNodeInstanceId":46,
+                        "GlobalNodeInstanceId":44,
                         "NodeType":"RootNode",
                         "ChildNodes":[
                         {
-                        "BranchInstanceId":20,
-                        "Name":"OrderedBranchNodeAsField`1_44",
-                        "GlobalNodeInstanceId":44,
-                        "NodeType":"BranchNode",
-                        "DepthToRoot":1,
-                        "ChildNodes":[
-                        {
-                        "LeafInstanceId":24,
-                        "Name":"Branches Link -\u003e 4th Leaf",
-                        "GlobalNodeInstanceId":43,
-                        "NodeType":"LeafNode",
-                        "DepthToRoot":2
-                        },
-                        {
-                        "$id":"6",
                         "BranchInstanceId":19,
-                        "Name":"Sixth Match And Branches Root Node",
+                        "Name":"OrderedBranchNodeAsField`1_42",
                         "GlobalNodeInstanceId":42,
                         "NodeType":"BranchNode",
                         "DepthToRoot":1,
                         "ChildNodes":[
                         {
-                        "BranchInstanceId":9,
+                        "LeafInstanceId":23,
+                        "Name":"Branches Link -\u003e 4th Leaf",
+                        "GlobalNodeInstanceId":41,
+                        "NodeType":"LeafNode",
+                        "DepthToRoot":2
+                        },
+                        {
+                        "$id":"6",
+                        "BranchInstanceId":18,
+                        "Name":"Sixth Match And Branches Root Node",
+                        "GlobalNodeInstanceId":40,
+                        "NodeType":"BranchNode",
+                        "DepthToRoot":1,
+                        "ChildNodes":[
+                        {
+                        "BranchInstanceId":8,
                         "Name":"1st Branch Root Node",
-                        "GlobalNodeInstanceId":19,
+                        "GlobalNodeInstanceId":17,
                         "NodeType":"BranchNode",
                         "DepthToRoot":2,
                         "ChildNodes":[
                         {
-                        "LeafInstanceId":9,
+                        "LeafInstanceId":8,
                         "Name":"1st Branch Root 1st Leaf",
-                        "GlobalNodeInstanceId":17,
+                        "GlobalNodeInstanceId":15,
                         "NodeType":"LeafNode",
                         "DepthToRoot":3
                         },
                         {
                         "$id":"2",
-                        "BranchInstanceId":8,
+                        "BranchInstanceId":7,
                         "Name":"Second Match Node",
-                        "GlobalNodeInstanceId":16,
+                        "GlobalNodeInstanceId":14,
                         "NodeType":"BranchNode",
                         "DepthToRoot":6,
                         "ChildNodes":[
                         {
-                        "LeafInstanceId":8,
+                        "LeafInstanceId":7,
                         "Name":"Second Match Leaf",
-                        "GlobalNodeInstanceId":15,
+                        "GlobalNodeInstanceId":13,
                         "NodeType":"LeafNode",
                         "DepthToRoot":7
                         },
                         {
-                        "BranchInstanceId":7,
+                        "BranchInstanceId":6,
                         "Name":"1st Branch Link 2-\u003e3 Node",
-                        "GlobalNodeInstanceId":14,
+                        "GlobalNodeInstanceId":12,
                         "NodeType":"BranchNode",
                         "DepthToRoot":7,
                         "ChildNodes":[
@@ -1085,9 +1038,9 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                         ]
                         },
                         {
-                        "LeafInstanceId":7,
+                        "LeafInstanceId":6,
                         "Name":"1st Branch Link 2-\u003e3 Leaf",
-                        "GlobalNodeInstanceId":13,
+                        "GlobalNodeInstanceId":11,
                         "NodeType":"LeafNode",
                         "DepthToRoot":8
                         },
@@ -1113,32 +1066,32 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                         ]
                         },
                         {
-                        "LeafInstanceId":10,
+                        "LeafInstanceId":9,
                         "Name":"1st Branch Root 2nd Leaf",
-                        "GlobalNodeInstanceId":18,
+                        "GlobalNodeInstanceId":16,
                         "NodeType":"LeafNode",
                         "DepthToRoot":3
                         }
                         ]
                         },
                         {
-                        "LeafInstanceId":21,
+                        "LeafInstanceId":20,
                         "Name":"Sixth Match And Branches Root \u00221st\u0022 Leaf",
-                        "GlobalNodeInstanceId":39,
+                        "GlobalNodeInstanceId":37,
                         "NodeType":"LeafNode",
                         "DepthToRoot":2
                         },
                         {
-                        "BranchInstanceId":15,
-                        "Name":"OrderedBranchNodeAsField`1_32",
-                        "GlobalNodeInstanceId":32,
+                        "BranchInstanceId":14,
+                        "Name":"OrderedBranchNodeAsField`1_30",
+                        "GlobalNodeInstanceId":30,
                         "NodeType":"BranchNode",
                         "DepthToRoot":2,
                         "ChildNodes":[
                         {
-                        "LeafInstanceId":17,
+                        "LeafInstanceId":16,
                         "Name":"2nd Branch Root Leaf",
-                        "GlobalNodeInstanceId":31,
+                        "GlobalNodeInstanceId":29,
                         "NodeType":"LeafNode",
                         "DepthToRoot":3
                         },
@@ -1146,54 +1099,54 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                         "$ref":"1"
                         },
                         {
-                        "BranchInstanceId":14,
-                        "Name":"OrderedBranchNodeAsField`1_30",
-                        "GlobalNodeInstanceId":30,
-                        "NodeType":"BranchNode",
-                        "DepthToRoot":3,
-                        "ChildNodes":[
-                        {
-                        "LeafInstanceId":16,
-                        "Name":"2nd Branch 1-\u003e2 Link Step 1-3 Leaf",
-                        "GlobalNodeInstanceId":29,
-                        "NodeType":"LeafNode",
-                        "DepthToRoot":4
-                        },
-                        {
                         "BranchInstanceId":13,
                         "Name":"OrderedBranchNodeAsField`1_28",
                         "GlobalNodeInstanceId":28,
                         "NodeType":"BranchNode",
+                        "DepthToRoot":3,
+                        "ChildNodes":[
+                        {
+                        "LeafInstanceId":15,
+                        "Name":"2nd Branch 1-\u003e2 Link Step 1-3 Leaf",
+                        "GlobalNodeInstanceId":27,
+                        "NodeType":"LeafNode",
+                        "DepthToRoot":4
+                        },
+                        {
+                        "BranchInstanceId":12,
+                        "Name":"OrderedBranchNodeAsField`1_26",
+                        "GlobalNodeInstanceId":26,
+                        "NodeType":"BranchNode",
                         "DepthToRoot":4,
                         "ChildNodes":[
                         {
-                        "BranchInstanceId":12,
+                        "BranchInstanceId":11,
                         "Name":"2nd Branch 1-\u003e2 Link Step 3-3 Node",
-                        "GlobalNodeInstanceId":26,
+                        "GlobalNodeInstanceId":24,
                         "NodeType":"BranchNode",
                         "DepthToRoot":5,
                         "ChildNodes":[
                         {
                         "$id":"4",
-                        "BranchInstanceId":11,
+                        "BranchInstanceId":10,
                         "Name":"Fourth Match Node",
-                        "GlobalNodeInstanceId":23,
+                        "GlobalNodeInstanceId":21,
                         "NodeType":"BranchNode",
                         "DepthToRoot":4,
                         "ChildNodes":[
                         {
-                        "LeafInstanceId":12,
+                        "LeafInstanceId":11,
                         "Name":"Fourth Match Leaf",
-                        "GlobalNodeInstanceId":22,
+                        "GlobalNodeInstanceId":20,
                         "NodeType":"LeafNode",
                         "DepthToRoot":5
                         }
                         ]
                         },
                         {
-                        "LeafInstanceId":13,
+                        "LeafInstanceId":12,
                         "Name":"2nd Branch 1-\u003e2 Link Step 3-3 1st Leaf",
-                        "GlobalNodeInstanceId":24,
+                        "GlobalNodeInstanceId":22,
                         "NodeType":"LeafNode",
                         "DepthToRoot":6
                         },
@@ -1201,23 +1154,23 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                         "$ref":"2"
                         },
                         {
-                        "LeafInstanceId":14,
+                        "LeafInstanceId":13,
                         "Name":"2nd Branch 1-\u003e2 Link Step 3-3 2nd Leaf",
-                        "GlobalNodeInstanceId":25,
+                        "GlobalNodeInstanceId":23,
                         "NodeType":"LeafNode",
                         "DepthToRoot":6
                         },
                         {
-                        "BranchInstanceId":10,
-                        "Name":"OrderedBranchNodeAsField`1_21",
-                        "GlobalNodeInstanceId":21,
+                        "BranchInstanceId":9,
+                        "Name":"OrderedBranchNodeAsField`1_19",
+                        "GlobalNodeInstanceId":19,
                         "NodeType":"BranchNode",
                         "DepthToRoot":6,
                         "ChildNodes":[
                         {
-                        "LeafInstanceId":11,
+                        "LeafInstanceId":10,
                         "Name":"2nd Branch 2-\u003e3 Link Leaf",
-                        "GlobalNodeInstanceId":20,
+                        "GlobalNodeInstanceId":18,
                         "NodeType":"LeafNode",
                         "DepthToRoot":7
                         },
@@ -1229,9 +1182,9 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                         ]
                         },
                         {
-                        "LeafInstanceId":15,
+                        "LeafInstanceId":14,
                         "Name":"2nd Branch 1-\u003e2 Link Step 2-3 Leaf",
-                        "GlobalNodeInstanceId":27,
+                        "GlobalNodeInstanceId":25,
                         "NodeType":"LeafNode",
                         "DepthToRoot":5
                         }
@@ -1242,37 +1195,37 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                         ]
                         },
                         {
-                        "LeafInstanceId":22,
+                        "LeafInstanceId":21,
                         "Name":"Sixth Match And Branches Root \u00222nd\u0022 Leaf",
-                        "GlobalNodeInstanceId":40,
+                        "GlobalNodeInstanceId":38,
                         "NodeType":"LeafNode",
                         "DepthToRoot":2
                         },
                         {
-                        "BranchInstanceId":17,
+                        "BranchInstanceId":16,
                         "Name":"3rd Branch Root Node",
-                        "GlobalNodeInstanceId":36,
+                        "GlobalNodeInstanceId":34,
                         "NodeType":"BranchNode",
                         "DepthToRoot":2,
                         "ChildNodes":[
                         {
-                        "LeafInstanceId":19,
+                        "LeafInstanceId":18,
                         "Name":"3rd Branch Root Leaf",
-                        "GlobalNodeInstanceId":35,
+                        "GlobalNodeInstanceId":33,
                         "NodeType":"LeafNode",
                         "DepthToRoot":3
                         },
                         {
-                        "BranchInstanceId":16,
-                        "Name":"OrderedBranchNodeAsField`1_34",
-                        "GlobalNodeInstanceId":34,
+                        "BranchInstanceId":15,
+                        "Name":"OrderedBranchNodeAsField`1_32",
+                        "GlobalNodeInstanceId":32,
                         "NodeType":"BranchNode",
                         "DepthToRoot":3,
                         "ChildNodes":[
                         {
-                        "LeafInstanceId":18,
+                        "LeafInstanceId":17,
                         "Name":"3rd Branch Link -\u003e 4th Leaf",
-                        "GlobalNodeInstanceId":33,
+                        "GlobalNodeInstanceId":31,
                         "NodeType":"LeafNode",
                         "DepthToRoot":4
                         },
@@ -1284,9 +1237,9 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                         ]
                         },
                         {
-                        "BranchInstanceId":18,
+                        "BranchInstanceId":17,
                         "Name":"4th Branch Root Node",
-                        "GlobalNodeInstanceId":38,
+                        "GlobalNodeInstanceId":36,
                         "NodeType":"BranchNode",
                         "DepthToRoot":2,
                         "ChildNodes":[
@@ -1294,18 +1247,18 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                         "$ref":"5"
                         },
                         {
-                        "LeafInstanceId":20,
+                        "LeafInstanceId":19,
                         "Name":"4th Branch Root Leaf",
-                        "GlobalNodeInstanceId":37,
+                        "GlobalNodeInstanceId":35,
                         "NodeType":"LeafNode",
                         "DepthToRoot":3
                         }
                         ]
                         },
                         {
-                        "LeafInstanceId":23,
+                        "LeafInstanceId":22,
                         "Name":"Sixth Match And Branches Root \u00223rd\u0022 Leaf",
-                        "GlobalNodeInstanceId":41,
+                        "GlobalNodeInstanceId":39,
                         "NodeType":"LeafNode",
                         "DepthToRoot":2
                         }
@@ -1314,9 +1267,9 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                         ]
                         },
                         {
-                        "LeafInstanceId":25,
+                        "LeafInstanceId":24,
                         "Name":"Branches Link Leaf",
-                        "GlobalNodeInstanceId":45,
+                        "GlobalNodeInstanceId":43,
                         "NodeType":"LeafNode",
                         "DepthToRoot":1
                         },
@@ -1337,64 +1290,64 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                         {
                           "RootInstanceId": 1,
                           "Name": "Branches Link Node",
-                          "GlobalNodeInstanceId": 46,
+                          "GlobalNodeInstanceId": 44,
                           "NodeType": "RootNode",
                           "ChildNodes": [
                             {
-                              "BranchInstanceId": 20,
-                              "Name": "OrderedBranchNodeAsField`1_44",
-                              "GlobalNodeInstanceId": 44,
+                              "BranchInstanceId": 19,
+                              "Name": "OrderedBranchNodeAsField`1_42",
+                              "GlobalNodeInstanceId": 42,
                               "NodeType": "BranchNode",
                               "DepthToRoot": 1,
                               "ChildNodes": [
                                 {
-                                  "LeafInstanceId": 24,
+                                  "LeafInstanceId": 23,
                                   "Name": "Branches Link -\u003e 4th Leaf",
-                                  "GlobalNodeInstanceId": 43,
+                                  "GlobalNodeInstanceId": 41,
                                   "NodeType": "LeafNode",
                                   "DepthToRoot": 2
                                 },
                                 {
                                   "$id": "6",
-                                  "BranchInstanceId": 19,
+                                  "BranchInstanceId": 18,
                                   "Name": "Sixth Match And Branches Root Node",
-                                  "GlobalNodeInstanceId": 42,
+                                  "GlobalNodeInstanceId": 40,
                                   "NodeType": "BranchNode",
                                   "DepthToRoot": 1,
                                   "ChildNodes": [
                                     {
-                                      "BranchInstanceId": 9,
+                                      "BranchInstanceId": 8,
                                       "Name": "1st Branch Root Node",
-                                      "GlobalNodeInstanceId": 19,
+                                      "GlobalNodeInstanceId": 17,
                                       "NodeType": "BranchNode",
                                       "DepthToRoot": 2,
                                       "ChildNodes": [
                                         {
-                                          "LeafInstanceId": 9,
+                                          "LeafInstanceId": 8,
                                           "Name": "1st Branch Root 1st Leaf",
-                                          "GlobalNodeInstanceId": 17,
+                                          "GlobalNodeInstanceId": 15,
                                           "NodeType": "LeafNode",
                                           "DepthToRoot": 3
                                         },
                                         {
                                           "$id": "2",
-                                          "BranchInstanceId": 8,
+                                          "BranchInstanceId": 7,
                                           "Name": "Second Match Node",
-                                          "GlobalNodeInstanceId": 16,
+                                          "GlobalNodeInstanceId": 14,
                                           "NodeType": "BranchNode",
                                           "DepthToRoot": 6,
                                           "ChildNodes": [
                                             {
-                                              "LeafInstanceId": 8,
+                                              "LeafInstanceId": 7,
                                               "Name": "Second Match Leaf",
-                                              "GlobalNodeInstanceId": 15,
+                                              "GlobalNodeInstanceId": 13,
                                               "NodeType": "LeafNode",
                                               "DepthToRoot": 7
                                             },
                                             {
-                                              "BranchInstanceId": 7,
+                                              "BranchInstanceId": 6,
                                               "Name": "1st Branch Link 2-\u003e3 Node",
-                                              "GlobalNodeInstanceId": 14,
+                                              "GlobalNodeInstanceId": 12,
                                               "NodeType": "BranchNode",
                                               "DepthToRoot": 7,
                                               "ChildNodes": [
@@ -1466,9 +1419,9 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                                                   ]
                                                 },
                                                 {
-                                                  "LeafInstanceId": 7,
+                                                  "LeafInstanceId": 6,
                                                   "Name": "1st Branch Link 2-\u003e3 Leaf",
-                                                  "GlobalNodeInstanceId": 13,
+                                                  "GlobalNodeInstanceId": 11,
                                                   "NodeType": "LeafNode",
                                                   "DepthToRoot": 8
                                                 },
@@ -1494,32 +1447,32 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                                           ]
                                         },
                                         {
-                                          "LeafInstanceId": 10,
+                                          "LeafInstanceId": 9,
                                           "Name": "1st Branch Root 2nd Leaf",
-                                          "GlobalNodeInstanceId": 18,
+                                          "GlobalNodeInstanceId": 16,
                                           "NodeType": "LeafNode",
                                           "DepthToRoot": 3
                                         }
                                       ]
                                     },
                                     {
-                                      "LeafInstanceId": 21,
+                                      "LeafInstanceId": 20,
                                       "Name": "Sixth Match And Branches Root \u00221st\u0022 Leaf",
-                                      "GlobalNodeInstanceId": 39,
+                                      "GlobalNodeInstanceId": 37,
                                       "NodeType": "LeafNode",
                                       "DepthToRoot": 2
                                     },
                                     {
-                                      "BranchInstanceId": 15,
-                                      "Name": "OrderedBranchNodeAsField`1_32",
-                                      "GlobalNodeInstanceId": 32,
+                                      "BranchInstanceId": 14,
+                                      "Name": "OrderedBranchNodeAsField`1_30",
+                                      "GlobalNodeInstanceId": 30,
                                       "NodeType": "BranchNode",
                                       "DepthToRoot": 2,
                                       "ChildNodes": [
                                         {
-                                          "LeafInstanceId": 17,
+                                          "LeafInstanceId": 16,
                                           "Name": "2nd Branch Root Leaf",
-                                          "GlobalNodeInstanceId": 31,
+                                          "GlobalNodeInstanceId": 29,
                                           "NodeType": "LeafNode",
                                           "DepthToRoot": 3
                                         },
@@ -1527,54 +1480,54 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                                           "$ref": "1"
                                         },
                                         {
-                                          "BranchInstanceId": 14,
-                                          "Name": "OrderedBranchNodeAsField`1_30",
-                                          "GlobalNodeInstanceId": 30,
+                                          "BranchInstanceId": 13,
+                                          "Name": "OrderedBranchNodeAsField`1_28",
+                                          "GlobalNodeInstanceId": 28,
                                           "NodeType": "BranchNode",
                                           "DepthToRoot": 3,
                                           "ChildNodes": [
                                             {
-                                              "LeafInstanceId": 16,
+                                              "LeafInstanceId": 15,
                                               "Name": "2nd Branch 1-\u003e2 Link Step 1-3 Leaf",
-                                              "GlobalNodeInstanceId": 29,
+                                              "GlobalNodeInstanceId": 27,
                                               "NodeType": "LeafNode",
                                               "DepthToRoot": 4
                                             },
                                             {
-                                              "BranchInstanceId": 13,
-                                              "Name": "OrderedBranchNodeAsField`1_28",
-                                              "GlobalNodeInstanceId": 28,
+                                              "BranchInstanceId": 12,
+                                              "Name": "OrderedBranchNodeAsField`1_26",
+                                              "GlobalNodeInstanceId": 26,
                                               "NodeType": "BranchNode",
                                               "DepthToRoot": 4,
                                               "ChildNodes": [
                                                 {
-                                                  "BranchInstanceId": 12,
+                                                  "BranchInstanceId": 11,
                                                   "Name": "2nd Branch 1-\u003e2 Link Step 3-3 Node",
-                                                  "GlobalNodeInstanceId": 26,
+                                                  "GlobalNodeInstanceId": 24,
                                                   "NodeType": "BranchNode",
                                                   "DepthToRoot": 5,
                                                   "ChildNodes": [
                                                     {
                                                       "$id": "4",
-                                                      "BranchInstanceId": 11,
+                                                      "BranchInstanceId": 10,
                                                       "Name": "Fourth Match Node",
-                                                      "GlobalNodeInstanceId": 23,
+                                                      "GlobalNodeInstanceId": 21,
                                                       "NodeType": "BranchNode",
                                                       "DepthToRoot": 4,
                                                       "ChildNodes": [
                                                         {
-                                                          "LeafInstanceId": 12,
+                                                          "LeafInstanceId": 11,
                                                           "Name": "Fourth Match Leaf",
-                                                          "GlobalNodeInstanceId": 22,
+                                                          "GlobalNodeInstanceId": 20,
                                                           "NodeType": "LeafNode",
                                                           "DepthToRoot": 5
                                                         }
                                                       ]
                                                     },
                                                     {
-                                                      "LeafInstanceId": 13,
+                                                      "LeafInstanceId": 12,
                                                       "Name": "2nd Branch 1-\u003e2 Link Step 3-3 1st Leaf",
-                                                      "GlobalNodeInstanceId": 24,
+                                                      "GlobalNodeInstanceId": 22,
                                                       "NodeType": "LeafNode",
                                                       "DepthToRoot": 6
                                                     },
@@ -1582,23 +1535,23 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                                                       "$ref": "2"
                                                     },
                                                     {
-                                                      "LeafInstanceId": 14,
+                                                      "LeafInstanceId": 13,
                                                       "Name": "2nd Branch 1-\u003e2 Link Step 3-3 2nd Leaf",
-                                                      "GlobalNodeInstanceId": 25,
+                                                      "GlobalNodeInstanceId": 23,
                                                       "NodeType": "LeafNode",
                                                       "DepthToRoot": 6
                                                     },
                                                     {
-                                                      "BranchInstanceId": 10,
-                                                      "Name": "OrderedBranchNodeAsField`1_21",
-                                                      "GlobalNodeInstanceId": 21,
+                                                      "BranchInstanceId": 9,
+                                                      "Name": "OrderedBranchNodeAsField`1_19",
+                                                      "GlobalNodeInstanceId": 19,
                                                       "NodeType": "BranchNode",
                                                       "DepthToRoot": 6,
                                                       "ChildNodes": [
                                                         {
-                                                          "LeafInstanceId": 11,
+                                                          "LeafInstanceId": 10,
                                                           "Name": "2nd Branch 2-\u003e3 Link Leaf",
-                                                          "GlobalNodeInstanceId": 20,
+                                                          "GlobalNodeInstanceId": 18,
                                                           "NodeType": "LeafNode",
                                                           "DepthToRoot": 7
                                                         },
@@ -1610,9 +1563,9 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                                                   ]
                                                 },
                                                 {
-                                                  "LeafInstanceId": 15,
+                                                  "LeafInstanceId": 14,
                                                   "Name": "2nd Branch 1-\u003e2 Link Step 2-3 Leaf",
-                                                  "GlobalNodeInstanceId": 27,
+                                                  "GlobalNodeInstanceId": 25,
                                                   "NodeType": "LeafNode",
                                                   "DepthToRoot": 5
                                                 }
@@ -1623,37 +1576,37 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                                       ]
                                     },
                                     {
-                                      "LeafInstanceId": 22,
+                                      "LeafInstanceId": 21,
                                       "Name": "Sixth Match And Branches Root \u00222nd\u0022 Leaf",
-                                      "GlobalNodeInstanceId": 40,
+                                      "GlobalNodeInstanceId": 38,
                                       "NodeType": "LeafNode",
                                       "DepthToRoot": 2
                                     },
                                     {
-                                      "BranchInstanceId": 17,
+                                      "BranchInstanceId": 16,
                                       "Name": "3rd Branch Root Node",
-                                      "GlobalNodeInstanceId": 36,
+                                      "GlobalNodeInstanceId": 34,
                                       "NodeType": "BranchNode",
                                       "DepthToRoot": 2,
                                       "ChildNodes": [
                                         {
-                                          "LeafInstanceId": 19,
+                                          "LeafInstanceId": 18,
                                           "Name": "3rd Branch Root Leaf",
-                                          "GlobalNodeInstanceId": 35,
+                                          "GlobalNodeInstanceId": 33,
                                           "NodeType": "LeafNode",
                                           "DepthToRoot": 3
                                         },
                                         {
-                                          "BranchInstanceId": 16,
-                                          "Name": "OrderedBranchNodeAsField`1_34",
-                                          "GlobalNodeInstanceId": 34,
+                                          "BranchInstanceId": 15,
+                                          "Name": "OrderedBranchNodeAsField`1_32",
+                                          "GlobalNodeInstanceId": 32,
                                           "NodeType": "BranchNode",
                                           "DepthToRoot": 3,
                                           "ChildNodes": [
                                             {
-                                              "LeafInstanceId": 18,
+                                              "LeafInstanceId": 17,
                                               "Name": "3rd Branch Link -\u003e 4th Leaf",
-                                              "GlobalNodeInstanceId": 33,
+                                              "GlobalNodeInstanceId": 31,
                                               "NodeType": "LeafNode",
                                               "DepthToRoot": 4
                                             },
@@ -1665,9 +1618,9 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                                       ]
                                     },
                                     {
-                                      "BranchInstanceId": 18,
+                                      "BranchInstanceId": 17,
                                       "Name": "4th Branch Root Node",
-                                      "GlobalNodeInstanceId": 38,
+                                      "GlobalNodeInstanceId": 36,
                                       "NodeType": "BranchNode",
                                       "DepthToRoot": 2,
                                       "ChildNodes": [
@@ -1675,18 +1628,18 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                                           "$ref": "5"
                                         },
                                         {
-                                          "LeafInstanceId": 20,
+                                          "LeafInstanceId": 19,
                                           "Name": "4th Branch Root Leaf",
-                                          "GlobalNodeInstanceId": 37,
+                                          "GlobalNodeInstanceId": 35,
                                           "NodeType": "LeafNode",
                                           "DepthToRoot": 3
                                         }
                                       ]
                                     },
                                     {
-                                      "LeafInstanceId": 23,
+                                      "LeafInstanceId": 22,
                                       "Name": "Sixth Match And Branches Root \u00223rd\u0022 Leaf",
-                                      "GlobalNodeInstanceId": 41,
+                                      "GlobalNodeInstanceId": 39,
                                       "NodeType": "LeafNode",
                                       "DepthToRoot": 2
                                     }
@@ -1695,9 +1648,9 @@ public class MultiRevisitFieldsCombinationTest : CommonStyleExpectationTestBase
                               ]
                             },
                             {
-                              "LeafInstanceId": 25,
+                              "LeafInstanceId": 24,
                               "Name": "Branches Link Leaf",
-                              "GlobalNodeInstanceId": 45,
+                              "GlobalNodeInstanceId": 43,
                               "NodeType": "LeafNode",
                               "DepthToRoot": 1
                             },

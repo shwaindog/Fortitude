@@ -3,9 +3,9 @@
 
 using System.Collections;
 using System.Diagnostics;
-using System.Text;
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 
 namespace FortitudeCommon.Types.StringsOfPower.InstanceTracking;
@@ -32,7 +32,7 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
             Debugger.Break();
             return -2;
         }
-        if (toSetTo.RegistryId == -1 || toSetTo.VisitIndex == -1) return -1;
+        if (toSetTo is { RegistryId: -1, VisitIndex: -1 }) return -1;
         if (toSetTo.VisitIndex < 0 || toSetTo.VisitIndex >= OrderedObjectGraph.Count)
         {
             Debugger.Break();
@@ -59,6 +59,11 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
         RegistryId = asStringEnterCount;
 
         return this;
+    }
+
+    public bool HasRegistered(VisitId visitId)
+    {
+        return visitId.IsRegisterable && RegistryId == visitId.RegistryId && visitId.VisitIndex < OrderedObjectGraph.Count;
     }
 
     public void ClearObjectVisitedGraph()
@@ -95,12 +100,15 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
        return false;
     }
     
-    public bool WasVisitAsBaseTypeOrHigher(Type objAsType, GraphNodeVisit startToLast)
+    public int WasVisitAsBaseTypeOrHigher(Type objAsType, GraphNodeVisit startToLast)
     {
-       if (startToLast.VisitedAsType != objAsType 
-        && (!objAsType.IsAssignableTo(startToLast.VisitedAsType)
-         && startToLast.VisitedAsType.IsAssignableTo(objAsType))) { return true; }
-       return false;
+        if (startToLast.VisitedAsType != objAsType
+         && (!objAsType.IsAssignableTo(startToLast.VisitedAsType)
+          && startToLast.VisitedAsType.IsAssignableTo(objAsType)))
+        {
+            return 1;
+        }
+        return 0;
     }
 
     public bool WasVisitOnSameInstance(object objToStyle, GraphNodeVisit checkVisit)
@@ -150,6 +158,18 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
         return SourceGraphVisitRefId(requesterVisitId, (object)toStyle, type, formatFlags);
     }
 
+    public void SetBufferFirstFieldStartAndIndentLevel(int visitIndex, int firstFieldStart, int indentLevel)
+    {
+        if (visitIndex >= OrderedObjectGraph.Count || visitIndex < 0) return;
+        OrderedObjectGraph[visitIndex] = OrderedObjectGraph[visitIndex].SetBufferFirstFieldStartAndIndentLevel(firstFieldStart, indentLevel);
+    }
+
+    public void SetBufferFirstFieldStartAndWrittenAs(int visitIndex, int firstFieldStart, WrittenAsFlags writtenAs)
+    {
+        if (visitIndex >= OrderedObjectGraph.Count || visitIndex < 0) return;
+        OrderedObjectGraph[visitIndex] = OrderedObjectGraph[visitIndex].SetBufferFirstFieldStartAndWrittenAs(firstFieldStart, writtenAs);
+    }
+
     public void UpdateVisitWriteMethod(int visitIndex, WrittenAsFlags writeAs)
     {
         if (visitIndex >= OrderedObjectGraph.Count || visitIndex < 0) return;
@@ -174,24 +194,37 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
         OrderedObjectGraph[visitIndex] = OrderedObjectGraph[visitIndex].UpdateVisitEncoders(contentEncoder, layoutEncoder);
     }
 
+    public void UpdateVisitFormatter(int visitIndex, IStyledTypeFormatting updatedFormatter)
+    {
+        if (visitIndex >= OrderedObjectGraph.Count || visitIndex < 0) return;
+        OrderedObjectGraph[visitIndex] = OrderedObjectGraph[visitIndex].UpdateVisitFormatter(updatedFormatter);
+    }
+
     public void RemoveComparisonInstanceAtVisit(int visitIndex)
     {
         if (visitIndex >= OrderedObjectGraph.Count || visitIndex < 0) return;
         OrderedObjectGraph[visitIndex] = OrderedObjectGraph[visitIndex].ReplaceObjectInstance(null);
     }
 
-    public int  UpdateVisitLength(int visitIndex, int deltaLength)
+    public int UpdateVisitLinesAndLength(VisitId visitId, int deltaLength, int addedNewLines)
     {
-        if (visitIndex >= OrderedObjectGraph.Count || visitIndex < 0) return -1;
-        OrderedObjectGraph[visitIndex] = OrderedObjectGraph[visitIndex].UpdateVisitLength(deltaLength);
-        return OrderedObjectGraph[visitIndex].BufferLength;
+        if (visitId.VisitIndex >= OrderedObjectGraph.Count || visitId.VisitIndex < 0) return -1;
+        var node = OrderedObjectGraph[visitId.VisitIndex];
+        if(node.TypeOpenBufferIndex + node.BufferLength > master.WriteBuffer.Length ) Debugger.Break();
+        OrderedObjectGraph[visitId.VisitIndex] = node.UpdateVisitLinesAndLength(deltaLength, addedNewLines);
+        return node.BufferLength;
+    }
+
+    public void UpdateAddParentNewLines(VisitId visitId, int deltaParentNewLines)
+    {
+        if (visitId.VisitIndex >= OrderedObjectGraph.Count || visitId.VisitIndex < 0) return;
+        OrderedObjectGraph[visitId.VisitIndex] = OrderedObjectGraph[visitId.VisitIndex].AddParentNewLines(deltaParentNewLines);
     }
 
     private VisitResult SourceGraphVisitRefId(VisitId requesterVisitId, object objToStyle, Type type, FormatFlags formatFlags)
     {
         if (type.IsValueType) return VisitResult.VisitNotChecked;
         var foundRefId              = 0;
-        var isBaseOfFound           = false;
         var firstInstanceIndex      = -1;
         var firstMatchInstanceIndex = -1;
         var lastInstanceIndex       = -1;
@@ -202,49 +235,50 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
             var graphNodeVisit = OrderedObjectGraph[fwdIndex];
             if (WasVisitOnSameInstance(objToStyle, graphNodeVisit))
             {
-                if (WasVisitOnSameOrMoreDerivedType(type, graphNodeVisit))
+                var nodeVisitable = !graphNodeVisit.CurrentFormatFlags.HasNoRevisitCheck();
+                if (!nodeVisitable) continue;
+                var bothVisitable = nodeVisitable&& !formatFlags.HasNoRevisitCheck();
+                
+                if (firstInstanceIndex < 0)
                 {
-                    foundRefId    = graphNodeVisit.RefId;
-                    var skipThisOccurence = false;
-                    isBaseOfFound = WasVisitAsBaseTypeOrHigher(type, graphNodeVisit);
-                    if (!isBaseOfFound 
-                     && foundRefId == 0 
-                     && !graphNodeVisit.CurrentFormatFlags.HasNoRevisitCheck()
-                     && !formatFlags.HasNoRevisitCheck() )
-                    {
-                        foundRefId                   = NextRefId();
-                        OrderedObjectGraph[fwdIndex] = graphNodeVisit.SetRefId(foundRefId);
-                        thisVisitRepeatCount         = 0;
-                    }
-                    if (firstInstanceIndex < 0)
-                    {
-                        firstInstanceIndex = fwdIndex;
-                    }
-                    if (!skipThisOccurence && !graphNodeVisit.CurrentFormatFlags.HasNoRevisitCheck() && !formatFlags.HasNoRevisitCheck())
-                    {
-                        firstMatchInstanceIndex = fwdIndex;
-                        break;
-                    }
+                    firstInstanceIndex = fwdIndex;
                 }
-            }
-        }
-        var bkwdIndex = (sbyte)(OrderedObjectGraph.Count - 1);
-        for (; bkwdIndex > fwdIndex; bkwdIndex--)
-        {
-            var graphNodeVisit = OrderedObjectGraph[bkwdIndex];
-            if (WasVisitOnSameInstance(objToStyle, graphNodeVisit))
-            {
-                if (WasVisitOnSameOrBaseType(type, graphNodeVisit))
+                foundRefId              = graphNodeVisit.RefId;
+                if (foundRefId == 0 && bothVisitable )
                 {
-                    lastInstanceIndex = bkwdIndex;
-                    thisVisitRepeatCount       = graphNodeVisit.RevisitCount;
+                    foundRefId                   = NextRefId();
+                    OrderedObjectGraph[fwdIndex] = graphNodeVisit.SetRefId(foundRefId);
+                    thisVisitRepeatCount         = 0;
+                    firstMatchInstanceIndex      = fwdIndex;
+                    break;
+                }
+                if (firstInstanceIndex < 0)
+                {
+                    firstInstanceIndex = fwdIndex;
+                }
+                if (foundRefId > 0 && bothVisitable)
+                {
+                    foundRefId              = graphNodeVisit.RefId;
+                    thisVisitRepeatCount    = graphNodeVisit.RevisitCount + 1;
+                    firstMatchInstanceIndex = fwdIndex;
                     break;
                 }
             }
         }
+        var bkwdIndex = (sbyte)(OrderedObjectGraph.Count - 1);
+        for (; bkwdIndex >= fwdIndex; bkwdIndex--)
+        {
+            var graphNodeVisit = OrderedObjectGraph[bkwdIndex];
+            if (WasVisitOnSameInstance(objToStyle, graphNodeVisit))
+            {
+                lastInstanceIndex = bkwdIndex;
+                thisVisitRepeatCount       = graphNodeVisit.RevisitCount + 1;
+                break;
+            }
+        }
         
         return new VisitResult( new VisitId( RegistryId, NextFreeSlot), requesterVisitId, foundRefId
-                             , firstInstanceIndex, firstMatchInstanceIndex, lastInstanceIndex, thisVisitRepeatCount, isBaseOfFound);
+                             , firstInstanceIndex, firstMatchInstanceIndex, lastInstanceIndex, thisVisitRepeatCount);
     }
 
     public VisitResult VisitNotChecked(VisitId requesterVisitId) => new ( new VisitId(VisitId.NoVisitCheckPerformedRegistryId, NextFreeSlot), requesterVisitId);
@@ -297,7 +331,15 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
     public GraphNodeVisit this[int index]
     {
         get => OrderedObjectGraph[index];
-        set => OrderedObjectGraph[index] = value;
+        set
+        {
+            if (value.TypeOpenBufferIndex + value.BufferLength > master.WriteBuffer.Length)
+            {
+                Console.Out.WriteLine($"VisitIndex: {index} TypeOpenBufferIndex : {value.TypeOpenBufferIndex}  BufferLength : {value.BufferLength} but Master.WriteBuffer.Length: {master.WriteBuffer.Length} ");
+                // Debugger.Break();
+            }
+            OrderedObjectGraph[index] = value;
+        }
     }
 
     public override void StateReset()

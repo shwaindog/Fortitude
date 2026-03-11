@@ -4,6 +4,7 @@
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 
@@ -14,36 +15,44 @@ public abstract class TransitioningTypeMolder<TCurrent, TNext> : KnownTypeMolder
 {
     private bool hasTransitioned;
 
-    public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
-    {
-        if (IsComplexType)
-        {
-            usingFormatter.StartComplexTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MigratableMoldState.CurrentWriteMethod, formatFlags);
-        }
-        else
-        {
-            usingFormatter.StartSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MigratableMoldState.CurrentWriteMethod, formatFlags);
-        }
-    }
+    // public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
+    // {
+    //     if (IsComplexType)
+    //     {
+    //         usingFormatter.StartComplexTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MigratableMoldState.CurrentWriteMethod, formatFlags);
+    //     }
+    //     else
+    //     {
+    //         usingFormatter.StartSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MigratableMoldState.CurrentWriteMethod, formatFlags);
+    //         MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, MoldStateField.StyleFormatter
+    //                           , MoldStateField.CurrentWriteMethod, MoldStateField.MoldWrittenFlags, formatFlags);
+    //     }
+    // }
+    //
+    // public override void FinishTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
+    // {
+    //     if (IsComplexType)
+    //     {
+    //         usingFormatter.FinishComplexTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MigratableMoldState.CurrentWriteMethod, formatFlags);
+    //         MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, MoldStateField.StyleFormatter
+    //                           , MoldStateField.CurrentWriteMethod, MoldStateField.MoldWrittenFlags, formatFlags);
+    //     }
+    //     else
+    //     {
+    //         usingFormatter.FinishSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MigratableMoldState.CurrentWriteMethod, formatFlags);
+    //     }
+    // }
 
-    public override void FinishTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
+    public override void AppendClosing(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (IsComplexType)
-        {
-            usingFormatter.FinishComplexTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MigratableMoldState.CurrentWriteMethod, formatFlags);
-        }
+            MoldStateField
+                .StyleFormatter
+                .AppendComplexTypeClosing(MoldStateField.InstanceOrType, MoldStateField, MigratableMoldState.CurrentWriteMethod, formatFlags);
         else
-        {
-            usingFormatter.FinishSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MigratableMoldState.CurrentWriteMethod, formatFlags);
-        }
-    }
-
-    public override void AppendClosing()
-    {
-        if (IsComplexType)
-            MoldStateField.StyleFormatter.AppendComplexTypeClosing(MoldStateField.InstanceOrType, MoldStateField, MigratableMoldState.CurrentWriteMethod);
-        else
-            MoldStateField.StyleFormatter.AppendSimpleTypeClosing(MoldStateField.InstanceOrType, MoldStateField, MigratableMoldState.CurrentWriteMethod);
+            MoldStateField
+                .StyleFormatter
+                .AppendSimpleTypeClosing(MoldStateField.InstanceOrType, MoldStateField, MigratableMoldState.CurrentWriteMethod, formatFlags);
     }
 
     public virtual TNext TransitionToNextMold()
@@ -66,11 +75,11 @@ public abstract class TransitioningTypeMolder<TCurrent, TNext> : KnownTypeMolder
 
     public IMigratableMoldWriteState MigratableMoldState => MoldStateField;
 
-    public override AppendSummary Complete()
+    public override AppendSummary Complete(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (!hasTransitioned)
         {
-            return base.Complete();
+            return base.Complete(formatFlags);
         }
         var currentAppenderIndex = MoldStateField.Master.WriteBuffer.Length;
         var typeWriteRange       = new Range(Index.FromStart(StartIndex), Index.FromStart(currentAppenderIndex));

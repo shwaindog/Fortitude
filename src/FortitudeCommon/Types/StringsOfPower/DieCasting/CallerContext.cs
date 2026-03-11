@@ -29,6 +29,18 @@ public struct CallerContext : IStructTransferState<CallerContext>, IEquatable<Ca
     
     public int SetFieldName(ReadOnlySpan<char> fieldName) => CallerFieldName.Clear().Append(fieldName).Length;
 
+    public CallerContext Merge(CallerContext toMergeInto)
+    {
+        FormatFlags     |= toMergeInto.FormatFlags;
+        FormatString    =  toMergeInto.FormatString ?? FormatString;
+        callerFieldName =  toMergeInto.CallerFieldName;
+        IsFieldNameKey  |= IsFieldNameKey;
+        FieldNameRetrieveIndex = toMergeInto.FieldNameRetrieveIndex;
+        CallerType = toMergeInto.CallerType ?? CallerType;
+
+        return this;
+    }
+
     public CallerContext Clear()
     {
         FormatFlags = FormatFlags.DefaultCallerTypeFlags;

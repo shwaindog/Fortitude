@@ -37,6 +37,7 @@ public static class TargetStringBearerRevealState
 
         var callBaseToString = (PalantírReveal<T>)nonVirtualToString.GetOrAdd(baseType, bType => CreateInvokeMethod(bType));
 
+        
         callBaseToString(baseHasStyledToString, stsa);
     }
 

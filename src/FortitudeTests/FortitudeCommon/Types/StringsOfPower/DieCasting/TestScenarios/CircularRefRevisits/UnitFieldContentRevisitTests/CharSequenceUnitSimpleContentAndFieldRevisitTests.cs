@@ -502,13 +502,8 @@ public class CharSequenceUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoCharSequenceFields<ICharSequence> {
-                         FirstCharSequenceField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondCharSequenceField: {
-                         $ref: 1
-                         }
+                         FirstCharSequenceField: (MutableString($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondCharSequenceField: (MutableString($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -517,13 +512,8 @@ public class CharSequenceUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoCharSequenceFields<ICharSequence> {
-                          FirstCharSequenceField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondCharSequenceField: {
-                            $ref: 1
-                          }
+                          FirstCharSequenceField: (MutableString($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondCharSequenceField: (MutableString($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -619,13 +609,8 @@ public class CharSequenceUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoCharSequencesFirstAsSimpleCloakedValueContent<ICharSequence> {
-                         FirstCharSequenceField: {
-                         $id: 1,
-                         $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                         },
-                         SecondCharSequenceField: {
-                         $ref: 1
-                         }
+                         FirstCharSequenceField: (CharArrayStringBuilder($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                         SecondCharSequenceField: (CharArrayStringBuilder($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -634,13 +619,8 @@ public class CharSequenceUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoCharSequencesFirstAsSimpleCloakedValueContent<ICharSequence> {
-                          FirstCharSequenceField: {
-                            $id: 1,
-                            $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                          },
-                          SecondCharSequenceField: {
-                            $ref: 1
-                          }
+                          FirstCharSequenceField: (CharArrayStringBuilder($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                          SecondCharSequenceField: (CharArrayStringBuilder($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -734,13 +714,8 @@ public class CharSequenceUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoCharSequencesSecondAsSimpleCloakedValueContent<ICharSequence> {
-                         FirstCharSequenceField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondCharSequenceField: {
-                         $ref: 1
-                         }
+                         FirstCharSequenceField: (MutableString($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondCharSequenceField: (MutableString($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -749,13 +724,8 @@ public class CharSequenceUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoCharSequencesSecondAsSimpleCloakedValueContent<ICharSequence> {
-                          FirstCharSequenceField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondCharSequenceField: {
-                            $ref: 1
-                          }
+                          FirstCharSequenceField: (MutableString($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondCharSequenceField: (MutableString($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -850,13 +820,8 @@ public class CharSequenceUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwCharSequencesFirstAsSimpleCloakedStringContent<ICharSequence> {
-                         FirstCharSequenceField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondCharSequenceField: {
-                         $ref: 1
-                         }
+                         FirstCharSequenceField: (CharArrayStringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondCharSequenceField: (CharArrayStringBuilder($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -865,13 +830,8 @@ public class CharSequenceUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwCharSequencesFirstAsSimpleCloakedStringContent<ICharSequence> {
-                          FirstCharSequenceField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondCharSequenceField: {
-                            $ref: 1
-                          }
+                          FirstCharSequenceField: (CharArrayStringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondCharSequenceField: (CharArrayStringBuilder($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -968,13 +928,8 @@ public class CharSequenceUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoCharSequencesSecondAsSimpleCloakedStringContent<ICharSequence> {
-                         FirstCharSequenceField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondCharSequenceField: {
-                         $ref: 1
-                         }
+                         FirstCharSequenceField: (MutableString($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondCharSequenceField: (MutableString($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -983,13 +938,8 @@ public class CharSequenceUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoCharSequencesSecondAsSimpleCloakedStringContent<ICharSequence> {
-                          FirstCharSequenceField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondCharSequenceField: {
-                            $ref: 1
-                          }
+                          FirstCharSequenceField: (MutableString($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondCharSequenceField: (MutableString($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -1082,14 +1032,8 @@ public class CharSequenceUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoCharSequenceFields<ICharSequence> {
-                         FirstCharSequenceField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondCharSequenceField: {
-                         $ref: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         }
+                         FirstCharSequenceField: (MutableString($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondCharSequenceField: (MutableString($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                          }
                         """.RemoveLineEndings()
                     }
@@ -1098,14 +1042,8 @@ public class CharSequenceUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoCharSequenceFields<ICharSequence> {
-                          FirstCharSequenceField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondCharSequenceField: {
-                            $ref: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          }
+                          FirstCharSequenceField: (MutableString($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondCharSequenceField: (MutableString($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                         }
                         """.Dos2Unix()
                     }
@@ -1205,14 +1143,8 @@ public class CharSequenceUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoCharSequencesFirstAsSimpleCloakedValueContent<ICharSequence> {
-                         FirstCharSequenceField: {
-                         $id: 1,
-                         $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                         },
-                         SecondCharSequenceField: {
-                         $ref: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         }
+                         FirstCharSequenceField: (CharArrayStringBuilder($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                         SecondCharSequenceField: (CharArrayStringBuilder($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                          }
                         """.RemoveLineEndings()
                     }
@@ -1221,14 +1153,8 @@ public class CharSequenceUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoCharSequencesFirstAsSimpleCloakedValueContent<ICharSequence> {
-                          FirstCharSequenceField: {
-                            $id: 1,
-                            $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                          },
-                          SecondCharSequenceField: {
-                            $ref: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          }
+                          FirstCharSequenceField: (CharArrayStringBuilder($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                          SecondCharSequenceField: (CharArrayStringBuilder($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                         }
                         """.Dos2Unix()
                     }
@@ -1328,14 +1254,8 @@ public class CharSequenceUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoCharSequencesSecondAsSimpleCloakedValueContent<ICharSequence> {
-                         FirstCharSequenceField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondCharSequenceField: {
-                         $ref: 1,
-                         $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                         }
+                         FirstCharSequenceField: (MutableString($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondCharSequenceField: (MutableString($ref: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.
                          }
                         """.RemoveLineEndings()
                     }
@@ -1344,14 +1264,8 @@ public class CharSequenceUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoCharSequencesSecondAsSimpleCloakedValueContent<ICharSequence> {
-                          FirstCharSequenceField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondCharSequenceField: {
-                            $ref: 1,
-                            $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                          }
+                          FirstCharSequenceField: (MutableString($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondCharSequenceField: (MutableString($ref: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.
                         }
                         """.Dos2Unix()
                     }
@@ -1452,14 +1366,8 @@ public class CharSequenceUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwCharSequencesFirstAsSimpleCloakedStringContent<ICharSequence> {
-                         FirstCharSequenceField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondCharSequenceField: {
-                         $ref: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         }
+                         FirstCharSequenceField: (CharArrayStringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondCharSequenceField: (CharArrayStringBuilder($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                          }
                         """.RemoveLineEndings()
                     }
@@ -1468,14 +1376,8 @@ public class CharSequenceUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwCharSequencesFirstAsSimpleCloakedStringContent<ICharSequence> {
-                          FirstCharSequenceField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondCharSequenceField: {
-                            $ref: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          }
+                          FirstCharSequenceField: (CharArrayStringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondCharSequenceField: (CharArrayStringBuilder($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                         }
                         """.Dos2Unix()
                     }
@@ -1576,14 +1478,8 @@ public class CharSequenceUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoCharSequencesSecondAsSimpleCloakedStringContent<ICharSequence> {
-                         FirstCharSequenceField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondCharSequenceField: {
-                         $ref: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         }
+                         FirstCharSequenceField: (MutableString($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondCharSequenceField: (MutableString($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                          }
                         """.RemoveLineEndings()
                     }
@@ -1592,14 +1488,8 @@ public class CharSequenceUnitSimpleContentAndFieldRevisitTests : CommonStyleExpe
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoCharSequencesSecondAsSimpleCloakedStringContent<ICharSequence> {
-                          FirstCharSequenceField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondCharSequenceField: {
-                            $ref: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          }
+                          FirstCharSequenceField: (MutableString($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondCharSequenceField: (MutableString($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                         }
                         """.Dos2Unix()
                     }

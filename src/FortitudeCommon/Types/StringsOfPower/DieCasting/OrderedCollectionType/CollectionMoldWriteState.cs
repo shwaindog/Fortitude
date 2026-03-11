@@ -45,17 +45,17 @@ public class CollectionMoldWriteState<TOCMold> : MoldWriteState<TOCMold>, IColle
             
             flags |= LogSuppressTypeNames | NoRevisitCheck;
         }
-        var collTypeFullName = collType.FullName ?? "";
-        var elementTypeFullName = elementType.IfNullableGetUnderlyingTypeOrThis().FullName ?? "";
-        if(Settings.LogSuppressDisplayCollectionNames.Any(s => collTypeFullName.StartsWith(s))
-        && Settings.LogSuppressDisplayCollectionElementNames.Any(s => elementTypeFullName.StartsWith(s)))
-        {
-            flags |= LogSuppressTypeNames;
-        }
+        // var collTypeFullName = collType.FullName ?? "";
+        // var elementTypeFullName = elementType.IfNullableGetUnderlyingTypeOrThis().FullName ?? "";
+        // if(Settings.LogSuppressDisplayCollectionNames.Any(s => collTypeFullName.StartsWith(s))
+        // && Settings.LogSuppressDisplayCollectionElementNames.Any(s => elementTypeFullName.StartsWith(s)))
+        // {
+        //     flags |= LogSuppressTypeNames;
+        // }
 
         if (collection != null && !buildTypeSameAsCollectionType && !collType.IsValueType)
         {
-            return Master.EnsureRegisteredClassIsReferenceTracked(collection, AsSimple | WrittenAsFlags.AsCollection, flags);
+            return Master.EnsureRegisteredClassIsReferenceTracked(collection, flags, AsSimple | WrittenAsFlags.AsCollection, CreateMoldFormatFlags);
         }
         
         return null;
@@ -64,7 +64,7 @@ public class CollectionMoldWriteState<TOCMold> : MoldWriteState<TOCMold>, IColle
     public TrackedInstanceMold? ConditionalCollectionPrefix<TCollection>(TCollection collection, Type elementType, bool? hasAny, FormatFlags formatFlags)
     {
         TrackedInstanceMold? valueMold              = null;
-        var                  previousWroteOuterName = WroteInnerTypeName;
+        var                  previousWroteOuterName = WroteTypeName;
         if (collection is not null and not Type)
         {
             var actualType = collection.GetType();
@@ -82,25 +82,29 @@ public class CollectionMoldWriteState<TOCMold> : MoldWriteState<TOCMold>, IColle
                 }
                 if (!buildTypeSameAsCollectionType)
                 {
-                    WroteOuterTypeName = false;
+                    WroteTypeName = false;
                     Sf.StartSimpleTypeOpening(collection, this, AsSimple | WrittenAsFlags.AsCollection, formatFlags);
                     Sf.FinishSimpleTypeOpening(collection, this, AsSimple | WrittenAsFlags.AsCollection, formatFlags);
-                    WroteOuterTypeName = previousWroteOuterName;
+                    WroteTypeName = previousWroteOuterName;
                 }
             }
         } else if (collection is Type collType)
         {
-                
+            var buildTypeSameAsCollectionType = false;    
             if (collType == TypeBeingBuilt)
             {
                 InnerSameAsOuterType =  true;
-            
-                formatFlags |= LogSuppressTypeNames | NoRevisitCheck;
+
+                buildTypeSameAsCollectionType =  true;
+                formatFlags                   |= LogSuppressTypeNames | NoRevisitCheck;
             }
-            WroteOuterTypeName = false;
-            Sf.StartSimpleTypeOpening(collType, this, AsSimple | WrittenAsFlags.AsCollection, formatFlags);
-            Sf.FinishSimpleTypeOpening(collType, this, AsSimple | WrittenAsFlags.AsCollection, formatFlags);
-            WroteOuterTypeName = previousWroteOuterName;
+            if(!buildTypeSameAsCollectionType)
+            {
+                WroteTypeName = false;
+                Sf.StartSimpleTypeOpening(collType, this, AsSimple | WrittenAsFlags.AsCollection, formatFlags);
+                Sf.FinishSimpleTypeOpening(collType, this, AsSimple | WrittenAsFlags.AsCollection, formatFlags);
+                WroteTypeName = previousWroteOuterName;
+            }
         }
         // always open and close here
         if (valueMold == null || valueMold.ShouldSuppressBody == false)

@@ -20,7 +20,7 @@ public class ContentWithLogOnlyMold : ContentJoinTypeMold<ComplexContentTypeMold
         get
         {
             if (logOnlyInternalField != null) return logOnlyInternalField;
-            if (IsComplexType && !hasAddedContentFinishLogFieldSeparator)
+            if (IsComplexType && !hasAddedContentFinishLogFieldSeparator && !State.SkipFields)
             {
                 MoldStateField.StyleFormatter.AddToNextFieldSeparatorAndPadding(MoldStateField.CreateMoldFormatFlags);
                 hasAddedContentFinishLogFieldSeparator = true;
@@ -37,7 +37,7 @@ public class ContentWithLogOnlyMold : ContentJoinTypeMold<ComplexContentTypeMold
         get
         {
             if (logOnlyInternalCollectionField != null) return logOnlyInternalCollectionField;
-            if (IsComplexType && !hasAddedContentFinishLogFieldSeparator)
+            if (IsComplexType && !hasAddedContentFinishLogFieldSeparator && !State.SkipFields)
             {
                 MoldStateField.StyleFormatter.AddToNextFieldSeparatorAndPadding(MoldStateField.CreateMoldFormatFlags);
                 hasAddedContentFinishLogFieldSeparator = true;
@@ -56,7 +56,7 @@ public class ContentWithLogOnlyMold : ContentJoinTypeMold<ComplexContentTypeMold
         get
         {
             if (logOnlyInternalMapCollectionField != null) return logOnlyInternalMapCollectionField;
-            if (IsComplexType && !hasAddedContentFinishLogFieldSeparator)
+            if (IsComplexType && !hasAddedContentFinishLogFieldSeparator && !State.SkipFields)
             {
                 MoldStateField.StyleFormatter.AddToNextFieldSeparatorAndPadding(MoldStateField.CreateMoldFormatFlags);
                 hasAddedContentFinishLogFieldSeparator = true;

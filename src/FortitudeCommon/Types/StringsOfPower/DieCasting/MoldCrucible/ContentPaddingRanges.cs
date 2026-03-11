@@ -30,29 +30,36 @@ public readonly record struct SeparatorPaddingRanges(Range? SeparatorRange = nul
     }
 
     public int CappedLength(int entireLength) => EntireRange?.Length(entireLength) ?? 0;
-    
+
     public int Length => CappedLength(int.MaxValue);
 };
 
-public readonly record struct ContentSeparatorRanges(FormatFlags PreviousFormatFlags, Range? ContentRange
+public readonly record struct ContentSeparatorRanges
+(
+    FormatFlags PreviousFormatFlags
+  , Range? ContentRange
   , SeparatorPaddingRanges? SeparatorPaddingRange = null)
 {
-    public static ContentSeparatorRanges None => new ();
-    
+    public static ContentSeparatorRanges None => new();
+
     public bool HasContent => ContentRange is not null;
-    
+
     public bool HasNonZeroLengthContent => (ContentRange?.Length() ?? 0) > 0;
 
     public int Length => ContentRange?.Length() ?? 0 + SeparatorPaddingRange?.Length ?? 0;
+
+    public override string ToString() =>
+        $"toS- ContentSeparatorRanges{{" +
+        $" {nameof(ContentRange)}: {ContentRange}, {nameof(SeparatorPaddingRange)}: {SeparatorPaddingRange}, " +
+        $"{nameof(PreviousFormatFlags)}: {PreviousFormatFlags}}}";
 };
 
 public static class ContentSeparatorRangesExtensions
 {
-    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ContentSeparatorRanges ToContentSeparatorRanges(this Range contentRange, FormatFlags formatFlags) => 
-        new (formatFlags, contentRange);
-    
+    public static ContentSeparatorRanges ToContentSeparatorRanges(this Range contentRange, FormatFlags formatFlags) =>
+        new(formatFlags, contentRange);
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ContentSeparatorRanges AddSeparatorPaddingRanges(this ContentSeparatorRanges contentRange
       , SeparatorPaddingRanges separatorPaddingRanges)
@@ -65,16 +72,16 @@ public static class ContentSeparatorRangesExtensions
             {
                 var sepRange = separatorPaddingRanges.SeparatorRange.Value;
                 updatedContentRange = new Range(new Index(contRange.Start.Value + sepRange.Start.Value, true)
-                                               , new Index(sepRange.Start.Value, true));
+                                              , new Index(sepRange.Start.Value, true));
             }
             else if (separatorPaddingRanges.PaddingRange != null)
             {
                 var padRange = separatorPaddingRanges.PaddingRange.Value;
                 updatedContentRange = new Range(new Index(contRange.Start.Value + padRange.Start.Value, true)
-                                               , new Index(padRange.Start.Value, true));
+                                              , new Index(padRange.Start.Value, true));
             }
         }
 
-        return  contentRange with {ContentRange = updatedContentRange, SeparatorPaddingRange = separatorPaddingRanges};
+        return contentRange with { ContentRange = updatedContentRange, SeparatorPaddingRange = separatorPaddingRanges };
     }
 }

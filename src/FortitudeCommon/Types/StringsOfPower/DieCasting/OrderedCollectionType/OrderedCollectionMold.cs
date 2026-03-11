@@ -17,10 +17,11 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType
+      , CallerContext callerContext  
       , FormatFlags createFormatFlags)
     {
         Initialize(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
-                 , remainingGraphDepth, moldGraphVisit, writeMethodType
+                 , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext
                  , createFormatFlags | FormatFlags.AsCollection);
 
         mws = CompAsOrderedCollectionMold;
@@ -29,47 +30,51 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
     }
 
 
-    public override bool IsComplexType => false;
+    public override bool IsComplexType => CompAsOrderedCollectionMold.SupportsMultipleFields;
 
     public int ResultCount { get; set; }
 
     public int TotalCount { get; set; }
 
+    //
+    // public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
+    // {
+    //     if (CompAsOrderedCollectionMold.SupportsMultipleFields)
+    //     {
+    //         MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CurrentWriteMethod, formatFlags);
+    //     }
+    //     else
+    //     {
+    //         MoldStateField.StyleFormatter.StartSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField
+    //                                                            , MoldStateField.CurrentWriteMethod, formatFlags);
+    //         MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, MoldStateField.StyleFormatter
+    //                           , MoldStateField.CurrentWriteMethod, MoldStateField.MoldWrittenFlags, formatFlags);
+    //     }
+    // }
+    //
+    // public override void FinishTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
+    // {
+    //     if (CompAsOrderedCollectionMold.SupportsMultipleFields)
+    //     {
+    //         MoldStateField.StyleFormatter.FinishComplexTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CurrentWriteMethod, formatFlags);
+    //         MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, MoldStateField.StyleFormatter
+    //                           , MoldStateField.CurrentWriteMethod, MoldStateField.MoldWrittenFlags, formatFlags);
+    //     }
+    //     else
+    //     {
+    //         MoldStateField.StyleFormatter.FinishSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CurrentWriteMethod, formatFlags);
+    //     }
+    // }
     
-    public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
+    public override void AppendClosing(FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags)
     {
         if (CompAsOrderedCollectionMold.SupportsMultipleFields)
         {
-            MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CurrentWriteMethod, formatFlags);
+            State.StyleFormatter.AppendComplexTypeClosing(State.InstanceOrType, State, State.CurrentWriteMethod, formatFlags);
         }
         else
         {
-            MoldStateField.StyleFormatter.StartSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField
-                                                               , MoldStateField.CurrentWriteMethod, formatFlags);
-        }
-    }
-    
-    public override void FinishTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
-    {
-        if (CompAsOrderedCollectionMold.SupportsMultipleFields)
-        {
-            MoldStateField.StyleFormatter.FinishComplexTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CurrentWriteMethod, formatFlags);
-        }
-        else
-        {
-            MoldStateField.StyleFormatter.FinishSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CurrentWriteMethod, formatFlags);
-        }
-    }
-    
-    public override void AppendClosing()
-    {
-        if (CompAsOrderedCollectionMold.SupportsMultipleFields)
-        {
-            State.StyleFormatter.AppendComplexTypeClosing(State.InstanceOrType, State, State.CurrentWriteMethod);
-        }
-        else
-        {
-            State.StyleFormatter.AppendSimpleTypeClosing(State.InstanceOrType, State, State.CurrentWriteMethod);
+            State.StyleFormatter.AppendSimpleTypeClosing(State.InstanceOrType, State, State.CurrentWriteMethod, formatFlags);
         }
     }
 
