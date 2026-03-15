@@ -62,6 +62,7 @@ public abstract class TransitioningTypeMolder<TCurrent, TNext> : KnownTypeMolder
         var gb       = sf.Gb;
         var fmtFlags = gb.CurrentSectionRanges.StartedWithFormatFlags;
         gb.Complete(fmtFlags);
+        if (typeof(TCurrent) == typeof(TNext)) return (TNext)(object)this;
         var nextTypeBuilder = MoldStateField.Recycler.Borrow<TNext>();
 
         if (nextTypeBuilder is IMigrateFrom<TCurrent, TNext> copyFromCurrent)

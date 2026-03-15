@@ -51,12 +51,11 @@ public class BinaryBranchNodeAsField<TChild> : OrderedParentNodeAsField<TChild>,
 
     public override AppendSummary RevealState(ITheOneString tos)
     {
-        var cm =
-            tos.StartComplexType(this)
+        var cm = tos.StartComplexType(this);
                // to skip over a base RevealState cast derived type to that as AddBaseRevealStateFields will then go to it's base type
-               .AddBaseRevealStateFields((OrderedParentNodeAsField<TChild>)this)
-               .Field.WhenNonNullReveal(nameof(Left), Left)
-               .Field.WhenNonNullReveal(nameof(Right), Right);
+        cm.AddBaseRevealStateFields((OrderedParentNodeAsField<TChild>)this);
+        cm.Field.WhenNonNullReveal(nameof(Left), Left);
+        cm.Field.WhenNonNullReveal(nameof(Right), Right);
 
         if (showParent) cm.Field.WhenNonNullReveal(nameof(Parent), Parent);
         return cm.Complete();

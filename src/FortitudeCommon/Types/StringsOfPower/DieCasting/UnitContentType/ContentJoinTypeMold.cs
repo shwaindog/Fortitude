@@ -1,8 +1,13 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
+using FortitudeCommon.Types.StringsOfPower.Options;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.WrittenAsFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 
@@ -11,8 +16,9 @@ public class ContentJoinTypeMold<TFromMold, TToMold> : KnownTypeMolder<TToMold>,
     where TFromMold : TypeMolder
     where TToMold : ContentJoinTypeMold<TFromMold, TToMold>
 {
-    private bool initialWasComplex;
-    private bool wasUpgradedToComplexType;
+    private bool        initialWasComplex;
+    private bool        wasUpgradedToComplexType;
+    private FormatFlags valueAddedFormatFlags;
 
     public override bool IsComplexType => initialWasComplex || wasUpgradedToComplexType;
 
@@ -25,24 +31,45 @@ public class ContentJoinTypeMold<TFromMold, TToMold> : KnownTypeMolder<TToMold>,
     {
         throw new NotImplementedException("Should never be called!");
     }
-
-    public override void AppendClosing(FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags)
+    
+    public override AppendSummary Complete(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var sf = MoldStateField.Sf;
-        
-        var shouldSwitchEncoders = wasUpgradedToComplexType && sf.ContentEncoder.Type != sf.LayoutEncoder.Type;
+        if (State == null) { throw new NullReferenceException("Expected MoldState to be set"); }
+        AppendClosing(State.CreateMoldFormatFlags);
+        return RunShutdown();
+    }
 
-        if (shouldSwitchEncoders)
-        {
-            sf = sf.PreviousContextOrThis;
-        }
+    public override void AppendClosing(FormatFlags formatFlags = DefaultCallerTypeFlags)
+    {
+        var mws = State;
+        var usingFormatter =
+            (CreateFormatFlags.HasAsStringContentFlag()
+          && (mws.CurrentWriteMethod.HasAllOf(AsComplex | AsContent)
+           && mws.StyleFormatter.LayoutEncoder.Type != EncodingType.PassThrough)
+          || (mws.MoldGraphVisit.IsARevisit && valueAddedFormatFlags.HasAsStringContentFlag()))
+                ? mws.StyleFormatter.PreviousContextOrThis
+                : mws.StyleFormatter;
+        
         if (MoldStateField.CreateWriteMethod.SupportsMultipleFields())
         {
-            sf.AppendComplexTypeClosing(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CreateWriteMethod, formatFlags | CreateFormatFlags);
+            usingFormatter.AppendComplexTypeClosing(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CreateWriteMethod, formatFlags | CreateFormatFlags);
         }
         else
         {
-            sf.AppendSimpleTypeClosing(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CreateWriteMethod, formatFlags);
+            usingFormatter.AppendSimpleTypeClosing(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CreateWriteMethod, formatFlags | CreateFormatFlags);
+        }
+        if (mws.Style.IsJson()
+         && mws is { InnerSameAsOuterType: true, TypeBeingBuilt.IsValueType: false }
+         && valueAddedFormatFlags.HasAsStringContentFlag())
+        {
+            var visitId = mws.MoldGraphVisit.VisitId;
+            var state   = mws.Master.ActiveGraphRegistry[visitId.VisitIndex];
+            mws.Master.SetBufferFirstFieldStartAndWrittenAs(visitId, state.TypeOpenBufferIndex, AsSimple | AsContent | AsString);
+            // if (mws.TypeBeingBuilt.IsStringBearerOrNullableCached())
+            // {
+            mws.Master.SetBufferFirstFieldStartAndIndentLevel(visitId, state.TypeOpenBufferIndex, state.IndentLevel + 1);
+            // }
+            mws.Master.UpdateVisitFormatter(visitId, usingFormatter);
         }
     }
 
@@ -64,14 +91,20 @@ public class ContentJoinTypeMold<TFromMold, TToMold> : KnownTypeMolder<TToMold>,
     public TToMold CopyFrom(TFromMold source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         OriginalStartIndex    = source.OriginalStartIndex;
-        PortableState.CopyFrom(((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.PortableState);
-        SourceBuilderComponentAccess(((IMigratableTypeBuilderComponentSource)source).MigratableMoldState.CurrentWriteMethod);
+        var sourceWriteState = ((IMigratableTypeBuilderComponentSource)source).MigratableMoldState;
+        var snapWriteState = sourceWriteState.SnapshotWriteState;
+        PortableState.CopyFrom(sourceWriteState.PortableState);
+        SourceBuilderComponentAccess(sourceWriteState.CurrentWriteMethod);
+        sourceWriteState.SnapshotWriteState = snapWriteState;
 
-        MoldStateField.CopyFrom(((ITypeBuilderComponentSource)source).MoldState, copyMergeFlags);
+        MoldStateField.CopyFrom(sourceWriteState, copyMergeFlags);
         initialWasComplex        = source.IsComplexType;
         wasUpgradedToComplexType = initialWasComplex && source is SimpleContentTypeMold;
+        if (sourceWriteState is IContentTypeWriteState contentWriteState)
+        {
+            valueAddedFormatFlags = contentWriteState.ValueAddedFormatFlags;
+        }
         
-
         return (TToMold)this;
     }
 

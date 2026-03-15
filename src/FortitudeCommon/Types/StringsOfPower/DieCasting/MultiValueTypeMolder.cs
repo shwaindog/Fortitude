@@ -52,14 +52,19 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
 
     public TExt AddBaseRevealStateFields<T>(T thisType) where T : IStringBearer
     {
-        var msf              = MoldStateField;
-        var visitResult      = msf.MoldGraphVisit;
-        var visitIndex       = visitResult.VisitId.VisitIndex;
-        var markPreBodyStart = msf.Sb.Length;
+        var msf                = MoldStateField;
+        var visitResult        = msf.MoldGraphVisit;
+        var visitIndex         = visitResult.VisitId.VisitIndex;
+        var markPreBodyStart   = msf.Sb.Length;
+        var preBaseMoldState = msf.SnapshotWriteState;
         
         if (msf.SkipBody) return msf.Mold;
         msf.Master.AddBaseFieldsStart(msf);
         TargetStringBearerRevealState.CallBaseStyledToStringIfSupported(thisType, msf.Master);
+        // to avoid cicular references reusing this visit
+        msf.MoldGraphVisit        = msf.MoldGraphVisit.IncrementUsedCount();
+        msf.SnapshotWriteState    = preBaseMoldState;
+        
         var master           = msf.Master;
         var reg              = master.ActiveGraphRegistry;
         var restoreMoldState = reg[visitIndex];

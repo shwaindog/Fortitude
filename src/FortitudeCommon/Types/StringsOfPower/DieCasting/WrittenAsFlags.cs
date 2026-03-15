@@ -18,27 +18,29 @@ public enum WrittenAsFlags : uint
   , AsRaw                  = 0x00_04
   , AsContent              = 0x00_08
   , AsCollection           = 0x00_10
-  , AsMapCollection        = 0x00_20       
-  , AsOuterType            = 0x00_40        
-  , AsInnerType            = 0x00_80        
-  , AsObject               = 0x01_00  
-  , AsNull                 = 0x02_80 
-  , AsString               = 0x04_00
-  , AsValue                = 0x08_00
-  , SuppressedContents     = 0x10_00
-  , ShowSuppressedContents = 0x20_00
-  , UpgradedToComplex      = 0x40_00
-  , WithInstanceId         = 0x80_00
+  , AsMapCollection        = 0x00_20
+  , AsCollectionItem       = 0x00_40       
+  , AsOuterType            = 0x00_80        
+  , AsInnerType            = 0x01_00        
+  , AsObject               = 0x02_00    
+  , AsNull                 = 0x04_00 
+  , AsFallbackValue        = 0x08_00 
+  , AsString               = 0x10_00
+  , AsValue                = 0x20_00
+  , SuppressedContents     = 0x40_00
+  , ShowSuppressedContents = 0x80_00
     
-  , WithReferenceToInstanceId   = 0x01_00_00
-  , WithDepthVmemAddress        = 0x02_00_00
-  , WithClippedDepthSuppression = 0x04_00_00 
-  , RemovedDueDepthSuppression  = 0x08_00_00 
+  , UpgradedToComplex           = 0x01_00_00
+  , WithInstanceId              = 0x02_00_00
+  , WithReferenceToInstanceId   = 0x04_00_00
+  , WithDepthVmemAddress        = 0x08_00_00
+  , WithClippedDepthSuppression = 0x10_00_00 
+  , RemovedDueDepthSuppression  = 0x20_00_00 
 }
 
 public static class WrittenAsFlagsExtensions
 {
-    public const  WrittenAsFlags ProposedMaskSelectionMask = (WrittenAsFlags)0x0_3F;
+    public const  WrittenAsFlags ProposedMaskSelectionMask = (WrittenAsFlags)0x0_7F;
     public static bool           IsEmpty(this WrittenAsFlags flags)                   => flags == Empty;
     public static bool           HasAsNullFLag(this WrittenAsFlags flags)             => (flags & AsNull) > 0;
     public static bool           HasAsRawFlag(this WrittenAsFlags flags)              => (flags & AsRaw) > 0;

@@ -231,39 +231,61 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
                 // resolvedWrittenAs = (resolvedWrittenAs & ~AsComplex) | AsSimple | AsRaw | AsObject;
                 // break;
             case AsRaw:
+            case AsCollectionItem:
+            case AsCollectionItem | WrittenAsFlags.AsCollection | AsSimple:
+            case AsCollectionItem | WrittenAsFlags.AsCollection | AsComplex:
+            case AsCollectionItem | WrittenAsFlags.AsCollection | AsRaw:
             case WrittenAsFlags.AsCollection | AsRaw:
             case WrittenAsFlags.AsCollection | AsSimple:
             case WrittenAsFlags.AsCollection | AsComplex:
             case AsContent | AsRaw:
             case AsContent | AsComplex:
             case AsContent | AsSimple:
+            case AsContent | AsCollectionItem | AsRaw:
+            case AsContent | AsCollectionItem | AsSimple:
+            case AsContent | AsCollectionItem | AsComplex:
                 resolvedFlags |= formatFlags | ContentAllowText | ContentAllowText | ContentAllowAnyValueType;
                 if (visitResult.IsARevisit)
                 {
                     resolvedFlags     &= ~(SuppressOpening | SuppressClosing);
                     resolvedFlags     |= ContentAllowComplexType;
-                    resolvedWrittenAs =  (resolvedWrittenAs & ~AsSimple) | AsComplex | WithReferenceToInstanceId;
+                    resolvedWrittenAs &= ~AsSimple;
+                    resolvedWrittenAs |= AsComplex | WithReferenceToInstanceId;
                 }
                 if (actualType.IsStringBearerOrNullableCached())
                 {
-                    // if (visitResult is { IsARevisit: true })
-                    // {
-                    //     resolvedFlags     |= ContentAllowComplexType;
-                    //     resolvedWrittenAs =  (resolvedWrittenAs & ~AsSimple) | AsComplex;
-                    // }
-                    // else 
-                    if (visitResult is { IsARevisit: false, ReusedCount: <= 0 }
-                     && (!formatFlags.HasContentTreatmentFlags() 
-                      && proposedWriteType.HasAllOf(AsRaw | AsContent)
-                             || proposedWriteType.HasAllOf(AsContent | AsOuterType)))
+                    if (visitResult is { IsARevisit: true })
                     {
-                        resolvedFlags     |= SuppressOpening | SuppressClosing;
-                        resolvedWrittenAs |= ShowSuppressedContents;
+                        resolvedFlags     |= ContentAllowComplexType;
+                        resolvedWrittenAs =  (resolvedWrittenAs & ~AsSimple) | AsComplex;
                     }
-                    // else {
-                    //     resolvedFlags     |= ContentAllowComplexType;
-                    //     resolvedWrittenAs =  (resolvedWrittenAs & ~AsSimple) | AsComplex;
-                    // }
+                    else
+                    if (visitResult is { IsARevisit: false }
+                     && (proposedWriteType.HasAllOf(AsSimple | WrittenAsFlags.AsCollection)
+                       || proposedWriteType.HasAllOf(AsComplex | WrittenAsFlags.AsCollection) 
+                       || proposedWriteType.HasAllOf(AsRaw | WrittenAsFlags.AsCollection) 
+                       ))
+                    {
+                        resolvedFlags     &= ~(ContentAllowComplexType);
+                        resolvedWrittenAs &= ~AsComplex;
+                        resolvedWrittenAs |= ShowSuppressedContents | AsSimple;
+                    }
+                    else
+                    if (visitResult is { IsARevisit: false, ReusedCount: <= 0 }
+                     && ((proposedWriteType.HasAsRawFlag()
+                       || proposedWriteType.HasAllOf(AsContent | AsOuterType)
+                       || proposedWriteType.HasAllOf(AsContent | AsInnerType)
+                       || proposedWriteType.HasAllOf(AsCollectionItem))))
+                    {
+                        resolvedFlags     &= ~(ContentAllowComplexType);
+                        resolvedFlags |= SuppressOpening | SuppressClosing;
+                        resolvedWrittenAs &= ~AsComplex;
+                        resolvedWrittenAs |= ShowSuppressedContents | AsSimple;
+                    }
+                    else if(visitResult is { IsARevisit: false }){
+                        resolvedFlags     |= ContentAllowComplexType;
+                        resolvedWrittenAs =  (resolvedWrittenAs & ~AsSimple) | AsComplex;
+                    }
                     break;
                 }
                 if (actualType.IsSpanFormattableOrNullableCached() || actualType.IsBoolOrNullable())
@@ -349,6 +371,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
             //         resolvedWrittenAs = AsSimple | WrittenAsFlags.AsCollection;
             //     }
             //     break;
+            case AsComplex | AsRaw | AsContent:
             case AsComplex:
                 resolvedFlags     |= ContentAllowText | ContentAllowText | ContentAllowAnyValueType | ContentAllowComplexType;
                 if (visitResult.IsARevisit)
@@ -745,7 +768,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         Gb.StartNextContentSeparatorPaddingSequence(sb, mws.CreateMoldFormatFlags);
         Gb.MarkContentStart(appendAt);
         Gb.MarkContentEnd(sb.Length);
-        if(!mws.SkipBody || currentWriteMethod.HasShowSuppressedContents()) AddToNextFieldSeparatorAndPadding(formatFlags);
+        if(!mws.SkipBody || currentWriteMethod.HasShowSuppressedContents()) AddToNextFieldSeparatorAndPadding(mws.CreateMoldFormatFlags);
         return sb.Length - preAppendLength;
     }
 
@@ -1040,7 +1063,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
 
     public virtual AppendSummary FormatFieldName<TCloaked, TRevealBase>(IMoldWriteState mws, TCloaked value
       , PalantírReveal<TRevealBase> valueRevealer, string? callerFormatString = null
-      , FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
+      , FormatFlags callerFormatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = AsString)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -1049,6 +1072,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         Gb.StartNextContentSeparatorPaddingSequence(sb, withMoldInherited | NoRevisitCheck | IsFieldName);
         mws.Master.SetCallerFormatString(callerFormatString);
         mws.Master.SetCallerFormatFlags(withMoldInherited | NoRevisitCheck | IsFieldName);
+        mws.Master.SetCallerWriteAs(writeAs);
 
         AppendSummary appendSummary;
 
@@ -1095,13 +1119,14 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
     }
 
     public virtual AppendSummary FormatBearerFieldName<TBearer>(IMoldWriteState mws, TBearer styledObj, string? callerFormatString = null
-      , FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?
+      , FormatFlags callerFormatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = AsString) where TBearer : IStringBearer?
     {
         var sb                = mws.Sb;
         var withMoldInherited = callerFormatFlags | mws.CreateMoldFormatFlags.MoldMultiGenerationPassFlags();
         Gb.StartNextContentSeparatorPaddingSequence(sb, withMoldInherited | NoRevisitCheck | IsFieldName);
         mws.Master.SetCallerFormatString(callerFormatString);
         mws.Master.SetCallerFormatFlags(withMoldInherited | NoRevisitCheck | IsFieldName);
+        mws.Master.SetCallerWriteAs(writeAs);
         AppendSummary appendSummary;
 
         var visitNumber = mws.MoldGraphVisit.VisitId;
@@ -1492,7 +1517,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
 
     public virtual AppendSummary FormatFieldContents<TCloaked, TRevealBase>(IMoldWriteState mws, TCloaked value
       , PalantírReveal<TRevealBase> valueRevealer, string? callerFormatString = null
-      , FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
+      , FormatFlags callerFormatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = Empty)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -1500,6 +1525,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         var withMoldInherited = callerFormatFlags.MoldSingleGenerationPassFlags() | mws.CreateMoldFormatFlags.MoldMultiGenerationPassFlags();
         mws.Master.SetCallerFormatString(callerFormatString);
         mws.Master.SetCallerFormatFlags(withMoldInherited);
+        mws.Master.SetCallerWriteAs(writeAs);
         var visitNumber = mws.MoldGraphVisit.VisitId;
         if (value == null)
         {
@@ -1544,12 +1570,13 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
     }
 
     public virtual AppendSummary FormatBearerFieldContents<TBearer>(IMoldWriteState mws, TBearer styledObj, string? callerFormatString = null
-      , FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?
+      , FormatFlags callerFormatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = Empty) where TBearer : IStringBearer?
     {
         var sb                = mws.Sb;
         var withMoldInherited = callerFormatFlags.MoldSingleGenerationPassFlags() | mws.CreateMoldFormatFlags.MoldMultiGenerationPassFlags();
         mws.Master.SetCallerFormatString(callerFormatString);
         mws.Master.SetCallerFormatFlags(withMoldInherited);
+        mws.Master.SetCallerWriteAs(writeAs);
 
         var visitNumber = mws.MoldGraphVisit.VisitId;
         if (styledObj == null)
@@ -1997,7 +2024,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
             if (scmdc.SupportsMultipleFields) { AppendInstanceValuesFieldName(mws.TypeBeingBuilt, mws.CurrentWriteMethod, inheritedFmtFlags); }
             else if (scmdc.MoldGraphVisit.IsBaseOfInitial)
             {
-                if (mws.CurrentWriteMethod.HasAsComplexFlag())
+                if (mws.CreateWriteMethod.HasAsComplexFlag())
                 {
                     AppendInstanceValuesFieldName(mws.TypeBeingBuilt, mws.CurrentWriteMethod, inheritedFmtFlags);
                 }
@@ -2012,8 +2039,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         = FormatSwitches.EncodeInnerContent)
     {
         var inheritedFmtFlags = Gb.CurrentSectionRanges.StartedWithFormatFlags | (FormatFlags)formatSwitches;
-        if (inheritedFmtFlags.DoesNotHaveSuppressOpening() || StyleOptions.Style.IsLog())
-        {
+        // if (inheritedFmtFlags.DoesNotHaveSuppressOpening() || StyleOptions.Style.IsLog())
+        // {
             Gb.StartNextContentSeparatorPaddingSequence(sb, inheritedFmtFlags);
             if ((elementType.IsChar() && (formatSwitches.TreatCharArrayAsString()
                                        || (!JsonOptions.CharBufferWritesAsCharCollection && formatSwitches.DoesNotHaveAsCollectionFlag()))))
@@ -2030,7 +2057,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
             }
             Gb.AppendContent(SqBrktOpn);
             return Gb.Complete(inheritedFmtFlags).Length;
-        }
+        // }
         return 0;
     }
 
@@ -2040,8 +2067,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         var charsAdded = 0;
 
         var inheritedFmtFlags = Gb.CurrentSectionRanges.StartedWithFormatFlags | (FormatFlags)formatSwitches;
-        if (inheritedFmtFlags.DoesNotHaveSuppressOpening() || StyleOptions.Style.IsLog())
-        {
+        // if (inheritedFmtFlags.DoesNotHaveSuppressOpening() || StyleOptions.Style.IsLog())
+        // {
             Gb.ResetCurrent(inheritedFmtFlags);
             Gb.MarkContentStart(destStartIndex);
             if ((elementType.IsChar()
@@ -2066,7 +2093,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
             charsAdded += destSpan.OverWriteAt(destStartIndex, SqBrktOpn);
             Gb.MarkContentEnd(destStartIndex + charsAdded);
             Gb.Complete(inheritedFmtFlags);
-        }
+        // }
         return charsAdded;
     }
 
@@ -2111,8 +2138,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         var preAppendLen = sb.Length;
 
         var inheritedFmtFlags = Gb.CurrentSectionRanges.StartedWithFormatFlags | (FormatFlags)formatSwitches;
-        if (inheritedFmtFlags.DoesNotHaveSuppressClosing() || StyleOptions.Style.IsLog())
-        {
+        // if (inheritedFmtFlags.DoesNotHaveSuppressClosing() || StyleOptions.Style.IsLog())
+        // {
             Gb.StartNextContentSeparatorPaddingSequence(sb, inheritedFmtFlags, true);
             if ((elementType.IsChar()
               && (inheritedFmtFlags.TreatCharArrayAsString()
@@ -2138,7 +2165,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
                 Gb.RemoveLastSeparatorAndPadding();
                 Gb.AppendContent(SqBrktCls);
             }
-        }
+        // }
         Gb.AddHighWaterMark();
 
         return sb.Length - preAppendLen;
@@ -2152,8 +2179,8 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         CharSpanCollectionScratchBuffer = null;
         var inheritedFmtFlags = Gb.CurrentSectionRanges.StartedWithFormatFlags | (FormatFlags)formatSwitches;
 
-        if (inheritedFmtFlags.DoesNotHaveSuppressClosing() || StyleOptions.Style.IsLog())
-        {
+        // if (inheritedFmtFlags.DoesNotHaveSuppressClosing() || StyleOptions.Style.IsLog())
+        // {
             Gb.ResetCurrent(inheritedFmtFlags, true);
             if ((elementType.IsChar() && (inheritedFmtFlags.TreatCharArrayAsString()
                                        || (!JsonOptions.CharBufferWritesAsCharCollection && inheritedFmtFlags.DoesNotHaveAsCollectionFlag()))))
@@ -2190,7 +2217,7 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
             Gb.MarkContentStart(destIndex);
             charsAdded += LayoutEncoder.OverwriteTransfer(SqBrktCls, destSpan, destIndex);
             Gb.MarkContentEnd(destIndex + charsAdded);
-        }
+        // }
         Gb.AddHighWaterMark();
         return charsAdded;
     }

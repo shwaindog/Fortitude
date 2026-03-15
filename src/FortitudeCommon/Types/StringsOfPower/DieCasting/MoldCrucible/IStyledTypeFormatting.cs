@@ -8,6 +8,7 @@ using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.WrittenAsFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 
@@ -275,12 +276,13 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
       , string? formatString = null, int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     AppendSummary FormatFieldName<TCloaked, TRevealBase>(IMoldWriteState mws, TCloaked value, PalantírReveal<TRevealBase> valueRevealer
-      , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
+      , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = AsString)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull;
 
     AppendSummary FormatBearerFieldName<TBearer>(IMoldWriteState mws, TBearer styledObj
-      , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?;
+      , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = AsString
+      ) where TBearer : IStringBearer?;
 
     WrittenAsFlags FormatFieldContentsMatch<TAny>(IMoldWriteState mws, TAny source, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags);
@@ -313,12 +315,12 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
       , int maxTransferCount = int.MaxValue, FormatFlags formatFlags = DefaultCallerTypeFlags);
 
     AppendSummary FormatFieldContents<TCloaked, TRevealBase>(IMoldWriteState mws, TCloaked value, PalantírReveal<TRevealBase> valueRevealer
-      , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
+      , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = Empty)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull;
 
     AppendSummary FormatBearerFieldContents<TBearer>(IMoldWriteState mws, TBearer styledObj, string? callerFormatString = null
-      , FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
+      , FormatFlags callerFormatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = Empty)
         where TBearer : IStringBearer?;
 
     new IStyledTypeFormatting Clone();

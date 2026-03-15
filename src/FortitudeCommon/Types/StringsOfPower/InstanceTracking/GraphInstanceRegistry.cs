@@ -63,7 +63,10 @@ public class GraphInstanceRegistry : RecyclableObject, IList<GraphNodeVisit>
 
     public bool HasRegistered(VisitId visitId)
     {
-        return visitId.IsRegisterable && RegistryId == visitId.RegistryId && visitId.VisitIndex < OrderedObjectGraph.Count;
+        return visitId.IsRegisterable 
+            && RegistryId == visitId.RegistryId 
+            && visitId.VisitIndex < OrderedObjectGraph.Count
+            && visitId.VisitIndex >= 0;
     }
 
     public void ClearObjectVisitedGraph()

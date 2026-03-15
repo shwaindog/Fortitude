@@ -129,13 +129,19 @@ public static class TypeExtensions
         return null;
     }
 
-    public static bool IsSpanOfGeneric(this Type type, Type genericType) =>
-        type.IsGenericType && type.GetGenericTypeDefinition() == SpanTypeDef && type.GetGenericArguments()[0].IsGenericType
-     && type.GetGenericArguments()[0].GetGenericTypeDefinition() == genericType;
+    public static bool IsSpan(this Type type) =>
+        type.IsGenericType && type.GetGenericTypeDefinition() == SpanTypeDef;
 
+    public static bool IsSpanOfGeneric(this Type type, Type genericType) =>
+        type.IsSpan() && type.GetGenericArguments()[0].IsGenericType
+                    && type.GetGenericArguments()[0].GetGenericTypeDefinition() == genericType;
+    
+    public static bool IsReadOnlySpan(this Type type) =>
+        type.IsGenericType && type.GetGenericTypeDefinition() == ReadOnlySpanTypeDef;
+    
     public static Type? IfReadOnlySpanGetElementType(this Type type)
     {
-        if (type.IsGenericType && type.GetGenericTypeDefinition() == ReadOnlySpanTypeDef) { return type.GenericTypeArguments.FirstOrDefault(); }
+        if (type.IsReadOnlySpan()) { return type.GenericTypeArguments.FirstOrDefault(); }
         return null;
     }
 
@@ -350,10 +356,16 @@ public static class TypeExtensions
                    .FirstOrDefault();
     }
 
-    public static bool IsIterable(this Type? type) => (type?.IsEnumerable() ?? false) || (type?.IsEnumerator() ?? false);
+    public static bool IsIterable(this Type? type) => 
+        (type?.IsEnumerable() ?? false) 
+     || (type?.IsEnumerator() ?? false)
+     || (type?.IsSpan() ?? false)
+     || (type?.IsReadOnlySpan() ?? false);
 
     public static Type? GetIterableElementType(this Type? type) =>
-        type?.GetIndexedCollectionElementType() ?? type?.IfEnumerableGetElementType() ?? type?.IfEnumeratorGetElementType();
+        type?.GetIndexedCollectionElementType() 
+     ?? type?.IfEnumerableGetElementType() 
+     ?? type?.IfEnumeratorGetElementType();
 
 
     public static bool IsSpanFormattable(this Type? type) =>

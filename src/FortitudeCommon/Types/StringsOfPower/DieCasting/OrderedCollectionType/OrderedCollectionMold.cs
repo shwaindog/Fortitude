@@ -68,7 +68,13 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
     
     public override void AppendClosing(FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags)
     {
-        if (CompAsOrderedCollectionMold.SupportsMultipleFields)
+        // if (CompAsOrderedCollectionMold.CreateMoldFormatFlags.HasSuppressClosing() || CompAsOrderedCollectionMold.MoldGraphVisit.ReusedCount > 0)
+        if (CompAsOrderedCollectionMold.CreateMoldFormatFlags.HasSuppressClosing())
+        {
+            State.Sf.Gb.RemoveLastSeparatorAndPadding();
+            return;
+        }
+        if (CompAsOrderedCollectionMold.CurrentWriteMethod.SupportsMultipleFields())
         {
             State.StyleFormatter.AppendComplexTypeClosing(State.InstanceOrType, State, State.CurrentWriteMethod, formatFlags);
         }

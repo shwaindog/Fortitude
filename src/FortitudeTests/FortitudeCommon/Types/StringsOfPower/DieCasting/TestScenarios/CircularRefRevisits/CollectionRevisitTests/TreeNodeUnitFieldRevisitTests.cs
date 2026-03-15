@@ -148,8 +148,7 @@ public class TreeNodeCollectionFieldRevisitTests : CommonStyleExpectationTestBas
                       , """
                         (OrderedBranchNodeAsComplexCollection<IChildNode>($id: 1)) {
                          (List<IChildNode>) [
-                         (OrderedBranchNodeAsComplexCollection<IChildNode>) {
-                         (List<IChildNode>) [
+                         (OrderedBranchNodeAsComplexCollection<IChildNode>) { (List<IChildNode>) [
                          (LeafNode) {
                          LeafInstanceId: 1,
                          Name: "DuelReferenceLeaf",
@@ -159,7 +158,7 @@ public class TreeNodeCollectionFieldRevisitTests : CommonStyleExpectationTestBas
                          }
                          ],
                          BranchInstanceId: 1,
-                         Parent: (OrderedBranchNodeAsComplexCollection<IChildNode>($ref: 1))
+                         Parent: OrderedBranchNodeAsComplexCollection<IChildNode>($ref: 1)
                          }
                          ],
                          BranchInstanceId: 2
@@ -183,7 +182,7 @@ public class TreeNodeCollectionFieldRevisitTests : CommonStyleExpectationTestBas
                                 }
                               ],
                               BranchInstanceId: 1,
-                              Parent: (OrderedBranchNodeAsComplexCollection<IChildNode>($ref: 1))
+                              Parent: OrderedBranchNodeAsComplexCollection<IChildNode>($ref: 1)
                             }
                           ],
                           BranchInstanceId: 2
@@ -277,7 +276,7 @@ public class TreeNodeCollectionFieldRevisitTests : CommonStyleExpectationTestBas
                          Name: "SameOnLeftAndRight",
                          GlobalNodeInstanceId: 2,
                          NodeType: NodeType.BranchNode,
-                         Left: (LeafNode($id: 1))
+                         Left: LeafNode($id: 1)
                          {
                          LeafInstanceId: 1,
                          Name: "SameChild",
@@ -285,7 +284,7 @@ public class TreeNodeCollectionFieldRevisitTests : CommonStyleExpectationTestBas
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 1
                          },
-                         Right: (LeafNode($ref: 1))
+                         Right: LeafNode($ref: 1)
                          }
                         """.RemoveLineEndings()
                     }
@@ -297,14 +296,14 @@ public class TreeNodeCollectionFieldRevisitTests : CommonStyleExpectationTestBas
                           Name: "SameOnLeftAndRight",
                           GlobalNodeInstanceId: 2,
                           NodeType: NodeType.BranchNode,
-                          Left: (LeafNode($id: 1)) {
+                          Left: LeafNode($id: 1) {
                             LeafInstanceId: 1,
                             Name: "SameChild",
                             GlobalNodeInstanceId: 1,
                             NodeType: NodeType.LeafNode,
                             DepthToRoot: 1
                           },
-                          Right: (LeafNode($ref: 1))
+                          Right: LeafNode($ref: 1)
                         }
                         """.Dos2Unix()
                     }

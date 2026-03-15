@@ -240,17 +240,13 @@ public class TwoStringBearersSecondAsSimpleCloakedStringContent<TBearer> : IStri
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .Field.AlwaysReveal
-               (nameof(FirstStringBearerField)
-              , FirstStringBearerField
-              , ValueFormatString, FormattingFlags)
-           .Field.AlwaysReveal
-               (nameof(SecondStringBearerField)
-              , SecondStringBearerField, CreateRevealer
-              , ValueFormatString, FormattingFlags)
-           .Complete();
+    public AppendSummary RevealState(ITheOneString tos)
+    {
+        var ctm = tos.StartComplexType(this);
+        ctm.Field.AlwaysReveal(nameof(FirstStringBearerField), FirstStringBearerField, ValueFormatString, FormattingFlags);
+        ctm.Field.AlwaysReveal(nameof(SecondStringBearerField), SecondStringBearerField, CreateRevealer, ValueFormatString, FormattingFlags);
+        return ctm.Complete();
+    }
 
     public string? ValueFormatString { get; set; }
     public FormatFlags FormattingFlags { get; set; }
@@ -292,10 +288,12 @@ public class TwoStringBearersFirstAsComplexCloakedValueContent<TBearer> : IStrin
     private readonly int[] logOnlyArray = [1, 2, 3];
 
     public PalantírReveal<TBearer> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
-        tos.StartComplexContentType(cloaked)
-           .RevealAsValue($"CloakedRevealer{nameof(FirstStringBearerField)}", cloaked, ValueFormatString, FormattingFlags)
-           .LogOnlyCollectionField.AlwaysAddAll(nameof(logOnlyArray), logOnlyArray)
-           .Complete();
+    {
+        var ctm = tos.StartComplexContentType(cloaked);
+        var lom = ctm.RevealAsValue($"CloakedRevealer{nameof(FirstStringBearerField)}", cloaked, ValueFormatString, FormattingFlags);
+        lom.LogOnlyCollectionField.AlwaysAddAll(nameof(logOnlyArray), logOnlyArray);
+        return lom.Complete();
+    };
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
@@ -397,12 +395,12 @@ public class TwoStringBearersFirstAsComplexCloakedStringContent<TBearer> : IStri
 
     public TBearer? FirstStringBearerField { get; set; }
     public TBearer? SecondStringBearerField { get; set; }
-    
-    private readonly StringBuilder logOnlyStringBuilder = new ("For your eyes only");
+
+    private readonly StringBuilder logOnlyStringBuilder = new("For your eyes only");
 
     public PalantírReveal<TBearer> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
     {
-        var cct = tos.StartComplexContentType(cloaked);
+        var cct   = tos.StartComplexContentType(cloaked);
         var cwlom = cct.RevealAsString($"CloakedRevealer{nameof(FirstStringBearerField)}", cloaked, ValueFormatString, FormattingFlags);
         cwlom.LogOnlyField.AlwaysAdd(nameof(logOnlyStringBuilder), logOnlyStringBuilder);
         return cwlom.Complete();
@@ -410,17 +408,19 @@ public class TwoStringBearersFirstAsComplexCloakedStringContent<TBearer> : IStri
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .Field.AlwaysReveal
-               (nameof(FirstStringBearerField)
-              , FirstStringBearerField, CreateRevealer
-              , ValueFormatString, FormattingFlags)
-           .Field.AlwaysReveal
-               (nameof(SecondStringBearerField)
-              , SecondStringBearerField
-              , ValueFormatString, FormattingFlags)
-           .Complete();
+    public AppendSummary RevealState(ITheOneString tos)
+    {
+        var ctm = tos.StartComplexType(this);
+        ctm.Field.AlwaysReveal
+            (nameof(FirstStringBearerField)
+           , FirstStringBearerField, CreateRevealer
+           , ValueFormatString, FormattingFlags);
+        ctm.Field.AlwaysReveal
+            (nameof(SecondStringBearerField)
+           , SecondStringBearerField
+           , ValueFormatString, FormattingFlags);
+        return ctm.Complete();
+    }
 
     public string? ValueFormatString { get; set; }
     public FormatFlags FormattingFlags { get; set; }
@@ -453,7 +453,7 @@ public class TwoStringBearersSecondAsComplexCloakedStringContent<TBearer> : IStr
     public TBearer? SecondStringBearerField { get; set; }
 
 
-    private readonly List<MutableString> logOnlyList = [new ("FirstCharSeq"), new ("SecondCharSeq"), new ("ThirdCharSeq")];
+    private readonly List<MutableString> logOnlyList = [new("FirstCharSeq"), new("SecondCharSeq"), new("ThirdCharSeq")];
 
     public PalantírReveal<TBearer> CreateRevealer => cachedRevealer ??= (cloaked, tos) =>
         tos.StartComplexContentType(cloaked)
@@ -463,17 +463,13 @@ public class TwoStringBearersSecondAsComplexCloakedStringContent<TBearer> : IStr
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .Field.AlwaysReveal
-               (nameof(FirstStringBearerField)
-              , FirstStringBearerField
-              , ValueFormatString, FormattingFlags)
-           .Field.AlwaysReveal
-               (nameof(SecondStringBearerField)
-              , SecondStringBearerField, CreateRevealer
-              , ValueFormatString, FormattingFlags)
-           .Complete();
+    public AppendSummary RevealState(ITheOneString tos)
+    {
+        var ctm = tos.StartComplexType(this);
+        ctm.Field.AlwaysReveal(nameof(FirstStringBearerField), FirstStringBearerField, ValueFormatString, FormattingFlags);
+        ctm.Field.AlwaysReveal(nameof(SecondStringBearerField), SecondStringBearerField, CreateRevealer, ValueFormatString, FormattingFlags);
+        return ctm.Complete();
+    }
 
     public string? ValueFormatString { get; set; }
     public FormatFlags FormattingFlags { get; set; }

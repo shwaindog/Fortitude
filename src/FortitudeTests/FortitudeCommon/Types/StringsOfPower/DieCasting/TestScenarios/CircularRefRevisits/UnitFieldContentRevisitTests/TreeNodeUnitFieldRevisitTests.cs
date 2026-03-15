@@ -52,35 +52,27 @@ public class TreeNodeUnitFieldRevisitTests : CommonStyleExpectationTestBase
                 {
                     { new EK( AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        OrderedBranchNodeAsField<IChildNode> 
-                        {
-                         $id: 1,
+                        OrderedBranchNodeAsField<IChildNode>($id: 1) {
                          BranchInstanceId: 1,
                          Name: "OrderedBranchNodeAsField`1_1",
                          GlobalNodeInstanceId: 1,
                          NodeType: NodeType.BranchNode,
                          DepthToRoot: -2147483647,
                          ChildNodes: null,
-                         Parent: OrderedBranchNodeAsField<IChildNode>
-                         {
-                         $ref: 1
-                         }
+                         Parent: OrderedBranchNodeAsField<IChildNode>($ref: 1)
                          }
                         """.RemoveLineEndings()
                     }
                    , { new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                        , """
-                         OrderedBranchNodeAsField<IChildNode> {
-                           $id: 1,
+                         OrderedBranchNodeAsField<IChildNode>($id: 1) {
                            BranchInstanceId: 1,
                            Name: "OrderedBranchNodeAsField`1_1",
                            GlobalNodeInstanceId: 1,
                            NodeType: NodeType.BranchNode,
                            DepthToRoot: -2147483647,
                            ChildNodes: null,
-                           Parent: OrderedBranchNodeAsField<IChildNode> {
-                             $ref: 1
-                           }
+                           Parent: OrderedBranchNodeAsField<IChildNode>($ref: 1)
                          }
                          """.Dos2Unix()
                     }
@@ -164,23 +156,20 @@ public class TreeNodeUnitFieldRevisitTests : CommonStyleExpectationTestBase
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        OrderedBranchNodeAsField<IChildNode> {
-                         $id: 1,
+                        OrderedBranchNodeAsField<IChildNode>($id: 1) {
                          BranchInstanceId: 2,
                          Name: "OrderedBranchNodeAsField`1_2",
                          GlobalNodeInstanceId: 2,
                          NodeType: NodeType.BranchNode,
                          ChildNodes: (List<IChildNode>) [
-                         OrderedBranchNodeAsField<IChildNode> {
+                         (OrderedBranchNodeAsField<IChildNode>) {
                          BranchInstanceId: 1,
                          Name: "OrderedBranchNodeAsField`1_1",
                          GlobalNodeInstanceId: 1,
                          NodeType: NodeType.BranchNode,
                          DepthToRoot: 1,
                          ChildNodes: null,
-                         Parent: OrderedBranchNodeAsField<IChildNode> {
-                         $ref: 1
-                         }
+                         Parent: OrderedBranchNodeAsField<IChildNode>($ref: 1)
                          }
                          ]
                          }
@@ -190,23 +179,20 @@ public class TreeNodeUnitFieldRevisitTests : CommonStyleExpectationTestBase
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
-                        OrderedBranchNodeAsField<IChildNode> {
-                          $id: 1,
+                        OrderedBranchNodeAsField<IChildNode>($id: 1) {
                           BranchInstanceId: 2,
                           Name: "OrderedBranchNodeAsField`1_2",
                           GlobalNodeInstanceId: 2,
                           NodeType: NodeType.BranchNode,
                           ChildNodes: (List<IChildNode>) [
-                            OrderedBranchNodeAsField<IChildNode> {
+                            (OrderedBranchNodeAsField<IChildNode>) {
                               BranchInstanceId: 1,
                               Name: "OrderedBranchNodeAsField`1_1",
                               GlobalNodeInstanceId: 1,
                               NodeType: NodeType.BranchNode,
                               DepthToRoot: 1,
                               ChildNodes: null,
-                              Parent: OrderedBranchNodeAsField<IChildNode> {
-                                $ref: 1
-                              }
+                              Parent: OrderedBranchNodeAsField<IChildNode>($ref: 1)
                             }
                           ]
                         }
@@ -319,17 +305,14 @@ public class TreeNodeUnitFieldRevisitTests : CommonStyleExpectationTestBase
                          Name: "SameOnLeftAndRight",
                          GlobalNodeInstanceId: 2,
                          NodeType: NodeType.BranchNode,
-                         Left: LeafNode {
-                         $id: 1,
+                         Left: LeafNode($id: 1) {
                          LeafInstanceId: 1,
                          Name: "SameChild",
                          GlobalNodeInstanceId: 1,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 1
                          },
-                         Right: LeafNode {
-                         $ref: 1
-                         }
+                         Right: LeafNode($ref: 1)
                          }
                         """.RemoveLineEndings()
                     }
@@ -341,17 +324,14 @@ public class TreeNodeUnitFieldRevisitTests : CommonStyleExpectationTestBase
                           Name: "SameOnLeftAndRight",
                           GlobalNodeInstanceId: 2,
                           NodeType: NodeType.BranchNode,
-                          Left: LeafNode {
-                            $id: 1,
+                          Left: LeafNode($id: 1) {
                             LeafInstanceId: 1,
                             Name: "SameChild",
                             GlobalNodeInstanceId: 1,
                             NodeType: NodeType.LeafNode,
                             DepthToRoot: 1
                           },
-                          Right: LeafNode {
-                            $ref: 1
-                          }
+                          Right: LeafNode($ref: 1)
                         }
                         """.Dos2Unix()
                     }
@@ -455,20 +435,15 @@ public class TreeNodeUnitFieldRevisitTests : CommonStyleExpectationTestBase
                          GlobalNodeInstanceId: 2,
                          NodeType: NodeType.BranchNode,
                          ChildNodes: (List<LeafNode>) [
-                         LeafNode {
-                         $id: 1,
+                         (LeafNode($id: 1)) {
                          LeafInstanceId: 1,
                          Name: "AllThreeFieldsSame",
                          GlobalNodeInstanceId: 1,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 1
                          },
-                         LeafNode {
-                         $ref: 1
-                         },
-                         LeafNode {
-                         $ref: 1
-                         }
+                         (LeafNode($ref: 1)),
+                         (LeafNode($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -483,20 +458,15 @@ public class TreeNodeUnitFieldRevisitTests : CommonStyleExpectationTestBase
                           GlobalNodeInstanceId: 2,
                           NodeType: NodeType.BranchNode,
                           ChildNodes: (List<LeafNode>) [
-                            LeafNode {
-                              $id: 1,
+                            (LeafNode($id: 1)) {
                               LeafInstanceId: 1,
                               Name: "AllThreeFieldsSame",
                               GlobalNodeInstanceId: 1,
                               NodeType: NodeType.LeafNode,
                               DepthToRoot: 1
                             },
-                            LeafNode {
-                              $ref: 1
-                            },
-                            LeafNode {
-                              $ref: 1
-                            }
+                            (LeafNode($ref: 1)),
+                            (LeafNode($ref: 1))
                           ]
                         }
                         """.Dos2Unix()
@@ -615,39 +585,30 @@ public class TreeNodeUnitFieldRevisitTests : CommonStyleExpectationTestBase
                          GlobalNodeInstanceId: 4,
                          NodeType: NodeType.BranchNode,
                          ChildNodes: (List<LeafNode>) [
-                         LeafNode {
-                         $id: 1,
+                         (LeafNode($id: 1)) {
                          LeafInstanceId: 1,
                          Name: "FirstToRepeat",
                          GlobalNodeInstanceId: 1,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 1
                          },
-                         LeafNode {
-                         $id: 2,
+                         (LeafNode($id: 2)) {
                          LeafInstanceId: 2,
                          Name: "SecondToRepeat",
                          GlobalNodeInstanceId: 2,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 1
                          },
-                         LeafNode {
-                         $id: 3,
+                         (LeafNode($id: 3)) {
                          LeafInstanceId: 3,
                          Name: "ThirdToRepeat",
                          GlobalNodeInstanceId: 3,
                          NodeType: NodeType.LeafNode,
                          DepthToRoot: 1
                          },
-                         LeafNode {
-                         $ref: 1
-                         },
-                         LeafNode {
-                         $ref: 2
-                         },
-                         LeafNode {
-                         $ref: 3
-                         }
+                         (LeafNode($ref: 1)),
+                         (LeafNode($ref: 2)),
+                         (LeafNode($ref: 3))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -662,39 +623,30 @@ public class TreeNodeUnitFieldRevisitTests : CommonStyleExpectationTestBase
                           GlobalNodeInstanceId: 4,
                           NodeType: NodeType.BranchNode,
                           ChildNodes: (List<LeafNode>) [
-                            LeafNode {
-                              $id: 1,
+                            (LeafNode($id: 1)) {
                               LeafInstanceId: 1,
                               Name: "FirstToRepeat",
                               GlobalNodeInstanceId: 1,
                               NodeType: NodeType.LeafNode,
                               DepthToRoot: 1
                             },
-                            LeafNode {
-                              $id: 2,
+                            (LeafNode($id: 2)) {
                               LeafInstanceId: 2,
                               Name: "SecondToRepeat",
                               GlobalNodeInstanceId: 2,
                               NodeType: NodeType.LeafNode,
                               DepthToRoot: 1
                             },
-                            LeafNode {
-                              $id: 3,
+                            (LeafNode($id: 3)) {
                               LeafInstanceId: 3,
                               Name: "ThirdToRepeat",
                               GlobalNodeInstanceId: 3,
                               NodeType: NodeType.LeafNode,
                               DepthToRoot: 1
                             },
-                            LeafNode {
-                              $ref: 1
-                            },
-                            LeafNode {
-                              $ref: 2
-                            },
-                            LeafNode {
-                              $ref: 3
-                            }
+                            (LeafNode($ref: 1)),
+                            (LeafNode($ref: 2)),
+                            (LeafNode($ref: 3))
                           ]
                         }
                         """.Dos2Unix()
@@ -851,24 +803,12 @@ public class TreeNodeUnitFieldRevisitTests : CommonStyleExpectationTestBase
                          GlobalNodeInstanceId: 4,
                          NodeType: NodeType.BranchNode,
                          ChildNodes: (List<AlwaysEmptyNode>) [
-                         AlwaysEmptyNode {
-                         $id: 1
-                         },
-                         AlwaysEmptyNode {
-                         $id: 2
-                         },
-                         AlwaysEmptyNode {
-                         $id: 3
-                         },
-                         AlwaysEmptyNode {
-                         $ref: 1
-                         },
-                         AlwaysEmptyNode {
-                         $ref: 2
-                         },
-                         AlwaysEmptyNode {
-                         $ref: 3
-                         }
+                         (AlwaysEmptyNode($id: 1)) {},
+                         (AlwaysEmptyNode($id: 2)) {},
+                         (AlwaysEmptyNode($id: 3)) {},
+                         (AlwaysEmptyNode($ref: 1)),
+                         (AlwaysEmptyNode($ref: 2)),
+                         (AlwaysEmptyNode($ref: 3))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -883,24 +823,12 @@ public class TreeNodeUnitFieldRevisitTests : CommonStyleExpectationTestBase
                           GlobalNodeInstanceId: 4,
                           NodeType: NodeType.BranchNode,
                           ChildNodes: (List<AlwaysEmptyNode>) [
-                            AlwaysEmptyNode {
-                              $id: 1
-                            },
-                            AlwaysEmptyNode {
-                              $id: 2
-                            },
-                            AlwaysEmptyNode {
-                              $id: 3
-                            },
-                            AlwaysEmptyNode {
-                              $ref: 1
-                            },
-                            AlwaysEmptyNode {
-                              $ref: 2
-                            },
-                            AlwaysEmptyNode {
-                              $ref: 3
-                            }
+                            (AlwaysEmptyNode($id: 1)) {},
+                            (AlwaysEmptyNode($id: 2)) {},
+                            (AlwaysEmptyNode($id: 3)) {},
+                            (AlwaysEmptyNode($ref: 1)),
+                            (AlwaysEmptyNode($ref: 2)),
+                            (AlwaysEmptyNode($ref: 3))
                           ]
                         }
                         """.Dos2Unix()

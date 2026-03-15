@@ -502,13 +502,8 @@ public class StringBuilderUnitSimpleContentAndFieldRevisitTests : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringBuilderFields {
-                         FirstStringBuilderField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondStringBuilderField: {
-                         $ref: 1
-                         }
+                         FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondStringBuilderField: (StringBuilder($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -517,13 +512,8 @@ public class StringBuilderUnitSimpleContentAndFieldRevisitTests : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringBuilderFields {
-                          FirstStringBuilderField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondStringBuilderField: {
-                            $ref: 1
-                          }
+                          FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondStringBuilderField: (StringBuilder($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -619,13 +609,8 @@ public class StringBuilderUnitSimpleContentAndFieldRevisitTests : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringBuildersFirstAsSimpleCloakedValueContent {
-                         FirstStringBuilderField: {
-                         $id: 1,
-                         $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                         },
-                         SecondStringBuilderField: {
-                         $ref: 1
-                         }
+                         FirstStringBuilderField: (StringBuilder($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                         SecondStringBuilderField: (StringBuilder($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -634,13 +619,8 @@ public class StringBuilderUnitSimpleContentAndFieldRevisitTests : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringBuildersFirstAsSimpleCloakedValueContent {
-                          FirstStringBuilderField: {
-                            $id: 1,
-                            $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                          },
-                          SecondStringBuilderField: {
-                            $ref: 1
-                          }
+                          FirstStringBuilderField: (StringBuilder($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                          SecondStringBuilderField: (StringBuilder($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -734,13 +714,8 @@ public class StringBuilderUnitSimpleContentAndFieldRevisitTests : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringBuildersSecondAsSimpleCloakedValueContent {
-                         FirstStringBuilderField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondStringBuilderField: {
-                         $ref: 1
-                         }
+                         FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondStringBuilderField: (StringBuilder($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -749,13 +724,8 @@ public class StringBuilderUnitSimpleContentAndFieldRevisitTests : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringBuildersSecondAsSimpleCloakedValueContent {
-                          FirstStringBuilderField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondStringBuilderField: {
-                            $ref: 1
-                          }
+                          FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondStringBuilderField: (StringBuilder($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -850,13 +820,8 @@ public class StringBuilderUnitSimpleContentAndFieldRevisitTests : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringBuildersFirstAsSimpleCloakedStringContent {
-                         FirstStringBuilderField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondStringBuilderField: {
-                         $ref: 1
-                         }
+                         FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondStringBuilderField: (StringBuilder($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -865,13 +830,8 @@ public class StringBuilderUnitSimpleContentAndFieldRevisitTests : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringBuildersFirstAsSimpleCloakedStringContent {
-                          FirstStringBuilderField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondStringBuilderField: {
-                            $ref: 1
-                          }
+                          FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondStringBuilderField: (StringBuilder($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -968,13 +928,8 @@ public class StringBuilderUnitSimpleContentAndFieldRevisitTests : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringBuildersSecondAsSimpleCloakedStringContent {
-                         FirstStringBuilderField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondStringBuilderField: {
-                         $ref: 1
-                         }
+                         FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondStringBuilderField: (StringBuilder($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -983,13 +938,8 @@ public class StringBuilderUnitSimpleContentAndFieldRevisitTests : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringBuildersSecondAsSimpleCloakedStringContent {
-                          FirstStringBuilderField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondStringBuilderField: {
-                            $ref: 1
-                          }
+                          FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondStringBuilderField: (StringBuilder($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -1082,14 +1032,8 @@ public class StringBuilderUnitSimpleContentAndFieldRevisitTests : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringBuilderFields {
-                         FirstStringBuilderField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondStringBuilderField: {
-                         $ref: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         }
+                         FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondStringBuilderField: (StringBuilder($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                          }
                         """.RemoveLineEndings()
                     }
@@ -1098,14 +1042,8 @@ public class StringBuilderUnitSimpleContentAndFieldRevisitTests : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringBuilderFields {
-                          FirstStringBuilderField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondStringBuilderField: {
-                            $ref: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          }
+                          FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondStringBuilderField: (StringBuilder($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                         }
                         """.Dos2Unix()
                     }
@@ -1205,14 +1143,8 @@ public class StringBuilderUnitSimpleContentAndFieldRevisitTests : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringBuildersFirstAsSimpleCloakedValueContent {
-                         FirstStringBuilderField: {
-                         $id: 1,
-                         $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                         },
-                         SecondStringBuilderField: {
-                         $ref: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         }
+                         FirstStringBuilderField: (StringBuilder($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                         SecondStringBuilderField: (StringBuilder($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                          }
                         """.RemoveLineEndings()
                     }
@@ -1221,14 +1153,8 @@ public class StringBuilderUnitSimpleContentAndFieldRevisitTests : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringBuildersFirstAsSimpleCloakedValueContent {
-                          FirstStringBuilderField: {
-                            $id: 1,
-                            $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                          },
-                          SecondStringBuilderField: {
-                            $ref: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          }
+                          FirstStringBuilderField: (StringBuilder($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                          SecondStringBuilderField: (StringBuilder($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                         }
                         """.Dos2Unix()
                     }
@@ -1327,18 +1253,9 @@ public class StringBuilderUnitSimpleContentAndFieldRevisitTests : CommonStyleExp
                     {
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
-                        TwoStringBuildersSecondAsSimpleCloakedValueContent
-                         {
-                         FirstStringBuilderField:
-                         {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondStringBuilderField:
-                         {
-                         $ref: 1,
-                         $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                         }
+                        TwoStringBuildersSecondAsSimpleCloakedValueContent {
+                         FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondStringBuilderField: (StringBuilder($ref: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.
                          }
                         """.RemoveLineEndings()
                     }
@@ -1347,14 +1264,8 @@ public class StringBuilderUnitSimpleContentAndFieldRevisitTests : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringBuildersSecondAsSimpleCloakedValueContent {
-                          FirstStringBuilderField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondStringBuilderField: {
-                            $ref: 1,
-                            $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                          }
+                          FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondStringBuilderField: (StringBuilder($ref: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.
                         }
                         """.Dos2Unix()
                     }
@@ -1457,14 +1368,8 @@ public class StringBuilderUnitSimpleContentAndFieldRevisitTests : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringBuildersFirstAsSimpleCloakedStringContent {
-                         FirstStringBuilderField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondStringBuilderField: {
-                         $ref: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         }
+                         FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondStringBuilderField: (StringBuilder($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                          }
                         """.RemoveLineEndings()
                     }
@@ -1473,14 +1378,8 @@ public class StringBuilderUnitSimpleContentAndFieldRevisitTests : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringBuildersFirstAsSimpleCloakedStringContent {
-                          FirstStringBuilderField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondStringBuilderField: {
-                            $ref: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          }
+                          FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondStringBuilderField: (StringBuilder($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                         }
                         """.Dos2Unix()
                     }
@@ -1581,14 +1480,8 @@ public class StringBuilderUnitSimpleContentAndFieldRevisitTests : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringBuildersSecondAsSimpleCloakedStringContent {
-                         FirstStringBuilderField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondStringBuilderField: {
-                         $ref: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         }
+                         FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondStringBuilderField: (StringBuilder($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                          }
                         """.RemoveLineEndings()
                     }
@@ -1597,14 +1490,8 @@ public class StringBuilderUnitSimpleContentAndFieldRevisitTests : CommonStyleExp
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringBuildersSecondAsSimpleCloakedStringContent {
-                          FirstStringBuilderField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondStringBuilderField: {
-                            $ref: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          }
+                          FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondStringBuilderField: (StringBuilder($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                         }
                         """.Dos2Unix()
                     }

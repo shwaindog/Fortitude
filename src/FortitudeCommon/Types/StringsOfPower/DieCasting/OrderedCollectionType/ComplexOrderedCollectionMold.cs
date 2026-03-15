@@ -82,8 +82,11 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
     {
         var msf         = MoldStateField;
         
-        var visitResult = msf.MoldGraphVisit;
-        var visitIndex  = visitResult.VisitId.VisitIndex;
+        var visitResult      = msf.MoldGraphVisit;
+        var visitIndex       = visitResult.VisitId.VisitIndex;
+        var preBaseMoldState = msf.SnapshotWriteState;
+        
+        // Console.Out.WriteLine($"Before Base Call MyActiveGraphRegistry[{visitResult.VisitId.VisitIndex}].Snapshot = {preBaseMoldState}");
         
         var markPreBodyStart = msf.Sb.Length;
         if (msf.SkipBody) return msf.Mold;
@@ -91,10 +94,14 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
         MoldStateField.Master.AddBaseFieldsStart(msf);
         TargetStringBearerRevealState.CallBaseStyledToStringIfSupported(thisType, msf.Master);
         
+        // to avoid cicular references reusing this visit
+        msf.MoldGraphVisit     = msf.MoldGraphVisit.IncrementUsedCount();
+        msf.SnapshotWriteState = preBaseMoldState;
         var master           = msf.Master;
         var reg              = master.ActiveGraphRegistry;
         var restoreMoldState = reg[visitIndex];
         reg[visitIndex] = restoreMoldState.UpdateMoldWriteState(msf);
+        // Console.Out.WriteLine($"After Base Call MyActiveGraphRegistry[{visitResult.VisitId.VisitIndex}].Snapshot = {msf.SnapshotWriteState}");
         
         if (msf.Sb.Length > markPreBodyStart && msf.Sf.Gb.LastContentSeparatorPaddingRanges.SeparatorPaddingRange == null)
         {

@@ -111,9 +111,11 @@ public abstract class OrderedParentNodeAsField<TChild> : Node, IReadOnlyParentNo
         }
     }
 
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .AddBaseRevealStateFields(this)
-           .CollectionField.AlwaysRevealAll(nameof(ChildNodes), ChildNodes)
-           .Complete();
+    public override AppendSummary RevealState(ITheOneString tos)
+    {
+        var ctm = tos.StartComplexType(this);
+        ctm.AddBaseRevealStateFields(this);
+        ctm.CollectionField.AlwaysRevealAll(nameof(ChildNodes), ChildNodes);
+        return ctm.Complete();
+    }
 }

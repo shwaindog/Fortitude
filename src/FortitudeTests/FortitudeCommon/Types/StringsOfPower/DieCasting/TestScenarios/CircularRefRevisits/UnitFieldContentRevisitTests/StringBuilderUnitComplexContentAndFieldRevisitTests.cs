@@ -457,14 +457,11 @@ public class StringBuilderUnitComplexContentAndFieldRevisitTests : CommonStyleEx
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringBuildersFirstAsComplexCloakedValueContent {
-                         FirstStringBuilderField: {
-                         $id: 1,
+                         FirstStringBuilderField: (StringBuilder($id: 1)) {
                          CloakedRevealerFirstStringBuilderField: You may resume writing you're résumé, or see "Vee" with help with your CV.,
                          logOnlyArray: [ 1, 2, 3 ]
                          },
-                         SecondStringBuilderField: {
-                         $ref: 1
-                         }
+                         SecondStringBuilderField: (StringBuilder($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -473,8 +470,7 @@ public class StringBuilderUnitComplexContentAndFieldRevisitTests : CommonStyleEx
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringBuildersFirstAsComplexCloakedValueContent {
-                          FirstStringBuilderField: {
-                            $id: 1,
+                          FirstStringBuilderField: (StringBuilder($id: 1)) {
                             CloakedRevealerFirstStringBuilderField: You may resume writing you're résumé, or see "Vee" with help with your CV.,
                             logOnlyArray: [
                               1,
@@ -482,9 +478,7 @@ public class StringBuilderUnitComplexContentAndFieldRevisitTests : CommonStyleEx
                               3
                             ]
                           },
-                          SecondStringBuilderField: {
-                            $ref: 1
-                          }
+                          SecondStringBuilderField: (StringBuilder($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -579,13 +573,8 @@ public class StringBuilderUnitComplexContentAndFieldRevisitTests : CommonStyleEx
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringBuildersSecondAsComplexCloakedValueContent {
-                         FirstStringBuilderField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondStringBuilderField: {
-                         $ref: 1
-                         }
+                         FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondStringBuilderField: (StringBuilder($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -594,13 +583,8 @@ public class StringBuilderUnitComplexContentAndFieldRevisitTests : CommonStyleEx
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringBuildersSecondAsComplexCloakedValueContent {
-                          FirstStringBuilderField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondStringBuilderField: {
-                            $ref: 1
-                          }
+                          FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondStringBuilderField: (StringBuilder($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -696,14 +680,11 @@ public class StringBuilderUnitComplexContentAndFieldRevisitTests : CommonStyleEx
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringBuildersFirstAsComplexCloakedStringContent {
-                         FirstStringBuilderField: {
-                         $id: 1,
+                         FirstStringBuilderField: (StringBuilder($id: 1)) {
                          CloakedRevealerFirstStringBuilderField: "You may resume writing you're résumé, or see "Vee" with help with your CV.",
                          logOnlyStringBuilder: "For your eyes only"
                          },
-                         SecondStringBuilderField: {
-                         $ref: 1
-                         }
+                         SecondStringBuilderField: (StringBuilder($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -712,14 +693,11 @@ public class StringBuilderUnitComplexContentAndFieldRevisitTests : CommonStyleEx
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringBuildersFirstAsComplexCloakedStringContent {
-                          FirstStringBuilderField: {
-                            $id: 1,
+                          FirstStringBuilderField: (StringBuilder($id: 1)) {
                             CloakedRevealerFirstStringBuilderField: "You may resume writing you're résumé, or see "Vee" with help with your CV.",
                             logOnlyStringBuilder: "For your eyes only"
                           },
-                          SecondStringBuilderField: {
-                            $ref: 1
-                          }
+                          SecondStringBuilderField: (StringBuilder($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -815,13 +793,8 @@ public class StringBuilderUnitComplexContentAndFieldRevisitTests : CommonStyleEx
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringBuildersSecondAsComplexCloakedStringContent {
-                         FirstStringBuilderField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondStringBuilderField: {
-                         $ref: 1
-                         }
+                         FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondStringBuilderField: (StringBuilder($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -830,13 +803,8 @@ public class StringBuilderUnitComplexContentAndFieldRevisitTests : CommonStyleEx
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringBuildersSecondAsComplexCloakedStringContent {
-                          FirstStringBuilderField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondStringBuilderField: {
-                            $ref: 1
-                          }
+                          FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondStringBuilderField: (StringBuilder($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -931,15 +899,11 @@ public class StringBuilderUnitComplexContentAndFieldRevisitTests : CommonStyleEx
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringBuildersFirstAsComplexCloakedValueContent {
-                         FirstStringBuilderField: {
-                         $id: 1,
+                         FirstStringBuilderField: (StringBuilder($id: 1)) {
                          CloakedRevealerFirstStringBuilderField: You may resume writing you're résumé, or see "Vee" with help with your CV.,
                          logOnlyArray: [ 1, 2, 3 ]
                          },
-                         SecondStringBuilderField: {
-                         $ref: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         }
+                         SecondStringBuilderField: (StringBuilder($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                          }
                         """.RemoveLineEndings()
                     }
@@ -948,8 +912,7 @@ public class StringBuilderUnitComplexContentAndFieldRevisitTests : CommonStyleEx
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringBuildersFirstAsComplexCloakedValueContent {
-                          FirstStringBuilderField: {
-                            $id: 1,
+                          FirstStringBuilderField: (StringBuilder($id: 1)) {
                             CloakedRevealerFirstStringBuilderField: You may resume writing you're résumé, or see "Vee" with help with your CV.,
                             logOnlyArray: [
                               1,
@@ -957,10 +920,7 @@ public class StringBuilderUnitComplexContentAndFieldRevisitTests : CommonStyleEx
                               3
                             ]
                           },
-                          SecondStringBuilderField: {
-                            $ref: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          }
+                          SecondStringBuilderField: (StringBuilder($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                         }
                         """.Dos2Unix()
                     }
@@ -1061,12 +1021,8 @@ public class StringBuilderUnitComplexContentAndFieldRevisitTests : CommonStyleEx
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringBuildersSecondAsComplexCloakedValueContent {
-                         FirstStringBuilderField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondStringBuilderField: {
-                         $ref: 1,
+                         FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondStringBuilderField: (StringBuilder($ref: 1)) {
                          CloakedRevealerSecondStringBuilderField: You may resume writing you're résumé, or see "Vee" with help with your CV.,
                          logOnlyMap: {
                          FirstKey: 1,
@@ -1082,12 +1038,8 @@ public class StringBuilderUnitComplexContentAndFieldRevisitTests : CommonStyleEx
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringBuildersSecondAsComplexCloakedValueContent {
-                          FirstStringBuilderField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondStringBuilderField: {
-                            $ref: 1,
+                          FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondStringBuilderField: (StringBuilder($ref: 1)) {
                             CloakedRevealerSecondStringBuilderField: You may resume writing you're résumé, or see "Vee" with help with your CV.,
                             logOnlyMap: {
                               FirstKey: 1,
@@ -1196,15 +1148,11 @@ public class StringBuilderUnitComplexContentAndFieldRevisitTests : CommonStyleEx
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringBuildersFirstAsComplexCloakedStringContent {
-                         FirstStringBuilderField: {
-                         $id: 1,
+                         FirstStringBuilderField: (StringBuilder($id: 1)) {
                          CloakedRevealerFirstStringBuilderField: "You may resume writing you're résumé, or see "Vee" with help with your CV.",
                          logOnlyStringBuilder: "For your eyes only"
                          },
-                         SecondStringBuilderField: {
-                         $ref: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         }
+                         SecondStringBuilderField: (StringBuilder($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                          }
                         """.RemoveLineEndings()
                     }
@@ -1213,15 +1161,11 @@ public class StringBuilderUnitComplexContentAndFieldRevisitTests : CommonStyleEx
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringBuildersFirstAsComplexCloakedStringContent {
-                          FirstStringBuilderField: {
-                            $id: 1,
+                          FirstStringBuilderField: (StringBuilder($id: 1)) {
                             CloakedRevealerFirstStringBuilderField: "You may resume writing you're résumé, or see "Vee" with help with your CV.",
                             logOnlyStringBuilder: "For your eyes only"
                           },
-                          SecondStringBuilderField: {
-                            $ref: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          }
+                          SecondStringBuilderField: (StringBuilder($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                         }
                         """.Dos2Unix()
                     }
@@ -1325,12 +1269,8 @@ public class StringBuilderUnitComplexContentAndFieldRevisitTests : CommonStyleEx
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringBuildersSecondAsComplexCloakedStringContent {
-                         FirstStringBuilderField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondStringBuilderField: {
-                         $ref: 1,
+                         FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondStringBuilderField: (StringBuilder($ref: 1)) {
                          CloakedRevealerSecondStringBuilderField: "You may resume writing you're résumé, or see "Vee" with help with your CV.",
                          logOnlyList: [ FirstCharSeq, SecondCharSeq, ThirdCharSeq ]
                          }
@@ -1342,12 +1282,8 @@ public class StringBuilderUnitComplexContentAndFieldRevisitTests : CommonStyleEx
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringBuildersSecondAsComplexCloakedStringContent {
-                          FirstStringBuilderField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondStringBuilderField: {
-                            $ref: 1,
+                          FirstStringBuilderField: (StringBuilder($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondStringBuilderField: (StringBuilder($ref: 1)) {
                             CloakedRevealerSecondStringBuilderField: "You may resume writing you're résumé, or see "Vee" with help with your CV.",
                             logOnlyList: [
                               FirstCharSeq,

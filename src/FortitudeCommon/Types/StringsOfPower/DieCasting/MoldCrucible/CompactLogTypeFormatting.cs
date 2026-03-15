@@ -200,18 +200,47 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var resolvedWrittenAs = proposedWriteType;
 
         var settings = tos.Settings;
+        
+        var actualTypeFullName = actualType.FullName ?? "";
+
+        var showOrSuppress = visitResult.IsARevisit;
+        if (!showOrSuppress)
+        {
+            if (actualType.IsIterable())
+            {
+                var elementType         = actualType.GetIterableElementType() ?? actualType;
+                var elementTypeFullName = elementType.FullName ?? "";
+
+                showOrSuppress =
+                    !(StyleOptions.LogSuppressDisplayCollectionNames.Any(s => actualTypeFullName.StartsWith(s))
+                   && StyleOptions.LogSuppressDisplayCollectionElementNames.Any(s => elementTypeFullName.StartsWith(s)));
+            }
+            else
+            {
+                showOrSuppress =
+                    !StyleOptions
+                     .LogSuppressDisplayTypeNames
+                     .Any(s => actualTypeFullName.StartsWith(s));
+            }
+        }
+        var shouldShowTypeNameDecision = showOrSuppress ? AddTypeNameField : LogSuppressTypeNames;
+        
         switch (proposedWriteType & WrittenAsFlagsExtensions.ProposedMaskSelectionMask)
         {
             case AsObject | AsRaw:
-                // resolvedFlags     |= formatFlags | ContentAllowNull | ContentAllowNumber | ContentAllowText | ContentAllowAnyValueType;
-                // resolvedWrittenAs =  (resolvedWrittenAs & ~AsComplex) | AsSimple | AsRaw | AsObject;
-                // if (visitResult.IsARevisit)
-                // {
-                //     resolvedWrittenAs |= settings.InstanceMarkingIncludeObjectToStringContents ? ShowSuppressedContents : Empty;
-                //     resolvedFlags     |= settings.InstanceMarkingIncludeObjectToStringContents ? AddTypeNameField : DefaultCallerTypeFlags;
-                // }
-                // break;
+            // resolvedFlags     |= formatFlags | ContentAllowNull | ContentAllowNumber | ContentAllowText | ContentAllowAnyValueType;
+            // resolvedWrittenAs =  (resolvedWrittenAs & ~AsComplex) | AsSimple | AsRaw | AsObject;
+            // if (visitResult.IsARevisit)
+            // {
+            //     resolvedWrittenAs |= settings.InstanceMarkingIncludeObjectToStringContents ? ShowSuppressedContents : Empty;
+            //     resolvedFlags     |= settings.InstanceMarkingIncludeObjectToStringContents ? AddTypeNameField : DefaultCallerTypeFlags;
+            // }
+            // break;
             case AsRaw:
+            case AsCollectionItem:
+            case AsCollectionItem | WrittenAsFlags.AsCollection | AsSimple:
+            case AsCollectionItem | WrittenAsFlags.AsCollection | AsComplex:
+            case AsCollectionItem | WrittenAsFlags.AsCollection | AsRaw:
             case AsObject | AsComplex:
             case WrittenAsFlags.AsCollection | AsRaw:
             case WrittenAsFlags.AsCollection | AsSimple:
@@ -219,53 +248,104 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             case AsContent | AsRaw:
             case AsContent | AsSimple:
             case AsContent | AsComplex:
+            case AsContent | AsCollectionItem | AsRaw:
+            case AsContent | AsCollectionItem | AsSimple:
+            case AsContent | AsCollectionItem | AsComplex:
                 resolvedFlags = formatFlags | ContentAllowNull | ContentAllowNumber | ContentAllowText | ContentAllowAnyValueType;
                 if (visitResult.IsARevisit)
                 {
                     resolvedFlags     &= ~(SuppressOpening | SuppressClosing);
                     resolvedFlags     |= AddTypeNameField;
-                    resolvedWrittenAs |=  WithReferenceToInstanceId;
+                    resolvedWrittenAs |= WithReferenceToInstanceId;
                 }
                 if (actualType.IsStringBearerOrNullableCached())
                 {
-                    if (visitResult.ReusedCount <= 0
+                    if (visitResult is { ReusedCount: <= 0 }
                         // if (visitResult is { IsARevisit: false, ReusedCount: <= 0 } 
-                     && (!formatFlags.HasContentTreatmentFlags() 
-                     &&  proposedWriteType.HasAllOf(AsContent | AsOuterType)))
+                     && (proposedWriteType.HasAllOf(AsComplex | AsContent | AsOuterType))
+                     || proposedWriteType.HasAllOf(AsComplex | AsCollectionItem)
+                       )
                     {
+                        resolvedFlags     |= shouldShowTypeNameDecision | ContentAllowComplexType;
+                        resolvedWrittenAs &= ~(AsContent);
+                        resolvedWrittenAs |= AsComplex | AsObject;
+                    }
+                    else if (visitResult is { ReusedCount: <= 0 }
+                             // if (visitResult is { IsARevisit: false, ReusedCount: <= 0 } 
+                          && (proposedWriteType.HasAllOf(AsSimple | AsContent | AsOuterType)))
+                    {
+                        resolvedFlags     |= SuppressOpening | SuppressClosing | shouldShowTypeNameDecision;
+                        resolvedWrittenAs &= ~(AsComplex);
+                        resolvedWrittenAs |= AsContent | AsSimple;
+                        resolvedWrittenAs |= visitResult.IsARevisit ? Empty : ShowSuppressedContents;
+                    }
+                    else if (visitResult is { IsARevisit: false }
+                          && (proposedWriteType.HasAllOf(AsSimple | WrittenAsFlags.AsCollection)
+                           || proposedWriteType.HasAllOf(AsComplex | WrittenAsFlags.AsCollection)
+                           || proposedWriteType.HasAllOf(AsRaw | WrittenAsFlags.AsCollection)))
+                    {
+                        if (visitResult.ReusedCount <= 0) { resolvedFlags &= ~(SuppressOpening | SuppressClosing); }
+                        resolvedFlags     |= shouldShowTypeNameDecision;
                         resolvedWrittenAs |= AsContent;
                     }
-                    else if (visitResult.ReusedCount <= 0
-                        // if (visitResult is { IsARevisit: false, ReusedCount: <= 0 } 
-                     && (!formatFlags.HasContentTreatmentFlags() 
-                      && proposedWriteType.HasAllOf(AsRaw | AsContent)))
+                    else if ((proposedWriteType.HasAllOf(AsCollectionItem)))
                     {
-                        resolvedFlags     |= SuppressOpening | SuppressClosing | LogSuppressTypeNames;
-                        resolvedWrittenAs |= ShowSuppressedContents | AsContent;
+                        if (visitResult is { IsARevisit: false, ReusedCount: <= 0 })
+                        {
+                            resolvedFlags     |= SuppressOpening | SuppressClosing;
+                            resolvedWrittenAs |= ShowSuppressedContents;
+                        }
+                        else { resolvedFlags &= ~(SuppressOpening | SuppressClosing); }
+                        resolvedFlags |= shouldShowTypeNameDecision | ContentAllowComplexType;
+                        resolvedWrittenAs &= ~(AsSimple);
+                        resolvedWrittenAs |= AsContent | AsComplex;
+                    }
+                    // else 
+                    // if (visitResult is { IsARevisit: true, ReusedCount: <= 0 } 
+                    //  && proposedWriteType.HasAsRawFlag() 
+                    //  && proposedWriteType.HasNoneOf(WrittenAsFlags.AsCollection))
+                    // {
+                    //     resolvedFlags     &= ~AddTypeNameField;
+                    //     resolvedFlags     |= SuppressOpening | SuppressClosing | LogSuppressTypeNames | ContentAllowComplexType;
+                    //     resolvedWrittenAs &= ~(AsContent | AsSimple);
+                    //     resolvedWrittenAs |= ShowSuppressedContents;
+                    //     resolvedWrittenAs |= AsComplex | AsObject;
+                    // }
+                    else if (visitResult.ReusedCount <= 0
+                             // if (visitResult is { IsARevisit: false, ReusedCount: <= 0 } 
+                          && (proposedWriteType.HasAsRawFlag()) && !proposedWriteType.HasAsCollectionFlag())
+                    {
+                        resolvedFlags |= SuppressOpening | SuppressClosing | ContentAllowComplexType | shouldShowTypeNameDecision;
+                        // resolvedFlags     |= LogSuppressTypeNames;
+                        resolvedWrittenAs |= ShowSuppressedContents;
+                        resolvedWrittenAs &= ~(AsContent);
+                        resolvedWrittenAs |= AsComplex | AsObject;
                     }
                     break;
                 }
                 if (actualType.IsSpanFormattableOrNullableCached() || actualType.IsBoolOrNullable())
                 {
+                    resolvedFlags     |= shouldShowTypeNameDecision;
                     if (visitResult.IsARevisit)
                     {
                         // resolvedFlags     |= AddTypeNameField;
-                        if (settings.InstanceMarkingIncludeSpanFormattableContents)
-                        {
-                            resolvedWrittenAs |= ShowSuppressedContents;
-                        }
-                        else
-                        {
-                            resolvedFlags |= SuppressClosing;
-                        }
+                        if (settings.InstanceMarkingIncludeSpanFormattableContents) { resolvedWrittenAs |= ShowSuppressedContents; }
+                        // else
+                        // {
+                        //     resolvedFlags |= SuppressClosing;
+                        // }
                     }
                     else
                     {
-                        if(proposedWriteType.HasAsSimpleFlag())
+                        if (visitResult.ReusedCount <= 0
+                            // if (visitResult is { IsARevisit: false, ReusedCount: <= 0 } 
+                         && (formatFlags.HasContentTreatmentFlags()
+                          && (proposedWriteType.HasAllOf(AsContent | AsInnerType)
+                           || proposedWriteType.HasAllOf(AsRaw | AsContent))))
                         {
-                            resolvedFlags |= SuppressOpening | SuppressClosing;
+                            resolvedFlags     |= SuppressOpening | SuppressClosing | LogSuppressTypeNames;
+                            resolvedWrittenAs |= ShowSuppressedContents | AsContent;
                         }
-                        else { resolvedFlags |= SuppressClosing; }
                     }
                     // else
                     // {
@@ -286,6 +366,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                 }
                 if (actualType.IsAnyTypeHoldingCharsCached())
                 {
+                    resolvedFlags     |= shouldShowTypeNameDecision;
                     if (resolvedWrittenAs.HasAnyOf(AsRaw | AsContent) && visitResult.IsARevisit)
                     {
                         if ((settings.InstanceTrackingIncludeStringInstances
@@ -299,17 +380,23 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                           && settings.InstanceMarkingIncludeCharSequenceContents)
                          || (settings.InstanceTrackingIncludeCharArrayInstances
                           && actualType.IsCharArray()
-                          && settings.InstanceMarkingIncludeCharArrayContents))
-                        {
-                            resolvedWrittenAs |= ShowSuppressedContents;
-                        }
-                        else { resolvedFlags |= SuppressClosing; }
+                          && settings.InstanceMarkingIncludeCharArrayContents)) { resolvedWrittenAs |= ShowSuppressedContents; }
+                        // else { resolvedFlags |= SuppressClosing; }
                     }
                     else
                     {
-                        if(proposedWriteType.HasAsSimpleFlag())
+                        // if(proposedWriteType.HasAsSimpleFlag())
+                        // {
+                        //     resolvedFlags |= SuppressOpening | SuppressClosing;
+                        // }
+                        if (visitResult.ReusedCount <= 0
+                            // if (visitResult is { IsARevisit: false, ReusedCount: <= 0 } 
+                         && (formatFlags.HasContentTreatmentFlags()
+                          && (proposedWriteType.HasAllOf(AsContent | AsInnerType)
+                           || proposedWriteType.HasAllOf(AsRaw | AsContent))))
                         {
-                            resolvedFlags |= SuppressOpening | SuppressClosing;
+                            resolvedFlags     |= SuppressOpening | SuppressClosing;
+                            resolvedWrittenAs |= ShowSuppressedContents | AsContent;
                         }
                     }
                     // else
@@ -340,6 +427,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                 var isBuildInputType = actualType.IsInputConstructionTypeCached();
                 if (!isBuildInputType)
                 {
+                    resolvedFlags     |= shouldShowTypeNameDecision;
                     resolvedWrittenAs |= (settings.InstanceMarkingIncludeObjectToStringContents ? ShowSuppressedContents : Empty) | AsObject;
                     // resolvedFlags     |= visitResult.IsARevisit ? AddTypeNameField : DefaultCallerTypeFlags;
                 }
@@ -381,6 +469,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             //         }
             //     }
             //     break;
+            case AsComplex | AsRaw | AsContent:
             case AsMapCollection:
                 resolvedFlags |= formatFlags | ContentAllowNull | ContentAllowNumber | ContentAllowText | ContentAllowAnyValueType |
                                  ContentAllowComplexType;
@@ -389,13 +478,26 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                     : AsComplex | AsMapCollection;
                 break;
             case AsComplex:
-                resolvedFlags |= ContentAllowText | ContentAllowText | ContentAllowAnyValueType;
+                resolvedFlags |= ContentAllowText | ContentAllowText | ContentAllowAnyValueType | ContentAllowComplexType;
                 if (visitResult.IsARevisit)
                 {
-                    resolvedFlags     |= visitResult.ReusedCount <= 0 ? AddTypeNameField : DefaultCallerTypeFlags;
-                    resolvedWrittenAs = (resolvedWrittenAs & ~AsComplex) | AsSimple | WithReferenceToInstanceId;
+                    // if (visitResult.ReusedCount < 0)
+                    // {
+                    //     if (formatFlags.HasAsStringContentFlag())
+                    //     {
+                    //         resolvedFlags |= SuppressOpening | SuppressClosing | LogSuppressTypeNames;
+                    //     }
+                    //     else
+                    //     {
+                    //         resolvedFlags |= SuppressOpening | SuppressClosing | AddTypeNameField;
+                    //     }
+                    // }
+                    resolvedFlags &= (SuppressOpening | SuppressClosing);
+
+                    resolvedFlags     |= shouldShowTypeNameDecision;
+                    resolvedWrittenAs |= WithReferenceToInstanceId;
                     break;
-                } 
+                }
                 // if (actualType.IsStringBearerOrNullableCached())
                 // {
                 //     // if (formatFlags.HasContentTreatmentFlags()
@@ -406,9 +508,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                 //     break;
                 // }
                 resolvedWrittenAs =  AsComplex | AsObject;
-                resolvedFlags     |= ContentAllowComplexType; break;
-            default:
-                resolvedFlags |= formatFlags | ContentAllowText | ContentAllowText | ContentAllowAnyValueType | ContentAllowComplexType; break;
+                resolvedFlags     |= ContentAllowComplexType;
+                break;
+            default: resolvedFlags |= formatFlags | ContentAllowText | ContentAllowText | ContentAllowAnyValueType | ContentAllowComplexType; break;
         }
         return (resolvedWrittenAs, resolvedFlags);
     }
@@ -419,20 +521,22 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         if (mws.WroteTypeOpen) return ContentSeparatorRanges.None;
         if (openAs.SupportsMultipleFields()) { return StartComplexTypeOpening(instanceToOpen, mws, openAs); }
         if (Gb.CurrentSectionRanges.HasNonZeroLengthContent) { Gb.SnapshotLastAppendSequence(Gb.CurrentSectionRanges.StartedWithFormatFlags); }
-        var sb = mws.Sb;
+        var sb          = mws.Sb;
+        var mergedFlags = formatFlags | mws.CreateMoldFormatFlags;
 
         var buildingType = instanceToOpen is IRecyclableStructContainer structContainer
             ? structContainer.StoredType
             : (instanceToOpen as Type ?? (instanceToOpen?.GetType() ?? typeof(T)));
         var buildingTypeFullName = buildingType.FullName ?? "";
-        Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
-        if (!mws.WroteTypeName && formatFlags.DoesNotHaveLogSuppressTypeNamesFlag())
+        Gb.StartNextContentSeparatorPaddingSequence(sb, mergedFlags);
+        if ((!mws.WroteTypeName && mergedFlags.DoesNotHaveLogSuppressTypeNamesFlag()) &&
+            (!mergedFlags.HasSuppressOpening() || mergedFlags.HasAddTypeNameFieldFlag()))
         {
             var showTypeName = false;
 
             showTypeName |= (openAs.HasAnyOf(AsContent | AsObject)
                           && (!(StyleOptions.LogSuppressDisplayTypeNames.Any(s => buildingTypeFullName.StartsWith(s))))
-                            || formatFlags.HasAddTypeNameFieldFlag());
+                          || mergedFlags.HasAddTypeNameFieldFlag());
 
             if (!showTypeName)
             {
@@ -451,7 +555,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                 mws.StartedTypeName = true;
             }
         }
-        return Gb.ContentEndToRanges(formatFlags);
+        return Gb.ContentEndToRanges(mergedFlags);
     }
 
     public virtual ContentSeparatorRanges FinishSimpleTypeOpening<T>(T instanceToOpen, IMoldWriteState mws, WrittenAsFlags openAs
@@ -459,10 +563,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     {
         if (mws.WroteTypeOpen) return ContentSeparatorRanges.None;
         if (openAs.SupportsMultipleFields()) { return FinishComplexTypeOpening(instanceToOpen, mws, openAs); }
-        var result = ContentSeparatorRanges.None;
+        var result      = ContentSeparatorRanges.None;
+        var mergedFlags = formatFlags | mws.CreateMoldFormatFlags;
         if (mws is { StartedTypeName: true })
         {
-            Gb.StartNextContentSeparatorPaddingSequence(mws.Sb, formatFlags);
+            Gb.StartNextContentSeparatorPaddingSequence(mws.Sb, mergedFlags);
             Gb.AppendContent(RndBrktCls);
             if (!mws.SkipBody || openAs.HasAnyOf(ShowSuppressedContents))
             {
@@ -471,12 +576,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             }
             mws.WroteTypeName   = true;
             mws.StartedTypeName = false;
-            result = Gb.Complete(formatFlags);
+            result              = Gb.Complete(formatFlags);
         }
-        if (!formatFlags.HasSuppressOpening())
-        {
-            mws.WroteTypeOpen = true;
-        }
+        if (!mergedFlags.HasSuppressOpening()) { mws.WroteTypeOpen = true; }
         return result;
     }
 
@@ -515,15 +617,14 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
         var mergedFlags = formatFlags | mws.CreateMoldFormatFlags;
 
-        if (mergedFlags.HasSuppressOpening()) return Gb.Complete(mergedFlags);
-
-        if (!mws.WroteTypeName && mergedFlags.DoesNotHaveLogSuppressTypeNamesFlag())
+        if (!mws.WroteTypeName && mergedFlags.DoesNotHaveLogSuppressTypeNamesFlag() &&
+            (!mergedFlags.HasSuppressOpening() || mergedFlags.HasAddTypeNameFieldFlag()))
         {
             var showTypeName = false;
 
             showTypeName |= (openAs.HasAnyOf(AsContent | AsObject)
                           && (!(StyleOptions.LogSuppressDisplayTypeNames.Any(s => buildTypeFullName.StartsWith(s))))
-                             || mergedFlags.HasAddTypeNameFieldFlag());
+                          || mergedFlags.HasAddTypeNameFieldFlag());
 
             if (!showTypeName)
             {
@@ -537,8 +638,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
             if (showTypeName)
             {
-                var isSimpleOrContentType = mws.CurrentWriteMethod.HasAnyOf(AsContent | AsSimple | WrittenAsFlags.AsCollection)
-                                         || mws.CurrentWriteMethod.HasAllOf(AsRaw | AsObject);
+                var isSimpleOrContentType = mws.CreateWriteMethod.HasAnyOf(AsContent | WrittenAsFlags.AsCollection | AsCollectionItem);
                 if (isSimpleOrContentType) { Gb.AppendContent(RndBrktOpn); }
                 buildingType.AppendShortNameInCSharpFormat(sb);
                 mws.StartedTypeName = true;
@@ -553,28 +653,26 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         if (mws.WroteTypeOpen) return ContentSeparatorRanges.None;
         if (Gb.CurrentSectionRanges.HasNonZeroLengthContent) { Gb.SnapshotLastAppendSequence(Gb.CurrentSectionRanges.StartedWithFormatFlags); }
         var mergedFlags = formatFlags | mws.CreateMoldFormatFlags;
-        if (mergedFlags.HasSuppressOpening()) return Gb.Complete(formatFlags);
 
         var result = ContentSeparatorRanges.None;
-        Gb.StartNextContentSeparatorPaddingSequence(mws.Sb, formatFlags);
+        Gb.StartNextContentSeparatorPaddingSequence(mws.Sb, mergedFlags);
         if (mws is { StartedTypeName: true, WroteTypeName: false })
         {
-            var isSimpleOrContentType = mws.CurrentWriteMethod.HasAnyOf(AsContent | AsSimple | WrittenAsFlags.AsCollection)
-                                     || mws.CurrentWriteMethod.HasAllOf(AsRaw | AsObject);
+            var isSimpleOrContentType = mws.CreateWriteMethod.HasAnyOf(AsContent | WrittenAsFlags.AsCollection | AsCollectionItem);
             if (isSimpleOrContentType) { Gb.AppendContent(RndBrktCls); }
 
             mws.WroteTypeName   = true;
             mws.StartedTypeName = false;
             if (mws.SkipBody && openAs.HasNoneOf(ShowSuppressedContents)) return Gb.Complete(formatFlags);
             // space considered content
-            result = Gb.AppendPadding(Spc).Complete(formatFlags);
-            Gb.StartNextContentSeparatorPaddingSequence(mws.Sb, formatFlags);
+            result = Gb.AppendPadding(Spc).Complete(mergedFlags);
+            Gb.StartNextContentSeparatorPaddingSequence(mws.Sb, mergedFlags);
         }
-        if ((!mws.SkipBody || openAs.HasShowSuppressedContents()) && !formatFlags.HasSuppressOpening())
+        if ((!mws.SkipBody || openAs.HasShowSuppressedContents()) && !mergedFlags.HasSuppressOpening())
         {
             mws.WroteTypeOpen = true;
             Gb.AppendContent(BrcOpn);
-            result = AddNextFieldPadding(formatFlags);
+            result = AddNextFieldPadding(mergedFlags);
         }
         return result;
     }
@@ -590,10 +688,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var lastContentChar = Gb.RemoveLastSeparatorAndPadding();
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags, true);
 
-        if (mws.SkipBody || mws.CreateMoldFormatFlags.HasSuppressClosing())
-        {
-            Gb.Complete(mws.CreateMoldFormatFlags);
-        }
+        if (mws.SkipBody || mws.CreateMoldFormatFlags.HasSuppressClosing()) { Gb.Complete(mws.CreateMoldFormatFlags); }
         else
         {
             mws.WroteTypeClose = true;
@@ -942,49 +1037,50 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var fronInsertLength = actualLength - (indexToInsertAt - typeOpenIndex);
         int contentNewLines  = sb.SubSequenceOccurrenceCount(indexToInsertAt, fronInsertLength, StyleOptions.NewLineStyle);
         // if (writtenAs.HasAnyOf(AsSimple | AsRaw) && !moldWrittenFlags.HasInnerSameAsOuterTypeFlag())
-        if (!moldWrittenFlags.HasInnerSameAsOuterTypeFlag())
-        {
-            needsBracketWrap = true;
-        }
+        // if (!moldWrittenFlags.HasInnerSameAsOuterTypeFlag())
+        // {
+        //     needsBracketWrap = true;
+        // }
         if (!moldWrittenFlags.HasWroteTypeNameFlag()) { needsTypeName = true; }
-        if (!alreadySupportsMultipleFields && !needsBracketWrap)
-        {
-            // needsBracesWrap = writtenAs.HasAsRawFlag() && writtenAs.HasNoneOf(AsContent);
-            needsBracesWrap = writtenAs.HasAsRawFlag() && writtenAs.HasNoneOf(AsObject | WrittenAsFlags.AsCollection);
-            var actualTypeFullName = actualType.FullName ?? "";
-            if (writtenAs.HasAllOf(AsSimple | AsContent))
-            {
-                if (createTypeFlags.HasSuppressOpening() && createTypeFlags.HasSuppressClosing()
-                 || StyleOptions.LogSuppressDisplayTypeNames.Any(s => actualTypeFullName.StartsWith(s))) { needsBracesWrap = true; }
-            }
-            if (needsBracesWrap)
-            {
-                if (liveMoldInternal != null) { liveMoldInternal.CurrentWriteMethod = writtenAs.ToMultiFieldEquivalent(); }
-                prefixInsertSize += 1; // Open Brace Only close in done later
-                Gb.IndentLevel++;
-                prefixInsertSize += SizeNextFieldPadding(createTypeFlags);
-                if (IsPretty) prefixNewLines += 2;
-                // insert $id added below
-                prefixInsertSize += SizeFieldSeparatorAndPadding(createTypeFlags);
-                prefixInsertSize += SizeFormatFieldName("$values".Length, createTypeFlags);
-                prefixInsertSize += SizeFieldValueSeparator(createTypeFlags);
-            }
-            else
-            {
-                needsBracketWrap =  true;
-                prefixInsertSize += 2; // <name>(<id>) id brackets
-                if (needsTypeName)
-                {
-                    typeNameString   =  actualType.CachedCSharpNameNoConstraints();
-                    prefixInsertSize += typeNameString.Length;
-                    prefixInsertSize += 1; // (<name>) Space
-                    prefixInsertSize += 2; // (<name>) name brackets
-                    indexToInsertAt  =  typeOpenIndex;
-                }
-                isEmpty = true;
-            }
-        }
-        else if (isEmpty)
+        // if (!alreadySupportsMultipleFields && !needsBracketWrap)
+        // {
+        //     // needsBracesWrap = writtenAs.HasAsRawFlag() && writtenAs.HasNoneOf(AsContent);
+        //     needsBracesWrap = writtenAs.HasAsRawFlag() && writtenAs.HasNoneOf(AsObject | WrittenAsFlags.AsCollection);
+        //     var actualTypeFullName = actualType.FullName ?? "";
+        //     if (writtenAs.HasAllOf(AsSimple | AsContent))
+        //     {
+        //         if (createTypeFlags.HasSuppressOpening() && createTypeFlags.HasSuppressClosing()
+        //          || StyleOptions.LogSuppressDisplayTypeNames.Any(s => actualTypeFullName.StartsWith(s))) { needsBracesWrap = true; }
+        //     }
+        //     if (needsBracesWrap)
+        //     {
+        //         if (liveMoldInternal != null) { liveMoldInternal.CurrentWriteMethod = writtenAs.ToMultiFieldEquivalent(); }
+        //         prefixInsertSize += 1; // Open Brace Only close in done later
+        //         Gb.IndentLevel++;
+        //         prefixInsertSize += SizeNextFieldPadding(createTypeFlags);
+        //         if (IsPretty) prefixNewLines += 2;
+        //         // insert $id added below
+        //         prefixInsertSize += SizeFieldSeparatorAndPadding(createTypeFlags);
+        //         prefixInsertSize += SizeFormatFieldName("$values".Length, createTypeFlags);
+        //         prefixInsertSize += SizeFieldValueSeparator(createTypeFlags);
+        //     }
+        //     else
+        //     {
+        //         needsBracketWrap =  true;
+        //         prefixInsertSize += 2; // <name>(<id>) id brackets
+        //         if (needsTypeName)
+        //         {
+        //             typeNameString   =  actualType.CachedCSharpNameNoConstraints();
+        //             prefixInsertSize += typeNameString.Length;
+        //             prefixInsertSize += 1; // (<name>) Space
+        //             prefixInsertSize += 2; // (<name>) name brackets
+        //             indexToInsertAt  =  typeOpenIndex;
+        //         }
+        //         isEmpty = true;
+        //     }
+        // }
+        // else 
+        if (isEmpty)
         {
             indexToInsertAt  -= SizeNextFieldPadding(createTypeFlags);
             prefixInsertSize += SizeNextFieldPadding(createTypeFlags);
@@ -1023,17 +1119,23 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             Gb.AppendContent(RndBrktOpn);
             Gb.AppendContent(typeNameString);
         }
-        if (!alreadySupportsMultipleFields)
-        {
-            if (needsBracesWrap)
-            {
-                Gb.AppendContent(BrcOpn);
-                AddNextFieldPadding(createTypeFlags);
-            }
-            else { Gb.AppendContent(RndBrktOpn); }
-        }
-        else if (needsBracketWrap) { Gb.AppendContent(RndBrktOpn); }
-        else if (isEmpty) { AddNextFieldPadding(createTypeFlags); }
+        // if (!alreadySupportsMultipleFields)
+        // {
+        // if (needsBracesWrap)
+        // {
+        //     Gb.AppendContent(BrcOpn);
+        //     AddNextFieldPadding(createTypeFlags);
+        // }
+        // else
+        // {
+        // Gb.AppendContent(RndBrktOpn);
+        // }
+        // }
+        // else if (needsBracketWrap)
+        // {
+        Gb.AppendContent(RndBrktOpn);
+        // }
+        // else if (isEmpty) { AddNextFieldPadding(createTypeFlags); }
 
         if (instanceInfoFormatFlags.DoesNotHaveDisableFieldNameDelimitingFlag()) Gb.AppendContent(DblQt);
         Gb.AppendContent("$id");
@@ -1053,52 +1155,52 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         }
         if (instanceIdFormatFlags.DoesNotHaveDisableAutoDelimiting()) Gb.AppendContent(DblQt);
         if (liveMoldInternal != null) { liveMoldInternal.CurrentWriteMethod |= WithInstanceId; }
-        if (!alreadySupportsMultipleFields)
-        {
-            if (needsBracesWrap)
-            {
-                AddToNextFieldSeparatorAndPadding(createTypeFlags);
-                AppendInstanceValuesFieldName(typeof(object), writtenAs, createTypeFlags);
-                if (contentNewLines > 0)
-                {
-                    deltaIndent++;
-                    Span<char> indent = stackalloc char[StyleOptions.IndentSize];
-                    eachNewLineIndentBy = StyleOptions.IndentSize;
-                    indent.OverWriteRepatAt(0, StyleOptions.IndentChar, StyleOptions.IndentSize);
-                    fronInsertLength = sb.IndentSubsequentLines(StyleOptions.NewLineStyle, indent
-                                                              , indexToInsertAt + prefixInsertSize, fronInsertLength);
-                }
-                if (contentLength >= 0)
-                {
-                    Gb.IndentLevel--;
-                    suffixInsertSize += SizeNextFieldPadding(createTypeFlags);
-                    suffixInsertSize += 1; // close Brace
-                    if (IsPretty) suffixNewLines++;
-
-                    insertBuilder.StartInsertAt(indexToInsertAt + prefixInsertSize + fronInsertLength, suffixInsertSize);
-                    AddNextFieldPadding(createTypeFlags);
-                    Gb.AppendContent(BrcCls);
-                }
-            }
-            else
-            {
-                if (needsTypeName) Gb.AppendContent(RndBrktCls);
-                Gb.AppendContent(RndBrktCls);
-                if (needsTypeName) Gb.AppendContent(Spc);
-            }
-        }
-        else if (needsBracketWrap)
-        {
-            if (needsTypeName) Gb.AppendContent(RndBrktCls);
-            Gb.AppendContent(RndBrktCls);
-            if (needsTypeName) Gb.AppendContent(Spc);
-        }
-        else if (isEmpty)
-        {
-            Gb.IndentLevel--;
-            AddNextFieldPadding(createTypeFlags);
-        }
-        else { AddToNextFieldSeparatorAndPadding(createTypeFlags); }
+        // if (!alreadySupportsMultipleFields)
+        // {
+        //     if (needsBracesWrap)
+        //     {
+        //         AddToNextFieldSeparatorAndPadding(createTypeFlags);
+        //         AppendInstanceValuesFieldName(typeof(object), writtenAs, createTypeFlags);
+        //         if (contentNewLines > 0)
+        //         {
+        //             deltaIndent++;
+        //             Span<char> indent = stackalloc char[StyleOptions.IndentSize];
+        //             eachNewLineIndentBy = StyleOptions.IndentSize;
+        //             indent.OverWriteRepatAt(0, StyleOptions.IndentChar, StyleOptions.IndentSize);
+        //             fronInsertLength = sb.IndentSubsequentLines(StyleOptions.NewLineStyle, indent
+        //                                                       , indexToInsertAt + prefixInsertSize, fronInsertLength);
+        //         }
+        //         if (contentLength >= 0)
+        //         {
+        //             Gb.IndentLevel--;
+        //             suffixInsertSize += SizeNextFieldPadding(createTypeFlags);
+        //             suffixInsertSize += 1; // close Brace
+        //             if (IsPretty) suffixNewLines++;
+        //
+        //             insertBuilder.StartInsertAt(indexToInsertAt + prefixInsertSize + fronInsertLength, suffixInsertSize);
+        //             AddNextFieldPadding(createTypeFlags);
+        //             Gb.AppendContent(BrcCls);
+        //         }
+        //     }
+        //     else
+        //     {
+        //         if (needsTypeName) Gb.AppendContent(RndBrktCls);
+        //         Gb.AppendContent(RndBrktCls);
+        //         if (needsTypeName) Gb.AppendContent(Spc);
+        //     }
+        // }
+        // else if (needsBracketWrap)
+        // {
+        if (needsTypeName) Gb.AppendContent(RndBrktCls);
+        Gb.AppendContent(RndBrktCls);
+        if (needsTypeName) Gb.AppendContent(Spc);
+        // }
+        // else if (isEmpty)
+        // {
+        //     Gb.IndentLevel--;
+        //     AddNextFieldPadding(createTypeFlags);
+        // }
+        // else { AddToNextFieldSeparatorAndPadding(createTypeFlags); }
         Gb = toRestore;
         var totalIncrease = sb.Length - preInsertLength;
         return new InsertInfo(prefixInsertSize, suffixInsertSize, prefixNewLines, suffixNewLines
@@ -1119,27 +1221,27 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     {
         var sb = mws.Sb;
 
-        var preAppendLength         = sb.Length;
-        var needsBracesWrap         = false;
-        var needsBracketWrap        = false;
-        var needsDoubleBracketClose = false;
-        var needsTypeName           = false;
+        var preAppendLength = sb.Length;
+        // var needsBracesWrap         = false;
+        // var needsBracketWrap        = false;
+        // var needsDoubleBracketClose = false;
+        var needsTypeName = false;
 
-        var alreadySupportsMultipleFields = currentWriteMethod.SupportsMultipleFields();
+        // var alreadySupportsMultipleFields = currentWriteMethod.SupportsMultipleFields();
         Gb.StartNextContentSeparatorPaddingSequence(sb, createTypeFlags);
         // if (currentWriteMethod.HasAnyOf(AsComplex) && moldWrittenFlags.HasWroteTypeNameFlag())
         // {
         //     sb.Length               -= 1;
         //     needsDoubleBracketClose =  true;
         // }
-        if (currentWriteMethod.HasAnyOf(AsSimple | AsRaw | AsContent) 
-         && (!moldWrittenFlags.HasInnerSameAsOuterTypeFlag() || (currentWriteMethod.HasAsOuterTypeFlag())))
-        {
-            needsBracketWrap = true;
-            if (!moldWrittenFlags.HasWroteTypeNameFlag()
-             && !moldWrittenFlags.HasStartedTypeNameFlag()
-             && !moldWrittenFlags.HasInnerSameAsOuterTypeFlag()) { needsTypeName = true; }
-        }
+        // if (currentWriteMethod.HasAnyOf(AsSimple | AsRaw | AsContent) 
+        //  && (!moldWrittenFlags.HasInnerSameAsOuterTypeFlag() || (currentWriteMethod.HasAsOuterTypeFlag())))
+        // {
+        //     needsBracketWrap = true;
+        if (!moldWrittenFlags.HasWroteTypeNameFlag()
+         && !moldWrittenFlags.HasStartedTypeNameFlag()
+         && !moldWrittenFlags.HasInnerSameAsOuterTypeFlag()) { needsTypeName = true; }
+        // }
         // if (!alreadySupportsMultipleFields && !needsBracketWrap)
         // {
         //     needsBracesWrap = currentWriteMethod.HasAsRawFlag() && currentWriteMethod.HasNoneOf(AsObject | WrittenAsFlags.AsCollection)
@@ -1182,22 +1284,25 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         {
             Gb.AppendContent(RndBrktOpn);
             Gb.AppendContent(mws.TypeBeingBuilt.CachedCSharpNameNoConstraints());
-            Gb.AppendContent(RndBrktOpn);
+            // Gb.AppendContent(RndBrktOpn);
         }
-        else if (needsBracketWrap) { Gb.AppendContent(RndBrktOpn); }
+        // else if (needsBracketWrap)
+        // {
+        Gb.AppendContent(RndBrktOpn);
+        // }
         AppendFieldName(mws, "$ref");
         AppendFieldValueSeparator();
         FormatFieldContents(mws, refId, "", createTypeFlags);
         mws.CurrentWriteMethod |= WithReferenceToInstanceId;
 
-        if (needsBracketWrap)
-        {
-            if (needsTypeName) Gb.AppendContent(RndBrktCls);
-            Gb.AppendContent(RndBrktCls);
-            if (needsTypeName) Gb.AppendPadding(Spc);
-            // if (currentWriteMethod.HasShowSuppressedContents() && needsTypeName) Gb.AppendPadding(Spc);
-            Gb.Complete(createTypeFlags);
-        }
+        // if (needsBracketWrap)
+        // {
+        if (needsTypeName) Gb.AppendContent(RndBrktCls);
+        Gb.AppendContent(RndBrktCls);
+        // if (needsTypeName) Gb.AppendPadding(Spc);
+        if (currentWriteMethod.HasShowSuppressedContents() && needsTypeName) Gb.AppendPadding(Spc);
+        Gb.Complete(createTypeFlags);
+        // }
         // else if (needsBracesWrap)
         // {
         //     mws.IsEmpty = false;
@@ -1346,7 +1451,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     }
 
     public virtual AppendSummary FormatFieldName<TCloaked, TRevealBase>(IMoldWriteState mws, TCloaked value
-      , PalantírReveal<TRevealBase> valueRevealer, string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
+      , PalantírReveal<TRevealBase> valueRevealer, string? callerFormatString = null
+      , FormatFlags callerFormatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = AsString)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -1355,6 +1461,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         mws.Master.SetCallerFormatString(callerFormatString);
         mws.Master.SetCallerFormatFlags(withMoldInherited | IsFieldName);
+        mws.Master.SetCallerWriteAs(writeAs);
 
         var visitNumber = mws.MoldGraphVisit.VisitId;
         if (value == null)
@@ -1391,13 +1498,15 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     }
 
     public virtual AppendSummary FormatBearerFieldName<TBearer>(IMoldWriteState mws, TBearer styledObj
-      , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?
+      , string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = AsString)
+        where TBearer : IStringBearer?
     {
         var sb                = mws.Sb;
         var withMoldInherited = callerFormatFlags | mws.CreateMoldFormatFlags.MoldMultiGenerationPassFlags();
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         mws.Master.SetCallerFormatString(callerFormatString);
         mws.Master.SetCallerFormatFlags(withMoldInherited | IsFieldName);
+        mws.Master.SetCallerWriteAs(writeAs);
 
         var visitNumber = mws.MoldGraphVisit.VisitId;
         if (styledObj == null)
@@ -1701,7 +1810,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
     public virtual AppendSummary FormatFieldContents<TCloaked, TRevealBase>(IMoldWriteState mws, TCloaked value
       , PalantírReveal<TRevealBase> valueRevealer, string? callerFormatString = null
-      , FormatFlags callerFormatFlags = DefaultCallerTypeFlags)
+      , FormatFlags callerFormatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = Empty)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -1710,6 +1819,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         Gb.StartNextContentSeparatorPaddingSequence(sb, withMoldInherited);
         mws.Master.SetCallerFormatString(callerFormatString);
         mws.Master.SetCallerFormatFlags(withMoldInherited);
+        mws.Master.SetCallerWriteAs(writeAs);
 
         var visitNumber = mws.MoldGraphVisit.VisitId;
         if (value == null)
@@ -1731,6 +1841,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
             Gb.MarkContentStart(contentStart);
             Gb.MarkContentEnd();
+            Gb.Complete(callerFormatFlags);
             return appendSummary;
         }
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
@@ -1747,7 +1858,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     }
 
     public virtual AppendSummary FormatBearerFieldContents<TBearer>(IMoldWriteState mws, TBearer styledObj,
-        string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?
+        string? callerFormatString = null, FormatFlags callerFormatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = Empty)
+        where TBearer : IStringBearer?
     {
         var sb = mws.Sb;
 
@@ -1755,6 +1867,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         Gb.StartNextContentSeparatorPaddingSequence(sb, withMoldInherited);
         mws.Master.SetCallerFormatString(callerFormatString);
         mws.Master.SetCallerFormatFlags(withMoldInherited);
+        mws.Master.SetCallerWriteAs(writeAs);
 
         var visitNumber = mws.MoldGraphVisit.VisitId;
         if (styledObj == null)
@@ -1774,6 +1887,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
             Gb.MarkContentStart(contentStart);
             Gb.MarkContentEnd();
+            Gb.Complete(callerFormatFlags);
             return appendSummary;
         }
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);

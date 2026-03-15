@@ -519,7 +519,8 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static AppendSummary RevealCloakedBearerOrNull<TCloaked, TRevealBase, TExt>(this IMoldWriteState<TExt> mdc
-      , TCloaked? value, PalantírReveal<TRevealBase> styler, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , TCloaked? value, PalantírReveal<TRevealBase> styler, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags
+      , WrittenAsFlags writeAs = AsRaw)
         where TCloaked : TRevealBase?
         where TExt : TypeMolder
         where TRevealBase : notnull
@@ -533,8 +534,8 @@ public static class StyledTypeBuilderExtensions
             return new AppendSummary(actualType, mdc.Master, new Range(contentStart, sb.Length), writtenAsFlags, mdc.MoldGraphVisit.VisitId);
         }
 
-        if (formatFlags.HasIsFieldNameFlag()) return mdc.StyleFormatter.FormatFieldName(mdc, value, styler, formatString, formatFlags);
-        return mdc.StyleFormatter.FormatFieldContents(mdc, value, styler, formatString, formatFlags);
+        if (formatFlags.HasIsFieldNameFlag()) return mdc.StyleFormatter.FormatFieldName(mdc, value, styler, formatString, formatFlags, writeAs);
+        return mdc.StyleFormatter.FormatFieldContents(mdc, value, styler, formatString, formatFlags, writeAs);
     }
 
     public static AppendSummary RevealNullableCloakedBearerField<TCloakedStruct, TExt>(this IMoldWriteState<TExt> mdc
@@ -556,7 +557,7 @@ public static class StyledTypeBuilderExtensions
 
     public static AppendSummary RevealNullableCloakedBearerOrNull<TCloakedStruct, TExt>(this IMoldWriteState<TExt> mdc
       , TCloakedStruct? value, PalantírReveal<TCloakedStruct> styler, string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = AsRaw)
         where TCloakedStruct : struct where TExt : TypeMolder
     {
         var sb           = mdc.Sb;
@@ -567,8 +568,8 @@ public static class StyledTypeBuilderExtensions
             return new AppendSummary(typeof(TCloakedStruct), mdc.Master, new Range(contentStart, sb.Length), writtenAsFlags
                                    , mdc.MoldGraphVisit.VisitId);
         }
-        if (formatFlags.HasIsFieldNameFlag()) return mdc.StyleFormatter.FormatFieldName(mdc, value.Value, styler, formatString, formatFlags);
-        return mdc.StyleFormatter.FormatFieldContents(mdc, value.Value, styler, formatString, formatFlags);
+        if (formatFlags.HasIsFieldNameFlag()) return mdc.StyleFormatter.FormatFieldName(mdc, value.Value, styler, formatString, formatFlags, writeAs);
+        return mdc.StyleFormatter.FormatFieldContents(mdc, value.Value, styler, formatString, formatFlags, writeAs);
     }
 
     public static AppendSummary RevealStringBearerField<TExt, TBearer>(this IMoldWriteState<TExt> mdc, ReadOnlySpan<char> fieldName
@@ -588,7 +589,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static AppendSummary RevealStringBearerOrNull<TExt, TBearer>(this IMoldWriteState<TExt> mdc
-      , TBearer? value, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , TBearer? value, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = AsRaw)
         where TExt : TypeMolder
         where TBearer : IStringBearer?
     {
@@ -601,27 +602,27 @@ public static class StyledTypeBuilderExtensions
         }
         if (!formatFlags.HasNoRevisitCheck() && !typeof(TBearer).IsValueType)
         {
-            return mdc.AppendFormattedStringBearerWithRefenceTracking(value, formatString, formatFlags);
+            return mdc.AppendFormattedStringBearerWithRefenceTracking(value, formatString, formatFlags, writeAs);
         }
-        return mdc.AppendFormattedStringBearerNoReferenceTracking(value, formatString, formatFlags);
+        return mdc.AppendFormattedStringBearerNoReferenceTracking(value, formatString, formatFlags, writeAs);
     }
 
     private static AppendSummary AppendFormattedStringBearerWithRefenceTracking<TBearer>
     (this IMoldWriteState mdc, TBearer? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = AsRaw)
         where TBearer : IStringBearer?
     {
         if (!formatFlags.HasNoRevisitCheck()
          && value != null
          && !typeof(TBearer).IsValueType)
         {
-            var actualType            = value?.GetType() ?? typeof(TBearer);
+            var actualType            = value.GetType();
             var sb                    = mdc.Sb;
             var startAt               = sb.Length;
             var sf                    = mdc.StyleFormatter;
             var registeredForRevisit =
-                mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, formatFlags, AsRaw | AsContent, mdc.CreateMoldFormatFlags);
-            var append = mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, Empty, actualType);
+                mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, formatFlags, writeAs, mdc.CreateMoldFormatFlags.MoldMultiGenerationInheritFlags());
+            var append = mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writeAs, actualType);
             if (registeredForRevisit.ShouldShowBody)
             {
                 if (!formatFlags.HasIsFieldNameFlag())
@@ -631,7 +632,7 @@ public static class StyledTypeBuilderExtensions
                         sf.AppendInstanceValuesFieldName(actualType, mdc.CurrentWriteMethod, formatFlags);
                     }
                 }
-                append = sf.FormatBearerFieldContents(mdc, value, formatString, formatFlags);
+                append = sf.FormatBearerFieldContents(mdc, value, formatString, formatFlags.RemoveTypeBoundarySuppression(), writeAs);
             }
             var graphBuilder = mdc.Sf.Gb;
             graphBuilder.Complete(formatFlags);
@@ -644,12 +645,12 @@ public static class StyledTypeBuilderExtensions
 
     private static AppendSummary AppendFormattedStringBearerNoReferenceTracking<TBearer>
     (this IMoldWriteState mdc, TBearer value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , FormatFlags noAsStringFormatFlags = DefaultCallerTypeFlags)
+      , FormatFlags noAsStringFormatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = AsRaw)
         where TBearer : IStringBearer?
     {
         var append = noAsStringFormatFlags.HasIsFieldNameFlag() 
-            ? mdc.StyleFormatter.FormatBearerFieldName(mdc, value, formatString, noAsStringFormatFlags) 
-            : mdc.StyleFormatter.FormatBearerFieldContents(mdc, value, formatString, noAsStringFormatFlags);
+            ? mdc.StyleFormatter.FormatBearerFieldName(mdc, value, formatString, noAsStringFormatFlags, writeAs | AsString) 
+            : mdc.StyleFormatter.FormatBearerFieldContents(mdc, value, formatString, noAsStringFormatFlags, writeAs);
         return append;
     }
 
@@ -670,7 +671,7 @@ public static class StyledTypeBuilderExtensions
     }
 
     public static AppendSummary RevealNullableStringBearerOrNull<TExt, TBearerStruct>(this IMoldWriteState<TExt> mdc
-      , TBearerStruct? value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , TBearerStruct? value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = AsRaw)
         where TExt : TypeMolder where TBearerStruct : struct, IStringBearer
     {
         var actualType = value?.GetType() ?? typeof(TBearerStruct?);
@@ -683,9 +684,9 @@ public static class StyledTypeBuilderExtensions
             return new AppendSummary(typeof(TBearerStruct), mdc.Master, new Range(contentStart, sb.Length), writtenAsFlags, mdc.MoldGraphVisit.VisitId
                                    , actualType);
         }
-        if (formatFlags.HasIsFieldNameFlag()) return mdc.StyleFormatter.FormatBearerFieldName(mdc, value.Value, formatString, formatFlags);
+        if (formatFlags.HasIsFieldNameFlag()) return mdc.StyleFormatter.FormatBearerFieldName(mdc, value.Value, formatString, formatFlags, writeAs | AsString);
 
-        return mdc.StyleFormatter.FormatBearerFieldContents(mdc, value.Value, formatString, formatFlags);
+        return mdc.StyleFormatter.FormatBearerFieldContents(mdc, value.Value, formatString, formatFlags, writeAs);
     }
 
     public static WrittenAsFlags AppendReadOnlySpanField<TExt>
@@ -853,7 +854,8 @@ public static class StyledTypeBuilderExtensions
         if (!formatFlags.HasNoRevisitCheck() && mdc.Settings.InstanceTrackingIncludeCharArrayInstances)
         {
             var preAppendLength      = mdc.Sb.Length;
-            var registeredForRevisit = mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, formatFlags, AsRaw | AsContent, mdc.CreateMoldFormatFlags);
+            var registeredForRevisit = 
+                mdc.Master.EnsureRegisteredClassIsReferenceTracked(value, formatFlags, AsRaw | AsContent, mdc.CreateMoldFormatFlags);
             var writtenAsTracking    = Empty;
             if (registeredForRevisit.ShouldShowBody || mdc.Settings.InstanceMarkingIncludeCharArrayContents)
             {
@@ -861,10 +863,15 @@ public static class StyledTypeBuilderExtensions
                 {
                     if (registeredForRevisit.ShouldSuppressBody)
                     {
-                        mdc.StyleFormatter.AppendInstanceValuesFieldName(actualType, mdc.CurrentWriteMethod, formatFlags);
+                        var sf = mdc.StyleFormatter;
+                        if (mdc.CreateMoldFormatFlags.DoesNotHaveAsStringContentFlag() && formatFlags.HasAsStringContentFlag())
+                        {
+                            sf = sf.PreviousContextOrThis;
+                        }
+                        sf.AppendInstanceValuesFieldName(actualType, mdc.CurrentWriteMethod, formatFlags);
                     }
                 }
-                writtenAsTracking = mdc.AppendFormattedNoReferenceTracking(value, formatString, fromIndex, length, formatFlags);
+                writtenAsTracking = mdc.AppendFormattedNoReferenceTracking(value, formatString, fromIndex, length, formatFlags | NoRevisitCheck);
             }
             var graphBuilder = mdc.Sf.Gb;
             graphBuilder.Complete(formatFlags);

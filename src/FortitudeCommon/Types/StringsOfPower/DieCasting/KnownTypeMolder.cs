@@ -75,7 +75,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         [DebuggerStepThrough] get => MoldStateField ?? throw new NullReferenceException("Expected MoldState to be set");
     }
 
-    public override bool IsComplexType => State.CurrentWriteMethod.SupportsMultipleFields();
+    public override bool IsComplexType => State.CreateWriteMethod.SupportsMultipleFields();
 
     public FormatFlags CallerFormatFlags => State.CallerFormatFlags;
     
@@ -117,7 +117,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         if (IsComplexType)
         {
             usingFormatter.StartComplexTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CreateWriteMethod, formatFlags);
-            if (mws.Style.IsLog() && !mws.WroteTypeName)
+            if (mws.Style.IsLog() && mws.StartedTypeName)
             {
                 MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, usingFormatter
                                   , MoldStateField.CreateWriteMethod, MoldStateField.MoldWrittenFlags, formatFlags);
@@ -125,7 +125,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         }
         else { 
             usingFormatter.StartSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CreateWriteMethod, formatFlags);
-            if (mws.Style.IsLog() && !mws.WroteTypeName)
+            if (mws.Style.IsLog() && mws.StartedTypeName)
             {
                 MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, usingFormatter
                                   , MoldStateField.CreateWriteMethod, MoldStateField.MoldWrittenFlags, formatFlags);
@@ -159,7 +159,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
     public virtual void AppendClosing(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var mws = State;
-        if (mws.CreateWriteMethod.SupportsMultipleFields())
+        if (mws.CurrentWriteMethod.SupportsMultipleFields())
         {
             State.StyleFormatter.AppendComplexTypeClosing(State.InstanceOrType, State, State.CurrentWriteMethod, formatFlags);
         }
@@ -171,17 +171,8 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
 
     protected TMold Me => (TMold)(TypeMolder)this;
 
-    public override AppendSummary Complete(FormatFlags formatFlags = DefaultCallerTypeFlags)
+    protected virtual AppendSummary RunShutdown()
     {
-        if (State == null) { throw new NullReferenceException("Expected MoldState to be set"); }
-        if (State.CreateMoldFormatFlags.DoesNotHaveSuppressClosing()) { AppendClosing(formatFlags); }
-        else
-        {
-            var gb            = State.Sf.Gb;
-            var hasUncommited = gb.CurrentSectionRanges.HasContent;
-            if (!hasUncommited && !gb.LastContentSeparatorPaddingRanges.HasNonZeroLengthContent) { gb.RemoveLastSeparatorAndPadding(); }
-            else if (hasUncommited) { gb.Complete(State.CreateMoldFormatFlags); }
-        }
         var currentAppenderIndex = State.Master.WriteBuffer.Length;
         var typeWriteRange       = new Range(Index.FromStart(StartIndex), Index.FromStart(currentAppenderIndex));
         var result               = BuildMoldStringRange(typeWriteRange);
@@ -201,6 +192,20 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         //     Debugger.Break();
         // }
         return result;
+    }
+
+    public override AppendSummary Complete(FormatFlags formatFlags = DefaultCallerTypeFlags)
+    {
+        if (State == null) { throw new NullReferenceException("Expected MoldState to be set"); }
+        if (State.CreateMoldFormatFlags.DoesNotHaveSuppressClosing()) { AppendClosing(formatFlags); }
+        else
+        {
+            var gb            = State.Sf.Gb;
+            var hasUncommited = gb.CurrentSectionRanges.HasContent;
+            if (!hasUncommited && !gb.LastContentSeparatorPaddingRanges.HasNonZeroLengthContent) { gb.RemoveLastSeparatorAndPadding(); }
+            else if (hasUncommited) { gb.Complete(State.CreateMoldFormatFlags); }
+        }
+        return RunShutdown();
     }
 
     protected bool MyAppendGraphFields<T>(T instance, VisitResult visitResult, IStyledTypeFormatting usingFormatter

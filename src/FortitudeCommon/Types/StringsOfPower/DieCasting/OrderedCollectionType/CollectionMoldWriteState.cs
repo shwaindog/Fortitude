@@ -55,7 +55,9 @@ public class CollectionMoldWriteState<TOCMold> : MoldWriteState<TOCMold>, IColle
 
         if (collection != null && !buildTypeSameAsCollectionType && !collType.IsValueType)
         {
-            return Master.EnsureRegisteredClassIsReferenceTracked(collection, flags, AsSimple | WrittenAsFlags.AsCollection, CreateMoldFormatFlags);
+            return Master.EnsureRegisteredClassIsReferenceTracked
+                (collection, flags.RemoveEmbeddedContentFlags(), AsSimple | WrittenAsFlags.AsCollection
+                 , CreateMoldFormatFlags.RemoveEmbeddedContentFlags());
         }
         
         return null;
@@ -63,13 +65,14 @@ public class CollectionMoldWriteState<TOCMold> : MoldWriteState<TOCMold>, IColle
 
     public TrackedInstanceMold? ConditionalCollectionPrefix<TCollection>(TCollection collection, Type elementType, bool? hasAny, FormatFlags formatFlags)
     {
+        formatFlags = formatFlags.RemoveEmbeddedContentFlags();
         TrackedInstanceMold? valueMold              = null;
         var                  previousWroteOuterName = WroteTypeName;
         if (collection is not null and not Type)
         {
             var actualType = collection.GetType();
             if (!actualType.IsValueType) { valueMold = TrackInnerCollectionValueMold(collection, elementType, formatFlags); }
-            else
+            if(valueMold == null)
             {
                 var collType = collection.GetType(); 
                 var buildTypeSameAsCollectionType = Mold.BuildingInstanceEquals(collection);
@@ -83,8 +86,17 @@ public class CollectionMoldWriteState<TOCMold> : MoldWriteState<TOCMold>, IColle
                 if (!buildTypeSameAsCollectionType)
                 {
                     WroteTypeName = false;
-                    Sf.StartSimpleTypeOpening(collection, this, AsSimple | WrittenAsFlags.AsCollection, formatFlags);
-                    Sf.FinishSimpleTypeOpening(collection, this, AsSimple | WrittenAsFlags.AsCollection, formatFlags);
+                    
+                    var actualTypeFullName  = actualType.FullName ?? "";
+                    var elementTypeFullName = elementType.IfNullableGetUnderlyingTypeOrThis().FullName ?? "";
+                    var shouldShowInnerCollectionName =
+                        (!Settings.LogSuppressDisplayCollectionNames.Any(s => actualTypeFullName.StartsWith(s))
+                      && !Settings.LogSuppressDisplayCollectionElementNames.Any(s => elementTypeFullName.StartsWith(s)));
+                    if (shouldShowInnerCollectionName)
+                    {
+                        Sf.StartSimpleTypeOpening(collection, this, AsSimple | WrittenAsFlags.AsCollection, formatFlags);
+                        Sf.FinishSimpleTypeOpening(collection, this, AsSimple | WrittenAsFlags.AsCollection, formatFlags);
+                    }
                     WroteTypeName = previousWroteOuterName;
                 }
             }
@@ -101,8 +113,16 @@ public class CollectionMoldWriteState<TOCMold> : MoldWriteState<TOCMold>, IColle
             if(!buildTypeSameAsCollectionType)
             {
                 WroteTypeName = false;
-                Sf.StartSimpleTypeOpening(collType, this, AsSimple | WrittenAsFlags.AsCollection, formatFlags);
-                Sf.FinishSimpleTypeOpening(collType, this, AsSimple | WrittenAsFlags.AsCollection, formatFlags);
+                var collTypeFullName = collType.FullName ?? "";
+                var elementTypeFullName = elementType.IfNullableGetUnderlyingTypeOrThis().FullName ?? "";
+                var shouldShowInnerCollectionName =
+                    (!Settings.LogSuppressDisplayCollectionNames.Any(s => collTypeFullName.StartsWith(s))
+                  && !Settings.LogSuppressDisplayCollectionElementNames.Any(s => elementTypeFullName.StartsWith(s)));
+                if (shouldShowInnerCollectionName)
+                {
+                    Sf.StartSimpleTypeOpening(collType, this, AsSimple | WrittenAsFlags.AsCollection, formatFlags);
+                    Sf.FinishSimpleTypeOpening(collType, this, AsSimple | WrittenAsFlags.AsCollection, formatFlags);
+                }
                 WroteTypeName = previousWroteOuterName;
             }
         }
@@ -117,6 +137,7 @@ public class CollectionMoldWriteState<TOCMold> : MoldWriteState<TOCMold>, IColle
     public void ConditionalCollectionSuffix(TrackedInstanceMold? trackedInstanceMold, Type elementType, int? matchCount
       , int? countCollectionAvailable, string? formatString, FormatFlags formatFlags)
     {
+        formatFlags = formatFlags.RemoveEmbeddedContentFlags();
         if (Mold is OrderedCollectionMold<TOCMold> ocMold)
         {
             ocMold.ResultCount = matchCount ?? 0;

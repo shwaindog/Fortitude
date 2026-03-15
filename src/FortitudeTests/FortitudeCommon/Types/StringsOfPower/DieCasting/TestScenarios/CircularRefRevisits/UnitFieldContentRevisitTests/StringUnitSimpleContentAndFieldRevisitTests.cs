@@ -501,13 +501,8 @@ public class StringUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringFields {
-                         FirstStringField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondStringField: {
-                         $ref: 1
-                         }
+                         FirstStringField: (string($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondStringField: (string($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -516,13 +511,8 @@ public class StringUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringFields {
-                          FirstStringField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondStringField: {
-                            $ref: 1
-                          }
+                          FirstStringField: (string($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondStringField: (string($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -618,13 +608,8 @@ public class StringUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringsFirstAsSimpleCloakedValueContent {
-                         FirstStringField: {
-                         $id: 1,
-                         $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                         },
-                         SecondStringField: {
-                         $ref: 1
-                         }
+                         FirstStringField: (string($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                         SecondStringField: (string($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -633,13 +618,8 @@ public class StringUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringsFirstAsSimpleCloakedValueContent {
-                          FirstStringField: {
-                            $id: 1,
-                            $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                          },
-                          SecondStringField: {
-                            $ref: 1
-                          }
+                          FirstStringField: (string($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                          SecondStringField: (string($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -733,13 +713,8 @@ public class StringUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringsSecondAsSimpleCloakedValueContent {
-                         FirstStringField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondStringField: {
-                         $ref: 1
-                         }
+                         FirstStringField: (string($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondStringField: (string($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -748,13 +723,8 @@ public class StringUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringsSecondAsSimpleCloakedValueContent {
-                          FirstStringField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondStringField: {
-                            $ref: 1
-                          }
+                          FirstStringField: (string($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondStringField: (string($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -849,13 +819,8 @@ public class StringUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringsFirstAsSimpleCloakedStringContent {
-                         FirstStringField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondStringField: {
-                         $ref: 1
-                         }
+                         FirstStringField: (string($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondStringField: (string($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -864,13 +829,8 @@ public class StringUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringsFirstAsSimpleCloakedStringContent {
-                          FirstStringField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondStringField: {
-                            $ref: 1
-                          }
+                          FirstStringField: (string($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondStringField: (string($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -967,13 +927,8 @@ public class StringUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringsSecondAsSimpleCloakedStringContent {
-                         FirstStringField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondStringField: {
-                         $ref: 1
-                         }
+                         FirstStringField: (string($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondStringField: (string($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -982,13 +937,8 @@ public class StringUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringsSecondAsSimpleCloakedStringContent {
-                          FirstStringField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondStringField: {
-                            $ref: 1
-                          }
+                          FirstStringField: (string($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondStringField: (string($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -1081,14 +1031,8 @@ public class StringUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringFields {
-                         FirstStringField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondStringField: {
-                         $ref: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         }
+                         FirstStringField: (string($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondStringField: (string($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                          }
                         """.RemoveLineEndings()
                     }
@@ -1097,14 +1041,8 @@ public class StringUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringFields {
-                          FirstStringField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondStringField: {
-                            $ref: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          }
+                          FirstStringField: (string($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondStringField: (string($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                         }
                         """.Dos2Unix()
                     }
@@ -1204,14 +1142,8 @@ public class StringUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringsFirstAsSimpleCloakedValueContent {
-                         FirstStringField: {
-                         $id: 1,
-                         $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                         },
-                         SecondStringField: {
-                         $ref: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         }
+                         FirstStringField: (string($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                         SecondStringField: (string($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                          }
                         """.RemoveLineEndings()
                     }
@@ -1220,14 +1152,8 @@ public class StringUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringsFirstAsSimpleCloakedValueContent {
-                          FirstStringField: {
-                            $id: 1,
-                            $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                          },
-                          SecondStringField: {
-                            $ref: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          }
+                          FirstStringField: (string($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                          SecondStringField: (string($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                         }
                         """.Dos2Unix()
                     }
@@ -1328,16 +1254,8 @@ public class StringUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                       , """
                         TwoStringsSecondAsSimpleCloakedValueContent
                          {
-                         FirstStringField:
-                         {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondStringField:
-                         {
-                         $ref: 1,
-                         $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                         }
+                         FirstStringField: (string($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondStringField: (string($ref: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.
                          }
                         """.RemoveLineEndings()
                     }
@@ -1346,14 +1264,8 @@ public class StringUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringsSecondAsSimpleCloakedValueContent {
-                          FirstStringField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondStringField: {
-                            $ref: 1,
-                            $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                          }
+                          FirstStringField: (string($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondStringField: (string($ref: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.
                         }
                         """.Dos2Unix()
                     }
@@ -1456,14 +1368,8 @@ public class StringUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringsFirstAsSimpleCloakedStringContent {
-                         FirstStringField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondStringField: {
-                         $ref: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         }
+                         FirstStringField: (string($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondStringField: (string($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                          }
                         """.RemoveLineEndings()
                     }
@@ -1472,14 +1378,8 @@ public class StringUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringsFirstAsSimpleCloakedStringContent {
-                          FirstStringField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondStringField: {
-                            $ref: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          }
+                          FirstStringField: (string($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondStringField: (string($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                         }
                         """.Dos2Unix()
                     }
@@ -1580,14 +1480,8 @@ public class StringUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoStringsSecondAsSimpleCloakedStringContent {
-                         FirstStringField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondStringField: {
-                         $ref: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         }
+                         FirstStringField: (string($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondStringField: (string($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                          }
                         """.RemoveLineEndings()
                     }
@@ -1596,14 +1490,8 @@ public class StringUnitSimpleContentAndFieldRevisitTests : CommonStyleExpectatio
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoStringsSecondAsSimpleCloakedStringContent {
-                          FirstStringField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondStringField: {
-                            $ref: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          }
+                          FirstStringField: (string($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondStringField: (string($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                         }
                         """.Dos2Unix()
                     }

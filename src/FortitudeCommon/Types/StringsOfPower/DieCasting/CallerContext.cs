@@ -15,6 +15,8 @@ public struct CallerContext : IStructTransferState<CallerContext>, IEquatable<Ca
     public FormatFlags FormatFlags { get; set; }
 
     public string? FormatString { get; set; }
+    
+    public WrittenAsFlags WriteAs { get; set; }
 
     public IStringBuilder CallerFieldName => callerFieldName ??= TheOneString.PropertyNameDefaultBufferSize.SourceCharArrayStringBuilder();
 
@@ -31,12 +33,13 @@ public struct CallerContext : IStructTransferState<CallerContext>, IEquatable<Ca
 
     public CallerContext Merge(CallerContext toMergeInto)
     {
-        FormatFlags     |= toMergeInto.FormatFlags;
-        FormatString    =  toMergeInto.FormatString ?? FormatString;
-        callerFieldName =  toMergeInto.CallerFieldName;
-        IsFieldNameKey  |= IsFieldNameKey;
-        FieldNameRetrieveIndex = toMergeInto.FieldNameRetrieveIndex;
-        CallerType = toMergeInto.CallerType ?? CallerType;
+        FormatFlags            |= toMergeInto.FormatFlags;
+        FormatString           =  toMergeInto.FormatString ?? FormatString;
+        WriteAs                |=  toMergeInto.WriteAs;
+        callerFieldName        =  toMergeInto.CallerFieldName;
+        IsFieldNameKey         |= IsFieldNameKey;
+        FieldNameRetrieveIndex =  toMergeInto.FieldNameRetrieveIndex;
+        CallerType             =  toMergeInto.CallerType ?? CallerType;
 
         return this;
     }
@@ -45,6 +48,7 @@ public struct CallerContext : IStructTransferState<CallerContext>, IEquatable<Ca
     {
         FormatFlags = FormatFlags.DefaultCallerTypeFlags;
         FormatString = null;
+        WriteAs = WrittenAsFlags.Empty;
         callerFieldName?.DecrementRefCount();
         callerFieldName = null;
         IsFieldNameKey = false;
@@ -70,6 +74,7 @@ public struct CallerContext : IStructTransferState<CallerContext>, IEquatable<Ca
     {
         FormatFlags  = source.FormatFlags;
         FormatString = source.FormatString;
+        WriteAs = source.WriteAs;
         if (source.callerFieldName == null)
         {
             if (callerFieldName != null)
@@ -139,6 +144,7 @@ public struct CallerContext : IStructTransferState<CallerContext>, IEquatable<Ca
         Equals(callerFieldName, other.callerFieldName) 
      && FormatFlags == other.FormatFlags 
      && FormatString == other.FormatString 
+     && WriteAs == other.WriteAs 
      && IsFieldNameKey == other.IsFieldNameKey 
      && FieldNameRetrieveIndex == other.FieldNameRetrieveIndex 
      && CallerType == other.CallerType;

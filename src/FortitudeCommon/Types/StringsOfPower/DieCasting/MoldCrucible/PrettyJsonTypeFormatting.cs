@@ -193,8 +193,8 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         var preAppendLen         = sb.Length;
         var inheritedFmtFlags    = Gb.CurrentSectionRanges.StartedWithFormatFlags | (FormatFlags)formatSwitches;
         var inheritedFmtSwitches = (FormatSwitches)inheritedFmtFlags;
-        if (inheritedFmtFlags.DoesNotHaveSuppressOpening() || StyleOptions.Style.IsLog())
-        {
+        // if (inheritedFmtFlags.DoesNotHaveSuppressOpening() || StyleOptions.Style.IsLog())
+        // {
             Gb.StartNextContentSeparatorPaddingSequence(sb, inheritedFmtFlags);
             if ((elementType.IsChar() && (JsonOptions.CharBufferWritesAsCharCollection || inheritedFmtFlags.HasAsStringContentFlag())))
             {
@@ -211,7 +211,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             Gb.Complete(inheritedFmtFlags);
             Gb.AddHighWaterMark();
             AddCollectionElementPadding(elementType, sb, 1, inheritedFmtSwitches);
-        }
+        // }
         return sb.Length - preAppendLen;
     }
 
@@ -221,8 +221,8 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         int charsAdded = 0;
 
         var inheritedFmtFlags = Gb.CurrentSectionRanges.StartedWithFormatFlags | (FormatFlags)formatSwitches;
-        if (inheritedFmtFlags.DoesNotHaveSuppressOpening() || StyleOptions.Style.IsLog())
-        {
+        // if (inheritedFmtFlags.DoesNotHaveSuppressOpening() || StyleOptions.Style.IsLog())
+        // {
             Gb.ResetCurrent(inheritedFmtFlags);
             if ((elementType.IsChar() && (JsonOptions.CharBufferWritesAsCharCollection || inheritedFmtFlags.HasAsStringContentFlag())))
             {
@@ -244,7 +244,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             Gb.Complete(inheritedFmtFlags);
             Gb.AddHighWaterMark();
             charsAdded += AddCollectionElementPadding(elementType, destSpan, destStartIndex + charsAdded, 1, formatSwitches);
-        }
+        // }
 
         return charsAdded;
     }
@@ -304,8 +304,8 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         }
         mws.WroteInnerTypeOpen  = false;
 
-        if (inheritedFmtFlags.DoesNotHaveSuppressClosing() || StyleOptions.Style.IsLog())
-        {
+        // if (inheritedFmtFlags.DoesNotHaveSuppressClosing() || StyleOptions.Style.IsLog())
+        // {
             Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
             Gb.MarkContentStart(preAppendAt);
             if ((itemElementType.IsChar() && (JsonOptions.CharBufferWritesAsCharCollection || inheritedFmtFlags.HasAsStringContentFlag())))
@@ -334,7 +334,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
                 return sb.Length - preAppendAt;
             }
             Gb.AppendContent(SqBrktCls);
-        }
+        // }
         return sb.Length - preAppendAt;
     }
 
@@ -346,8 +346,8 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
 
         var preAppendLen = sb.Length;
         var inheritedFmtFlags = Gb.LastContentSeparatorPaddingRanges.PreviousFormatFlags | (FormatFlags)formatSwitches;
-        if (inheritedFmtFlags.DoesNotHaveSuppressClosing() || StyleOptions.Style.IsLog())
-        {
+        // if (inheritedFmtFlags.DoesNotHaveSuppressClosing() || StyleOptions.Style.IsLog())
+        // {
             if ((elementType.IsChar() && (JsonOptions.CharBufferWritesAsCharCollection || formatSwitches.HasAsStringContentFlag())))
             {
                 if (inheritedFmtFlags.DoesNotHaveAsValueContentFlag() || inheritedFmtFlags.HasAsStringContentFlag()) Gb.AppendContent(DblQt);
@@ -371,7 +371,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             else { Gb.AppendContent(SqBrktCls); }
             Gb.Complete(inheritedFmtFlags);
             Gb.AddHighWaterMark();
-        }
+        // }
         return sb.Length - preAppendLen;
     }
 
@@ -384,8 +384,8 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         CharSpanCollectionScratchBuffer = null;
         var inheritedFmtFlags = Gb.LastContentSeparatorPaddingRanges.PreviousFormatFlags | (FormatFlags)formatSwitches;
 
-        if (inheritedFmtFlags.DoesNotHaveSuppressClosing() || StyleOptions.Style.IsLog())
-        {
+        // if (inheritedFmtFlags.DoesNotHaveSuppressClosing() || StyleOptions.Style.IsLog())
+        // {
             if (inheritedFmtFlags.HasAsStringContentFlag() && elementType.IsCharArray())
             {
                 if (inheritedFmtFlags.DoesNotHaveAsValueContentFlag() || inheritedFmtFlags.HasAsStringContentFlag())
@@ -421,7 +421,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
                 charsAdded += LayoutEncoder.OverwriteTransfer(SqBrktCls, destSpan, destIndex);
                 Gb.MarkContentEnd(destIndex + charsAdded);
             }
-        }
+        // }
         return destIndex + charsAdded - originalDestIndex;
     }
 
