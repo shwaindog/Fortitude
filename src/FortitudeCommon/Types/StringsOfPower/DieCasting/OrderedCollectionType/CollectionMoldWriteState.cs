@@ -45,13 +45,6 @@ public class CollectionMoldWriteState<TOCMold> : MoldWriteState<TOCMold>, IColle
             
             flags |= LogSuppressTypeNames | NoRevisitCheck;
         }
-        // var collTypeFullName = collType.FullName ?? "";
-        // var elementTypeFullName = elementType.IfNullableGetUnderlyingTypeOrThis().FullName ?? "";
-        // if(Settings.LogSuppressDisplayCollectionNames.Any(s => collTypeFullName.StartsWith(s))
-        // && Settings.LogSuppressDisplayCollectionElementNames.Any(s => elementTypeFullName.StartsWith(s)))
-        // {
-        //     flags |= LogSuppressTypeNames;
-        // }
 
         if (collection != null && !buildTypeSameAsCollectionType && !collType.IsValueType)
         {

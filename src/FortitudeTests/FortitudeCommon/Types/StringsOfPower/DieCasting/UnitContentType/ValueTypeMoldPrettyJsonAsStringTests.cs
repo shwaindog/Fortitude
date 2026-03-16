@@ -97,7 +97,7 @@ public class ContentTypeMoldPrettyJsonAsStringTests : ContentTypeMoldAsStringTes
         return testBaseStyleOptions;
     }
     
-    [TestMethod]
+    // [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//

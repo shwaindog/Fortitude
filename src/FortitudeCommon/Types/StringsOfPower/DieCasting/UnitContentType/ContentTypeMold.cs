@@ -2,7 +2,6 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Diagnostics;
-using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
@@ -72,34 +71,6 @@ public class ContentTypeMold<TContentMold, TToContentMold> : TransitioningTypeMo
         FinishTypeOpening(usingFormatter, formatFlags);
     }
 
-    // public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
-    // {
-    //     if (Mws.SupportsMultipleFields)
-    //     {
-    //         usingFormatter.StartComplexTypeOpening(Mws.InstanceOrType, Mws, Mws.CurrentWriteMethod, formatFlags | Mws.CreateMoldFormatFlags);
-    //     }
-    //     else
-    //     {
-    //         usingFormatter.StartSimpleTypeOpening(Mws.InstanceOrType, Mws, Mws.CurrentWriteMethod, formatFlags | Mws.CreateMoldFormatFlags);
-    //         MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, MoldStateField.StyleFormatter
-    //                           , MoldStateField.CurrentWriteMethod, MoldStateField.MoldWrittenFlags, formatFlags);
-    //     }
-    // }
-    //
-    // public override void FinishTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
-    // {
-    //     if (Mws.SupportsMultipleFields)
-    //     {
-    //         usingFormatter.FinishComplexTypeOpening(Mws.InstanceOrType, Mws, Mws.CurrentWriteMethod, formatFlags | Mws.CreateMoldFormatFlags);
-    //         MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, MoldStateField.StyleFormatter
-    //                           , MoldStateField.CurrentWriteMethod, MoldStateField.MoldWrittenFlags, formatFlags);
-    //     }
-    //     else
-    //     {
-    //         usingFormatter.FinishSimpleTypeOpening(Mws.InstanceOrType, Mws, Mws.CurrentWriteMethod, formatFlags | Mws.CreateMoldFormatFlags);
-    //     }
-    // }
-
     public override AppendSummary Complete(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (State == null) { throw new NullReferenceException("Expected MoldState to be set"); }
@@ -109,14 +80,6 @@ public class ContentTypeMold<TContentMold, TToContentMold> : TransitioningTypeMo
 
     public override void AppendClosing(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        // if (Mws.CurrentWriteMethod.SupportsMultipleFields())
-        // {
-        // WrittenAs |= AsComplex;
-        // }
-        // else
-        // {
-        //     WrittenAs |= AsContent;
-        // }
         var usingFormatter =
             (CreateFormatFlags.HasAsStringContentFlag()
           && (Mws.CurrentWriteMethod.HasAllOf(AsComplex | AsContent)
@@ -137,28 +100,13 @@ public class ContentTypeMold<TContentMold, TToContentMold> : TransitioningTypeMo
             var visitId = Mws.MoldGraphVisit.VisitId;
             var state   = Mws.Master.ActiveGraphRegistry[visitId.VisitIndex];
             Mws.Master.SetBufferFirstFieldStartAndWrittenAs(visitId, state.TypeOpenBufferIndex, AsSimple | AsContent | AsString);
-            // if (Mws.TypeBeingBuilt.IsStringBearerOrNullableCached())
-            // {
             Mws.Master.SetBufferFirstFieldStartAndIndentLevel(visitId, state.TypeOpenBufferIndex, state.IndentLevel + 1);
-            // }
             Mws.Master.UpdateVisitFormatter(visitId, usingFormatter);
         }
     }
 
     public override TToContentMold TransitionToNextMold()
     {
-        // if (Mws.Style.IsJson() && Mws is { InnerSameAsOuterType: true, TypeBeingBuilt.IsValueType: false }
-        //                        && Mws.ValueAddedFormatFlags.HasAsStringContentFlag())
-        // {
-        //     var visitId = Mws.MoldGraphVisit.VisitId;
-        //     var state   = Mws.Master.ActiveGraphRegistry[visitId.VisitIndex];
-        //     Mws.Master.SetBufferFirstFieldStartAndWrittenAs(visitId, state.TypeOpenBufferIndex, AsSimple | AsContent | AsString);
-        //     if (Mws.TypeBeingBuilt.IsStringBearerOrNullableCached())
-        //     {
-        //         Mws.Master.SetBufferFirstFieldStartAndIndentLevel(visitId, state.TypeOpenBufferIndex, state.IndentLevel + 1);
-        //     }
-        //     Mws.Master.UpdateVisitFormatter(visitId, Mws.Sf.PreviousContextOrThis);
-        // }
         var nextMold = base.TransitionToNextMold();
         // ReSharper disable once SuspiciousTypeConversion.Global
         if (Mws.InnerSameAsOuterType && !ReferenceEquals(Mws.Mold, nextMold))

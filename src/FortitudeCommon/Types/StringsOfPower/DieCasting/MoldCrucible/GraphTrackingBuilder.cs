@@ -70,7 +70,6 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
         overWriteIndex    = insertAt;
         overWriteEndIndex = insertAt + insertShiftAmount;
         sb.EnsureCapacity(insertShiftAmount);
-        // sb.ShiftRightAt(Math.Max(0, insertAt-1), insertShiftAmount);
         sb.ShiftRightAt(insertAt, insertShiftAmount);
         StartNextContentSeparatorPaddingSequence(sb, FormatFlags.DefaultCallerTypeFlags, true);
         MarkContentStart(insertAt);
@@ -553,14 +552,8 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
 
     public void SetHistory(GraphTrackingBuilder graphBuilder)
     {
-        // Console.Out.WriteLine($"SetHistory Before - \ncurrentSectionRanges: {currentSectionRanges}" +
-        //                       $"\nLastContentSeparatorPaddingRanges{LastContentSeparatorPaddingRanges}, " +
-        //                       $"\nPenUltimateContentSeparatorPaddingRanges {PenUltimateContentSeparatorPaddingRanges}");
         currentSectionRanges                     = graphBuilder.CurrentSectionRanges;
         LastContentSeparatorPaddingRanges        = graphBuilder.LastContentSeparatorPaddingRanges;
         PenUltimateContentSeparatorPaddingRanges = graphBuilder.PenUltimateContentSeparatorPaddingRanges;
-        // Console.Out.WriteLine($"SetHistory After - \ncurrentSectionRanges: {currentSectionRanges}" +
-        //                       $"\nLastContentSeparatorPaddingRanges{LastContentSeparatorPaddingRanges}, " +
-        //                       $"\nPenUltimateContentSeparatorPaddingRanges {PenUltimateContentSeparatorPaddingRanges}");
     }
 }

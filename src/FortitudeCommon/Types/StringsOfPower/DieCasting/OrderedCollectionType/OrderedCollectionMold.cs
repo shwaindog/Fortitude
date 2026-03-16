@@ -36,39 +36,9 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
 
     public int TotalCount { get; set; }
 
-    //
-    // public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
-    // {
-    //     if (CompAsOrderedCollectionMold.SupportsMultipleFields)
-    //     {
-    //         MoldStateField.StyleFormatter.StartComplexTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CurrentWriteMethod, formatFlags);
-    //     }
-    //     else
-    //     {
-    //         MoldStateField.StyleFormatter.StartSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField
-    //                                                            , MoldStateField.CurrentWriteMethod, formatFlags);
-    //         MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, MoldStateField.StyleFormatter
-    //                           , MoldStateField.CurrentWriteMethod, MoldStateField.MoldWrittenFlags, formatFlags);
-    //     }
-    // }
-    //
-    // public override void FinishTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
-    // {
-    //     if (CompAsOrderedCollectionMold.SupportsMultipleFields)
-    //     {
-    //         MoldStateField.StyleFormatter.FinishComplexTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CurrentWriteMethod, formatFlags);
-    //         MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, MoldStateField.StyleFormatter
-    //                           , MoldStateField.CurrentWriteMethod, MoldStateField.MoldWrittenFlags, formatFlags);
-    //     }
-    //     else
-    //     {
-    //         MoldStateField.StyleFormatter.FinishSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CurrentWriteMethod, formatFlags);
-    //     }
-    // }
     
     public override void AppendClosing(FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags)
     {
-        // if (CompAsOrderedCollectionMold.CreateMoldFormatFlags.HasSuppressClosing() || CompAsOrderedCollectionMold.MoldGraphVisit.ReusedCount > 0)
         if (CompAsOrderedCollectionMold.CreateMoldFormatFlags.HasSuppressClosing())
         {
             State.Sf.Gb.RemoveLastSeparatorAndPadding();

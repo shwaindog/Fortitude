@@ -1718,7 +1718,6 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         ca.RemoveAt(startIndex);
         return this;
     }
-    
 
     public int CountOccurenceOf(ReadOnlySpan<char> pattern, int fromIndexIncl = 0, int toIndexExcl = Int32.MaxValue)
     {

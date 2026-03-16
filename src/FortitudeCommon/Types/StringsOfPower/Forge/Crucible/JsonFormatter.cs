@@ -239,11 +239,11 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         var appendLen     = originalSbLen - fromIndex;
         if (appendLen < 4096)
         {
-            if (appendLen < 0)
-            {
-                Debugger.Break();
-                return 0;
-            }
+            // if (appendLen < 0)
+            // {
+            //     Debugger.Break();
+            //     return 0;
+            // }
             Span<char> scratchFull = stackalloc char[appendLen + 2];
             for (int i = 0; i < appendLen; i++) { scratchFull[i + 1] = sb[fromIndex + i]; }
             return ProcessAppended(sb, scratchFull, fromIndex, formatSwitches);

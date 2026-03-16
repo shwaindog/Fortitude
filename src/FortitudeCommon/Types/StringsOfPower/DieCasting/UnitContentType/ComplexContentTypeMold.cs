@@ -32,36 +32,11 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
 
         return this;
     }
-    
-    // public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
-    // {
-    //   if (Mws.CurrentWriteMethod.SupportsMultipleFields())
-    //     usingFormatter.StartComplexTypeOpening(Mws.InstanceOrType, Mws, Mws.CurrentWriteMethod, formatFlags |  Mws.CreateMoldFormatFlags);
-    //   else
-    //     usingFormatter.StartSimpleTypeOpening(Mws.InstanceOrType, Mws, Mws.CurrentWriteMethod, formatFlags | Mws.CreateMoldFormatFlags);
-    // }
 
     public override void FinishTypeOpening(FormatFlags formatFlags)
     {
-      // if (Mws.CreateWriteMethod.SupportsMultipleFields())
-      // {
-      //   Mws.Master.UpdateVisitWriteMethod(MoldVisit.VisitId, Mws.CurrentWriteMethod);  
-      // }
       base.FinishTypeOpening(formatFlags);
     }
-
-    // public override void AppendClosing()
-    // {
-    //   var sf = Mws.Sf;
-    //   if (Mws.CurrentWriteMethod.SupportsMultipleFields())
-    //   {
-    //     sf.AppendComplexTypeClosing(Mws.InstanceOrType, Mws, Mws.CurrentWriteMethod);
-    //   }
-    //   else
-    //   {
-    //     sf.AppendSimpleTypeClosing(Mws.InstanceOrType, Mws, Mws.CurrentWriteMethod);
-    //   }
-    // }
     
     public override bool IsComplexType => Mws.IsLog || Mws.MoldGraphVisit.IsARevisit;
     public override bool IsSimpleMold => false;

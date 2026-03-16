@@ -1,8 +1,6 @@
 ﻿using System.Diagnostics;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.CollectionField;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
-using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType;
 
@@ -33,25 +31,6 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
         WrittenAs = writeMethodType;
         return this;
     }
-
-    // public override bool IsComplexType => true;
-    //
-    // public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
-    // {
-    //     usingFormatter.StartComplexTypeOpening(State.InstanceOrType, State, State.CurrentWriteMethod, formatFlags | State.CreateMoldFormatFlags);
-    // }
-    //
-    // public override void FinishTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
-    // {
-    //     usingFormatter.FinishComplexTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CurrentWriteMethod, formatFlags);
-    //     MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, MoldStateField.StyleFormatter
-    //                       , MoldStateField.CurrentWriteMethod, MoldStateField.MoldWrittenFlags, formatFlags);
-    // }
-    //
-    // public override void AppendClosing(FormatFlags formatFlags = DefaultCallerTypeFlags)
-    // {
-    //     State.StyleFormatter.AppendComplexTypeClosing(State.InstanceOrType, State, State.CurrentWriteMethod, formatFlags);
-    // }
 
     public virtual void StartContent()
     {

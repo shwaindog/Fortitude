@@ -178,19 +178,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         var result               = BuildMoldStringRange(typeWriteRange);
         PortableState.CompleteResult = result;
         var tos           = State.Master;
-        var verifyRemoved = MoldVisit;
-        // if (verifyRemoved.VisitId.RegistryId >= -1
-        //  && (tos.ActiveGraphRegistry.RegistryId != verifyRemoved.VisitId.RegistryId
-        //   || verifyRemoved.VisitId.VisitIndex >= tos.ActiveGraphRegistry.Count)) { Debugger.Break(); }
         tos.TypeComplete(State); // calls DecrementRef count
-        //MoldStateField = null!;
-
-        // if (verifyRemoved.VisitId.RegistryId >= -1 && verifyRemoved.VisitId.VisitIndex >= 0
-        //                                            && tos.ActiveGraphRegistry.Count > verifyRemoved.VisitId.VisitIndex
-        //                                            && tos.ActiveGraphRegistry[verifyRemoved.VisitId.VisitIndex].MoldState != null)
-        // {
-        //     Debugger.Break();
-        // }
         return result;
     }
 

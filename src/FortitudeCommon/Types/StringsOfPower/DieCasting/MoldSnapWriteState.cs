@@ -48,7 +48,6 @@ public interface IMoldWriteState : IRecyclableObject, ITransferState
     bool WroteRefId { get; set; }
     bool WroteTypeName { get; set; }
     bool StartedTypeName { get; set; }
-    // bool WroteCollectionName { get; set; }
     bool WroteTypeOpen { get; set; }
     bool WroteTypeClose { get; set; }
     bool InnerSameAsOuterType { get; set; }

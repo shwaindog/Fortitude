@@ -98,39 +98,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
         CreateMoldFormatFlags = buildTypeContentCreateFlags;
         CurrentWriteMethod    = buildTypeWriteAsFlags;
 
-        // if (CurrentWriteMethod != addContentWriteAsFlags)
-        // {
-        // if (!buildInstanceSameAsContentInstance || buildTypeWriteAsFlags.HasAsObjectFlag())
-        // if (!buildInstanceSameAsContentInstance | buildTypeWriteAsFlags.HasAsObjectFlag())
-        // {
-        //     createContentMoldFlags &= ~(SuppressOpening | SuppressClosing);
-        //     createContentMoldFlags &= ~ContentAllowComplexType;
-        //     createContentMoldFlags |= ContentAllowAnyValueType | (MoldGraphVisit.IsARevisit ? AddTypeNameField : DefaultCallerTypeFlags);
-        // }
-        // else if (addContentWriteAsFlags.HasAllOf(AsComplex | AsContent))
-        // {
-        //     createContentMoldFlags &= ~(SuppressOpening | SuppressClosing);
-        //     createContentMoldFlags |= ContentAllowComplexType;
-        // }
-        // else if(!MoldGraphVisit.IsARevisit)
-        // {
-        //     createContentMoldFlags &= ~(ContentAllowComplexType);
-        //     createContentMoldFlags |= SuppressOpening | SuppressClosing;
-        // }
-        // var flagsMask = AddTypeNameField;
-        // var writtenAsMask = ShowSuppressedContents;
-        //
-        // CreateMoldFormatFlags = createContentMoldFlags | (addContentCreateFlags & flagsMask);
-        // CurrentWriteMethod    = addContentWriteAsFlags | (addContentWriteAsFlags & writtenAsMask);
-        //
-        // var shouldSuppress = MoldGraphVisit.IsARevisit && !addContentWriteAsFlags.HasShowSuppressedContents();
-        // SkipBody   = shouldSuppress  && createContentMoldFlags.DoesNotHaveIsFieldNameFlag();
-        // SkipFields = shouldSuppress || !Style.IsLog();
-        // }
-        // addContentCreateFlags |= buildTypeWriteAsFlags.HasAsObjectFlag() || buildInstanceSameAsContentInstance
-
-        // addContentCreateFlags |= buildInstanceSameAsContentInstance ? LogSuppressTypeNames : DefaultCallerTypeFlags;
-
         var isAsStringOrAsValue = withFlags & (AsStringContent | AsValueContent);
 
 
@@ -237,8 +204,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
             (addContentWriteAsFlags, addContentCreateFlags)
                 = Sf.ResolveMoldWriteAsFormatFlags(Master, toBeAdded, addType, proposedInnerContent, addGraphVisit, withFlags);
 
-            // if ((addType == TypeBeingBuilt && WroteTypeName) 
-            //  || (!addType.IsValueType && !addContentCreateFlags.HasSuppressOpening() && !addGraphVisit.IsARevisit))
             if ((addType == TypeBeingBuilt
               && (buildTypeContentCreateFlags.HasAddTypeNameFieldFlag()
                || buildTypeContentCreateFlags.HasNoneOf(SuppressOpening | LogSuppressTypeNames)))
@@ -453,21 +418,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
         var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
             (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, moldInherited), formatString);
 
-        // if (!actualType.IsValueType && BuildingInstanceEquals(value))
-        // {
-        // var valueVisit = MoldGraphVisit;
-        // var valueFormatAs = Sf.ResolveMoldWriteAsFormatFlags
-        //     (Master, value, value?.GetType() ?? typeof(TFmt), CurrentWriteMethod, valueVisit, formatFlags);
-        // if (!CurrentWriteMethod.SupportsMultipleFields()
-        //  && valueFormatAs.HasContentAllowComplexType()
-        //  && Settings.InstanceTrackingIncludeSpanFormattableClasses)
-        // {
-        //     Master.UpdateVisitAddFormatFlags(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, NoRevisitCheck);
-        //     Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, Sf.ContentEncoder, Sf.LayoutEncoder);
-        // }
-        // else { resolvedFlags |= NoRevisitCheck; }
-        //     resolvedFlags |= NoRevisitCheck;
-        // }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
 
         if (!callContext.HasFormatChange)
@@ -498,20 +448,7 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
         var moldInherited = flags | AsValueContent;
         var resolvedFlags = StyleFormatter.ResolveContentFormatFlags
             (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, moldInherited), formatString);
-        // if (!actualType.IsValueType && BuildingInstanceEquals(value))
-        // {
-        // var valueVisit = MoldGraphVisit;
-        // var valueFormatAs = Sf.ResolveMoldWriteAsFormatFlags
-        //     (Master, value, value?.GetType() ?? typeof(TFmt), CurrentWriteMethod, valueVisit, formatFlags);
-        // if (!CurrentWriteMethod.SupportsMultipleFields()
-        //  && valueFormatAs.HasContentAllowComplexType()
-        //  && Settings.InstanceTrackingIncludeSpanFormattableClasses)
-        // {
-        //     Master.UpdateVisitAddFormatFlags(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, NoRevisitCheck);
-        // }
-        // else { resolvedFlags |= NoRevisitCheck; }
-        //     resolvedFlags |= NoRevisitCheck;
-        // }
+        
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
 
         if (!callContext.HasFormatChange)
@@ -557,11 +494,7 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
         var callContext        = Master.ResolveContextForCallerFlags(resolvedFlags);
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
             (_, resolvedFlags) = RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags);
-        // if (!actualType.IsValueType && valueEqualsBuildingType)
-        // {
-        //     if (Settings.InstanceTrackingAllAsStringHaveLocalTracking) { Master.RemoveVisitAt(MoldGraphVisit.VisitId); }
-        //     else { resolvedFlags |= NoRevisitCheck; }
-        // }
+        
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0)
         {
             fieldNameFormatter.FormatFieldName(this, nonJsonfieldName);
@@ -617,25 +550,7 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
             (_, resolvedFlags) = RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags);
-        if (!actualType.IsValueType && valueEqualsBuildingType)
-        {
-            // var valueVisit = MoldGraphVisit;
-            // var valueFormatAs = Sf.ResolveMoldWriteAsFormatFlags
-            //     (Master, value, value?.GetType() ?? typeof(TFmt), CurrentWriteMethod, valueVisit, formatFlags);
-            // if (!CurrentWriteMethod.SupportsMultipleFields()
-            //  && valueFormatAs.HasContentAllowComplexType()
-            //  && Settings.InstanceTrackingIncludeSpanFormattableClasses)
-            // {
-            //     Master.UpdateVisitAddFormatFlags(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, NoRevisitCheck);
-            //     Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, Sf.ContentEncoder, Sf.LayoutEncoder);
-            // }
-            // else { resolvedFlags |= NoRevisitCheck; }
-            // resolvedFlags |= NoRevisitCheck;
-            // if (Settings.InstanceTrackingAllAsStringHaveLocalTracking)
-            // {
-            //     Master.RemoveVisitAt(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex);
-            // }
-        }
+        
         AppendSummary appendSum;
         if (!callContext.HasFormatChange)
             appendSum = VettedAppendSpanFormattableContent(value, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
@@ -870,14 +785,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
                     : StyleFormatter.FormatFieldContents(this, defaultValue, 0, formatString, formatFlags: formatFlags | NoRevisitCheck));
                 if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
                 return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, defaultWrittenAs | AsFallbackValue, actualType);
-                // if (addStartDblQt) Sf.Gb.AppendParentContent(DblQt);
-                // var writtenAsDefault = formatFlags.HasIsFieldNameFlag()
-                //     ? StyleFormatter.FormatFieldName(this, defaultValue, 0, formatString, formatFlags: formatFlags)
-                //     : (formatFlags.HasAsValueContentFlag()
-                //         ? StyleFormatter.FormatFallbackFieldContents<TFmtStruct>(this, defaultValue, 0, formatString, formatFlags: formatFlags)
-                //         : StyleFormatter.FormatFieldContents(this, defaultValue, 0, formatString, formatFlags: formatFlags));
-                // if (addEndDblQt) Sf.Gb.AppendParentContent(DblQt);
-                // return Master.UnregisteredAppend(TypeBeingBuilt, startAt, Sb.Length, writtenAsDefault, actualType);
             }
             if (formatFlags.HasNullBecomesEmptyFlag())
             {
@@ -913,15 +820,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
         var withMoldInherited       = flags |  AsValueContent;
         var maybeComplex            = withMoldInherited & ~(SuppressOpening | SuppressClosing);
         var resolvedFlags           = maybeComplex | StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, maybeComplex);
-        // var valueEqualsBuildingType = BuildingInstanceEquals(value);
-        // if (valueEqualsBuildingType)
-        // {
-        //     if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
-        // if (!CurrentWriteMethod.SupportsMultipleFields()
-        //  && valueCreateFlags.HasContentAllowComplexType()
-        //  && MoldGraphVisit.HasRegisteredVisit) { Master.UpdateVisitAddFormatFlags(MoldGraphVisit.VisitId, NoRevisitCheck); }
-        // else { resolvedFlags |= NoRevisitCheck; }
-        // }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsValueContent);
 
         if (!callContext.HasFormatChange) { VettedAppendCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags); }
@@ -953,12 +851,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
                                , formatString)
                           | AsValueContent;
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
-        // var valueEqualsBuildingType = BuildingInstanceEquals(value);
-        // if (valueEqualsBuildingType)
-        // {
-        //     if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
-        //     resolvedFlags |= NoRevisitCheck;
-        // }
         if (!callContext.HasFormatChange) { VettedAppendCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags); }
         else
         {
@@ -996,12 +888,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
             (_, resolvedFlags) = RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags, palantírReveal.GetType());
-        // if (valueEqualsBuildingType)
-        // {
-        //     if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
-        //     if (Settings.InstanceTrackingAllAsStringHaveLocalTracking) { Master.RemoveVisitAt(MoldGraphVisit.VisitId); }
-        //     else { resolvedFlags |= NoRevisitCheck; }
-        // }
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0)
         {
             fieldNameFormatter.FormatFieldName(this, nonJsonfieldName);
@@ -1055,12 +941,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
             (_, resolvedFlags) = RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags, palantírReveal.GetType());
-        // if (valueEqualsBuildingType)
-        // {
-        //     if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
-        //     if (Settings.InstanceTrackingAllAsStringHaveLocalTracking) { Master.RemoveVisitAt(MoldGraphVisit.VisitId); }
-        //     else { resolvedFlags |= NoRevisitCheck; }
-        // }
         if (!callContext.HasFormatChange)
             VettedAppendCloakedBearerContent(value, palantírReveal, defaultValue, formatString, resolvedFlags, addStartDblQt, addEndDblQt);
         else
@@ -1076,23 +956,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
             {
                 Master.UpdateVisitEncoders(appendSum.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
             }
-            // if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking)
-            // {
-            //     Master.UpdateVisitWriteMethod(MoldGraphVisit.RegistryId, MoldGraphVisit.CurrentVisitIndex, contentTypeWriteAs);
-            //     // if (result.VisitNumber >= 0)
-            //     // {
-            //     //     var visit = MoldGraphVisit;
-            //     //     if (!contentTypeWriteAs.SupportsMultipleFields()
-            //     //      && !callContext.HasFormatChange
-            //     //      && result.WrittenAs.SupportsMultipleFields()
-            //     //      && Master.InstanceIdAtVisit(visit.RegistryId, visit.CurrentVisitIndex) <= 0)
-            //     //     {
-            //     //         Master.UpdateVisitAddFormatFlags(visit.RegistryId, visit.CurrentVisitIndex, NoRevisitCheck);
-            //     //         Master.UpdateVisitRemoveFormatFlags(visit.RegistryId, result.VisitNumber, NoRevisitCheck);
-            //     //     }
-            //     //     else { Master.UpdateVisitEncoders(MoldGraphVisit.RegistryId, result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
-            //     // }
-            // }
         }
         return ConditionalValueTypeSuffix();
     }
@@ -1244,19 +1107,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
             if (!Settings.InstanceTrackingAllAsStringHaveLocalTracking && result.VisitNumber.VisitIndex >= 0)
             {
                 Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder);
-                //     if (result.VisitNumber.VisitIndex >= 0)
-                //     {
-                //         var visit = MoldGraphVisit;
-                //         if (!contentTypeWriteAs.SupportsMultipleFields()
-                //          && !callContext.HasFormatChange
-                //          && result.WrittenAs.SupportsMultipleFields()
-                //          && Master.InstanceIdAtVisit(visit.VisitId) <= 0)
-                //         {
-                //             Master.UpdateVisitAddFormatFlags(visit.VisitId, NoRevisitCheck);
-                //             Master.UpdateVisitRemoveFormatFlags(result.VisitNumber, NoRevisitCheck);
-                //         }
-                //         else { Master.UpdateVisitEncoders(result.VisitNumber, Sf.ContentEncoder, Sf.LayoutEncoder); }
-                //     }
             }
         }
 
@@ -1353,13 +1203,7 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
         var withMoldInherited = flags | AsValueContent;
         var maybeComplex      = withMoldInherited & ~(SuppressOpening | SuppressClosing);
         var resolvedFlags     = maybeComplex | StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, maybeComplex);
-
-
-        // var valueEqualsBuildingType = BuildingInstanceEquals(value);
-        // if (valueEqualsBuildingType)
-        // {
-        //     if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
-        // }
+        
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
 
@@ -1388,12 +1232,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
                                 (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, maybeComplex)
                                , formatString)
                           | AsValueContent;
-        // var valueEqualsBuildingType = BuildingInstanceEquals(value);
-        // if (valueEqualsBuildingType)
-        // {
-        //     if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
-        //     resolvedFlags |= NoRevisitCheck;
-        // }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
         if (!callContext.HasFormatChange)
             VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString);
@@ -1438,11 +1276,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
         {
             (_, resolvedFlags) = RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags);
         }
-        // if (valueEqualsBuildingType)
-        // {
-        //     if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
-        //     resolvedFlags |= NoRevisitCheck;
-        // }
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0)
         {
             Sf.PreviousContextOrThis.FormatFieldName(this, nonJsonfieldName);
@@ -1480,11 +1313,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
             (_, resolvedFlags) = RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags);
-        // if (valueEqualsBuildingType)
-        // {
-        //     if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
-        //     if (Settings.InstanceTrackingAllAsStringHaveLocalTracking) { Master.UpdateVisitAddFormatFlags(MoldGraphVisit.VisitId, NoRevisitCheck); }
-        // }
 
         if (!callContext.HasFormatChange)
             VettedAppendStringBearerContent(value, defaultValue, resolvedFlags, formatString, addStartDblQt, addEndDblQt);
@@ -1669,11 +1497,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
                           | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
 
-        // var valueEqualsBuildingType = BuildingInstanceEquals(value);
-        // if (valueEqualsBuildingType)
-        // {
-        //     if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
-        // }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         if (!callContext.HasFormatChange)
@@ -2030,7 +1853,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
                                 (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsValueContent;
-        // if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0)
             this.FieldNameJoin(nonJsonfieldName);
         else if (MoldGraphVisit.IsARevisit && SupportsMultipleFields && Settings.InstanceMarkingIncludeStringContents)
@@ -2070,7 +1892,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
                                 (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsValueContent;
-        // if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         AppendSummary result;
@@ -2115,7 +1936,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
             (_, resolvedFlags) = RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags);
-        // if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0)
         {
             fieldNameFormatter.FormatFieldName(this, nonJsonfieldName);
@@ -2167,7 +1987,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
             (_, resolvedFlags) = RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags);
-        // if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
 
         AppendSummary result;
         if (!callContext.HasFormatChange)
@@ -2255,7 +2074,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
                                 (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsValueContent;
-        // if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         AppendSummary result;
@@ -2288,7 +2106,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
                                 (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsValueContent;
-        // if (BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         AppendSummary result;
@@ -2329,7 +2146,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
                                , formatString)
                           | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
-        // if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
@@ -2381,7 +2197,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
                                 (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsStringContent;
-        // if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
@@ -2474,7 +2289,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
                                , formatString)
                           | AsValueContent;
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
-        // if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         AppendSummary result;
@@ -2508,7 +2322,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
                                , formatString)
                           | AsValueContent;
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
-        // if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         AppendSummary result;
@@ -2550,7 +2363,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
                                , formatString)
                           | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
-        // if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
@@ -2605,7 +2417,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
                                , formatString)
                           | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
-        // if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags | AsStringContent);
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
@@ -2700,7 +2511,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
                                , formatString)
                           | AsValueContent;
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
-        // if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         AppendSummary result;
@@ -2733,7 +2543,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
                                , formatString)
                           | AsValueContent;
         var valueEqualsBuildingType = BuildingInstanceEquals(value);
-        // if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         AppendSummary result;
@@ -2774,7 +2583,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
                                , formatString)
                           | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
-        // if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
@@ -2828,7 +2636,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
                                , formatString)
                           | AsStringContent;
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
-        // if (valueEqualsBuildingType) { resolvedFlags |= NoRevisitCheck; }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
@@ -2920,12 +2727,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
                                 (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsValueContent;
-        // var valueEqualsBuildingType = BuildingInstanceEquals(value);
-        // if (valueEqualsBuildingType)
-        // {
-        //     if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
-        //     resolvedFlags |= NoRevisitCheck;
-        // }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         AppendSummary result;
@@ -2957,12 +2758,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
                                 (Sb, value, StyleFormatter.ResolveContentAsValueFormatFlags(value, defaultValue, formatString, withMoldInherited)
                                , formatString)
                           | AsValueContent;
-        // var valueEqualsBuildingType = BuildingInstanceEquals(value);
-        // if (valueEqualsBuildingType)
-        // {
-        //     if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
-        //     resolvedFlags |= NoRevisitCheck;
-        // }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         AppendSummary result;
@@ -3008,20 +2803,6 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)
             (_, resolvedFlags) = RegisterBuildInstanceOnActiveRegistry(value, resolvedFlags);
         var isInputType = TypeBeingBuilt.IsInputConstructionTypeCached();
-        // if (valueEqualsBuildingType)
-        // {
-        //     if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
-        //     resolvedFlags |= NoRevisitCheck;
-        // }
-        // else if(Style.IsLog())
-        // {
-        //     var isBuildInputType = actualType.IsInputConstructionTypeCached();
-        //     if (!isBuildInputType)
-        //     {
-        //         var valueVisitResult = 
-        //         fieldNameFormatter.StartSimpleTypeOpening(value, this, AsSimple | AsContent, formatFlags);
-        //     }
-        // }
         if (SupportsMultipleFields && nonJsonfieldName.Length > 0)
         {
             fieldNameFormatter.FormatFieldName(this, nonJsonfieldName);
@@ -3064,13 +2845,7 @@ public class ContentTypeWriteState<TContentMold, TToContentMold> : MoldWriteStat
                                 (Sb, value, StyleFormatter.ResolveContentAsStringFormatFlags(value, "", formatString, withMoldInherited)
                                , formatString)
                           | AsStringContent;
-        // if (!actualType.IsValueType && BuildingInstanceEquals(value)) { resolvedFlags |= NoRevisitCheck; }
         resolvedFlags |= resolvedFlags.HasIsFieldNameFlag() ? DisableFieldNameDelimiting : DisableAutoDelimiting;
-        // if (valueEqualsBuildingType)
-        // {
-        //     if (WroteTypeName) { resolvedFlags |= LogSuppressTypeNames; }
-        //     resolvedFlags |= NoRevisitCheck;
-        // }
         var callContext = Master.ResolveContextForCallerFlags(resolvedFlags);
 
         if (Settings.InstanceTrackingAllAsStringHaveLocalTracking && valueEqualsBuildingType)

@@ -86,8 +86,6 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
         var visitIndex       = visitResult.VisitId.VisitIndex;
         var preBaseMoldState = msf.SnapshotWriteState;
         
-        // Console.Out.WriteLine($"Before Base Call MyActiveGraphRegistry[{visitResult.VisitId.VisitIndex}].Snapshot = {preBaseMoldState}");
-        
         var markPreBodyStart = msf.Sb.Length;
         if (msf.SkipBody) return msf.Mold;
 
@@ -101,7 +99,6 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
         var reg              = master.ActiveGraphRegistry;
         var restoreMoldState = reg[visitIndex];
         reg[visitIndex] = restoreMoldState.UpdateMoldWriteState(msf);
-        // Console.Out.WriteLine($"After Base Call MyActiveGraphRegistry[{visitResult.VisitId.VisitIndex}].Snapshot = {msf.SnapshotWriteState}");
         
         if (msf.Sb.Length > markPreBodyStart && msf.Sf.Gb.LastContentSeparatorPaddingRanges.SeparatorPaddingRange == null)
         {

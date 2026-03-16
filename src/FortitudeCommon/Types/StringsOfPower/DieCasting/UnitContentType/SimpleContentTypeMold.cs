@@ -37,36 +37,6 @@ public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, Simp
         MoldStateField = recycler.Borrow<ContentTypeWriteState<SimpleContentTypeMold, SimpleContentJoinMold>>()
                              .InitializeValueBuilderCompAccess(this, PortableState, writeMethod);
     }
-    //
-    // public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
-    // {
-    //   if (Mws.CurrentWriteMethod.SupportsMultipleFields())
-    //     usingFormatter.StartComplexTypeOpening(Mws.InstanceOrType, Mws, Mws.CurrentWriteMethod, formatFlags | Mws.CreateMoldFormatFlags);
-    //   else
-    //     usingFormatter.StartSimpleTypeOpening(Mws.InstanceOrType, Mws, Mws.CurrentWriteMethod, formatFlags | Mws.CreateMoldFormatFlags);
-    // }
-    //
-    // public override void FinishTypeOpening(FormatFlags formatFlags)
-    // {
-    //   if (Mws.CurrentWriteMethod.HasNoneOf(AsSimple))
-    //   {
-    //     Mws.Master.UpdateVisitWriteMethod(MoldVisit.VisitId, Mws.CurrentWriteMethod);  
-    //   }
-    //   MoldStateField.StyleFormatter.FinishSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CurrentWriteMethod, formatFlags);
-    // }
-    //
-    // public override void AppendClosing(FormatFlags formatFlags = DefaultCallerTypeFlags)
-    // {
-    //   var sf = Mws.Sf;
-    //   if (Mws.CreateWriteMethod.SupportsMultipleFields())
-    //   {
-    //     sf.AppendComplexTypeClosing(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CurrentWriteMethod, formatFlags);
-    //   }
-    //   else
-    //   {
-    //     sf.AppendSimpleTypeClosing(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CurrentWriteMethod, formatFlags);
-    //   }
-    // }
     
     public SimpleContentJoinMold  AsValue(bool value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = AsValueContent) =>

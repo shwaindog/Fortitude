@@ -226,16 +226,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         switch (proposedWriteType & WrittenAsFlagsExtensions.ProposedMaskSelectionMask)
         {
             case AsObject | AsRaw:
-            // resolvedFlags |= formatFlags | ContentAllowText | ContentAllowText | ContentAllowAnyValueType;
-            // if (visitResult.IsARevisit)
-            // {
-            //     resolvedFlags     |= ContentAllowComplexType;
-            //     resolvedWrittenAs =  (resolvedWrittenAs & ~AsSimple) | AsComplex | AsRaw | AsObject;
-            //     break;
-            // }
-            //
-            // resolvedWrittenAs = (resolvedWrittenAs & ~AsComplex) | AsSimple | AsRaw | AsObject;
-            // break;
             case AsRaw:
             case AsCollectionItem:
             case AsCollectionItem | WrittenAsFlags.AsCollection | AsSimple:
@@ -371,29 +361,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
                     resolvedWrittenAs |=  AsSimple;
                 }
                 break;
-            // case AsRaw | WrittenAsFlags.AsCollection:
-            //     resolvedFlags |= formatFlags | ContentAllowText | ContentAllowText | ContentAllowAnyValueType;
-            //     if (visitResult.IsARevisit)
-            //     {
-            //         resolvedWrittenAs =  AsRaw | AsComplex | WrittenAsFlags.AsCollection;
-            //         resolvedFlags     |= ContentAllowComplexType;
-            //     }
-            //     else
-            //         resolvedWrittenAs = AsRaw | AsSimple | WrittenAsFlags.AsCollection;
-            //     break;
-            // case AsComplex | WrittenAsFlags.AsCollection:
-            // case AsSimple | WrittenAsFlags.AsCollection:
-            //     resolvedFlags |= formatFlags | ContentAllowText | ContentAllowText | ContentAllowAnyValueType;
-            //     if (visitResult.IsARevisit)
-            //     {
-            //         resolvedWrittenAs =  AsComplex | WrittenAsFlags.AsCollection;
-            //         resolvedFlags     |= ContentAllowComplexType;
-            //     }
-            //     else
-            //     {
-            //         resolvedWrittenAs = AsSimple | WrittenAsFlags.AsCollection;
-            //     }
-            //     break;
             case AsMapCollection:
             case AsComplex | AsCollectionItem:
             case AsComplex | AsRaw | AsCollectionItem:
@@ -407,15 +374,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
                     resolvedWrittenAs &= ~AsSimple;
                     resolvedWrittenAs |= AsComplex | AsObject | WithReferenceToInstanceId;
                 }
-                // if (actualType.IsStringBearerOrNullableCached())
-                // {
-                //     // if (formatFlags.HasContentTreatmentFlags()
-                //     if (visitResult.IsARevisit)
-                //     {
-                //         resolvedWrittenAs |= (resolvedWrittenAs & ~AsComplex) | AsSimple | WithReferenceToInstanceId;
-                //     }
-                //     break;
-                // }
                 break;
             default: resolvedFlags |= formatFlags | ContentAllowText | ContentAllowText | ContentAllowAnyValueType | ContentAllowComplexType; break;
         }
@@ -431,7 +389,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
 
     public virtual ContentSeparatorRanges StartSimpleTypeOpening<T>(T instanceToOpen, IMoldWriteState mws, WrittenAsFlags openingAs
       , FormatFlags formatFlags = DefaultCallerTypeFlags) => ContentSeparatorRanges.None;
-    // StartComplexTypeOpening( mws.InstanceOrContainer, mws, mws.CurrentWriteMethod, formatFlags);
 
     public virtual ContentSeparatorRanges FinishSimpleTypeOpening<T>(T instanceToOpen, IMoldWriteState mws, WrittenAsFlags openingAs
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -439,7 +396,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         if (!formatFlags.HasSuppressOpening()) { mws.WroteTypeOpen = true; }
         return ContentSeparatorRanges.None;
     }
-    // FinishComplexTypeOpening(mws.InstanceOrContainer, mws, mws.CurrentWriteMethod, formatFlags);
 
     public virtual ContentSeparatorRanges AppendSimpleTypeClosing<T>(T instanceToOpen, IMoldWriteState mws, WrittenAsFlags openingAs
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -449,7 +405,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         mws.WroteTypeClose = true;
         return ContentSeparatorRanges.None;
     }
-    // AppendComplexTypeClosing(mws.InstanceOrContainer, mws, openingAs);
 
     public virtual ContentSeparatorRanges StartComplexTypeOpening<T>(T instanceToOpen, IMoldWriteState mws, WrittenAsFlags openingAs
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -682,24 +637,17 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
                 eachNewLineIndentBy = StyleOptions.IndentSize;
                 indent.OverWriteRepatAt(0, StyleOptions.IndentChar, StyleOptions.IndentSize);
                 var contentToIndentStart = indexToInsertAt + prefixInsertSize;
-                // Console.Out.WriteLine($"PrePad\n  {sb.Substring(contentToIndentStart, fronInsertLength)}");
-                // Console.Out.WriteLine($"Last char\n  '{sb.Substring(contentToIndentStart + fronInsertLength - 1, 1)}'");
                 fronInsertLength = sb.IndentSubsequentLines(StyleOptions.NewLineStyle, indent
                                                           , contentToIndentStart, fronInsertLength);
-                // Console.Out.WriteLine($"PostPad + 200\n  {sb.Substring(contentToIndentStart, fronInsertLength + 200)}");
             }
             if (contentLength >= 0)
             {
                 Gb.IndentLevel--;
-                // Console.Out.WriteLine($"Add closing braceIndent Level {Gb.IndentLevel}");
                 suffixInsertSize =  SizeNextFieldPadding(createTypeFlags);
                 suffixInsertSize += 1; // }
                 if (IsPretty) suffixNewLines++;
-                // Console.Out.WriteLine($"Pre suffix shift {suffixInsertSize}");
                 insertBuilder.StartInsertAt(indexToInsertAt + prefixInsertSize + fronInsertLength, suffixInsertSize);
-                // Console.Out.WriteLine($"After shift closing braceIndent Level {Gb.IndentLevel}");
                 AddNextFieldPadding(createTypeFlags);
-                // Console.Out.WriteLine($"After pad closing braceIndent Level {Gb.IndentLevel}");
                 Gb.AppendContent(BrcCls);
             }
         }
@@ -2012,44 +1960,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         mws.WroteInnerTypeClose = false;
         if (mws.SkipBody || mws.WroteInnerTypeOpen || hasItems != true) { return ContentSeparatorRanges.None; }
 
-        // var  reg                              = mws.Master.ActiveGraphRegistry;
-        // var  hasPreviouslyWroteCollectionOpen = false;
-        // int? firstOpenIndex                   = null;
-        //
-        // IMoldWriteState? initialDc = mws;
-        //
-        // if (mws.MoldGraphVisit.HasRegisteredVisit)
-        // {
-        //     GraphNodeVisit derivedMold = reg[mws.MoldGraphVisit.VisitId.VisitIndex];
-        //     if (mws.MoldGraphVisit.IsBaseOfInitial)
-        //     {
-        //         var checkMoldIndex = derivedMold.ParentVisitId.VisitIndex;
-        //
-        //         GraphNodeVisit checkMold = reg[checkMoldIndex];
-        //         do
-        //         {
-        //             derivedMold                      =   checkMold;
-        //             hasPreviouslyWroteCollectionOpen |=  checkMold.MoldState?.WroteInnerTypeOpen ?? false;
-        //             firstOpenIndex                   ??= hasPreviouslyWroteCollectionOpen ? checkMoldIndex : null;
-        //             checkMoldIndex                   =   reg[checkMoldIndex].ParentVisitId.VisitIndex;
-        //             checkMold                        =   reg[Math.Max(0, checkMoldIndex)];
-        //         } while (checkMoldIndex >= 0
-        //               && (checkMold.MoldState?.MoldGraphVisit.IsBaseOfInitial ?? false)
-        //               && ReferenceEquals(checkMold.VisitedInstance, derivedMold.VisitedInstance));
-        //     }
-        //     initialDc = derivedMold.MoldState;
-        //     if (hasPreviouslyWroteCollectionOpen)
-        //     {
-        //         if (firstOpenIndex != null)
-        //         {
-        //             var openDc                                     = reg[firstOpenIndex.Value].MoldState;
-        //             if (openDc != null) openDc.WroteInnerTypeClose = true;
-        //         }
-        //         mws.WroteInnerTypeClose = false;
-        //         return ContentSeparatorRanges.None;
-        //     }
-        // }
-
         var sb = mws.Sb;
         if (hasItems != true) { return ContentSeparatorRanges.None; }
         mws.WroteInnerTypeOpen  = true;
@@ -2076,8 +1986,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         = FormatSwitches.EncodeInnerContent)
     {
         var inheritedFmtFlags = Gb.CurrentSectionRanges.StartedWithFormatFlags | (FormatFlags)formatSwitches;
-        // if (inheritedFmtFlags.DoesNotHaveSuppressOpening() || StyleOptions.Style.IsLog())
-        // {
         var notCollection = !(JsonOptions.CharBufferWritesAsCharCollection || formatSwitches.HasAsCollectionFlag());
         Gb.StartNextContentSeparatorPaddingSequence(sb, inheritedFmtFlags);
         if (elementType.IsChar()
@@ -2096,7 +2004,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         }
         Gb.AppendContent(SqBrktOpn);
         return Gb.Complete(inheritedFmtFlags).Length;
-        // }
         return 0;
     }
 
@@ -2106,8 +2013,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         var charsAdded = 0;
 
         var inheritedFmtFlags = Gb.CurrentSectionRanges.StartedWithFormatFlags | (FormatFlags)formatSwitches;
-        // if (inheritedFmtFlags.DoesNotHaveSuppressOpening() || StyleOptions.Style.IsLog())
-        // {
         Gb.ResetCurrent(inheritedFmtFlags);
         Gb.MarkContentStart(destStartIndex);
         if ((elementType.IsChar()
@@ -2132,7 +2037,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         charsAdded += destSpan.OverWriteAt(destStartIndex, SqBrktOpn);
         Gb.MarkContentEnd(destStartIndex + charsAdded);
         Gb.Complete(inheritedFmtFlags);
-        // }
         return charsAdded;
     }
 
@@ -2177,8 +2081,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         var preAppendLen = sb.Length;
 
         var inheritedFmtFlags = Gb.CurrentSectionRanges.StartedWithFormatFlags | (FormatFlags)formatSwitches;
-        // if (inheritedFmtFlags.DoesNotHaveSuppressClosing() || StyleOptions.Style.IsLog())
-        // {
         Gb.StartNextContentSeparatorPaddingSequence(sb, inheritedFmtFlags, true);
         if (elementType.IsChar()
           && (inheritedFmtFlags.TreatCharArrayAsString()
@@ -2204,7 +2106,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
             Gb.RemoveLastSeparatorAndPadding();
             Gb.AppendContent(SqBrktCls);
         }
-        // }
         Gb.AddHighWaterMark();
 
         return sb.Length - preAppendLen;
@@ -2218,8 +2119,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         CharSpanCollectionScratchBuffer = null;
         var inheritedFmtFlags = Gb.CurrentSectionRanges.StartedWithFormatFlags | (FormatFlags)formatSwitches;
 
-        // if (inheritedFmtFlags.DoesNotHaveSuppressClosing() || StyleOptions.Style.IsLog())
-        // {
         Gb.ResetCurrent(inheritedFmtFlags, true);
         if (elementType.IsChar()
           && (inheritedFmtFlags.TreatCharArrayAsString()
@@ -2258,7 +2157,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         Gb.MarkContentStart(destIndex);
         charsAdded += LayoutEncoder.OverwriteTransfer(SqBrktCls, destSpan, destIndex);
         Gb.MarkContentEnd(destIndex + charsAdded);
-        // }
         Gb.AddHighWaterMark();
         return charsAdded;
     }

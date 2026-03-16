@@ -1,9 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using FortitudeCommon.Types.StringsOfPower.Options;
@@ -64,36 +62,9 @@ public class TrackedInstanceMold : KnownTypeMolder<TrackedInstanceMold>
 
     public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
     {
-        // var showTypeName = (InnerContentFormatFLags & ~LogSuppressTypeNames) | AddTypeNameField;
         var mergedCreateAndInner = formatFlags | InnerContentFormatFLags;
         
         base.StartTypeOpening(usingFormatter, mergedCreateAndInner);
-        
-        // if (Mws.Style.IsLog())
-        // {
-        //     base.StartTypeOpening(usingFormatter, showTypeName);
-        // }
-        
-        // if (Mws.MoldGraphVisit.IsARevisit)
-        // {
-        //     if (Mws.Style.IsLog())
-        //     {
-        //         usingFormatter.StartSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CreateWriteMethod, showTypeName);
-        //         MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, usingFormatter
-        //                           , MoldStateField.CreateWriteMethod | AsObject, MoldStateField.MoldWrittenFlags, InnerContentFormatFLags);
-        //     }
-        //     else { usingFormatter.StartComplexTypeOpening(State.InstanceOrType, State, State.CreateWriteMethod, showTypeName); }
-        // }
-        // else if (Mws.Style.IsLog())
-        // {
-        //     shouldShowTypeName ??= ShowTransientTypeName(Mws.TypeBeingBuilt, InnerContentFormatFLags);
-        //     if (shouldShowTypeName.Value)
-        //     {
-        //         usingFormatter.StartSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CreateWriteMethod, InnerContentFormatFLags);
-        //         MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, usingFormatter
-        //                           , MoldStateField.CreateWriteMethod | AsObject, MoldStateField.MoldWrittenFlags, showTypeName);
-        //     }
-        // }
     }
 
     public override void FinishTypeOpening(FormatFlags formatFlags)
@@ -112,105 +83,7 @@ public class TrackedInstanceMold : KnownTypeMolder<TrackedInstanceMold>
     {
         var mergedCreateAndInner = formatFlags | InnerContentFormatFLags;
         base.FinishTypeOpening(usingFormatter, mergedCreateAndInner);
-        
-        // if (Mws.Style.IsLog())
-        // {
-        //     base.FinishTypeOpening(usingFormatter, InnerContentFormatFLags);
-        // }
-        
-        // if (Mws.MoldGraphVisit.IsARevisit)
-        // {
-        //     if (Mws.Style.IsLog())
-        //     {
-        //         usingFormatter.FinishSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CreateWriteMethod, InnerContentFormatFLags);
-        //     }
-        //     else
-        //     {
-        //         usingFormatter.FinishComplexTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CreateWriteMethod
-        //                                               , InnerContentFormatFLags);
-        //         MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, usingFormatter
-        //                           , MoldStateField.CreateWriteMethod, MoldStateField.MoldWrittenFlags, InnerContentFormatFLags);
-        //     }
-        // }
-        // else if (Mws.Style.IsLog())
-        // {
-        //     shouldShowTypeName ??= ShowTransientTypeName(Mws.TypeBeingBuilt, InnerContentFormatFLags);
-        //     if (shouldShowTypeName.Value)
-        //     {
-        //         usingFormatter.FinishSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CreateWriteMethod, formatFlags);
-        //         Mws.WroteTypeOpen = false;
-        //     }
-        // }
     }
-    //
-    // private bool ShowTransientTypeName(Type typeBeingBuilt, FormatFlags formatFlags)
-    // {
-    //     var buildingTypeFullName = typeBeingBuilt.FullName ?? "";
-    //     isDefaultSuppressOpenCloseType = typeBeingBuilt.IsInputConstructionTypeCached();
-    //     var openAs                 = Mws.CurrentWriteMethod;
-    //     var isSpanFormattableClass = typeBeingBuilt.IsSpanFormattableOrNullableCached();
-    //     var iStringBearerClass     = typeBeingBuilt.IsStringBearerOrNullableCached();
-    //     var isIgnoredOpenType      = (isDefaultSuppressOpenCloseType || isSpanFormattableClass) && !iStringBearerClass;
-    //     if (!isIgnoredOpenType && InnerContentFormatFLags.DoesNotHaveLogSuppressTypeNamesFlag())
-    //     {
-    //         var showTypeName = false;
-    //
-    //         showTypeName |= (openAs.HasAnyOf(AsContent | AsObject)
-    //                       && !(Settings.LogSuppressDisplayTypeNames.Any(s => buildingTypeFullName.StartsWith(s))));
-    //
-    //         if (!showTypeName)
-    //         {
-    //             var elementType         = typeBeingBuilt.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? typeBeingBuilt;
-    //             var elementTypeFullName = elementType.FullName ?? "";
-    //             showTypeName |= (openAs.HasAsCollectionFlag()
-    //                           && !(Settings.LogSuppressDisplayCollectionNames.Any(s => buildingTypeFullName.StartsWith(s))
-    //                             && Settings.LogSuppressDisplayCollectionElementNames.Any(s => elementTypeFullName.StartsWith(s)))
-    //                           || (Mws.MoldGraphVisit.IsARevisit && Mws is ICollectionMoldWriteState { IsSimple: true }));
-    //         }
-    //
-    //         return showTypeName;
-    //     }
-    //     return false;
-    // }
-
-    // public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
-    // {
-    //     var mws = MoldStateField;
-    //     // usingFormatter.Gb.StartNextContentSeparatorPaddingSequence(mws.Sb, mws.CreateMoldFormatFlags);
-    //     // var typeBeingBuilt = mws.TypeBeingBuilt;
-    //     // isDefaultSuppressOpenCloseType = typeBeingBuilt.IsInputConstructionTypeCached();
-    //     // if (MoldStateField.CurrentWriteMethod.HasAsContentFlag() && !isDefaultSuppressOpenCloseType && MoldStateField.Style.IsLog())
-    //     // {
-    //     //     MoldStateField.CurrentWriteMethod = mws.CurrentWriteMethod.SupportsMultipleFields() 
-    //     //         ?  AsComplex | AsContent | AsRaw
-    //     //         : AsSimple | AsContent | AsRaw;
-    //     // }
-    //     if(mws.CurrentWriteMethod.HasAsComplexFlag())
-    //     {
-    //         usingFormatter.StartComplexTypeOpening(mws.InstanceOrType, mws, mws.CurrentWriteMethod, formatFlags);
-    //     }
-    //     if(mws.CurrentWriteMethod.HasAsSimpleFlag())
-    //     {
-    //         usingFormatter.StartSimpleTypeOpening(mws.InstanceOrType, mws, mws.CurrentWriteMethod, formatFlags);
-    //         MyAppendGraphFields(mws.InstanceOrType, mws.MoldGraphVisit, usingFormatter
-    //                           , mws.CurrentWriteMethod, mws.MoldWrittenFlags, mws.CreateMoldFormatFlags);
-    //     }
-    // }
-    //
-    // public override void FinishTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
-    // {
-    //     var mws         = State;
-    //     if(mws.CurrentWriteMethod.HasAsComplexFlag())
-    //     {
-    //         usingFormatter.FinishComplexTypeOpening(mws.InstanceOrType, mws, mws.CurrentWriteMethod, formatFlags);
-    //         MyAppendGraphFields(mws.InstanceOrType, mws.MoldGraphVisit, usingFormatter
-    //                           , mws.CurrentWriteMethod, mws.MoldWrittenFlags, mws.CreateMoldFormatFlags);
-    //     }
-    //     if(mws.CurrentWriteMethod.HasAsSimpleFlag())
-    //     {
-    //         usingFormatter.FinishSimpleTypeOpening(mws.InstanceOrType, mws, mws.CurrentWriteMethod, formatFlags);
-    //     }
-    // }
 
     public override void AppendClosing(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -259,22 +132,6 @@ public class TrackedInstanceMold : KnownTypeMolder<TrackedInstanceMold>
         {
             if (Mws.WroteTypeOpen) { trackedInstanceFormatter?.AppendSimpleTypeClosing(Mws.InstanceOrType, Mws, Mws.CreateWriteMethod, innerFormatFlags); }
         }
-        // var writeMethod = mws.CurrentWriteMethod;
-        // if(writeMethod.HasAsComplexFlag())
-        // {
-        //     mws.CurrentWriteMethod = AsComplex;
-        //     var sf = mws.StyleFormatter;
-        //     if (sf.ContentEncoder.Type != sf.LayoutEncoder.Type) { sf = sf.PreviousContextOrThis; }
-        //     sf.AppendComplexTypeClosing(mws.InstanceOrType, mws, mws.CurrentWriteMethod);
-        // }
-        // else
-        // {
-        //     if (mws.Sf.Gb.CurrentSectionRanges.HasNonZeroLengthContent)
-        //     {
-        //         mws.Sf.Gb.SnapshotLastAppendSequence(mws.CreateMoldFormatFlags);
-        //         mws.Sf.Gb.AddHighWaterMark();
-        //     }
-        // }
 
         trackedInstanceFormatter?.Gb.MarkContentEnd();
     }

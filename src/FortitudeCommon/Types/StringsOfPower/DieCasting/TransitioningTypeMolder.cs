@@ -3,7 +3,6 @@
 
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
@@ -14,34 +13,6 @@ public abstract class TransitioningTypeMolder<TCurrent, TNext> : KnownTypeMolder
     where TNext : TypeMolder, IMigrateFrom<TCurrent, TNext>, new()
 {
     private bool hasTransitioned;
-
-    // public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
-    // {
-    //     if (IsComplexType)
-    //     {
-    //         usingFormatter.StartComplexTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MigratableMoldState.CurrentWriteMethod, formatFlags);
-    //     }
-    //     else
-    //     {
-    //         usingFormatter.StartSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MigratableMoldState.CurrentWriteMethod, formatFlags);
-    //         MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, MoldStateField.StyleFormatter
-    //                           , MoldStateField.CurrentWriteMethod, MoldStateField.MoldWrittenFlags, formatFlags);
-    //     }
-    // }
-    //
-    // public override void FinishTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
-    // {
-    //     if (IsComplexType)
-    //     {
-    //         usingFormatter.FinishComplexTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MigratableMoldState.CurrentWriteMethod, formatFlags);
-    //         MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, MoldStateField.StyleFormatter
-    //                           , MoldStateField.CurrentWriteMethod, MoldStateField.MoldWrittenFlags, formatFlags);
-    //     }
-    //     else
-    //     {
-    //         usingFormatter.FinishSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MigratableMoldState.CurrentWriteMethod, formatFlags);
-    //     }
-    // }
 
     public override void AppendClosing(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {

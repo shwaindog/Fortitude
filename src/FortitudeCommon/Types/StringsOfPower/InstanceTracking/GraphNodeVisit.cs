@@ -1,7 +1,6 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Diagnostics;
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
@@ -180,19 +179,6 @@ public record struct GraphNodeVisit
         var newOpenIndex       = totalInserted == 0 ? TypeOpenBufferIndex + amountToShift : TypeOpenBufferIndex;
         var newFirstFieldIndex = totalInserted == 0 ? FirstFieldBufferIndex + amountToShift : FirstFieldBufferIndex + prefixInsertedChars;
         
-        // if (totalInserted > 0)
-        // {
-        //     Console.Out.WriteLine("^^^");
-        // }
-        // Console.Out.WriteLine($"{NodeVisitId} amountToShift: {amountToShift} changing from \nTypeOpenBufferIndex: {TypeOpenBufferIndex}," +
-        //                       $" FirstFieldBufferIndex: {FirstFieldBufferIndex}, NumberOfLines: {NumberOfLines}, BufferLength: {BufferLength} to\n" +
-        //                       $"TypeOpenBufferIndex: {newOpenIndex}, FirstFieldBufferIndex: {newFirstFieldIndex}, NumberOfLines: {totalLineCount}, " +
-        //                       $"BufferLength {bufferLength}  totalEndShift : {amountToShift + bufferLength - BufferLength})");
-        //
-        // if (totalInserted > 0)
-        // {
-        //     Console.Out.WriteLine("");
-        // }
         return this with
         {
             TypeOpenBufferIndex =  newOpenIndex

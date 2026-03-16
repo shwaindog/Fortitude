@@ -257,11 +257,6 @@ public static class FieldContentHandlingExtensions
 
     public static FormatFlags GetParentInheritedFlags(this FormatFlags currentCreateFlags, FormatFlags inheritedFormatFlags)
     {
-        // var parentGen         = currentCreateFlags & MultiGenerationInheritFlags;
-        // var grandParentGen    = inheritedFormatFlags & MultiGenerationInheritFlags;
-        // var unexpired         = parentGen & (parentGen ^ grandParentGen);
-        // var wipedSingleGen    = currentCreateFlags & ~(MultiGenerationInheritFlags);
-        // var finishedSingleGen = wipedSingleGen | unexpired;
         var result            = currentCreateFlags & MultiGenerationInheritFlags;
         return result;
     }
